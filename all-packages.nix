@@ -9,6 +9,8 @@ let
 
   self = {
     PostgresDB = callPackage ./PostgresDB {};
+
+    TtrssService = callPackage ./Ttrss {};
   };
 in
 self
