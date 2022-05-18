@@ -3,8 +3,12 @@
 , lib
 }:
 { documentRoot
+, name ? "ttrss"
 , user ? "http"
 , group ? "http"
+, lock_directory ? "/run/${name}/lock"
+, cache_dir ? "/run/${name}/cache"
+, icons_dir ? "${documentRoot}/feed-icons"
 }:
 { TtrssPostgresDB
 }:
@@ -28,11 +32,11 @@ let
     self_url_path = self_url_path;
     single_user_mode = "true";
     simple_update_mode = "false";
-    php_executable = pkgs.php;
+    php_executable = "${pkgs.php}/bin/php";
 
-    lock_directory = "/run/ttrss/lock";
-    cache_dir = "/run/ttrss/cache";
-    icons_dir = "feed-icons";
+    lock_directory = "${lock_directory}";
+    cache_dir = "${cache_dir}";
+    icons_dir = "${icons_dir}";
     icons_url = "feed-icons";
 
     auth_auto_create = "true";
@@ -56,14 +60,9 @@ let
 
     log_destination = "syslog";
   };
-
-  outputDirs = [
-    config.cache_dir
-    config.lock_directory
-  ];
 in
 stdenv.mkDerivation rec {
-  name = "ttrss";
+  inherit name;
   src = pkgs.tt-rss;
 
   buildCommand =

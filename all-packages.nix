@@ -11,6 +11,8 @@ let
     PostgresDB = callPackage ./PostgresDB {};
 
     TtrssService = callPackage ./Ttrss {};
+    TtrssUpdateService = callPackage ./Ttrss/update.nix {};
+    TtrssUpgradeDBService = callPackage ./Ttrss/dbupgrade.nix {};
   };
 in
 self
