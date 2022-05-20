@@ -1,6 +1,7 @@
 { stdenv
 , pkgs
 , lib
+, utils
 }:
 { readOnlyPaths ? []
 , readWritePaths ? []
@@ -22,9 +23,9 @@ let
   fullPath = "${TtrssService.documentRoot}/${TtrssService.documentName}";
   roPaths = [fullPath] ++ readOnlyPaths;
 in
-stdenv.mkDerivation rec {
+utils.systemd-service-derivation rec {
   name = "ttrss-update";
-  src = pkgs.writeTextDir "${name}.service" ''
+  content = ''
     [Unit]
     Description=${name}
     After=network.target ${TtrssPostgresDB.postgresServiceName}
@@ -59,10 +60,5 @@ stdenv.mkDerivation rec {
     
     [Install]
     WantedBy=multi-user.target
-  '';
-
-  installPhase = ''
-    mkdir -p $out/etc/systemd/system
-    cp $src/*.service $out/etc/systemd/system
   '';
 }

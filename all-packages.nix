@@ -2,6 +2,7 @@
 , services ? null
 , system ? builtins.currentSystem
 , pkgs ? import <nixpkgs> { inherit system; }
+, utils ? null
 }:
 
 let
@@ -11,7 +12,7 @@ let
     PostgresDB = callPackage ./PostgresDB {};
 
     TtrssService = callPackage ./Ttrss {};
-    TtrssUpdateService = callPackage ./Ttrss/update.nix {};
+    TtrssUpdateService = callPackage ./Ttrss/update.nix {inherit utils;};
     TtrssUpgradeDBService = callPackage ./Ttrss/dbupgrade.nix {};
   };
 in
