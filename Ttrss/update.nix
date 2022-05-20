@@ -35,6 +35,8 @@ utils.systemd-service-derivation rec {
     Group=${TtrssService.group}
     ExecStart=${pkgs.php}/bin/php ${fullPath}/update_daemon2.php
 
+    RuntimeDirectory=${name}
+
     PrivateDevices=true
     PrivateTmp=true
     ProtectKernelTunables=true
@@ -45,6 +47,9 @@ utils.systemd-service-derivation rec {
     ProtectHostname=true
     ProtectClock=true
     RestrictSUIDSGID=true
+    LockPersonality=true
+    NoNewPrivileges=true
+
     SystemCallFilter=@basic-io @file-system @process @system-service
 
     ProtectSystem=strict
@@ -54,10 +59,6 @@ utils.systemd-service-derivation rec {
     # NoExecPaths=/
     # ExecPaths=${pkgs.php}/bin
 
-    NoNewPrivileges=true
-
-    RuntimeDirectory=${name}
-    
     [Install]
     WantedBy=multi-user.target
   '';
