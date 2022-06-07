@@ -2,13 +2,18 @@
 , pkgs
 , lib
 }:
-{ documentRoot
+{ document_root
 , name ? "ttrss"
 , user ? "http"
 , group ? "http"
-, lock_directory ? "/run/${name}/lock"
-, cache_dir ? "/run/${name}/cache"
-, icons_dir ? "${documentRoot}/feed-icons"
+, lock_directory
+, cache_directory
+, feed_icons_directory
+, db_host
+, db_port
+, db_username
+, db_database
+, db_password
 }:
 { TtrssPostgresDB
 }:
@@ -23,11 +28,11 @@ let
 
   config = self_url_path: {
     db_type = "pgsql";
-    db_host = TtrssPostgresDB.target.properties.hostname;
-    db_user = TtrssPostgresDB.postgresUsername;
-    db_name = TtrssPostgresDB.postgresDatabase;
-    db_pass = TtrssPostgresDB.postgresPassword;
-    db_port = builtins.toString TtrssPostgresDB.postgresPort;
+    db_host = db_host {inherit TtrssPostgresDB;};
+    db_port = builtins.toString db_port;
+    db_user = db_username;
+    db_name = db_database;
+    db_pass = db_password;
 
     self_url_path = self_url_path;
     single_user_mode = "true";
@@ -35,8 +40,8 @@ let
     php_executable = "${pkgs.php}/bin/php";
 
     lock_directory = "${lock_directory}";
-    cache_dir = "${cache_dir}";
-    icons_dir = "${icons_dir}";
+    cache_dir = "${cache_directory}";
+    icons_dir = "${feed_icons_directory}";
     icons_url = "feed-icons";
 
     auth_auto_create = "true";
@@ -68,18 +73,19 @@ stdenv.mkDerivation rec {
   buildCommand =
     let
       configFile = pkgs.writeText "config.php" (asTtrssConfig (config "https://${name}.tiserbox.com/"));
+      dr = dirOf document_root;
     in
       ''
       mkdir -p $out/${name}
       cp -ra $src/* $out/${name}
       cp ${configFile} $out/${name}/config.php
 
-      echo "${documentRoot}" > $out/.dysnomia-targetdir
+      echo "${dr}" > $out/.dysnomia-targetdir
       echo "${user}:${group}" > $out/.dysnomia-filesetowner
       
       cat > $out/.dysnomia-fileset <<FILESET
         symlink $out/${name}
-        target ${documentRoot}
+        target ${dr}
       FILESET
       '';
 }

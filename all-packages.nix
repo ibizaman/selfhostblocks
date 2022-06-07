@@ -11,6 +11,7 @@ let
   self = {
     PostgresDB = callPackage ./PostgresDB {};
 
+    TtrssEnvironment = callPackage ./Ttrss/environment.nix {};
     TtrssService = callPackage ./Ttrss {};
     TtrssUpdateService = callPackage ./Ttrss/update.nix {inherit utils;};
     TtrssUpgradeDBService = callPackage ./Ttrss/dbupgrade.nix {};

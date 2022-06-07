@@ -3,8 +3,10 @@
 , lib
 , utils
 }:
-{ readOnlyPaths ? []
+{ document_root
+, readOnlyPaths ? []
 , readWritePaths ? []
+, postgresServiceName
 }:
 { TtrssService
 , TtrssPostgresDB
@@ -20,15 +22,15 @@
 # - LOCK_DIRECTORY should be writable.
 
 let
-  fullPath = "${TtrssService.documentRoot}/${TtrssService.documentName}";
+  fullPath = "${document_root}";
   roPaths = [fullPath] ++ readOnlyPaths;
 in
-utils.systemd-service-derivation rec {
+utils.systemd.mkService rec {
   name = "ttrss-update";
   content = ''
     [Unit]
     Description=${name}
-    After=network.target ${TtrssPostgresDB.postgresServiceName}
+    After=network.target ${postgresServiceName}
     
     [Service]
     User=${TtrssService.user}
