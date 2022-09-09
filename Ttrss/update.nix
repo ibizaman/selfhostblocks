@@ -4,13 +4,13 @@
 , utils
 }:
 { document_root
+, user
+, group
 , readOnlyPaths ? []
 , readWritePaths ? []
 , postgresServiceName
 }:
-{ TtrssConfig
-, TtrssPostgresDB
-, ...
+{ ...
 }:
 
 # Assumptions:
@@ -33,8 +33,8 @@ utils.systemd.mkService rec {
     After=network.target ${postgresServiceName}
     
     [Service]
-    User=${TtrssConfig.user}
-    Group=${TtrssConfig.group}
+    User=${user}
+    Group=${group}
     ExecStart=${pkgs.php}/bin/php ${fullPath}/update_daemon2.php
 
     RuntimeDirectory=${name}
