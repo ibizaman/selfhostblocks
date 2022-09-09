@@ -5,7 +5,7 @@
 , user
 }:
 { TtrssPostgresDB
-, TtrssService
+, TtrssConfig
 }:
 
 stdenv.mkDerivation {

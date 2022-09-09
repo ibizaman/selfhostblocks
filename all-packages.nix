@@ -12,7 +12,7 @@ let
     PostgresDB = callPackage ./PostgresDB {};
 
     TtrssEnvironment = callPackage ./Ttrss/environment.nix {};
-    TtrssService = callPackage ./Ttrss {};
+    TtrssConfig = callPackage ./Ttrss/config.nix {};
     TtrssUpdateService = callPackage ./Ttrss/update.nix {inherit utils;};
     TtrssUpgradeDBService = callPackage ./Ttrss/dbupgrade.nix {};
   };
