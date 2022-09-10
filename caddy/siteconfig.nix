@@ -3,13 +3,11 @@
 , utils
 }:
 { siteConfigDir
-, runtimeDirectory
 , portBinding
 , bindService
-, useSocket ? false
 , serviceRoot ? "/usr/share/webapps/${bindService}"
-, phpFpmRuntimeDirectory ? "/run/php-fpm"
-, phpFastcgi ? null
+, siteSocket ? null
+, phpFpmSiteSocket ? null
 , logLevel ? "WARN"
 }:
 
@@ -20,16 +18,16 @@ let
       "file_server"
     ]
     ++ (
-      if useSocket
+      if siteSocket != ""
       then [
-        "bind unix/${runtimeDirectory}/${bindService}.sock"
+        "bind unix/${siteSocket}"
       ]
       else []
     )
     ++ (
-      if phpFastcgi
+      if phpFpmSiteSocket != ""
       then [
-        "php_fastcgi unix/${phpFpmRuntimeDirectory}/${bindService}.sock"
+        "php_fastcgi unix/${phpFpmSiteSocket}"
       ]
       else []
     );
@@ -40,11 +38,11 @@ utils.mkConfigFile {
   dir = siteConfigDir;
   content = ''
     :${builtins.toString portBinding} {
-      ${builtins.concatStringsSep "\n    " content}
+      ${builtins.concatStringsSep "\n  " content}
 
       log {
-          output stderr
-          level ${logLevel}
+        output stderr
+        level ${logLevel}
       }
     }
   '';

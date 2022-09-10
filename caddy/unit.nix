@@ -33,7 +33,7 @@ utils.systemd.mkService rec {
   ExecReload=${pkgs.caddy}/bin/caddy reload --config ${configDir}/${configFile}
 
   #  Restart=on-abnormal
-  #  # RuntimeDirectory=caddy
+  RuntimeDirectory=caddy
 
   #  KillMode=mixed
   #  KillSignal=SIGQUIT
@@ -43,39 +43,30 @@ utils.systemd.mkService rec {
   LimitNPROC=512
 
   #  PrivateDevices=true
+  LockPersonality=true
+  NoNewPrivileges=true
+  PrivateDevices=true
   PrivateTmp=true
-  #  ProtectKernelTunables=true
-  #  ProtectKernelModules=true
-  #  ProtectControlGroups=true
-  #  ProtectKernelLogs=true
-  #  ProtectHome=true
-  #  ProtectHostname=true
-  #  ProtectClock=true
-  #  RestrictSUIDSGID=true
-  #  LockPersonality=true
-  #  NoNewPrivileges=true
+  ProtectClock=true
+  ProtectControlGroups=true
+  ProtectHome=true
+  ProtectHostname=true
+  ProtectKernelLogs=true
+  ProtectKernelModules=true
+  ProtectKernelTunables=true
+  ProtectSystem=full
+  RestrictAddressFamilies=AF_INET AF_INET6 AF_NETLINK AF_UNIX
+  RestrictNamespaces=true
+  RestrictRealtime=true
+  RestrictSUIDSGID=true
 
   #  CapabilityBoundingSet=CAP_NET_BIND_SERVICE
   AmbientCapabilities=CAP_NET_BIND_SERVICE
 
   #  ProtectSystem=strict
-  ProtectSystem=full
   #  ReadWritePaths=/var/lib/caddy /var/log/caddy
 
   [Install]
   WantedBy=multi-user.target
   '';
 }
-
-
-# Put this in /etc/caddy/Caddyfile
-
-#    {
-#    # debug
-#    
-#    # Disable auto https
-#    http_port 10001
-#    https_port 10002
-#    }
-#    
-#    import conf.d/*
