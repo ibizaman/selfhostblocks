@@ -8,14 +8,15 @@
 , siteRoot
 , siteSocket ? ""
 }:
-{
+rec {
   inherit name;
+  caddySocket = "${CaddyService.runtimeDirectory}/${siteName}.sock";
   pkg = CaddySiteConfig rec {
     inherit (CaddyConfig) siteConfigDir;
 
     portBinding = port;
     bindService = siteName;
-    siteSocket = "${CaddyService.runtimeDirectory}/${siteName}.sock";
+    siteSocket = caddySocket;
     serviceRoot = siteRoot;
     phpFpmSiteSocket = siteSocket;
   };
