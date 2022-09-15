@@ -4,8 +4,8 @@
 }:
 { user ? "http"
 , group ? "http"
-, configDir ? "/etc/php"
-, configFile ? "php-fpm.conf"
+, configFile ? "/etc/php/php-fpm.conf"
+, phpIni ? "/etc/php/php.ini"
 }:
 {...}:
 
@@ -19,10 +19,10 @@ utils.systemd.mkService rec {
   
   [Service]
   Type=notify
-  User=${user}
-  Group=${group}
+  # User=${user}
+  # Group=${group}
   PIDFile=/run/php-fpm/php-fpm.pid
-  ExecStart=${pkgs.php}/bin/php-fpm --nodaemonize --fpm-config ${configDir}/${configFile}
+  ExecStart=${pkgs.php}/bin/php-fpm --nodaemonize --fpm-config ${configFile} --php-ini ${phpIni}
   ExecReload=/bin/kill -USR2 $MAINPID
   RuntimeDirectory=php-fpm
   # ReadWritePaths=/usr/share/webapps/nextcloud/apps

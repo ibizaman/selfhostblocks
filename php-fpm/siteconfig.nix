@@ -2,7 +2,8 @@
 , pkgs
 , utils
 }:
-{ siteConfigDir
+{ phpConfigDir
+, siteConfigDir
 , service
 , serviceRoot ? "/usr/share/webapps/${service}"
 , user
@@ -18,12 +19,8 @@
 , minSpareServers ? 1
 , maxSpareServers ? 3
 }:
-  
-  # user = ${user}
-  # group = ${group}
-  # 
-  # listen.owner = ${socketUser}
-  # listen.group = ${socketGroup}
+{ ... # Depends on whatever
+}:
 
 utils.mkConfigFile {
   name = "${service}.conf";
@@ -31,8 +28,12 @@ utils.mkConfigFile {
   content = ''
   [${service}]
   
+  user = ${user}
+  group = ${group}
   listen = ${siteSocket}
   listen.allowed_clients = ${allowedClients}
+  listen.owner = ${socketUser}
+  listen.group = ${socketGroup}
   
   env[PATH] = /usr/local/bin:/usr/bin:/bin
   env[TMP] = /tmp

@@ -20,6 +20,8 @@ let
     CaddySiteConfig = callPackage ./caddy/siteconfig.nix {inherit utils;};
     mkCaddySiteConfig = callPackage ./caddy/mksiteconfig.nix {inherit CaddySiteConfig;};
 
+    PHPConfig = callPackage ./php/config.nix {inherit utils;};
+
     PHPFPMConfig = callPackage ./php-fpm/config.nix {inherit utils;};
     PHPFPMService = callPackage ./php-fpm/unit.nix {inherit utils;};
     PHPFPMSiteConfig = callPackage ./php-fpm/siteconfig.nix {inherit utils;};
@@ -29,6 +31,7 @@ let
     TtrssConfig = callPackage ./ttrss/config.nix {};
     TtrssUpdateService = callPackage ./ttrss/update.nix {inherit utils;};
     TtrssUpgradeDBService = callPackage ./ttrss/dbupgrade.nix {};
+    TtrssPHPNormalizeHeaders = callPackage ./ttrss/normalize-headers.nix {inherit utils;};
   };
 in
 self

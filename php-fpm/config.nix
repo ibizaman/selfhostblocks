@@ -7,6 +7,8 @@
 , siteConfigDir ? "${configFile}/conf.d"
 , logLevel ? "notice"
 }:
+{ ... # Depends on whatever
+}:
 
 utils.mkConfigFile {
   name = configFile;

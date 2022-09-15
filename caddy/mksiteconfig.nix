@@ -6,19 +6,19 @@
 , port
 , siteName
 , siteRoot
-, siteSocket ? ""
+, phpFpmSiteSocket ? ""
 }:
 rec {
   inherit name;
   caddySocket = "${CaddyService.runtimeDirectory}/${siteName}.sock";
   pkg = CaddySiteConfig rec {
     inherit (CaddyConfig) siteConfigDir;
+    inherit phpFpmSiteSocket;
 
     portBinding = port;
     bindService = siteName;
     siteSocket = caddySocket;
     serviceRoot = siteRoot;
-    phpFpmSiteSocket = siteSocket;
   };
   type = "fileset";
 }
