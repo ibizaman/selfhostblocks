@@ -18,7 +18,7 @@ utils.mkConfigFile {
   );
   
   # phpinfo(INFO_VARIABLES);
-  
+
   if (isSet($_SERVER['REMOTE_ADDR'])) {
   
     $remote = $_SERVER['REMOTE_ADDR'];
@@ -48,7 +48,7 @@ utils.mkConfigFile {
   
   }
 
-  # print_r($_REQUEST);
+  # trigger_error(print_r($_SERVER, true), E_USER_WARNING);
   
   '';
 }
