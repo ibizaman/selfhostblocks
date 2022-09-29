@@ -68,6 +68,8 @@ utils.mkConfigFile {
   error_log = syslog
   syslog.ident = php
 
+  cgi.fix_pathinfo=1
+
   post_max_size = 8M
 
   auto_prepend_file = "${if prependFile == null then "" else prependFile}"
