@@ -60,6 +60,9 @@ utils.mkConfigFile {
       group ${group}
   
       log /dev/log local0 info
+
+      # Include ssl cipher in log output.
+      # tune.ssl.capture-cipherlist-size 800
   
   defaults
       log global
@@ -79,6 +82,8 @@ utils.mkConfigFile {
 
   frontend https
       mode http
+
+      # log-format "%ci:%cp [%tr] %ft %b/%s %TR/%Tw/%Tc/%Tr/%Ta %ST %B %CC %CS %tsc %ac/%fc/%bc/%sc/%rc %sq/%bq %hr %hs %{+Q}r %sslv %sslc %[ssl_fc_cipherlist_str]"
 
       bind *:443 ssl crt ${certPath}
       http-request set-header X-Forwarded-Port %[dst_port]
