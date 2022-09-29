@@ -20,13 +20,13 @@ rec {
   ];
 
   directories_modes = {
-    "${systemd_run}" = "0555";
-    "${lock_directory}" = "0755";
-    "${cache_directory}" = "0755";
-    "${cache_directory}/upload" = "0755";
-    "${cache_directory}/images" = "0755";
-    "${cache_directory}/export" = "0755";
-    "${persistent_dir}/feed-icons" = "0755";
+    "${systemd_run}" = "0550";
+    "${lock_directory}" = "0770";
+    "${cache_directory}" = "0770";
+    "${cache_directory}/upload" = "0770";
+    "${cache_directory}/images" = "0770";
+    "${cache_directory}/export" = "0770";
+    "${persistent_dir}/feed-icons" = "0770";
   };
 
   postgresql = {
