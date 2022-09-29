@@ -1,21 +1,25 @@
 { PHPFPMSiteConfig
 }:
 { PHPFPMConfig
-, PHPFPMService
+, user
+, group
 , name
 , phpConfigDir
 , siteName
 , siteRoot
+, siteSocket
 , socketUser
 , socketGroup
 , dependsOn
+, connectsTo
 }:
 rec {
-  inherit name dependsOn;
-  siteSocket = "/run/php-fpm/${siteName}.sock";
+  inherit name user group siteSocket;
+  inherit dependsOn connectsTo;
+
   pkg = PHPFPMSiteConfig {
     inherit (PHPFPMConfig) siteConfigDir;
-    inherit (PHPFPMService) user group;
+    inherit user group;
     inherit siteSocket phpConfigDir socketUser socketGroup;
 
     service = siteName;

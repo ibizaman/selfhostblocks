@@ -20,6 +20,10 @@ let
     CaddySiteConfig = callPackage ./caddy/siteconfig.nix {inherit utils;};
     mkCaddySiteConfig = callPackage ./caddy/mksiteconfig.nix {inherit CaddySiteConfig;};
 
+    NginxService = callPackage ./nginx/unit.nix {inherit utils;};
+    NginxSiteConfig = callPackage ./nginx/siteconfig.nix {inherit utils;};
+    mkNginxSiteConfig = callPackage ./nginx/mksiteconfig.nix {inherit NginxSiteConfig;};
+
     PHPConfig = callPackage ./php/config.nix {inherit utils;};
 
     PHPFPMConfig = callPackage ./php-fpm/config.nix {inherit utils;};

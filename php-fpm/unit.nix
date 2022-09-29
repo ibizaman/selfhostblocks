@@ -2,15 +2,16 @@
 , pkgs
 , utils
 }:
-{ user ? "http"
-, group ? "http"
+{ serviceSuffix
 , configFile ? "/etc/php/php-fpm.conf"
 , phpIni ? "/etc/php/php.ini"
 }:
 {...}:
 
+# This service runs as root, each pool runs as a user.
+
 utils.systemd.mkService rec {
-  name = "php-fpm";
+  name = "php-fpm-${serviceSuffix}";
 
   content = ''
   [Unit]
@@ -19,16 +20,15 @@ utils.systemd.mkService rec {
   
   [Service]
   Type=notify
-  # User=${user}
-  # Group=${group}
-  PIDFile=/run/php-fpm/php-fpm.pid
+  PIDFile=/run/${serviceSuffix}/php-fpm.pid
   ExecStart=${pkgs.php}/bin/php-fpm --nodaemonize --fpm-config ${configFile} --php-ini ${phpIni}
   ExecReload=/bin/kill -USR2 $MAINPID
-  RuntimeDirectory=php-fpm
-  # ReadWritePaths=/usr/share/webapps/nextcloud/apps
-  # ReadWritePaths=/usr/share/webapps/nextcloud/apps
-  # ReadWritePaths=/usr/share/webapps/nextcloud/config
-  # ReadWritePaths=/etc/webapps/nextcloud
+
+  # Keeping this around to avoid uncommenting them. These directories
+  # are handled through tmpfiles.d.
+  #
+  #   RuntimeDirectory=${serviceSuffix}
+  #   StateDirectory=${serviceSuffix}
   
   LockPersonality=true
   NoNewPrivileges=true
