@@ -14,6 +14,13 @@
 , db_username
 , db_database
 , db_password
+# , domain
+# , smtp_host
+# , smtp_login
+# , smtp_password
+# , feedback_url ? ""
+, allow_remote_user_auth ? false
+, enabled_plugins ? [ "auth_internal" "note" ]
 }:
 { TtrssPostgresDB
 }:
@@ -35,7 +42,7 @@ let
     db_pass = db_password;
 
     self_url_path = self_url_path;
-    single_user_mode = "true";
+    single_user_mode = "false";
     simple_update_mode = "false";
     php_executable = "${pkgs.php}/bin/php";
 
@@ -46,22 +53,29 @@ let
 
     auth_auto_create = "true";
     auth_auto_login = "true";
+    allow_remote_user_auth = if allow_remote_user_auth then "true" else "false";
+    enable_registration = "false";
 
     force_article_purge = "0";
     sphinx_server = "localhost:9312";
     sphinx_index = "ttrss, delta";
 
-    enable_registration = "false";
-    reg_notify_address = "user@your.domain.dom";
-    reg_max_users = "10";
+    session_check_address = "true";
+    session_cookie_lifetime = "0";
+    session_expire_time = "86400";
 
-    session_cookie_lifetime = "86400";
     smtp_from_name = "Tiny Tiny RSS";
-    smtp_from_address = "noreply@tiserbox.com";
+    # smtp_from_address = "noreply@${domain}";
+    # inherit smtp_host smtp_login smtp_password;
+    # inherit feedback_url;
+    digest_enable = "true";
+    digest_email_limit = "10";
     digest_subject = "[tt-rss] New headlines for last 24 hours";
 
-    check_for_updates = "true";
-    plugins = "auth_internal, note";
+    deamon_sends_digest = "true";
+
+    check_for_new_version = "false";
+    plugins = builtins.concatStringsSep ", " enabled_plugins;
 
     log_destination = "syslog";
   };
