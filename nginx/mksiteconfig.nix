@@ -7,6 +7,7 @@
 , siteName
 , siteRoot
 , phpFpmSiteSocket ? ""
+, dependsOn ? {}
 }:
 rec {
   inherit name siteConfigDir;
@@ -21,5 +22,7 @@ rec {
     siteSocket = nginxSocket;
     serviceRoot = siteRoot;
   };
+
+  inherit dependsOn;
   type = "fileset";
 }

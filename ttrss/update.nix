@@ -3,7 +3,7 @@
 , lib
 , utils
 }:
-{ document_root
+{ documentRoot
 , user
 , group
 , readOnlyPaths ? []
@@ -22,7 +22,7 @@
 # - LOCK_DIRECTORY should be writable.
 
 let
-  fullPath = "${document_root}";
+  fullPath = "${documentRoot}";
   roPaths = [fullPath] ++ readOnlyPaths;
 in
 utils.systemd.mkService rec {

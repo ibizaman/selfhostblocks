@@ -10,12 +10,11 @@
 , siteSocket
 , socketUser
 , socketGroup
-, dependsOn
-, connectsTo
+, dependsOn ? {}
+, connectsTo ? {}
 }:
 rec {
   inherit name user group siteSocket;
-  inherit dependsOn connectsTo;
 
   pkg = PHPFPMSiteConfig {
     inherit (PHPFPMConfig) siteConfigDir;
@@ -26,5 +25,7 @@ rec {
     serviceRoot = siteRoot;
     allowedClients = "127.0.0.1";
   };
+
+  inherit dependsOn connectsTo;
   type = "fileset";
 }
