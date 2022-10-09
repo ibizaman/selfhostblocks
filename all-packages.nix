@@ -38,6 +38,11 @@ let
     PHPFPMSiteConfig = callPackage ./php-fpm/siteconfig.nix {inherit utils;};
     mkPHPFPMSiteConfig = callPackage ./php-fpm/mksiteconfig.nix {inherit PHPFPMSiteConfig;};
 
+    KeycloakConfig = callPackage ./keycloak/config.nix {inherit utils;};
+    mkKeycloakConfig = callPackage ./keycloak/mkconfig.nix {inherit KeycloakConfig;};
+    KeycloakService = callPackage ./keycloak/unit.nix {inherit utils;};
+    mkKeycloakService = callPackage ./keycloak/mkunit.nix {inherit KeycloakService;};
+
     TtrssEnvironment = callPackage ./ttrss/environment.nix {};
     TtrssConfig = callPackage ./ttrss/config.nix {};
     mkTtrssConfig = callPackage ./ttrss/mkconfig.nix {inherit TtrssConfig;};

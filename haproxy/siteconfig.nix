@@ -1,27 +1,41 @@
 { stdenv
 , pkgs
+, lib
 }:
 { serviceName
-, serviceSocket
+, serviceAddress ? null
+, serviceSocket ? null
 , phpFastcgi ? false
 , phpDocroot ? null
 , phpIndex ? "index.php"
+, extraUseBackendConditions ? {}
+, extraFrontendOptions ? []
+, extraBackendOptions ? []
 }:
 
+assert lib.assertMsg (
+  (serviceAddress == null && serviceSocket != null)
+  || (serviceAddress != null && serviceSocket == null)
+) "set either serviceAddress or serviceSocket";
+
 let
+  backendOptions = lib.concatMapStrings (x : "\n  " + x) extraBackendOptions;
+
+  serviceBind = if serviceAddress != null then serviceAddress else serviceSocket;
+
   backend =
     if !phpFastcgi
     then ''
     backend ${serviceName}
       mode http
-      option forwardfor
-      server ${serviceName}1 ${serviceSocket}
+      option forwardfor${backendOptions}
+      server ${serviceName}1 ${serviceBind}
     '' else ''
     backend ${serviceName}
       mode http
-      option forwardfor
+      option forwardfor${backendOptions}
       use-fcgi-app ${serviceName}-php-fpm
-      server ${serviceName}1 ${serviceSocket} proto fcgi
+      server ${serviceName}1 ${serviceBind} proto fcgi
 
     fcgi-app ${serviceName}-php-fpm
       log-stderr global
@@ -29,11 +43,18 @@ let
       index ${phpIndex}
       path-info ^(/.+\.php)(/.*)?$
     '';
+
+  extraAclsCondition = lib.concatStrings (lib.attrsets.mapAttrsToList (k: v: "\nacl acl_${serviceName}_${k} ${v}") extraUseBackendConditions);
+
+  extraAclsOr = lib.concatStrings (lib.attrsets.mapAttrsToList (k: v: " OR acl_${serviceName}_${k}") extraUseBackendConditions); 
 in
 {
-  acl = ''
-  acl acl_${serviceName} hdr_beg(host) ${serviceName}.
-  use_backend ${serviceName} if acl_${serviceName}
+  frontend = ''
+  acl acl_${serviceName} hdr_beg(host) ${serviceName}.${extraAclsCondition}
+  ''
+  + lib.concatMapStrings (x: x + "\n") extraFrontendOptions
+  + ''
+  use_backend ${serviceName} if acl_${serviceName}${extraAclsOr}
   '';
 
   inherit backend;

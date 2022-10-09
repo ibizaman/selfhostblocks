@@ -9,7 +9,7 @@
 , statsPort ? null
 , prometheusStatsUri ? null
 , certPath ? null
-, acls ? []
+, frontends ? []
 , backends ? []
 , dependsOn ? {}
 }:
@@ -23,7 +23,7 @@
     inherit prometheusStatsUri;
     inherit certPath;
 
-    inherit acls backends;
+    inherit frontends backends;
   };
 
   inherit dependsOn;

@@ -5,7 +5,7 @@
 }:
 { configDir ? "/etc/haproxy"
 , configFile ? "haproxy.cfg"
-, acls ? []
+, frontends ? []
 , backends ? []
 , certPath
 , user ? "haproxy"
@@ -37,7 +37,7 @@ let
       (x: spaces + x + "\n")
       (lib.strings.splitString "\n" content);
 
-  acls_str = lib.strings.concatMapStrings (acl: indent "    " acl) acls;
+  frontends_str = lib.strings.concatMapStrings (acl: indent "    " acl) frontends;
   backends_str = builtins.concatStringsSep "\n" backends;
 
 in
@@ -91,7 +91,7 @@ utils.mkConfigFile {
       http-request add-header X-Forwarded-Proto https
       http-response set-header Strict-Transport-Security "max-age=15552000; includeSubDomains; preload;"
 
-  ${acls_str}
+  ${frontends_str}
 
   ${backends_str}
   '';
