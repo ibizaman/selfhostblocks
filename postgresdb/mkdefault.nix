@@ -1,18 +1,22 @@
 { PostgresDB
 }:
 { name
-, username
-, password
 , database
+, username
+, password ? null
+, passwordFile ? null
 , dependsOn ? {}
 }:
 
 {
   inherit name;
+  inherit database username password passwordFile;
+
   pkg = PostgresDB {
+    postgresDatabase = database;
     postgresUsername = username;
     postgresPassword = password;
-    postgresDatabase = database;
+    postgresPasswordFile = passwordFile;
   };
 
   inherit dependsOn;

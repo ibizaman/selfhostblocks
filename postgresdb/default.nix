@@ -1,8 +1,17 @@
-{ stdenv, pkgs }:
-{ postgresUsername
-, postgresPassword
-, postgresDatabase
+{ stdenv
+, pkgs
+, lib
 }:
+{ postgresDatabase
+, postgresUsername
+, postgresPassword ? null
+, postgresPasswordFile ? null
+}:
+
+assert lib.assertMsg (
+  (postgresPassword == null && postgresPasswordFile != null)
+  || (postgresPassword != null && postgresPasswordFile == null)
+) "set either postgresPassword or postgresPasswordFile";
 
 # From https://github.com/svanderburg/dysnomia/blob/master/dysnomia-modules/postgresql-database.in
 # and https://github.com/svanderburg/dysnomia/blob/master/tests/deployment/postgresql-database.nix
