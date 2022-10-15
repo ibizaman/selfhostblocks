@@ -7,6 +7,7 @@
 , group
 , dbPasswordFile
 , postgresServiceName
+, initialAdminUsername ? "admin"
 , initialAdminFile ? null
 
 , dependsOn ? {}
@@ -14,10 +15,12 @@
 {
   inherit name configDir configFile;
 
+  inherit initialAdminUsername;
+
   pkg = KeycloakService {
     inherit configDir configFile;
     inherit user group;
-    inherit dbPasswordFile initialAdminFile;
+    inherit dbPasswordFile initialAdminUsername initialAdminFile;
     inherit postgresServiceName;
   };
 
