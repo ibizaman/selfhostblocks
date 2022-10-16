@@ -43,6 +43,11 @@ let
     KeycloakService = callPackage ./keycloak/unit.nix {inherit utils;};
     mkKeycloakService = callPackage ./keycloak/mkunit.nix {inherit KeycloakService;};
 
+    KeycloakCliConfig = callPackage ./keycloak-cli-config/config.nix {inherit utils;};
+    mkKeycloakCliConfig = callPackage ./keycloak-cli-config/mkconfig.nix {inherit KeycloakCliConfig;};
+    KeycloakCliService = callPackage ./keycloak-cli-config/unit.nix {inherit utils;};
+    mkKeycloakCliService = callPackage ./keycloak-cli-config/mkunit.nix {inherit KeycloakCliService;};
+
     TtrssEnvironment = callPackage ./ttrss/environment.nix {};
     TtrssConfig = callPackage ./ttrss/config.nix {};
     mkTtrssConfig = callPackage ./ttrss/mkconfig.nix {inherit TtrssConfig;};

@@ -19,6 +19,8 @@
 {
   inherit name configDir configFile;
 
+  inherit hostname;
+
   pkg = KeycloakConfig {
     inherit configDir configFile hostname;
     inherit logLevel metricsEnabled;

@@ -40,7 +40,7 @@ utils.systemd.mkService rec {
   Group=${group}
   
   EnvironmentFile=${dbPasswordFile}
-  ${if initialAdminFile != null then "Environment=KEYCLOAK_ADMIN="+initialAdminUsername else ""}
+  ${if initialAdminUsername != null then "Environment=KEYCLOAK_ADMIN="+initialAdminUsername else ""}
   ${if initialAdminFile != null then "EnvironmentFile="+initialAdminFile else ""}
   Environment=PATH=${pkgs.coreutils}/bin
   Environment=KC_HOME_DIR="/run/keycloak"
