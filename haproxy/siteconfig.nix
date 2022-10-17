@@ -3,8 +3,7 @@
 , lib
 }:
 { serviceName
-, serviceAddress ? null
-, serviceSocket ? null
+, servers ? []
 , phpFastcgi ? false
 , phpDocroot ? null
 , phpIndex ? "index.php"
@@ -13,46 +12,55 @@
 , extraBackendOptions ? []
 }:
 
-assert lib.assertMsg (
-  (serviceAddress == null && serviceSocket != null)
-  || (serviceAddress != null && serviceSocket == null)
-) "set either serviceAddress or serviceSocket";
-
+with lib;
+with lib.lists;
+with lib.attrsets;
 let
-  backendOptions = lib.concatMapStrings (x : "\n  " + x) extraBackendOptions;
+  indent = map (x: "  " + x);
 
-  serviceBind = if serviceAddress != null then serviceAddress else serviceSocket;
+  mkServer = i: s:
+    let
+      proto = optional phpFastcgi "proto fcgi";
+    in
+    concatStringsSep " " ([
+      "server ${serviceName}${toString i} ${s.address}"
+    ] ++ proto ++ s.extra);
+
+  serverslines = imap1 mkServer servers;
 
   backend =
-    if !phpFastcgi
-    then ''
-    backend ${serviceName}
-      mode http
-      option forwardfor${backendOptions}
-      server ${serviceName}1 ${serviceBind}
-    '' else ''
-    backend ${serviceName}
-      mode http
-      option forwardfor${backendOptions}
-      use-fcgi-app ${serviceName}-php-fpm
-      server ${serviceName}1 ${serviceBind} proto fcgi
+    (
+      concatStringsSep "\n" (
+        [
+          "backend ${serviceName}"
+        ]
+        ++ indent [
+          "mode http"
+          "option forwardfor"
+        ]
+        ++ indent extraBackendOptions
+        ++ optional phpFastcgi "  use-fcgi-app ${serviceName}-php-fpm"
+        ++ indent serverslines
+        ++ [""]) # final newline
+    ) +
+    (if !phpFastcgi then "" else ''
 
     fcgi-app ${serviceName}-php-fpm
       log-stderr global
       docroot ${phpDocroot}
       index ${phpIndex}
       path-info ^(/.+\.php)(/.*)?$
-    '';
+    '');
 
-  extraAclsCondition = lib.concatStrings (lib.attrsets.mapAttrsToList (k: v: "\nacl acl_${serviceName}_${k} ${v}") extraUseBackendConditions);
+  extraAclsCondition = concatStrings (mapAttrsToList (k: v: "\nacl acl_${serviceName}_${k} ${v}") extraUseBackendConditions);
 
-  extraAclsOr = lib.concatStrings (lib.attrsets.mapAttrsToList (k: v: " OR acl_${serviceName}_${k}") extraUseBackendConditions); 
+  extraAclsOr = concatStrings (mapAttrsToList (k: v: " OR acl_${serviceName}_${k}") extraUseBackendConditions);
 in
 {
   frontend = ''
   acl acl_${serviceName} hdr_beg(host) ${serviceName}.${extraAclsCondition}
   ''
-  + lib.concatMapStrings (x: x + "\n") extraFrontendOptions
+  + concatMapStrings (x: x + "\n") extraFrontendOptions
   + ''
   use_backend ${serviceName} if acl_${serviceName}${extraAclsOr}
   '';
