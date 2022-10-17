@@ -4,6 +4,8 @@
 }:
 { serviceName
 , servers ? []
+, httpcheck ? null
+, balance ? null
 , phpFastcgi ? false
 , phpDocroot ? null
 , phpIndex ? "index.php"
@@ -24,7 +26,12 @@ let
     in
     concatStringsSep " " ([
       "server ${serviceName}${toString i} ${s.address}"
-    ] ++ proto ++ s.extra);
+    ]
+    ++ proto
+    ++ (optional (hasAttr "check" s && s.check != null) (
+      concatStrings (["check"] ++ (map (k: if !hasAttr k s.check then "" else " ${k} ${getAttr k s.check}") ["inter" "downinter" "fall" "rise"]))
+    ))
+    );
 
   serverslines = imap1 mkServer servers;
 
@@ -34,13 +41,17 @@ let
         [
           "backend ${serviceName}"
         ]
-        ++ indent [
-          "mode http"
-          "option forwardfor"
-        ]
-        ++ indent extraBackendOptions
-        ++ optional phpFastcgi "  use-fcgi-app ${serviceName}-php-fpm"
-        ++ indent serverslines
+        ++ indent (
+          [
+            "mode http"
+            "option forwardfor"
+          ]
+          ++ extraBackendOptions
+          ++ optional (balance != null) "balance ${balance}"
+          ++ optional (httpcheck != null) "option httpchk ${httpcheck}"
+          ++ optional phpFastcgi "use-fcgi-app ${serviceName}-php-fpm"
+          ++ serverslines
+        )
         ++ [""]) # final newline
     ) +
     (if !phpFastcgi then "" else ''
