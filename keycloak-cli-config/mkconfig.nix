@@ -3,7 +3,11 @@
 { name
 , configDir ? "/etc/keycloak-cli-config"
 , configFile ? "config.json"
-, config ? ""
+, realm
+, domain
+, roles ? {}
+, clients ? {}
+, users ? {}
 }:
 
 {
@@ -12,7 +16,7 @@
   pkg = KeycloakCliConfig {
     inherit configDir configFile;
 
-    inherit config;
+    inherit realm domain roles clients users;
   };
 
   type = "fileset";
