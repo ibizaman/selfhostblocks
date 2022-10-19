@@ -60,6 +60,14 @@ let
       enabled = "true";
 
       inherit (config) email firstName lastName realmRoles;
+    } // optionalAttrs (hasAttr "initialPassword" config && config.initialPassword) {
+      credentials = [
+        {
+          type = "password";
+          userLabel = "initial";
+          value = "$(keycloak.users.${k}.password)";
+        }
+      ];
     };
 
 in

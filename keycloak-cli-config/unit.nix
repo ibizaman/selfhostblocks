@@ -30,6 +30,7 @@ let
     "KEYCLOAK_USER=${keycloakUser}"
     "KEYCLOAK_AVAILABILITYCHECK_ENABLED=true"
     "KEYCLOAK_AVAILABILITYCHECK_TIMEOUT=${keycloakAvailabilityTimeout}"
+    "IMPORT_VARSUBSTITUTION_ENABLED=true"
     "IMPORT_FILES_LOCATIONS=${configFileLocation}"
   ] ++ (if !debug then [] else [
     "DEBUG=true"
@@ -38,6 +39,10 @@ let
     "LOGGING_LEVEL_REALMCONFIG=debug"
     "LOGGING_LEVEL_KEYCLOAKCONFIGCLI=debug"
   ]));
+
+  envfiles = lib.concatMapStrings (x: "\nEnvironmentFile=" + x) ([
+    "/run/keys/keycloakusers"
+  ]);
 
   keycloak-cli-config = pkgs.stdenv.mkDerivation rec {
     pname = "keycloak-cli-config";
@@ -74,7 +79,7 @@ utils.systemd.mkService rec {
   User=keycloakcli
   Group=keycloakcli
 
-  Type=oneshot${envs}
+  Type=oneshot${envs}${envfiles}
   ExecStart=${pkgs.jre}/bin/java -jar ${keycloak-cli-config}/bin/keycloak-cli-config.jar
 
   RuntimeDirectory=keycloak-cli-config
