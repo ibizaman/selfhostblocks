@@ -24,14 +24,15 @@ let
     let
       proto = optional phpFastcgi "proto fcgi";
     in
-    concatStringsSep " " ([
-      "server ${serviceName}${toString i} ${s.address}"
-    ]
-    ++ proto
-    ++ (optional (hasAttr "check" s && s.check != null) (
-      concatStrings (["check"] ++ (map (k: if !hasAttr k s.check then "" else " ${k} ${getAttr k s.check}") ["inter" "downinter" "fall" "rise"]))
-    ))
-    );
+      concatStringsSep " " (
+        [
+          "server ${serviceName}${toString i} ${s.address}"
+        ]
+        ++ proto
+        ++ (optional (hasAttr "check" s && s.check != null) (
+          concatStrings (["check"] ++ (map (k: if !hasAttr k s.check then "" else " ${k} ${getAttr k s.check}") ["inter" "downinter" "fall" "rise"]))
+        ))
+      );
 
   serverslines = imap1 mkServer servers;
 
