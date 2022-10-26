@@ -18,11 +18,13 @@
 , prometheusStatsUri ? null
 }:
 
+with builtins;
+with lib.strings;
 let
 
   stats = if statsEnable then "" else ''
   frontend stats
-      bind localhost:${builtins.toString statsPort}
+      bind localhost:${toString statsPort}
       mode http
       stats enable
       # stats hide-version
@@ -33,12 +35,12 @@ let
   '');
 
   indent = spaces: content:
-    lib.strings.concatMapStrings
+    concatMapStrings
       (x: spaces + x + "\n")
-      (lib.strings.splitString "\n" content);
+      (splitString "\n" content);
 
-  frontends_str = lib.strings.concatMapStrings (acl: indent "    " acl) frontends;
-  backends_str = builtins.concatStringsSep "\n" backends;
+  frontends_str = concatMapStrings (acl: indent "    " acl) frontends;
+  backends_str = concatStringsSep "\n" backends;
 
 in
 
