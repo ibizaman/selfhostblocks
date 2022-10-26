@@ -4,6 +4,8 @@
 }:
 { configDir ? "/etc/php"
 , configFile ? "normalize-headers.php"
+
+, debug ? false
 }:
 
 utils.mkConfigFile {
@@ -47,8 +49,7 @@ utils.mkConfigFile {
     }
   
   }
-
-  # trigger_error(print_r($_SERVER, true), E_USER_WARNING);
-  
-  '';
+  '' + (if !debug then "" else ''
+  trigger_error(print_r($_SERVER, true), E_USER_WARNING);
+  '');
 }
