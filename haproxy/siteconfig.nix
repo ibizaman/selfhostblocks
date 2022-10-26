@@ -12,6 +12,8 @@
 , extraUseBackendConditions ? {}
 , extraFrontendOptions ? []
 , extraBackendOptions ? []
+
+, debugHeaders ? false
 }:
 
 with lib;
@@ -73,6 +75,11 @@ in
   acl acl_${serviceName} hdr_beg(host) ${serviceName}.${extraAclsCondition}
   ''
   + concatMapStrings (x: x + "\n") extraFrontendOptions
+  + concatMapStrings (x: x + "\n") (optionals debugHeaders [
+    "option httplog"
+    "http-request capture req.hdrs len 512 if acl_${serviceName}${extraAclsOr}"
+    ''log-format "%ci:%cp [%tr] %ft [[%hr]] %hs %{+Q}r"''
+  ])
   + ''
   use_backend ${serviceName} if acl_${serviceName}${extraAclsOr}
   '';
