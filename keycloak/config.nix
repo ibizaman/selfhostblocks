@@ -7,7 +7,7 @@
 , configFile ? "keycloak.conf"
 , logLevel ? "INFO"
 , metricsEnabled ? false
-, hostname ? "keycloak.hostname.com"
+, hostname
 
 , dbType ? "postgres"
 , dbUsername ? "keycloak"

@@ -16,7 +16,6 @@ let
     mkHaproxyConfig = callPackage ./haproxy/mkconfig.nix {inherit HaproxyConfig;};
     HaproxyService = callPackage ./haproxy/unit.nix {inherit utils;};
     mkHaproxyService = callPackage ./haproxy/mkunit.nix {inherit HaproxyService;};
-    mkHaproxySiteConfig = callPackage ./haproxy/siteconfig.nix {};
 
     CaddyConfig = callPackage ./caddy/config.nix {inherit utils;};
     CaddyService = callPackage ./caddy/unit.nix {inherit utils;};
