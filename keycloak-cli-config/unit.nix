@@ -11,6 +11,7 @@
 , keycloakAvailabilityTimeout ? "120s"
 , keycloakUrl
 , keycloakUser
+, keys
 , debug ? false
 }:
 {...}:
@@ -39,10 +40,6 @@ let
     "LOGGING_LEVEL_REALMCONFIG=debug"
     "LOGGING_LEVEL_KEYCLOAKCONFIGCLI=debug"
   ]));
-
-  envfiles = lib.concatMapStrings (x: "\nEnvironmentFile=" + x) ([
-    "/run/keys/keycloakusers"
-  ]);
 
   keycloak-cli-config = pkgs.stdenv.mkDerivation rec {
     pname = "keycloak-cli-config";
@@ -74,12 +71,15 @@ utils.systemd.mkService rec {
   Description=Keycloak Realm Config
   After=${keycloakServiceName}
   Wants=${keycloakServiceName}
+  After=${utils.keyServiceDependencies keys}
+  Wants=${utils.keyServiceDependencies keys}
 
   [Service]
   User=keycloakcli
   Group=keycloakcli
 
-  Type=oneshot${envs}${envfiles}
+  ${utils.keyEnvironmentFile keys.userpasswords}
+  Type=oneshot${envs}
   ExecStart=${pkgs.jre}/bin/java -jar ${keycloak-cli-config}/bin/keycloak-cli-config.jar
 
   RuntimeDirectory=keycloak-cli-config

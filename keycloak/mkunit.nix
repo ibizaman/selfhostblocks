@@ -5,10 +5,9 @@
 , configFile
 , user
 , group
-, dbPasswordFile
 , postgresServiceName
 , initialAdminUsername ? "admin"
-, initialAdminFile ? null
+, keys
 
 , dependsOn ? {}
 }:
@@ -20,7 +19,7 @@
   pkg = KeycloakService {
     inherit configDir configFile;
     inherit user group;
-    inherit dbPasswordFile initialAdminUsername initialAdminFile;
+    inherit keys initialAdminUsername;
     inherit postgresServiceName;
   };
 

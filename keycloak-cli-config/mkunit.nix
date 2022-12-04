@@ -9,6 +9,7 @@
 , keycloakAvailabilityTimeout ? "120s"
 , keycloakUrl
 , keycloakUser
+, keys
 
 , dependsOn ? {}
 }:
@@ -21,7 +22,8 @@
     inherit keycloakServiceName;
     inherit keycloakSecretsDir
       keycloakAvailabilityTimeout
-      keycloakUrl keycloakUser;
+      keycloakUrl keycloakUser
+      keys;
   };
 
   inherit dependsOn;

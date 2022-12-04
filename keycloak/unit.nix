@@ -8,10 +8,9 @@
 , user ? "keycloak"
 , group ? "keycloak"
 , dbType ? "postgres"
-, dbPasswordFile
 , postgresServiceName
 , initialAdminUsername ? null
-, initialAdminFile ? null
+, keys
 }:
 { ... }:
 
@@ -26,6 +25,7 @@ let
   };
 in
 
+with lib.attrsets;
 utils.systemd.mkService rec {
   name = "keycloak";
 
@@ -34,14 +34,16 @@ utils.systemd.mkService rec {
   Description=Keycloak server
   After=network-online.target
   Wants=network-online.target systemd-networkd-wait-online.service ${postgresServiceName}
+  After=${utils.keyServiceDependencies keys}
+  Wants=${utils.keyServiceDependencies keys}
   
   [Service]
   User=${user}
   Group=${group}
   
-  EnvironmentFile=${dbPasswordFile}
+  ${utils.keyEnvironmentFile keys.dbPassword}
   ${if initialAdminUsername != null then "Environment=KEYCLOAK_ADMIN="+initialAdminUsername else ""}
-  ${if initialAdminFile != null then "EnvironmentFile="+initialAdminFile else ""}
+  ${if hasAttr "initialAdminPassword" keys then utils.keyEnvironmentFile keys.initialAdminPassword else ""}
   Environment=PATH=${pkgs.coreutils}/bin
   Environment=KC_HOME_DIR="/run/keycloak"
 
