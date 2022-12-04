@@ -3,27 +3,15 @@
 { name
 , configDir
 , configFile
-, user
-, group
-, statsEnable ? false
-, statsPort ? null
-, prometheusStatsUri ? null
-, certPath ? null
-, frontends ? []
-, backends ? []
+, config
 , dependsOn ? {}
 }:
 {
   inherit name configDir configFile;
-  inherit user group;
+  inherit (config) user group;
   pkg = HaproxyConfig {
     inherit configDir configFile;
-    inherit user group;
-    inherit statsEnable statsPort;
-    inherit prometheusStatsUri;
-    inherit certPath;
-
-    inherit frontends backends;
+    inherit config;
   };
 
   inherit dependsOn;

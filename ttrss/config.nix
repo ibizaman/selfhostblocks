@@ -6,6 +6,7 @@
 , name ? "ttrss"
 , user ? "http"
 , group ? "http"
+, domain
 , lock_directory
 , cache_directory
 , feed_icons_directory
@@ -86,7 +87,7 @@ stdenv.mkDerivation rec {
 
   buildCommand =
     let
-      configFile = pkgs.writeText "config.php" (asTtrssConfig (config "https://${name}.tiserbox.com/"));
+      configFile = pkgs.writeText "config.php" (asTtrssConfig (config "https://${name}.${domain}/"));
       dr = dirOf document_root;
     in
       ''
