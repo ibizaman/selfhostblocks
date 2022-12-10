@@ -24,19 +24,34 @@ let
           headerFn = if hasAttr "header" match then match.header else null;
           header = optional (headerFn != null) (headerFn k);
           trailer = optional (headerFn != null) "";
+          content = header ++ indent (augmentedContent "${fieldName}.${k}" rules (parent ++ [k]) v) ++ trailer;
         in
           if rule != null
           then rule k parent v
           else
             assert assertMsg (isAttrs v) "attempt to apply rules on key '${toString k}' which is a '${typeOf v}' but should be a set:\n${toString v}";
-            header ++ indent (augmentedContent "${fieldName}.${k}" rules (parent ++ [k]) v) ++ trailer;
+            if hasAttr "order" match then
+              {
+                inherit (match) order;
+                inherit content;
+              }
+            else
+              content;
 
       augmented = mapAttrsToList (augment parent) (
         assert assertMsg (isAttrs set) "attempt to apply rules on field ${fieldName} having type '${typeOf set}':\n${toString set}";
         set
       );
+
+      sortAugmented = sort (a: b:
+        (isAttrs a && hasAttr "order" a)
+        && (isAttrs b && hasAttr "order" b)
+        && a.order < b.order
+      );
+
+      onlyContent = (x: if isAttrs x && hasAttr "content" x then x.content else x);
     in
-      flatten augmented;
+      flatten (map onlyContent (sortAugmented augmented));
 
   updateByPath = path: fn: set:
     if hasAttrByPath path set then
@@ -94,6 +109,7 @@ let
     in [
       {
         match = k: parent: v: k == "defaults";
+        order = 2;
         indent = "    ";
         header = k: k;
         rules = [
@@ -105,12 +121,14 @@ let
       }
       {
         match = k: parent: v: k == "global";
+        order = 1;
         indent = "    ";
         header = k: k;
         rules = [];
       }
       {
         match = k: parent: v: k == "frontend";
+        order = 3;
         rules = [
           {
             match = k: parent: v: true;
@@ -159,6 +177,7 @@ let
       }
       {
         match = k: parent: v: k == "backend";
+        order = 4;
         rules = [
           {
             match = k: parent: v: true;
