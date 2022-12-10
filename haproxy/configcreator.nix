@@ -190,9 +190,7 @@ let
   recursiveMerge = attrList:
     let f = attrPath:
           zipAttrsWith (n: values:
-            if tail values == [] then
-              head values
-            else if all isList values then
+            if all isList values then
               concatLists values
             else if all isAttrs values then
               f (attrPath ++ [n]) values
@@ -305,27 +303,15 @@ in
                   ];
                 };
 
-                http-response = [
-                  ''set-header Strict-Transport-Security "max-age=15552000; includeSubDomains; preload;"''
-                ];
-
-                # acl = flatten (mapAttrsToList (name: config:
-                #   assert assertHasAttr name ["frontend" "acl"] config;
-                #   config.frontend.acl
-                # ) sites);
-                # use_backend = mapAttrsToList (name: config:
-                #   assert assertHasAttr name ["frontend" "use_backend"] config;
-                #   nameValuePair name config.frontend.use_backend
-                # ) sites;
+                http-response = {
+                  set-header = [
+                    ''Strict-Transport-Security "max-age=15552000; includeSubDomains; preload;"''
+                  ];
+                };
               }]
               ++ (mapAttrsToList (name: config:
                 assert assertHasAttr name ["frontend"] config;
-                #(filterAttrs (k: v: k != "use_backend" && k != "acl")
-                # (mapAttrsRecursive
-                #   (ks: v: optionalAttrs (hasAttrByPath ["frontend" "use_backend"] v) (setAttrByPath ["frontend" "use_backend"] (nameValuePair name v.frontend.use_backend)))
-                # config.frontend
-                (updateByPath ["frontend" "use_backend"] (x: (nameValuePair name x)) config).frontend
-                #)
+                (updateByPath ["frontend" "use_backend"] (x: [(nameValuePair name x)]) config).frontend
               ) sites)
               ++ (mapAttrsToList (name: config:
                 if (hasAttr "debugHeaders" config && (getAttr "debugHeaders" config) != null) then {
@@ -376,12 +362,6 @@ in
           assert assertMsg (hasAttr "backend" config) "no backend defined in config for site ${name}, found attr names: ${toString (attrNames config)}";
           nameValuePair name config.backend)
           sites;
-      # inherit backend;
-      # backend =
-      #   let
-      #     b = backend: nameValuePair backend.name {inherit (backend) options;};
-      #   in
-      #     listToAttrs (flatten (map (s: mapAttrsToList b s.backends) sites));
     };
  
   # mapIfHasAttr = f: attr: set:
