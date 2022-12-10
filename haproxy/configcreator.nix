@@ -1,4 +1,5 @@
 { lib
+, pkgs
 }:
 
 with builtins;
@@ -7,6 +8,12 @@ with lib.attrsets;
 with lib.lists;
 with lib.strings;
 let
+  getAttrWithDefault = name: default: attrset:
+    if isAttrs attrset && hasAttr name attrset then
+      getAttr name attrset
+    else
+      default;
+
   augmentedContent = fieldName: rules: parent: set:
     let
       print = {rule = k: parent: v:
@@ -106,6 +113,57 @@ let
             (optionals (check != null) (mapAttrsToList (k: v: "${k} ${v}") check))
           ])
         ];
+
+      # Lua's import system requires the import path to be something like:
+      #
+      #   /nix/store/123-name/<package>/<file.lua>
+      #
+      # Then the lua-prepend-path can be:
+      #
+      #   /nix/store/123-name/?/<file.lua>
+      #
+      # Then when lua code imports <package>, it will search in the
+      # prepend paths and replace the question mark with the <package>
+      # name to get a match.
+      #
+      # But the config.source is actually without the <package> name:
+      #
+      #   /nix/store/123-name/<file.lua>
+      #
+      # This requires us to create a new directory structure and we're
+      # using a linkFarm for this.
+      createPluginLinks = configs:
+        let
+          mkLink = name: config: {
+            inherit name;
+            path = config.source;
+          };
+
+        in
+          pkgs.linkFarm "haproxyplugins" (mapAttrsToList mkLink configs);
+
+      mkPlugin = links: name:
+        { init
+        , load ? false
+        , ...
+        }:
+        {
+          lua-prepend-path = ["${links}/?/${init}"];
+        } // optionalAttrs load {
+          lua-load = ["${links}/${name}/${init}"];
+        };
+
+      # Takes plugins as an attrset of name to {init, load, source},
+      # transforms them to a [attrset] with fields lua-prepend-path
+      # and optionally lua-load then returns a list of lines with all
+      # lua-prepend-path first and all lua-load afterwards.
+      mkPlugins = v:
+        let
+          f = recursiveMerge (mapAttrsToList (mkPlugin (createPluginLinks v)) v);
+          lua-prepend-path = map (x: "lua-prepend-path ${x}") (getAttrWithDefault "lua-prepend-path" [] f);
+          lua-load = map (x: "lua-load ${x}") (getAttrWithDefault "lua-load" [] f);
+        in
+          lua-prepend-path ++ lua-load;
     in [
       {
         match = k: parent: v: k == "defaults";
@@ -124,7 +182,12 @@ let
         order = 1;
         indent = "    ";
         header = k: k;
-        rules = [];
+        rules = [
+          {
+            match = k: parent: v: k == "plugins";
+            rule = k: parent: v: mkPlugins v;
+          }
+        ];
       }
       {
         match = k: parent: v: k == "frontend";
@@ -196,10 +259,6 @@ let
           }
         ];
       }
-      # {
-      #   match = k: v: k == "plugins";
-      #   rule = k: v: mkPlugins v;
-      # }
     ];
 
 
@@ -252,17 +311,12 @@ in
     { user
     , group
     , certPath
-    , plugins ? []
+    , plugins ? {}
     , stats ? null
     , debug ? false
     , sites ? {}
     }: {
-      # inherit plugins;
-
       global = {
-        # Load the plugin handling Let's Encrypt request
-        # lua-load /etc/haproxy/plugins/haproxy-acme-validation-plugin-0.1.1/acme-http01-webroot.lua
-
         # Silence a warning issued by haproxy. Using 2048
         # instead of the default 1024 makes the connection stronger.
         "tune.ssl.default-dh-param" = 2048;
@@ -272,6 +326,8 @@ in
         inherit user group;
 
         log = "/dev/log local0 info";
+
+        inherit plugins;
       };
 
       defaults = {
@@ -382,62 +438,6 @@ in
           nameValuePair name config.backend)
           sites;
     };
- 
-  # mapIfHasAttr = f: attr: set:
-  #   if hasAttr attr set
-  #   then f (getAttr attr set)
-  #   else set;
-
-  # Lua's import system requires the import path to be something like:
-  #
-  #   /nix/store/123-name/<package>/<file.lua>
-  #
-  # Then the lua-prepend-path can be:
-  #
-  #   /nix/store/123-name/?/<file.lua>
-  #
-  # Then when lua code imports <package>, it will search in the
-  # prepend paths and replace the question mark with the <package>
-  # name to get a match.
-  #
-  # But the config.source is actually without the <package> name:
-  #
-  #   /nix/store/123-name/<file.lua>
-  #
-  # This requires us to create a new directory structure and we're
-  # using a linkFarm for this.
-  # pluginLinks = configs:
-  #   let
-  #     mkLink = config: {
-  #       inherit (config) name;
-  #       path = config.source;
-  #     };
-
-  #     links = pkgs.linkFarm "haproxyplugins" (map mkLink configs);
-  #   in
-  #     map (config:
-  #       "lua-prepend-path ${links}/?/${config.init}"
-  #     ) configs;
-
-  # loadPlugins = links: configs:
-  #   let
-  #     mustLoad = config: hasAttr "load" config && config.load;
-  #   in
-  #     concatMap
-  #       (config: optional (mustLoad config) "lua-load ${links}/${config.name}/${config.init}")
-  #       configs;
-
-  # mkPlugins = configs:
-  #   { name
-  #   , init
-  #   , source
-  #   , load ? false
-  #   }:
-  #   let
-  #     path = "lua-prepend-path ${links}/?/${init}"
-
-  #   concatStringsSep " " (flatten [
-  #   ]);
 
   render = config:
     concatStringsSep "\n" (augmentedContent "" schema [] config);
