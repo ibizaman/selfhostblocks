@@ -5,8 +5,11 @@
 }:
 { configDir ? "/etc/haproxy"
 , configFile ? "haproxy.cfg"
+, user
+, group
 , config
 }:
+dependsOn:
 
 with builtins;
 with lib.attrsets;
@@ -21,5 +24,5 @@ in
 utils.mkConfigFile {
   name = configFile;
   dir = configDir;
-  content = configcreator.render (configcreator.default config);
+  content = configcreator.render (configcreator.default (config dependsOn // {inherit user group;}));
 }

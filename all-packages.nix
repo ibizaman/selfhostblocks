@@ -56,6 +56,9 @@ let
     mkTtrssUpgradeDBService = callPackage ./ttrss/mkdbupgrade.nix {inherit TtrssUpgradeDBService;};
     TtrssPHPNormalizeHeaders = callPackage ./ttrss/normalize-headers.nix {inherit utils;};
     mkTtrssPHPNormalizeHeaders = callPackage ./ttrss/mk-normalize-headers.nix {inherit TtrssPHPNormalizeHeaders;};
+
+    mkVaultwardenWeb = callPackage ./vaultwarden/web.nix {inherit utils;};
+    mkVaultwardenService = callPackage ./vaultwarden/unit.nix {inherit utils;};
   };
 in
 self

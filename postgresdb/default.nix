@@ -20,6 +20,7 @@ assert lib.assertMsg (
 # contains a sub folder named postgresql-databases/, then the dump files stored
 # inside get imported.
 
+# TODO: https://stackoverflow.com/a/69480184/1013628
 stdenv.mkDerivation {
   name = postgresDatabase;
 
