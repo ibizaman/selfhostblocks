@@ -42,6 +42,8 @@ let
     KeycloakService = callPackage ./keycloak/unit.nix {inherit utils;};
     mkKeycloakService = callPackage ./keycloak/mkunit.nix {inherit KeycloakService;};
 
+    mkKeycloakHaproxyService = callPackage ./keycloak-haproxy/unit.nix {inherit utils;};
+
     KeycloakCliConfig = callPackage ./keycloak-cli-config/config.nix {inherit utils;};
     mkKeycloakCliConfig = callPackage ./keycloak-cli-config/mkconfig.nix {inherit KeycloakCliConfig;};
     KeycloakCliService = callPackage ./keycloak-cli-config/unit.nix {inherit utils;};

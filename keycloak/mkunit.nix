@@ -23,6 +23,8 @@
     inherit postgresServiceName;
   };
 
+  systemdUnitFile = "${name}.service";
+
   inherit dependsOn;
   type = "systemd-unit";
 }

@@ -56,8 +56,8 @@
     Environment=WEB_VAULT_FOLDER=${webvaultFolder}
     Environment=WEB_VAULT_ENABLED=${if webvaultEnabled then "true" else "false"}
   
-    Environment=SIGNUPS_ALLOWED=${signupsAllowed}
-    Environment=SIGNUPS_VERIFY=${signupsVerify}
+    Environment=SIGNUPS_ALLOWED=${if signupsAllowed then "true" else "false"}
+    Environment=SIGNUPS_VERIFY=${if signupsVerify then "true" else "false"}
     # Implies the /admin path is protected
     Environment=DISABLE_ADMIN_TOKEN=true
     Environment=INVITATIONS_ALLOWED=true
