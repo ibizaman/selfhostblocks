@@ -143,14 +143,28 @@ let
           pkgs.linkFarm "haproxyplugins" (mapAttrsToList mkLink configs);
 
       mkPlugin = links: name:
-        { init
-        , load ? false
+        { luapaths ? []
+        , cpaths ? []
+        , load ? null
         , ...
         }:
         {
-          lua-prepend-path = ["${links}/?/${init}"];
-        } // optionalAttrs load {
-          lua-load = ["${links}/${name}/${init}"];
+          lua-prepend-path =
+            let
+              f = ext: type: path:
+                {
+                  inherit type;
+                  path =
+                    if path == "." then
+                      "${links}/${name}/?.${ext}"
+                    else
+                      "${links}/${name}/${path}/?.${ext}";
+                };
+            in
+              map (f "lua" "path") (toList luapaths)
+              ++ map (f "so" "cpath") (toList cpaths);
+        } // optionalAttrs (load != null) {
+          lua-load = ["${links}/${name}/${load}"];
         };
 
       # Takes plugins as an attrset of name to {init, load, source},
@@ -160,7 +174,7 @@ let
       mkPlugins = v:
         let
           f = recursiveMerge (mapAttrsToList (mkPlugin (createPluginLinks v)) v);
-          lua-prepend-path = map (x: "lua-prepend-path ${x}") (getAttrWithDefault "lua-prepend-path" [] f);
+          lua-prepend-path = map ({path, type}: "lua-prepend-path ${path} ${type}") (getAttrWithDefault "lua-prepend-path" [] f);
           lua-load = map (x: "lua-load ${x}") (getAttrWithDefault "lua-load" [] f);
         in
           lua-prepend-path ++ lua-load;
@@ -186,6 +200,10 @@ let
           {
             match = k: parent: v: k == "plugins";
             rule = k: parent: v: mkPlugins v;
+          }
+          {
+            match = k: parent: v: k == "setenv";
+            rule = k: parent: v: mapAttrsToList (k: v: "setenv ${k} ${v}" ) v;
           }
         ];
       }
@@ -312,6 +330,7 @@ in
     , group
     , certPath
     , plugins ? {}
+    , globalEnvs ? {}
     , stats ? null
     , debug ? false
     , sites ? {}
@@ -328,6 +347,8 @@ in
         log = "/dev/log local0 info";
 
         inherit plugins;
+
+        setenv = globalEnvs;
       };
 
       defaults = {

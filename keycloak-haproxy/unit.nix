@@ -32,7 +32,7 @@ rec {
             curl "${domain}/realms/$realm" | jq --raw-output .public_key > "${downloadDir}/$realm.pem"
           done
           '';
-      } ;
+      };
     in
       { HaproxyService
       , KeycloakService
