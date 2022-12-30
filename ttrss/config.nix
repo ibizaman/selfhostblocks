@@ -20,8 +20,8 @@
 # , smtp_login
 # , smtp_password
 # , feedback_url ? ""
-, allow_remote_user_auth ? false
-, enabled_plugins ? [ "auth_internal" "note" ]
+, auth_remote_post_logout_url ? null
+, enabled_plugins ? [ "auth_remote" "note" ]
 }:
 { TtrssPostgresDB
 }:
@@ -53,8 +53,7 @@ let
     icons_url = "feed-icons";
 
     auth_auto_create = "true";
-    auth_auto_login = "true";
-    allow_remote_user_auth = if allow_remote_user_auth then "true" else "false";
+    auth_auto_login = "false";
     enable_registration = "false";
 
     force_article_purge = "0";
@@ -79,7 +78,12 @@ let
     plugins = builtins.concatStringsSep ", " enabled_plugins;
 
     log_destination = "syslog";
-  };
+  } // (
+    if auth_remote_post_logout_url != null then {
+      allow_remote_user_auth = "false";
+      auth_remote_post_logout_url = auth_remote_post_logout_url;
+    } else {}
+  );
 in
 stdenv.mkDerivation rec {
   inherit name;
