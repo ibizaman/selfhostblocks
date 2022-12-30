@@ -17,7 +17,7 @@ with lib.lists;
 with lib.strings;
 let
 
-  configcreator = pkgs.callPackage ./configcreator.nix {};
+  configcreator = pkgs.callPackage ./configcreator.nix {inherit utils;};
 
 in
 

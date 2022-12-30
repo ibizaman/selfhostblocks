@@ -1,5 +1,6 @@
 { lib
 , pkgs
+, utils
 }:
 
 with builtins;
@@ -7,6 +8,7 @@ with lib;
 with lib.attrsets;
 with lib.lists;
 with lib.strings;
+with utils;
 let
   getAttrWithDefault = name: default: attrset:
     if isAttrs attrset && hasAttr name attrset then
@@ -282,18 +284,6 @@ let
 
   concatStringsRecursive = sep: strings:
     concatStringsSep sep (flatten strings);
-
-  recursiveMerge = attrList:
-    let f = attrPath:
-          zipAttrsWith (n: values:
-            if all isList values then
-              concatLists values
-            else if all isAttrs values then
-              f (attrPath ++ [n]) values
-            else
-              last values
-          );
-    in f [] attrList;
 
   assertHasAttr = name: attrPath: v:
     assertMsg
