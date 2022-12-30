@@ -6,9 +6,9 @@
 }:
 
 let
-  callPackage = pkgs.lib.callPackageWith (pkgs // self);
+  callPackage = pkgs.lib.callPackageWith (pkgs // customPkgs);
 
-  self = rec {
+  customPkgs = rec {
     PostgresDB = callPackage ./postgresdb {};
     mkPostgresDB = callPackage ./postgresdb/mkdefault.nix {inherit PostgresDB;};
 
@@ -59,9 +59,7 @@ let
     TtrssPHPNormalizeHeaders = callPackage ./ttrss/normalize-headers.nix {inherit utils;};
     mkTtrssPHPNormalizeHeaders = callPackage ./ttrss/mk-normalize-headers.nix {inherit TtrssPHPNormalizeHeaders;};
 
-    mkVaultwardenWeb = callPackage ./vaultwarden/web.nix {inherit utils;};
-    mkVaultwardenService = callPackage ./vaultwarden/unit.nix {inherit utils;};
-    vaultwarden = callPackage ./vaultwarden {inherit utils;};
+    vaultwarden = callPackage ./vaultwarden {inherit utils customPkgs;};
   };
 in
-self
+customPkgs
