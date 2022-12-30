@@ -61,6 +61,7 @@ let
 
     mkVaultwardenWeb = callPackage ./vaultwarden/web.nix {inherit utils;};
     mkVaultwardenService = callPackage ./vaultwarden/unit.nix {inherit utils;};
+    vaultwarden = callPackage ./vaultwarden {inherit utils;};
   };
 in
 self
