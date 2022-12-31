@@ -12,10 +12,7 @@ let
     PostgresDB = callPackage ./postgresdb {};
     mkPostgresDB = callPackage ./postgresdb/mkdefault.nix {inherit PostgresDB;};
 
-    HaproxyConfig = callPackage ./haproxy/config.nix {inherit utils;};
-    mkHaproxyConfig = callPackage ./haproxy/mkconfig.nix {inherit HaproxyConfig;};
-    HaproxyService = callPackage ./haproxy/unit.nix {inherit utils;};
-    mkHaproxyService = callPackage ./haproxy/mkunit.nix {inherit HaproxyService;};
+    mkHaproxyService = callPackage ./haproxy/unit.nix {inherit utils;};
 
     CaddyConfig = callPackage ./caddy/config.nix {inherit utils;};
     CaddyService = callPackage ./caddy/unit.nix {inherit utils;};

@@ -24,13 +24,6 @@
 , distribution ? {}
 }:
 let
-  addressOrLocalhost = distHaproxy: service:
-    if (builtins.head distHaproxy).properties.hostname == service.target.properties.hostname then
-      "127.0.0.1"
-    else
-      service.target.properties.hostname;
-
-
   mkVaultwardenWeb = pkgs.callPackage ./web.nix {inherit utils;};
 in
 rec {
@@ -162,12 +155,11 @@ rec {
       use_backend = "if acl_vaultwarden";
     };
     backend = {
-      servers = [
-        {
-          name = "ttrss1";
-          address = "${addressOrLocalhost distribution.HaproxyConfig service}:${builtins.toString ingress}";
-        }
-      ];
+      # TODO: instead, we should generate target specific service https://hydra.nixos.org/build/203347995/download/2/manual/#idm140737322273072
+      servers = map (dist: {
+        name = "ttrss_${dist.properties.hostname}_1";
+        address = "${dist.properties.hostname}:${builtins.toString ingress}";
+      }) service;
     };
   };
 

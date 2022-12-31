@@ -7,7 +7,6 @@
 , realms ? []
 , every ? "10m"
 
-, HaproxyService
 , KeycloakService
 }:
 
@@ -16,6 +15,7 @@ rec {
 
   stateDir = "keycloak-public-keys";
   downloadDir = "/var/lib/keycloak-public-keys";
+  systemdUnitFile = "keycloak-haproxy.service";
   
   pkg =
     with pkgs.lib;
@@ -34,8 +34,8 @@ rec {
           '';
       };
     in
-      { HaproxyService
-      , KeycloakService
+      { KeycloakService
+      , ...
       }: utils.systemd.mkService rec {
         name = "keycloak-haproxy";
 
@@ -89,7 +89,6 @@ rec {
       };
 
   dependsOn = {
-    inherit HaproxyService;
     inherit KeycloakService;
   };
   type = "systemd-unit";
