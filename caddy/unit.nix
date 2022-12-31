@@ -4,11 +4,21 @@
 }:
 { user ? "http"
 , group ? "http"
-, configDir ? "/etc/caddy"
-, configFile ? "Caddyfile"
+, siteConfigDir
 }:
 {...}:
 
+let
+  config = pkgs.writeTextDir "Caddyfile" ''
+    {
+      # Disable auto https
+      http_port 10001
+      https_port 10002
+    }
+
+    import ${siteConfigDir}/*
+  '';
+in
 utils.systemd.mkService rec {
   name = "caddy";
 
@@ -27,10 +37,8 @@ utils.systemd.mkService rec {
   Type=notify
   User=${user}
   Group=${group}
-  #  Environment=XDG_DATA_HOME=/var/lib
-  #  Environment=XDG_CONFIG_HOME=${configDir}
-  ExecStart=${pkgs.caddy}/bin/caddy run --environ --config ${configDir}/${configFile}
-  ExecReload=${pkgs.caddy}/bin/caddy reload --config ${configDir}/${configFile}
+  ExecStart=${pkgs.caddy}/bin/caddy run --environ --config ${config}
+  ExecReload=${pkgs.caddy}/bin/caddy reload --config ${config}
 
   #  Restart=on-abnormal
   RuntimeDirectory=caddy
