@@ -14,7 +14,8 @@
 , keys
 , debug ? false
 }:
-{...}:
+{ ...
+}:
 
 # https://github.com/adorsys/keycloak-config-cli
 
