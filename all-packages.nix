@@ -19,10 +19,7 @@ let
     CaddySiteConfig = callPackage ./caddy/siteconfig.nix {inherit utils;};
     mkCaddySiteConfig = callPackage ./caddy/mksiteconfig.nix {inherit CaddySiteConfig;};
 
-    NginxService = callPackage ./nginx/unit.nix {inherit utils;};
-    mkNginxService = callPackage ./nginx/mkunit.nix {inherit NginxService;};
-    NginxSiteConfig = callPackage ./nginx/siteconfig.nix {inherit utils;};
-    mkNginxSiteConfig = callPackage ./nginx/mksiteconfig.nix {inherit NginxSiteConfig;};
+    mkNginxService = callPackage ./nginx/unit.nix {inherit utils;};
 
     PHPConfig = callPackage ./php/config.nix {inherit utils;};
     mkPHPSiteConfig = callPackage ./php/siteconfig.nix {inherit PHPConfig;};
@@ -38,10 +35,7 @@ let
 
     mkKeycloakHaproxyService = callPackage ./keycloak-haproxy/unit.nix {inherit utils;};
 
-    KeycloakCliConfig = callPackage ./keycloak-cli-config/config.nix {inherit utils;};
-    mkKeycloakCliConfig = callPackage ./keycloak-cli-config/mkconfig.nix {inherit KeycloakCliConfig;};
-    KeycloakCliService = callPackage ./keycloak-cli-config/unit.nix {inherit utils;};
-    mkKeycloakCliService = callPackage ./keycloak-cli-config/mkunit.nix {inherit KeycloakCliService;};
+    mkKeycloakCliService = callPackage ./keycloak-cli-config/unit.nix {inherit utils;};
 
     TtrssEnvironment = callPackage ./ttrss/environment.nix {};
     TtrssConfig = callPackage ./ttrss/config.nix {};
