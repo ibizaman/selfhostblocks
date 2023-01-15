@@ -21,15 +21,7 @@ let
 
     mkNginxService = callPackage ./nginx/unit.nix {inherit utils;};
 
-    PHPConfig = callPackage ./php/config.nix {inherit utils;};
-    mkPHPSiteConfig = callPackage ./php/siteconfig.nix {inherit PHPConfig;};
-
-    PHPFPMConfig = callPackage ./php-fpm/config.nix {inherit utils;};
-    mkPHPFPMConfig = callPackage ./php-fpm/mkconfig.nix {inherit PHPFPMConfig;};
-    PHPFPMService = callPackage ./php-fpm/unit.nix {inherit utils;};
-    mkPHPFPMService = callPackage ./php-fpm/mkunit.nix {inherit PHPFPMService;};
-    PHPFPMSiteConfig = callPackage ./php-fpm/siteconfig.nix {inherit utils;};
-    mkPHPFPMSiteConfig = callPackage ./php-fpm/mksiteconfig.nix {inherit PHPFPMSiteConfig;};
+    mkPHPFPMService = callPackage ./php-fpm/unit.nix {inherit utils;};
 
     mkKeycloakService = callPackage ./keycloak/unit.nix {inherit utils;};
 
@@ -44,8 +36,7 @@ let
     mkTtrssUpdateService = callPackage ./ttrss/mkupdate.nix {inherit TtrssUpdateService;};
     TtrssUpgradeDBService = callPackage ./ttrss/dbupgrade.nix {};
     mkTtrssUpgradeDBService = callPackage ./ttrss/mkdbupgrade.nix {inherit TtrssUpgradeDBService;};
-    TtrssPHPNormalizeHeaders = callPackage ./ttrss/normalize-headers.nix {inherit utils;};
-    mkTtrssPHPNormalizeHeaders = callPackage ./ttrss/mk-normalize-headers.nix {inherit TtrssPHPNormalizeHeaders;};
+    mkTtrssPHPNormalizeHeaders = callPackage ./ttrss/normalize-headers.nix {};
 
     vaultwarden = callPackage ./vaultwarden {inherit utils customPkgs;};
   };

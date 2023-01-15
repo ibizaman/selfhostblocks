@@ -1,11 +1,7 @@
-{ stdenv
-, pkgs
-, utils
-}:
-{ phpConfigDir
-, siteConfigDir
-, service
-, serviceRoot ? "/usr/share/webapps/${service}"
+{ pkgs
+, siteName
+, logLevel ? "notice"
+, siteRoot ? "/usr/share/webapps/${siteName}"
 , user
 , group
 , siteSocket
@@ -18,16 +14,13 @@
 , startServers ? 2
 , minSpareServers ? 1
 , maxSpareServers ? 3
-}:
-{ ... # Depends on whatever
-}:
+}: pkgs.writeText "php-fpm-${siteName}.conf" ''
+[global]
+  error_log = syslog
+  syslog.ident = php-fpm
+  log_level = ${logLevel}
 
-utils.mkConfigFile {
-  name = "${service}.conf";
-  dir = siteConfigDir;
-  content = ''
-  [${service}]
-  
+[${siteName}]
   user = ${user}
   group = ${group}
   listen = ${siteSocket}
@@ -38,7 +31,7 @@ utils.mkConfigFile {
   env[PATH] = /usr/local/bin:/usr/bin:/bin
   env[TMP] = /tmp
   
-  chdir = ${serviceRoot}
+  chdir = ${siteRoot}
   
   pm = dynamic
   
@@ -50,5 +43,4 @@ utils.mkConfigFile {
   catch_workers_output = yes
   
   pm.status_path = ${statusPath}
-  '';
-}
+''

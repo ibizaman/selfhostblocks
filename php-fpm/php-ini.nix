@@ -1,18 +1,9 @@
-{ stdenv
+{ lib
 , pkgs
-, lib
-, utils
-}:
-{ configDir ? "/etc/php"
-, configFile ? "php.ini"
+
+, siteName
 , prependFile ? null
-}:
-{ ... # Depends on whatever
-}:
-
-let
-
-  extensions = [
+, extensions ? [
   #  "bcmath"
   #  "curl"
   #  "gd"
@@ -27,22 +18,20 @@ let
   #  "soap"
   #  "sqlite3"
   #  "zip"
-  ];
-
-  zend_extensions = [
+]
+, zend_extensions ? [
   #  "opcache"
-  ];
+]
+}:
 
+let
   concatWithPrefix = prefix: content:
     lib.strings.concatMapStrings
       (x: prefix + x + "\n")
       content;
 in
 
-utils.mkConfigFile {
-  name = configFile;
-  dir = configDir;
-  content = ''
+pkgs.writeText "php-${siteName}.ini" ''
   [PHP]
   engine = On
   short_open_tag = Off
@@ -103,5 +92,4 @@ utils.mkConfigFile {
   ; opcache.memory_consumption=128
   ; opcache.interned_strings_buffer=16
   ; opcache.max_accelerated_files=20000
-  '';
-}
+''

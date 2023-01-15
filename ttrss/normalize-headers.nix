@@ -1,17 +1,9 @@
-{ stdenv
-, pkgs
-, utils
+{ pkgs
 }:
-{ configDir ? "/etc/php"
-, configFile ? "normalize-headers.php"
-
-, debug ? false
+{ debug ? false
 }:
 
-utils.mkConfigFile {
-  name = configFile;
-  dir = configDir;
-  content = ''
+pkgs.writeText "normalize-headers.php" (''
   <?php
   
   $trustedProxies = array(
@@ -51,5 +43,6 @@ utils.mkConfigFile {
   }
   '' + (if !debug then "" else ''
   trigger_error(print_r($_SERVER, true), E_USER_WARNING);
-  '');
-}
+  '')
+)
+
