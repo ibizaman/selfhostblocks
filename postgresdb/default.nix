@@ -2,15 +2,19 @@
 , pkgs
 , lib
 }:
-{ postgresDatabase
-, postgresUsername
-, postgresPassword ? null
-, postgresPasswordFile ? null
+{ name
+
+, database
+, username
+, password ? null
+, passwordFile ? null
+
+, dependsOn ? {}
 }:
 
 assert lib.assertMsg (
-  (postgresPassword == null && postgresPasswordFile != null)
-  || (postgresPassword != null && postgresPasswordFile == null)
+  (password == null && passwordFile != null)
+  || (password != null && passwordFile == null)
 ) "set either postgresPassword or postgresPasswordFile";
 
 # From https://github.com/svanderburg/dysnomia/blob/master/dysnomia-modules/postgresql-database.in
@@ -21,16 +25,24 @@ assert lib.assertMsg (
 # inside get imported.
 
 # TODO: https://stackoverflow.com/a/69480184/1013628
-stdenv.mkDerivation {
-  name = postgresDatabase;
+{
+  inherit name;
+  inherit database username password passwordFile;
 
-  src = pkgs.writeTextDir "${postgresDatabase}.sql" ''
-    CREATE USER "${postgresUsername}" WITH PASSWORD '${postgresPassword}';
-    GRANT ALL PRIVILEGES ON DATABASE "${postgresUsername}" TO "${postgresDatabase}";
-  '';
+  pkg = stdenv.mkDerivation {
+    name = database;
 
-  buildCommand = ''
-    mkdir -p $out/postgresql-databases
-    cp $src/*.sql $out/postgresql-databases
-  '';
+    src = pkgs.writeTextDir "${database}.sql" ''
+      CREATE USER "${username}" WITH PASSWORD '${password}';
+      GRANT ALL PRIVILEGES ON DATABASE "${username}" TO "${database}";
+    '';
+
+    buildCommand = ''
+      mkdir -p $out/postgresql-databases
+      cp $src/*.sql $out/postgresql-databases
+    '';
+  };
+
+  inherit dependsOn;
+  type = "postgresql-database";
 }

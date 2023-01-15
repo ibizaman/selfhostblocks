@@ -9,8 +9,7 @@ let
   callPackage = pkgs.lib.callPackageWith (pkgs // customPkgs);
 
   customPkgs = rec {
-    PostgresDB = callPackage ./postgresdb {};
-    mkPostgresDB = callPackage ./postgresdb/mkdefault.nix {inherit PostgresDB;};
+    mkPostgresDB = callPackage ./postgresdb {};
 
     mkHaproxyService = callPackage ./haproxy/unit.nix {inherit utils;};
 
