@@ -28,15 +28,7 @@ let
 
     mkKeycloakCliService = callPackage ./keycloak-cli-config/unit.nix {inherit utils;};
 
-    TtrssEnvironment = callPackage ./ttrss/environment.nix {};
-    TtrssConfig = callPackage ./ttrss/config.nix {};
-    mkTtrssConfig = callPackage ./ttrss/mkconfig.nix {inherit TtrssConfig;};
-    TtrssUpdateService = callPackage ./ttrss/update.nix {inherit utils;};
-    mkTtrssUpdateService = callPackage ./ttrss/mkupdate.nix {inherit TtrssUpdateService;};
-    TtrssUpgradeDBService = callPackage ./ttrss/dbupgrade.nix {};
-    mkTtrssUpgradeDBService = callPackage ./ttrss/mkdbupgrade.nix {inherit TtrssUpgradeDBService;};
-    mkTtrssPHPNormalizeHeaders = callPackage ./ttrss/normalize-headers.nix {};
-
+    ttrss = callPackage ./ttrss {inherit utils customPkgs;};
     vaultwarden = callPackage ./vaultwarden {inherit utils customPkgs;};
   };
 in

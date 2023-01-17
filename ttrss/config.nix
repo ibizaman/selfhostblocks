@@ -2,8 +2,10 @@
 , pkgs
 , lib
 }:
-{ document_root
+{ documentRoot
 , name ? "ttrss"
+, serviceName ? "ttrss"
+, subdomain ? "ttrss"
 , user ? "http"
 , group ? "http"
 , domain
@@ -22,8 +24,8 @@
 # , feedback_url ? ""
 , auth_remote_post_logout_url ? null
 , enabled_plugins ? [ "auth_remote" "note" ]
-}:
-{ TtrssPostgresDB
+
+, dependsOn ? {}
 }:
 
 let
@@ -34,9 +36,9 @@ let
   );
   wrapPutenv = key: value: "putenv('TTRSS_${lib.toUpper key}=${value}');";
 
-  config = self_url_path: {
+  config = self_url_path: db: {
     db_type = "pgsql";
-    db_host = db_host {inherit TtrssPostgresDB;};
+    db_host = db_host db;
     db_port = builtins.toString db_port;
     db_user = db_username;
     db_name = db_database;
@@ -85,26 +87,35 @@ let
     } else {}
   );
 in
-stdenv.mkDerivation rec {
-  inherit name;
-  src = pkgs.tt-rss;
+{
+  name = serviceName;
 
-  buildCommand =
-    let
-      configFile = pkgs.writeText "config.php" (asTtrssConfig (config "https://${name}.${domain}/"));
-      dr = dirOf document_root;
-    in
-      ''
-      mkdir -p $out/${name}
-      cp -ra $src/* $out/${name}
-      cp ${configFile} $out/${name}/config.php
+  pkg = {
+    db
+  }: stdenv.mkDerivation rec {
+    inherit name;
+    src = pkgs.tt-rss;
 
-      echo "${dr}" > $out/.dysnomia-targetdir
-      echo "${user}:${group}" > $out/.dysnomia-filesetowner
-      
-      cat > $out/.dysnomia-fileset <<FILESET
-        symlink $out/${name}
-        target ${dr}
-      FILESET
-      '';
+    buildCommand =
+      let
+        configFile = pkgs.writeText "config.php" (asTtrssConfig (config "https://${subdomain}.${domain}/" db));
+        dr = dirOf documentRoot;
+      in
+        ''
+        mkdir -p $out/${name}
+        cp -ra $src/* $out/${name}
+        cp ${configFile} $out/${name}/config.php
+
+        echo "${dr}" > $out/.dysnomia-targetdir
+        echo "${user}:${group}" > $out/.dysnomia-filesetowner
+
+        cat > $out/.dysnomia-fileset <<FILESET
+          symlink $out/${name}
+          target ${dr}
+        FILESET
+        '';
+  };
+
+  inherit dependsOn;
+  type = "fileset";
 }

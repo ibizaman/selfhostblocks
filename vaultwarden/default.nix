@@ -99,7 +99,7 @@ rec {
 
         ExecStart=${pkgs.vaultwarden-postgresql}/bin/vaultwarden
         WorkingDirectory=${dataFolder}
-        StateDirectory=${dataFolder}
+        StateDirectory=${name}
         User=${user}
         Group=${group}
 

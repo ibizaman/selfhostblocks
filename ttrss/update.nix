@@ -3,14 +3,15 @@
 , lib
 , utils
 }:
-{ documentRoot
+{ name
 , user
 , group
+, documentRoot
 , readOnlyPaths ? []
 , readWritePaths ? []
 , postgresServiceName
-}:
-{ ...
+
+, dependsOn ? {}
 }:
 
 # Assumptions:
@@ -25,43 +26,49 @@ let
   fullPath = "${documentRoot}";
   roPaths = [fullPath] ++ readOnlyPaths;
 in
-utils.systemd.mkService rec {
-  name = "ttrss-update";
-  content = ''
-    [Unit]
-    Description=${name}
-    After=network.target ${postgresServiceName}
-    
-    [Service]
-    User=${user}
-    Group=${group}
-    ExecStart=${pkgs.php}/bin/php ${fullPath}/update_daemon2.php
+{
+  inherit name;
+  pkg = {...}: utils.systemd.mkService rec {
+    name = "ttrss-update";
+    content = ''
+      [Unit]
+      Description=${name}
+      After=network.target ${postgresServiceName}
 
-    RuntimeDirectory=${name}
+      [Service]
+      User=${user}
+      Group=${group}
+      ExecStart=${pkgs.php}/bin/php ${fullPath}/update_daemon2.php
 
-    PrivateDevices=true
-    PrivateTmp=true
-    ProtectKernelTunables=true
-    ProtectKernelModules=true
-    ProtectControlGroups=true
-    ProtectKernelLogs=true
-    ProtectHome=true
-    ProtectHostname=true
-    ProtectClock=true
-    RestrictSUIDSGID=true
-    LockPersonality=true
-    NoNewPrivileges=true
+      RuntimeDirectory=${name}
 
-    SystemCallFilter=@basic-io @file-system @process @system-service
+      PrivateDevices=true
+      PrivateTmp=true
+      ProtectKernelTunables=true
+      ProtectKernelModules=true
+      ProtectControlGroups=true
+      ProtectKernelLogs=true
+      ProtectHome=true
+      ProtectHostname=true
+      ProtectClock=true
+      RestrictSUIDSGID=true
+      LockPersonality=true
+      NoNewPrivileges=true
 
-    ProtectSystem=strict
-    ReadOnlyPaths=${builtins.concatStringsSep " " roPaths}
-    ReadWritePaths=${builtins.concatStringsSep " " readWritePaths}
+      SystemCallFilter=@basic-io @file-system @process @system-service
 
-    # NoExecPaths=/
-    # ExecPaths=${pkgs.php}/bin
+      ProtectSystem=strict
+      ReadOnlyPaths=${builtins.concatStringsSep " " roPaths}
+      ReadWritePaths=${builtins.concatStringsSep " " readWritePaths}
 
-    [Install]
-    WantedBy=multi-user.target
-  '';
+      # NoExecPaths=/
+      # ExecPaths=${pkgs.php}/bin
+
+      [Install]
+      WantedBy=multi-user.target
+    '';
+  };
+
+  inherit dependsOn;
+  type = "systemd-unit";
 }

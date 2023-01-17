@@ -66,7 +66,7 @@ rec {
         inherit (phpfpmService) user group;
         inherit domain;
 
-        db_host = {TtrssPostgresDB}: TtrssPostgresDB.target.properties.hostname;
+        db_host = db: db.target.properties.hostname;
         db_port = (utils.getTarget distribution "TtrssPostgresDB").containers.postgresql-database.port;
         db_database = postgresDatabase;
         db_username = postgresUser;
