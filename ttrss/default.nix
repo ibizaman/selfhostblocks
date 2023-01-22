@@ -43,6 +43,8 @@ let
   feed_icons_directory = "${persistent_dir}/feed-icons";
 in
 rec {
+  dnsmasqSubdomains = [subdomain];
+
   db = customPkgs.mkPostgresDB {
     name = "${serviceName}PostgresDB";
 
