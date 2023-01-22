@@ -102,6 +102,7 @@ let
         , check ? null
         , httpcheck ? null
         , forwardfor ? true
+        , resolvers ? null
         }:
         [
           "mode http"
@@ -112,7 +113,11 @@ let
             "server"
             name
             address
-            (optionals (check != null) (mapAttrsToList (k: v: "${k} ${v}") check))
+            (optionals (check != null) (if
+              isBool check
+              then (if check then ["check"] else [])
+              else mapAttrsToList (k: v: "${k} ${v}") check))
+            (optional (resolvers != null) "resolvers ${resolvers}")
           ])
         ];
 
@@ -210,8 +215,25 @@ let
         ];
       }
       {
-        match = k: parent: v: k == "frontend";
+        match = k: parent: v: k == "resolvers";
         order = 3;
+        rules = [
+          {
+            match = k: parent: v: true;
+            header = k: "resolvers " + k;
+            indent = "    ";
+            rules = [
+              {
+                match = k: parent: v: k == "nameservers";
+                rule = k: parent: v: mapAttrsToList (k1: v1: "nameserver ${k1} ${v1}") v;
+              }
+            ];
+          }
+        ];
+      }
+      {
+        match = k: parent: v: k == "frontend";
+        order = 4;
         rules = [
           {
             match = k: parent: v: true;
@@ -260,7 +282,7 @@ let
       }
       {
         match = k: parent: v: k == "backend";
-        order = 4;
+        order = 5;
         rules = [
           {
             match = k: parent: v: true;
@@ -326,6 +348,7 @@ in
     , sites ? {}
     , globals ? {}
     , defaults ? {}
+    , resolvers ? {}
     }: {
       global = {
         # Silence a warning issued by haproxy. Using 2048
@@ -450,6 +473,8 @@ in
           assert assertMsg (hasAttr "backend" config) "no backend defined in config for site ${name}, found attr names: ${toString (attrNames config)}";
           nameValuePair name config.backend)
           sites;
+
+      inherit resolvers;
     };
 
   render = config:
