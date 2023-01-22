@@ -324,6 +324,8 @@ in
     , stats ? null
     , debug ? false
     , sites ? {}
+    , globals ? {}
+    , defaults ? {}
     }: {
       global = {
         # Silence a warning issued by haproxy. Using 2048
@@ -339,7 +341,7 @@ in
         inherit plugins;
 
         setenv = globalEnvs;
-      };
+      } // globals;
 
       defaults = {
         log = "global";
@@ -351,7 +353,7 @@ in
           server = "30s";
           queue = "100s";
         };
-      };
+      } // defaults;
 
       frontend = {
         http-to-https = {
