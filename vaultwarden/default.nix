@@ -52,93 +52,93 @@ rec {
   in {
     inherit name;
 
-    pkg = {
-      db
+    pkg =
+      { db
       , web
-    }: let
-      postgresHost = db.target.properties.hostname;
-    in utils.systemd.mkService {
-      name = "vaultwarden";
+      }: let
+        postgresHost = db.target.properties.hostname;
+      in utils.systemd.mkService rec {
+        name = "vaultwarden";
 
-      content = ''
-        [Unit]
-        Description=Vaultwarden Server
-        Documentation=https://github.com/dani-garcia/vaultwarden
-        After=network.target
-        After=${utils.keyServiceDependencies smtp.keys}
-        Wants=${utils.keyServiceDependencies smtp.keys}
+        content = ''
+          [Unit]
+          Description=Vaultwarden Server
+          Documentation=https://github.com/dani-garcia/vaultwarden
+          After=network.target
+          After=${utils.keyServiceDependencies smtp.keys}
+          Wants=${utils.keyServiceDependencies smtp.keys}
 
-        [Service]
-        Environment=DATA_FOLDER=${dataFolder}
-        Environment=DATABASE_URL=postgresql://${postgresUser}:${postgresPasswordLocation}@${postgresHost}/${postgresDatabase}
-        Environment=IP_HEADER=X-Real-IP
+          [Service]
+          Environment=DATA_FOLDER=${dataFolder}
+          Environment=DATABASE_URL=postgresql://${postgresUser}:${postgresPasswordLocation}@${postgresHost}/${postgresDatabase}
+          Environment=IP_HEADER=X-Real-IP
 
-        Environment=WEB_VAULT_FOLDER=${web.path}
-        Environment=WEB_VAULT_ENABLED=${if webvaultEnabled then "true" else "false"}
+          Environment=WEB_VAULT_FOLDER=${web.path}
+          Environment=WEB_VAULT_ENABLED=${if webvaultEnabled then "true" else "false"}
 
-        Environment=SIGNUPS_ALLOWED=${if signupsAllowed then "true" else "false"}
-        Environment=SIGNUPS_VERIFY=${if signupsVerify then "true" else "false"}
-        # Disabled because the /admin path is protected by SSO
-        Environment=DISABLE_ADMIN_TOKEN=true
-        Environment=INVITATIONS_ALLOWED=true
-        Environment=DOMAIN=https://${subdomain}.${domain}
+          Environment=SIGNUPS_ALLOWED=${if signupsAllowed then "true" else "false"}
+          Environment=SIGNUPS_VERIFY=${if signupsVerify then "true" else "false"}
+          # Disabled because the /admin path is protected by SSO
+          Environment=DISABLE_ADMIN_TOKEN=true
+          Environment=INVITATIONS_ALLOWED=true
+          Environment=DOMAIN=https://${subdomain}.${domain}
 
-        # Assumes we're behind a reverse proxy
-        Environment=ROCKET_ADDRESS=127.0.0.1
-        Environment=ROCKET_PORT=${builtins.toString ingress}
-        Environment=USE_SYSLOG=true
-        Environment=EXTENDED_LOGGING=true
-        Environment=LOG_FILE=
-        Environment=LOG_LEVEL=trace
+          # Assumes we're behind a reverse proxy
+          Environment=ROCKET_ADDRESS=127.0.0.1
+          Environment=ROCKET_PORT=${builtins.toString ingress}
+          Environment=USE_SYSLOG=true
+          Environment=EXTENDED_LOGGING=true
+          Environment=LOG_FILE=
+          Environment=LOG_LEVEL=trace
 
-        ${utils.keyEnvironmentFiles smtp.keys}
-        Environment=SMTP_FROM=${smtp.from}
-        Environment=SMTP_FROM_NAME=${smtp.fromName}
-        Environment=SMTP_PORT=${builtins.toString smtp.port}
-        Environment=SMTP_AUTH_MECHANISM=${smtp.authMechanism}
+          ${utils.keyEnvironmentFiles smtp.keys}
+          Environment=SMTP_FROM=${smtp.from}
+          Environment=SMTP_FROM_NAME=${smtp.fromName}
+          Environment=SMTP_PORT=${builtins.toString smtp.port}
+          Environment=SMTP_AUTH_MECHANISM=${smtp.authMechanism}
 
-        ExecStart=${pkgs.vaultwarden-postgresql}/bin/vaultwarden
-        WorkingDirectory=${dataFolder}
-        StateDirectory=${name}
-        User=${user}
-        Group=${group}
+          ExecStart=${pkgs.vaultwarden-postgresql}/bin/vaultwarden
+          WorkingDirectory=${dataFolder}
+          StateDirectory=${name}
+          User=${user}
+          Group=${group}
 
-        # Allow vaultwarden to bind ports in the range of 0-1024 and restrict it to
-        # that capability
-        CapabilityBoundingSet=${if ingress <= 1024 then "CAP_NET_BIND_SERVICE" else ""}
-        AmbientCapabilities=${if ingress <= 1024 then "CAP_NET_BIND_SERVICE" else ""}
+          # Allow vaultwarden to bind ports in the range of 0-1024 and restrict it to
+          # that capability
+          CapabilityBoundingSet=${if ingress <= 1024 then "CAP_NET_BIND_SERVICE" else ""}
+          AmbientCapabilities=${if ingress <= 1024 then "CAP_NET_BIND_SERVICE" else ""}
 
-        PrivateUsers=yes
-        NoNewPrivileges=yes
-        LimitNOFILE=1048576
-        UMask=0077
-        ProtectSystem=strict
-        ProtectHome=yes
-        # ReadWritePaths=${dataFolder}
-        PrivateTmp=yes
-        PrivateDevices=yes
-        ProtectHostname=yes
-        ProtectClock=yes
-        ProtectKernelTunables=yes
-        ProtectKernelModules=yes
-        ProtectKernelLogs=yes
-        ProtectControlGroups=yes
-        RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
-        RestrictNamespaces=yes
-        LockPersonality=yes
-        MemoryDenyWriteExecute=yes
-        RestrictRealtime=yes
-        RestrictSUIDSGID=yes
-        RemoveIPC=yes
+          PrivateUsers=yes
+          NoNewPrivileges=yes
+          LimitNOFILE=1048576
+          UMask=0077
+          ProtectSystem=strict
+          ProtectHome=yes
+          # ReadWritePaths=${dataFolder}
+          PrivateTmp=yes
+          PrivateDevices=yes
+          ProtectHostname=yes
+          ProtectClock=yes
+          ProtectKernelTunables=yes
+          ProtectKernelModules=yes
+          ProtectKernelLogs=yes
+          ProtectControlGroups=yes
+          RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+          RestrictNamespaces=yes
+          LockPersonality=yes
+          MemoryDenyWriteExecute=yes
+          RestrictRealtime=yes
+          RestrictSUIDSGID=yes
+          RemoveIPC=yes
 
-        SystemCallFilter=@system-service
-        SystemCallFilter=~@privileged @resources
-        SystemCallArchitectures=native
+          SystemCallFilter=@system-service
+          SystemCallFilter=~@privileged @resources
+          SystemCallArchitectures=native
 
-        [Install]
-        WantedBy=multi-user.target
-        '';
-    };
+          [Install]
+          WantedBy=multi-user.target
+          '';
+      };
 
     dependsOn = {
       inherit db;
@@ -157,8 +157,11 @@ rec {
     backend = {
       # TODO: instead, we should generate target specific service https://hydra.nixos.org/build/203347995/download/2/manual/#idm140737322273072
       servers = map (dist: {
-        name = "ttrss_${dist.properties.hostname}_1";
-        address = "${dist.properties.hostname}:${builtins.toString ingress}";
+        name = "vaultwarden_${dist.properties.hostname}_1";
+        # TODO: should use the hostname 
+        # address = "${dist.properties.hostname}:${builtins.toString ingress}";
+        address = "127.0.0.1:${builtins.toString ingress}";
+        resolvers = "default";
       }) service;
     };
   };
