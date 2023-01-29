@@ -1,6 +1,6 @@
-{ pkgs
+{ customPkgs
+, pkgs
 , utils
-, customPkgs
 }:
 { serviceName ? "Ttrss"
 , siteName ? "ttrss"
@@ -28,14 +28,6 @@
 
 with pkgs.lib.attrsets;
 let
-  mkServices = services: listToAttrs (map (
-    x: nameValuePair x.name x
-  ) services);
-
-  mkDistribution = services: on: listToAttrs (map (
-    x: nameValuePair x.name on
-  ) services);
-
   rtdir = "/run/ttrss";
   lock_directory = "${rtdir}/lock";
   cache_directory = "${rtdir}/cache";
@@ -191,23 +183,23 @@ rec {
     };
   };
 
-  services = mkServices [
-    db
-    config
-    dbupgrade
-    service
-    phpfpmService
-    updateService
-  ];
+  services = {
+    ${db.name} = db;
+    ${config.name} = config;
+    ${dbupgrade.name} = dbupgrade;
+    ${service.name} = service;
+    ${phpfpmService.name} = phpfpmService;
+    ${updateService.name} = updateService;
+  };
 
-  distribute = mkDistribution [
-    db
-    config
-    dbupgrade
-    service
-    phpfpmService
-    updateService
-  ];
+  distribute = on: {
+    ${db.name} = on;
+    ${config.name} = on;
+    ${dbupgrade.name} = on;
+    ${service.name} = on;
+    ${phpfpmService.name} = on;
+    ${updateService.name} = on;
+  };
 
   directories_modes = {
     "${rtdir}" = "0550";

@@ -173,4 +173,16 @@ rec {
       };
     };
   };
+
+  services = {
+    ${db.name} = db;
+    ${web.name} = web;
+    ${service.name} = service;
+  };
+
+  distribute = on: {
+    ${db.name} = on;
+    ${web.name} = on;
+    ${service.name} = on;
+  };
 }
