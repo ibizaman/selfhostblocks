@@ -18,6 +18,9 @@
 , webvaultEnabled ? true
 , webvaultPath ? "/usr/share/webapps/vaultwarden"
 
+, cookieSecretName ? "cookiesecret"
+, clientSecretName ? "clientsecret"
+
 , smtp ? {}
 , sso ? {}
 
@@ -25,6 +28,11 @@
 }:
 let
   mkVaultwardenWeb = pkgs.callPackage ./web.nix {inherit utils;};
+
+  ssoIngress = if sso != {} then ingress else null;
+  serviceIngress = if sso != {} then ingress+1 else ingress;
+
+  smtpConfig = smtp;
 in
 rec {
   inherit user group;
@@ -65,8 +73,8 @@ rec {
           Description=Vaultwarden Server
           Documentation=https://github.com/dani-garcia/vaultwarden
           After=network.target
-          After=${utils.keyServiceDependencies smtp.keys}
-          Wants=${utils.keyServiceDependencies smtp.keys}
+          After=${utils.keyServiceDependencies smtpConfig.keys}
+          Wants=${utils.keyServiceDependencies smtpConfig.keys}
 
           [Service]
           Environment=DATA_FOLDER=${dataFolder}
@@ -85,17 +93,17 @@ rec {
 
           # Assumes we're behind a reverse proxy
           Environment=ROCKET_ADDRESS=127.0.0.1
-          Environment=ROCKET_PORT=${builtins.toString ingress}
+          Environment=ROCKET_PORT=${builtins.toString serviceIngress}
           Environment=USE_SYSLOG=true
           Environment=EXTENDED_LOGGING=true
           Environment=LOG_FILE=
           Environment=LOG_LEVEL=trace
 
-          ${utils.keyEnvironmentFiles smtp.keys}
-          Environment=SMTP_FROM=${smtp.from}
-          Environment=SMTP_FROM_NAME=${smtp.fromName}
-          Environment=SMTP_PORT=${builtins.toString smtp.port}
-          Environment=SMTP_AUTH_MECHANISM=${smtp.authMechanism}
+          ${utils.keyEnvironmentFiles smtpConfig.keys}
+          Environment=SMTP_FROM=${smtpConfig.from}
+          Environment=SMTP_FROM_NAME=${smtpConfig.fromName}
+          Environment=SMTP_PORT=${builtins.toString smtpConfig.port}
+          Environment=SMTP_AUTH_MECHANISM=${smtpConfig.authMechanism}
 
           ExecStart=${pkgs.vaultwarden-postgresql}/bin/vaultwarden
           WorkingDirectory=${dataFolder}
@@ -105,8 +113,8 @@ rec {
 
           # Allow vaultwarden to bind ports in the range of 0-1024 and restrict it to
           # that capability
-          CapabilityBoundingSet=${if ingress <= 1024 then "CAP_NET_BIND_SERVICE" else ""}
-          AmbientCapabilities=${if ingress <= 1024 then "CAP_NET_BIND_SERVICE" else ""}
+          CapabilityBoundingSet=${if serviceIngress <= 1024 then "CAP_NET_BIND_SERVICE" else ""}
+          AmbientCapabilities=${if serviceIngress <= 1024 then "CAP_NET_BIND_SERVICE" else ""}
 
           PrivateUsers=yes
           NoNewPrivileges=yes
@@ -166,6 +174,14 @@ rec {
     };
   };
 
+  oauth2Proxy = {
+    name = "${serviceName}Oauth2Proxy";
+    serviceName = subdomain;
+    inherit domain;
+    cookieSecret = "${serviceName}_oauth2proxy_cookiesecret";
+    clientSecret = "${serviceName}_oauth2proxy_clientsecret";
+  };
+
   keycloakCliConfig = {
     clients = {
       vaultwarden = {
@@ -173,6 +189,22 @@ rec {
       };
     };
   };
+
+  deployKeys = {
+    "${serviceName}_oauth2proxy_cookiesecret".text = ''
+        OAUTH2_PROXY_COOKIE_SECRET="${builtins.extraBuiltins.pass "${domain}/${subdomain}/${cookieSecretName}"}"
+        '';
+    "${serviceName}_oauth2proxy_clientsecret".text = ''
+        OAUTH2_PROXY_CLIENT_SECRET="${builtins.extraBuiltins.pass "${domain}/${subdomain}/${clientSecretName}"}"
+        '';
+    "${serviceName}_smtp_all".text = ''
+        SMTP_HOST="${builtins.extraBuiltins.pass "mailgun.com/mg.tiserbox.com/smtp_hostname"}"
+        SMTP_USERNAME="${builtins.extraBuiltins.pass "mailgun.com/mg.tiserbox.com/smtp_login"}"
+        SMTP_PASSWORD="${builtins.extraBuiltins.pass "mailgun.com/mg.tiserbox.com/password"}"
+        '';
+  };
+
+  smtp.keys.setup = "${serviceName}_smtp_all";
 
   services = {
     ${db.name} = db;
