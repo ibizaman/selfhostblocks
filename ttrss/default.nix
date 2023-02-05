@@ -50,7 +50,7 @@ rec {
     let
       domain = utils.getDomain distribution "${serviceName}Config";
     in
-      configPkg {
+      configPkg ({
         name = "ttrss";
         serviceName = "${serviceName}Config";
 
@@ -67,12 +67,14 @@ rec {
         # TODO: use passwordFile
         db_password = postgresPasswordLocation;
         enabled_plugins = [ "auth_remote" "note" ];
-        auth_remote_post_logout_url = "https://keycloak.${domain}/realms/${sso.realm}/account";
 
         dependsOn = {
           inherit db;
         };
-      };
+      }
+      // optionalAttrs (sso != {}) {
+        auth_remote_post_logout_url = "https://keycloak.${domain}/realms/${sso.realm}/account";
+      });
 
   dbupgrade = dbupgradePkg {
     name = "${serviceName}DBUpgrade";
