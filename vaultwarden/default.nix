@@ -190,7 +190,7 @@ rec {
     };
   };
 
-  deployKeys = {
+  deployKeys = domain: {
     "${serviceName}_oauth2proxy_cookiesecret".text = ''
         OAUTH2_PROXY_COOKIE_SECRET="${builtins.extraBuiltins.pass "${domain}/${subdomain}/${cookieSecretName}"}"
         '';

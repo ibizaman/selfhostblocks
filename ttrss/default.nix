@@ -185,6 +185,8 @@ rec {
     };
   };
 
+  deployKeys = domain: {};
+
   services = {
     ${db.name} = db;
     ${config.name} = config;
