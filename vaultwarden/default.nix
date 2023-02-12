@@ -4,7 +4,6 @@
 }:
 { serviceName ? "Vaultwarden"
 , subdomain ? "vaultwarden"
-, domain ? ""
 , ingress ? 18005
 , signupsAllowed ? false
 , signupsVerify ? true
@@ -25,12 +24,15 @@
 , sso ? {}
 
 , distribution ? {}
+, KeycloakService ? null
+, KeycloakCliService ? null
 }:
 let
   mkVaultwardenWeb = pkgs.callPackage ./web.nix {inherit utils;};
 
   ssoIngress = if sso != {} then ingress else null;
   serviceIngress = if sso != {} then ingress+1 else ingress;
+  metricsPort = if sso != {} then ingress+2 else ingress+1;
 
   smtpConfig = smtp;
 in
@@ -174,18 +176,43 @@ rec {
     };
   };
 
-  oauth2Proxy = {
-    name = "${serviceName}Oauth2Proxy";
-    serviceName = subdomain;
-    inherit domain;
-    cookieSecret = "${serviceName}_oauth2proxy_cookiesecret";
-    clientSecret = "${serviceName}_oauth2proxy_clientsecret";
+  oauth2Proxy =
+    let
+      name = "${serviceName}Oauth2Proxy";
+    in customPkgs.mkOauth2Proxy {
+      inherit name;
+      serviceName = subdomain;
+      domain = utils.getDomain distribution name;
+      ingress = "127.0.0.1:${toString ssoIngress}";
+      egress = [ "http://127.0.0.1:${toString serviceIngress}" ];
+      realm = sso.realm;
+      allowed_roles = [ "user" "/admin|admin" ];
+      inherit metricsPort;
+      keys = {
+        cookieSecret = "${serviceName}_oauth2proxy_cookiesecret";
+        clientSecret = "${serviceName}_oauth2proxy_clientsecret";
+      };
+
+    inherit distribution KeycloakService KeycloakCliService;
   };
 
   keycloakCliConfig = {
     clients = {
       vaultwarden = {
-        roles = ["uma_protection"];
+        resourcesUris = {
+          adminPath = ["/admin/*"];
+          userPath = ["/*"];
+        };
+        access = {
+          admin = {
+            roles = [ "admin" ];
+            resources = [ "adminPath" ];
+          };
+          user = {
+            roles = [ "user" ];
+            resources = [ "userPath" ];
+          };
+        };
       };
     };
   };
@@ -210,11 +237,13 @@ rec {
     ${db.name} = db;
     ${web.name} = web;
     ${service.name} = service;
+    ${oauth2Proxy.name} = oauth2Proxy;
   };
 
   distribute = on: {
     ${db.name} = on;
     ${web.name} = on;
     ${service.name} = on;
+    ${oauth2Proxy.name} = on;
   };
 }

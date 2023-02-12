@@ -23,6 +23,7 @@ let
     mkPHPFPMService = callPackage ./php-fpm/unit.nix {inherit utils;};
 
     mkKeycloakService = callPackage ./keycloak/unit.nix {inherit utils;};
+    mkOauth2Proxy = callPackage ./oauth2-proxy/unit.nix {inherit utils;};
 
     mkKeycloakHaproxyService = callPackage ./keycloak-haproxy/unit.nix {inherit utils;};
 

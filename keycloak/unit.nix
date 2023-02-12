@@ -10,6 +10,7 @@
 , postgresServiceName
 , initialAdminUsername ? null
 , keys
+, listenPort ? 8080
 
 , logLevel ? "INFO"
 , metricsEnabled ? false
@@ -38,6 +39,7 @@ in
   inherit name;
 
   inherit initialAdminUsername;
+  inherit hostname listenPort;
 
   systemdUnitFile = "${name}.service";
 
@@ -58,6 +60,9 @@ in
       metrics-enabled=${if metricsEnabled then "true" else "false"}
 
       # HTTP
+
+      http-host=127.0.0.1
+      http-port=${builtins.toString listenPort}
 
       # The file path to a server certificate or certificate chain in PEM format.
       #https-certificate-file=''${kc.home.dir}conf/server.crt.pem

@@ -180,7 +180,6 @@ rec {
   keycloakCliConfig = {
     clients = {
       ttrss = {
-        roles = ["uma_protection"];
       };
     };
   };
