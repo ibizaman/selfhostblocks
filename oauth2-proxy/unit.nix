@@ -18,6 +18,7 @@
 , distribution
 , KeycloakService
 , KeycloakCliService
+, HaproxyService
 
 , debug ? true
 }:
@@ -31,6 +32,7 @@ rec {
   pkg =
     { KeycloakService
     , KeycloakCliService
+    , HaproxyService
     }:
     let
       formatted_allowed_roles = builtins.toJSON (concatStringsSep ", " allowed_roles);
@@ -149,7 +151,7 @@ rec {
     };
 
   dependsOn = {
-    inherit KeycloakService KeycloakCliService;
+    inherit HaproxyService KeycloakService KeycloakCliService;
   };
   type = "systemd-unit";
 }

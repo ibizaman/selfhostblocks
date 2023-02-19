@@ -26,6 +26,7 @@
 , distribution ? {}
 , KeycloakService ? null
 , KeycloakCliService ? null
+, HaproxyService ? null
 }:
 let
   mkVaultwardenWeb = pkgs.callPackage ./web.nix {inherit utils;};
@@ -194,7 +195,7 @@ rec {
         clientSecret = "${serviceName}_oauth2proxy_clientsecret";
       };
 
-    inherit distribution KeycloakService KeycloakCliService;
+    inherit distribution HaproxyService KeycloakService KeycloakCliService;
   };
 
   keycloakCliConfig = {
