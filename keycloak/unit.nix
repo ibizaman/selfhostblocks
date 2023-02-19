@@ -15,6 +15,7 @@
 , logLevel ? "INFO"
 , metricsEnabled ? false
 , hostname
+, subdomain
 
 , dbUsername ? "keycloak"
 , dbHost ? x: "localhost"
@@ -39,7 +40,7 @@ in
   inherit name;
 
   inherit initialAdminUsername;
-  inherit hostname listenPort;
+  inherit hostname subdomain listenPort;
 
   systemdUnitFile = "${name}.service";
 

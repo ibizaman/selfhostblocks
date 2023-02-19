@@ -38,8 +38,7 @@ let
 in
 rec {
   inherit user group;
-
-  dnsmasqSubdomains = [subdomain];
+  inherit subdomain;
 
   db = customPkgs.mkPostgresDB {
     name = "${serviceName}PostgresDB";
@@ -183,6 +182,8 @@ rec {
       inherit name;
       serviceName = subdomain;
       domain = utils.getDomain distribution name;
+      keycloakSubdomain = KeycloakService.subdomain;
+      keycloakDomain = utils.getDomain distribution "KeycloakService";
       ingress = "127.0.0.1:${toString ssoIngress}";
       egress = [ "http://127.0.0.1:${toString serviceIngress}" ];
       realm = sso.realm;

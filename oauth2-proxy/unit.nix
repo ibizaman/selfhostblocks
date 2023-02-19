@@ -4,8 +4,9 @@
 }:
 { name
 , serviceName
-, keycloakSubdomain ? "keycloak"
 , domain
+, keycloakSubdomain ? "keycloak"
+, keycloakDomain ? domain
 , realm
 , allowed_roles ? []
 
@@ -45,7 +46,7 @@ rec {
         scope="openid"
         
         redirect_url = "https://${serviceName}.${domain}/oauth2/callback"
-        oidc_issuer_url = "https://${keycloakSubdomain}.${domain}/realms/${realm}"
+        oidc_issuer_url = "https://${keycloakSubdomain}.${keycloakDomain}/realms/${realm}"
         
         email_domains = [ "*" ]
         allowed_roles = ${formatted_allowed_roles}
