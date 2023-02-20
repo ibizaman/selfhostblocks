@@ -35,3 +35,181 @@ provide are [Tiny Tiny RSS](https://tt-rss.org/) and
 was chosen as it's IMO the first stepping stone to enable
 self-hosting. Tiny Tiny RSS was chosen because it is somewhat
 lightweight.
+
+- [ ] Vaultwarden
+- [ ] TTRSS
+
+## Getting Started
+
+WIP
+
+## Deploy to staging environment - Virtualbox
+
+Instead of deploying to prod machines, you'll deploy to VMs running on
+your computer. This is tremendously helpful for testing.
+
+```bash
+export NIXOPS_DEPLOYMENT=vboxtest
+export DISNIXOS_USE_NIXOPS=1
+
+nixops create ./network-virtualbox.nix -d vboxtest
+
+nixops deploy --option extra-builtins-file $(pwd)/pkgs/extra-builtins.nix
+nixops reboot
+
+disnixos-env -s services.nix -n network-virtualbox.nix -d distribution.nix
+```
+
+It's okay if the `nixops deploy` command fails to activate the new
+configuration on first run because of the `virtualbox.service`. If
+that happens, continue with the `nixops reboot` command. The service
+will activate itself after the reboot.
+
+Rebooting after deploying is anyway needed for systemd to pickup the
+`/etc/systemd-mutable` path through the `SYSTEMD_UNIT_PATH`
+environment variable.
+
+The `extra-builtins-file` allows us to use password store as the
+secrets manager. You'll probably see a errors about missing passwords
+when running this for the first time. To fix those, generate the
+password with `pass`.
+
+### Handle host reboot
+
+After restarting the computer running the VMs, do `nixops start` and
+continue from the `nixops deploy ...` step.
+
+### Cleanup
+
+To start from scratch, run `nixops destroy` and start at the `nixops
+deploy ...` step. This can be useful after fiddling with creating
+directories. You could do this on prod too but... it's probably not a
+good idea.
+
+Also, you'll need to add the `--no-upgrade` option when running
+`disnixos-env` the first time. Otherwise, disnix will try to
+deactivate services but since the machine is clean, it will fail to
+deactivate the services.
+
+## Run tests
+
+```bash
+nix-instantiate --eval --strict . -A runtests
+```
+
+## Deploy to prod
+
+```bash
+export NIXOPS_DEPLOYMENT=prod
+export DISNIXOS_USE_NIXOPS=1
+
+nixops create ./network-prod.nix -d prod
+
+nixops deploy --option extra-builtins-file $(pwd)/pkgs/extra-builtins.nix
+nixops reboot
+
+disnixos-env -s services.nix -n network-prod.nix -d distribution.nix
+```
+
+## Useful commands
+
+### List deployments
+
+To get the list of deployments, run:
+
+```bash
+nixops list
+```
+
+### List machines
+
+To know what machines exist on a deployment, run:
+
+```bash
+nixops info -d <deployment>
+```
+
+### Ssh into a machine
+
+```bash
+export NIXOPS_DEPLOYMENT=<deployment>
+
+nixops ssh <machine>
+```
+
+### Delete a deployment
+
+```bash
+nixops delete -d <deployment>
+```
+
+### Garbage collect old derivations
+
+```bash
+disnixos-env -s services.nix -n network-prod.nix -d distribution.nix --delete-generations=old
+```
+
+### Create manifest file
+
+```bash
+disnixos-manifest -s services.nix -n network-virtualbox.nix -d distribution.nix
+```
+
+### Create graph of service deployment
+
+```bash
+disnix-visualize /nix/store/cjiw9s257dpnvss2v6wm5a0iqx936hpq-manifest.xml | dot -Tpng > dot.png
+```
+
+# TODOs
+
+Todos, in rough order of highest to lowest priority.
+
+* [x] Make vaultwarden's `/admin` path be protected by Keycloak using
+      oauth2-proxy.
+* [ ] Automatically pull client credentials from keycloak to populate
+      oauth2proxy's clientsecret key.
+* [ ] Automatic DNS setup of linode.
+* [ ] Add LDAP server.
+* [ ] Use LDAP server with vaultwarden using "[Directory
+      Connector](https://github.com/dani-garcia/vaultwarden/wiki)".
+* [ ] Currently, there's a hack with a dnsmasq config in
+      `configuration.nix` to redirect every request for
+      `<subdomain>.<dev-domain>` to `<machine>`. This is not
+      maintainable as the configuration does not rely on information
+      provided by `distribution.nix`.
+* [ ] Add dependencies to systemd service files. I'm sure some of them
+      are lacking the correct After= and Wants= fields.
+* [ ] Merge configs with systemd units.
+* [ ] Make haproxy resolve hostnames. For now, I hardcorded 127.0.0.1.
+* [ ] Auto-login into vaultwarden using SSO. Depends on
+      https://github.com/dani-garcia/vaultwarden/pull/3154 being
+      merged.
+* [ ] Handle linode Firewall.
+* [ ] Go through https://xeiaso.net/blog/paranoid-nixos-2021-07-18 and
+      https://nixos.wiki/wiki/Security
+
+# Troubleshoot
+
+## Derivation not copied correctly
+
+Sometimes, when aborting at the wrong moment, something does not get
+copied over correctly from your local machine to the `<machine>` you
+deploy on. If that happens, copy the manifest name from running the
+`disnixos-env` command (something like
+`/nix/var/nix/profiles/per-user/.../disnix-coordinator/default-319-link`) and run:
+
+```bash
+disnix-distribute <manifest>
+```
+
+Another way is to identify what path is missing by running `ls
+/nix/store/<path>` on both the host machine and the deploy machine.
+That path should exist on the former but not the latter. To copy over,
+run:
+
+```bash
+nix-store --export /nix/store/<path> | \
+  bzip2 | \
+  nixops ssh <machine> "bunzip2 | nix-store --import"
+```
