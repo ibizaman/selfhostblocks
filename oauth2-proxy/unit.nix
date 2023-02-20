@@ -9,6 +9,8 @@
 , keycloakDomain ? domain
 , realm
 , allowed_roles ? []
+, skip_auth_routes ? []
+, api_routes ? []
 
 , ingress
 , egress
@@ -35,8 +37,6 @@ rec {
     , HaproxyService
     }:
     let
-      formatted_allowed_roles = builtins.toJSON (concatStringsSep ", " allowed_roles);
-
       config = pkgs.writeText "${serviceName}.cfg" (''
         provider = "keycloak-oidc"
         provider_display_name="Keycloak"
@@ -51,19 +51,20 @@ rec {
         oidc_issuer_url = "https://${keycloakSubdomain}.${keycloakDomain}/realms/${realm}"
         
         email_domains = [ "*" ]
-        allowed_roles = ${formatted_allowed_roles}
-        # skip_auth_routes = [ "^/api" ]
+        allowed_roles = ${builtins.toJSON allowed_roles}
+        skip_auth_routes = ${builtins.toJSON skip_auth_routes}
+        api_routes = ${builtins.toJSON api_routes}
         
         reverse_proxy = "true"
         # trusted_ips = "@"
         
         skip_provider_button = "true"
 
-        pass_authorization_header = true
-        pass_access_token = true
-        pass_user_headers = true
-        set_authorization_header = true
-        set_xauthrequest = true
+        # pass_authorization_header = true
+        # pass_access_token = true
+        # pass_user_headers = true
+        # set_authorization_header = true
+        # set_xauthrequest = true
         '' + (if !debug then "" else ''
         auth_logging = "true"
         request_logging = "true"

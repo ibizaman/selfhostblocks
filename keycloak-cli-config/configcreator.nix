@@ -174,6 +174,7 @@ let
     {
       username = k;
       enabled = true;
+      emailVerified = true;
 
       inherit (config) email firstName lastName;
     } // optionalAttrs (config ? "groups") {

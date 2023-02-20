@@ -5,8 +5,8 @@
 { serviceName ? "Vaultwarden"
 , subdomain ? "vaultwarden"
 , ingress ? 18005
-, signupsAllowed ? false
-, signupsVerify ? true
+, signupsAllowed ? true  # signups allowed since we're behind SSO
+, signupsVerify ? false
 
 , user ? "vaultwarden"
 , group ? "vaultwarden"
@@ -189,6 +189,7 @@ rec {
       egress = [ "http://127.0.0.1:${toString serviceIngress}" ];
       realm = sso.realm;
       allowed_roles = [ "user" "/admin|admin" ];
+      skip_auth_routes = [ "^/api" ];
       inherit metricsPort;
       keys = {
         cookieSecret = "${serviceName}_oauth2proxy_cookiesecret";
