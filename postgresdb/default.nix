@@ -34,7 +34,7 @@ assert lib.assertMsg (
 
     src = pkgs.writeTextDir "${database}.sql" ''
       CREATE USER "${username}" WITH PASSWORD '${password}';
-      GRANT ALL PRIVILEGES ON DATABASE "${username}" TO "${database}";
+      GRANT ALL PRIVILEGES ON DATABASE "${database}" TO "${username}";
     '';
 
     buildCommand = ''
