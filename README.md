@@ -169,7 +169,8 @@ Todos, in rough order of highest to lowest priority.
       oauth2-proxy.
 * [ ] Automatically pull client credentials from keycloak to populate
       oauth2proxy's clientsecret key.
-* [ ] Automatic DNS setup of linode.
+* [ ] Automatic DNS setup of linode, probably using
+      https://github.com/kubernetes-sigs/external-dns.
 * [ ] Add LDAP server.
 * [ ] Use LDAP server with vaultwarden using "[Directory
       Connector](https://github.com/dani-garcia/vaultwarden/wiki)".
@@ -185,9 +186,9 @@ Todos, in rough order of highest to lowest priority.
 * [ ] Auto-login into vaultwarden using SSO. Depends on
       https://github.com/dani-garcia/vaultwarden/pull/3154 being
       merged.
-* [ ] Handle linode Firewall.
 * [ ] Go through https://xeiaso.net/blog/paranoid-nixos-2021-07-18 and
       https://nixos.wiki/wiki/Security
+* [ ] Move a few packages installed in network.nix into services.nix.
 
 # Troubleshoot
 
