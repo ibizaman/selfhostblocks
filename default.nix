@@ -8,6 +8,8 @@ with pkgs.lib.attrsets;
 with pkgs.lib.lists;
 with pkgs.lib.strings;
 rec {
+  customPkgs = import ./all-packages.nix;
+
   tests = pkgs.callPackage ./tests { inherit utils; };
 
   runtests =
