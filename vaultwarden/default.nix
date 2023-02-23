@@ -59,6 +59,16 @@ rec {
   service = let
     name = "${serviceName}Service";
     domain = utils.getDomain distribution name;
+
+    pkgsVaultwarden-1_27_0 =
+      let pkg = builtins.fetchurl {
+            url = "https://raw.githubusercontent.com/NixOS/nixpkgs/988cc958c57ce4350ec248d2d53087777f9e1949/pkgs/tools/security/vaultwarden/default.nix";
+            sha256 = "0hwjbq5qb8y5frb2ca3m501x84zaibzyn088zzaf7zcwkxvqb0im";
+          };
+      in pkgs.callPackage pkg {
+        inherit (pkgs.darwin.apple_sdk.frameworks) Security CoreServices;
+        dbBackend = "postgresql";
+      };
   in {
     inherit name;
 
@@ -107,7 +117,7 @@ rec {
           Environment=SMTP_PORT=${builtins.toString smtpConfig.port}
           Environment=SMTP_AUTH_MECHANISM=${smtpConfig.authMechanism}
 
-          ExecStart=${pkgs.vaultwarden-postgresql}/bin/vaultwarden
+          ExecStart=${pkgsVaultwarden-1_27_0}/bin/vaultwarden
           WorkingDirectory=${dataFolder}
           StateDirectory=${name}
           User=${user}
