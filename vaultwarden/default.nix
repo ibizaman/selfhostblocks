@@ -199,7 +199,11 @@ rec {
       egress = [ "http://127.0.0.1:${toString serviceIngress}" ];
       realm = sso.realm;
       allowed_roles = [ "user" "/admin|admin" ];
-      skip_auth_routes = [ "^/api" "^/identity/connect/token" ];
+      skip_auth_routes = [
+        "^/api"
+        "^/identity/connect/token"
+        "^/identity/accounts/prelogin"
+      ];
       inherit metricsPort;
       keys = {
         cookieSecret = "${serviceName}_oauth2proxy_cookiesecret";
