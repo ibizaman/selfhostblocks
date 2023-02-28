@@ -108,12 +108,9 @@ in
       Environment=PATH=${pkgs.coreutils}/bin
       Environment=KC_HOME_DIR="/run/keycloak"
 
-      # running the ExecStartPre as root is not ideal, but at the moment
-      # the only solution for Quarkus modifying the serialized
-      # data under <keycloak-home>/lib/quarkus
-      # Raised upstream as https://github.com/keycloak/keycloak/discussions/10323
-      # ExecStartPre=!${keycloak}/bin/kc.sh -cf ${configFile} build
-      ExecStart=${keycloak}/bin/kc.sh -cf ${configFile} start
+      # build is ran upstream in the pkgs.keycloak definition, we add
+      # the --optimized flag to avoid running build on startup
+      ExecStart=${keycloak}/bin/kc.sh -cf ${configFile} start --optimized
 
       # ReadWritePaths=/var/lib/keycloak
       # ReadWritePaths=/var/log/keycloak
