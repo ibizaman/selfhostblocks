@@ -219,3 +219,13 @@ nix-store --export /nix/store/<path> | \
   bzip2 | \
   nixops ssh <machine> "bunzip2 | nix-store --import"
 ```
+
+## Cannot lock services
+
+If you canceled a `disnixos-env` invocation, you could end up with
+locked services and the next invocation will fail. To unlock the
+services manually, run:
+
+```bash
+disnix-lock -u
+```
