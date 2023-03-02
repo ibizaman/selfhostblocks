@@ -167,6 +167,11 @@ Todos, in rough order of highest to lowest priority.
 
 * [x] Make vaultwarden's `/admin` path be protected by Keycloak using
       oauth2-proxy.
+* [ ] Add integration tests using VMs
+* [ ] Merge all keycloak services into one definition
+* [ ] Run those tests in CI
+* [ ] Add examples
+* [ ] Merge
 * [ ] Automatically pull client credentials from keycloak to populate
       oauth2proxy's clientsecret key.
 * [ ] Automatic DNS setup of linode, probably using
