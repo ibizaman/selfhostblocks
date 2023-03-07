@@ -14,6 +14,11 @@ let
     };
 in
 {
+  # We need this function because, for a reason that eludes me, the
+  # one defined in disnixos fails the name attribute not correctly set
+  # in the call to simpleTest. The only difference between this
+  # function and the one in disnixos is the additional `inherit name`
+  # line.
   disnixTest = system:
     {name, manifest, tarball, networkFile, externalNetworkFile ? false, testScript, dysnomiaStateDir ? "", postActivateTimeout ? 1}:
 
