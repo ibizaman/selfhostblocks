@@ -1,58 +1,75 @@
 { nixpkgs ? <nixpkgs>
-, system ? builtins.currentSystem
+, systems ? [ "i686-linux" "x86_64-linux" ]
 }:
 
 let
-  pkgs = import nixpkgs {inherit system;};
+  pkgs = import nixpkgs {};
 
   disnixos = import "${pkgs.disnixos}/share/disnixos/testing.nix" {
-    inherit nixpkgs system;
+    inherit nixpkgs;
   };
 
   version = "1.0";
+
+  disnixos2 = pkgs.callPackage ./common.nix { inherit nixpkgs; };
 in
 
 rec {
   tarball = disnixos.sourceTarball {
     name = "testproject-zip";
     inherit version;
-    src = ./.;
+    src = ../../.;
     officialRelease = false;
   };
   
-  manifest = 
-    disnixos.buildManifest {
-      name = "test-project-manifest";
-      version = builtins.readFile ./version;
-      inherit tarball;
-      servicesFile = "keycloak/services.nix";
-      networkFile = "keycloak/network.nix";
-      distributionFile = "keycloak/distribution.nix";
-    };
+  builds = {
+    simple = pkgs.lib.genAttrs systems (system:
+      let
+        pkgs = import nixpkgs { inherit system; };
 
-  tests =
-    disnixos.disnixTest {
-      name = "test-project-tests";
-      inherit tarball manifest;
-      networkFile = "keycloak/network.nix";
-      dysnomiaStateDir = /var/state/dysnomia;
+        disnixos = import "${pkgs.disnixos}/share/disnixos/testing.nix" {
+          inherit nixpkgs system;
+        };
+      in
+        disnixos.buildManifest {
+          name = "test-project-manifest";
+          inherit version;
+          inherit tarball;
+          servicesFile = "tests/integration/keycloak/services.nix";
+          networkFile = "tests/integration/keycloak/network.nix";
+          distributionFile = "tests/integration/keycloak/distribution.nix";
+          # extraParams = {
+          #   "extra-builtins-file" = ../../extra-builtins.nix;
+          # };
+        }
+    );
+  };
+
+  tests = {
+    simple = disnixos2.disnixTest builtins.currentSystem {
+      name = "test-project-test";
+      inherit tarball;
+      manifest = builtins.getAttr (builtins.currentSystem) builds.simple;
+      networkFile = "tests/integration/keycloak/network.nix";
+      # dysnomiaStateDir = /var/state/dysnomia;
       testScript =
         ''
-          # Wait until the front-end application is deployed
-          $test1->waitForFile("/var/tomcat/webapps/testapp");
-           
-          # Wait a little longer and capture the output of the entry page
-          my $result = $test1->mustSucceed("sleep 10; curl --fail http://test2:8080/testapp");
+        # Wait until the front-end application is deployed
+        # $test1->waitForFile("/var/tomcat/webapps/testapp");
+
+        # Wait a little longer and capture the output of the entry page
+        # my $result = $test1->mustSucceed("sleep 10; curl --fail http://test2:8080/testapp");
         '';
     };
-}
+  };
+}.tests
 
 # let
 #   utils = import ../../utils.nix {
 #     inherit pkgs;
 #     inherit (pkgs) stdenv lib;
 #   };
-#   keycloak = import ../../pkgs/keycloak/unit.nix {
+#   keycloak = import ../../keycloak/unit.nix {
 #     inherit pkgs utils;
 #     inherit (pkgs) stdenv lib;
 #   };

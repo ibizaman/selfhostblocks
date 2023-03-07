@@ -8,7 +8,7 @@ rec {
 
       utils = pkgs.lib.callPackageWith pkgs ../../../utils.nix { };
 
-      customPkgs = import ../../../pkgs/all-packages.nix {
+      customPkgs = import ../../../all-packages.nix {
         inherit system pkgs utils;
       };
     in
@@ -26,11 +26,11 @@ rec {
           };
         };
 
-        deployment.keys = {
-          keycloakinitialadmin.text = ''
-            KEYCLOAK_ADMIN_PASSWORD="${builtins.extraBuiltins.pass "keycloak.${domain}/admin"}"
-          '';
-        };
+        # deployment.keys = {
+        #   keycloakinitialadmin.text = ''
+        #     KEYCLOAK_ADMIN_PASSWORD="${builtins.extraBuiltins.pass "keycloak.${domain}/admin"}"
+        #   '';
+        # };
 
         services = {
           openssh = {
