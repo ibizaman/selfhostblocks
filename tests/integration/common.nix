@@ -12,14 +12,17 @@ let
           tar xfvj ${tarball}/tarballs/*.tar.bz2 --strip-components=1
         '';
     };
-in
-{
+
+  disnixos = import "${pkgs.disnixos}/share/disnixos/testing.nix" {
+    inherit nixpkgs;
+  };
+
   # We need this function because, for a reason that eludes me, the
   # one defined in disnixos fails the name attribute not correctly set
   # in the call to simpleTest. The only difference between this
   # function and the one in disnixos is the additional `inherit name`
   # line.
-  disnixTest = system:
+  customDisnixTest = system:
     {name, manifest, tarball, networkFile, externalNetworkFile ? false, testScript, dysnomiaStateDir ? "", postActivateTimeout ? 1}:
 
     let
@@ -42,4 +45,24 @@ in
         manifestFile = "${manifest}/manifest.xml";
       };
     };
+in
+{
+  inherit (disnixos) sourceTarball;
+
+  genBuilds = systems: config:
+    pkgs.lib.genAttrs systems (system:
+      let
+        pkgs = import nixpkgs { inherit system; };
+
+        disnixos = import "${pkgs.disnixos}/share/disnixos/testing.nix" {
+          inherit nixpkgs system;
+        };
+      in
+        disnixos.buildManifest config
+    );
+
+  disnixTest = currentSystem: manifest: config:
+    customDisnixTest currentSystem (config // {
+      manifest = builtins.getAttr currentSystem manifest;
+    });
 }

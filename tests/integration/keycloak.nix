@@ -1,3 +1,4 @@
+# Run tests with nix-build -A tests.integration.keycloak
 { nixpkgs ? <nixpkgs>
 , systems ? [ "i686-linux" "x86_64-linux" ]
 }:
@@ -5,13 +6,9 @@
 let
   pkgs = import nixpkgs {};
 
-  disnixos = import "${pkgs.disnixos}/share/disnixos/testing.nix" {
-    inherit nixpkgs;
-  };
-
   version = "1.0";
 
-  disnixos2 = pkgs.callPackage ./common.nix { inherit nixpkgs; };
+  disnixos = pkgs.callPackage ./common.nix { inherit nixpkgs; };
 in
 
 rec {
@@ -23,33 +20,23 @@ rec {
   };
   
   builds = {
-    simple = pkgs.lib.genAttrs systems (system:
-      let
-        pkgs = import nixpkgs { inherit system; };
-
-        disnixos = import "${pkgs.disnixos}/share/disnixos/testing.nix" {
-          inherit nixpkgs system;
-        };
-      in
-        disnixos.buildManifest {
-          name = "test-project-manifest";
-          inherit version;
-          inherit tarball;
-          servicesFile = "tests/integration/keycloak/services.nix";
-          networkFile = "tests/integration/keycloak/network.nix";
-          distributionFile = "tests/integration/keycloak/distribution.nix";
-          # extraParams = {
-          #   "extra-builtins-file" = ../../extra-builtins.nix;
-          # };
-        }
-    );
+    simple = disnixos.genBuilds systems {
+      name = "test-project-manifest";
+      inherit version;
+      inherit tarball;
+      servicesFile = "tests/integration/keycloak/services.nix";
+      networkFile = "tests/integration/keycloak/network.nix";
+      distributionFile = "tests/integration/keycloak/distribution.nix";
+      # extraParams = {
+      #   "extra-builtins-file" = ../../extra-builtins.nix;
+      # };
+    };
   };
 
   tests = {
-    simple = disnixos2.disnixTest builtins.currentSystem {
+    simple = disnixos.disnixTest builtins.currentSystem builds.simple {
       name = "test-project-test";
       inherit tarball;
-      manifest = builtins.getAttr (builtins.currentSystem) builds.simple;
       networkFile = "tests/integration/keycloak/network.nix";
       # dysnomiaStateDir = /var/state/dysnomia;
       testScript =
