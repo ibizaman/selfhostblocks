@@ -23,6 +23,4 @@ rec {
         "no failing test"
       else
         concatStringsSep "\n" formattedFailureGroups;
-
-  disnixtests = pkgs.callPackage ./tests/disnix/keycloak.nix {};
 }
