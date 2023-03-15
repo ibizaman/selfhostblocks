@@ -161,6 +161,14 @@ disnixos-manifest -s services.nix -n network-virtualbox.nix -d distribution.nix
 disnix-visualize /nix/store/cjiw9s257dpnvss2v6wm5a0iqx936hpq-manifest.xml | dot -Tpng > dot.png
 ```
 
+### Test Hercules CI locally
+
+```bash
+NIX_PATH="" nix-instantiate default.nix
+```
+
+See https://docs.hercules-ci.com/hercules-ci/getting-started/repository for more info.
+
 # TODOs
 
 Todos, in rough order of highest to lowest priority.
