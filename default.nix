@@ -1,4 +1,12 @@
-{ pkgs ? import <nixpkgs> {}
+{ pkgs ? import (builtins.fetchGit {
+  # Descriptive name to make the store path easier to identify
+  name = "nixos-21.11-2023-03-15";
+  url = "https://github.com/nixos/nixpkgs/";
+  # Commit hash for nixos-unstable as of 2018-09-12
+  # `git ls-remote https://github.com/nixos/nixpkgs nixos-unstable`
+  ref = "refs/tags/21.11";
+  rev = "506445d88e183bce80e47fc612c710eb592045ed";
+}) {}
 }:
 let
   utils = pkgs.callPackage ./utils.nix {};
