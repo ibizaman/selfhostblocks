@@ -167,7 +167,7 @@ Todos, in rough order of highest to lowest priority.
 
 * [x] Make vaultwarden's `/admin` path be protected by Keycloak using
       oauth2-proxy.
-* [ ] Add integration tests using VMs
+* [x] Add integration tests using VMs
 * [ ] Merge all keycloak services into one definition
 * [ ] Run those tests in CI
 * [ ] Add examples
