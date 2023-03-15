@@ -27,9 +27,6 @@ rec {
       servicesFile = "tests/integration/keycloak/services.nix";
       networkFile = "tests/integration/keycloak/network.nix";
       distributionFile = "tests/integration/keycloak/distribution.nix";
-      # extraParams = {
-      #   "extra-builtins-file" = ../../extra-builtins.nix;
-      # };
     };
   };
 
@@ -41,11 +38,20 @@ rec {
       # dysnomiaStateDir = /var/state/dysnomia;
       testScript =
         ''
-        # Wait until the front-end application is deployed
-        # $test1->waitForFile("/var/tomcat/webapps/testapp");
+        def assert_service_started(machine, name):
+            code, log = machine.systemctl("status " + name)
+            if code != 0:
+                raise Exception(name + " could not be started:\n---\n" + log + "---\n")
 
-        # Wait a little longer and capture the output of the entry page
-        # my $result = $test1->mustSucceed("sleep 10; curl --fail http://test2:8080/testapp");
+        def assert_database_exists(machine, name):
+            if machine.succeed("""psql -XtA -U postgres -h localhost -c "SELECT 1 FROM pg_database WHERE datname='{}'" """.format(name)) != '1\n':
+                raise Exception("could not find database '{}' in postgresql".format(name))
+
+        with subtest("check postgres service started"):
+            assert_service_started(test1, "postgresql.service")
+
+        with subtest("check db is created"):
+            assert_database_exists(test1, "keycloak")
         '';
     };
   };

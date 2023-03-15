@@ -26,11 +26,11 @@ rec {
           };
         };
 
-        # deployment.keys = {
-        #   keycloakinitialadmin.text = ''
-        #     KEYCLOAK_ADMIN_PASSWORD="${builtins.extraBuiltins.pass "keycloak.${domain}/admin"}"
-        #   '';
-        # };
+        systemd.tmpfiles.rules = [
+          # Type Path                              Mode User Group Age Argument...
+          ''d    /run/keys                         0755 root root  -   -''
+          ''f+   /run/keys/keycloackinitialadmin   0755 root root  -   KEYCLOAK_ADMIN_PASSWORD="KEYCLOAK_ADMIN_PASSWORD"''
+        ];
 
         services = {
           openssh = {
