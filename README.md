@@ -36,8 +36,39 @@ was chosen as it's IMO the first stepping stone to enable
 self-hosting. Tiny Tiny RSS was chosen because it is somewhat
 lightweight.
 
-- [ ] Vaultwarden
-- [ ] TTRSS
+- Haproxy
+  - [x] Systemd service
+- Keycloak
+  - [x] Provision using keycloak-cli-config
+  - [x] Behind haproxy
+  - [x] Integration tests
+  - [ ] Backup
+- Grafana/Alertmanager/Prometheus
+  - [ ] Systemd service
+  - [ ] Behind haproxy
+  - [ ] Behind keycloak with oauth2proxy
+  - [ ] Integration tests
+  - [ ] Backup
+- Vaultwarden
+  - [x] Systemd service
+  - [x] Behind haproxy
+  - [x] Behind keycloak with oauth2proxy
+  - [ ] Integration tests
+  - [ ] Backup
+  - [ ] Dashboard with Grafana
+  - [ ] Alerts with Alertmanager
+- TTRSS
+  - [x] Systemd service
+  - [x] Behind haproxy
+  - [x] Behind keycloak with oauth2proxy
+  - [ ] Integration tests
+  - [ ] Backup
+  - [ ] Dashboard with Grafana
+  - [ ] Alerts with Alertmanager
+- Misc
+  - [x] Function to generate haproxy config
+  - [ ] Documentation for setting up on Linode
+  - [ ] Documentation for getting started
 
 ## Getting Started
 
