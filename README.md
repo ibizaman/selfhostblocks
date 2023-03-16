@@ -42,6 +42,9 @@ lightweight.
   - [x] Provision using keycloak-cli-config
   - [x] Behind haproxy
   - [x] Integration tests
+    - [x] Check DB is setup correctly
+    - [ ] Make a curl request to assert service is up
+    - [ ] Provision a user and attempt login
   - [ ] Backup
 - Grafana/Alertmanager/Prometheus
   - [ ] Systemd service
@@ -52,23 +55,27 @@ lightweight.
 - Vaultwarden
   - [x] Systemd service
   - [x] Behind haproxy
+    - Under vaultwarden subdomain by default
   - [x] Behind keycloak with oauth2proxy
+    - /admin path only allowed for admins
+    - /api not protected
+    - rest is allowed for any authenticated user
   - [ ] Integration tests
+    - [ ] Assert endpoints are correctly protected
   - [ ] Backup
   - [ ] Dashboard with Grafana
   - [ ] Alerts with Alertmanager
 - TTRSS
-  - [x] Systemd service
-  - [x] Behind haproxy
-  - [x] Behind keycloak with oauth2proxy
+  - [ ] Systemd service
+  - [ ] Behind haproxy
+  - [ ] Behind keycloak with oauth2proxy
   - [ ] Integration tests
   - [ ] Backup
   - [ ] Dashboard with Grafana
   - [ ] Alerts with Alertmanager
-- Misc
-  - [x] Function to generate haproxy config
-  - [ ] Documentation for setting up on Linode
-  - [ ] Documentation for getting started
+
+Some other "dev" oriented TODOs can be found at the end of the README.
+
 
 ## Getting Started
 
@@ -200,40 +207,6 @@ NIX_PATH="" nix-instantiate default.nix
 
 See https://docs.hercules-ci.com/hercules-ci/getting-started/repository for more info.
 
-# TODOs
-
-Todos, in rough order of highest to lowest priority.
-
-* [x] Make vaultwarden's `/admin` path be protected by Keycloak using
-      oauth2-proxy.
-* [x] Add integration tests using VMs
-* [ ] Merge all keycloak services into one definition
-* [ ] Run those tests in CI
-* [ ] Add examples
-* [ ] Merge
-* [ ] Automatically pull client credentials from keycloak to populate
-      oauth2proxy's clientsecret key.
-* [ ] Automatic DNS setup of linode, probably using
-      https://github.com/kubernetes-sigs/external-dns.
-* [ ] Add LDAP server.
-* [ ] Use LDAP server with vaultwarden using "[Directory
-      Connector](https://github.com/dani-garcia/vaultwarden/wiki)".
-* [ ] Currently, there's a hack with a dnsmasq config in
-      `configuration.nix` to redirect every request for
-      `<subdomain>.<dev-domain>` to `<machine>`. This is not
-      maintainable as the configuration does not rely on information
-      provided by `distribution.nix`.
-* [ ] Add dependencies to systemd service files. I'm sure some of them
-      are lacking the correct After= and Wants= fields.
-* [ ] Merge configs with systemd units.
-* [ ] Make haproxy resolve hostnames. For now, I hardcorded 127.0.0.1.
-* [ ] Auto-login into vaultwarden using SSO. Depends on
-      https://github.com/dani-garcia/vaultwarden/pull/3154 being
-      merged.
-* [ ] Go through https://xeiaso.net/blog/paranoid-nixos-2021-07-18 and
-      https://nixos.wiki/wiki/Security
-* [ ] Move a few packages installed in network.nix into services.nix.
-
 # Troubleshoot
 
 ## Derivation not copied correctly
@@ -268,3 +241,38 @@ services manually, run:
 ```bash
 disnix-lock -u
 ```
+
+# Dev TODOs
+
+In rough order of highest to lowest priority.
+
+- Misc
+  - [x] Function to generate haproxy config
+  - [ ] Documentation for setting up on Linode
+  - [ ] Documentation for getting started
+  - [ ] Add configuration examples
+  - [ ] Merge all keycloak services into one definition
+  - [ ] Run tests on Hercules-CI
+- Dev
+  - [ ] Automatically pull client credentials from keycloak to
+        populate oauth2proxy's clientsecret key.
+  - [ ] Automatic DNS setup of linode, probably using
+        https://github.com/kubernetes-sigs/external-dns.
+  - [ ] Add LDAP server.
+  - [ ] Use LDAP server with vaultwarden using "[Directory
+        Connector](https://github.com/dani-garcia/vaultwarden/wiki)".
+  - [ ] Currently, there's a hack with a dnsmasq config in
+        `configuration.nix` to redirect every request for
+        `<subdomain>.<dev-domain>` to `<machine>`. This is not
+        maintainable as the configuration does not rely on information
+        provided by `distribution.nix`.
+  - [ ] Add dependencies to systemd service files. I'm sure some of them
+        are lacking the correct After= and Wants= fields.
+  - [ ] Merge configs with systemd units. (remaining: keycloak)
+  - [ ] Make haproxy resolve hostnames. For now, I hardcorded 127.0.0.1.
+  - [ ] Auto-login into vaultwarden using SSO. Depends on
+        https://github.com/dani-garcia/vaultwarden/pull/3154 being
+        merged.
+  - [ ] Go through https://xeiaso.net/blog/paranoid-nixos-2021-07-18 and
+        https://nixos.wiki/wiki/Security
+  - [ ] Move a few packages installed through network.nix into services.nix.
