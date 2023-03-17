@@ -81,10 +81,51 @@ Some other "dev" oriented TODOs can be found at the end of the README.
 
 WIP
 
-## Deploy to staging environment - Virtualbox
+## Advised Workflow
+
+The workflow is the following:
+1. Make a change
+2. Add or modify tests
+3. Run the tests
+4. Deploy to staging environment
+5. Deploy to production environment
+
+The first two bullets are very general so I can't realistically
+enumerate all possibilities. I'll possibly provide examples later.
+
+The remaining three are explained in the following subsections.
+
+### Run the tests
+
+For unit tests, do:
+
+```bash
+nix-instantiate --eval --strict . -A tests.unit
+```
+
+If all tests pass, you'll see the following output:
+
+```
+{ }
+```
+
+Otherwise, you'll see one attribute for each failing test. For example, you can dig into the first failing haproxy test with:
+
+```
+nix-instantiate --eval --strict . -A tests.unit.haproxy.0
+```
+
+To run integration tests, do:
+
+```bash
+nix-build -A tests.unit.all
+```
+
+### Deploy to staging environment
 
 Instead of deploying to prod machines, you'll deploy to VMs running on
-your computer. This is tremendously helpful for testing.
+your computer with Virtualbox. This is tremendously helpful for
+testing.
 
 ```bash
 export NIXOPS_DEPLOYMENT=vboxtest
@@ -108,16 +149,16 @@ Rebooting after deploying is anyway needed for systemd to pickup the
 environment variable.
 
 The `extra-builtins-file` allows us to use password store as the
-secrets manager. You'll probably see a errors about missing passwords
+secrets manager. You'll probably see errors about missing passwords
 when running this for the first time. To fix those, generate the
 password with `pass`.
 
-### Handle host reboot
+#### Handle host reboot
 
 After restarting the computer running the VMs, do `nixops start` and
 continue from the `nixops deploy ...` step.
 
-### Cleanup
+#### Cleanup
 
 To start from scratch, run `nixops destroy` and start at the `nixops
 deploy ...` step. This can be useful after fiddling with creating
@@ -129,13 +170,7 @@ Also, you'll need to add the `--no-upgrade` option when running
 deactivate services but since the machine is clean, it will fail to
 deactivate the services.
 
-## Run tests
-
-```bash
-nix-instantiate --eval --strict . -A runtests
-```
-
-## Deploy to prod
+### Deploy to prod
 
 ```bash
 export NIXOPS_DEPLOYMENT=prod
@@ -276,3 +311,5 @@ In rough order of highest to lowest priority.
   - [ ] Go through https://xeiaso.net/blog/paranoid-nixos-2021-07-18 and
         https://nixos.wiki/wiki/Security
   - [ ] Move a few packages installed through network.nix into services.nix.
+  - [ ] Use something else than `pass` to retrieve secrets. Or better,
+        allow multiple options.
