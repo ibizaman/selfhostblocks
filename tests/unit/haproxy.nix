@@ -8,14 +8,27 @@
 }:
 
 let
-  configcreator = pkgs.callPackage ./../haproxy/configcreator.nix { inherit utils; };
-  mksiteconfig = pkgs.callPackage ./../haproxy/siteconfig.nix {};
+  configcreator = pkgs.callPackage ./../../haproxy/configcreator.nix { inherit utils; };
+  mksiteconfig = pkgs.callPackage ./../../haproxy/siteconfig.nix {};
 
   diff = testResult:
     with builtins;
     with lib.strings;
     if isString testResult.expected && isString testResult.result then
       let
+        # Taken from nixpkgs master
+        commonPrefixLength = a: b:
+          let
+            m = lib.min (stringLength a) (stringLength b);
+            go = i: if i >= m then m else if substring i 1 a == substring i 1 b then go (i + 1) else i;
+          in go 0;
+        # Taken from nixpkgs master
+        commonSuffixLength = a: b:
+          let
+            m = lib.min (stringLength a) (stringLength b);
+            go = i: if i >= m then m else if substring (stringLength a - i - 1) 1 a == substring (stringLength b - i - 1) 1 b then go (i + 1) else i;
+          in go 0;
+
         p = commonPrefixLength testResult.expected testResult.result;
         s = commonSuffixLength testResult.expected testResult.result;
         expectedSuffixLen = stringLength testResult.expected - s - p;

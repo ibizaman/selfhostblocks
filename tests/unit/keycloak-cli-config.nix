@@ -7,7 +7,7 @@
 }:
 
 let
-  configcreator = pkgs.callPackage ./../keycloak-cli-config/configcreator.nix { };
+  configcreator = pkgs.callPackage ./../../keycloak-cli-config/configcreator.nix {};
 
   default_config = {
     realm = "myrealm";
