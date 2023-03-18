@@ -8,7 +8,7 @@ You can find all integration tests under the [tests/integration](/tests/integrat
 ## Run integration tests
 
 ```console
-nix-build -A tests.integration.keycloak
+nix-build -A tests.integration.all
 ```
 
 To run the "simple" integration test for keycloak, execute:
