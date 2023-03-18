@@ -26,6 +26,7 @@ rec {
           };
         };
 
+        # Normally, you'd provision the deploy target with secrets.
         systemd.tmpfiles.rules = [
           # Type Path                              Mode User Group Age Argument...
           ''d    /run/keys                         0755 root root  -   -''
