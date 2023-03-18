@@ -76,22 +76,49 @@ lightweight.
 
 Some other "dev" oriented TODOs can be found at the end of the README.
 
-
 ## Getting Started
 
-WIP
+If you know your way around disnix, feel free to skip this section. If
+not and you'd rather read the [disnix
+manual](https://hydra.nixos.org/build/203347995/download/2/manual/)
+instead of reading my rambling, that's probably a good idea too.
+
+Hey, you're still here! Let's start.
+
+First, you need at least one deploy _target_ where NixOS is installed.
+I'll refer you to the [official
+guide](https://nixos.wiki/wiki/NixOS_Installation_Guide) for how to do
+this. You can install on a could machine or a self-hosted server.
+
+Second, you need a machine where Nix is installed, to drive the
+deploy. It can be Nix or NixOS here. To install Nix, see the [official
+guide](https://nixos.org/download.html).
+
+Assuming this is done, you need to create a folder which will hold 3 files:
+- `network.nix` explains how to provision each deploy _target_. For
+  example, you'd tell here which user or package should exist. That
+  being said, the goal here is to keep this file minimal and instead
+  use the `service.nix`.
+- `services.nix` is used to install any service - a database, a
+  reverse proxy, an app, etc. The goal here is to make the install
+  procedure machine independent.
+- `distribution.nix` is used to tell which service goes to which
+  deployment target.
+
+Please see the [integration tests](/tests/integration) for examples.
 
 ## Advised Workflow
 
 The workflow is the following:
-1. Make a change
-2. Add or modify tests
-3. Run the tests
-4. Deploy to staging environment
-5. Deploy to production environment
+1. make a change,
+2. add or modify tests,
+3. run the tests,
+4. deploy to staging environment
+5. and deploy to production environment.
 
 The first two bullets are very general so I can't realistically
-enumerate all possibilities. I'll possibly provide examples later.
+enumerate all possibilities. I'll possibly provide examples in a
+following update.
 
 The remaining three are explained in the following subsections.
 
@@ -313,3 +340,4 @@ In rough order of highest to lowest priority.
   - [ ] Move a few packages installed through network.nix into services.nix.
   - [ ] Use something else than `pass` to retrieve secrets. Or better,
         allow multiple options.
+  - [ ] Explain how to setup secret keys.
