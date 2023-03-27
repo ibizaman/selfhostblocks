@@ -242,9 +242,9 @@ rec {
         OAUTH2_PROXY_CLIENT_SECRET="${builtins.extraBuiltins.pass "${domain}/${subdomain}/${clientSecretName}"}"
         '';
     "${serviceName}_smtp_all".text = ''
-        SMTP_HOST="${builtins.extraBuiltins.pass "mailgun.com/mg.tiserbox.com/smtp_hostname"}"
-        SMTP_USERNAME="${builtins.extraBuiltins.pass "mailgun.com/mg.tiserbox.com/smtp_login"}"
-        SMTP_PASSWORD="${builtins.extraBuiltins.pass "mailgun.com/mg.tiserbox.com/password"}"
+        SMTP_HOST="${builtins.extraBuiltins.pass "${domain}/mailgun.com/smtp_hostname"}"
+        SMTP_USERNAME="${builtins.extraBuiltins.pass "${domain}/mailgun.com/smtp_login"}"
+        SMTP_PASSWORD="${builtins.extraBuiltins.pass "${domain}/mailgun.com/password"}"
         '';
   };
 
