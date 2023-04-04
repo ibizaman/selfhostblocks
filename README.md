@@ -232,6 +232,12 @@ disnix-lock -u
 
 In rough order of highest to lowest priority.
 
+Roadmap for V1:
+- [ ] Have Vaultwarden deployable behind Haproxy with Keycloak and
+      oauth2proxy as SSO.
+- [ ] Have example for Vaultwarden working.
+- [ ] Have integration tests for Vaultwarden.
+
 - Misc
   - [x] Function to generate haproxy config
   - [ ] Handle Nixops 2 (nixops_unstable)
@@ -240,6 +246,9 @@ In rough order of highest to lowest priority.
   - [ ] Add configuration examples
   - [ ] Merge all keycloak services into one definition
   - [ ] Run tests on Hercules-CI
+  - [ ] Explain how to setup secret keys.
+  - [ ] Switch to using modules https://nixos.wiki/wiki/NixOS_modules
+        to setup configuration.
 - Dev
   - [ ] Automatically pull client credentials from keycloak to
         populate oauth2proxy's clientsecret key.
@@ -265,6 +274,3 @@ In rough order of highest to lowest priority.
   - [ ] Move a few packages installed through network.nix into services.nix.
   - [ ] Use something else than `pass` to retrieve secrets. Or better,
         allow multiple options.
-  - [ ] Explain how to setup secret keys.
-  - [ ] Switch to using modules https://nixos.wiki/wiki/NixOS_modules
-        to setup configuration.

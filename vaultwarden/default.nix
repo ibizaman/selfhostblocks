@@ -1,6 +1,7 @@
 { customPkgs
 , pkgs
 , utils
+, secret
 }:
 { serviceName ? "Vaultwarden"
 , subdomain ? "vaultwarden"
@@ -236,15 +237,15 @@ rec {
 
   deployKeys = domain: {
     "${serviceName}_oauth2proxy_cookiesecret".text = ''
-        OAUTH2_PROXY_COOKIE_SECRET="${builtins.extraBuiltins.pass "${domain}/${subdomain}/${cookieSecretName}"}"
+        OAUTH2_PROXY_COOKIE_SECRET="${secret "${domain}/${subdomain}/${cookieSecretName}"}"
         '';
     "${serviceName}_oauth2proxy_clientsecret".text = ''
-        OAUTH2_PROXY_CLIENT_SECRET="${builtins.extraBuiltins.pass "${domain}/${subdomain}/${clientSecretName}"}"
+        OAUTH2_PROXY_CLIENT_SECRET="${secret "${domain}/${subdomain}/${clientSecretName}"}"
         '';
     "${serviceName}_smtp_all".text = ''
-        SMTP_HOST="${builtins.extraBuiltins.pass "${domain}/mailgun.com/smtp_hostname"}"
-        SMTP_USERNAME="${builtins.extraBuiltins.pass "${domain}/mailgun.com/smtp_login"}"
-        SMTP_PASSWORD="${builtins.extraBuiltins.pass "${domain}/mailgun.com/password"}"
+        SMTP_HOST="${secret "${domain}/mailgun.com/smtp_hostname"}"
+        SMTP_USERNAME="${secret "${domain}/mailgun.com/smtp_login"}"
+        SMTP_PASSWORD="${secret "${domain}/mailgun.com/password"}"
         '';
   };
 

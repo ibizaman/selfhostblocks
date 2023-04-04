@@ -3,6 +3,7 @@
 , system ? builtins.currentSystem
 , pkgs ? import <nixpkgs> { inherit system; }
 , utils ? null
+, secret ? null
 }:
 
 let
@@ -32,7 +33,7 @@ let
     keycloak = callPackage ./keycloak {inherit utils customPkgs;};
 
     ttrss = callPackage ./ttrss {inherit utils customPkgs;};
-    vaultwarden = callPackage ./vaultwarden {inherit utils customPkgs;};
+    vaultwarden = callPackage ./vaultwarden {inherit utils customPkgs secret;};
   };
 in
 customPkgs
