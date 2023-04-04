@@ -29,6 +29,27 @@ Implementation is made with the disnix suite -
 [NixOps](https://github.com/NixOS/nixops) - built on top of the nix
 ecosystem.
 
+<!--toc:start-->
+- [Self Host Blocks](#self-host-blocks)
+  - [Progress Status](#progress-status)
+  - [Getting Started](#getting-started)
+  - [Advised Workflow](#advised-workflow)
+  - [Useful commands](#useful-commands)
+    - [List deployments](#list-deployments)
+    - [List machines](#list-machines)
+    - [Ssh into a machine](#ssh-into-a-machine)
+    - [Delete a deployment](#delete-a-deployment)
+    - [Garbage collect old derivations](#garbage-collect-old-derivations)
+    - [Create manifest file](#create-manifest-file)
+    - [Create graph of service deployment](#create-graph-of-service-deployment)
+    - [Test Hercules CI locally](#test-hercules-ci-locally)
+- [Troubleshoot](#troubleshoot)
+  - [Derivation not copied correctly](#derivation-not-copied-correctly)
+  - [Cannot lock services](#cannot-lock-services)
+- [Dev TODOs](#dev-todos)
+<!--toc:end-->
+
+
 ## Progress Status
 
 Currently, this repo is WIP and the first two services I intend to
