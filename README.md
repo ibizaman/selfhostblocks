@@ -234,6 +234,7 @@ In rough order of highest to lowest priority.
 
 - Misc
   - [x] Function to generate haproxy config
+  - [ ] Handle Nixops 2 (nixops_unstable)
   - [ ] Documentation for setting up on Linode
   - [ ] Documentation for getting started
   - [ ] Add configuration examples
