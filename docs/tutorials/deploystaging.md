@@ -10,11 +10,15 @@ export DISNIXOS_USE_NIXOPS=1
 
 nixops create ./network-virtualbox.nix -d vboxtest
 
-nixops deploy --option extra-builtins-file $(pwd)/pkgs/extra-builtins.nix
+nixops deploy --option extra-builtins-file $(pwd)/extra-builtins.nix
 nixops reboot
 
 disnixos-env -s services.nix -n network-virtualbox.nix -d distribution.nix
 ```
+
+For the `nixops deploy` step to start, you'll need to generate all
+necessary passwords. The easiest is to try the command and see on what
+password it fails, generating it then re-issuing the command.
 
 It's okay if the `nixops deploy` command fails to activate the new
 configuration on first run because of the `virtualbox.service`. If

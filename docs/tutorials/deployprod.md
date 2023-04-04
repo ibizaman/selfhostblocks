@@ -10,7 +10,7 @@ export DISNIXOS_USE_NIXOPS=1
 
 nixops create ./network-prod.nix -d prod
 
-nixops deploy --option extra-builtins-file $(pwd)/pkgs/extra-builtins.nix
+nixops deploy --option extra-builtins-file $(pwd)/extra-builtins.nix
 nixops reboot
 
 disnixos-env -s services.nix -n network-prod.nix -d distribution.nix

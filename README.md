@@ -8,6 +8,8 @@ promoting best practices to self-host a wide range of services. Also,
 the design will be extendable to allow users to add services not
 provided by SHB.
 
+It's goal is to be to disnix what nixpkgs is to NixOS.
+
 As far as features and best practices go, I intend to provide, for all
 services:
 - Protection and single sign-on using [Keycloak](https://www.keycloak.org/), where sensible.
@@ -92,20 +94,31 @@ this. You can install on a could machine or a self-hosted server.
 
 Second, you need a machine where Nix is installed, to drive the
 deploy. It can be Nix or NixOS here. To install Nix, see the [official
-guide](https://nixos.org/download.html).
+guide](https://nixos.org/download.html). You'll then need to install
+the following packages:
+- `nixops_unstable`,
+- `disnix`,
+- `disnixos`,
+- and `sops-nix` + `age` by following the [readme](https://github.com/Mic92/sops-nix).
 
 Assuming this is done, you need to create a folder which will hold 3 files:
-- `network.nix` explains how to provision each deploy _target_. For
-  example, you'd tell here which user or package should exist. That
-  being said, the goal here is to keep this file minimal and instead
-  use the `service.nix`.
+- One `network-<env>.nix` per environment - staging, prod - explains
+  how to provision each deploy _target_. For example, you'd tell here
+  which user or package should exist. That being said, the goal here
+  is to keep this file minimal and instead use the `service.nix`.
 - `services.nix` is used to install any service - a database, a
   reverse proxy, an app, etc. The goal here is to make the install
   procedure machine independent.
 - `distribution.nix` is used to tell which service goes to which
   deployment target.
 
-Please see the [integration tests](/tests/integration) for examples.
+You'll need to setup password store, following [this
+tutorial](https://elvishjerricco.github.io/2018/06/24/secure-declarative-key-management.html).
+
+Next, look at the [examples](/docs/examples) for inspiration.
+
+Also, the [integration tests](/tests/integration) contain more
+bite-sized examples.
 
 ## Advised Workflow
 
@@ -252,3 +265,5 @@ In rough order of highest to lowest priority.
   - [ ] Use something else than `pass` to retrieve secrets. Or better,
         allow multiple options.
   - [ ] Explain how to setup secret keys.
+  - [ ] Switch to using modules https://nixos.wiki/wiki/NixOS_modules
+        to setup configuration.
