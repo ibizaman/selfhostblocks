@@ -47,6 +47,7 @@ ecosystem.
   - [Derivation not copied correctly](#derivation-not-copied-correctly)
   - [Cannot lock services](#cannot-lock-services)
 - [Dev TODOs](#dev-todos)
+- [Contributions](#contributions)
 <!--toc:end-->
 
 
@@ -295,3 +296,10 @@ Roadmap for V1:
   - [ ] Move a few packages installed through network.nix into services.nix.
   - [ ] Use something else than `pass` to retrieve secrets. Or better,
         allow multiple options.
+
+# Contributions
+
+I'll list here contributions to projects I made in the context of Self
+Host Blocks.
+
+- [oauth2-proxy PR #2011](https://github.com/oauth2-proxy/oauth2-proxy/pull/2011): Add support for per route authorization.
