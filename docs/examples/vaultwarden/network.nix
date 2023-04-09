@@ -83,13 +83,6 @@ rec {
         };
 
         # deployment.keys = {
-        #   linode.text = ''
-        #     LINODE_HTTP_TIMEOUT=10
-        #     LINODE_POLLING_INTERVAL=10
-        #     LINODE_PROPAGATION_TIMEOUT=240
-        #     LINODE_TOKEN=383525f4d58919d43506e6ab43a549a6eda6491eccb8e384d43013f0bcf45d47
-        #   '';
-
         #   keycloakdbpassword.text = ''
         #     KC_DB_PASSWORD="${secret "${domain}/keycloakdbpassword"}"
         #   '';
@@ -129,7 +122,15 @@ rec {
             email = "ibizapeanut@gmail.com";
             dnsProvider = "linode";
             dnsResolver = "8.8.8.8";
-            credentialsFile = "/run/keys/linode";
+
+            # For example, to use Linode to prove the dns challenge,
+            # the content of the file should be the following, with
+            # XXX replaced by your Linode API token.
+            # LINODE_HTTP_TIMEOUT=10
+            # LINODE_POLLING_INTERVAL=10
+            # LINODE_PROPAGATION_TIMEOUT=240
+            # LINODE_TOKEN=XXX
+            credentialsFile = "/run/secrets/linode";
             enableDebugLogs = true;
           };
         };

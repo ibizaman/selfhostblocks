@@ -11,7 +11,13 @@ When that's done, explore the files in this folder.
 To try it out locally, follow [deploy to staging](/docs/tutorials/deploystaging.md).
 
 ```bash
-nixops set-args --arg domain '"dev.mydomain.com"' --network dev
+nixops set-args  --network dev \
+  --arg domain '"dev.mydomain.com"' \
+  --arg sopsKeyFile '"$HOME/.config/sops/age/keys.txt"'
+```
+
+You can use the `info` subcommand to print the values of the arguments:
+```bash
 nixops info --network dev
 ```
 
@@ -26,5 +32,5 @@ nixops create ./network-virtualbox.nix -d vaultwarden-staging
 nixops deploy --network dev
 nixops reboot
 
-disnixos-env -s services.nix -n network-virtualbox.nix -d distribution.nix
+disnixos-env -s services.nix -n dev/nixops.nix -d distribution.nix
 ```
