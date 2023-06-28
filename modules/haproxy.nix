@@ -5,6 +5,8 @@ let
 in
 {
   options.shb.reverseproxy = {
+    enable = lib.mkEnableOption "selfhostblocks.reverseproxy";
+
     sopsFile = lib.mkOption {
       type = lib.types.path;
       description = "Sops file location";
@@ -55,7 +57,7 @@ in
     };
   };
 
-  config = lib.mkIf (cfg.sites != {}) {
+  config = lib.mkIf cfg.enable {
     networking.firewall.allowedTCPPorts = [ 80 443 ];
 
     security.acme = {
