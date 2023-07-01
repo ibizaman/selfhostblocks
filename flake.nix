@@ -10,9 +10,10 @@
     nixosModules.default = { config, ... }: {
       imports = [
         modules/backup.nix
-        modules/jellyfin.nix
         modules/haproxy.nix
         modules/home-assistant.nix
+        modules/jellyfin.nix
+        modules/monitoring.nix
         modules/nextcloud-server.nix
       ];
     };
