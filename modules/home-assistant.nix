@@ -13,6 +13,12 @@ in
       example = "ha";
     };
 
+    domain = lib.mkOption {
+      type = lib.types.str;
+      description = "domain under which home-assistant will be served.";
+      example = "mydomain.com";
+    };
+
     sopsFile = lib.mkOption {
       type = lib.types.path;
       description = "Sops file location";
@@ -65,6 +71,7 @@ in
         };
         logger.default = "info";
         homeassistant = {
+          external_url = "https://${cfg.subdomain}.${cfg.domain}";
           country = "!secret country";
           latitude = "!secret latitude_home";
           longitude = "!secret longitude_home";
