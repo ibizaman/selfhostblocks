@@ -2,6 +2,8 @@
 
 let
   cfg = config.shb.home-assistant;
+
+  fqdn = "${cfg.subdomain}.${cfg.domain}";
 in
 {
   options.shb.home-assistant = {
@@ -66,7 +68,9 @@ in
         # https://www.home-assistant.io/integrations/default_config/
         default_config = {};
         http = {
-          use_x_forwarded_for = "true";
+          use_x_forwarded_for = true;
+          server_host = "127.0.0.1";
+          server_port = 8123;
           trusted_proxies = "127.0.0.1";
         };
         logger.default = "info";
@@ -110,6 +114,20 @@ in
       };
     };
 
+    services.nginx.virtualHosts."${fqdn}" = {
+      forceSSL = true;
+      http2 = true;
+      sslCertificate = "/var/lib/acme/${cfg.domain}/cert.pem";
+      sslCertificateKey = "/var/lib/acme/${cfg.domain}/key.pem";
+      extraConfig = ''
+        proxy_buffering off;
+      '';
+      locations."/" = {
+        proxyPass = "http://${toString config.services.home-assistant.config.http.server_host}:${toString config.services.home-assistant.config.http.server_port}/";
+        proxyWebsockets = true;
+      };
+    };
+
     sops.secrets."home-assistant" = {
       inherit (cfg) sopsFile;
       mode = "0440";
@@ -124,32 +142,6 @@ in
       "f ${config.services.home-assistant.configDir}/scenes.yaml      0755 hass hass"
       "f ${config.services.home-assistant.configDir}/scripts.yaml     0755 hass hass"
     ];
-
-    shb.reverseproxy.sites.homeassistant = {
-      frontend = {
-        acl = {
-          acl_homeassistant = "hdr_beg(host) ${cfg.subdomain}.";
-        };
-        use_backend = "if acl_homeassistant";
-      };
-      backend = {
-        servers = [
-          {
-            name = "homeassistant1";
-            address = "127.0.0.1:8123";
-            forwardfor = false;
-            balance = "roundrobin";
-            check = {
-              inter = "5s";
-              downinter = "15s";
-              fall = "3";
-              rise = "3";
-            };
-            httpcheck = "GET /";
-          }
-        ];
-      };
-    };
 
     shb.backup.instances.home-assistant = lib.mkIf (cfg.backupCfg != {}) (
       cfg.backupCfg

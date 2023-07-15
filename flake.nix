@@ -9,8 +9,8 @@
   outputs = inputs@{ self, nixpkgs, sops-nix, ... }: {
     nixosModules.default = { config, ... }: {
       imports = [
+        modules/ssl.nix
         modules/backup.nix
-        modules/haproxy.nix
         modules/home-assistant.nix
         modules/jellyfin.nix
         modules/monitoring.nix
