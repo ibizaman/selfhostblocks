@@ -153,6 +153,15 @@ in
       ];
     };
 
+    services.prometheus.scrapeConfigs = [{
+      job_name = "jellyfin";
+      static_configs = [
+        {
+          targets = ["127.0.0.1:8096"];
+        }
+      ];
+    }];
+
     systemd.services.jellyfin.serviceConfig = {
       # Setup permissions needed for backups, as the backup user is member of the jellyfin group.
       UMask = lib.mkForce "0027";
