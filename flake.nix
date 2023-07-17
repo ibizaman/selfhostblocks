@@ -15,6 +15,7 @@
         modules/jellyfin.nix
         modules/monitoring.nix
         modules/nextcloud-server.nix
+        modules/ldap.nix
       ];
     };
 
