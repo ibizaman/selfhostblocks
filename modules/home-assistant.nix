@@ -4,6 +4,18 @@ let
   cfg = config.shb.home-assistant;
 
   fqdn = "${cfg.subdomain}.${cfg.domain}";
+
+  ldap_auth_script_repo = pkgs.fetchFromGitHub {
+    owner = "lldap";
+    repo = "lldap";
+    rev = "7d1f5abc137821c500de99c94f7579761fc949d8";
+    sha256 = "sha256-8D+7ww70Ja6Qwdfa+7MpjAAHewtCWNf/tuTAExoUrg0=";
+  };
+
+  ldap_auth_script = pkgs.writeShellScriptBin "ldap_auth.sh" ''
+    export PATH=${pkgs.gnused}/bin:${pkgs.curl}/bin:${pkgs.jq}/bin
+    exec ${pkgs.bash}/bin/bash ${ldap_auth_script_repo}/example_configs/lldap-ha-auth.sh $@
+  '';
 in
 {
   options.shb.home-assistant = {
@@ -19,6 +31,12 @@ in
       type = lib.types.str;
       description = "domain under which home-assistant will be served.";
       example = "mydomain.com";
+    };
+
+    ldapEndpoint = lib.mkOption {
+      type = lib.types.str;
+      description = "host serving the LDAP server";
+      example = "http://127.0.0.1:389";
     };
 
     sopsFile = lib.mkOption {
@@ -80,6 +98,17 @@ in
           latitude = "!secret latitude_home";
           longitude = "!secret longitude_home";
           time_zone = "America/Los_Angeles";
+          auth_providers = [
+            # Ensure you have the homeassistant provider enabled if you want to continue using your existing accounts
+            { type = "homeassistant"; }
+            { type = "command_line";
+              command = ldap_auth_script + "/bin/ldap_auth.sh";
+              # Only allow users in the 'homeassistant_user' group to login.
+              # Change to ["https://lldap.example.com"] to allow all users
+              args = [ cfg.ldapEndpoint "homeassistant_user" ];
+              meta = true;
+            }
+          ];
         };
         "automation ui" = "!include automations.yaml";
         "scene ui" = "!include scenes.yaml";

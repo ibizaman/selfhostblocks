@@ -83,6 +83,8 @@ in
       environment = {
         LLDAP_JWT_SECRET_FILE = "/run/secrets/lldap/jwt_secret";
         LLDAP_LDAP_USER_PASS_FILE = "/run/secrets/lldap/user_password";
+
+        # RUST_LOG = "debug";
       };
 
       settings = {
@@ -94,6 +96,8 @@ in
         ldap_port = 3890;
 
         ldap_base_dn = cfg.dcdomain;
+
+        # verbose = true;
       };
     };
 
