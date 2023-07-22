@@ -108,6 +108,7 @@ in
       sourceDirectories = [
         config.services.nextcloud.datadir
       ];
+      excludePatterns = [".rnd"];
     };
   };
 }

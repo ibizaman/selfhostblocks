@@ -220,6 +220,8 @@ in
                 backupCleanupCommand = lib.strings.concatStringsSep "\n" instance.hooks.after_backup;
               } // lib.attrsets.optionalAttrs (instance.environmentFile) {
                 environmentFile = "/run/secrets/${instance.backend}/${name}/environmentfile";
+              } // lib.attrsets.optionalAttrs (builtins.length instance.excludePatterns > 0) {
+                exclude = instance.excludePatterns;
               };
             };
 
