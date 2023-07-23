@@ -207,7 +207,7 @@ in
                 initialize = true;
 
                 timerConfig = {
-                  OnCalendar = "hourly";
+                  OnCalendar = "00,12:00:00";
                   RandomizedDelaySec = "5m";
                 };
 
