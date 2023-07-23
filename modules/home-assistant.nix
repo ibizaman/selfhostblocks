@@ -183,18 +183,21 @@ in
       }
     );
 
-    users.groups = {
-      hass = {
-        members = [ "backup" ];
-      };
+    # Adds the "backup" user to the "hass" group.
+    users.groups.hass = {
+      members = [ "backup" ];
     };
 
+    # This allows the "backup" user, member of the "backup" group, to access what's inside the home
+    # folder, which is needed for accessing the "backups" folder. It allows to read (r), enter the
+    # directory (x) but not modify what's inside.
+    users.users.hass.homeMode = "0750";
+
     systemd.services.home-assistant.serviceConfig = {
-      # Setup permissions needed for backups, as the backup user is member of the hass group.
+      # This allows all members of the "hass" group to read files, list directories and enter
+      # directories created by the home-assistant service. This is needed for the "backup" user,
+      # member of the "hass" group, to backup what is inside the "backup/" folder.
       UMask = lib.mkForce "0027";
-      StateDirectory = "hass";
-      StateDirectoryMode = lib.mkForce "0750";
-      SupplementaryGroups = [ config.users.groups.keys.name ];
     };
   };
 }
