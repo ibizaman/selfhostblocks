@@ -33,7 +33,6 @@ in
       nextcloud = {
         name = "nextcloud";
         group = "nextcloud";
-        home = "/srv/data/nextcloud";
         isSystemUser = true;
       };
     };
