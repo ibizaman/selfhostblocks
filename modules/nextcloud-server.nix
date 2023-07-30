@@ -78,7 +78,23 @@ in
 
       phpOptions = {
         # The OPcache interned strings buffer is nearly full with 8, bump to 16.
+        catch_workers_output = "yes";
+        display_errors = "stderr";
+        error_reporting = "E_ALL & ~E_DEPRECATED & ~E_STRICT";
+        expose_php = "Off";
+        "opcache.enable_cli" = "1";
+        "opcache.fast_shutdown" = "1";
         "opcache.interned_strings_buffer" = "16";
+        "opcache.max_accelerated_files" = "10000";
+        "opcache.memory_consumption" = "128";
+        "opcache.revalidate_freq" = "1";
+        "openssl.cafile" = "/etc/ssl/certs/ca-certificates.crt";
+        short_open_tag = "Off";
+
+        # Needed to avoid corruption per https://docs.nextcloud.com/server/21/admin_manual/configuration_server/caching_configuration.html#id2
+        "redis.session.locking_enabled" = "1";
+        "redis.session.lock_retries" = "-1";
+        "redis.session.lock_wait_time" = "10000";
       };
     };
 
