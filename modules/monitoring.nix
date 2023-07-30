@@ -91,8 +91,16 @@ in
       };
     };
 
-    services.prometheus.scrapeConfigs =
-      (lib.lists.optional config.services.nginx.enable {
+    services.prometheus.scrapeConfigs = [
+      {
+        job_name = "node";
+        static_configs = [
+          {
+            targets = ["127.0.0.1:9115"];
+          }
+        ];
+      }
+    ] ++ (lib.lists.optional config.services.nginx.enable {
         job_name = "nginx";
         static_configs = [
           {
@@ -105,6 +113,12 @@ in
       port = 9113;
       listenAddress = "127.0.0.1";
       scrapeUri = "http://localhost:80/nginx_status";
+    };
+    services.prometheus.exporters.node = {
+      enable = true;
+      enabledCollectors = ["systemd"];
+      port = 9115;
+      listenAddress = "127.0.0.1";
     };
     services.nginx.statusPage = lib.mkDefault config.services.nginx.enable;
 
