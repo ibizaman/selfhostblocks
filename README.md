@@ -10,6 +10,7 @@ services. Also, the design will be extendable to allow users to add services not
 
 - [ ] SSO with Authelia.
 - [X] LDAP server through lldap, it provides a nice Web UI.
+  - [X] Administrative UI only accessible from local network.
 - [X] Backup with Restic or BorgBackup
 - [X] Monitoring through Prometheus and Grafana.
   - [X] Export systemd services status.
