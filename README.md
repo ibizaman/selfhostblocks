@@ -1,5 +1,10 @@
 # Self Host Blocks
 
+<!--toc:start-->
+- [Self Host Blocks](#self-host-blocks)
+  - [Supported Features](#supported-features)
+<!--toc:end-->
+
 *Building blocks for self-hosting with battery included.*
 
 SHB's (Self Host Blocks) goal is to provide a lower entry-bar for self-hosting. I intend to achieve
