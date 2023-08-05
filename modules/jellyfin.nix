@@ -4,6 +4,18 @@ let
   cfg = config.shb.jellyfin;
 
   fqdn = "${cfg.subdomain}.${cfg.domain}";
+
+  template = file: newPath: replacements:
+    let
+      templatePath = newPath + ".template";
+
+      sedPatterns = lib.strings.concatStringsSep " " (lib.attrsets.mapAttrsToList (from: to: "\"s|${from}|${to}|\"") replacements);
+    in
+      ''
+      ln -fs ${file} ${templatePath}
+      rm ${newPath} || :
+      sed ${sedPatterns} ${templatePath} > ${newPath}
+      '';
 in
 {
   options.shb.jellyfin = {
@@ -19,6 +31,30 @@ in
       description = lib.mdDoc "Domain to serve sites under.";
       type = lib.types.str;
       example = "domain.com";
+    };
+
+    ldapHost = lib.mkOption {
+      type = lib.types.str;
+      description = "host serving the LDAP server";
+      example = "127.0.0.1";
+    };
+
+    ldapPort = lib.mkOption {
+      type = lib.types.int;
+      description = "port where the LDAP server is listening";
+      example = 389;
+    };
+
+    dcdomain = lib.mkOption {
+      type = lib.types.str;
+      description = "dc domain for ldap.";
+      example = "dc=mydomain,dc=com";
+    };
+
+    sopsFile = lib.mkOption {
+      type = lib.types.path;
+      description = "Sops file location";
+      example = "secrets/jellyfin.yaml";
     };
   };
 
@@ -147,6 +183,14 @@ in
         '';
     };
 
+    sops.secrets."jellyfin/ldap_password" = {
+      inherit (cfg) sopsFile;
+      mode = "0440";
+      owner = "jellyfin";
+      group = "jellyfin";
+      restartUnits = [ "jellyfin.service" ];
+    };
+
     shb.backup.instances.jellyfin = {
       sourceDirectories = [
         "/var/lib/jellyfin"
@@ -161,6 +205,45 @@ in
         }
       ];
     }];
+
+    # LDAP config but you need to install the plugin by hand
+
+    systemd.services.jellyfin.preStart =
+      let
+        ldapConfig = pkgs.writeText "LDAP-Auth.xml" ''
+          <?xml version="1.0" encoding="utf-8"?>
+          <PluginConfiguration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+            <LdapServer>${cfg.ldapHost}</LdapServer>
+            <LdapPort>${builtins.toString cfg.ldapPort}</LdapPort>
+            <UseSsl>false</UseSsl>
+            <UseStartTls>false</UseStartTls>
+            <SkipSslVerify>false</SkipSslVerify>
+            <LdapBindUser>uid=admin,ou=people,${cfg.dcdomain}</LdapBindUser>
+            <LdapBindPassword>%LDAP_PASSWORD%</LdapBindPassword>
+            <LdapBaseDn>ou=people,${cfg.dcdomain}</LdapBaseDn>
+            <LdapSearchFilter>(memberof=cn=jellyfin_user,ou=groups,${cfg.dcdomain})</LdapSearchFilter>
+            <LdapAdminBaseDn>ou=people,${cfg.dcdomain}</LdapAdminBaseDn>
+            <LdapAdminFilter>(memberof=cn=jellyfin_admin,ou=groups,${cfg.dcdomain})</LdapAdminFilter>
+            <EnableLdapAdminFilterMemberUid>false</EnableLdapAdminFilterMemberUid>
+            <LdapSearchAttributes>uid, cn, mail, displayName</LdapSearchAttributes>
+            <LdapClientCertPath />
+            <LdapClientKeyPath />
+            <LdapRootCaPath />
+            <CreateUsersFromLdap>true</CreateUsersFromLdap>
+            <AllowPassChange>false</AllowPassChange>
+            <LdapUsernameAttribute>uid</LdapUsernameAttribute>
+            <LdapPasswordAttribute>userPassword</LdapPasswordAttribute>
+            <EnableAllFolders>true</EnableAllFolders>
+            <EnabledFolders />
+            <PasswordResetUrl />
+          </PluginConfiguration>
+          '';
+      in
+        template ldapConfig "/var/lib/jellyfin/plugins/configurations/LDAP-Auth.xml" {
+          "%LDAP_PASSWORD%" = "$(cat /run/secrets/jellyfin/ldap_password)";
+        };
+
+    # For backup
 
     systemd.services.jellyfin.serviceConfig = {
       # Setup permissions needed for backups, as the backup user is member of the jellyfin group.

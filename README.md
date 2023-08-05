@@ -31,11 +31,11 @@ services. Also, the design will be extendable to allow users to add services not
   - [X] Backup support.
 - [X] Home Assistant.
   - [ ] Export metrics to Prometheus.
-  - [X] LDAP auth through homeassistant_user LDAP group.
+  - [X] LDAP auth through `homeassistant_user` LDAP group.
   - [ ] SSO auth.
   - [X] Backup support.
 - [X] Jellyfin
   - [ ] Export metrics to Prometheus.
-  - [X] LDAP auth, unfortunately we need to configure this manually.
+  - [X] LDAP auth through `jellyfin_user` and `jellyfin_admin` LDAP groups.
   - [ ] SSO auth.
   - [X] Backup support.
