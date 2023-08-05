@@ -47,8 +47,38 @@ in
 
     dcdomain = lib.mkOption {
       type = lib.types.str;
-      description = "dc domain for ldap.";
+      description = "dc domain for ldap";
       example = "dc=mydomain,dc=com";
+    };
+
+    oidcProvider = lib.mkOption {
+      type = lib.types.str;
+      description = "OIDC provider name";
+      default = "Authelia";
+    };
+
+    oidcEndpoint = lib.mkOption {
+      type = lib.types.str;
+      description = "OIDC endpoint for SSO";
+      example = "https://authelia.example.com";
+    };
+
+    oidcClientID = lib.mkOption {
+      type = lib.types.str;
+      description = "Client ID for the OIDC endpoint";
+      default = "jellyfin";
+    };
+
+    oidcAdminUserGroup = lib.mkOption {
+      type = lib.types.str;
+      description = "OIDC admin group";
+      default = "jellyfin_admin";
+    };
+
+    oidcUserGroup = lib.mkOption {
+      type = lib.types.str;
+      description = "OIDC user group";
+      default = "jellyfin_user";
     };
 
     sopsFile = lib.mkOption {
@@ -190,6 +220,13 @@ in
       group = "jellyfin";
       restartUnits = [ "jellyfin.service" ];
     };
+    sops.secrets."jellyfin/sso_secret" = {
+      inherit (cfg) sopsFile;
+      mode = "0440";
+      owner = "jellyfin";
+      group = "jellyfin";
+      restartUnits = [ "jellyfin.service" ];
+    };
 
     shb.backup.instances.jellyfin = {
       sourceDirectories = [
@@ -238,10 +275,109 @@ in
             <PasswordResetUrl />
           </PluginConfiguration>
           '';
+
+        ssoConfig = pkgs.writeText "SSO-Auth.xml" ''
+          <?xml version="1.0" encoding="utf-8"?>
+          <PluginConfiguration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+            <SamlConfigs />
+            <OidConfigs>
+              <item>
+                <key>
+                  <string>${cfg.oidcProvider}</string>
+                </key>
+                <value>
+                  <PluginConfiguration>
+                    <OidEndpoint>${cfg.oidcEndpoint}</OidEndpoint>
+                    <OidClientId>${cfg.oidcClientID}</OidClientId>
+                    <OidSecret>%SSO_SECRET%</OidSecret>
+                    <Enabled>true</Enabled>
+                    <EnableAuthorization>true</EnableAuthorization>
+                    <EnableAllFolders>true</EnableAllFolders>
+                    <EnabledFolders />
+                    <AdminRoles>
+                      <string>${cfg.oidcAdminUserGroup}</string>
+                    </AdminRoles>
+                    <Roles>
+                      <string>${cfg.oidcUserGroup}</string>
+                    </Roles>
+                    <EnableFolderRoles>false</EnableFolderRoles>
+                    <FolderRoleMappings />
+                    <RoleClaim>groups</RoleClaim>
+                    <OidScopes>
+                      <string>groups</string>
+                    </OidScopes>
+                    <CanonicalLinks />
+                  </PluginConfiguration>
+                </value>
+              </item>
+            </OidConfigs>
+          </PluginConfiguration>
+        '';
+
+        brandingConfig = pkgs.writeText "branding.xml" ''
+          <?xml version="1.0" encoding="utf-8"?>
+          <BrandingOptions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+            <LoginDisclaimer>&lt;a href="https://${cfg.subdomain}.${cfg.domain}/SSO/OID/p/${cfg.oidcProvider}" class="raised cancel block emby-button authentik-sso"&gt;
+                Sign in with ${cfg.oidcProvider}&amp;nbsp;
+                &lt;img alt="OpenID Connect (authentik)" title="OpenID Connect (authentik)" class="oauth-login-image" src="https://raw.githubusercontent.com/goauthentik/authentik/master/web/icons/icon.png"&gt;
+              &lt;/a&gt;
+              &lt;a href="https://${cfg.subdomain}.${cfg.domain}/SSOViews/linking" class="raised cancel block emby-button authentik-sso"&gt;
+                Link ${cfg.oidcProvider} config&amp;nbsp;
+              &lt;/a&gt;
+              &lt;a href="${cfg.oidcEndpoint}" class="raised cancel block emby-button authentik-sso"&gt;
+                ${cfg.oidcProvider} config&amp;nbsp;
+              &lt;/a&gt;
+            </LoginDisclaimer>
+            <CustomCss>
+              /* Hide this in lieu of authentik link */
+              .emby-button.block.btnForgotPassword {
+                 display: none;
+              }
+
+              /* Make links look like buttons */
+              a.raised.emby-button {
+                 padding: 0.9em 1em;
+                 color: inherit !important;
+              }
+
+              /* Let disclaimer take full width */
+              .disclaimerContainer {
+                 display: block;
+              }
+
+              /* Optionally, apply some styling to the `.authentik-sso` class, probably let users configure this */
+              .authentik-sso {
+                 /* idk set a background image or something lol */
+              }
+
+              .oauth-login-image {
+                  height: 24px;
+                  position: absolute;
+                  top: 12px;
+              }
+            </CustomCss>
+            <SplashscreenEnabled>true</SplashscreenEnabled>
+          </BrandingOptions>
+        '';
       in
         template ldapConfig "/var/lib/jellyfin/plugins/configurations/LDAP-Auth.xml" {
           "%LDAP_PASSWORD%" = "$(cat /run/secrets/jellyfin/ldap_password)";
-        };
+        }
+        + template ssoConfig "/var/lib/jellyfin/plugins/configurations/SSO-Auth.xml" {
+          "%SSO_SECRET%" = "$(cat /run/secrets/jellyfin/sso_secret)";
+        }
+        + template brandingConfig "/var/lib/jellyfin/config/branding.xml" {"%a%" = "%a%";};
+
+    shb.authelia.oidcClients = [
+      {
+        id = cfg.oidcClientID;
+        description = "Jellyfin";
+        secret = "jbmVCAZluESWbOvbKQtHhjwcuaNjlMVaidMbJGKaHXHPOmwilCWYBFAQtrnohJzIhbuhWTBwhbDKLmdtyrLXeankWgXNspWCmJxzayHiHRvOPDbcsnquYReI";
+        public = "false";
+        authorization_policy = "one_factor";
+        redirect_uris = [ "https://${cfg.subdomain}.${cfg.domain}/sso/OID/r/${cfg.oidcProvider}" ];
+      }
+    ];
 
     # For backup
 

@@ -37,5 +37,5 @@ services. Also, the design will be extendable to allow users to add services not
 - [X] Jellyfin
   - [ ] Export metrics to Prometheus.
   - [X] LDAP auth through `jellyfin_user` and `jellyfin_admin` LDAP groups.
-  - [ ] SSO auth.
+  - [X] SSO auth.
   - [X] Backup support.
