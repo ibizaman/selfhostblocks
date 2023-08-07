@@ -64,6 +64,12 @@ in
       description = "SMTP username.";
       example = "postmaster@smtp.example.com";
     };
+
+    rules = lib.mkOption {
+      type = lib.types.listOf lib.types.anything;
+      description = "Rule based clients";
+      default = [];
+    };
   };
 
   config = lib.mkIf cfg.enable {
@@ -228,9 +234,9 @@ in
           proxy_set_header X-Forwarded-Host $http_host;
           proxy_set_header X-Forwarded-Uri $request_uri;
           proxy_set_header X-Forwarded-Ssl on;
-          proxy_redirect  http://  $scheme://;
-          proxy_http_version 1.1;
           proxy_set_header Connection "";
+          proxy_redirect http:// $scheme://;
+          proxy_http_version 1.1;
           proxy_cache_bypass $cookie_session;
           proxy_no_cache $cookie_session;
           proxy_buffers 64 256k;
@@ -242,8 +248,6 @@ in
           set_real_ip_from fc00::/7;
           real_ip_header X-Forwarded-For;
           real_ip_recursive on;
-
-          # echo_read_request_body;
           '';
         proxyPass =
           let
