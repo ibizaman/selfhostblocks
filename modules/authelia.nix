@@ -232,12 +232,16 @@ in
           # Basic Proxy Config
           proxy_set_header Host $host;
           proxy_set_header X-Real-IP $remote_addr;
+          proxy_set_header X-Original-URL $scheme://$http_host$request_uri;
+          proxy_set_header X-Original-Method $request_method;
           proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+          proxy_set_header X-Forwarded-Method $request_method;
           proxy_set_header X-Forwarded-Proto $scheme;
           proxy_set_header X-Forwarded-Host $http_host;
           proxy_set_header X-Forwarded-Uri $request_uri;
           proxy_set_header X-Forwarded-Ssl on;
           proxy_set_header Connection "";
+          proxy_next_upstream error timeout invalid_header http_500 http_502 http_503; # Timeout if the real server is dead
           proxy_redirect http:// $scheme://;
           proxy_http_version 1.1;
           proxy_cache_bypass $cookie_session;
