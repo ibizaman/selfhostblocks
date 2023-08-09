@@ -204,10 +204,13 @@ in
           ];
           rules = [
             {
-              domain = "test.${cfg.domain}";
-              policy = "one_factor";
+              domain = fqdn;
+              policy = "bypass";
+              resources = [
+                "^/api/.*"
+              ];
             }
-          ];
+          ] ++ cfg.rules;
         };
         identity_providers.oidc.clients = cfg.oidcClients;
         telemetry = {
