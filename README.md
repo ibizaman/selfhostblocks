@@ -8,7 +8,8 @@ services. Also, the design will be extendable to allow users to add services not
 
 ## Supported Features
 
-- [ ] SSO with Authelia.
+- [X] Authelia as SSO provider.
+  - [X] Export metrics to Prometheus.
 - [X] LDAP server through lldap, it provides a nice Web UI.
   - [X] Administrative UI only accessible from local network.
 - [X] Backup with Restic or BorgBackup

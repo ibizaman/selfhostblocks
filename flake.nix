@@ -10,6 +10,7 @@
     nixosModules.default = { config, ... }: {
       imports = [
         modules/ssl.nix
+        modules/authelia.nix
         modules/backup.nix
         modules/home-assistant.nix
         modules/jellyfin.nix
