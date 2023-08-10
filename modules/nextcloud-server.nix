@@ -43,6 +43,9 @@ in
       };
     };
 
+    # LDAP is manually configured through
+    # https://github.com/lldap/lldap/blob/main/example_configs/nextcloud.md, see also
+    # https://docs.nextcloud.com/server/latest/admin_manual/configuration_user/user_auth_ldap.html
     services.nextcloud = {
       enable = true;
       package = pkgs.nextcloud26;
