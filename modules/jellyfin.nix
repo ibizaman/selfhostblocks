@@ -108,7 +108,7 @@ in
 
     # Take advice from https://jellyfin.org/docs/general/networking/nginx/ and https://nixos.wiki/wiki/Plex
     services.nginx.virtualHosts."${fqdn}" = {
-      addSSL = true;
+      forceSSL = true;
       http2 = true;
       sslCertificate = "/var/lib/acme/${cfg.domain}/cert.pem";
       sslCertificateKey = "/var/lib/acme/${cfg.domain}/key.pem";

@@ -78,7 +78,7 @@ in
       # recommendedProxySettings = true;
 
       virtualHosts.${fqdn} = {
-        addSSL = true;
+        forceSSL = true;
         sslCertificate = "/var/lib/acme/${cfg.domain}/cert.pem";
         sslCertificateKey = "/var/lib/acme/${cfg.domain}/key.pem";
         locations."/" = {

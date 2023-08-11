@@ -113,7 +113,7 @@ in
       # listen = [ { addr = "0.0.0.0"; port = 443; } ];
       sslCertificate = "/var/lib/acme/${cfg.domain}/cert.pem";
       sslCertificateKey = "/var/lib/acme/${cfg.domain}/key.pem";
-      addSSL = true;
+      forceSSL = true;
     };
 
     systemd.services.phpfpm-nextcloud.serviceConfig = {
