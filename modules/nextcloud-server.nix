@@ -75,8 +75,10 @@ in
       extraOptions = {
         "overwrite.cli.url" = "https://" + fqdn;
         "overwritehost" = fqdn;
-        "overwriteprotocol" = "https";
-        "overwritecondaddr" = "^127\\.0\\.0\\.1$";
+         # 'trusted_domains' needed otherwise we get this issue https://help.nextcloud.com/t/the-polling-url-does-not-start-with-https-despite-the-login-url-started-with-https/137576/2
+        "trusted_domains" = [ fqdn ];
+        "overwriteprotocol" = "https"; # Needed if behind a reverse_proxy
+        "overwritecondaddr" = ""; # We need to set it to empty otherwise overwriteprotocol does not work.
       };
 
       phpOptions = {
