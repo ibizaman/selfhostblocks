@@ -46,6 +46,15 @@ in
     # LDAP is manually configured through
     # https://github.com/lldap/lldap/blob/main/example_configs/nextcloud.md, see also
     # https://docs.nextcloud.com/server/latest/admin_manual/configuration_user/user_auth_ldap.html
+    #
+    # Verify setup with:
+    #  - On admin page
+    #  - https://scan.nextcloud.com/
+    #  - https://www.ssllabs.com/ssltest/
+    # As of writing this, we got no warning on admin page and A+ on both tests.
+    #
+    # Content-Security-Policy is hard. I spent so much trying to fix lingering issues with .js files
+    # not loading to realize those scripts are inserted by extensions. Doh.
     services.nextcloud = {
       enable = true;
       package = pkgs.nextcloud26;
