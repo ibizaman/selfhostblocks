@@ -72,6 +72,9 @@ in
       # Adds appropriate nginx rewrite rules.
       webfinger = true;
 
+      # Very important for a bunch of scripts to load correctly. Otherwise you get Content-Security-Policy errors. See https://docs.nextcloud.com/server/13/admin_manual/configuration_server/harden_server.html#enable-http-strict-transport-security
+      https = true;
+
       extraOptions = {
         "overwrite.cli.url" = "https://" + fqdn;
         "overwritehost" = fqdn;
