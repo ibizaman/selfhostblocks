@@ -52,6 +52,7 @@ in
 
       # Enable php-fpm and nginx which will be behind the shb haproxy instance.
       hostName = fqdn;
+      nginx.hstsMaxAge = 31536000; # Needs > 1 year for https://hstspreload.org to be happy
 
       config = {
         dbtype = "pgsql";
