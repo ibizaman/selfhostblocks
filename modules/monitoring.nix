@@ -82,10 +82,7 @@ in
         sslCertificate = "/var/lib/acme/${cfg.domain}/cert.pem";
         sslCertificateKey = "/var/lib/acme/${cfg.domain}/key.pem";
         locations."/" = {
-          extraConfig = ''
-            proxy_set_header Host $host;
-          '';
-          proxyPass = "http://${toString config.services.grafana.settings.server.http_addr}:${toString config.services.grafana.settings.server.http_port}/";
+          proxyPass = "http://${toString config.services.grafana.settings.server.http_addr}:${toString config.services.grafana.settings.server.http_port}";
           proxyWebsockets = true;
         };
       };
