@@ -26,6 +26,13 @@ in
       description = "domain under which home-assistant will be served.";
       example = "mydomain.com";
     };
+
+    debugLog = lib.mkOption {
+      type = lib.types.bool;
+      description = "Set to true to enable debug logging of the infrastructure serving Grafana.";
+      default = false;
+      example = true;
+    };
   };
 
   config = lib.mkIf cfg.enable {
@@ -64,6 +71,7 @@ in
           http_port = 3000;
           domain = fqdn;
           root_url = "https://${fqdn}";
+          router_logging = cfg.debugLog;
         };
       };
     };
