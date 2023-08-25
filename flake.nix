@@ -11,6 +11,7 @@
       imports = [
         modules/authelia.nix
         modules/backup.nix
+        modules/hledger.nix
         modules/home-assistant.nix
         modules/jellyfin.nix
         modules/ldap.nix

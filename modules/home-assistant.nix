@@ -100,7 +100,7 @@ in
           time_zone = "America/Los_Angeles";
           auth_providers = [
             # Ensure you have the homeassistant provider enabled if you want to continue using your existing accounts
-            { type = "homeassistant"; }
+            # { type = "homeassistant"; }
             { type = "command_line";
               command = ldap_auth_script + "/bin/ldap_auth.sh";
               # Only allow users in the 'homeassistant_user' group to login.
