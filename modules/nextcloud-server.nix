@@ -122,6 +122,7 @@ in
       mode = "0440";
       owner = "nextcloud";
       group = "nextcloud";
+      restartUnits = [ "phpfpm-nextcloud.service" ];
     };
 
     services.nginx.virtualHosts.${fqdn} = {
