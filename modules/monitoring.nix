@@ -105,6 +105,14 @@ in
           }
         ];
       }
+      {
+        job_name = "prometheus_internal";
+        static_configs = [
+          {
+            targets = ["127.0.0.1:${toString config.services.prometheus.port}"];
+          }
+        ];
+      }
     ] ++ (lib.lists.optional config.services.nginx.enable {
         job_name = "nginx";
         static_configs = [
