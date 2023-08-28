@@ -26,6 +26,12 @@ in
       description = "Sops file location";
       example = "secrets/nextcloud.yaml";
     };
+
+    localNetworkIPRange = lib.mkOption {
+      type = lib.types.str;
+      description = "Local network range, to restrict access to the UI to only those IPs.";
+      example = "192.168.1.1/24";
+    };
   };
 
   config = lib.mkIf cfg.enable {
@@ -114,6 +120,35 @@ in
         "redis.session.lock_retries" = "-1";
         "redis.session.lock_wait_time" = "10000";
       };
+    };
+
+    services.onlyoffice = {
+      enable = true;
+      hostname = "oo.${cfg.domain}";
+      port = 13444;
+
+      postgresHost = "/run/postgresql";
+
+      jwtSecretFile = "/run/secrets/nextcloud/onlyoffice/jwt_secret";
+    };
+    services.nginx.virtualHosts."oo.${cfg.domain}" = {
+      sslCertificate = "/var/lib/acme/${cfg.domain}/cert.pem";
+      sslCertificateKey = "/var/lib/acme/${cfg.domain}/key.pem";
+      forceSSL = true;
+      locations."/" = {
+        extraConfig = ''
+        allow ${cfg.localNetworkIPRange};
+        '';
+      };
+    };
+
+    # Secret needed for services.onlyoffice.jwtSecretFile
+    sops.secrets."nextcloud/onlyoffice/jwt_secret" = {
+      inherit (cfg) sopsFile;
+      mode = "0440";
+      owner = "onlyoffice";
+      group = "onlyoffice";
+      restartUnits = [ "onlyoffice-docservice.service" ];
     };
 
     # Secret needed for services.nextcloud.config.adminpassFile.
