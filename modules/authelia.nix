@@ -226,42 +226,47 @@ in
       sslCertificate = "/var/lib/acme/${cfg.domain}/cert.pem";
       sslCertificateKey = "/var/lib/acme/${cfg.domain}/key.pem";
       forceSSL = true;
-      locations."/" = {
-        # Taken from https://matwick.ca/authelia-nginx-sso/
-        extraConfig = ''
-          # Basic Proxy Config
-          proxy_set_header Host $host;
-          proxy_set_header X-Real-IP $remote_addr;
-          proxy_set_header X-Original-URL $scheme://$http_host$request_uri;
-          proxy_set_header X-Original-Method $request_method;
-          proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-          proxy_set_header X-Forwarded-Method $request_method;
-          proxy_set_header X-Forwarded-Proto $scheme;
-          proxy_set_header X-Forwarded-Host $http_host;
-          proxy_set_header X-Forwarded-Uri $request_uri;
-          proxy_set_header X-Forwarded-Ssl on;
-          proxy_set_header Connection "";
-          proxy_next_upstream error timeout invalid_header http_500 http_502 http_503; # Timeout if the real server is dead
-          proxy_redirect http:// $scheme://;
-          proxy_http_version 1.1;
-          proxy_cache_bypass $cookie_session;
-          proxy_no_cache $cookie_session;
-          proxy_buffers 64 256k;
+      # Taken from https://github.com/authelia/authelia/issues/178
+      # TODO: merge with config from https://matwick.ca/authelia-nginx-sso/
+      locations."/".extraConfig = ''
+        add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
+        add_header X-Content-Type-Options nosniff;
+        add_header X-Frame-Options "SAMEORIGIN";
+        add_header X-XSS-Protection "1; mode=block";
+        add_header X-Robots-Tag "noindex, nofollow, nosnippet, noarchive";
+        add_header X-Download-Options noopen;
+        add_header X-Permitted-Cross-Domain-Policies none;
 
-          # If behind reverse proxy, forwards the correct IP
-          set_real_ip_from 10.0.0.0/8;
-          set_real_ip_from 172.0.0.0/8;
-          set_real_ip_from 192.168.0.0/16;
-          set_real_ip_from fc00::/7;
-          real_ip_header X-Forwarded-For;
-          real_ip_recursive on;
-          '';
-        proxyPass =
-          let
-            autheliaServerCfg = autheliaCfg.settings.server;
-          in
-            "http://${toString autheliaServerCfg.host}:${toString autheliaServerCfg.port}/";
-      };
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_cache_bypass $http_upgrade;
+
+        proxy_pass http://127.0.0.1:${toString autheliaCfg.settings.server.port};
+        proxy_intercept_errors on;
+        if ($request_method !~ ^(POST)$){
+            error_page 401 = /error/401;
+            error_page 403 = /error/403;
+            error_page 404 = /error/404;
+        }
+        '';
+
+      locations."/api/verify".extraConfig = ''
+        add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
+        add_header X-Content-Type-Options nosniff;
+        add_header X-Frame-Options "SAMEORIGIN";
+        add_header X-XSS-Protection "1; mode=block";
+        add_header X-Robots-Tag "noindex, nofollow, nosnippet, noarchive";
+        add_header X-Download-Options noopen;
+        add_header X-Permitted-Cross-Domain-Policies none;
+
+        proxy_set_header Host $http_x_forwarded_host;
+        proxy_pass http://127.0.0.1:${toString autheliaCfg.settings.server.port};
+        '';
     };
 
     services.redis.servers.authelia = {

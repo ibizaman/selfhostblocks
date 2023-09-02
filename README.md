@@ -39,3 +39,8 @@ services. Also, the design will be extendable to allow users to add services not
   - [X] LDAP auth through `jellyfin_user` and `jellyfin_admin` LDAP groups.
   - [X] SSO auth.
   - [X] Backup support.
+- [X] Hledger
+  - [ ] Export metrics to Prometheus.
+  - [X] LDAP auth through `hledger_user` LDAP group.
+  - [X] SSO auth.
+  - [ ] Backup support.
