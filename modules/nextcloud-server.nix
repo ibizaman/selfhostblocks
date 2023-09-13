@@ -32,6 +32,13 @@ in
       description = "Local network range, to restrict access to the UI to only those IPs.";
       example = "192.168.1.1/24";
     };
+
+    debug = lib.mkOption {
+      type = lib.types.bool;
+      description = "Enable debugging.";
+      default = false;
+      example = true;
+    };
   };
 
   config = lib.mkIf cfg.enable {
@@ -98,6 +105,9 @@ in
         "trusted_domains" = [ fqdn ];
         "overwriteprotocol" = "https"; # Needed if behind a reverse_proxy
         "overwritecondaddr" = ""; # We need to set it to empty otherwise overwriteprotocol does not work.
+      } // lib.optionalAttrs cfg.debug {
+        "debug" = true;
+        "filelocking.debug" = true;
       };
 
       phpOptions = {
@@ -119,7 +129,19 @@ in
         "redis.session.locking_enabled" = "1";
         "redis.session.lock_retries" = "-1";
         "redis.session.lock_wait_time" = "10000";
+      } // lib.optionalAttrs cfg.debug {
+        # "xdebug.remote_enable" = "on";
+        # "xdebug.remote_host" = "127.0.0.1";
+        # "xdebug.remote_port" = "9000";
+        # "xdebug.remote_handler" = "dbgp";
+        "xdebug.trigger_value" = "debug_me";
+
+        "xdebug.mode" = "profile";
+        "xdebug.output_dir" = "/var/log/xdebug";
+        "xdebug.start_with_request" = "trigger";
       };
+
+      phpExtraExtensions = all: [ all.xdebug ];
     };
 
     services.onlyoffice = {
@@ -171,6 +193,9 @@ in
       # Setup permissions needed for backups, as the backup user is member of the jellyfin group.
       UMask = lib.mkForce "0027";
     };
+    systemd.services.phpfpm-nextcloud.preStart = ''
+      mkdir -p /var/log/xdebug; chown -R nextcloud: /var/log/xdebug
+    '';
 
     # Sets up backup for Nextcloud.
     shb.backup.instances.nextcloud = {
