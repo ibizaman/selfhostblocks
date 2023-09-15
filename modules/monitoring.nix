@@ -83,7 +83,6 @@ in
 
     services.nginx = {
       enable = true;
-      # recommendedProxySettings = true;
 
       virtualHosts.${fqdn} = {
         forceSSL = true;
