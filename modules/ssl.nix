@@ -9,7 +9,16 @@ in
 
     sopsFile = lib.mkOption {
       type = lib.types.path;
-      description = "Sops file location";
+      description = ''Sops file location.
+
+      To use Linode to prove the dns challenge, the content of the file should be the following,
+      with XXX replaced by your Linode API token.
+
+        LINODE_HTTP_TIMEOUT=10
+        LINODE_POLLING_INTERVAL=10
+        LINODE_PROPAGATION_TIMEOUT=240
+        LINODE_TOKEN=XXX
+      '';
       example = "secrets/haproxy.yaml";
     };
 
@@ -17,6 +26,18 @@ in
       description = lib.mdDoc "Domain to serve sites under.";
       type = lib.types.str;
       example = "domain.com";
+    };
+
+    dnsProvider = lib.mkOption {
+      description = lib.mdDoc "DNS provider.";
+      type = lib.types.str;
+      example = "linode";
+    };
+
+    dnsResolver = lib.mkOption {
+      description = lib.mdDoc "IP of a DNS server used to resolve hostnames.";
+      type = lib.types.str;
+      default = "8.8.8.8";
     };
 
     adminEmail = lib.mkOption {
@@ -40,20 +61,12 @@ in
       };
       defaults = {
         email = cfg.adminEmail;
-        dnsProvider = "linode";
-        dnsResolver = "8.8.8.8";
-        # For example, to use Linode to prove the dns challenge,
-        # the content of the file should be the following, with
-        # XXX replaced by your Linode API token.
-        # LINODE_HTTP_TIMEOUT=10
-        # LINODE_POLLING_INTERVAL=10
-        # LINODE_PROPAGATION_TIMEOUT=240
-        # LINODE_TOKEN=XXX
-        credentialsFile = "/run/secrets/linode";
+        inherit (cfg) dnsProvider dnsResolver;
+        credentialsFile = "/run/secrets/acme";
         enableDebugLogs = false;
       };
     };
-    sops.secrets.linode = {
+    sops.secrets.acme = {
       inherit (cfg) sopsFile;
       restartUnits = [ "acme-${cfg.domain}.service" ];
     };
