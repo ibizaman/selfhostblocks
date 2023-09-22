@@ -11,6 +11,7 @@
       imports = [
         modules/authelia.nix
         modules/backup.nix
+        modules/deluge.nix
         modules/hledger.nix
         modules/home-assistant.nix
         modules/jellyfin.nix
@@ -19,6 +20,8 @@
         modules/nextcloud-server.nix
         modules/nginx.nix
         modules/ssl.nix
+        modules/tinyproxy.nix
+        modules/vpn.nix
       ];
     };
 
