@@ -18,10 +18,13 @@ services. Also, the design will be extendable to allow users to add services not
 - [X] LDAP server through lldap, it provides a nice Web UI.
   - [X] Administrative UI only accessible from local network.
 - [X] Backup with Restic or BorgBackup
+  - [ ] UI for backups.
+  - [ ] Export metrics to Prometheus.
 - [X] Monitoring through Prometheus and Grafana.
   - [X] Export systemd services status.
 - [X] Reverse Proxy with Nginx.
   - [ ] Export metrics to Prometheus.
+  - [ ] Log slow requests.
   - [X] SSL support.
   - [X] Backup support.
 - [X] Nextcloud
@@ -44,3 +47,6 @@ services. Also, the design will be extendable to allow users to add services not
   - [X] LDAP auth through `hledger_user` LDAP group.
   - [X] SSO auth.
   - [ ] Backup support.
+- [X] Database Postgres
+  - [ ] Slow log monitoring.
+  - [ ] Export metrics to Prometheus.
