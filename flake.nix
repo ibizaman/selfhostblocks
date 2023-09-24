@@ -9,6 +9,7 @@
   outputs = inputs@{ self, nixpkgs, sops-nix, ... }: {
     nixosModules.default = { config, ... }: {
       imports = [
+        modules/arr.nix
         modules/authelia.nix
         modules/backup.nix
         modules/deluge.nix
