@@ -2,6 +2,45 @@
 
 let
   cfg = config.shb.nginx;
+
+  fqdn = c: "${c.subdomain}.${c.domain}";
+
+  autheliaConfig = lib.types.submodule {
+    options = {
+      subdomain = lib.mkOption {
+        type = lib.types.str;
+        description = "Subdomain which must be protected.";
+        example = "subdomain";
+      };
+
+      domain = lib.mkOption {
+        type = lib.types.str;
+        description = "Domain of the subdomain.";
+        example = "mydomain.com";
+      };
+
+      oidcEndpoint = lib.mkOption {
+        type = lib.types.str;
+        description = "OIDC endpoint for SSO.";
+        example = "https://authelia.example.com";
+      };
+
+      upstream = lib.mkOption {
+        type = lib.types.str;
+        description = "Upstream url to be protected.";
+        example = "http://127.0.0.1:1234";
+      };
+
+      autheliaRule = lib.mkOption {
+        type = lib.types.attrsOf lib.types.anything;
+        description = "Authelia rule configuration";
+        example = lib.literalExpression ''{
+        policy = "two_factor";
+        subject = ["group:service_user"];
+        }'';
+      };
+    };
+  };
 in
 {
   options.shb.nginx = {
@@ -18,9 +57,16 @@ in
       default = false;
       example = true;
     };
+
+    autheliaProtect = lib.mkOption {
+      description = lib.mdDoc "Endpoints to be protected by authelia.";
+      type = lib.types.listOf autheliaConfig;
+      default = [];
+    };
   };
 
   config = {
+    services.nginx.enable = true;
     services.nginx.logError = lib.mkIf cfg.debugLog "stderr warn";
     services.nginx.appendHttpConfig = lib.mkIf cfg.accessLog ''
         log_format apm
@@ -48,5 +94,87 @@ in
 
         access_log syslog:server=unix:/dev/log apm;
       '';
+
+    services.nginx.virtualHosts =
+      let
+        vhostCfg = c: {
+          ${fqdn c} = {
+            forceSSL = true;
+            sslCertificate = "/var/lib/acme/${c.domain}/cert.pem";
+            sslCertificateKey = "/var/lib/acme/${c.domain}/key.pem";
+
+            # Taken from https://github.com/authelia/authelia/issues/178
+            locations."/".extraConfig = ''
+              add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
+              add_header X-Content-Type-Options nosniff;
+              add_header X-Frame-Options "SAMEORIGIN";
+              add_header X-XSS-Protection "1; mode=block";
+              add_header X-Robots-Tag "noindex, nofollow, nosnippet, noarchive";
+              add_header X-Download-Options noopen;
+              add_header X-Permitted-Cross-Domain-Policies none;
+
+              proxy_set_header Host $host;
+              proxy_set_header X-Real-IP $remote_addr;
+              proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+              proxy_set_header X-Forwarded-Proto $scheme;
+              proxy_http_version 1.1;
+              proxy_set_header Upgrade $http_upgrade;
+              proxy_set_header Connection "upgrade";
+              proxy_cache_bypass $http_upgrade;
+
+              auth_request /authelia;
+              auth_request_set $user $upstream_http_remote_user;
+              auth_request_set $groups $upstream_http_remote_groups;
+              proxy_set_header X-Forwarded-User $user;
+              proxy_set_header X-Forwarded-Groups $groups;
+              # TODO: Are those needed?
+              # auth_request_set $name $upstream_http_remote_name;
+              # auth_request_set $email $upstream_http_remote_email;
+              # proxy_set_header Remote-Name $name;
+              # proxy_set_header Remote-Email $email;
+              # TODO: Would be nice to have this working, I think.
+              # set $new_cookie $http_cookie;
+              # if ($http_cookie ~ "(.*)(?:^|;)\s*example\.com\.session\.id=[^;]+(.*)") {
+              #     set $new_cookie $1$2;
+              # }
+              # proxy_set_header Cookie $new_cookie;
+
+              auth_request_set $redirect $scheme://$http_host$request_uri;
+              error_page 401 =302 ${c.oidcEndpoint}?rd=$redirect;
+              error_page 403 = ${c.oidcEndpoint}/error/403;
+
+              proxy_pass ${c.upstream};
+            '';
+
+            # Virtual endpoint created by nginx to forward auth requests.
+            locations."/authelia".extraConfig = ''
+              internal;
+              proxy_pass ${c.oidcEndpoint}/api/verify;
+
+              proxy_set_header X-Forwarded-Host $host;
+              proxy_set_header X-Original-URI $request_uri;
+              proxy_set_header X-Original-URL $scheme://$host$request_uri;
+              proxy_set_header X-Forwarded-For $remote_addr;
+              proxy_set_header X-Forwarded-Proto $scheme;
+              proxy_set_header Content-Length "";
+              proxy_pass_request_body off;
+              # TODO: Would be nice to be able to enable this.
+              # proxy_ssl_verify on;
+              # proxy_ssl_trusted_certificate "/etc/ssl/certs/DST_Root_CA_X3.pem";
+              proxy_ssl_protocols TLSv1.2;
+              proxy_ssl_ciphers 'EECDH+AESGCM:EDH+AESGCM:AES256+EECDH:AES256+EDH';
+              proxy_ssl_verify_depth 2;
+              proxy_ssl_server_name on;
+            '';
+          };
+        };
+      in
+        lib.mkMerge (map vhostCfg cfg.autheliaProtect);
+
+    shb.authelia.rules =
+      let
+        authConfig = c: c.autheliaRule // { domain = fqdn c; };
+      in
+        map authConfig cfg.autheliaProtect;
   };
 }
