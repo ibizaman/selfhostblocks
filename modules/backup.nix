@@ -27,6 +27,12 @@ let
       default = [];
     };
 
+    secretName = lib.mkOption {
+      description = "Secret name, if null use the name of the backup instance.";
+      type = lib.types.nullOr lib.types.str;
+      default = null;
+    };
+
     repositories = lib.mkOption {
       description = lib.mdDoc "Repositories to back this instance to.";
       type = lib.types.nonEmptyListOf lib.types.str;
@@ -81,6 +87,9 @@ let
       example = true;
     };
   };
+
+  repoSlugName = name: builtins.replaceStrings ["/" ":"] ["_" "_"] (lib.strings.removePrefix "/" name);
+
 in
 {
   options.shb.backup = {
@@ -132,6 +141,7 @@ in
             home = "/var/lib/backup";
             createHome = true;
             isSystemUser = true;
+            extraGroups = [ "keys" ];
           };
         };
         users.groups = {
@@ -142,12 +152,10 @@ in
 
         sops.secrets =
           let
-            repoSlugName = name: builtins.replaceStrings ["/"] ["_"] (lib.strings.removePrefix "/" name);
-
             mkSopsSecret = name: instance: (
               [
                 {
-                  "${instance.backend}/${name}/passphrase" = {
+                  "${instance.backend}/passphrases/${if isNull instance.secretName then name else instance.secretName}" = {
                     sopsFile = instance.keySopsFile;
                     mode = "0440";
                     owner = cfg.user;
@@ -155,13 +163,21 @@ in
                   };
                 }
               ] ++ lib.optional ((lib.filter (lib.strings.hasPrefix "s3") instance.repositories) != []) {
-                "${instance.backend}/${name}/environmentfile" = {
+                "${instance.backend}/environmentfiles/${if isNull instance.secretName then name else instance.secretName}" = {
                   sopsFile = instance.keySopsFile;
                   mode = "0440";
                   owner = cfg.user;
                   group = cfg.group;
                 };
-              }
+              } ++ lib.optionals (instance.backend == "borgmatic") (lib.flatten (map (repository: {
+                "${instance.backend}/keys/${repoSlugName repository}" = {
+                  key = "${instance.backend}/keys/${if isNull instance.secretName then name else instance.secretName}";
+                  sopsFile = instance.keySopsFile;
+                  mode = "0440";
+                  owner = cfg.user;
+                  group = cfg.group;
+                };
+              }) instance.repositories))
             );
           in
             lib.mkMerge (lib.flatten (lib.attrsets.mapAttrsToList mkSopsSecret cfg.instances));
@@ -176,11 +192,11 @@ in
           serviceConfig = {
             User = cfg.user;
             Group = cfg.group;
-            ExecStartPre = ""; # Do not sleep before starting.
+            ExecStartPre = [ "" ]; # Do not sleep before starting.
             ExecStart = [ "" "${pkgs.borgmatic}/bin/borgmatic --verbosity -1 --syslog-verbosity 1" ];
             # For borgmatic, since we have only one service, we need to merge all environmentFile
             # from all instances.
-            EnvironmentFile = builtins.mapAttrsToList (name: value: value.environmentFile) cfg.instances;
+            EnvironmentFile = lib.mapAttrsToList (name: value: value.environmentFile) cfg.instances;
           };
         };
 
@@ -193,8 +209,6 @@ in
 
         services.restic.backups =
           let
-            repoSlugName = name: builtins.replaceStrings ["/" ":"] ["_" "_"] (lib.strings.removePrefix "/" name);
-
             mkRepositorySettings = name: instance: repository: {
               "${name}_${repoSlugName repository}" = {
                 inherit (cfg) user;
@@ -202,7 +216,7 @@ in
 
                 paths = instance.sourceDirectories;
 
-                passwordFile = "/run/secrets/${instance.backend}/${name}/passphrase";
+                passwordFile = "/run/secrets/${instance.backend}/passphrases/${name}";
 
                 initialize = true;
 
@@ -219,7 +233,7 @@ in
 
                 backupCleanupCommand = lib.strings.concatStringsSep "\n" instance.hooks.after_backup;
               } // lib.attrsets.optionalAttrs (instance.environmentFile) {
-                environmentFile = "/run/secrets/${instance.backend}/${name}/environmentfile";
+                environmentFile = "/run/secrets/${instance.backend}/environmentfiles/${name}";
               } // lib.attrsets.optionalAttrs (builtins.length instance.excludePatterns > 0) {
                 exclude = instance.excludePatterns;
               };
@@ -243,7 +257,8 @@ in
                   });
 
                 storage = {
-                  encryption_passcommand = "cat /run/secrets/borgmatic/${name}/passphrase";
+                  encryption_passcommand = "cat /run/secrets/borgmatic/passphrases/${if isNull instance.secretName then name else instance.secretName}";
+                  borg_keys_directory = "/run/secrets/borgmatic/keys";
                 };
 
                 retention = instance.retention;
