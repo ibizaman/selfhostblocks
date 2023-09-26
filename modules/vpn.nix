@@ -30,6 +30,8 @@ let
     reneg-sec 0
     comp-lzo no
 
+    status /tmp/openvpn/${name}.status
+
     remote-cert-tls server
 
     auth-user-pass ${authFile}
@@ -231,6 +233,10 @@ in
         };
       in
         lib.mkMerge (lib.mapAttrsToList instanceConfig cfg);
+
+    systemd.tmpfiles.rules = map (name:
+      "d /tmp/openvpn/${name}.status 0700 root root"
+    ) (lib.attrNames cfg);
 
     networking.iproute2.enable = true;
     networking.iproute2.rttablesExtraConfig =
