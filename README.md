@@ -53,6 +53,12 @@ services. Also, the design will be extendable to allow users to add services not
 
 ## Tips
 
+### Deploy
+
+```bash
+$ nix run nixpkgs#colmena -- apply
+```
+
 ### Diff changes
 
 ```bash
