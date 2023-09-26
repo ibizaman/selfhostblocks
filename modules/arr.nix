@@ -5,10 +5,10 @@ let
 
   apps = {
     radarr = {
-      defaultPort = 8989;
+      defaultPort = 7878;
     };
     sonarr = {
-      defaultPort = 7878;
+      defaultPort = 8989;
     };
     bazarr = {
       defaultPort = 6767;
@@ -64,16 +64,16 @@ in
   options.shb.arr = lib.listToAttrs (lib.mapAttrsToList appOption apps);
 
   config = {
-    # Listens on port 8989
-    services.sonarr = lib.mkIf cfg.sonarr.enable {
-      enable = true;
-      dataDir = "/var/lib/sonarr";
-    };
-
     # Listens on port 7878
     services.radarr = lib.mkIf cfg.radarr.enable {
       enable = true;
       dataDir = "/var/lib/radarr";
+    };
+
+    # Listens on port 8989
+    services.sonarr = lib.mkIf cfg.sonarr.enable {
+      enable = true;
+      dataDir = "/var/lib/sonarr";
     };
 
     services.bazarr = lib.mkIf cfg.bazarr.enable {
