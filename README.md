@@ -50,3 +50,24 @@ services. Also, the design will be extendable to allow users to add services not
 - [X] Database Postgres
   - [ ] Slow log monitoring.
   - [ ] Export metrics to Prometheus.
+
+## Tips
+
+### Diff changes
+
+```bash
+$ nix run nixpkgs#colmena -- build
+...
+Built "/nix/store/yyw9rgn8v5jrn4657vwpg01ydq0hazgx-nixos-system-baryum-23.11pre-git"
+
+# Make some changes
+
+$ nix run nixpkgs#colmena -- build
+...
+Built "/nix/store/16n1klx5cxkjpqhrdf0k12npx3vn5042-nixos-system-baryum-23.11pre-git"
+
+$ nix run nixpkgs#nix-diff -- \
+  /nix/store/yyw9rgn8v5jrn4657vwpg01ydq0hazgx-nixos-system-baryum-23.11pre-git \
+  /nix/store/16n1klx5cxkjpqhrdf0k12npx3vn5042-nixos-system-baryum-23.11pre-git \
+  --color always | less
+```
