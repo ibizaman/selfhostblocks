@@ -100,7 +100,15 @@ in
         job_name = "node";
         static_configs = [
           {
-            targets = ["127.0.0.1:9115"];
+            targets = ["127.0.0.1:${toString config.services.prometheus.exporters.node.port}"];
+          }
+        ];
+      }
+      {
+        job_name = "smartctl";
+        static_configs = [
+          {
+            targets = ["127.0.0.1:${toString config.services.prometheus.exporters.smartctl.port}"];
           }
         ];
       }
@@ -116,10 +124,31 @@ in
         job_name = "nginx";
         static_configs = [
           {
-            targets = ["127.0.0.1:9113"];
+            targets = ["127.0.0.1:${toString config.services.prometheus.exporters.nginx.port}"];
           }
         ];
-      });
+    # }) ++ (lib.optional (builtins.length (lib.attrNames config.services.redis.servers) > 0) {
+    #     job_name = "redis";
+    #     static_configs = [
+    #       {
+    #         targets = ["127.0.0.1:${toString config.services.prometheus.exporters.redis.port}"];
+    #       }
+    #     ];
+    # }) ++ (lib.optional (builtins.length (lib.attrNames config.services.openvpn.servers) > 0) {
+    #     job_name = "openvpn";
+    #     static_configs = [
+    #       {
+    #         targets = ["127.0.0.1:${toString config.services.prometheus.exporters.openvpn.port}"];
+    #       }
+    #     ];
+    }) ++ (lib.optional config.services.dnsmasq.enable {
+        job_name = "dnsmasq";
+        static_configs = [
+          {
+            targets = ["127.0.0.1:${toString config.services.prometheus.exporters.dnsmasq.port}"];
+          }
+        ];
+    });
     services.prometheus.exporters.nginx = lib.mkIf config.services.nginx.enable {
       enable = true;
       port = 9113;
@@ -130,6 +159,27 @@ in
       enable = true;
       enabledCollectors = ["systemd"];
       port = 9115;
+      listenAddress = "127.0.0.1";
+    };
+    services.prometheus.exporters.smartctl = {
+      enable = true;
+      port = 9117;
+      listenAddress = "127.0.0.1";
+    };
+    # services.prometheus.exporters.redis = lib.mkIf (builtins.length (lib.attrNames config.services.redis.servers) > 0) {
+    #   enable = true;
+    #   port = 9119;
+    #   listenAddress = "127.0.0.1";
+    # };
+    # services.prometheus.exporters.openvpn = lib.mkIf (builtins.length (lib.attrNames config.services.openvpn.servers) > 0) {
+    #   enable = true;
+    #   port = 9121;
+    #   listenAddress = "127.0.0.1";
+    #   statusPaths = lib.mapAttrsToList (name: _config: "/tmp/openvpn/${name}.status") config.services.openvpn.servers;
+    # };
+    services.prometheus.exporters.dnsmasq = lib.mkIf config.services.dnsmasq.enable {
+      enable = true;
+      port = 9123;
       listenAddress = "127.0.0.1";
     };
     services.nginx.statusPage = lib.mkDefault config.services.nginx.enable;
