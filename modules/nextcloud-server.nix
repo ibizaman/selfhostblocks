@@ -192,6 +192,32 @@ in
     # Needed for a few apps. Would be nice to avoid having to put that in the environment and instead override https://github.com/NixOS/nixpkgs/blob/261abe8a44a7e8392598d038d2e01f7b33cf26d0/nixos/modules/services/web-apps/nextcloud.nix#L1035
     environment.systemPackages = [ pkgs.ffmpeg ];
 
+    services.postgresql.settings = {
+      # From https://pgtune.leopard.in.ua/
+
+      # DB Version: 16
+      # OS Type: linux
+      # DB Type: web
+      # Total Memory (RAM): 5 GB
+      # CPUs num: 2
+      # Connections num: 100
+      # Data Storage: hdd
+
+      max_connections = "100";
+      shared_buffers = "1280MB";
+      effective_cache_size = "3840MB";
+      maintenance_work_mem = "320MB";
+      checkpoint_completion_target = "0.9";
+      wal_buffers = "16MB";
+      default_statistics_target = "100";
+      random_page_cost = "4";
+      effective_io_concurrency = "2";
+      work_mem = "6553kB";
+      huge_pages = "off";
+      min_wal_size = "1GB";
+      max_wal_size = "4GB";
+    };
+
     systemd.services.phpfpm-nextcloud.serviceConfig = {
       # Setup permissions needed for backups, as the backup user is member of the jellyfin group.
       UMask = lib.mkForce "0027";
