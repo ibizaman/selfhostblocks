@@ -77,3 +77,11 @@ $ nix run nixpkgs#nix-diff -- \
   /nix/store/16n1klx5cxkjpqhrdf0k12npx3vn5042-nixos-system-baryum-23.11pre-git \
   --color always | less
 ```
+
+Also, in lieu of `nix-diff`, a nice summary of version changes can be produced with:
+
+```bash
+nix run nixpkgs#nvd -- diff \
+  /nix/store/yyw9rgn8v5jrn4657vwpg01ydq0hazgx-nixos-system-baryum-23.11pre-git \
+  /nix/store/16n1klx5cxkjpqhrdf0k12npx3vn5042-nixos-system-baryum-23.11pre-git \
+```
