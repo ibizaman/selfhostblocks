@@ -114,11 +114,11 @@ in
       {
         inherit (cfg) subdomain domain oidcEndpoint;
         upstream = "http://127.0.0.1:${toString config.services.deluge.web.port}";
-        autheliaRule = {
+        autheliaRules = [{
           domain = fqdn;
           policy = "two_factor";
           subject = ["group:deluge_user"];
-        };
+        }];
       }
     ];
 

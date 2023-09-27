@@ -31,13 +31,13 @@ let
         example = "http://127.0.0.1:1234";
       };
 
-      autheliaRule = lib.mkOption {
-        type = lib.types.attrsOf lib.types.anything;
+      autheliaRules = lib.mkOption {
+        type = lib.types.listOf (lib.types.attrsOf lib.types.anything);
         description = "Authelia rule configuration";
-        example = lib.literalExpression ''{
+        example = lib.literalExpression ''[{
         policy = "two_factor";
         subject = ["group:service_user"];
-        }'';
+        }]'';
       };
     };
   };
@@ -173,8 +173,8 @@ in
 
     shb.authelia.rules =
       let
-        authConfig = c: c.autheliaRule // { domain = fqdn c; };
+        authConfig = c: map (r: r // { domain = fqdn c; }) c.autheliaRules;
       in
-        map authConfig cfg.autheliaProtect;
+        lib.flatten (map authConfig cfg.autheliaProtect);
   };
 }
