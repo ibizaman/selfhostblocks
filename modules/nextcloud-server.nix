@@ -70,7 +70,7 @@ in
     # not loading to realize those scripts are inserted by extensions. Doh.
     services.nextcloud = {
       enable = true;
-      package = pkgs.nextcloud26;
+      package = pkgs.nextcloud27;
 
       # Enable php-fpm and nginx which will be behind the shb haproxy instance.
       hostName = fqdn;
