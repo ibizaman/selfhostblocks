@@ -189,8 +189,13 @@ in
       forceSSL = true;
     };
 
-    # Needed for a few apps. Would be nice to avoid having to put that in the environment and instead override https://github.com/NixOS/nixpkgs/blob/261abe8a44a7e8392598d038d2e01f7b33cf26d0/nixos/modules/services/web-apps/nextcloud.nix#L1035
-    environment.systemPackages = [ pkgs.ffmpeg ];
+    environment.systemPackages = [
+      # Needed for a few apps. Would be nice to avoid having to put that in the environment and instead override https://github.com/NixOS/nixpkgs/blob/261abe8a44a7e8392598d038d2e01f7b33cf26d0/nixos/modules/services/web-apps/nextcloud.nix#L1035
+      pkgs.ffmpeg
+
+      # Needed for the recognize app.
+      pkgs.nodejs
+    ];
 
     services.postgresql.settings = {
       # From https://pgtune.leopard.in.ua/
