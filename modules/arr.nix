@@ -93,11 +93,17 @@ in
         enable = true;
         dataDir = "/var/lib/readarr";
       };
+      users.users.readarr = {
+        extraGroups = [ "media" ];
+      };
 
       # Listens on port 8686
       services.lidarr = lib.mkIf cfg.lidarr.enable {
         enable = true;
         dataDir = "/var/lib/lidarr";
+      };
+      users.users.lidarr = {
+        extraGroups = [ "media" ];
       };
 
       shb.nginx.autheliaProtect =
@@ -139,7 +145,6 @@ in
           };
         in
           lib.mkMerge (lib.mapAttrsToList backupConfig apps);
-
     }
   ] ++ map (name: {
     systemd.tmpfiles.rules = lib.mkIf (lib.hasAttr "dataDir" config.services.${name}) [
