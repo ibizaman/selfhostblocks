@@ -62,7 +62,7 @@ in
       defaults = {
         email = cfg.adminEmail;
         inherit (cfg) dnsProvider dnsResolver;
-        credentialsFile = "/run/secrets/acme";
+        credentialsFile = config.sops.secrets.acme.path;
         enableDebugLogs = false;
       };
     };
