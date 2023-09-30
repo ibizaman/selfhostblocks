@@ -85,3 +85,7 @@ nix run nixpkgs#nvd -- diff \
   /nix/store/yyw9rgn8v5jrn4657vwpg01ydq0hazgx-nixos-system-baryum-23.11pre-git \
   /nix/store/16n1klx5cxkjpqhrdf0k12npx3vn5042-nixos-system-baryum-23.11pre-git \
 ```
+
+## TODOs
+
+- [ ] Make sure nginx gets reloaded when SSL certs gets updated.
