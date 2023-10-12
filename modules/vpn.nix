@@ -106,50 +106,95 @@ let
   routeUp = name: dependentServices: pkgs.writeShellApplication {
     name = "routeUp.sh";
 
-    runtimeInputs = [ pkgs.iproute2 pkgs.systemd ];
+    runtimeInputs = [ pkgs.iproute2 pkgs.systemd pkgs.nettools ];
 
     text = ''
+    echo "Running route-up..."
+
     echo "dev=''${dev:?}"
     echo "ifconfig_local=''${ifconfig_local:?}"
     echo "route_vpn_gateway=''${route_vpn_gateway:?}"
 
+    set -x
+
+    ip rule
     ip rule add from "''${ifconfig_local:?}/32" table ${name}
     ip rule add to "''${route_vpn_gateway:?}/32" table ${name}
+    ip rule
 
+    ip route list table ${name} || :
+    retVal=$?
+    if [ $retVal -eq 2 ]; then
+      echo "table is empty"
+    elif [ $retVal -ne 0 ]; then
+      exit 1
+    fi
     ip route add default via "''${route_vpn_gateway:?}" dev "''${dev:?}" table ${name}
     ip route flush cache
+    ip route list table ${name} || :
+    retVal=$?
+    if [ $retVal -eq 2 ]; then
+      echo "table is empty"
+    elif [ $retVal -ne 0 ]; then
+      exit 1
+    fi
 
     echo "''${ifconfig_local:?}" > /run/openvpn/${name}/ifconfig_local
 
     dependencies=(${quoteEach dependentServices})
     for i in "''${dependencies[@]}"; do
-        systemctl restart "$i"
+        systemctl restart "$i" || :
     done
+
+    echo "Running route-up DONE"
     '';
   };
 
   routeDown = name: dependentServices: pkgs.writeShellApplication {
     name = "routeDown.sh";
 
-    runtimeInputs = [ pkgs.iproute2 pkgs.systemd ];
+    runtimeInputs = [ pkgs.iproute2 pkgs.systemd pkgs.nettools pkgs.coreutils ];
 
     text = ''
+    echo "Running route-down..."
+
     echo "dev=''${dev:?}"
     echo "ifconfig_local=''${ifconfig_local:?}"
     echo "route_vpn_gateway=''${route_vpn_gateway:?}"
 
+    set -x
+
+    ip rule
     ip rule del from "''${ifconfig_local:?}/32" table ${name}
     ip rule del to "''${route_vpn_gateway:?}/32" table ${name}
+    ip rule
 
-    ip route del default via "''${route_vpn_gateway:?}" dev "''${dev:?}" table ${name}
+    # This will probably fail because the dev is already gone.
+    ip route list table ${name} || :
+    retVal=$?
+    if [ $retVal -eq 2 ]; then
+      echo "table is empty"
+    elif [ $retVal -ne 0 ]; then
+      exit 1
+    fi
+    ip route del default via "''${route_vpn_gateway:?}" dev "''${dev:?}" table ${name} || :
     ip route flush cache
+    ip route list table ${name} || :
+    retVal=$?
+    if [ $retVal -eq 2 ]; then
+      echo "table is empty"
+    elif [ $retVal -ne 0 ]; then
+      exit 1
+    fi
 
     rm /run/openvpn/${name}/ifconfig_local
 
     dependencies=(${quoteEach dependentServices})
     for i in "''${dependencies[@]}"; do
-        systemctl stop "$i"
+        systemctl stop "$i" || :
     done
+
+    echo "Running route-down DONE"
     '';
   };
 
@@ -174,6 +219,12 @@ in
             description = lib.mdDoc "Name of the interface.";
             type = lib.types.str;
             example = "tun0";
+          };
+
+          routingNumber = lib.mkOption {
+            description = lib.mdDoc "Unique number used to route packets.";
+            type = lib.types.int;
+            example = 10;
           };
 
           remoteServerIP = lib.mkOption {
@@ -240,7 +291,7 @@ in
 
     networking.iproute2.enable = true;
     networking.iproute2.rttablesExtraConfig =
-      lib.concatStringsSep "\n" (lib.mapAttrsToList (name: c: "10 ${name}") cfg);
+      lib.concatStringsSep "\n" (lib.mapAttrsToList (name: c: "${toString c.routingNumber} ${name}") cfg);
 
     services.tinyproxy =
       let
