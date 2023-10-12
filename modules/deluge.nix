@@ -77,7 +77,6 @@ in
       openFirewall = true;
       config = {
         download_location = cfg.downloadLocation;
-        max_upload_speed = -1.0;
         allow_remote = true;
         daemon_port = cfg.daemonPort;
         listen_ports = cfg.daemonListenPorts;
@@ -90,8 +89,25 @@ in
           proxy_tracker_connections = true;
           type = 4; # HTTP
         };
+        # TODO: expose these
+        max_active_limit = 10000;
+        max_active_downloading = 30;
+        max_active_seeding = 10000;
+        max_connections_global = 1000;
+        max_connections_per_torrent = 50;
+
+        max_download_speed = 1000;
+        max_download_speed_per_torrent = -1;
+
+        max_upload_slots_global = 100;
+        max_upload_slots_per_torrent = 4;
+        max_upload_speed = 200;
+        max_upload_speed_per_torrent = 50;
+
+        dont_count_slow_torrents = true;
+        new_release_check = false;
       };
-      authFile = "/run/secrets/deluge/auth";
+      authFile = config.sops.secrets."deluge/auth".path;
 
       web.enable = true;
       web.port = cfg.webPort;
