@@ -123,6 +123,9 @@ in
               KillSignal = "SIGINT";
               TimeoutStopSec = "30s";
               Restart = "on-failure";
+              RestartSec = "1s";
+              RestartSteps = "3";
+              RestartMaxDelaySec = "10s";
               ConfigurationDirectory = "tinyproxy";
             };
             preStart = concatStringsSep "\n" ([
