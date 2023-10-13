@@ -208,6 +208,8 @@ in
                     policy = "bypass";
                     resources = [
                       "^/api.*"
+                    ] ++ lib.optionals (name == "jackett") [
+                      "^/dl.*"
                     ];
                   }
                   {
