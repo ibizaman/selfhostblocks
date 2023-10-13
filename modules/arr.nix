@@ -19,6 +19,49 @@ let
     lidarr = {
       defaultPort = 8686;
     };
+    jackett = {
+      defaultPort = 9117;
+      settingsFormat = pkgs.formats.json {};
+      moreOptions = {
+        settings = lib.mkOption {
+          type = lib.types.submodule {
+            freeformType = apps.jackett.settingsFormat.type;
+            options = {
+              APIKeyFile = lib.mkOption {
+                type = lib.types.path;
+              };
+              FlareSolverrUrl = lib.mkOption {
+                type = lib.types.nullOr lib.types.str;
+                default = null;
+              };
+              OmdbApiKeyFile = lib.mkOption {
+                type = lib.types.nullOr lib.types.path;
+                default = null;
+              };
+              ProxyType = lib.mkOption {
+                type = lib.types.enum [ "-1" "0" "1" "2" ];
+                default = "0";
+                description = ''
+                -1 = disabled
+                0 = HTTP
+                1 = SOCKS4
+                2 = SOCKS5
+                '';
+              };
+              ProxyUrl = lib.mkOption {
+                type = lib.types.nullOr lib.types.str;
+                default = null;
+              };
+              ProxyPort = lib.mkOption {
+                type = lib.types.nullOr lib.types.port;
+                default = null;
+              };
+            };
+          };
+          default = {};
+        };
+      };
+    };
   };
 
   appOption = name: c: lib.nameValuePair name (lib.mkOption {
@@ -56,9 +99,21 @@ let
           description = "OIDC endpoint for SSO";
           example = "https://authelia.example.com";
         };
-      };
+      } // (c.moreOptions or {});
     };
   });
+
+  template = file: newPath: replacements:
+    let
+      templatePath = newPath + ".template";
+
+      sedPatterns = lib.strings.concatStringsSep " " (lib.attrsets.mapAttrsToList (from: to: "-e \"s|${from}|${to}|\"") replacements);
+    in
+      ''
+      ln -fs ${file} ${templatePath}
+      rm ${newPath} || :
+      sed ${sedPatterns} ${templatePath} > ${newPath}
+      '';
 in
 {
   options.shb.arr = lib.listToAttrs (lib.mapAttrsToList appOption apps);
@@ -105,6 +160,38 @@ in
       users.users.lidarr = {
         extraGroups = [ "media" ];
       };
+
+      # Listens on port 9117
+      services.jackett = lib.mkIf cfg.jackett.enable {
+        enable = true;
+        dataDir = "/var/lib/jackett";
+      };
+      shb.arr.jackett.settings = {
+        Port = config.shb.arr.jackett.port;
+        AllowExternal = "false";
+        UpdateDisabled = "true";
+      };
+      users.users.jackett = {
+        extraGroups = [ "media" ];
+      };
+      systemd.services.jackett.preStart =
+        let
+          s = cfg.jackett.settings;
+          templatedfileSettings =
+            lib.optionalAttrs (!(isNull s.APIKeyFile)) {
+              APIKey = "%APIKEY%";
+            } // lib.optionalAttrs (!(isNull s.OmdbApiKeyFile)) {
+              OmdbApiKey = "%OMDBAPIKEY%";
+            };
+          templatedSettings = (removeAttrs s [ "APIKeyFile" "OmdbApiKeyFile" ]) // templatedfileSettings;
+        in
+          template (apps.jackett.settingsFormat.generate "jackett.json" templatedSettings) "${config.services.jackett.dataDir}/ServerConfig.json" (
+            lib.optionalAttrs (!(isNull s.APIKeyFile)) {
+              "%APIKEY%" = "$(cat ${s.APIKeyFile})";
+            } // lib.optionalAttrs (!(isNull s.OmdbApiKeyFile)) {
+              "%OMDBAPIKEY%" = "$(cat ${s.OmdbApiKeyFile})";
+            }
+          );
 
       shb.nginx.autheliaProtect =
         let
