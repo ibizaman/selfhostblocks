@@ -63,6 +63,13 @@ in
       example = "secrets/torrent.yaml";
     };
 
+    enabledPlugins = lib.mkOption {
+      type = lib.types.listOf lib.types.str;
+      description = "Plugins to enable, can include those from additionalPlugins.";
+      example = ["Label"];
+      default = [];
+    };
+
     additionalPlugins = lib.mkOption {
       type = lib.types.attrsOf lib.types.path;
       description = "Location of additional plugins.";
@@ -89,6 +96,9 @@ in
           proxy_tracker_connections = true;
           type = 4; # HTTP
         };
+
+        enabled_plugins = cfg.enabledPlugins;
+
         # TODO: expose these
         max_active_limit = 10000;
         max_active_downloading = 30;
