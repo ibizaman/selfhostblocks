@@ -75,6 +75,13 @@ in
       description = "Location of additional plugins.";
       default = {};
     };
+
+    logLevel = lib.mkOption {
+      type = lib.types.nullOr (lib.types.enum ["critical" "error" "warning" "info" "debug"]);
+      description = "Enable logging.";
+      default = false;
+      example = true;
+    };
   };
 
   config = lib.mkIf cfg.enable {
@@ -123,6 +130,14 @@ in
       web.port = cfg.webPort;
     };
 
+    systemd.services.deluged.serviceConfig.ExecStart = lib.mkForce (
+      ''
+          ${config.services.deluge.package}/bin/deluged \
+            --do-not-daemonize \
+            --config ${config.services.deluge.dataDir}/.config/deluge
+      '' +
+      (if (isNull cfg.logLevel) then "" else " -L ${cfg.logLevel}")
+    );
     
     systemd.tmpfiles.rules = lib.attrsets.mapAttrsToList (name: path:
       "L+ ${config.services.deluge.dataDir}/.config/deluge/plugins/${name} - - - - ${path}"
