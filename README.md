@@ -29,6 +29,7 @@ services. Also, the design will be extendable to allow users to add services not
   - [X] Backup support.
 - [X] Nextcloud
   - [ ] Export metrics to Prometheus.
+  - [ ] Export traces to Prometheus.
   - [X] LDAP auth, unfortunately we need to configure this manually.
   - [ ] SSO auth.
   - [X] Backup support.
