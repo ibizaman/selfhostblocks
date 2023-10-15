@@ -27,6 +27,18 @@ in
       example = "mydomain.com";
     };
 
+    ladpPort = lib.mkOption {
+      type = lib.types.port;
+      description = "Port on which the server listens for the LDAP protocol.";
+      default = 3890;
+    };
+
+    httpPort = lib.mkOption {
+      type = lib.types.port;
+      description = "Port on which the web UI is exposed.";
+      default = 17170;
+    };
+
     sopsFile = lib.mkOption {
       type = lib.types.path;
       description = "Sops file location";
@@ -98,10 +110,10 @@ in
       settings = {
         http_url = "https://${fqdn}";
         http_host = "127.0.0.1";
-        http_port = 17170;
+        http_port = cfg.httpPort;
 
         ldap_host = "127.0.0.1";
-        ldap_port = 3890;
+        ldap_port = cfg.ladpPort;
 
         ldap_base_dn = cfg.dcdomain;
 
