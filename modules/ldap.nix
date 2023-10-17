@@ -27,7 +27,7 @@ in
       example = "mydomain.com";
     };
 
-    ladpPort = lib.mkOption {
+    ldapPort = lib.mkOption {
       type = lib.types.port;
       description = "Port on which the server listens for the LDAP protocol.";
       default = 3890;
@@ -113,7 +113,7 @@ in
         http_port = cfg.httpPort;
 
         ldap_host = "127.0.0.1";
-        ldap_port = cfg.ladpPort;
+        ldap_port = cfg.ldapPort;
 
         ldap_base_dn = cfg.dcdomain;
 
