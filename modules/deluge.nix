@@ -45,6 +45,12 @@ in
       default = null;
     };
 
+    outgoingInterface = lib.mkOption {
+      description = lib.mdDoc "If not null, sets up a deluge to bind all outgoing traffic to the given interface.";
+      type = lib.types.nullOr lib.types.str;
+      default = null;
+    };
+
     downloadLocation = lib.mkOption {
       type = lib.types.str;
       description = "Folder where torrents gets downloaded";
@@ -103,6 +109,7 @@ in
           proxy_tracker_connections = true;
           type = 4; # HTTP
         };
+        outgoing_interface = cfg.outgoingInterface;
 
         enabled_plugins = cfg.enabledPlugins;
 
