@@ -163,6 +163,12 @@ in
       }
     ];
 
+    systemd.services.deluged.serviceConfig.UMask = lib.mkForce "0027";
+    systemd.services.deluged.serviceConfig.Group = lib.mkForce "media";
+    users.users.deluge = {
+      extraGroups = [ "media" ];
+    };
+
     users.groups.deluge = {
       members = [ "backup" ];
     };
