@@ -4,6 +4,8 @@ let
   cfg = config.shb.backup;
 
   instanceOptions = {
+    enable = lib.mkEnableOption "shb backup instance";
+
     backend = lib.mkOption {
       description = "What program to use to make the backups.";
       type = lib.types.enum [ "borgmatic" "restic" ];
@@ -130,8 +132,9 @@ in
 
   config = lib.mkIf (cfg.instances != {}) (
     let
-      borgmaticInstances = lib.attrsets.filterAttrs (k: i: i.backend == "borgmatic") cfg.instances;
-      resticInstances = lib.attrsets.filterAttrs (k: i: i.backend == "restic") cfg.instances;
+      enabledInstances = lib.attrsets.filterAttrs (k: i: i.enable) cfg.instances;
+      borgmaticInstances = lib.attrsets.filterAttrs (k: i: i.backend == "borgmatic") enabledInstances;
+      resticInstances = lib.attrsets.filterAttrs (k: i: i.backend == "restic") enabledInstances;
     in
       {
         users.users = {
@@ -180,7 +183,7 @@ in
               }) instance.repositories))
             );
           in
-            lib.mkMerge (lib.flatten (lib.attrsets.mapAttrsToList mkSopsSecret cfg.instances));
+            lib.mkMerge (lib.flatten (lib.attrsets.mapAttrsToList mkSopsSecret enabledInstances));
 
         systemd.timers.borgmatic = lib.mkIf (borgmaticInstances != {}) {
           timerConfig = {
@@ -196,7 +199,7 @@ in
             ExecStart = [ "" "${pkgs.borgmatic}/bin/borgmatic --verbosity -1 --syslog-verbosity 1" ];
             # For borgmatic, since we have only one service, we need to merge all environmentFile
             # from all instances.
-            EnvironmentFile = lib.mapAttrsToList (name: value: value.environmentFile) cfg.instances;
+            EnvironmentFile = lib.mapAttrsToList (name: value: value.environmentFile) enabledInstances;
           };
         };
 

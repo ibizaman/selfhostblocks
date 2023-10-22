@@ -103,6 +103,6 @@ in
           mountConfig.TimeoutSet = 15;
         };
       in
-        lib.debug.traceValSeqN 2 (map mkMountCfg cfg.mounts);
+        map mkMountCfg cfg.mounts;
   };
 }
