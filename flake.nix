@@ -13,6 +13,7 @@
         modules/authelia.nix
         modules/backup.nix
         modules/deluge.nix
+        modules/davfs.nix
         modules/hledger.nix
         modules/home-assistant.nix
         modules/jellyfin.nix

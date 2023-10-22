@@ -51,6 +51,7 @@ services. Also, the design will be extendable to allow users to add services not
 - [X] Database Postgres
   - [ ] Slow log monitoring.
   - [ ] Export metrics to Prometheus.
+- [X] Mount webdav folders
 
 ## Repo layout
 
