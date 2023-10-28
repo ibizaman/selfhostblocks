@@ -231,6 +231,10 @@ in
       mkdir -p /var/log/xdebug; chown -R nextcloud: /var/log/xdebug
     '';
 
+    systemd.services.nextcloud-cron.path = [
+      pkgs.perl
+    ];
+
     # Sets up backup for Nextcloud.
     shb.backup.instances.nextcloud = {
       sourceDirectories = [
