@@ -52,7 +52,7 @@ in
       dbConfig = passwordCfgs: {
         services.postgresql.enable = (builtins.length passwordCfgs) > 0;
         services.postgresql.ensureDatabases = map ({ database, ... }: database) passwordCfgs;
-        services.postgresql.Users = map ({ username, database, ... }: {
+        services.postgresql.ensureUsers = map ({ username, database, ... }: {
           name = username;
           ensurePermissions = {
             "DATABASE ${database}" = "ALL PRIVILEGES";

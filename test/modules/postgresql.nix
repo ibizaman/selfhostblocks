@@ -28,7 +28,7 @@ in
     expected = {
       services.postgresql = {
         enable = false;
-        Users = [];
+        ensureUsers = [];
         ensureDatabases = [];
       };
       systemd.services.postgresql.postStart = "";
@@ -40,7 +40,7 @@ in
     expected = {
       services.postgresql = {
         enable = true;
-        Users = [{
+        ensureUsers = [{
           name = "myuser";
           ensurePermissions = {
             "DATABASE mydatabase" = "ALL PRIVILEGES";
@@ -67,7 +67,7 @@ in
     expected = {
       services.postgresql = {
         enable = true;
-        Users = [{
+        ensureUsers = [{
           name = "myuser";
           ensurePermissions = {
             "DATABASE mydatabase" = "ALL PRIVILEGES";
@@ -104,7 +104,7 @@ in
     expected = {
       services.postgresql = {
         enable = false;
-        Users = [];
+        ensureUsers = [];
         ensureDatabases = [];
         
         enableTCPIP = true;
