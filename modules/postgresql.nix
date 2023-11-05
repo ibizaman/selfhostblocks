@@ -66,20 +66,24 @@ in
       pwdConfig = passwordCfgs: {
         systemd.services.postgresql.postStart =
           let
-            script = { username, passwordFile, ... }:
-              if isNull passwordFile then "" else
-              ''
-                $PSQL -tA <<'EOF'
-                  DO $$
-                  DECLARE password TEXT;
-                  BEGIN
-                    password := trim(both from replace(pg_read_file('${passwordFile}'), E'\n', '''));
-                    EXECUTE format('ALTER ROLE ${username} WITH PASSWORD '''%s''';', password);
-                  END $$;
-                EOF
-              '';
+            prefix = ''
+            $PSQL -tA <<'EOF'
+              DO $$
+              DECLARE password TEXT;
+              BEGIN
+            '';
+            suffix = ''
+              END $$;
+            EOF
+            '';
+            exec = { username, passwordFile, ... }: ''
+            password := trim(both from replace(pg_read_file('${passwordFile}'), E'\n', '''));
+            EXECUTE format('ALTER ROLE ${username} WITH PASSWORD '''%s''';', password);
+            '';
+            cfgsWithPasswords = builtins.filter (cfg: cfg.passwordFile != null) passwordCfgs;
           in
-            lib.concatStringsSep "\n" (map script passwordCfgs);
+            if (builtins.length cfgsWithPasswords) == 0 then "" else
+              prefix + (lib.concatStrings (map exec cfgsWithPasswords)) + suffix;
       };
     in
       lib.mkMerge (

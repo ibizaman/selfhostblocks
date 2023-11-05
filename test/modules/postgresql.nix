@@ -83,8 +83,8 @@ in
         DO $$
         DECLARE password TEXT;
         BEGIN
-          password := trim(both from replace(pg_read_file('/my/file'), E'\n', '''));
-          EXECUTE format('ALTER ROLE myuser WITH PASSWORD '''%s''';', password);
+      password := trim(both from replace(pg_read_file('/my/file'), E'\n', '''));
+      EXECUTE format('ALTER ROLE myuser WITH PASSWORD '''%s''';', password);
         END $$;
       EOF
       '';
@@ -95,6 +95,155 @@ in
           username = "myuser";
           database = "mydatabase";
           passwordFile = "/my/file";
+        }
+      ];
+    };
+  };
+
+  testPostgresTwoNoPassword = {
+    expected = {
+      services.postgresql = {
+        enable = true;
+        ensureUsers = [
+          {
+            name = "user1";
+            ensurePermissions = {
+              "DATABASE db1" = "ALL PRIVILEGES";
+            };
+            ensureClauses = {
+              "login" = true;
+            };
+          }
+          {
+            name = "user2";
+            ensurePermissions = {
+              "DATABASE db2" = "ALL PRIVILEGES";
+            };
+            ensureClauses = {
+              "login" = true;
+            };
+          }
+        ];
+        ensureDatabases = ["db1" "db2"];
+      };
+      systemd.services.postgresql.postStart = "";
+    };
+    expr = testConfig {
+      shb.postgresql.passwords = [
+        {
+          username = "user1";
+          database = "db1";
+        }
+        {
+          username = "user2";
+          database = "db2";
+        }
+      ];
+    };
+  };
+
+  testPostgresTwoWithPassword = {
+    expected = {
+      services.postgresql = {
+        enable = true;
+        ensureUsers = [
+          {
+            name = "user1";
+            ensurePermissions = {
+              "DATABASE db1" = "ALL PRIVILEGES";
+            };
+            ensureClauses = {
+              "login" = true;
+            };
+          }
+          {
+            name = "user2";
+            ensurePermissions = {
+              "DATABASE db2" = "ALL PRIVILEGES";
+            };
+            ensureClauses = {
+              "login" = true;
+            };
+          }
+        ];
+        ensureDatabases = ["db1" "db2"];
+      };
+      systemd.services.postgresql.postStart = ''
+      $PSQL -tA <<'EOF'
+        DO $$
+        DECLARE password TEXT;
+        BEGIN
+      password := trim(both from replace(pg_read_file('/file/user1'), E'\n', '''));
+      EXECUTE format('ALTER ROLE user1 WITH PASSWORD '''%s''';', password);
+      password := trim(both from replace(pg_read_file('/file/user2'), E'\n', '''));
+      EXECUTE format('ALTER ROLE user2 WITH PASSWORD '''%s''';', password);
+        END $$;
+      EOF
+      '';
+    };
+    expr = testConfig {
+      shb.postgresql.passwords = [
+        {
+          username = "user1";
+          database = "db1";
+          passwordFile = "/file/user1";
+        }
+        {
+          username = "user2";
+          database = "db2";
+          passwordFile = "/file/user2";
+        }
+      ];
+    };
+  };
+
+  testPostgresTwoWithMixedPassword = {
+    expected = {
+      services.postgresql = {
+        enable = true;
+        ensureUsers = [
+          {
+            name = "user1";
+            ensurePermissions = {
+              "DATABASE db1" = "ALL PRIVILEGES";
+            };
+            ensureClauses = {
+              "login" = true;
+            };
+          }
+          {
+            name = "user2";
+            ensurePermissions = {
+              "DATABASE db2" = "ALL PRIVILEGES";
+            };
+            ensureClauses = {
+              "login" = true;
+            };
+          }
+        ];
+        ensureDatabases = ["db1" "db2"];
+      };
+      systemd.services.postgresql.postStart = ''
+      $PSQL -tA <<'EOF'
+        DO $$
+        DECLARE password TEXT;
+        BEGIN
+      password := trim(both from replace(pg_read_file('/file/user2'), E'\n', '''));
+      EXECUTE format('ALTER ROLE user2 WITH PASSWORD '''%s''';', password);
+        END $$;
+      EOF
+      '';
+    };
+    expr = testConfig {
+      shb.postgresql.passwords = [
+        {
+          username = "user1";
+          database = "db1";
+        }
+        {
+          username = "user2";
+          database = "db2";
+          passwordFile = "/file/user2";
         }
       ];
     };
