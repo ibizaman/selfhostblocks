@@ -36,6 +36,20 @@ in
     expr = testConfig {};
   };
 
+  testPostgresManualOptions = {
+    expected = {
+      services.postgresql = {
+        enable = true;
+        ensureUsers = [];
+        ensureDatabases = [];
+      };
+      systemd.services.postgresql.postStart = "";
+    };
+    expr = testConfig {
+      services.postgresql.enable = true;
+    };
+  };
+
   testPostgresOneWithoutPassword = {
     expected = {
       services.postgresql = {

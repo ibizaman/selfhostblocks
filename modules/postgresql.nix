@@ -50,7 +50,7 @@ in
       };
 
       dbConfig = passwordCfgs: {
-        services.postgresql.enable = (builtins.length passwordCfgs) > 0;
+        services.postgresql.enable = lib.mkDefault ((builtins.length passwordCfgs) > 0);
         services.postgresql.ensureDatabases = map ({ database, ... }: database) passwordCfgs;
         services.postgresql.ensureUsers = map ({ username, database, ... }: {
           name = username;
