@@ -111,7 +111,8 @@ outputs = inputs@{ self, nixpkgs, ... }: {
 ### Deploy a Nextcloud Instance
 
 Now, what goes inside this `./machines/myserver.nix` file? Let's say you want to deploy Nextcloud,
-you would use the [`nextcloud.nix`](./modules/nextcloud.nix) module from this repo as reference and have something like the following.
+you would use the [`nextcloud.nix`](./modules/nextcloud.nix) module from this repo as reference and
+have something like the following.
 
 First, some common configuration:
 
@@ -129,6 +130,9 @@ shb.ssl = {
   dnsProvider = "linode";
 };
 ```
+
+This will import the NixOS module provided by this repository as well as the `sops-nix` module,
+needed to store secrets. It then enables SSL support.
 
 Then, the configuration for Nextcloud which sets up:
 - the nginx reverse proxy to listen on requests for the `nextcloud.example.com` domain,
