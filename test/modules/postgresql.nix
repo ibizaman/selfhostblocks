@@ -36,7 +36,34 @@ in
     expr = testConfig {};
   };
 
-  testPostgresOnePassword = {
+  testPostgresOneWithoutPassword = {
+    expected = {
+      services.postgresql = {
+        enable = true;
+        Users = [{
+          name = "myuser";
+          ensurePermissions = {
+            "DATABASE mydatabase" = "ALL PRIVILEGES";
+          };
+          ensureClauses = {
+            "login" = true;
+          };
+        }];
+        ensureDatabases = ["mydatabase"];
+      };
+      systemd.services.postgresql.postStart = "";
+    };
+    expr = testConfig {
+      shb.postgresql.passwords = [
+        {
+          username = "myuser";
+          database = "mydatabase";
+        }
+      ];
+    };
+  };
+
+  testPostgresOneWithPassword = {
     expected = {
       services.postgresql = {
         enable = true;

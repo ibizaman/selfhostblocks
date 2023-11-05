@@ -24,8 +24,10 @@ in
           };
 
           passwordFile = lib.mkOption {
-            type = lib.types.str;
-            description = "Password file for the postgres user.";
+            type = lib.types.nullOr lib.types.str;
+            description = "Optional password file for the postgres user.";
+            default = null;
+            example = "/run/secrets/postgresql/password";
           };
         };
       });
@@ -64,16 +66,18 @@ in
       pwdConfig = passwordCfgs: {
         systemd.services.postgresql.postStart =
           let
-            script = { username, passwordFile, ... }: ''
-              $PSQL -tA <<'EOF'
-                DO $$
-                DECLARE password TEXT;
-                BEGIN
-                  password := trim(both from replace(pg_read_file('${passwordFile}'), E'\n', '''));
-                  EXECUTE format('ALTER ROLE ${username} WITH PASSWORD '''%s''';', password);
-                END $$;
-              EOF
-            '';
+            script = { username, passwordFile, ... }:
+              if isNull passwordFile then "" else
+              ''
+                $PSQL -tA <<'EOF'
+                  DO $$
+                  DECLARE password TEXT;
+                  BEGIN
+                    password := trim(both from replace(pg_read_file('${passwordFile}'), E'\n', '''));
+                    EXECUTE format('ALTER ROLE ${username} WITH PASSWORD '''%s''';', password);
+                  END $$;
+                EOF
+              '';
           in
             lib.concatStringsSep "\n" (map script passwordCfgs);
       };
