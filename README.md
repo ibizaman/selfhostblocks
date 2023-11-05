@@ -117,7 +117,7 @@ First, some common configuration:
 
 ```nix
 imports = [
-  selfhostblocks.nixosModules.default
+  selfhostblocks.nixosModules.x86_64-linux.default
   sops-nix.nixosModules.default
 ]
 
