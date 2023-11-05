@@ -52,6 +52,11 @@ services. Also, the design will be extendable to allow users to add services not
   - [ ] Slow log monitoring.
   - [ ] Export metrics to Prometheus.
 - [X] Mount webdav folders
+- [ ] Gitea to deploy
+- [ ] Scrutiny to monitor hard drives health
+  - [ ] Export metrics to Prometheus.
+- [ ] Misc
+  - [ ] Alert if backups were not made on time.
 
 ## Repo layout
 
