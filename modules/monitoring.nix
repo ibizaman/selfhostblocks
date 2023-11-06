@@ -36,21 +36,12 @@ in
   };
 
   config = lib.mkIf cfg.enable {
-    services.postgresql = {
-      enable = true;
-      ensureDatabases = [ "grafana" ];
-      ensureUsers = [
-        {
-          name = "grafana";
-          ensurePermissions = {
-            "DATABASE grafana" = "ALL PRIVILEGES";
-          };
-          ensureClauses = {
-            "login" = true;
-          };
-        }
-      ];
-    };
+    shb.postgresql.passwords = [
+      {
+        username = "grafana";
+        database = "grafana";
+      }
+    ];
 
     services.grafana = {
       enable = true;
