@@ -266,6 +266,12 @@ shb.backup.instances.jellyfin = # Same as the examples above
 
 ## Tips
 
+### Run tests
+
+```bash
+$ nix flake check
+```
+
 ### Deploy using colmena
 
 ```bash
