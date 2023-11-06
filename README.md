@@ -272,24 +272,65 @@ shb.backup.instances.jellyfin = # Same as the examples above
 $ nix run nixpkgs#colmena -- apply
 ```
 
+### Use a local version of selfhostblocks
+
+This works with any flake input you have. Either, change the `.url` field directly in you `flake.nix`:
+
+```nix
+selfhostblocks.url = "/home/me/projects/selfhostblocks";
+```
+
+Or override on the command line:
+
+```bash
+nix run nixpkgs#colmena --override-input selfhostblocks ../selfhostblocks -- apply
+```
+
 ### Diff changes
 
-```bash $ nix run nixpkgs#colmena -- build ... Built
-"/nix/store/yyw9rgn8v5jrn4657vwpg01ydq0hazgx-nixos-system-baryum-23.11pre-git"
+First, you must know what to compare. You need to know the path to the nix store of what is already deployed and to what you will deploy.
 
-# Make some changes
+#### What is deployed
 
+To know what is deployed, either just stash the changes you made and run `build`:
+
+```bash
+$ nix run nixpkgs#colmena -- build
+...
+Built "/nix/store/yyw9rgn8v5jrn4657vwpg01ydq0hazgx-nixos-system-baryum-23.11pre-git"
+```
+
+Or ask the target machine:
+
+```bash
+$ nix run nixpkgs#colmena -- exec -v readlink -f /run/current-system
+baryum | /nix/store/77n1hwhgmr9z0x3gs8z2g6cfx8gkr4nm-nixos-system-baryum-23.11pre-git
+```
+
+#### What will get deployed
+
+Assuming you made some changes, then instead of deploying with `apply`, just `build`:
+
+```bash
 $ nix run nixpkgs#colmena -- build
 ...
 Built "/nix/store/16n1klx5cxkjpqhrdf0k12npx3vn5042-nixos-system-baryum-23.11pre-git"
+```
 
+#### Get the full diff
+
+With `nix-diff`:
+
+```
 $ nix run nixpkgs#nix-diff -- \
   /nix/store/yyw9rgn8v5jrn4657vwpg01ydq0hazgx-nixos-system-baryum-23.11pre-git \
   /nix/store/16n1klx5cxkjpqhrdf0k12npx3vn5042-nixos-system-baryum-23.11pre-git \
   --color always | less
 ```
 
-Also, in lieu of `nix-diff`, a nice summary of version changes can be produced with:
+#### Get version bumps
+
+A nice summary of version changes can be produced with:
 
 ```bash
 nix run nixpkgs#nvd -- diff \
