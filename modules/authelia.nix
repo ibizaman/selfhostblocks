@@ -274,21 +274,12 @@ in
       user = autheliaCfg.user;
     };
 
-    services.postgresql = {
-      enable = true;
-      ensureDatabases = [ autheliaCfg.user ];
-      ensureUsers = [
-        {
-          name = autheliaCfg.user;
-          ensurePermissions = {
-            "DATABASE ${autheliaCfg.user}" = "ALL PRIVILEGES";
-          };
-          ensureClauses = {
-            "login" = true;
-          };
-        }
-      ];
-    };
+    shb.postgresql.passwords = [
+      {
+        username = autheliaCfg.user;
+        database = autheliaCfg.user;
+      }
+    ];
 
     services.prometheus.scrapeConfigs = [
       {
