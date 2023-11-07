@@ -35,10 +35,38 @@ in
       example = "dc=mydomain,dc=com";
     };
 
-    sopsFile = lib.mkOption {
-      type = lib.types.path;
-      description = "Sops file location.";
-      example = "secrets/authelia.yaml";
+    autheliaUser = lib.mkOption {
+      type = lib.types.str;
+      description = "System user for this Authelia instance";
+      default = "authelia_" + builtins.replaceStrings ["-" "."] ["_" "_"] fqdn;
+    };
+
+    secrets = lib.mkOption {
+      type = lib.types.submodule {
+        options = {
+          jwtSecretFile = lib.mkOption {
+            type = lib.types.str;
+          };
+          ldapAdminPasswordFile = lib.mkOption {
+            type = lib.types.str;
+          };
+          sessionSecretFile = lib.mkOption {
+            type = lib.types.str;
+          };
+          notifierSMTPPasswordFile = lib.mkOption {
+            type = lib.types.str;
+          };
+          storageEncryptionKeyFile = lib.mkOption {
+            type = lib.types.str;
+          };
+          identityProvidersOIDCHMACSecretFile = lib.mkOption {
+            type = lib.types.str;
+          };
+          identityProvidersOIDCIssuerPrivateKeyFile = lib.mkOption {
+            type = lib.types.str;
+          };
+        };
+      };
     };
 
     oidcClients = lib.mkOption {
@@ -73,28 +101,6 @@ in
   };
 
   config = lib.mkIf cfg.enable {
-    sops.secrets =
-      let
-        names = [
-          "jwt_secret"
-          "ldap_admin_password"
-          "session_secret"
-          "smtp_password"
-          "storage_encryption_key"
-          "hmac_secret"
-          "private_key"
-        ];
-
-        mkSecret = name:
-          lib.attrsets.nameValuePair "authelia/${name}" {
-            inherit (cfg) sopsFile;
-            mode = "0400";
-            owner = autheliaCfg.user;
-            group = autheliaCfg.group;
-          };
-      in
-        builtins.listToAttrs (map mkSecret names);
-
     # Overriding the user name so we don't allow any weird characters anywhere. For example, postgres users do not accept the '.'.
     users = {
       groups.${autheliaCfg.user} = {};
@@ -106,22 +112,21 @@ in
 
     services.authelia.instances.${fqdn} = {
       enable = true;
-      user = "authelia_" + builtins.replaceStrings ["-" "."] ["_" "_"] fqdn;
+      user = cfg.autheliaUser;
 
       secrets = {
-        jwtSecretFile = "/run/secrets/authelia/jwt_secret";
-        storageEncryptionKeyFile = "/run/secrets/authelia/storage_encryption_key";
+        inherit (cfg.secrets) jwtSecretFile storageEncryptionKeyFile;
       };
       # See https://www.authelia.com/configuration/methods/secrets/
       environmentVariables = {
-        AUTHELIA_AUTHENTICATION_BACKEND_LDAP_PASSWORD_FILE = "/run/secrets/authelia/ldap_admin_password";
-        AUTHELIA_SESSION_SECRET_FILE = "/run/secrets/authelia/session_secret";
+        AUTHELIA_AUTHENTICATION_BACKEND_LDAP_PASSWORD_FILE = cfg.secrets.ldapAdminPasswordFile;
+        AUTHELIA_SESSION_SECRET_FILE = cfg.secrets.sessionSecretFile;
         # Not needed since we use peer auth.
         # AUTHELIA_STORAGE_POSTGRES_PASSWORD_FILE = "/run/secrets/authelia/postgres_password";
-        AUTHELIA_STORAGE_ENCRYPTION_KEY_FILE = "/run/secrets/authelia/storage_encryption_key";
-        AUTHELIA_NOTIFIER_SMTP_PASSWORD_FILE = "/run/secrets/authelia/smtp_password";
-        AUTHELIA_IDENTITY_PROVIDERS_OIDC_HMAC_SECRET_FILE = "/run/secrets/authelia/hmac_secret";
-        AUTHELIA_IDENTITY_PROVIDERS_OIDC_ISSUER_PRIVATE_KEY_FILE = "/run/secrets/authelia/private_key";
+        AUTHELIA_STORAGE_ENCRYPTION_KEY_FILE = cfg.secrets.storageEncryptionKeyFile;
+        AUTHELIA_NOTIFIER_SMTP_PASSWORD_FILE = cfg.secrets.notifierSMTPPasswordFile;
+        AUTHELIA_IDENTITY_PROVIDERS_OIDC_HMAC_SECRET_FILE = cfg.secrets.identityProvidersOIDCHMACSecretFile;
+        AUTHELIA_IDENTITY_PROVIDERS_OIDC_ISSUER_PRIVATE_KEY_FILE = cfg.secrets.identityProvidersOIDCIssuerPrivateKeyFile;
       };
       settings = {
         server.host = "127.0.0.1";
