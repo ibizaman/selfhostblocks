@@ -20,6 +20,7 @@ services. Also, the design will be extendable to allow users to add services not
 - [X] Backup with Restic or BorgBackup
   - [ ] UI for backups.
   - [ ] Export metrics to Prometheus.
+  - [ ] Alert when backups fail or are not done on time.
 - [X] Monitoring through Prometheus and Grafana.
   - [X] Export systemd services status.
 - [X] Reverse Proxy with Nginx.
@@ -55,12 +56,13 @@ services. Also, the design will be extendable to allow users to add services not
 - [X] Database Postgres
   - [ ] Slow log monitoring.
   - [ ] Export metrics to Prometheus.
+- [X] VPN tunnel
+- [X] Arr suite
+  - [X] VPN support.
 - [X] Mount webdav folders
 - [ ] Gitea to deploy
 - [ ] Scrutiny to monitor hard drives health
   - [ ] Export metrics to Prometheus.
-- [ ] Misc
-  - [ ] Alert if backups were not made on time.
 
 ## Repo layout
 
