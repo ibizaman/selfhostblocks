@@ -350,6 +350,12 @@ nix run nixpkgs#nvd -- diff \
   /nix/store/16n1klx5cxkjpqhrdf0k12npx3vn5042-nixos-system-baryum-23.11pre-git \
 ```
 
+### Generate secret
+
+```bash
+$ nix run nixpkgs#openssl -- rand -hex 64
+```
+
 ## TODOs
 
 - [ ] Add examples that sets up instance in a VM.
