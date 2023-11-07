@@ -30,6 +30,7 @@
             modules/postgresql.nix
             modules/ssl.nix
             modules/tinyproxy.nix
+            modules/vaultwarden.nix
             modules/vpn.nix
           ];
         };

@@ -27,6 +27,10 @@ services. Also, the design will be extendable to allow users to add services not
   - [ ] Log slow requests.
   - [X] SSL support.
   - [X] Backup support.
+- [X] Vaultwarden
+  - [X] UI only accessible for `vaultwarden_user` LDAP group.
+  - [X] `/admin` only accessible for `vaultwarden_admin` LDAP group.
+  - [WIP] True SSO support, see [dani-garcia/vaultwarden/issues/246](https://github.com/dani-garcia/vaultwarden/issues/246). For now, Authelia protects access to the UI but you need to login afterwards to Vaultwarden. So there are two login required.
 - [X] Nextcloud
   - [ ] Export metrics to Prometheus.
   - [ ] Export traces to Prometheus.
