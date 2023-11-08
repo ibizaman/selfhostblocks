@@ -170,11 +170,12 @@ in
             policy = "two_factor";
             subject = ["group:vaultwarden_admin"];
           }
-          {
-            domain = fqdn;
-            policy = "two_factor";
-            subject = ["group:vaultwarden"];
-          }
+          # There's no way to protect the webapp using Authelia this way, see https://github.com/dani-garcia/vaultwarden/discussions/3188
+          # {
+          #   domain = fqdn;
+          #   policy = "two_factor";
+          #   subject = ["group:vaultwarden"];
+          # }
         ];
       }
     ];
