@@ -24,6 +24,7 @@ let
       settingsFormat = pkgs.formats.json {};
       moreOptions = {
         settings = lib.mkOption {
+          default = {};
           type = lib.types.submodule {
             freeformType = apps.jackett.settingsFormat.type;
             options = {
@@ -66,6 +67,7 @@ let
 
   appOption = name: c: lib.nameValuePair name (lib.mkOption {
     description = "Configuration for ${name}";
+    default = {};
     type = lib.types.submodule {
       options = {
         enable = lib.mkEnableOption "selfhostblocks.${name}";
@@ -95,7 +97,8 @@ let
         };
 
         oidcEndpoint = lib.mkOption {
-          type = lib.types.str;
+          type = lib.types.nullOr lib.types.str;
+          default = null;
           description = "OIDC endpoint for SSO";
           example = "https://authelia.example.com";
         };
@@ -125,7 +128,7 @@ in
         enable = true;
         dataDir = "/var/lib/radarr";
       };
-      users.users.radarr = {
+      users.users.radarr = lib.mkIf cfg.radarr.enable {
         extraGroups = [ "media" ];
       };
 
@@ -134,7 +137,7 @@ in
         enable = true;
         dataDir = "/var/lib/sonarr";
       };
-      users.users.sonarr = {
+      users.users.sonarr = lib.mkIf cfg.sonarr.enable {
         extraGroups = [ "media" ];
       };
 
@@ -142,13 +145,16 @@ in
         enable = true;
         listenPort = cfg.bazarr.port;
       };
+      users.users.bazarr = lib.mkIf cfg.bazarr.enable {
+        extraGroups = [ "media" ];
+      };
 
       # Listens on port 8787
       services.readarr = lib.mkIf cfg.readarr.enable {
         enable = true;
         dataDir = "/var/lib/readarr";
       };
-      users.users.readarr = {
+      users.users.readarr = lib.mkIf cfg.readarr.enable {
         extraGroups = [ "media" ];
       };
 
@@ -157,7 +163,7 @@ in
         enable = true;
         dataDir = "/var/lib/lidarr";
       };
-      users.users.lidarr = {
+      users.users.lidarr = lib.mkIf cfg.lidarr.enable {
         extraGroups = [ "media" ];
       };
 
@@ -166,12 +172,12 @@ in
         enable = true;
         dataDir = "/var/lib/jackett";
       };
-      shb.arr.jackett.settings = {
+      shb.arr.jackett.settings = lib.mkIf cfg.jackett.enable {
         Port = config.shb.arr.jackett.port;
         AllowExternal = "false";
         UpdateDisabled = "true";
       };
-      users.users.jackett = {
+      users.users.jackett = lib.mkIf cfg.jackett.enable {
         extraGroups = [ "media" ];
       };
       systemd.services.jackett.preStart =
@@ -184,14 +190,16 @@ in
               OmdbApiKey = "%OMDBAPIKEY%";
             };
           templatedSettings = (removeAttrs s [ "APIKeyFile" "OmdbApiKeyFile" ]) // templatedfileSettings;
-        in
-          template (apps.jackett.settingsFormat.generate "jackett.json" templatedSettings) "${config.services.jackett.dataDir}/ServerConfig.json" (
+
+          t = template (apps.jackett.settingsFormat.generate "jackett.json" templatedSettings) "${config.services.jackett.dataDir}/ServerConfig.json" (
             lib.optionalAttrs (!(isNull s.APIKeyFile)) {
               "%APIKEY%" = "$(cat ${s.APIKeyFile})";
             } // lib.optionalAttrs (!(isNull s.OmdbApiKeyFile)) {
               "%OMDBAPIKEY%" = "$(cat ${s.OmdbApiKeyFile})";
             }
           );
+        in
+          lib.mkIf cfg.jackett.enable t;
 
       shb.nginx.autheliaProtect =
         let
@@ -199,7 +207,7 @@ in
             let
               c = cfg.${name};
             in
-              {
+              lib.mkIf (c.oidcEndpoint != null) {
                 inherit (c) subdomain domain oidcEndpoint;
                 upstream = "http://127.0.0.1:${toString c.port}";
                 autheliaRules = [
@@ -235,7 +243,7 @@ in
         in
           lib.mkMerge (lib.mapAttrsToList backupConfig apps);
     }
-  ] ++ map (name: {
+  ] ++ map (name: lib.mkIf cfg.${name}.enable {
     systemd.tmpfiles.rules = lib.mkIf (lib.hasAttr "dataDir" config.services.${name}) [
       "d '${config.services.${name}.dataDir}' 0750 ${config.services.${name}.user} ${config.services.${name}.group} - -"
     ];

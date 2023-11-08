@@ -1,4 +1,4 @@
-{ lib }:
+{ lib, ... }:
 let
   anyOpt = default: lib.mkOption {
     type = lib.types.anything;
@@ -274,10 +274,11 @@ in
         port = 1234;
         authentication = ''
           #type database DBuser origin-address auth-method
+          local all      all    peer
           # ipv4
-          host  all      all     127.0.0.1/32   trust
+          host  all      all    127.0.0.1/32   trust
           # ipv6
-          host all       all     ::1/128        trust
+          host  all      all    ::1/128        trust
         '';
       };
       systemd.services.postgresql.postStart = "";

@@ -42,11 +42,14 @@
               let
                 importFiles = files:
                   map (m: import m {
+                    inherit pkgs;
                     inherit (pkgs) lib;
                   }) files;
 
                 mergeTests = pkgs.lib.lists.foldl pkgs.lib.trivial.mergeAttrs {};
               in mergeTests (importFiles [
+                ./test/modules/arr.nix
+                ./test/modules/davfs.nix
                 ./test/modules/postgresql.nix
               ]);
           };
