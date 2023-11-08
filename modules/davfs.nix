@@ -18,6 +18,7 @@ in
 {
   options.shb.davfs = {
     mounts = lib.mkOption {
+      default = [];
       type = lib.types.listOf (lib.types.submodule {
         options = {
           remoteUrl = lib.mkOption {
@@ -100,7 +101,7 @@ in
             ++ (lib.optional (!(isNull c.directoryMode)) "dir_mode=${toString c.directoryMode}")
           );
           type = "davfs";
-          mountConfig.TimeoutSet = 15;
+          mountConfig.TimeoutSec = 15;
         };
       in
         map mkMountCfg cfg.mounts;
