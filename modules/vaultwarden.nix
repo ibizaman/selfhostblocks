@@ -166,16 +166,19 @@ in
         upstream = "http://127.0.0.1:${toString config.services.vaultwarden.config.ROCKET_PORT}";
         autheliaRules = [
           {
-            domain = "${fqdn}/admin";
+            domain = "${fqdn}";
             policy = "two_factor";
             subject = ["group:vaultwarden_admin"];
+            resources = [
+              "^/admin"
+            ];
           }
-          # There's no way to protect the webapp using Authelia this way, see https://github.com/dani-garcia/vaultwarden/discussions/3188
-          # {
-          #   domain = fqdn;
-          #   policy = "two_factor";
-          #   subject = ["group:vaultwarden"];
-          # }
+          # There's no way to protect the webapp using Authelia this way, see
+          # https://github.com/dani-garcia/vaultwarden/discussions/3188
+          {
+            domain = fqdn;
+            policy = "bypass";
+          }
         ];
       }
     ];
