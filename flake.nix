@@ -38,9 +38,17 @@
         checks = {
           tests = nix-flake-tests.lib.check {
             inherit pkgs;
-            tests = import ./test/default.nix {
-              inherit (pkgs) lib;
-            };
+            tests =
+              let
+                importFiles = files:
+                  map (m: import m {
+                    inherit (pkgs) lib;
+                  }) files;
+
+                mergeTests = pkgs.lib.lists.foldl pkgs.lib.trivial.mergeAttrs {};
+              in mergeTests (importFiles [
+                ./test/modules/postgresql.nix
+              ]);
           };
         };
         # templates.default = {};  Would be nice to have a template
