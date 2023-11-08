@@ -203,7 +203,7 @@ in
       cfg.backupConfig //
       {
         sourceDirectories = [
-          config.services.vaultwarden.backupDir
+          config.services.vaultwarden.config.DATA_FOLDER
         ];
       };
   };
