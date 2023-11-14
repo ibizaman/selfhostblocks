@@ -11,7 +11,16 @@ SHB's (Self Host Blocks) goal is to provide a lower entry-bar for self-hosting. 
 this by providing opinionated building blocks fitting together to self-host a wide range of
 services. Also, the design will be extendable to allow users to add services not provided by SHB.
 
+For each service, I intend to provide turn-key Nix options to setup:
+- Access through a subdomain.
+- HTTPS access.
+- Backup.
+- Single sign-on.
+- LDAP user management.
+
 ## Supported Features
+
+Currently supported services and features are:
 
 - [X] Authelia as SSO provider.
   - [X] Export metrics to Prometheus.
