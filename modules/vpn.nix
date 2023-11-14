@@ -293,7 +293,7 @@ in
     networking.iproute2.rttablesExtraConfig =
       lib.concatStringsSep "\n" (lib.mapAttrsToList (name: c: "${toString c.routingNumber} ${name}") cfg);
 
-    services.tinyproxy =
+    shb.tinyproxy =
       let
         instanceConfig = name: c: lib.mkIf (c.enable && c.proxyPort != null) {
           ${name} = {

@@ -4,7 +4,7 @@
 with lib;
 
 let
-  cfg = config.services.tinyproxy;
+  cfg = config.shb.tinyproxy;
 
   mkValueStringTinyproxy = with lib; v:
         if true  ==         v then "yes"
@@ -99,7 +99,7 @@ in
       };
     in
       {
-        services.tinyproxy = mkOption {
+        shb.tinyproxy = mkOption {
           description = "Tinyproxy instances.";
           default = {};
           type = types.attrsOf instanceOption;
