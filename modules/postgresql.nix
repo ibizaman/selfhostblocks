@@ -4,6 +4,16 @@ let
 in
 {
   options.shb.postgresql = {
+    debug = lib.mkOption {
+      type = lib.types.bool;
+      description = lib.mdDocs ''
+      Enable debugging options.
+
+      Currently enables shared_preload_libraries = "auto_explain, pg_stat_statements"
+
+      See https://www.postgresql.org/docs/current/pgstatstatements.html'';
+      default = false;
+    };
     tcpIPPort = lib.mkOption {
       type = lib.types.nullOr lib.types.port;
       description = "Enable TCP/IP connection on given port.";
@@ -86,12 +96,17 @@ in
             if (builtins.length cfgsWithPasswords) == 0 then "" else
               prefix + (lib.concatStrings (map exec cfgsWithPasswords)) + suffix;
       };
+
+      debugConfig = enableDebug: lib.mkIf enableDebug {
+        services.postgresql.settings.shared_preload_libraries = "auto_explain, pg_stat_statements";
+      };
     in
       lib.mkMerge (
         [
           (dbConfig cfg.passwords)
           (pwdConfig cfg.passwords)
           (lib.mkIf (!(isNull cfg.tcpIPPort)) (tcpConfig cfg.tcpIPPort))
+          (debugConfig cfg.debug)
         ]
       );
 }
