@@ -5,7 +5,25 @@ let
 
   apps = {
     radarr = {
-      defaultPort = 7878;
+      defaultPort = 7001;
+      settingsFormat = formatXML {};
+      moreOptions = {
+        settings = lib.mkOption {
+          default = {};
+          type = lib.types.submodule {
+            freeformType = apps.radarr.settingsFormat.type;
+            options = {
+              APIKeyFile = lib.mkOption {
+                type = lib.types.path;
+              };
+              LogLevel = lib.mkOption {
+                type = lib.types.enum ["debug" "info"];
+                default = "info";
+              };
+            };
+          };
+        };
+      };
     };
     sonarr = {
       defaultPort = 8989;
@@ -59,10 +77,45 @@ let
               };
             };
           };
-          default = {};
         };
       };
     };
+  };
+
+  formatXML = {}: {
+    type = with lib.types; let
+      valueType = nullOr (oneOf [
+        bool
+        int
+        float
+        str
+        path
+        (attrsOf valueType)
+        (listOf valueType)
+      ]) // {
+        description = "XML value";
+      };
+    in valueType;
+
+    generate = name: value: pkgs.callPackage ({ runCommand, python3 }: runCommand name {
+      value = builtins.toJSON {Config = value;};
+      passAsFile = [ "value" ];
+    } (pkgs.writers.writePython3 "dict2xml" {
+      libraries = with python3.pkgs; [ python dict2xml ];
+    } ''
+      import os
+      import json
+      from dict2xml import dict2xml
+
+      with open(os.environ["valuePath"]) as f:
+          content = json.loads(f.read())
+          if content is None:
+              print("Could not parse env var valuePath as json")
+              os.exit(2)
+          with open(os.environ["out"], "w") as out:
+              out.write(dict2xml(content))
+    '')) {};
+
   };
 
   appOption = name: c: lib.nameValuePair name (lib.mkOption {
@@ -123,7 +176,6 @@ in
 
   config = lib.mkMerge ([
     {
-      # Listens on port 7878
       services.radarr = lib.mkIf cfg.radarr.enable {
         enable = true;
         dataDir = "/var/lib/radarr";
@@ -131,6 +183,31 @@ in
       users.users.radarr = lib.mkIf cfg.radarr.enable {
         extraGroups = [ "media" ];
       };
+      shb.arr.radarr.settings = lib.mkIf cfg.radarr.enable {
+        Port = config.shb.arr.radarr.port;
+        BindAddress = "127.0.0.1";
+        UrlBase = "";
+        EnableSsl = "false";
+        AuthenticationMethod = "External";
+        AuthenticationRequired = "Enabled";
+      };
+      systemd.services.radarr.preStart =
+        let
+          s = cfg.radarr.settings;
+          templatedfileSettings =
+            lib.optionalAttrs (!(isNull s.APIKeyFile)) {
+              ApiKey = "%APIKEY%";
+            };
+          templatedSettings = (removeAttrs s [ "APIKeyFile" ]) // templatedfileSettings;
+
+          t = template (apps.radarr.settingsFormat.generate "
+config.xml" templatedSettings) "${config.services.radarr.dataDir}/config.xml" (
+            lib.optionalAttrs (!(isNull s.APIKeyFile)) {
+              "%APIKEY%" = "$(cat ${s.APIKeyFile})";
+            }
+          );
+        in
+          lib.mkIf cfg.radarr.enable t;
 
       # Listens on port 8989
       services.sonarr = lib.mkIf cfg.sonarr.enable {

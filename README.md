@@ -67,6 +67,7 @@ Currently supported services and features are:
   - [ ] Export metrics to Prometheus.
 - [X] VPN tunnel
 - [X] Arr suite
+  - [X] SSO auth (one account for all users).
   - [X] VPN support.
 - [X] Mount webdav folders
 - [ ] Gitea to deploy
