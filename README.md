@@ -372,3 +372,4 @@ $ nix run nixpkgs#openssl -- rand -hex 64
 - [ ] Do not depend on sops.
 - [ ] Add more options to avoid hardcoding stuff.
 - [ ] Make sure nginx gets reloaded when SSL certs gets updated.
+- [ ] Better backup story by taking optional LVM snapshot before backing up.
