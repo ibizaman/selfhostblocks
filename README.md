@@ -373,3 +373,21 @@ $ nix run nixpkgs#openssl -- rand -hex 64
 - [ ] Add more options to avoid hardcoding stuff.
 - [ ] Make sure nginx gets reloaded when SSL certs gets updated.
 - [ ] Better backup story by taking optional LVM snapshot before backing up.
+
+## Links that helped:
+
+While creating an XML config generator for Radarr:
+
+- https://stackoverflow.com/questions/4906977/how-can-i-access-environment-variables-in-python
+- https://stackoverflow.com/questions/7771011/how-can-i-parse-read-and-use-json-in-python
+- https://github.com/NixOS/nixpkgs/blob/master/pkgs/build-support/writers/scripts.nix
+- https://stackoverflow.com/questions/43837691/how-to-package-a-single-python-script-with-nix
+- https://ryantm.github.io/nixpkgs/languages-frameworks/python/#python
+- https://ryantm.github.io/nixpkgs/hooks/python/#setup-hook-python
+- https://ryantm.github.io/nixpkgs/builders/trivial-builders/
+- https://discourse.nixos.org/t/basic-flake-run-existing-python-bash-script/19886
+- https://docs.python.org/3/tutorial/inputoutput.html
+- https://pypi.org/project/json2xml/
+- https://www.geeksforgeeks.org/serialize-python-dictionary-to-xml/
+- https://nixos.org/manual/nix/stable/language/builtins.html#builtins-toXML
+- https://github.com/NixOS/nixpkgs/blob/master/pkgs/pkgs-lib/formats.nix
