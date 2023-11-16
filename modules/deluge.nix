@@ -111,7 +111,14 @@ in
         };
         outgoing_interface = cfg.outgoingInterface;
 
-        enabled_plugins = cfg.enabledPlugins;
+        enabled_plugins = cfg.enabledPlugins
+                          ++ lib.optional (lib.any (x: x.enable) [
+                              config.shb.arr.radarr
+                              config.shb.arr.sonarr
+                              config.shb.arr.bazarr
+                              config.shb.arr.readarr
+                              config.shb.arr.lidarr
+                          ]) "Label";
 
         # TODO: expose these
         max_active_limit = 10000;
