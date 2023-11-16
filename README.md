@@ -3,6 +3,23 @@
 <!--toc:start-->
 - [Self Host Blocks](#self-host-blocks)
   - [Supported Features](#supported-features)
+  - [Repo layout](#repo-layout)
+  - [How to Use](#how-to-use)
+    - [Deploy a Nextcloud Instance](#deploy-a-nextcloud-instance)
+    - [Deploy an hledger Instance with LDAP and SSO support](#deploy-an-hledger-instance-with-ldap-and-sso-support)
+    - [Deploy a Jellyfin instance with LDAP and SSO support](#deploy-a-jellyfin-instance-with-ldap-and-sso-support)
+  - [Tips](#tips)
+    - [Run tests](#run-tests)
+    - [Deploy using colmena](#deploy-using-colmena)
+    - [Use a local version of selfhostblocks](#use-a-local-version-of-selfhostblocks)
+    - [Diff changes](#diff-changes)
+      - [What is deployed](#what-is-deployed)
+      - [What will get deployed](#what-will-get-deployed)
+      - [Get the full diff](#get-the-full-diff)
+      - [Get version bumps](#get-version-bumps)
+    - [Generate secret](#generate-secret)
+  - [TODOs](#todos)
+  - [Links that helped](#links-that-helped)
 <!--toc:end-->
 
 *Building blocks for self-hosting with battery included.*
