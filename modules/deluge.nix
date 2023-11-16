@@ -77,9 +77,9 @@ in
     };
 
     additionalPlugins = lib.mkOption {
-      type = lib.types.attrsOf lib.types.path;
-      description = "Location of additional plugins.";
-      default = {};
+      type = lib.types.listOf lib.types.path;
+      description = "Location of additional plugins. Each item in the list must be the path to the directory containing the plugin .egg file.";
+      default = [];
     };
 
     logLevel = lib.mkOption {
@@ -144,18 +144,23 @@ in
       web.port = cfg.webPort;
     };
 
-    systemd.services.deluged.serviceConfig.ExecStart = lib.mkForce (
-      ''
-          ${config.services.deluge.package}/bin/deluged \
-            --do-not-daemonize \
-            --config ${config.services.deluge.dataDir}/.config/deluge
-      '' +
-      (if (isNull cfg.logLevel) then "" else " -L ${cfg.logLevel}")
-    );
+    systemd.services.deluged.serviceConfig.ExecStart = lib.mkForce (lib.concatStringsSep " \\\n    " ([
+      "${config.services.deluge.package}/bin/deluged"
+      "--do-not-daemonize"
+      "--config ${config.services.deluge.dataDir}/.config/deluge"
+    ] ++ (lib.optional (!(isNull cfg.logLevel)) "-L ${cfg.logLevel}")
+    ));
     
-    systemd.tmpfiles.rules = lib.attrsets.mapAttrsToList (name: path:
-      "L+ ${config.services.deluge.dataDir}/.config/deluge/plugins/${name} - - - - ${path}"
-    ) cfg.additionalPlugins;
+    systemd.tmpfiles.rules =
+      let
+        plugins = pkgs.symlinkJoin {
+          name = "deluge-plugins";
+          paths = cfg.additionalPlugins;
+        };
+      in
+        [
+          "L+ ${config.services.deluge.dataDir}/.config/deluge/plugins - - - - ${plugins}"
+        ];
 
     sops.secrets."deluge/auth" = {
       inherit (cfg) sopsFile;
