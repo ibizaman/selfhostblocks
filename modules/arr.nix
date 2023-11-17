@@ -319,14 +319,16 @@ config.xml" templatedSettings) "${config.services.radarr.dataDir}/config.xml" (
 
       shb.backup.instances =
         let
-          backupConfig = name: _defaults: lib.mkIf (cfg.${name}.backupCfg != {}) {
-            ${name} = {
-              sourceDirectories = [
-                config.shb.arr.${name}.dataDir
-              ];
-              excludePatterns = [".db-shm" ".db-wal" ".mono"];
-            };
-          };
+          backupConfig = name: _defaults: lib.mkIf (cfg.${name}.backupCfg.enable or false) ({
+            ${name} = (
+              cfg.${name}.backupCfg
+              // {
+                sourceDirectories = [
+                  config.shb.arr.${name}.dataDir
+                ];
+                excludePatterns = [".db-shm" ".db-wal" ".mono"];
+              });
+          });
         in
           lib.mkMerge (lib.mapAttrsToList backupConfig apps);
     }

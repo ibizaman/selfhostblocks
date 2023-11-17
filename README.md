@@ -104,6 +104,10 @@ Currently supported services and features are:
 - [ ] Gitea to deploy
 - [ ] Scrutiny to monitor hard drives health
   - [ ] Export metrics to Prometheus.
+- [x] Tests
+  - [x] Unit tests for modules.
+  - [x] Running in CI.
+  - [ ] Integration tests with real nodes.
 
 ## Usage
 
