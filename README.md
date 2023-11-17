@@ -25,6 +25,7 @@
   - [Generate random secret](#generate-random-secret)
 - [TODOs](#todos)
 - [Links that helped](#links-that-helped)
+- [License](#license)
 <!--toc:end-->
 
 *Building blocks for self-hosting with battery included.*
@@ -104,7 +105,7 @@ Currently supported services and features are:
 
 ## Usage
 
-The top-level `flake.nix` just outputs a nixos module that gathers all other modules from `modules/`.
+The top-level `flake.nix` just outputs a nixos module that gathers all other modules from the [`modules/`](./modules/) directory.
 
 Some provided modules are low-level and some are high-level that re-use those low-level ones. For
 example, the nextcloud module re-uses the backup and nginx ones.
@@ -131,8 +132,8 @@ because options that `selfhostblocks` rely on can change or disappear and you ha
 that. Later, I intend to make `selfhostblocks` provide its own `nixpkgs` input and update it myself
 through CI.
 
-How you actually deploy using selfhostblocks depends on what system you choose. If you use colmena,
-this is what your `outputs` field could look like:
+How you actually deploy using selfhostblocks depends on what system you choose. If you use
+[colmena](https://colmena.cli.rs), this is what your `outputs` field could look like:
 
 ```nix
 outputs = inputs@{ self, nixpkgs, ... }: {
@@ -158,9 +159,6 @@ imports = [
   sops-nix.nixosModules.default
 ]
 ```
-
-This will import the NixOS module provided by this repository as well as the `sops-nix` module,
-needed to store secrets.
 
 For how to deploy services, check the examples below.
 
@@ -732,3 +730,9 @@ While creating an XML config generator for Radarr:
 - https://www.geeksforgeeks.org/serialize-python-dictionary-to-xml/
 - https://nixos.org/manual/nix/stable/language/builtins.html#builtins-toXML
 - https://github.com/NixOS/nixpkgs/blob/master/pkgs/pkgs-lib/formats.nix
+
+## License
+
+I'm following the [Nextcloud](https://github.com/nextcloud/server) license which is AGPLv3. See
+[this article](Compared to the GPL lic) from the FSF that explains what this license adds to the GPL
+one.
