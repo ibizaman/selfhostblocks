@@ -155,6 +155,16 @@ let
           description = "OIDC endpoint for SSO";
           example = "https://authelia.example.com";
         };
+
+        backupCfg = lib.mkOption {
+          type = lib.types.anything;
+          description = "Backup configuration for ${name}.";
+          default = {};
+          example = {
+            backend = "restic";
+            repositories = [];
+          };
+        };
       } // (c.moreOptions or {});
     };
   });
@@ -309,7 +319,7 @@ config.xml" templatedSettings) "${config.services.radarr.dataDir}/config.xml" (
 
       shb.backup.instances =
         let
-          backupConfig = name: _defaults: {
+          backupConfig = name: _defaults: lib.mkIf (cfg.${name}.backupCfg != {}) {
             ${name} = {
               sourceDirectories = [
                 config.shb.arr.${name}.dataDir
