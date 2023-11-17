@@ -1,5 +1,19 @@
 # Self Host Blocks
 
+*Building blocks for self-hosting with battery included.*
+
+SHB's (Self Host Blocks) goal is to provide a lower entry-bar for self-hosting. I intend to achieve
+this by providing opinionated building blocks fitting together to self-host a wide range of
+services. Also, the design will be extendable to allow users to add services not provided by SHB.
+
+For each service, I intend to provide turn-key Nix options to setup:
+- access through a subdomain,
+- HTTPS access,
+- backup,
+- single sign-on,
+- LDAP user management,
+- and metrics and logs monitoring and alerting.
+
 <!--toc:start-->
 - [Supported Features](#supported-features)
 - [Usage](#usage)
@@ -12,7 +26,7 @@
   - [Deploy an hledger Instance with LDAP and SSO support](#deploy-an-hledger-instance-with-ldap-and-sso-support)
   - [Deploy a Jellyfin instance with LDAP and SSO support](#deploy-a-jellyfin-instance-with-ldap-and-sso-support)
   - [Deploy a Home Assistant instance with LDAP support](#deploy-a-home-assistant-instance-with-ldap-support)
-- [Sets up network tunnel with VPN and Proxy](#sets-up-network-tunnel-with-vpn-and-proxy)
+  - [Set up network tunnel with VPN and Proxy](#set-up-network-tunnel-with-vpn-and-proxy)
 - [Tips](#tips)
   - [Run tests](#run-tests)
   - [Deploy using colmena](#deploy-using-colmena)
@@ -27,20 +41,6 @@
 - [Links that helped](#links-that-helped)
 - [License](#license)
 <!--toc:end-->
-
-*Building blocks for self-hosting with battery included.*
-
-SHB's (Self Host Blocks) goal is to provide a lower entry-bar for self-hosting. I intend to achieve
-this by providing opinionated building blocks fitting together to self-host a wide range of
-services. Also, the design will be extendable to allow users to add services not provided by SHB.
-
-For each service, I intend to provide turn-key Nix options to setup:
-- access through a subdomain,
-- HTTPS access,
-- backup,
-- single sign-on,
-- LDAP user management,
-- and monitoring.
 
 ## Supported Features
 
@@ -584,7 +584,7 @@ home-assistant: |
     longitude_home: "-0.01234567890123"
 ```
 
-## Sets up network tunnel with VPN and Proxy
+### Set up network tunnel with VPN and Proxy
 
 ```nix
 shb.vpn.nordvpnus = {
