@@ -2,8 +2,8 @@
 
 <!--toc:start-->
 - [Supported Features](#supported-features)
-- [Repo layout](#repo-layout)
-- [How to Use](#how-to-use)
+- [Usage](#usage)
+- [Examples](#examples)
   - [Deploy a Nextcloud Instance](#deploy-a-nextcloud-instance)
   - [Deploy an hledger Instance with LDAP and SSO support](#deploy-an-hledger-instance-with-ldap-and-sso-support)
   - [Deploy a Jellyfin instance with LDAP and SSO support](#deploy-a-jellyfin-instance-with-ldap-and-sso-support)
@@ -28,11 +28,12 @@ this by providing opinionated building blocks fitting together to self-host a wi
 services. Also, the design will be extendable to allow users to add services not provided by SHB.
 
 For each service, I intend to provide turn-key Nix options to setup:
-- Access through a subdomain.
-- HTTPS access.
-- Backup.
-- Single sign-on.
-- LDAP user management.
+- access through a subdomain,
+- HTTPS access,
+- backup,
+- single sign-on,
+- LDAP user management,
+- and monitoring.
 
 ## Supported Features
 
@@ -46,13 +47,16 @@ Currently supported services and features are:
   - [ ] UI for backups.
   - [ ] Export metrics to Prometheus.
   - [ ] Alert when backups fail or are not done on time.
-- [X] Monitoring through Prometheus and Grafana.
-  - [X] Export systemd services status.
 - [X] Reverse Proxy with Nginx.
   - [ ] Export metrics to Prometheus.
   - [ ] Log slow requests.
   - [X] SSL support.
   - [X] Backup support.
+- [X] Monitoring through Prometheus and Grafana.
+  - [X] Export systemd services status.
+  - [ ] Provide out of the box dashboards for common tasks.
+  - [ ] LDAP auth.
+  - [ ] SSO auth.
 - [X] Vaultwarden
   - [X] UI only accessible for `vaultwarden_user` LDAP group.
   - [X] `/admin` only accessible for `vaultwarden_admin` LDAP group.
@@ -61,8 +65,10 @@ Currently supported services and features are:
   - [ ] Export metrics to Prometheus.
   - [ ] Export traces to Prometheus.
   - [X] LDAP auth, unfortunately we need to configure this manually.
+    - [ ] Declarative setup.
   - [ ] SSO auth.
   - [X] Backup support.
+  - [ ] Optional tracing debug.
 - [X] Home Assistant.
   - [ ] Export metrics to Prometheus.
   - [X] LDAP auth through `homeassistant_user` LDAP group.
@@ -90,14 +96,12 @@ Currently supported services and features are:
 - [ ] Scrutiny to monitor hard drives health
   - [ ] Export metrics to Prometheus.
 
-## Repo layout
+## Usage
 
 The top-level `flake.nix` just outputs a nixos module that gathers all other modules from `modules/`.
 
 Some provided modules are low-level and some are high-level that re-use those low-level ones. For
 example, the nextcloud module re-uses the backup and nginx ones.
-
-## How to Use
 
 You want to use this repo as a flake input to your own repo. The `inputs` field of your `flake.nix`
 file in your repo should look like so:
@@ -116,14 +120,13 @@ inputs = {
 `sops-nix` is used to setup passwords and secrets. Currently `selfhostblocks` has a strong
 dependency on it but I'm working on removing that so you could use any secret provider.
 
-Also, if you ever want to hack on `selfhostblocks` yourself, you can clone it and then update the
-`selfhostblocks` url to point to the absolute path of where you cloned it:
+The snippet above makes `selfhostblocks`' inputs follow yours. This is not maintainable though
+because options that `selfhostblocks` rely on can change or disappear and you have no control on
+that. Later, I intend to make `selfhostblocks` provide its own `nixpkgs` input and update it myself
+through CI.
 
-```nix
-selfhostblocks.url = "/home/me/projects/selfhostblocks";
-```
-
-Now, how you actually deploy using selfhostblocks depends on what system you chose. If you use colmena, this is what your `outputs` field should look like:
+How you actually deploy using selfhostblocks depends on what system you choose. If you use colmena,
+this is what your `outputs` field could look like:
 
 ```nix
 outputs = inputs@{ self, nixpkgs, ... }: {
@@ -140,20 +143,31 @@ outputs = inputs@{ self, nixpkgs, ... }: {
 }
 ```
 
-### Deploy a Nextcloud Instance
-
-Now, what goes inside this `./machines/myserver.nix` file? Let's say you want to deploy Nextcloud,
-you would use the [`nextcloud.nix`](./modules/nextcloud.nix) module from this repo as reference and
-have something like the following.
-
-First, some common configuration:
+Now, what goes inside this `./machines/myserver.nix` file? First, import `selfhostblocks` and
+`sops-nix`:
 
 ```nix
 imports = [
   selfhostblocks.nixosModules.x86_64-linux.default
   sops-nix.nixosModules.default
 ]
+```
 
+This will import the NixOS module provided by this repository as well as the `sops-nix` module,
+needed to store secrets.
+
+For how to deploy services, check the examples below.
+
+## Examples
+
+I plan to have documentation for all options provided by selfhostblocks and more examples. For now,
+I have a few examples:
+
+### Add SSL configuration
+
+This is pretty much a prerequisite for all services.
+
+```nix
 shb.ssl = {
   enable = true;
   domain = "example.com";
@@ -163,42 +177,143 @@ shb.ssl = {
 };
 ```
 
-This will import the NixOS module provided by this repository as well as the `sops-nix` module,
-needed to store secrets. It then enables SSL support.
+The configuration above assumes you own the `example.com` domain and the DNS is managed by Linode.
 
-Then, the configuration for Nextcloud which sets up:
-- the nginx reverse proxy to listen on requests for the `nextcloud.example.com` domain,
-- backup of the config folder and the data folder,
-- an onlyoffice instance listening at `oo.example.com` that only listens on the local
-  nextwork; you still need to setup the onlyoffice plugin in Nextcloud,
-- and all the required databases and secrets.
+The `sops` file must be in the following format:
+
+```yaml
+acme: |-
+    LINODE_HTTP_TIMEOUT=10
+    LINODE_POLLING_INTERVAL=10
+    LINODE_PROPAGATION_TIMEOUT=240
+    LINODE_TOKEN=XYZ...
+```
+
+For now, linode is the only supported DNS provider as it's the one I'm using. I intend to make this
+module more generic so you can easily use another provider not supported by `selfhostblocks`. You
+can skip setting the `shb.ssl` options and roll your own. Feel free to look at the
+[`ssl.nix`](./modules/ssl.nix) for inspiration.
+
+### Add LDAP and Authelia services
+
+These too are prerequisites for other services. Not all services support LDAP and SSO just yet, but
+I'm working on that.
 
 ```nix
-shb.nextcloud = {
+shb.ldap = {
   enable = true;
   domain = "example.com";
-  subdomain = "nextcloud";
-  sopsFile = ./secrets/nextcloud.yaml;
+  subdomain = "ldap";
+  ldapPort = 3890;
+  httpPort = 17170;
+  dcdomain = "dc=example,dc=com";
+  sopsFile = ./secrets/ldap.yaml;
   localNetworkIPRange = "192.168.1.0/24";
-  debug = false;
 };
 
-services.nextcloud = {
-  datadir = "/srv/nextcloud";
-  poolSettings = {
-    "pm" = "dynamic";
-    "pm.max_children" = 120;
-    "pm.start_servers" = 12;
-    "pm.min_spare_servers" = 6;
-    "pm.max_spare_servers" = 18;
+shb.authelia = {
+  enable = true;
+  domain = "example.com";
+  subdomain = "authelia";
+
+  ldapEndpoint = "ldap://127.0.0.1:${builtins.toString config.shb.ldap.ldapPort}";
+  dcdomain = config.shb.ldap.dcdomain;
+
+  smtpHost = "smtp.mailgun.org";
+  smtpPort = 587;
+  smtpUsername = "postmaster@mg.example.com";
+
+  secrets = {
+    jwtSecretFile = config.sops.secrets."authelia/jwt_secret".path;
+    ldapAdminPasswordFile = config.sops.secrets."authelia/ldap_admin_password".path;
+    sessionSecretFile = config.sops.secrets."authelia/session_secret".path;
+    notifierSMTPPasswordFile = config.sops.secrets."authelia/smtp_password".path;
+    storageEncryptionKeyFile = config.sops.secrets."authelia/storage_encryption_key".path;
+    identityProvidersOIDCHMACSecretFile = config.sops.secrets."authelia/hmac_secret".path;
+    identityProvidersOIDCIssuerPrivateKeyFile = config.sops.secrets."authelia/private_key".path;
   };
 };
+sops.secrets."authelia/jwt_secret" = {
+  sopsFile = ./secrets/authelia.yaml;
+  mode = "0400";
+  owner = config.shb.authelia.autheliaUser;
+  restartUnits = [ "authelia.service" ];
+};
+sops.secrets."authelia/ldap_admin_password" = {
+  sopsFile = ./secrets/authelia.yaml;
+  mode = "0400";
+  owner = config.shb.authelia.autheliaUser;
+  restartUnits = [ "authelia.service" ];
+};
+sops.secrets."authelia/session_secret" = {
+  sopsFile = ./secrets/authelia.yaml;
+  mode = "0400";
+  owner = config.shb.authelia.autheliaUser;
+  restartUnits = [ "authelia.service" ];
+};
+sops.secrets."authelia/smtp_password" = {
+  sopsFile = ./secrets/authelia.yaml;
+  mode = "0400";
+  owner = config.shb.authelia.autheliaUser;
+  restartUnits = [ "authelia.service" ];
+};
+sops.secrets."authelia/storage_encryption_key" = {
+  sopsFile = ./secrets/authelia.yaml;
+  mode = "0400";
+  owner = config.shb.authelia.autheliaUser;
+  restartUnits = [ "authelia.service" ];
+};
+sops.secrets."authelia/hmac_secret" = {
+  sopsFile = ./secrets/authelia.yaml;
+  mode = "0400";
+  owner = config.shb.authelia.autheliaUser;
+  restartUnits = [ "authelia.service" ];
+};
+sops.secrets."authelia/private_key" = {
+  sopsFile = ./secrets/authelia.yaml;
+  mode = "0400";
+  owner = config.shb.authelia.autheliaUser;
+  restartUnits = [ "authelia.service" ];
+};
+```
 
-shb.backup.instances.nextcloud = {
+This sets up [lldap](https://github.com/lldap/lldap) under `https://ldap.example.com` and [authelia](https://www.authelia.com/) under `https://authelia.example.com`.
+
+The `lldap` sops file must be in the following format:
+
+```yaml
+lldap:
+    user_password: XXX...
+    jwt_secret: YYY...
+```
+
+You can format the `Authelia` sops file as you wish since you can give the path to every secret independently. For completeness, here's the format expected by the snippet above:
+
+```yaml
+authelia:
+    ldap_admin_password: AAA...
+    smtp_password: BBB...
+    jwt_secret: CCC...
+    storage_encryption_key: DDD...
+    session_secret: EEE...
+    storage_encryption_key: FFF...
+    hmac_secret: GGG...
+    private_key: |
+        -----BEGIN PRIVATE KEY-----
+        MII...MDQ=
+        -----END PRIVATE KEY-----
+```
+
+Add backup to LDAP:
+
+```nix
+shb.backup.instances.lldap = {
+  # Can also use "borgmatic".
   backend = "restic";
 
   keySopsFile = ./secrets/backup.yaml;
 
+  # Backs up to 2 repositories.
   repositories = [
     "/srv/backup/restic/nextcloud"
     "s3:s3.us-west-000.backblazeb2.com/myserver-backup/nextcloud"
@@ -217,45 +332,139 @@ shb.backup.instances.nextcloud = {
     archives = "1 month";
   };
 
-  environmentFile = true;  # Needed for s3
-};
+  environmentFile = true;  # Needed for the s3 repository
+}
 ```
 
-### Deploy an hledger Instance with LDAP and SSO support
+This will backup the ldap users and groups to two different repositories. It assumes you have a
+backblaze account.
 
-First, use the same common configuration as above. Then add the SSO and LDAP providers:
+The backup `sops` file format is:
+
+```yaml
+restic:
+    passphrases:
+        lldap: XYZ...
+    environmentfiles:
+        lldap: |-
+            AWS_ACCESS_KEY_ID=XXX...
+            AWS_SECRET_ACCESS_KEY=YYY...
+```
+
+The AWS keys are those provided by Backblaze.
+
+See the [`ldap.nix`](./modules/ldap.nix) and [`authelia.nix`](./modules/authelia.nix) modules for more info.
+
+### Deploy the full Grafana, Prometheus and Loki suite
+
+This is not a prerequisite for anything and could be enabled just for debugging.
 
 ```nix
-shb.ldap = {
+shb.monitoring = {
   enable = true;
-  domain = "example.com";
-  subdomain = "ldap";
-  dcdomain = "dc=example,dc=com";
-  sopsFile = ./secrets/ldap.yaml;
-  localNetworkIPRange = "192.168.1.0/24";
-};
-shb.backup.instances.lldap = # Same as for the Nextcloud one above
-
-shb.authelia = {
-  enable = true;
-  domain = "example.com";
-  subdomain = "authelia";
-  sopsFile = ./secrets/authelia.yaml;
-
-  ldapEndpoint = "ldap://127.0.0.1:3890";
-  dcdomain = config.shb.ldap.dcdomain;
-
-  smtpHost = "smtp.mailgun.org";
-  smtpPort = 587;
-  smtpUsername = "postmaster@mg.example.com";
+  subdomain = "grafana";
+  inherit domain;
 };
 ```
 
-Finally, the hledger specific part which sets up:
-- the nginx reverse proxy to listen on requests for the `hledger.example.com` domain,
-- backup of everything,
-- only allow users of the hledger_user to be able to login,
-- all the required databases and secrets
+With that, Grafana, Prometheus, Loki and Promtail are setup! You can access `Grafana` at
+`grafana.example.com`.
+
+A few Prometheus metrics scrapers are setup automatically:
+- node - cpu, memory, disk I/O, network I/O and a few others of the computer
+- smartctl - hard drive health
+- prometheus_internal - scraping jobs health
+- nginx
+- dnsmasq (if the service is enabled)
+
+The following Loki logs scraper is setup automatically:
+- systemd journal
+
+I intend to provide more options so that you could for example tweak data retention.
+
+Also, since all logs are now stored in Loki, you can probably reduce the systemd journal retention
+time with:
+
+```nix
+# See https://www.freedesktop.org/software/systemd/man/journald.conf.html#SystemMaxUse=
+services.journald.extraConfig = ''
+SystemMaxUse=2G
+SystemKeepFree=4G
+SystemMaxFileSize=100M
+MaxFileSec=day
+'';
+```
+
+### Deploy a Nextcloud Instance
+
+```nix
+shb.nextcloud = {
+  enable = true;
+  domain = "example.com";
+  subdomain = "nextcloud";
+  sopsFile = ./secrets/nextcloud.yaml;
+  localNetworkIPRange = "192.168.1.0/24";
+  debug = false;
+};
+
+# Only needed if you want to override some default settings.
+services.nextcloud = {
+  datadir = "/srv/nextcloud";
+  poolSettings = {
+    "pm" = "dynamic";
+    "pm.max_children" = 120;
+    "pm.start_servers" = 12;
+    "pm.min_spare_servers" = 6;
+    "pm.max_spare_servers" = 18;
+  };
+};
+
+# Backup the Nextcloud data.
+shb.backup.instances.nextcloud = # Same as for the Authelia one above;
+
+# For onlyoffice
+nixpkgs.config.allowUnfreePredicate = pkg: builtins.elem (pkgs.lib.getName pkg) [
+  "corefonts"
+];
+```
+
+The snippet above sets up:
+- The nginx reverse proxy to listen on requests for the `nextcloud.example.com` domain.
+- An onlyoffice instance listening at `oo.example.com` that only listens on the local
+  nextwork; you still need to setup manually the onlyoffice plugin in Nextcloud.
+- All the required databases and secrets.
+
+The sops file format is:
+
+```yaml
+nextcloud:
+    adminpass: XXX...
+    onlyoffice:
+        jwt_secret: YYY...
+```
+
+See the [`nextcloud-server.nix`](./modules/nextcloud-server.nix) module for more info.
+
+You can enable tracing with:
+
+```nix
+shb.nextcloud.debug = true;
+```
+
+See [my blog post](http://blog.tiserbox.com/posts/2023-08-12-what%27s-up-with-nextcloud-webdav-slowness.html) for how to look at the traces.
+
+### Enable verbose Nginx logging
+
+In case you need more verbose logging to investigate an issue:
+
+```nix
+shb.nginx.accessLog = true;
+shb.nginx.debugLog = true;
+```
+
+See the [`nginx.nix`](./modules/nginx.nix) module to see the effect of those options.
+
+### Deploy an hledger Instance with LDAP and SSO support
 
 ```nix
 shb.hledger = {
@@ -268,15 +477,15 @@ shb.hledger = {
 shb.backup.instances.hledger = # Same as the examples above
 ```
 
+This will setup:
+- The nginx reverse proxy to listen on requests for the `hledger.example.com` domain.
+- Backup of everything.
+- Only allow users of the `hledger_user` group to be able to login.
+- All the required databases and secrets.
+
+See [`hledger.nix`](./modules/hledger.nix) module for more details.
+
 ### Deploy a Jellyfin instance with LDAP and SSO support
-
-First, use the same common configuration as for the Nextcloud example and the SSO and LDAP
-configuration than for the hledger example. Then, the jellyfin specific part which sets up :
-
-- the nginx reverse proxy to listen on requests for the `jellyfin.example.com` domain,
-- backup of everything,
-- only allow users of the `jellyfin_user` or `jellyfin_admin` ldap group to be able to login,
-- all the required databases and secrets
 
 ```nix
 shb.jellyfin = {
@@ -288,12 +497,119 @@ shb.jellyfin = {
   ldapHost = "127.0.0.1";
   ldapPort = 3890;
   dcdomain = config.shb.ldap.dcdomain;
-  oidcEndpoint = "https://authelia.example.com";
+  oidcEndpoint = "https://${config.shb.authelia.subdomain}.${config.shb.authelia.domain}";
   oidcClientID = "jellyfin";
-  oidcAdminUserGroup = "jellyfin_admin";
   oidcUserGroup = "jellyfin_user";
+  oidcAdminUserGroup = "jellyfin_admin";
 };
 shb.backup.instances.jellyfin = # Same as the examples above
+```
+
+This sets up, as usual:
+- The nginx reverse proxy to listen on requests for the `jellyfin.example.com` domain.
+- Backup of everything.
+- Only allow users of the `jellyfin_user` or `jellyfin_admin` ldap group to be able to login.
+- All the required databases and secrets.
+
+The sops file format is:
+
+```yaml
+jellyfin:
+    ldap_password: XXX...
+    sso_secret: YYY...
+```
+
+Although the configuration of the [LDAP](https://github.com/jellyfin/jellyfin-plugin-ldapauth) and
+[SSO](https://github.com/9p4/jellyfin-plugin-sso) plugins is done declaratively in the Jellyfin
+`preStart` step, they still need to be installed manually at the moment.
+
+See [`jellyfin.nix`](./modules/jellyfin.nix) module for more details.
+
+### Deploy a Home Assistant instance with LDAP support
+
+SSO support is WIP.
+
+```nix
+shb.home-assistant = {
+  enable = true;
+  subdomain = "ha";
+  inherit domain;
+  ldapEndpoint = "http://127.0.0.1:${builtins.toString config.shb.ldap.httpPort}";
+  backupCfg = # Same as the examples above
+  sopsFile = ./secrets/homeassistant.yaml;
+};
+services.home-assistant = {
+  extraComponents = [
+    "backup"
+    "esphome"
+    "jellyfin"
+    "kodi"
+    "wyoming"
+    "zha"
+  ];
+};
+services.wyoming.piper.servers = {
+  "fr" = {
+    enable = true;
+    voice = "fr-siwis-medium";
+    uri = "tcp://0.0.0.0:10200";
+    speaker = 0;
+  };
+};
+services.wyoming.faster-whisper.servers = {
+  "tiny-fr" = {
+    enable = true;
+    model = "medium-int8";
+    language = "fr";
+    uri = "tcp://0.0.0.0:10300";
+    device = "cpu";
+  };
+};
+```
+
+This sets up everything needed to have a Home Assistant instance available under `ha.example.com`.
+It also shows how to have a `piper` and `whisper` server for respectively text to speech and speech
+to text. The integrations must still be setup in the web UI.
+
+The `sops` file must be in the following format:
+
+```yaml
+home-assistant: |
+    country: "US"
+    latitude_home: "0.01234567890123"
+    longitude_home: "-0.01234567890123"
+```
+
+## Sets up network tunnel with VPN and Proxy
+
+```nix
+shb.vpn.nordvpnus = {
+  enable = true;
+  # Only "nordvpn" supported for now.
+  provider = "nordvpn";
+  dev = "tun1";
+  # Must be unique per VPN instance.
+  routingNumber = 10;
+  # Change to the one you want to connect to
+  remoteServerIP = "1.2.3.4";
+  sopsFile = ./secrets/vpn.yaml;
+  proxyPort = 12000;
+};
+```
+
+This sets up a tunnel interface `tun1` that connects to the VPN provider, here NordVPN. Also, if the
+`proxyPort` option is not null, this will spin up a `tinyproxy` instance that listens on the given
+port and redirects all traffic through that VPN.
+
+```bash
+$ curl 'https://api.ipify.org?format=json'
+{"ip":"107.21.107.115"}
+
+$ curl --interface tun1 'https://api.ipify.org?format=json'
+{"ip":"46.12.123.113"}
+
+$ curl --proxy 127.0.0.1:12000 'https://api.ipify.org?format=json'
+{"ip":"46.12.123.113"}
 ```
 
 ## Tips
@@ -371,12 +687,12 @@ $ nix run nixpkgs#nix-diff -- \
 A nice summary of version changes can be produced with:
 
 ```bash
-nix run nixpkgs#nvd -- diff \
+$ nix run nixpkgs#nvd -- diff \
   /nix/store/yyw9rgn8v5jrn4657vwpg01ydq0hazgx-nixos-system-baryum-23.11pre-git \
   /nix/store/16n1klx5cxkjpqhrdf0k12npx3vn5042-nixos-system-baryum-23.11pre-git \
 ```
 
-### Generate secret
+### Generate random secret
 
 ```bash
 $ nix run nixpkgs#openssl -- rand -hex 64
@@ -384,11 +700,14 @@ $ nix run nixpkgs#openssl -- rand -hex 64
 
 ## TODOs
 
-- [ ] Add examples that sets up instance in a VM.
+- [ ] Add examples that sets up services in a VM.
 - [ ] Do not depend on sops.
 - [ ] Add more options to avoid hardcoding stuff.
 - [ ] Make sure nginx gets reloaded when SSL certs gets updated.
-- [ ] Better backup story by taking optional LVM snapshot before backing up.
+- [ ] Better backup story by taking optional LVM or ZFS snapshot before backing up.
+- [ ] Many more tests.
+- [ ] Tests deploying to real nodes.
+- [ ] DNS must be more configurable.
 
 ## Links that helped:
 
