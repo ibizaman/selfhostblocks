@@ -52,7 +52,7 @@ in
       group = "nginx";
       extraGroups = [ config.security.acme.defaults.group ];
     };
-    users.groups.ngins = {};
+    users.groups.nginx = {};
 
     security.acme = {
       acceptTerms = true;
