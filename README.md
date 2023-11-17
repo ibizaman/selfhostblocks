@@ -4,9 +4,15 @@
 - [Supported Features](#supported-features)
 - [Usage](#usage)
 - [Examples](#examples)
+  - [Add SSL configuration](#add-ssl-configuration)
+  - [Add LDAP and Authelia services](#add-ldap-and-authelia-services)
+  - [Deploy the full Grafana, Prometheus and Loki suite](#deploy-the-full-grafana-prometheus-and-loki-suite)
   - [Deploy a Nextcloud Instance](#deploy-a-nextcloud-instance)
+  - [Enable verbose Nginx logging](#enable-verbose-nginx-logging)
   - [Deploy an hledger Instance with LDAP and SSO support](#deploy-an-hledger-instance-with-ldap-and-sso-support)
   - [Deploy a Jellyfin instance with LDAP and SSO support](#deploy-a-jellyfin-instance-with-ldap-and-sso-support)
+  - [Deploy a Home Assistant instance with LDAP support](#deploy-a-home-assistant-instance-with-ldap-support)
+- [Sets up network tunnel with VPN and Proxy](#sets-up-network-tunnel-with-vpn-and-proxy)
 - [Tips](#tips)
   - [Run tests](#run-tests)
   - [Deploy using colmena](#deploy-using-colmena)
@@ -16,7 +22,7 @@
     - [What will get deployed](#what-will-get-deployed)
     - [Get the full diff](#get-the-full-diff)
     - [Get version bumps](#get-version-bumps)
-  - [Generate secret](#generate-secret)
+  - [Generate random secret](#generate-random-secret)
 - [TODOs](#todos)
 - [Links that helped](#links-that-helped)
 <!--toc:end-->
@@ -709,7 +715,7 @@ $ nix run nixpkgs#openssl -- rand -hex 64
 - [ ] Tests deploying to real nodes.
 - [ ] DNS must be more configurable.
 
-## Links that helped:
+## Links that helped
 
 While creating an XML config generator for Radarr:
 
