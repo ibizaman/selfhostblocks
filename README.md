@@ -643,7 +643,7 @@ selfhostblocks.url = "/home/me/projects/selfhostblocks";
 Or override on the command line:
 
 ```bash
-nix run nixpkgs#colmena --override-input selfhostblocks ../selfhostblocks -- apply
+$ nix run nixpkgs#colmena --override-input selfhostblocks ../selfhostblocks -- apply
 ```
 
 ### Diff changes
