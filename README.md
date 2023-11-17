@@ -736,5 +736,5 @@ While creating an XML config generator for Radarr:
 ## License
 
 I'm following the [Nextcloud](https://github.com/nextcloud/server) license which is AGPLv3. See
-[this article](Compared to the GPL lic) from the FSF that explains what this license adds to the GPL
+[this article](https://www.fsf.org/bulletin/2021/fall/the-fundamentals-of-the-agplv3) from the FSF that explains what this license adds to the GPL
 one.
