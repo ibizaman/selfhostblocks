@@ -55,8 +55,8 @@ Currently supported services and features are:
   - [ ] Export metrics to Prometheus.
   - [ ] Alert when backups fail or are not done on time.
 - [X] Reverse Proxy with Nginx.
-  - [ ] Export metrics to Prometheus.
-  - [ ] Log slow requests.
+  - [x] Export metrics to Prometheus.
+  - [x] Log slow requests.
   - [X] SSL support.
   - [X] Backup support.
 - [X] Monitoring through Prometheus and Grafana.
