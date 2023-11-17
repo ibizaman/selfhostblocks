@@ -61,7 +61,7 @@ Currently supported services and features are:
   - [X] Backup support.
 - [X] Monitoring through Prometheus and Grafana.
   - [X] Export systemd services status.
-  - [ ] Provide out of the box dashboards for common tasks.
+  - [ ] Provide out of the box dashboards and alerts for common tasks.
   - [ ] LDAP auth.
   - [ ] SSO auth.
 - [X] Vaultwarden
@@ -69,13 +69,13 @@ Currently supported services and features are:
   - [X] `/admin` only accessible for `vaultwarden_admin` LDAP group.
   - [WIP] True SSO support, see [dani-garcia/vaultwarden/issues/246](https://github.com/dani-garcia/vaultwarden/issues/246). For now, Authelia protects access to the UI but you need to login afterwards to Vaultwarden. So there are two login required.
 - [X] Nextcloud
-  - [ ] Export metrics to Prometheus.
-  - [ ] Export traces to Prometheus.
   - [X] LDAP auth, unfortunately we need to configure this manually.
     - [ ] Declarative setup.
   - [ ] SSO auth.
   - [X] Backup support.
-  - [ ] Optional tracing debug.
+  - [x] Optional tracing debug.
+  - [ ] Export traces to Prometheus.
+  - [ ] Export metrics to Prometheus.
 - [X] Home Assistant.
   - [ ] Export metrics to Prometheus.
   - [X] LDAP auth through `homeassistant_user` LDAP group.
