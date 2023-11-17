@@ -36,6 +36,7 @@ in
 {
   testArrNoOptions = {
     expected = {
+      systemd.services.radarr = {};
       systemd.services.jackett = {};
       shb.backup = {};
       shb.nginx.autheliaProtect = [];
