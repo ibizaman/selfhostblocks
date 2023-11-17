@@ -14,6 +14,8 @@ For each service, I intend to provide turn-key Nix options to setup:
 - LDAP user management,
 - and metrics and logs monitoring and alerting.
 
+## TOC
+
 <!--toc:start-->
 - [Supported Features](#supported-features)
 - [Usage](#usage)
