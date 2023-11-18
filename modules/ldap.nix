@@ -73,9 +73,9 @@ in
       enable = true;
 
       virtualHosts.${fqdn} = {
-        forceSSL = true;
-        sslCertificate = "/var/lib/acme/${cfg.domain}/cert.pem";
-        sslCertificateKey = "/var/lib/acme/${cfg.domain}/key.pem";
+        forceSSL = lib.mkIf config.shb.ssl.enable true;
+        sslCertificate = lib.mkIf config.shb.ssl.enable "/var/lib/acme/${cfg.domain}/cert.pem";
+        sslCertificateKey = lib.mkIf config.shb.ssl.enable "/var/lib/acme/${cfg.domain}/key.pem";
         locations."/" = {
           extraConfig = ''
             proxy_set_header Host $host;
