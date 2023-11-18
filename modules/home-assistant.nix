@@ -144,10 +144,10 @@ in
     };
 
     services.nginx.virtualHosts."${fqdn}" = {
-      forceSSL = true;
+      forceSSL = lib.mkIf config.shb.ssl.enable true;
       http2 = true;
-      sslCertificate = "/var/lib/acme/${cfg.domain}/cert.pem";
-      sslCertificateKey = "/var/lib/acme/${cfg.domain}/key.pem";
+      sslCertificate = lib.mkIf config.shb.ssl.enable "/var/lib/acme/${cfg.domain}/cert.pem";
+      sslCertificateKey = lib.mkIf config.shb.ssl.enable "/var/lib/acme/${cfg.domain}/key.pem";
       extraConfig = ''
         proxy_buffering off;
       '';

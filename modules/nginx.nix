@@ -99,9 +99,9 @@ in
       let
         vhostCfg = c: {
           ${fqdn c} = {
-            forceSSL = true;
-            sslCertificate = "/var/lib/acme/${c.domain}/cert.pem";
-            sslCertificateKey = "/var/lib/acme/${c.domain}/key.pem";
+            forceSSL = lib.mkIf config.shb.ssl.enable true;
+            sslCertificate = lib.mkIf config.shb.ssl.enable "/var/lib/acme/${c.domain}/cert.pem";
+            sslCertificateKey = lib.mkIf config.shb.ssl.enable "/var/lib/acme/${c.domain}/key.pem";
 
             # Taken from https://github.com/authelia/authelia/issues/178
             locations."/".extraConfig = ''
