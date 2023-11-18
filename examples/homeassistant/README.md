@@ -1,51 +1,158 @@
-# Use a VM to run this example
+# Home Assistant Example
+
+This `configuration.nix` file sets up a LDAP server and Home Assistant server.
+
+This guide will show how to deploy this `configuration.nix` to a Virtual Machine, like showed
+[here](https://nixos.wiki/wiki/NixOS_modules#Developing_modules), in 5 commands.
+
+## Launch VM
 
 Build VM with:
 
 ```bash
-nixos-rebuild build-vm --fast -I nixos-config=./configuration.nix -I nixpkgs=.
+nixos-rebuild build-vm-with-bootloader --fast -I nixos-config=./configuration.nix -I nixpkgs=.
 ```
 
 Start VM with:
 
 ```bash
-QEMU_NET_OPTS="hostfwd=tcp::2222-:22" ./result/bin/run-nixos-vm
+QEMU_NET_OPTS="hostfwd=tcp::2222-:2222,hostfwd=tcp::8080-:80" ./result/bin/run-nixos-vm
 ```
 
-User is `nixos`, password is `nixos`.
+User and password are both `nixos`, as setup in the `configuration.nix` file under
+`user.users.nixos.initialPassword`.
 
-Ssh into VM with `ssh -p 2222 nixos@localhost`.
+You can login with `ssh -F ssh_config example`. You just need to accept the fingerprint.
 
-If you get into issues with ssh trying too many public keys and failing, try instead: `ssh -o PasswordAuthentication=yes -o PreferredAuthentications=keyboard-interactive,password -o PubkeyAuthentication=no  -p 2222 nixos@localhost`.
+## Make VM able to decrypt the secrets.yaml file
 
-For more information about running this example in a vm, see [NixOS_modules#Developing_modules](https://nixos.wiki/wiki/NixOS_modules#Developing_modules).
+Note: I'm working on making these steps unnecessary but these still need to be done every time you
+create the VM.
 
-For more information about writing tests, see [the manual](https://nixos.org/manual/nixos/stable/index.html#sec-nixos-tests).
+The [`sops.yaml`](./sops.yaml) file describes what private keys can decrypt and encrypt the
+[`secrets.yaml`](./secrets.yaml) file containing the application secrets. You will add secrets to
+the file and when deploying, that file will be decrypted and the secrets will be copied in the
+`/run/secrets` folder on the VM. We thus need one private key for you to edit the
+[`secrets.yaml`](./secrets.yaml) file and one in the VM for it to decrypt the secrets.
 
-Create your secret key which prints the public key used for `admin`:
+Your private is already pre-generated in this repo, it's the [`sshkey`](./sshkey) file. But when
+creating the VM in the step above, a new private key and its accompanying public key was
+automatically generated under `/etc/ssh/ssh_host_ed25519_key` in the VM. We will need to get the
+public key and replace the one in the [`sops.yaml`](./sops.yaml) `vm` field.
+
+With the VM started, print the VM's public age key with the following command. The value you need to
+copy in the `sops.yaml` file is the one staring with `age`.
 
 ```bash
-nix-shell -p age --run 'age-keygen -o keys.txt'
+$ nix shell nixpkgs#ssh-to-age --command sh -c 'ssh-keyscan -p 2222 -4 localhost | ssh-to-age'
+# localshost:2222 SSH-2.0-OpenSSH_9.1
+# localhost:2222 SSH-2.0-OpenSSH_9.1
+# localhost:2222 SSH-2.0-OpenSSH_9.1
+# localhost:2222 SSH-2.0-OpenSSH_9.1
+# localhost:2222 SSH-2.0-OpenSSH_9.1
+skipped key: got ssh-rsa key type, but only ed25519 keys are supported
+age1l9dyy02qhlfcn5u9s4y2vhsvjtxj2c9avrpat6nvjd6rjar3tflq66jtz0
 ```
-
-Get target host age key which prints the public key used for `vm`:
 
 ```bash
-nix-shell -p ssh-to-age --run 'ssh-keyscan -p 2222 -4 localhost | ssh-to-age'
+SOPS_AGE_KEY_FILE=keys.txt nix run --impure nixpkgs#sops -- --config sops.yaml -r -i --add-age age1l9dyy02qhlfcn5u9s4y2vhsvjtxj2c9avrpat6nvjd6rjar3tflq66jtz0 secrets.yaml
 ```
 
-Update `admin` and `vm` keys in sops.yaml.
-
-Edit secret itself with:
+It is not required for the example here as the secrets file is already pre-filled with the correct data, but if you want to update the `secrets.yaml` file interactively or take a look, you can use:
 
 ```bash
-nix-shell -p sops --run 'sops --config sops.yaml secrets.yaml'
+SOPS_AGE_KEY_FILE=keys.txt nix run --impure nixpkgs#sops -- --config sops.yaml secrets.yaml
 ```
 
-Deploy with:
+## Deploy
+
+Now, deploy with:
 
 ```bash
-nix-shell -p colmena --run 'colmena apply'
+SSH_CONFIG_FILE=ssh_config nix run nixpkgs#colmena --impure -- apply
 ```
 
-Took 12 minutes for first deploy on my machine. Next deploys take about 12 seconds.
+Took a few minutes for first deploy on my machine. Next deploys take about 12 seconds.
+
+## Access apps through your browser
+
+Add the following entry to your `/etc/hosts` file:
+
+```nix
+networking.hosts = {
+  "127.0.0.1" = [ "ha.example.com" "ldap.example.com" ];
+};
+```
+
+Which produces:
+
+```bash
+$ cat /etc/hosts
+127.0.0.1 ha.example.com ldap.example.com
+```
+
+Go to [](http://ldap.example.com:8080) and login with:
+- username: `admin`
+- password: the value of the field `lldap.user_password` in the `secrets.yaml` file.
+
+Create the group `homeassistant_user` and a user assigned to that group.
+
+Go to [](http://ha.example.com:8080) and login with the user and password you just created above.
+
+## Prepare the VM
+
+This section documents how the various files were created to provide the nearly out of the box
+experience described in the previous section. I need to clean this up a bit.
+
+### Private and Public Key
+
+Create the private key in the `keys.txt` file and print the public key used for `admin`:
+
+```bash
+$ nix shell nixpkgs#age --command age-keygen -o keys.txt
+Public key: age1algdv9xwjre3tm7969eyremfw2ftx4h8qehmmjzksrv7f2qve9dqg8pug7
+```
+
+Update `admin` and `vm` keys in `sops.yaml`.
+
+Then, you can create the secrets.yaml with:
+
+That file must follow the format:
+
+```yaml
+home-assistant: |
+    name: "My Instance"
+    country: "US"
+    latitude_home: "0.100"
+    longitude_home: "-0.100"
+    time_zone: "America/Los_Angeles"
+    unit_system: "metric"
+lldap:
+    user_password: XXX...
+    jwt_secret: YYY...
+```
+
+You can generate secrets with:
+
+```bash
+$ nix run nixpkgs#openssl -- rand -hex 64
+```
+
+TODO: add instructions to create ssh private and public key:
+
+```bash
+```
+
+You don't need to copy over the ssh public key with the following command as we set the `keyFiles` option. I still leave it here for reference.
+
+```bash
+$ nix shell nixpkgs#openssh --command ssh-copy-id -i sshkey -F ssh_config example
+```
+
+### Deploy
+
+If you get a NAR hash mismatch error like so, you need to run `nix flake update`:
+
+```
+error: NAR hash mismatch in input ...
+```
