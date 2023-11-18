@@ -66,6 +66,8 @@ in
   };
 
   config = {
+    networking.firewall.allowedTCPPorts = [ 80 443 ];
+
     services.nginx.enable = true;
     services.nginx.logError = lib.mkIf cfg.debugLog "stderr warn";
     services.nginx.appendHttpConfig = lib.mkIf cfg.accessLog ''
