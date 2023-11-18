@@ -94,10 +94,12 @@ in
         logger.default = "info";
         homeassistant = {
           external_url = "https://${cfg.subdomain}.${cfg.domain}";
+          name = "!secret name";
           country = "!secret country";
           latitude = "!secret latitude_home";
           longitude = "!secret longitude_home";
-          time_zone = "America/Los_Angeles";
+          time_zone = "!secret time_zone";
+          unit_system = "metric";
           auth_providers = [
             # Ensure you have the homeassistant provider enabled if you want to continue using your existing accounts
             # { type = "homeassistant"; }
@@ -156,6 +158,27 @@ in
         proxyWebsockets = true;
       };
     };
+
+    systemd.services.home-assistant.preStart =
+      let
+        onboarding = pkgs.writeText "onboarding" ''
+        {
+          "version": 4,
+          "minor_version": 1,
+          "key": "onboarding",
+          "data": {
+            "done": [
+              "user",
+              "core_config"
+            ]
+          }
+        }
+        '';
+        file = "${config.services.home-assistant.configDir}/.storage/onboarding";
+      in
+      ''
+      -f ${file} || cp ${onboarding} ${file}
+      '';
 
     sops.secrets."home-assistant" = {
       inherit (cfg) sopsFile;
