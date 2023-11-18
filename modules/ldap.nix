@@ -46,9 +46,10 @@ in
     };
 
     localNetworkIPRange = lib.mkOption {
-      type = lib.types.str;
+      type = lib.types.nullOr lib.types.str;
       description = "Local network range, to restrict access to the UI to only those IPs.";
       example = "192.168.1.1/24";
+      default = null;
     };
   };
 
@@ -79,9 +80,10 @@ in
         locations."/" = {
           extraConfig = ''
             proxy_set_header Host $host;
+          '' + (if isNull cfg.localNetworkIPRange then "" else ''
             allow ${cfg.localNetworkIPRange};
             deny all;
-          '';
+          '');
           proxyPass = "http://${toString config.services.lldap.settings.http_host}:${toString config.services.lldap.settings.http_port}/";
         };
       };
