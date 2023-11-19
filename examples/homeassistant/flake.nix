@@ -19,9 +19,9 @@
         specialArgs = inputs;
       };
 
-      myserver = {
+      myserver = { config, ... }: {
         deployment = {
-          targetHost = "localhost";
+          targetHost = "example";
           targetPort = 2222;
           targetUser = "nixos";
         };
@@ -29,14 +29,35 @@
         imports = [
           ./configuration.nix
           sops-nix.nixosModules.default
-          selfhostblocks.nixosModules.default
+          selfhostblocks.nixosModules.x86_64-linux.default
         ];
+
+        # Set to true for more debug info with `journalctl -f -u nginx`.
+        shb.nginx.accessLog = true;
+        shb.nginx.debugLog = true;
+
+        shb.ldap = {
+          enable = true;
+          domain = "example.com";
+          subdomain = "ldap";
+          ldapPort = 3890;
+          httpPort = 17170;
+          dcdomain = "dc=example,dc=com";
+          sopsFile = ./secrets.yaml;
+        };
 
         shb.home-assistant = {
           enable = true;
+          domain = "example.com";
+          ldapEndpoint = "http://127.0.0.1:${builtins.toString config.shb.ldap.httpPort}";
           subdomain = "ha";
           sopsFile = ./secrets.yaml;
         };
+
+        nix.settings.experimental-features = [ "nix-command" "flakes" ];
+        nix.settings.trusted-users = [
+          "nixos"
+        ];
       };
     };
   };

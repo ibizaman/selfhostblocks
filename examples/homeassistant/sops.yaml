@@ -1,6 +1,6 @@
 keys:
-  - &admin age1a3gukez540dt9p64rrq994487j6awjd063n2jgxtpu6ljv2n0d0qcv8tft
-  - &vm age1qawyldukqyaeexd0zet4gldp5hc4p0ulrnete73k38xexa8m0yvqzswc2v
+  - &admin age1algdv9xwjre3tm7969eyremfw2ftx4h8qehmmjzksrv7f2qve9dqg8pug7
+  - &vm age18jrfv0ndtrad7ee4dzdfhhuca4wuce059txltdaxuxcnjkc37s5qj9mapm
 creation_rules:
   - path_regex: secrets.yaml$
     key_groups:
