@@ -103,7 +103,7 @@ Go to [http://ldap.example.com:8080](http://ldap.example.com:8080) and login wit
 
 Create the group `homeassistant_user` and a user assigned to that group.
 
-Go to [ttp://ha.example.com:8080](http://ha.example.com:8080) and login with the user and password you just created above.
+Go to [http://ha.example.com:8080](http://ha.example.com:8080) and login with the user and password you just created above.
 
 ## Prepare the VM
 
