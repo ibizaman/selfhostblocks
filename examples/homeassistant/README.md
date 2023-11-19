@@ -34,7 +34,7 @@ in the `/run/secrets` folder on the VM. We thus need one private key for you to 
 [`secrets.yaml`](./secrets.yaml) file and one in the VM for it to decrypt the secrets.
 
 Your private key is already pre-generated in this repo, it's the [`sshkey`](./sshkey) file. But when
-creating the VM in the step above, a new private key and its accompanying public key was
+creating the VM in the step above, a new private key and its accompanying public key were
 automatically generated under `/etc/ssh/ssh_host_ed25519_key` in the VM. We just need to get the
 public key.
 
@@ -51,6 +51,8 @@ $ nix shell nixpkgs#ssh-to-age --command sh -c 'ssh-keyscan -p 2222 -4 localhost
 skipped key: got ssh-rsa key type, but only ed25519 keys are supported
 age1l9dyy02qhlfcn5u9s4y2vhsvjtxj2c9avrpat6nvjd6rjar3tflq66jtz0
 ```
+
+Now, make the `secrets.yaml` file decryptable in the VM.
 
 ```bash
 SOPS_AGE_KEY_FILE=keys.txt nix run --impure nixpkgs#sops -- \
