@@ -1,8 +1,9 @@
 # Home Assistant Example
 
-This `configuration.nix` file sets up a LDAP server and Home Assistant server.
+This `flake.nix` file sets up Home Assistant server that uses a LDAP server to
+setup users with only about [15 lines](./flake.nix#L39-L55) of related code.
 
-This guide will show how to deploy this `configuration.nix` to a Virtual Machine, like showed
+This guide will show how to deploy this setup to a Virtual Machine, like showed
 [here](https://nixos.wiki/wiki/NixOS_modules#Developing_modules), in 5 commands.
 
 ## Launch VM
@@ -13,35 +14,32 @@ Build VM with:
 nixos-rebuild build-vm-with-bootloader --fast -I nixos-config=./configuration.nix -I nixpkgs=.
 ```
 
-Start VM with:
+Start VM with (this call is blocking):
 
 ```bash
 QEMU_NET_OPTS="hostfwd=tcp::2222-:2222,hostfwd=tcp::8080-:80" ./result/bin/run-nixos-vm
 ```
 
-User and password are both `nixos`, as setup in the `configuration.nix` file under
+User and password are both `nixos`, as setup in the [`configuration.nix`](./configuration.nix) file under
 `user.users.nixos.initialPassword`.
 
 You can login with `ssh -F ssh_config example`. You just need to accept the fingerprint.
 
 ## Make VM able to decrypt the secrets.yaml file
 
-Note: I'm working on making these steps unnecessary but these still need to be done every time you
-create the VM.
-
 The [`sops.yaml`](./sops.yaml) file describes what private keys can decrypt and encrypt the
-[`secrets.yaml`](./secrets.yaml) file containing the application secrets. You will add secrets to
-the file and when deploying, that file will be decrypted and the secrets will be copied in the
-`/run/secrets` folder on the VM. We thus need one private key for you to edit the
+[`secrets.yaml`](./secrets.yaml) file containing the application secrets. Usually, you will add
+secrets to that secrets file and when deploying, it will be decrypted and the secrets will be copied
+in the `/run/secrets` folder on the VM. We thus need one private key for you to edit the
 [`secrets.yaml`](./secrets.yaml) file and one in the VM for it to decrypt the secrets.
 
-Your private is already pre-generated in this repo, it's the [`sshkey`](./sshkey) file. But when
+Your private key is already pre-generated in this repo, it's the [`sshkey`](./sshkey) file. But when
 creating the VM in the step above, a new private key and its accompanying public key was
-automatically generated under `/etc/ssh/ssh_host_ed25519_key` in the VM. We will need to get the
-public key and replace the one in the [`sops.yaml`](./sops.yaml) `vm` field.
+automatically generated under `/etc/ssh/ssh_host_ed25519_key` in the VM. We just need to get the
+public key.
 
-With the VM started, print the VM's public age key with the following command. The value you need to
-copy in the `sops.yaml` file is the one staring with `age`.
+With the VM started, print the VM's public age key with the following command. The value you need is
+the one staring with `age`.
 
 ```bash
 $ nix shell nixpkgs#ssh-to-age --command sh -c 'ssh-keyscan -p 2222 -4 localhost | ssh-to-age'
@@ -55,13 +53,19 @@ age1l9dyy02qhlfcn5u9s4y2vhsvjtxj2c9avrpat6nvjd6rjar3tflq66jtz0
 ```
 
 ```bash
-SOPS_AGE_KEY_FILE=keys.txt nix run --impure nixpkgs#sops -- --config sops.yaml -r -i --add-age age1l9dyy02qhlfcn5u9s4y2vhsvjtxj2c9avrpat6nvjd6rjar3tflq66jtz0 secrets.yaml
+SOPS_AGE_KEY_FILE=keys.txt nix run --impure nixpkgs#sops -- \
+  --config sops.yaml -r -i \
+  --add-age age1l9dyy02qhlfcn5u9s4y2vhsvjtxj2c9avrpat6nvjd6rjar3tflq66jtz0 \
+  secrets.yaml
 ```
 
-It is not required for the example here as the secrets file is already pre-filled with the correct data, but if you want to update the `secrets.yaml` file interactively or take a look, you can use:
+Later on, when the server is deployed, you will need to login to the LDAP server with the admin account.
+You can find the secret `lldap.user_password` field in the [`secrets.yaml`](./secrets.yaml) file. To open it, run:
 
 ```bash
-SOPS_AGE_KEY_FILE=keys.txt nix run --impure nixpkgs#sops -- --config sops.yaml secrets.yaml
+SOPS_AGE_KEY_FILE=keys.txt nix run --impure nixpkgs#sops -- \
+  --config sops.yaml \
+  secrets.yaml
 ```
 
 ## Deploy
@@ -91,13 +95,13 @@ $ cat /etc/hosts
 127.0.0.1 ha.example.com ldap.example.com
 ```
 
-Go to [](http://ldap.example.com:8080) and login with:
+Go to [http://ldap.example.com:8080](http://ldap.example.com:8080) and login with:
 - username: `admin`
 - password: the value of the field `lldap.user_password` in the `secrets.yaml` file.
 
 Create the group `homeassistant_user` and a user assigned to that group.
 
-Go to [](http://ha.example.com:8080) and login with the user and password you just created above.
+Go to [ttp://ha.example.com:8080](http://ha.example.com:8080) and login with the user and password you just created above.
 
 ## Prepare the VM
 
@@ -151,7 +155,7 @@ $ nix shell nixpkgs#openssh --command ssh-copy-id -i sshkey -F ssh_config exampl
 
 ### Deploy
 
-If you get a NAR hash mismatch error like so, you need to run `nix flake update`:
+If you get a NAR hash mismatch error like so, you need to run `nix flake lock --update-input selfhostblocks`:
 
 ```
 error: NAR hash mismatch in input ...
