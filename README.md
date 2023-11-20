@@ -19,7 +19,6 @@ For each service, I intend to provide turn-key Nix options to setup:
 <!--toc:start-->
 - [Supported Features](#supported-features)
 - [Usage](#usage)
-- [Demos](#demos)
 - [Examples](#examples)
   - [Add SSL configuration](#add-ssl-configuration)
   - [Add LDAP and Authelia services](#add-ldap-and-authelia-services)
@@ -725,6 +724,7 @@ $ nix run nixpkgs#openssl -- rand -hex 64
 - [ ] Many more tests.
 - [ ] Tests deploying to real nodes.
 - [ ] DNS must be more configurable.
+- [ ] Fix tests on nix-darwin.
 
 ## Links that helped
 
