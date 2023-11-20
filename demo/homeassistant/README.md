@@ -1,5 +1,8 @@
 # Home Assistant Demo
 
+**This whole demo is highly insecure as all the private keys are available publicly. This is
+only done for convenience as it is just a demo. Do not expose the VM to the internet.**
+
 The [`flake.nix`](./flake.nix) file sets up Home Assistant server that uses a LDAP server to
 setup users in only about [15 lines](./flake.nix#L29-L45) of related code.
 
@@ -70,7 +73,7 @@ $ cat /etc/hosts
 
 Go to [http://ldap.example.com:8080](http://ldap.example.com:8080) and login with:
 - username: `admin`
-- password: the value of the field `lldap.user_password` in the `secrets.yaml` file which is.
+- password: the value of the field `lldap.user_password` in the `secrets.yaml` file which is `fccb94f0f64bddfe299c81410096499a`.
 
 Create the group `homeassistant_user` and a user assigned to that group.
 
