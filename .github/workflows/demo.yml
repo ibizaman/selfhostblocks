@@ -12,5 +12,5 @@ jobs:
         github_access_token: ${{ secrets.GITHUB_TOKEN }}
     - run: |
         for d in ./demo;
-          do nix flake check
+          do (cd "$d"; nix flake check)
         done
