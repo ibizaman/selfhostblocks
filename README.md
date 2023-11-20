@@ -7,20 +7,21 @@ this by providing opinionated building blocks fitting together to self-host a wi
 services. Also, the design will be extendable to allow users to add services not provided by SHB.
 
 For each service, I intend to provide turn-key Nix options to setup:
-- access through a subdomain,
-- HTTPS access,
-- backup,
-- single sign-on,
-- LDAP user management,
-- and metrics and logs monitoring and alerting.
+- Access through a subdomain ([Nginx](https://www.nginx.com/)).
+- HTTPS access ([Nginx](https://www.nginx.com/) + [Letsencrypt](https://letsencrypt.org/)).
+- Backup ([Borgmatic](https://torsion.org/borgmatic/) and/or [Restic](https://restic.net/)).
+- Single sign-on ([Authelia](https://www.authelia.com/)).
+- LDAP user management ([LLDAP](https://github.com/lldap/lldap)).
+- Metrics, logs and alerting ([Grafana](https://grafana.com/) + [Prometheus](https://prometheus.io/) + [Loki](https://grafana.com/oss/loki/) + [Promtail](https://grafana.com/docs/loki/latest/send-data/promtail/) + [Alertmanager](https://prometheus.io/docs/alerting/latest/alertmanager/)).
 
 ## TOC
 
 <!--toc:start-->
 - [Supported Features](#supported-features)
 - [Usage](#usage)
+- [Building Blocks](#building-blocks)
 - [Demos](#demos)
-- [Examples](#examples)
+- [Provided Services](#provided-services)
   - [Add SSL configuration](#add-ssl-configuration)
   - [Add LDAP and Authelia services](#add-ldap-and-authelia-services)
   - [Deploy the full Grafana, Prometheus and Loki suite](#deploy-the-full-grafana-prometheus-and-loki-suite)
@@ -169,15 +170,17 @@ imports = [
 
 For how to configure the services, check the sections below.
 
+## Building Blocks
+
 ## Demos
 
 Demos that start and deploy on a Virtual Machine on your computer are located under the
 [demo](./demo/) folder. These show the onboarding experience you would get if you deployed
 selfhostblocks on your own server.
 
-## Examples
+## Provided Services
 
-I plan to have documentation for all options provided by selfhostblocks and more examples. For now,
+I plan to have documentation for all options provided by selfhostblocks. For now,
 I have a few examples:
 
 ### Add SSL configuration
