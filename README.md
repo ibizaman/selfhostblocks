@@ -166,7 +166,13 @@ imports = [
 ]
 ```
 
-For how to deploy services, check the examples below.
+For how to configure the services, check the sections below.
+
+## Demos
+
+Demos that start and deploy on a Virtual Machine on your computer are located under the
+[demo](./demo/) folder. These show the onboarding experience you would get if you deployed
+selfhostblocks on your own server.
 
 ## Examples
 

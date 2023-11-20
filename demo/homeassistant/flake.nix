@@ -20,21 +20,11 @@
       };
 
       myserver = { config, ... }: {
-        deployment = {
-          targetHost = "example";
-          targetPort = 2222;
-          targetUser = "nixos";
-        };
-
         imports = [
           ./configuration.nix
           sops-nix.nixosModules.default
           selfhostblocks.nixosModules.x86_64-linux.default
         ];
-
-        # Set to true for more debug info with `journalctl -f -u nginx`.
-        shb.nginx.accessLog = true;
-        shb.nginx.debugLog = true;
 
         shb.ldap = {
           enable = true;
@@ -54,10 +44,9 @@
           sopsFile = ./secrets.yaml;
         };
 
-        nix.settings.experimental-features = [ "nix-command" "flakes" ];
-        nix.settings.trusted-users = [
-          "nixos"
-        ];
+        # Set to true for more debug info with `journalctl -f -u nginx`.
+        shb.nginx.accessLog = false;
+        shb.nginx.debugLog = false;
       };
     };
   };
