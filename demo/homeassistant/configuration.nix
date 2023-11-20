@@ -20,20 +20,29 @@
 
   # Options above are needed to deploy in a VM.
 
-  # As we intend to run this example using `nixos-rebuild build-vm`, we need to setup the user
-  # ourselves, see https://nixos.wiki/wiki/NixOS:nixos-rebuild_build-vm
-  users.users.nixos = {
+  nix.settings.experimental-features = [ "nix-command" "flakes" ];
+
+  # Used by colmena to know which target host to deploy to.
+  deployment = {
+    targetHost = "example";
+    targetPort = 2222;
+    targetUser = "nixos";
+  };
+
+  # We need to create the user we will deploy with.
+  users.users.${config.deployment.targetUser} = {
     isNormalUser = true;
     extraGroups = [ "wheel" ]; # Enable ‘sudo’ for the user.
     initialPassword = "nixos";
-    # With this option, you don't need to use ssh-copy-id.
+    # With this option, you don't need to use ssh-copy-id to copy the public ssh key to the VM.
     openssh.authorizedKeys.keyFiles = [
       ./sshkey.pub
     ];
   };
 
+  # The user we're deploying with must be able to run sudo without password.
   security.sudo.extraRules = [
-    { users = [ "nixos" ];
+    { users = [ config.deployment.targetUser ];
       commands = [
         { command = "ALL";
           options = [ "NOPASSWD" ];
@@ -42,15 +51,16 @@
     }
   ];
 
-  nix.settings.experimental-features = [ "nix-command" "flakes" ];
+  # Needed to allow the user we're deploying with to write to the nix store.
   nix.settings.trusted-users = [
-    "nixos"
+    config.deployment.targetUser
   ];
 
+  # We need to enable the ssh daemon to be able to deploy.
   services.openssh = {
     enable = true;
-    ports = [ 2222 ];
+    ports = [ config.deployment.targetPort ];
     permitRootLogin = "no";
-    passwordAuthentication = true;
+    passwordAuthentication = false;
   };
 }
