@@ -19,6 +19,7 @@ For each service, I intend to provide turn-key Nix options to setup:
 <!--toc:start-->
 - [Supported Features](#supported-features)
 - [Usage](#usage)
+- [Demos](#demos)
 - [Examples](#examples)
   - [Add SSL configuration](#add-ssl-configuration)
   - [Add LDAP and Authelia services](#add-ldap-and-authelia-services)
