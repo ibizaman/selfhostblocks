@@ -24,7 +24,7 @@ let
               services.sonarr = anyOpt {};
             };
           }
-          ../../modules/arr.nix
+          ../../modules/services/arr.nix
           m
         ];
       }).config;

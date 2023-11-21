@@ -16,7 +16,7 @@ let
               services = anyOpt {};
             };
           }
-          ../../modules/davfs.nix
+          ../../modules/blocks/davfs.nix
           m
         ];
       }).config;
