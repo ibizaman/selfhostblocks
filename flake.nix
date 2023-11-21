@@ -15,23 +15,24 @@
       {
         nixosModules.default = { config, ... }: {
           imports = [
-            modules/arr.nix
-            modules/authelia.nix
-            modules/backup.nix
-            modules/deluge.nix
-            modules/davfs.nix
-            modules/hledger.nix
-            modules/home-assistant.nix
-            modules/jellyfin.nix
-            modules/ldap.nix
-            modules/monitoring.nix
-            modules/nextcloud-server.nix
-            modules/nginx.nix
-            modules/postgresql.nix
-            modules/ssl.nix
-            modules/tinyproxy.nix
-            modules/vaultwarden.nix
-            modules/vpn.nix
+            modules/blocks/authelia.nix
+            modules/blocks/backup.nix
+            modules/blocks/davfs.nix
+            modules/blocks/ldap.nix
+            modules/blocks/monitoring.nix
+            modules/blocks/nginx.nix
+            modules/blocks/postgresql.nix
+            modules/blocks/ssl.nix
+            modules/blocks/tinyproxy.nix
+            modules/blocks/vpn.nix
+
+            modules/services/arr.nix
+            modules/services/deluge.nix
+            modules/services/hledger.nix
+            modules/services/home-assistant.nix
+            modules/services/jellyfin.nix
+            modules/services/nextcloud-server.nix
+            modules/services/vaultwarden.nix
           ];
         };
 

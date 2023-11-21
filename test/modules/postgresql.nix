@@ -15,7 +15,7 @@ let
               systemd = anyOpt {};
             };
           }
-          ../../modules/postgresql.nix
+          ../../modules/blocks/postgresql.nix
           m
         ];
       }).config;

@@ -3,43 +3,33 @@
 *Building blocks for self-hosting with battery included.*
 
 SHB's (Self Host Blocks) goal is to provide a lower entry-bar for self-hosting. I intend to achieve
-this by providing opinionated building blocks fitting together to self-host a wide range of
-services. Also, the design will be extendable to allow users to add services not provided by SHB.
+this by providing opinionated [building blocks](#building-blocks) fitting together to self-host any service
+you'd want. Some [common services](#provided-services) are provided out of the box.
 
-For each service, I intend to provide turn-key Nix options to setup:
-- access through a subdomain,
-- HTTPS access,
-- backup,
-- single sign-on,
-- LDAP user management,
-- and metrics and logs monitoring and alerting.
+The building blocks allow you to easily setup:
+- Access through a subdomain ([Nginx](https://www.nginx.com/)).
+- HTTPS access ([Nginx](https://www.nginx.com/) + [Letsencrypt](https://letsencrypt.org/)).
+- Backup ([Borgmatic](https://torsion.org/borgmatic/) and/or [Restic](https://restic.net/)).
+- Single sign-on ([Authelia](https://www.authelia.com/)).
+- LDAP user management ([LLDAP](https://github.com/lldap/lldap)).
+- Metrics, logs and alerting ([Grafana](https://grafana.com/) + [Prometheus](https://prometheus.io/) + [Loki](https://grafana.com/oss/loki/) + [Promtail](https://grafana.com/docs/loki/latest/send-data/promtail/) + [Alertmanager](https://prometheus.io/docs/alerting/latest/alertmanager/)).
+- Database setup (Only [Postgresql](https://www.postgresql.org/) so far).
+- VPN tunnels with optional proxys ([OpenVPN](https://openvpn.net/) with [Tinyproxy](http://tinyproxy.github.io/)).
+
+The provided services will have all those integrated. Progress is detailed in the [Supported Features](#supported-features) section.
+
+You should know that although I am using everything in this repo for my personal production server, this is
+really just a one person effort for now and there are most certainly bugs that I didn't discover yet.
 
 ## TOC
 
 <!--toc:start-->
 - [Supported Features](#supported-features)
-- [Usage](#usage)
+- [Building Blocks](#building-blocks)
+- [Provided Services](#provided-services)
 - [Demos](#demos)
-- [Examples](#examples)
-  - [Add SSL configuration](#add-ssl-configuration)
-  - [Add LDAP and Authelia services](#add-ldap-and-authelia-services)
-  - [Deploy the full Grafana, Prometheus and Loki suite](#deploy-the-full-grafana-prometheus-and-loki-suite)
-  - [Deploy a Nextcloud Instance](#deploy-a-nextcloud-instance)
-  - [Enable verbose Nginx logging](#enable-verbose-nginx-logging)
-  - [Deploy an hledger Instance with LDAP and SSO support](#deploy-an-hledger-instance-with-ldap-and-sso-support)
-  - [Deploy a Jellyfin instance with LDAP and SSO support](#deploy-a-jellyfin-instance-with-ldap-and-sso-support)
-  - [Deploy a Home Assistant instance with LDAP support](#deploy-a-home-assistant-instance-with-ldap-support)
-  - [Set up network tunnel with VPN and Proxy](#set-up-network-tunnel-with-vpn-and-proxy)
+- [Import selfhostblocks](#import-selfhostblocks)
 - [Tips](#tips)
-  - [Run tests](#run-tests)
-  - [Deploy using colmena](#deploy-using-colmena)
-  - [Use a local version of selfhostblocks](#use-a-local-version-of-selfhostblocks)
-  - [Diff changes](#diff-changes)
-    - [What is deployed](#what-is-deployed)
-    - [What will get deployed](#what-will-get-deployed)
-    - [Get the full diff](#get-the-full-diff)
-    - [Get version bumps](#get-version-bumps)
-  - [Generate random secret](#generate-random-secret)
 - [TODOs](#todos)
 - [Links that helped](#links-that-helped)
 - [License](#license)
@@ -75,8 +65,9 @@ Currently supported services and features are:
   - [X] LDAP auth, unfortunately we need to configure this manually.
     - [ ] Declarative setup.
   - [ ] SSO auth.
+    - [ ] Declarative setup.
   - [X] Backup support.
-  - [x] Optional tracing debug.
+  - [X] Optional tracing debug.
   - [ ] Export traces to Prometheus.
   - [ ] Export metrics to Prometheus.
 - [X] Home Assistant.
@@ -105,80 +96,40 @@ Currently supported services and features are:
 - [ ] Gitea to deploy
 - [ ] Scrutiny to monitor hard drives health
   - [ ] Export metrics to Prometheus.
-- [x] Tests
+- [x] QoL
   - [x] Unit tests for modules.
   - [x] Running in CI.
   - [ ] Integration tests with real nodes.
+  - [ ] Self published documentation for options.
+  - [ ] Examples for all building blocks.
 
-## Usage
+## Building Blocks
 
-The top-level `flake.nix` just outputs a nixos module that gathers all other modules from the [`modules/`](./modules/) directory.
+The building blocks are the foundation selfhostblocks intend to provide to allow you to self host
+easily and with best practices any service of your choosing. Some services are already provided out of
+the box but you might not want to use those if for example you want to integrate with existing
+services or slowly transition to NixOS.
 
-Some provided modules are low-level and some are high-level that re-use those low-level ones. For
-example, the nextcloud module re-uses the backup and nginx ones.
+Following somewhat the Unix principle, each block has one goal and does it correctly. They also are
+independent of each other, you can use only one or combine them to your liking.
 
-You want to use this repo as a flake input to your own repo. The `inputs` field of your `flake.nix`
-file in your repo should look like so:
+Although these blocks provide options that encourage best practices, these are just NixOS modules that
+configure other modules provided by nixpkgs. Would you need to make tweaks, you can always
+access those underlying modules directly, like for any NixOS module.
 
-```nix
-inputs = {
-  nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
-  sops-nix.url = "github:Mic92/sops-nix";
+- [`authelia.nix`](./modules/blocks/authelia.nix) for Single Sign On.
+- [`backup.nix`](./modules/blocks/backup.nix).
+- [`ldap.nix`](./modules/blocks/ldap.nix) for user management.
+- [`monitoring.nix`](./modules/blocks/monitoring.nix) for dashboards, logs and alerts.
+- [`nginx.nix`](./modules/blocks/nginx.nix) for reverse proxy with SSL termination.
+- [`postgresql.nix`](./modules/blocks/postgresql.nix) for database setup.
+- [`ssl.nix`](./modules/blocks/ssl.nix) for maintaining SSL certificates provided by letsencrypt.
+- [`tinyproxy.nix`](./modules/blocks/tinyproxy.nix) to forward traffic to a VPN tunnel.
+- [`vpn.nix`](./modules/blocks/vpn.nix) to setup a VPN tunnel.
 
-  selfhostblocks.url = "github:ibizaman/selfhostblocks";
-  selfhostblocks.inputs.nixpkgs.follows = "nixpkgs";
-  selfhostblocks.inputs.sops-nix.follows = "sops-nix";
-};
-```
-
-`sops-nix` is used to setup passwords and secrets. Currently `selfhostblocks` has a strong
-dependency on it but I'm working on removing that so you could use any secret provider.
-
-The snippet above makes `selfhostblocks`' inputs follow yours. This is not maintainable though
-because options that `selfhostblocks` rely on can change or disappear and you have no control on
-that. Later, I intend to make `selfhostblocks` provide its own `nixpkgs` input and update it myself
-through CI.
-
-How you actually deploy using selfhostblocks depends on what system you choose. If you use
-[colmena](https://colmena.cli.rs), this is what your `outputs` field could look like:
-
-```nix
-outputs = inputs@{ self, nixpkgs, ... }: {
-  colmena = {
-    meta = {
-      nixpkgs = import inputs.nixpkgs {
-        system = "x86_64-linux";
-      };
-      specialArgs = inputs;
-    };
-
-    myserver = import ./machines/myserver.nix;
-  };
-}
-```
-
-Now, what goes inside this `./machines/myserver.nix` file? First, import `selfhostblocks` and
-`sops-nix`:
-
-```nix
-imports = [
-  selfhostblocks.nixosModules.x86_64-linux.default
-  sops-nix.nixosModules.default
-]
-```
-
-For how to configure the services, check the sections below.
-
-## Demos
-
-Demos that start and deploy on a Virtual Machine on your computer are located under the
-[demo](./demo/) folder. These show the onboarding experience you would get if you deployed
-selfhostblocks on your own server.
-
-## Examples
-
-I plan to have documentation for all options provided by selfhostblocks and more examples. For now,
-I have a few examples:
+The best way for now to understand how to use those modules is to read the code linked above and see
+how they are used in the [provided services](#provided-services) and in the [demos](#demos). Also, here are a
+few examples taken from my personal usage of selfhostblocks.
 
 ### Add SSL configuration
 
@@ -412,6 +363,69 @@ MaxFileSec=day
 '';
 ```
 
+### Set up network tunnel with VPN and Proxy
+
+```nix
+shb.vpn.nordvpnus = {
+  enable = true;
+  # Only "nordvpn" supported for now.
+  provider = "nordvpn";
+  dev = "tun1";
+  # Must be unique per VPN instance.
+  routingNumber = 10;
+  # Change to the one you want to connect to
+  remoteServerIP = "1.2.3.4";
+  sopsFile = ./secrets/vpn.yaml;
+  proxyPort = 12000;
+};
+```
+
+This sets up a tunnel interface `tun1` that connects to the VPN provider, here NordVPN. Also, if the
+`proxyPort` option is not null, this will spin up a `tinyproxy` instance that listens on the given
+port and redirects all traffic through that VPN.
+
+```bash
+$ curl 'https://api.ipify.org?format=json'
+{"ip":"107.21.107.115"}
+
+$ curl --interface tun1 'https://api.ipify.org?format=json'
+{"ip":"46.12.123.113"}
+
+$ curl --proxy 127.0.0.1:12000 'https://api.ipify.org?format=json'
+{"ip":"46.12.123.113"}
+```
+
+## Provided Services
+
+- [`arr.nix`](./modules/services/arr.nix) for finding media https://wiki.servarr.com/.
+- [`deluge.nix`](./modules/services/deluge.nix) for downloading linux isos https://deluge-torrent.org/.
+- [`hledger.nix`](./modules/services/hledger.nix) for managing finances https://hledger.org/.
+- [`home-assistant.nix`](./modules/services/home-assistant.nix) for private IoT https://www.home-assistant.io/.
+- [`jellyfin.nix`](./modules/services/jellyfin.nix) for watching media https://jellyfin.org/.
+- [`nextcloud-server.nix`](./modules/services/nextcloud-server.nix) for private documents, contacts, calendar, etc https://nextcloud.com.
+- [`vaultwarden.nix`](./modules/services/vaultwarden.nix) for passwords https://github.com/dani-garcia/vaultwarden.
+
+The services above are those I am using myself. I intend to add more.
+
+The best way for now to understand how to use those modules is to read the code linked above and see
+how they are used in the demos. Also, here are a
+few examples taken from my personal usage of selfhostblocks.
+
+### Common Options
+
+Some common options are provided for all services.
+
+- `enable` (bool). Set to true to deploy and run the service.
+- `subdomain` (string). Subdomain under which to serve the service.
+- `domain` (string). Domain under which to server the service.
+
+Some other common options are the following. I am not satisfied with how those are expressed so those will most certainly change.
+- LDAP and OIDC options for SSO, authentication and authorization.
+- Secrets.
+- Backups.
+
+Note that for backups, every service exposes what directory should be backed up, you must merely choose when those backups will take place and where they will be stored.
+
 ### Deploy a Nextcloud Instance
 
 ```nix
@@ -597,37 +611,69 @@ home-assistant: |
     longitude_home: "-0.01234567890123"
 ```
 
-### Set up network tunnel with VPN and Proxy
+## Demos
+
+Demos that start and deploy a service on a Virtual Machine on your computer are located under the
+[demo](./demo/) folder. These show the onboarding experience you would get if you deployed
+one of the services on your own server.
+
+## Import selfhostblocks
+
+Ready to start using selfhostblocks? Thank you for trusting selfhostblocks. Please raise any
+question you have or hurdle you encounter by creating an issue.
+
+The top-level `flake.nix` just outputs a nixos module that gathers all other modules from
+the [`modules/`](./modules/) directory. Use this repo as a flake input to your own repo.
+The `inputs` field of your `flake.nix` file in your repo should look like so:
 
 ```nix
-shb.vpn.nordvpnus = {
-  enable = true;
-  # Only "nordvpn" supported for now.
-  provider = "nordvpn";
-  dev = "tun1";
-  # Must be unique per VPN instance.
-  routingNumber = 10;
-  # Change to the one you want to connect to
-  remoteServerIP = "1.2.3.4";
-  sopsFile = ./secrets/vpn.yaml;
-  proxyPort = 12000;
+inputs = {
+  nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
+  sops-nix.url = "github:Mic92/sops-nix";
+
+  selfhostblocks.url = "github:ibizaman/selfhostblocks";
+  selfhostblocks.inputs.nixpkgs.follows = "nixpkgs";
+  selfhostblocks.inputs.sops-nix.follows = "sops-nix";
 };
 ```
 
-This sets up a tunnel interface `tun1` that connects to the VPN provider, here NordVPN. Also, if the
-`proxyPort` option is not null, this will spin up a `tinyproxy` instance that listens on the given
-port and redirects all traffic through that VPN.
+`sops-nix` is used to setup passwords and secrets. Currently `selfhostblocks` has a strong
+dependency on it but I'm working on removing that so you could use any secret provider.
 
-```bash
-$ curl 'https://api.ipify.org?format=json'
-{"ip":"107.21.107.115"}
+The snippet above makes `selfhostblocks`' inputs follow yours. This is not maintainable though
+because options that `selfhostblocks` rely on can change or disappear and you have no control on
+that. Later, I intend to make `selfhostblocks` provide its own `nixpkgs` input and update it myself
+through CI.
 
-$ curl --interface tun1 'https://api.ipify.org?format=json'
-{"ip":"46.12.123.113"}
+How you actually deploy using selfhostblocks depends on what system you choose. If you use
+[colmena](https://colmena.cli.rs), this is what your `outputs` field could look like:
 
-$ curl --proxy 127.0.0.1:12000 'https://api.ipify.org?format=json'
-{"ip":"46.12.123.113"}
+```nix
+outputs = inputs@{ self, nixpkgs, ... }: {
+  colmena = {
+    meta = {
+      nixpkgs = import inputs.nixpkgs {
+        system = "x86_64-linux";
+      };
+      specialArgs = inputs;
+    };
+
+    myserver = import ./machines/myserver.nix;
+  };
+}
 ```
+
+Now, what goes inside this `./machines/myserver.nix` file? First, import `selfhostblocks` and
+`sops-nix`:
+
+```nix
+imports = [
+  selfhostblocks.nixosModules.x86_64-linux.default
+  sops-nix.nixosModules.default
+]
+```
+
+For the rest, see the above [building blocks](#building-blocks), [provided services](#provided-services) and [demos](#demos) sections.
 
 ## Tips
 
@@ -654,7 +700,13 @@ selfhostblocks.url = "/home/me/projects/selfhostblocks";
 Or override on the command line:
 
 ```bash
-$ nix run nixpkgs#colmena --override-input selfhostblocks ../selfhostblocks -- apply
+$ nix flake lock --override-input selfhostblocks ../selfhostblocks
+```
+
+I usually combine the override snippet above with deploying:
+
+```bash
+$ nix flake lock --override-input selfhostblocks ../selfhostblocks && nix run nixpkgs#colmena -- apply
 ```
 
 ### Diff changes
