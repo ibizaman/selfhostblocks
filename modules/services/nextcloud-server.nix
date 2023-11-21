@@ -11,12 +11,12 @@ in
 
     subdomain = lib.mkOption {
       type = lib.types.str;
-      description = "Subdomain under which home-assistant will be served.";
+      description = "Subdomain under which Nextcloud will be served.";
       example = "nextcloud";
     };
 
     domain = lib.mkOption {
-      description = lib.mdDoc "Domain to serve sites under.";
+      description = lib.mdDoc "Domain to serve Nextcloud under.";
       type = lib.types.str;
       example = "domain.com";
     };
@@ -29,13 +29,13 @@ in
 
     localNetworkIPRange = lib.mkOption {
       type = lib.types.str;
-      description = "Local network range, to restrict access to the UI to only those IPs.";
+      description = "Local network range, to restrict access to Open Office to only those IPs.";
       example = "192.168.1.1/24";
     };
 
     debug = lib.mkOption {
       type = lib.types.bool;
-      description = "Enable debugging.";
+      description = "Enable more verbose logging and xdebug tracing.";
       default = false;
       example = true;
     };
