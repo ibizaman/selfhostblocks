@@ -172,6 +172,13 @@ For how to configure the services, check the sections below.
 
 ## Building Blocks
 
+These building blocks are the reason selfhostblocks exist. You can pick and choose what building
+blocks you need to self host a service of your choosing. Some services are already provided out of
+the box by selfhostblocks but you might not want to use those if for example you want to integrate
+with existing services or slowly transition to NixOS.
+
+
+
 ## Demos
 
 Demos that start and deploy on a Virtual Machine on your computer are located under the
