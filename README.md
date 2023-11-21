@@ -673,7 +673,7 @@ imports = [
 ]
 ```
 
-For the rest, see the 
+For the rest, see the above [building blocks](#building-blocks), [provided services](#provided-services) and [demos](#demos) sections.
 
 ## Tips
 
@@ -700,7 +700,13 @@ selfhostblocks.url = "/home/me/projects/selfhostblocks";
 Or override on the command line:
 
 ```bash
-$ nix run nixpkgs#colmena --override-input selfhostblocks ../selfhostblocks -- apply
+$ nix flake lock --override-input selfhostblocks ../selfhostblocks
+```
+
+I usually combine the override snippet above with deploying:
+
+```bash
+$ nix flake lock --override-input selfhostblocks ../selfhostblocks && nix run nixpkgs#colmena -- apply
 ```
 
 ### Diff changes
