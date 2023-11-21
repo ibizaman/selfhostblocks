@@ -29,6 +29,7 @@ really just a one person effort for now and there are most certainly bugs that I
 - [Provided Services](#provided-services)
 - [Demos](#demos)
 - [Import selfhostblocks](#import-selfhostblocks)
+- [Community](#community)
 - [Tips](#tips)
 - [TODOs](#todos)
 - [Links that helped](#links-that-helped)
@@ -674,6 +675,12 @@ imports = [
 ```
 
 For the rest, see the above [building blocks](#building-blocks), [provided services](#provided-services) and [demos](#demos) sections.
+
+## Community
+
+All issues and PRs are welcome. For PRs, if they are substantial changes, please open an issue to discuss the details first.
+
+Come hang out in the [Matrix channel](https://matrix.to/#/%23selfhostblocks%3Amatrix.org). :)
 
 ## Tips
 
