@@ -59,6 +59,10 @@
                   ./test/modules/postgresql.nix
                 ]);
             };
+
+            vms = {
+              postgresql = pkgs.callPackage ./test/vm/postgresql.nix {};
+            };
           };
       }
   );
