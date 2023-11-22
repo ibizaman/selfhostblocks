@@ -14,5 +14,6 @@ in pkgs.nixosTest {
 
   testScript = { nodes, ... }: ''
   start_all()
+  machine.wait_for_unit("postgresql.service")
   '';
 }
