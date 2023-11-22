@@ -60,9 +60,7 @@
                 ]);
             };
 
-            vms = {
-              postgresql = pkgs.callPackage ./test/vm/postgresql.nix {};
-            };
+            vm_postgresql = pkgs.callPackage ./test/vm/postgresql.nix {};
           };
       }
   );
