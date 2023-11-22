@@ -16,4 +16,4 @@ jobs:
         name: selfhostblocks
         authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'
     - run: nix flake check
-    - run: nix build .#checks.x86_64-linux.vms.postgresql
+    - run: nix build .#checks.x86_64-linux.vm_postgresql
