@@ -686,8 +686,16 @@ Come hang out in the [Matrix channel](https://matrix.to/#/%23selfhostblocks%3Ama
 
 ### Run tests
 
+Run all tests:
+
 ```bash
-$ nix flake check
+$ nix build .#checks.${system}.all
+```
+
+Run one group of tests:
+
+```bash
+$ nix build .#checks.${system}.module
 ```
 
 ### Deploy using colmena
