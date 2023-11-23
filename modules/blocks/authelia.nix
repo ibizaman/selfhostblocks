@@ -279,7 +279,7 @@ in
       user = autheliaCfg.user;
     };
 
-    shb.postgresql.passwords = [
+    shb.postgresql.ensures = [
       {
         username = autheliaCfg.user;
         database = autheliaCfg.user;

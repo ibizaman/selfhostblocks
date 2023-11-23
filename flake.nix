@@ -45,7 +45,11 @@
               }) files;
 
             mergeTests = pkgs.lib.lists.foldl pkgs.lib.trivial.mergeAttrs {};
-          in rec {
+
+            flattenAttrs = root: attrset: pkgs.lib.attrsets.foldlAttrs (acc: name: value: acc // {
+              "${root}_${name}" = value;
+            }) {} attrset;
+          in (rec {
             all = mergeTests [
               modules
             ];
@@ -59,9 +63,9 @@
                   ./test/modules/postgresql.nix
                 ]);
             };
-
-            vm_postgresql = pkgs.callPackage ./test/vm/postgresql.nix {};
-          };
+          }
+          // (flattenAttrs "vm_postgresql" (import ./test/vm/postgresql.nix {inherit pkgs; inherit (pkgs) lib;}))
+          );
       }
   );
 }
