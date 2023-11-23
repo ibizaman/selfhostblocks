@@ -802,6 +802,7 @@ $ nix run nixpkgs#openssl -- rand -hex 64
 While creating NixOS tests:
 
 - https://www.haskellforall.com/2020/11/how-to-use-nixos-for-lightweight.html
+- https://nixos.org/manual/nixos/stable/index.html#sec-nixos-tests
 
 While creating an XML config generator for Radarr:
 
