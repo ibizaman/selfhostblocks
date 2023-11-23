@@ -1,7 +1,7 @@
 { pkgs, lib, ... }:
 {
   peerWithoutUser = pkgs.nixosTest {
-    name = "postgresql";
+    name = "postgresql-peerWithoutUser";
 
     nodes.machine = { config, pkgs, ... }: {
       imports = [
@@ -35,7 +35,7 @@
   };
 
   peerAuth = pkgs.nixosTest {
-    name = "postgresql";
+    name = "postgresql-peerAuth";
 
     nodes.machine = { config, pkgs, ... }: {
       imports = [
@@ -82,7 +82,7 @@
   };
 
   tcpIPWithoutPasswordAuth = pkgs.nixosTest {
-    name = "postgresql";
+    name = "postgresql-tcpIpWithoutPasswordAuth";
 
     nodes.machine = { config, pkgs, ... }: {
       imports = [
@@ -117,7 +117,7 @@
   };
 
   tcpIPPasswordAuth = pkgs.nixosTest {
-    name = "postgresql";
+    name = "postgresql-tcpIPPasswordAuth";
 
     nodes.machine = { config, pkgs, ... }: {
       imports = [
