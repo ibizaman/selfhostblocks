@@ -15,4 +15,4 @@ jobs:
       with:
         name: selfhostblocks
         authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'
-    - run: nix flake check
+    - run: nix flake check -L
