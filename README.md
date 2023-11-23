@@ -703,6 +703,12 @@ $ nix build .#checks.${system}.modules
 $ nix build .#checks.${system}.vm_postgresql_peerAuth
 ```
 
+### Speed up CI
+
+Github actions do not have hardware acceleration and tests could timeout when running there. The
+easiest way to speed up CI is to push the test results to cachix. Instructions are given
+[here](https://docs.cachix.org/pushing#flakes).
+
 ### Deploy using colmena
 
 ```bash
