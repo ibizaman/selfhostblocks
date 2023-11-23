@@ -682,6 +682,8 @@ All issues and PRs are welcome. For PRs, if they are substantial changes, please
 
 Come hang out in the [Matrix channel](https://matrix.to/#/%23selfhostblocks%3Amatrix.org). :)
 
+Along the way, I made quite a few changes to the ubderlying nixpkgs module I'm using. I intend to upstream to nixpkgs as much of those as makes sense.
+
 ## Tips
 
 ### Run tests
