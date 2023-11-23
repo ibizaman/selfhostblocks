@@ -68,7 +68,7 @@ in
       systemd.services.postgresql.postStart = "";
     };
     expr = testConfig {
-      shb.postgresql.passwords = [
+      shb.postgresql.ensures = [
         {
           username = "myuser";
           database = "mydatabase";
@@ -104,7 +104,7 @@ in
       '';
     };
     expr = testConfig {
-      shb.postgresql.passwords = [
+      shb.postgresql.ensures = [
         {
           username = "myuser";
           database = "mydatabase";
@@ -143,7 +143,7 @@ in
       systemd.services.postgresql.postStart = "";
     };
     expr = testConfig {
-      shb.postgresql.passwords = [
+      shb.postgresql.ensures = [
         {
           username = "user1";
           database = "db1";
@@ -196,7 +196,7 @@ in
       '';
     };
     expr = testConfig {
-      shb.postgresql.passwords = [
+      shb.postgresql.ensures = [
         {
           username = "user1";
           database = "db1";
@@ -249,7 +249,7 @@ in
       '';
     };
     expr = testConfig {
-      shb.postgresql.passwords = [
+      shb.postgresql.ensures = [
         {
           username = "user1";
           database = "db1";
@@ -271,20 +271,19 @@ in
         ensureDatabases = [];
         
         enableTCPIP = true;
-        port = 1234;
         authentication = ''
           #type database DBuser origin-address auth-method
           local all      all    peer
           # ipv4
-          host  all      all    127.0.0.1/32   trust
+          host  all      all    127.0.0.1/32   password
           # ipv6
-          host  all      all    ::1/128        trust
+          host  all      all    ::1/128        password
         '';
       };
       systemd.services.postgresql.postStart = "";
     };
     expr = testConfig {
-      shb.postgresql.tcpIPPort = 1234;
+      shb.postgresql.enableTCPIP = true;
     };
   };
 }

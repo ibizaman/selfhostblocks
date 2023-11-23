@@ -10,4 +10,9 @@ jobs:
     - uses: cachix/install-nix-action@v22
       with:
         github_access_token: ${{ secrets.GITHUB_TOKEN }}
-    - run: nix flake check
+        extra_nix_config: "system-features = nixos-test benchmark big-parallel kvm"
+    - uses: cachix/cachix-action@v12
+      with:
+        name: selfhostblocks
+        authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'
+    - run: nix flake check -L

@@ -183,8 +183,8 @@ in
       }
     ];
 
-    shb.postgresql.tcpIPPort= 5432;
-    shb.postgresql.passwords = [
+    shb.postgresql.enableTCPIP = true;
+    shb.postgresql.ensures = [
       {
         username = "vaultwarden";
         database = "vaultwarden";

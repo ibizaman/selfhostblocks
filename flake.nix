@@ -8,7 +8,7 @@
     flake-utils.url = "github:numtide/flake-utils";
   };
 
-  outputs = inputs@{ self, nixpkgs, sops-nix, nix-flake-tests, flake-utils, ... }: flake-utils.lib.eachDefaultSystem (system:
+  outputs = { nixpkgs, nix-flake-tests, flake-utils, ... }: flake-utils.lib.eachDefaultSystem (system:
     let
       pkgs = nixpkgs.legacyPackages.${system};
     in
@@ -45,7 +45,11 @@
               }) files;
 
             mergeTests = pkgs.lib.lists.foldl pkgs.lib.trivial.mergeAttrs {};
-          in rec {
+
+            flattenAttrs = root: attrset: pkgs.lib.attrsets.foldlAttrs (acc: name: value: acc // {
+              "${root}_${name}" = value;
+            }) {} attrset;
+          in (rec {
             all = mergeTests [
               modules
             ];
@@ -59,7 +63,9 @@
                   ./test/modules/postgresql.nix
                 ]);
             };
-          };
+          }
+          // (flattenAttrs "vm_postgresql" (import ./test/vm/postgresql.nix {inherit pkgs; inherit (pkgs) lib;}))
+          );
       }
   );
 }

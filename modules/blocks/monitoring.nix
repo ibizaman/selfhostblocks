@@ -36,7 +36,7 @@ in
   };
 
   config = lib.mkIf cfg.enable {
-    shb.postgresql.passwords = [
+    shb.postgresql.ensures = [
       {
         username = "grafana";
         database = "grafana";

@@ -692,12 +692,15 @@ Run all tests:
 
 ```bash
 $ nix build .#checks.${system}.all
+# or
+$ nix flake check
 ```
 
 Run one group of tests:
 
 ```bash
-$ nix build .#checks.${system}.module
+$ nix build .#checks.${system}.modules
+$ nix build .#checks.${system}.vm_postgresql_peerAuth
 ```
 
 ### Deploy using colmena
@@ -797,6 +800,11 @@ $ nix run nixpkgs#openssl -- rand -hex 64
 - [ ] Fix tests on nix-darwin.
 
 ## Links that helped
+
+While creating NixOS tests:
+
+- https://www.haskellforall.com/2020/11/how-to-use-nixos-for-lightweight.html
+- https://nixos.org/manual/nixos/stable/index.html#sec-nixos-tests
 
 While creating an XML config generator for Radarr:
 

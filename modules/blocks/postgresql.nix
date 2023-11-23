@@ -14,13 +14,13 @@ in
       See https://www.postgresql.org/docs/current/pgstatstatements.html'';
       default = false;
     };
-    tcpIPPort = lib.mkOption {
-      type = lib.types.nullOr lib.types.port;
+    enableTCPIP = lib.mkOption {
+      type = lib.types.bool;
       description = "Enable TCP/IP connection on given port.";
-      default = null;
+      default = false;
     };
 
-    passwords = lib.mkOption {
+    ensures = lib.mkOption {
       type = lib.types.listOf (lib.types.submodule {
         options = {
           username = lib.mkOption {
@@ -35,7 +35,7 @@ in
 
           passwordFile = lib.mkOption {
             type = lib.types.nullOr lib.types.str;
-            description = "Optional password file for the postgres user.";
+            description = "Optional password file for the postgres user. If not given, only peer auth is accepted for this user, otherwise password auth is allowed.";
             default = null;
             example = "/run/secrets/postgresql/password";
           };
@@ -47,22 +47,21 @@ in
 
   config =
     let
-      tcpConfig = port: {
+      tcpConfig = {
         services.postgresql.enableTCPIP = true;
-        services.postgresql.port = port;
         services.postgresql.authentication = lib.mkOverride 10 ''
           #type database DBuser origin-address auth-method
           local all      all    peer
           # ipv4
-          host  all      all    127.0.0.1/32   trust
+          host  all      all    127.0.0.1/32   password
           # ipv6
-          host  all      all    ::1/128        trust
+          host  all      all    ::1/128        password
         '';
       };
 
-      dbConfig = passwordCfgs: {
-        services.postgresql.enable = lib.mkDefault ((builtins.length passwordCfgs) > 0);
-        services.postgresql.ensureDatabases = map ({ database, ... }: database) passwordCfgs;
+      dbConfig = ensureCfgs: {
+        services.postgresql.enable = lib.mkDefault ((builtins.length ensureCfgs) > 0);
+        services.postgresql.ensureDatabases = map ({ database, ... }: database) ensureCfgs;
         services.postgresql.ensureUsers = map ({ username, database, ... }: {
           name = username;
           ensurePermissions = {
@@ -71,10 +70,10 @@ in
           ensureClauses = {
             "login" = true;
           };
-        }) passwordCfgs;
+        }) ensureCfgs;
       };
 
-      pwdConfig = passwordCfgs: {
+      pwdConfig = ensureCfgs: {
         systemd.services.postgresql.postStart =
           let
             prefix = ''
@@ -91,7 +90,7 @@ in
             password := trim(both from replace(pg_read_file('${passwordFile}'), E'\n', '''));
             EXECUTE format('ALTER ROLE ${username} WITH PASSWORD '''%s''';', password);
             '';
-            cfgsWithPasswords = builtins.filter (cfg: cfg.passwordFile != null) passwordCfgs;
+            cfgsWithPasswords = builtins.filter (cfg: cfg.passwordFile != null) ensureCfgs;
           in
             if (builtins.length cfgsWithPasswords) == 0 then "" else
               prefix + (lib.concatStrings (map exec cfgsWithPasswords)) + suffix;
@@ -103,9 +102,9 @@ in
     in
       lib.mkMerge (
         [
-          (dbConfig cfg.passwords)
-          (pwdConfig cfg.passwords)
-          (lib.mkIf (!(isNull cfg.tcpIPPort)) (tcpConfig cfg.tcpIPPort))
+          (dbConfig cfg.ensures)
+          (pwdConfig cfg.ensures)
+          (lib.mkIf cfg.enableTCPIP tcpConfig)
           (debugConfig cfg.debug)
         ]
       );
