@@ -47,6 +47,14 @@ in
 
   config =
     let
+      commonConfig = {
+        services.postgresql.settings = {
+          idle_in_transaction_session_timeout = "30s";
+          idle_session_timeout = "30s";
+          track_io_timing = "true";
+        };
+      };
+
       tcpConfig = {
         services.postgresql.enableTCPIP = true;
         services.postgresql.authentication = lib.mkOverride 10 ''
@@ -102,6 +110,7 @@ in
     in
       lib.mkMerge (
         [
+          commonConfig
           (dbConfig cfg.ensures)
           (pwdConfig cfg.ensures)
           (lib.mkIf cfg.enableTCPIP tcpConfig)
