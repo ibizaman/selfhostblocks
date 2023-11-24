@@ -104,9 +104,8 @@ in
         "trusted_domains" = [ fqdn ];
         "overwriteprotocol" = "https"; # Needed if behind a reverse_proxy
         "overwritecondaddr" = ""; # We need to set it to empty otherwise overwriteprotocol does not work.
-      } // lib.optionalAttrs cfg.debug {
-        "debug" = true;
-        "filelocking.debug" = true;
+        "debug" = cfg.debug;
+        "filelocking.debug" = cfg.debug;
       };
 
       phpOptions = {
