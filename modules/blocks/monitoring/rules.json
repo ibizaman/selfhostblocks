@@ -1,0 +1,131 @@
+[
+  {
+    "uid": "f5246fa3-163f-4eae-9e1d-5b0fe2af0509",
+    "title": "5XX Requests Error Budgets Under 99%",
+    "condition": "threshold",
+    "data": [
+      {
+        "refId": "A",
+        "queryType": "range",
+        "relativeTimeRange": {
+          "from": 21600,
+          "to": 0
+        },
+        "datasourceUid": "cd6cc53e-840c-484d-85f7-96fede324006",
+        "model": {
+          "datasource": {
+            "type": "loki",
+            "uid": "cd6cc53e-840c-484d-85f7-96fede324006"
+          },
+          "editorMode": "code",
+          "expr": "(sum by(server_name) (count_over_time({unit=\"nginx.service\"} | pattern \"<_> <_> <line>\" | line_format \"{{.line}}\" | json | __error__ != \"JSONParserErr\" | status =~ \"[1234]..\" | server_name =~ \".*\" [7d])) / sum by(server_name) (count_over_time({unit=\"nginx.service\"} | pattern \"<_> <_> <line>\" | line_format \"{{.line}}\" | json | __error__ != \"JSONParserErr\" | server_name =~ \".*\" [7d])))",
+          "intervalMs": 1000,
+          "legendFormat": "{{server_name}}",
+          "maxDataPoints": 43200,
+          "queryType": "range",
+          "refId": "A"
+        }
+      },
+      {
+        "refId": "last",
+        "relativeTimeRange": {
+          "from": 0,
+          "to": 0
+        },
+        "datasourceUid": "__expr__",
+        "model": {
+          "conditions": [
+            {
+              "evaluator": {
+                "params": [],
+                "type": "gt"
+              },
+              "operator": {
+                "type": "and"
+              },
+              "query": {
+                "params": [
+                  "B"
+                ]
+              },
+              "reducer": {
+                "params": [],
+                "type": "last"
+              },
+              "type": "query"
+            }
+          ],
+          "datasource": {
+            "type": "__expr__",
+            "uid": "__expr__"
+          },
+          "expression": "A",
+          "intervalMs": 1000,
+          "maxDataPoints": 43200,
+          "reducer": "last",
+          "refId": "last",
+          "type": "reduce"
+        }
+      },
+      {
+        "refId": "threshold",
+        "relativeTimeRange": {
+          "from": 0,
+          "to": 0
+        },
+        "datasourceUid": "__expr__",
+        "model": {
+          "conditions": [
+            {
+              "evaluator": {
+                "params": [
+                  0.99
+                ],
+                "type": "lt"
+              },
+              "operator": {
+                "type": "and"
+              },
+              "query": {
+                "params": [
+                  "C"
+                ]
+              },
+              "reducer": {
+                "params": [],
+                "type": "last"
+              },
+              "type": "query"
+            }
+          ],
+          "datasource": {
+            "type": "__expr__",
+            "uid": "__expr__"
+          },
+          "expression": "last",
+          "intervalMs": 1000,
+          "maxDataPoints": 43200,
+          "refId": "threshold",
+          "type": "threshold"
+        }
+      }
+    ],
+    "dasboardUid": "d66242cf-71e8-417c-8ef7-51b0741545df",
+    "panelId": 9,
+    "noDataState": "OK",
+    "execErrState": "Error",
+    "for": "20m",
+    "annotations": {
+      "__dashboardUid__": "d66242cf-71e8-417c-8ef7-51b0741545df",
+      "__panelId__": "9",
+      "description": "",
+      "runbook_url": "",
+      "summary": "The error budget for a service for the last 7 days is under 99%"
+    },
+    "labels": {
+      "": "",
+      "role": "sysadmin"
+    },
+    "isPaused": false
+  }
+]

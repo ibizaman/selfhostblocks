@@ -1,4 +1,4 @@
-{ config, pkgs, lib, ... }:
+{ config, options, pkgs, lib, ... }:
 
 let
   cfg = config.shb.monitoring;
@@ -33,9 +33,67 @@ in
       default = false;
       example = true;
     };
+
+    orgId = lib.mkOption {
+      type = lib.types.int;
+      description = "Org ID where all self host blocks related config will be stored.";
+      default = 1;
+    };
+
+    provisionDashboards = lib.mkOption {
+      type = lib.types.bool;
+      description = "Provision Self Host Blocks dashboards under 'Self Host Blocks' folder.";
+      default = true;
+    };
+
+    contactPoints = lib.mkOption {
+      type = lib.types.listOf lib.types.str;
+      description = "List of email addresses to send alerts to";
+    };
+
+    smtp = lib.mkOption {
+      type = lib.types.submodule {
+        options = {
+          from_address = lib.mkOption {
+            type = lib.types.str;
+            description = "SMTP address from which the emails originate.";
+            example = "vaultwarden@mydomain.com";
+          };
+          from_name = lib.mkOption {
+            type = lib.types.str;
+            description = "SMTP name from which the emails originate.";
+            default = "Vaultwarden";
+          };
+          host = lib.mkOption {
+            type = lib.types.str;
+            description = "SMTP host to send the emails to.";
+          };
+          port = lib.mkOption {
+            type = lib.types.port;
+            description = "SMTP port to send the emails to.";
+            default = 25;
+          };
+          username = lib.mkOption {
+            type = lib.types.str;
+            description = "Username to connect to the SMTP host.";
+          };
+          passwordFile = lib.mkOption {
+            type = lib.types.str;
+            description = "File containing the password to connect to the SMTP host.";
+          };
+        };
+      };
+    };
   };
 
   config = lib.mkIf cfg.enable {
+    assertions = [
+      {
+        assertion = builtins.length cfg.contactPoints > 0;
+        message = "Must have at least one contact point for alerting";
+      }
+    ];
+
     shb.postgresql.ensures = [
       {
         username = "grafana";
@@ -64,7 +122,110 @@ in
           root_url = "https://${fqdn}";
           router_logging = cfg.debugLog;
         };
+
+        smtp = {
+          enabled = true;
+          inherit (cfg.smtp) from_address from_name;
+          host = "${cfg.smtp.host}:${toString cfg.smtp.port}";
+          user = cfg.smtp.username;
+          password = "$__file{${cfg.smtp.passwordFile}}";
+        };
       };
+    };
+
+    services.grafana.provision = {
+      dashboards.settings = lib.mkIf cfg.provisionDashboards {
+        apiVersion = 1;
+        providers = [{
+          folder = "Self Host Blocks";
+          options.path = ./monitoring/dashboards;
+          allowUiUpdates = true;
+          disableDeletion = true;
+        }];
+      };
+      datasources.settings = {
+        apiVersion = 1;
+        datasources = [
+          {
+            inherit (cfg) orgId;
+            name = "Prometheus";
+            type = "prometheus";
+            url = "http://127.0.0.1:${toString config.services.prometheus.port}";
+            uid = "df80f9f5-97d7-4112-91d8-72f523a02b09";
+            isDefault = true;
+            version = 1;
+          }
+          {
+            inherit (cfg) orgId;
+            name = "Loki";
+            type = "loki";
+            url = "http://127.0.0.1:${toString config.services.loki.configuration.server.http_listen_port}";
+            uid = "cd6cc53e-840c-484d-85f7-96fede324006";
+            version = 1;
+          }
+        ];
+        deleteDatasources = [
+          {
+            inherit (cfg) orgId;
+            name = "Prometheus";
+          }
+          {
+            inherit (cfg) orgId;
+            name = "Loki";
+          }
+        ];
+      };
+      alerting.contactPoints.settings = lib.mkIf ((builtins.length cfg.contactPoints) > 0) {
+        apiVersion = 1;
+        contactPoints = [{
+          inherit (cfg) orgId;
+          name = "selfhostblocks-sysadmin";
+          receivers = [{
+            uid = "sysadmin";
+            type = "email";
+            settings.addresses = lib.concatStringsSep ";" cfg.contactPoints;
+          }];
+        }];
+        deleteContactPoints = [
+          {
+            inherit (cfg) orgId;
+            uid = "grafana-default-email";
+          }
+        ];
+      };
+      alerting.policies.settings = {
+        apiVersion = 1;
+        policies = [{
+          inherit (cfg) orgId;
+          receiver = "selfhostblocks-sysadmin";
+          group_by = [ "grafana_folder" "alertname" ];
+          object_matchers = [
+            [ "role" "=" "sysadmin" ]
+          ];
+          group_wait = "30s";
+          group_interval = "5m";
+          repeat_interval = "4h";
+        }];
+        # resetPolicies seems to happen after setting the above policies, effectively rolling back
+        # any updates.
+      };
+      alerting.rules.settings =
+        let
+          rules = builtins.fromJSON (builtins.readFile ./monitoring/rules.json);
+          ruleIds = map (r: r.uid) rules;
+        in
+          {
+            apiVersion = 1;
+            groups = [{
+              inherit (cfg) orgId;
+              name = "SysAdmin";
+              folder = "Self Host Blocks";
+              interval = "10m";
+              inherit rules;
+            }];
+            # deleteRules seems to happen after creating the above rules, effectively rolling back
+            # any updates.
+          };
     };
 
     services.prometheus = {
