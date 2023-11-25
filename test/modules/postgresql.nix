@@ -22,6 +22,12 @@ let
     in {
       inherit (cfg) systemd services;
     };
+
+  commonSettings = {
+    idle_in_transaction_session_timeout = "30s";
+    idle_session_timeout = "30s";
+    track_io_timing = "true";
+  };
 in
 {
   testPostgresNoOptions = {
@@ -30,6 +36,7 @@ in
         enable = false;
         ensureUsers = [];
         ensureDatabases = [];
+        settings = commonSettings;
       };
       systemd.services.postgresql.postStart = "";
     };
@@ -42,6 +49,7 @@ in
         enable = true;
         ensureUsers = [];
         ensureDatabases = [];
+        settings = commonSettings;
       };
       systemd.services.postgresql.postStart = "";
     };
@@ -64,6 +72,7 @@ in
           };
         }];
         ensureDatabases = ["mydatabase"];
+        settings = commonSettings;
       };
       systemd.services.postgresql.postStart = "";
     };
@@ -91,6 +100,7 @@ in
           };
         }];
         ensureDatabases = ["mydatabase"];
+        settings = commonSettings;
       };
       systemd.services.postgresql.postStart = ''
       $PSQL -tA <<'EOF'
@@ -139,6 +149,7 @@ in
           }
         ];
         ensureDatabases = ["db1" "db2"];
+        settings = commonSettings;
       };
       systemd.services.postgresql.postStart = "";
     };
@@ -181,6 +192,7 @@ in
           }
         ];
         ensureDatabases = ["db1" "db2"];
+        settings = commonSettings;
       };
       systemd.services.postgresql.postStart = ''
       $PSQL -tA <<'EOF'
@@ -236,6 +248,7 @@ in
           }
         ];
         ensureDatabases = ["db1" "db2"];
+        settings = commonSettings;
       };
       systemd.services.postgresql.postStart = ''
       $PSQL -tA <<'EOF'
@@ -269,6 +282,7 @@ in
         enable = false;
         ensureUsers = [];
         ensureDatabases = [];
+        settings = commonSettings;
         
         enableTCPIP = true;
         authentication = ''
