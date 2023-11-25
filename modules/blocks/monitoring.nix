@@ -251,7 +251,8 @@ in
     };
     services.prometheus.exporters.node = {
       enable = true;
-      enabledCollectors = ["systemd"];
+      # https://github.com/prometheus/node_exporter#collectors
+      enabledCollectors = ["systemd" "processes" "ethtool"];
       port = 9115;
       listenAddress = "127.0.0.1";
     };
