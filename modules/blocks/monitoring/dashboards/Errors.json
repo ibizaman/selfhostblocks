@@ -1,0 +1,782 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": {
+          "type": "grafana",
+          "uid": "-- Grafana --"
+        },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "id": 8,
+  "links": [],
+  "liveNow": false,
+  "panels": [
+    {
+      "datasource": {
+        "type": "loki",
+        "uid": "cd6cc53e-840c-484d-85f7-96fede324006"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "light-red",
+                "value": null
+              },
+              {
+                "color": "transparent",
+                "value": 0.99
+              }
+            ]
+          },
+          "unit": "reqps"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 12,
+      "links": [
+        {
+          "title": "explore",
+          "url": "https://grafana.tiserbox.com/explore?panes=%7B%22HWt%22:%7B%22datasource%22:%22cd6cc53e-840c-484d-85f7-96fede324006%22,%22queries%22:%5B%7B%22refId%22:%22A%22,%22expr%22:%22%7Bunit%3D%5C%22nginx.service%5C%22%7D%20%7C%20pattern%20%5C%22%3C_%3E%20%3C_%3E%20%3Cline%3E%5C%22%20%7C%20line_format%20%5C%22%7B%7B.line%7D%7D%5C%22%20%7C%20json%20%7C%20status%20%21~%20%5C%222..%5C%22%20%7C%20__error__%20%21%3D%20%5C%22JSONParserErr%5C%22%22,%22queryType%22:%22range%22,%22datasource%22:%7B%22type%22:%22loki%22,%22uid%22:%22cd6cc53e-840c-484d-85f7-96fede324006%22%7D,%22editorMode%22:%22code%22%7D%5D,%22range%22:%7B%22from%22:%22now-6h%22,%22to%22:%22now%22%7D%7D%7D&schemaVersion=1&orgId=1"
+        }
+      ],
+      "options": {
+        "legend": {
+          "calcs": [
+            "mean",
+            "max"
+          ],
+          "displayMode": "table",
+          "placement": "right",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "10.2.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "loki",
+            "uid": "cd6cc53e-840c-484d-85f7-96fede324006"
+          },
+          "editorMode": "code",
+          "expr": "sum by(server_name) (rate({unit=\"nginx.service\"} | pattern \"<_> <_> <line>\" | line_format \"{{.line}}\" | json | __error__ != \"JSONParserErr\" | server_name =~ \"[[server_name]].*\" [$__auto]))",
+          "legendFormat": "{{server_name}}",
+          "queryType": "range",
+          "refId": "A"
+        }
+      ],
+      "title": "Rate of Requests",
+      "transformations": [
+        {
+          "id": "extractFields",
+          "options": {
+            "replace": true,
+            "source": "Line"
+          }
+        },
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {},
+            "indexByName": {
+              "body_bytes_sent": 9,
+              "bytes_sent": 8,
+              "gzip_ration": 11,
+              "post": 12,
+              "referrer": 10,
+              "remote_addr": 3,
+              "remote_user": 6,
+              "request": 4,
+              "request_length": 7,
+              "request_time": 15,
+              "server_name": 2,
+              "status": 1,
+              "time_local": 0,
+              "upstream_addr": 13,
+              "upstream_connect_time": 17,
+              "upstream_header_time": 18,
+              "upstream_response_time": 16,
+              "upstream_status": 14,
+              "user_agent": 5
+            },
+            "renameByName": {}
+          }
+        }
+      ],
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "loki",
+        "uid": "cd6cc53e-840c-484d-85f7-96fede324006"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "dashed+area"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "light-red",
+                "value": null
+              },
+              {
+                "color": "transparent",
+                "value": 0.99
+              }
+            ]
+          },
+          "unit": "percentunit"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 12,
+        "x": 0,
+        "y": 7
+      },
+      "id": 9,
+      "links": [
+        {
+          "title": "explore",
+          "url": "https://grafana.tiserbox.com/explore?panes=%7B%22HWt%22:%7B%22datasource%22:%22cd6cc53e-840c-484d-85f7-96fede324006%22,%22queries%22:%5B%7B%22refId%22:%22A%22,%22expr%22:%22%7Bunit%3D%5C%22nginx.service%5C%22%7D%20%7C%20pattern%20%5C%22%3C_%3E%20%3C_%3E%20%3Cline%3E%5C%22%20%7C%20line_format%20%5C%22%7B%7B.line%7D%7D%5C%22%20%7C%20json%20%7C%20status%20%21~%20%5C%222..%5C%22%20%7C%20__error__%20%21%3D%20%5C%22JSONParserErr%5C%22%22,%22queryType%22:%22range%22,%22datasource%22:%7B%22type%22:%22loki%22,%22uid%22:%22cd6cc53e-840c-484d-85f7-96fede324006%22%7D,%22editorMode%22:%22code%22%7D%5D,%22range%22:%7B%22from%22:%22now-6h%22,%22to%22:%22now%22%7D%7D%7D&schemaVersion=1&orgId=1"
+        }
+      ],
+      "options": {
+        "legend": {
+          "calcs": [
+            "lastNotNull",
+            "min"
+          ],
+          "displayMode": "table",
+          "placement": "right",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "10.2.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "loki",
+            "uid": "cd6cc53e-840c-484d-85f7-96fede324006"
+          },
+          "editorMode": "code",
+          "expr": "(sum by(server_name) (count_over_time({unit=\"nginx.service\"} | pattern \"<_> <_> <line>\" | line_format \"{{.line}}\" | json | __error__ != \"JSONParserErr\" | status =~ \"[1234]..\" | server_name =~ \"[[server_name]].*\" [7d])) / sum by(server_name) (count_over_time({unit=\"nginx.service\"} | pattern \"<_> <_> <line>\" | line_format \"{{.line}}\" | json | __error__ != \"JSONParserErr\" | server_name =~ \"[[server_name]].*\" [7d])))",
+          "legendFormat": "{{server_name}}",
+          "queryType": "range",
+          "refId": "A"
+        }
+      ],
+      "title": "5XX Requests Error Budgets",
+      "transformations": [
+        {
+          "id": "extractFields",
+          "options": {
+            "replace": true,
+            "source": "Line"
+          }
+        },
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {},
+            "indexByName": {
+              "body_bytes_sent": 9,
+              "bytes_sent": 8,
+              "gzip_ration": 11,
+              "post": 12,
+              "referrer": 10,
+              "remote_addr": 3,
+              "remote_user": 6,
+              "request": 4,
+              "request_length": 7,
+              "request_time": 15,
+              "server_name": 2,
+              "status": 1,
+              "time_local": 0,
+              "upstream_addr": 13,
+              "upstream_connect_time": 17,
+              "upstream_header_time": 18,
+              "upstream_response_time": 16,
+              "upstream_status": 14,
+              "user_agent": 5
+            },
+            "renameByName": {}
+          }
+        }
+      ],
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "loki",
+        "uid": "cd6cc53e-840c-484d-85f7-96fede324006"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "light-red",
+                "value": null
+              },
+              {
+                "color": "transparent",
+                "value": 0.99
+              }
+            ]
+          },
+          "unit": "percentunit"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 12,
+        "x": 12,
+        "y": 7
+      },
+      "id": 10,
+      "links": [
+        {
+          "title": "explore",
+          "url": "https://grafana.tiserbox.com/explore?panes=%7B%22HWt%22:%7B%22datasource%22:%22cd6cc53e-840c-484d-85f7-96fede324006%22,%22queries%22:%5B%7B%22refId%22:%22A%22,%22expr%22:%22%7Bunit%3D%5C%22nginx.service%5C%22%7D%20%7C%20pattern%20%5C%22%3C_%3E%20%3C_%3E%20%3Cline%3E%5C%22%20%7C%20line_format%20%5C%22%7B%7B.line%7D%7D%5C%22%20%7C%20json%20%7C%20status%20%21~%20%5C%222..%5C%22%20%7C%20__error__%20%21%3D%20%5C%22JSONParserErr%5C%22%22,%22queryType%22:%22range%22,%22datasource%22:%7B%22type%22:%22loki%22,%22uid%22:%22cd6cc53e-840c-484d-85f7-96fede324006%22%7D,%22editorMode%22:%22code%22%7D%5D,%22range%22:%7B%22from%22:%22now-6h%22,%22to%22:%22now%22%7D%7D%7D&schemaVersion=1&orgId=1"
+        }
+      ],
+      "options": {
+        "legend": {
+          "calcs": [
+            "lastNotNull",
+            "min"
+          ],
+          "displayMode": "table",
+          "placement": "right",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "10.2.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "loki",
+            "uid": "cd6cc53e-840c-484d-85f7-96fede324006"
+          },
+          "editorMode": "code",
+          "expr": "(sum by(server_name) (count_over_time({unit=\"nginx.service\"} | pattern \"<_> <_> <line>\" | line_format \"{{.line}}\" | json | __error__ != \"JSONParserErr\" | status =~ \"[1235]..\" | server_name =~ \"[[server_name]].*\" [7d])) / sum by(server_name) (count_over_time({unit=\"nginx.service\"} | pattern \"<_> <_> <line>\" | line_format \"{{.line}}\" | json | __error__ != \"JSONParserErr\" | server_name =~ \"[[server_name]].*\" [7d])))",
+          "legendFormat": "{{server_name}}",
+          "queryType": "range",
+          "refId": "A"
+        }
+      ],
+      "title": "4XX Requests Error Budgets",
+      "transformations": [
+        {
+          "id": "extractFields",
+          "options": {
+            "replace": true,
+            "source": "Line"
+          }
+        },
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {},
+            "indexByName": {
+              "body_bytes_sent": 9,
+              "bytes_sent": 8,
+              "gzip_ration": 11,
+              "post": 12,
+              "referrer": 10,
+              "remote_addr": 3,
+              "remote_user": 6,
+              "request": 4,
+              "request_length": 7,
+              "request_time": 15,
+              "server_name": 2,
+              "status": 1,
+              "time_local": 0,
+              "upstream_addr": 13,
+              "upstream_connect_time": 17,
+              "upstream_header_time": 18,
+              "upstream_response_time": 16,
+              "upstream_status": 14,
+              "user_agent": 5
+            },
+            "renameByName": {}
+          }
+        }
+      ],
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "loki",
+        "uid": "cd6cc53e-840c-484d-85f7-96fede324006"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 14
+      },
+      "id": 8,
+      "options": {
+        "dedupStrategy": "none",
+        "enableLogDetails": true,
+        "prettifyLogMessage": false,
+        "showCommonLabels": false,
+        "showLabels": false,
+        "showTime": false,
+        "sortOrder": "Descending",
+        "wrapLogMessage": false
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "loki",
+            "uid": "cd6cc53e-840c-484d-85f7-96fede324006"
+          },
+          "editorMode": "code",
+          "expr": "{unit=~\"[[service]].*\"}",
+          "queryType": "range",
+          "refId": "A"
+        }
+      ],
+      "title": "Log Errors",
+      "type": "logs"
+    },
+    {
+      "datasource": {
+        "type": "loki",
+        "uid": "cd6cc53e-840c-484d-85f7-96fede324006"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "filterable": false,
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 14,
+        "w": 24,
+        "x": 0,
+        "y": 22
+      },
+      "id": 7,
+      "links": [
+        {
+          "title": "explore",
+          "url": "https://grafana.tiserbox.com/explore?panes=%7B%22HWt%22:%7B%22datasource%22:%22cd6cc53e-840c-484d-85f7-96fede324006%22,%22queries%22:%5B%7B%22refId%22:%22A%22,%22expr%22:%22%7Bunit%3D%5C%22nginx.service%5C%22%7D%20%7C%20pattern%20%5C%22%3C_%3E%20%3C_%3E%20%3Cline%3E%5C%22%20%7C%20line_format%20%5C%22%7B%7B.line%7D%7D%5C%22%20%7C%20json%20%7C%20status%20%21~%20%5C%222..%5C%22%20%7C%20__error__%20%21%3D%20%5C%22JSONParserErr%5C%22%22,%22queryType%22:%22range%22,%22datasource%22:%7B%22type%22:%22loki%22,%22uid%22:%22cd6cc53e-840c-484d-85f7-96fede324006%22%7D,%22editorMode%22:%22code%22%7D%5D,%22range%22:%7B%22from%22:%22now-6h%22,%22to%22:%22now%22%7D%7D%7D&schemaVersion=1&orgId=1"
+        }
+      ],
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "enablePagination": false,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": true
+      },
+      "pluginVersion": "10.2.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "loki",
+            "uid": "cd6cc53e-840c-484d-85f7-96fede324006"
+          },
+          "editorMode": "code",
+          "expr": "{unit=\"nginx.service\"} | pattern \"<_> <_> <line>\" | line_format \"{{.line}}\" | json | __error__ != \"JSONParserErr\" | status =~ \"5..\" | server_name =~ \"[[server_name]].*\"",
+          "queryType": "range",
+          "refId": "A"
+        }
+      ],
+      "title": "5XX Requests Errors",
+      "transformations": [
+        {
+          "id": "extractFields",
+          "options": {
+            "replace": true,
+            "source": "Line"
+          }
+        },
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {},
+            "indexByName": {
+              "body_bytes_sent": 9,
+              "bytes_sent": 8,
+              "gzip_ration": 11,
+              "post": 12,
+              "referrer": 10,
+              "remote_addr": 3,
+              "remote_user": 6,
+              "request": 4,
+              "request_length": 7,
+              "request_time": 15,
+              "server_name": 2,
+              "status": 1,
+              "time_local": 0,
+              "upstream_addr": 13,
+              "upstream_connect_time": 17,
+              "upstream_header_time": 18,
+              "upstream_response_time": 16,
+              "upstream_status": 14,
+              "user_agent": 5
+            },
+            "renameByName": {}
+          }
+        }
+      ],
+      "type": "table"
+    },
+    {
+      "datasource": {
+        "type": "loki",
+        "uid": "cd6cc53e-840c-484d-85f7-96fede324006"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "filterable": false,
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 14,
+        "w": 24,
+        "x": 0,
+        "y": 36
+      },
+      "id": 11,
+      "links": [
+        {
+          "title": "explore",
+          "url": "https://grafana.tiserbox.com/explore?panes=%7B%22HWt%22:%7B%22datasource%22:%22cd6cc53e-840c-484d-85f7-96fede324006%22,%22queries%22:%5B%7B%22refId%22:%22A%22,%22expr%22:%22%7Bunit%3D%5C%22nginx.service%5C%22%7D%20%7C%20pattern%20%5C%22%3C_%3E%20%3C_%3E%20%3Cline%3E%5C%22%20%7C%20line_format%20%5C%22%7B%7B.line%7D%7D%5C%22%20%7C%20json%20%7C%20status%20%21~%20%5C%222..%5C%22%20%7C%20__error__%20%21%3D%20%5C%22JSONParserErr%5C%22%22,%22queryType%22:%22range%22,%22datasource%22:%7B%22type%22:%22loki%22,%22uid%22:%22cd6cc53e-840c-484d-85f7-96fede324006%22%7D,%22editorMode%22:%22code%22%7D%5D,%22range%22:%7B%22from%22:%22now-6h%22,%22to%22:%22now%22%7D%7D%7D&schemaVersion=1&orgId=1"
+        }
+      ],
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "enablePagination": false,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": true
+      },
+      "pluginVersion": "10.2.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "loki",
+            "uid": "cd6cc53e-840c-484d-85f7-96fede324006"
+          },
+          "editorMode": "code",
+          "expr": "{unit=\"nginx.service\"} | pattern \"<_> <_> <line>\" | line_format \"{{.line}}\" | json | __error__ != \"JSONParserErr\" | status =~ \"4..\" | server_name =~ \"[[server_name]].*\"",
+          "queryType": "range",
+          "refId": "A"
+        }
+      ],
+      "title": "4XX Requests Errors",
+      "transformations": [
+        {
+          "id": "extractFields",
+          "options": {
+            "replace": true,
+            "source": "Line"
+          }
+        },
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {},
+            "indexByName": {
+              "body_bytes_sent": 9,
+              "bytes_sent": 8,
+              "gzip_ration": 11,
+              "post": 12,
+              "referrer": 10,
+              "remote_addr": 3,
+              "remote_user": 6,
+              "request": 4,
+              "request_length": 7,
+              "request_time": 15,
+              "server_name": 2,
+              "status": 1,
+              "time_local": 0,
+              "upstream_addr": 13,
+              "upstream_connect_time": 17,
+              "upstream_header_time": 18,
+              "upstream_response_time": 16,
+              "upstream_status": 14,
+              "user_agent": 5
+            },
+            "renameByName": {}
+          }
+        }
+      ],
+      "type": "table"
+    }
+  ],
+  "refresh": "",
+  "schemaVersion": 38,
+  "tags": [],
+  "templating": {
+    "list": [
+      {
+        "current": {
+          "selected": true,
+          "text": [
+            "jellyfin"
+          ],
+          "value": [
+            "jellyfin"
+          ]
+        },
+        "datasource": {
+          "type": "prometheus",
+          "uid": "df80f9f5-97d7-4112-91d8-72f523a02b09"
+        },
+        "definition": "query_result(max by (name) (node_systemd_unit_state))",
+        "hide": 0,
+        "includeAll": true,
+        "multi": true,
+        "name": "service",
+        "options": [],
+        "query": {
+          "qryType": 3,
+          "query": "query_result(max by (name) (node_systemd_unit_state))",
+          "refId": "PrometheusVariableQueryEditor-VariableQuery"
+        },
+        "refresh": 1,
+        "regex": "/name=\"(?<value>.*)\\.service\"/",
+        "skipUrlSync": false,
+        "sort": 1,
+        "type": "query"
+      },
+      {
+        "current": {
+          "selected": false,
+          "text": "",
+          "value": ""
+        },
+        "hide": 0,
+        "name": "server_name",
+        "options": [
+          {
+            "selected": true,
+            "text": "",
+            "value": ""
+          }
+        ],
+        "query": ".+",
+        "skipUrlSync": false,
+        "type": "textbox"
+      }
+    ]
+  },
+  "time": {
+    "from": "now-6h",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "",
+  "title": "Errors",
+  "uid": "d66242cf-71e8-417c-8ef7-51b0741545df",
+  "version": 16,
+  "weekStart": ""
+}
