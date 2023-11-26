@@ -326,43 +326,7 @@ See the [`ldap.nix`](./modules/ldap.nix) and [`authelia.nix`](./modules/authelia
 
 ### Deploy the full Grafana, Prometheus and Loki suite
 
-This is not a prerequisite for anything and could be enabled just for debugging.
-
-```nix
-shb.monitoring = {
-  enable = true;
-  subdomain = "grafana";
-  inherit domain;
-};
-```
-
-With that, Grafana, Prometheus, Loki and Promtail are setup! You can access `Grafana` at
-`grafana.example.com`.
-
-A few Prometheus metrics scrapers are setup automatically:
-- node - cpu, memory, disk I/O, network I/O and a few others of the computer
-- smartctl - hard drive health
-- prometheus_internal - scraping jobs health
-- nginx
-- dnsmasq (if the service is enabled)
-
-The following Loki logs scraper is setup automatically:
-- systemd journal
-
-I intend to provide more options so that you could for example tweak data retention.
-
-Also, since all logs are now stored in Loki, you can probably reduce the systemd journal retention
-time with:
-
-```nix
-# See https://www.freedesktop.org/software/systemd/man/journald.conf.html#SystemMaxUse=
-services.journald.extraConfig = ''
-SystemMaxUse=2G
-SystemKeepFree=4G
-SystemMaxFileSize=100M
-MaxFileSec=day
-'';
-```
+See [docs/blocks/monitoring.md](docs/blocks/monitoring.md).
 
 ### Set up network tunnel with VPN and Proxy
 
