@@ -49,6 +49,13 @@
             flattenAttrs = root: attrset: pkgs.lib.attrsets.foldlAttrs (acc: name: value: acc // {
               "${root}_${name}" = value;
             }) {} attrset;
+
+            vm_test = name: path: flattenAttrs "vm_${name}" (
+              import path {
+                inherit pkgs;
+                inherit (pkgs) lib;
+              }
+            );
           in (rec {
             all = mergeTests [
               modules
@@ -64,7 +71,8 @@
                 ]);
             };
           }
-          // (flattenAttrs "vm_postgresql" (import ./test/vm/postgresql.nix {inherit pkgs; inherit (pkgs) lib;}))
+          // (vm_test "postgresql" ./test/vm/postgresql.nix)
+          // (vm_test "monitoring" ./test/vm/monitoring.nix)
           );
       }
   );

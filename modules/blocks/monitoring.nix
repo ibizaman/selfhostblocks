@@ -9,12 +9,6 @@ in
   options.shb.monitoring = {
     enable = lib.mkEnableOption "selfhostblocks.monitoring";
 
-    # sopsFile = lib.mkOption {
-    #   type = lib.types.path;
-    #   description = "Sops file location";
-    #   example = "secrets/monitoring.yaml";
-    # };
-
     subdomain = lib.mkOption {
       type = lib.types.str;
       description = "Subdomain under which home-assistant will be served.";
@@ -25,6 +19,24 @@ in
       type = lib.types.str;
       description = "domain under which home-assistant will be served.";
       example = "mydomain.com";
+    };
+
+    grafanaPort = lib.mkOption {
+      type = lib.types.port;
+      description = "Port where Grafana listens to HTTP requests.";
+      default = 3000;
+    };
+
+    prometheusPort = lib.mkOption {
+      type = lib.types.port;
+      description = "Port where Prometheus listens to HTTP requests.";
+      default = 3001;
+    };
+
+    lokiPort = lib.mkOption {
+      type = lib.types.port;
+      description = "Port where Loki listens to HTTP requests.";
+      default = 3002;
     };
 
     debugLog = lib.mkOption {
@@ -49,10 +61,22 @@ in
     contactPoints = lib.mkOption {
       type = lib.types.listOf lib.types.str;
       description = "List of email addresses to send alerts to";
+      default = [];
+    };
+
+    adminPasswordFile = lib.mkOption {
+      type = lib.types.path;
+      description = "File containing the initial admin password.";
+    };
+
+    secretKeyFile = lib.mkOption {
+      type = lib.types.path;
+      description = "File containing the secret key used for signing.";
     };
 
     smtp = lib.mkOption {
-      type = lib.types.submodule {
+      default = null;
+      type = lib.types.nullOr (lib.types.submodule {
         options = {
           from_address = lib.mkOption {
             type = lib.types.str;
@@ -82,14 +106,14 @@ in
             description = "File containing the password to connect to the SMTP host.";
           };
         };
-      };
+      });
     };
   };
 
   config = lib.mkIf cfg.enable {
     assertions = [
       {
-        assertion = builtins.length cfg.contactPoints > 0;
+        assertion = (!(isNull cfg.smtp)) -> builtins.length cfg.contactPoints > 0;
         message = "Must have at least one contact point for alerting";
       }
     ];
@@ -115,15 +139,21 @@ in
           # password = "$__file{/run/secrets/homeassistant/dbpass}";
         };
 
+        security = {
+          secret_key = "$__file{${cfg.secretKeyFile}}";
+          disable_initial_admin_creation = false; # Enable when LDAP support is configured.
+          admin_password = "$__file{${cfg.adminPasswordFile}}"; # Remove when LDAP support is configured.
+        };
+
         server = {
           http_addr = "127.0.0.1";
-          http_port = 3000;
+          http_port = cfg.grafanaPort;
           domain = fqdn;
           root_url = "https://${fqdn}";
           router_logging = cfg.debugLog;
         };
 
-        smtp = {
+        smtp = lib.mkIf (!(isNull cfg.smtp)) {
           enabled = true;
           inherit (cfg.smtp) from_address from_name;
           host = "${cfg.smtp.host}:${toString cfg.smtp.port}";
@@ -175,33 +205,24 @@ in
           }
         ];
       };
-      alerting.contactPoints.settings = lib.mkIf ((builtins.length cfg.contactPoints) > 0) {
+      alerting.contactPoints.settings = {
         apiVersion = 1;
         contactPoints = [{
           inherit (cfg) orgId;
-          name = "selfhostblocks-sysadmin";
-          receivers = [{
+          name = "grafana-default-email";
+          receivers = lib.optionals ((builtins.length cfg.contactPoints) > 0) [{
             uid = "sysadmin";
             type = "email";
             settings.addresses = lib.concatStringsSep ";" cfg.contactPoints;
           }];
         }];
-        deleteContactPoints = [
-          {
-            inherit (cfg) orgId;
-            uid = "grafana-default-email";
-          }
-        ];
       };
       alerting.policies.settings = {
         apiVersion = 1;
         policies = [{
           inherit (cfg) orgId;
-          receiver = "selfhostblocks-sysadmin";
+          receiver = "grafana-default-email";
           group_by = [ "grafana_folder" "alertname" ];
-          object_matchers = [
-            [ "role" "=" "sysadmin" ]
-          ];
           group_wait = "30s";
           group_interval = "5m";
           repeat_interval = "4h";
@@ -230,7 +251,7 @@ in
 
     services.prometheus = {
       enable = true;
-      port = 3001;
+      port = cfg.prometheusPort;
     };
 
     services.loki = {
@@ -239,7 +260,7 @@ in
       configuration = {
         auth_enabled = false;
 
-        server.http_listen_port = 3002;
+        server.http_listen_port = cfg.lokiPort;
 
         ingester = {
           lifecycler = {
@@ -340,9 +361,9 @@ in
       enable = true;
 
       virtualHosts.${fqdn} = {
-        forceSSL = true;
-        sslCertificate = "/var/lib/acme/${cfg.domain}/cert.pem";
-        sslCertificateKey = "/var/lib/acme/${cfg.domain}/key.pem";
+        forceSSL = lib.mkIf config.shb.ssl.enable true;
+        sslCertificate = lib.mkIf config.shb.ssl.enable "/var/lib/acme/${cfg.domain}/cert.pem";
+        sslCertificateKey = lib.mkIf config.shb.ssl.enable "/var/lib/acme/${cfg.domain}/key.pem";
         locations."/" = {
           proxyPass = "http://${toString config.services.grafana.settings.server.http_addr}:${toString config.services.grafana.settings.server.http_port}";
           proxyWebsockets = true;
@@ -439,14 +460,5 @@ in
       listenAddress = "127.0.0.1";
     };
     services.nginx.statusPage = lib.mkDefault config.services.nginx.enable;
-
-    # sops.secrets."grafana" = {
-    #   inherit (cfg) sopsFile;
-    #   mode = "0440";
-    #   owner = "grafana";
-    #   group = "grafana";
-    #   # path = "${config.services.home-assistant.configDir}/secrets.yaml";
-    #   restartUnits = [ "grafana.service" ];
-    # };
   };
 }
