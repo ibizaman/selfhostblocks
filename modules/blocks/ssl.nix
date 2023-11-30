@@ -21,7 +21,8 @@ in
 
     credentialsFile = lib.mkOption {
       type = lib.types.path;
-      description = ''Credentials file location for the chosen DNS provider.
+      description = ''
+      Credentials file location for the chosen DNS provider.
 
       The content of this file must expose environment variables as written in the
       [documentation](https://go-acme.github.io/lego/dns/) of each DNS provider.
@@ -45,10 +46,12 @@ in
       See the chose provider's [documentation](https://go-acme.github.io/lego/dns/) for available
       options.
       '';
-      example = lib.literalExpression ''{
+      example = lib.literalExpression ''
+      {
         DNSPROVIDER_TIMEOUT = "10";
         DNSPROVIDER_PROPAGATION_TIMEOUT = "240";
-      }'';
+      }
+      '';
     };
 
     dnsResolver = lib.mkOption {
