@@ -45,7 +45,7 @@ in
       example = "ldap.example.com";
     };
 
-    oidcEndpoint = lib.mkOption {
+    authEndpoint = lib.mkOption {
       type = lib.types.str;
       description = "OIDC endpoint for SSO";
       example = "https://authelia.example.com";
@@ -162,7 +162,7 @@ in
 
     shb.nginx.autheliaProtect = [
       {
-        inherit (cfg) subdomain domain oidcEndpoint;
+        inherit (cfg) subdomain domain authEndpoint;
         upstream = "http://127.0.0.1:${toString config.services.vaultwarden.config.ROCKET_PORT}";
         autheliaRules = [
           {

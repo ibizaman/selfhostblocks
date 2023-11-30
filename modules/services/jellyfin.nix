@@ -57,7 +57,7 @@ in
       default = "Authelia";
     };
 
-    oidcEndpoint = lib.mkOption {
+    authEndpoint = lib.mkOption {
       type = lib.types.str;
       description = "OIDC endpoint for SSO";
       example = "https://authelia.example.com";
@@ -287,7 +287,7 @@ in
                 </key>
                 <value>
                   <PluginConfiguration>
-                    <OidEndpoint>${cfg.oidcEndpoint}</OidEndpoint>
+                    <OidEndpoint>${cfg.authEndpoint}</OidEndpoint>
                     <OidClientId>${cfg.oidcClientID}</OidClientId>
                     <OidSecret>%SSO_SECRET%</OidSecret>
                     <Enabled>true</Enabled>
@@ -324,7 +324,7 @@ in
               &lt;a href="https://${cfg.subdomain}.${cfg.domain}/SSOViews/linking" class="raised cancel block emby-button authentik-sso"&gt;
                 Link ${cfg.oidcProvider} config&amp;nbsp;
               &lt;/a&gt;
-              &lt;a href="${cfg.oidcEndpoint}" class="raised cancel block emby-button authentik-sso"&gt;
+              &lt;a href="${cfg.authEndpoint}" class="raised cancel block emby-button authentik-sso"&gt;
                 ${cfg.oidcProvider} config&amp;nbsp;
               &lt;/a&gt;
             </LoginDisclaimer>

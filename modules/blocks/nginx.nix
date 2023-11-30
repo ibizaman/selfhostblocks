@@ -19,9 +19,10 @@ let
         example = "mydomain.com";
       };
 
-      oidcEndpoint = lib.mkOption {
-        type = lib.types.str;
-        description = "OIDC endpoint for SSO.";
+      authEndpoint = lib.mkOption {
+        type = lib.types.nullOr lib.types.str;
+        description = "Auth endpoint for SSO.";
+        default = null;
         example = "https://authelia.example.com";
       };
 
@@ -142,8 +143,8 @@ in
               # proxy_set_header Cookie $new_cookie;
 
               auth_request_set $redirect $scheme://$http_host$request_uri;
-              error_page 401 =302 ${c.oidcEndpoint}?rd=$redirect;
-              error_page 403 = ${c.oidcEndpoint}/error/403;
+              error_page 401 =302 ${c.authEndpoint}?rd=$redirect;
+              error_page 403 = ${c.authEndpoint}/error/403;
 
               proxy_pass ${c.upstream};
             '';
@@ -151,7 +152,7 @@ in
             # Virtual endpoint created by nginx to forward auth requests.
             locations."/authelia".extraConfig = ''
               internal;
-              proxy_pass ${c.oidcEndpoint}/api/verify;
+              proxy_pass ${c.authEndpoint}/api/verify;
 
               proxy_set_header X-Forwarded-Host $host;
               proxy_set_header X-Original-URI $request_uri;

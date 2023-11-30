@@ -152,7 +152,7 @@ let
           default = "/var/lib/${name}";
         };
 
-        oidcEndpoint = lib.mkOption {
+        authEndpoint = lib.mkOption {
           type = lib.types.nullOr lib.types.str;
           default = null;
           description = "Endpoint to the SSO provider. Leave null to not have SSO configured.";
@@ -297,8 +297,8 @@ config.xml" templatedSettings) "${config.services.radarr.dataDir}/config.xml" (
             let
               c = cfg.${name};
             in
-              lib.mkIf (c.oidcEndpoint != null) {
-                inherit (c) subdomain domain oidcEndpoint;
+              lib.mkIf (c.authEndpoint != null) {
+                inherit (c) subdomain domain authEndpoint;
                 upstream = "http://127.0.0.1:${toString c.port}";
                 autheliaRules = [
                   {
