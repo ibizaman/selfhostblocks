@@ -42,15 +42,18 @@ let
       settingsFormat = pkgs.formats.json {};
       moreOptions = {
         settings = lib.mkOption {
+          description = "Specific options for jackett.";
           default = {};
           type = lib.types.submodule {
             freeformType = apps.jackett.settingsFormat.type;
             options = {
               APIKeyFile = lib.mkOption {
                 type = lib.types.path;
+                description = "Path to api key secret file.";
               };
               FlareSolverrUrl = lib.mkOption {
                 type = lib.types.nullOr lib.types.str;
+                description = "FlareSolverr endpoint.";
                 default = null;
               };
               OmdbApiKeyFile = lib.mkOption {
@@ -59,7 +62,7 @@ let
               };
               ProxyType = lib.mkOption {
                 type = lib.types.enum [ "-1" "0" "1" "2" ];
-                default = "0";
+                default = "-1";
                 description = ''
                 -1 = disabled
                 0 = HTTP
@@ -123,7 +126,7 @@ let
     default = {};
     type = lib.types.submodule {
       options = {
-        enable = lib.mkEnableOption "selfhostblocks.${name}";
+        enable = lib.mkEnableOption name;
 
         subdomain = lib.mkOption {
           type = lib.types.str;
@@ -134,7 +137,7 @@ let
         domain = lib.mkOption {
           type = lib.types.str;
           description = "Domain under which ${name} will be served.";
-          example = "mydomain.com";
+          example = "example.com";
         };
 
         port = lib.mkOption {
@@ -145,14 +148,14 @@ let
 
         dataDir = lib.mkOption {
           type = lib.types.str;
-          description = "Directory where state of ${name} is stored.";
+          description = "Directory where ${name} stores data.";
           default = "/var/lib/${name}";
         };
 
         oidcEndpoint = lib.mkOption {
           type = lib.types.nullOr lib.types.str;
           default = null;
-          description = "OIDC endpoint for SSO";
+          description = "Endpoint to the SSO provider. Leave null to not have SSO configured.";
           example = "https://authelia.example.com";
         };
 
