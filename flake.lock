@@ -81,11 +81,27 @@
         "type": "github"
       }
     },
+    "nmd": {
+      "locked": {
+        "lastModified": 1672240039,
+        "narHash": "sha256-lmct89fYDOr9YdWVvdJgklv/7WttRSiDAkoi2cvvAW4=",
+        "owner": "gvolpe",
+        "repo": "nmd",
+        "rev": "a59e840c2e8d54415485f349760e1350cb80d911",
+        "type": "github"
+      },
+      "original": {
+        "owner": "gvolpe",
+        "repo": "nmd",
+        "type": "github"
+      }
+    },
     "root": {
       "inputs": {
         "flake-utils": "flake-utils",
         "nix-flake-tests": "nix-flake-tests",
         "nixpkgs": "nixpkgs",
+        "nmd": "nmd",
         "sops-nix": "sops-nix"
       }
     },

@@ -6,35 +6,71 @@
     sops-nix.url = "github:Mic92/sops-nix";
     nix-flake-tests.url = "github:antifuchs/nix-flake-tests";
     flake-utils.url = "github:numtide/flake-utils";
+    nmd.url = "github:gvolpe/nmd";
   };
 
-  outputs = { nixpkgs, nix-flake-tests, flake-utils, ... }: flake-utils.lib.eachDefaultSystem (system:
+  outputs = { nixpkgs, nix-flake-tests, flake-utils, nmd, ... }: flake-utils.lib.eachDefaultSystem (system:
     let
-      pkgs = nixpkgs.legacyPackages.${system};
+      pkgs = import nixpkgs {
+        inherit system;
+        overlays = [ nmd.overlays.default ];
+      };
+
+      allModules = [
+        modules/blocks/authelia.nix
+        modules/blocks/backup.nix
+        modules/blocks/davfs.nix
+        modules/blocks/ldap.nix
+        modules/blocks/monitoring.nix
+        modules/blocks/nginx.nix
+        modules/blocks/postgresql.nix
+        modules/blocks/ssl.nix
+        modules/blocks/tinyproxy.nix
+        modules/blocks/vpn.nix
+
+        modules/services/arr.nix
+        modules/services/deluge.nix
+        modules/services/hledger.nix
+        modules/services/home-assistant.nix
+        modules/services/jellyfin.nix
+        modules/services/nextcloud-server.nix
+        modules/services/vaultwarden.nix
+      ];
     in
       {
         nixosModules.default = { config, ... }: {
-          imports = [
-            modules/blocks/authelia.nix
-            modules/blocks/backup.nix
-            modules/blocks/davfs.nix
-            modules/blocks/ldap.nix
-            modules/blocks/monitoring.nix
-            modules/blocks/nginx.nix
-            modules/blocks/postgresql.nix
-            modules/blocks/ssl.nix
-            modules/blocks/tinyproxy.nix
-            modules/blocks/vpn.nix
-
-            modules/services/arr.nix
-            modules/services/deluge.nix
-            modules/services/hledger.nix
-            modules/services/home-assistant.nix
-            modules/services/jellyfin.nix
-            modules/services/nextcloud-server.nix
-            modules/services/vaultwarden.nix
-          ];
+          imports = allModules;
         };
+
+        # Inspiration from https://github.com/nix-community/nix-on-droid/blob/039379abeee67144d4094d80bbdaf183fb2eabe5/docs/default.nix#L22
+        packages.manualHtml = let
+          setupModule = {
+            _module.args.pkgs = pkgs.lib.mkForce (pkgs.nmd.scrubDerivations "pkgs" pkgs);
+            _module.check = false;
+          };
+
+          modulesDocs = pkgs.nmd.buildModulesDocs {
+            modules = allModules ++ [ setupModule ];
+            moduleRootPaths = [ ../. ];
+            mkModuleUrl = path: "https://myproject.foo/${path}";
+            channelName = "selfhostblocks";
+            docBook = { id = "selfhostblocks-options"; optionIdPrefix = "shb-opt"; };
+          };
+
+          manual = pkgs.nmd.buildDocBookDocs {
+            pathName = "SelfHostBlocks";
+            modulesDocs = [ modulesDocs ];
+            documentsDirectory = ./docs;
+            chunkToc = ''
+              <toc>
+                <d:tocentry xmlns:d="http://docbook.org/ns/docbook" linkend="book-manual">
+                  <?dbhtml filename="index.html"?>
+                </d:tocentry>
+              </toc>
+            '';
+          };
+        in
+          manual.html;
 
         checks =
           let

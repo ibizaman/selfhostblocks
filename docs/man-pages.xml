@@ -1,0 +1,37 @@
+<!-- Copyright (c) 2019-2022, see AUTHORS. Licensed under MIT License, see LICENSE. -->
+<reference xmlns="http://docbook.org/ns/docbook"
+           xmlns:xlink="http://www.w3.org/1999/xlink"
+           xmlns:xi="http://www.w3.org/2001/XInclude">
+ <title>Self Host Blocks Reference Pages</title>
+ <info>
+  <author><personname>Self Host Blocks contributors</personname>
+  </author>
+  <copyright><year>2022</year><holder>Self Host Blocks contributors</holder>
+  </copyright>
+ </info>
+ <refentry>
+  <refmeta>
+   <refentrytitle><filename>selfhostblocks-options</filename></refentrytitle>
+   <manvolnum>5</manvolnum>
+   <refmiscinfo class="source">Self Host Blocks</refmiscinfo>
+  </refmeta>
+  <refnamediv>
+   <refname><filename>selfhostblocks-options</filename>
+   </refname><refpurpose>Self Host Blocks configuration specification</refpurpose>
+  </refnamediv>
+  <refsection>
+   <title>Description</title>
+   <para>
+    This contains the module options available for Self Host Blocks.
+   </para>
+  </refsection>
+  <refsection>
+   <title>Options</title>
+   <para>
+    You can use the following options after importing Self Host Blocks as a flake input, then
+    importing the default module for your system.
+   </para>
+   <xi:include href="./nmd-result/selfhostblocks-options.xml" />
+  </refsection>
+ </refentry>
+</reference>

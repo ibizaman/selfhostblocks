@@ -1,0 +1,71 @@
+<!-- Copyright (c) 2019-2023, see AUTHORS. Licensed under MIT License, see LICENSE. -->
+<book xmlns="http://docbook.org/ns/docbook"
+      xmlns:xlink="http://www.w3.org/1999/xlink"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      version="5.0"
+      xml:id="book-manual">
+ <info>
+  <title>Self Host Blocks manual</title>
+ </info>
+ <preface>
+  <title>Preface</title>
+  <para>
+   Complete manual for Self Host Blocks, the building blocks for self-hosting with battery included.
+  </para>
+  <para>
+   If you encounter problems or bugs then please report them on the
+   <link xlink:href="https://github.com/ibizaman/selfhostblocks/issues">issue tracker</link>.
+  </para>
+ </preface>
+
+ <appendix xml:id="ch-options">
+  <title>Self Host Blocks configuration options</title>
+  <section xml:id="sec-usage">
+   <title>Usage</title>
+
+   <!--
+   Tags:
+   <title>
+   <section xml:id="sec-NAME">
+   <para>
+   <filename>
+   <replaceable>
+   <varname>
+   <programlisting language="nix">
+   -->
+
+   <para>
+    To use these options, import Self Host Blocks as a flake input, then import the default module for your system.
+<programlisting language="nix">
+{
+  inputs = {
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
+    sops-nix.url = "github:Mic92/sops-nix";
+
+    shb.url = "github:ibizaman/selfhostblocks";
+    shb.inputs.nixpkgs.follows = "nixpkgs";
+    shb.inputs.sops-nix.follows = "sops-nix";
+  };
+
+  outputs = { self, nixpkgs, shb }: {
+
+    nixosConfigurations.machine = nixpkgs.lib.nixosSystem {
+      system = "x86_64-linux";
+      modules = [
+        shb.nixosModules.x86_64-linux.default
+        ./machine.nix
+      ];
+    };
+
+  };
+}
+</programlisting>
+   </para>
+  </section>
+  <section xml:id="sec-options">
+   <title>Options</title>
+
+   <xi:include href="./nmd-result/selfhostblocks-options.xml" />
+  </section>
+ </appendix>
+</book>
