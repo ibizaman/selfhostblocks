@@ -15,29 +15,31 @@
         inherit system;
         overlays = [ nmd.overlays.default ];
       };
+
+      allModules = [
+        modules/blocks/authelia.nix
+        modules/blocks/backup.nix
+        modules/blocks/davfs.nix
+        modules/blocks/ldap.nix
+        modules/blocks/monitoring.nix
+        modules/blocks/nginx.nix
+        modules/blocks/postgresql.nix
+        modules/blocks/ssl.nix
+        modules/blocks/tinyproxy.nix
+        modules/blocks/vpn.nix
+
+        modules/services/arr.nix
+        modules/services/deluge.nix
+        modules/services/hledger.nix
+        modules/services/home-assistant.nix
+        modules/services/jellyfin.nix
+        modules/services/nextcloud-server.nix
+        modules/services/vaultwarden.nix
+      ];
     in
       {
         nixosModules.default = { config, ... }: {
-          imports = [
-            modules/blocks/authelia.nix
-            modules/blocks/backup.nix
-            modules/blocks/davfs.nix
-            modules/blocks/ldap.nix
-            modules/blocks/monitoring.nix
-            modules/blocks/nginx.nix
-            modules/blocks/postgresql.nix
-            modules/blocks/ssl.nix
-            modules/blocks/tinyproxy.nix
-            modules/blocks/vpn.nix
-
-            modules/services/arr.nix
-            modules/services/deluge.nix
-            modules/services/hledger.nix
-            modules/services/home-assistant.nix
-            modules/services/jellyfin.nix
-            modules/services/nextcloud-server.nix
-            modules/services/vaultwarden.nix
-          ];
+          imports = allModules;
         };
 
         # Inspiration from https://github.com/nix-community/nix-on-droid/blob/039379abeee67144d4094d80bbdaf183fb2eabe5/docs/default.nix#L22
@@ -48,10 +50,7 @@
           };
 
           modulesDocs = pkgs.nmd.buildModulesDocs {
-            modules = [
-              setupModule
-              ./modules/blocks/ssl.nix
-            ];
+            modules = allModules ++ [ setupModule ];
             moduleRootPaths = [ ../. ];
             mkModuleUrl = path: "https://myproject.foo/${path}";
             channelName = "selfhostblocks";
