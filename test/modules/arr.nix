@@ -84,7 +84,7 @@ in
             }
           ];
           domain = "example.com";
-          oidcEndpoint = "https://oidc.example.com";
+          authEndpoint = "https://oidc.example.com";
           subdomain = "radarr";
           upstream = "http://127.0.0.1:7001";
         }
@@ -111,7 +111,7 @@ in
         subdomain = "radarr";
         domain = "example.com";
         enable = true;
-        oidcEndpoint = "https://oidc.example.com";
+        authEndpoint = "https://oidc.example.com";
         settings = {
           APIKeyFile = "/run/radarr/apikey";
         };
@@ -158,7 +158,7 @@ in
             }
           ];
           domain = "example.com";
-          oidcEndpoint = "https://oidc.example.com";
+          authEndpoint = "https://oidc.example.com";
           subdomain = "radarr";
           upstream = "http://127.0.0.1:7001";
         }
@@ -185,7 +185,7 @@ in
         subdomain = "radarr";
         domain = "example.com";
         enable = true;
-        oidcEndpoint = "https://oidc.example.com";
+        authEndpoint = "https://oidc.example.com";
         settings = {
           APIKeyFile = "/run/radarr/apikey";
         };

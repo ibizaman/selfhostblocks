@@ -34,7 +34,7 @@ in
       example = "192.168.1.1/24";
     };
 
-    oidcEndpoint = lib.mkOption {
+    authEndpoint = lib.mkOption {
       type = lib.types.str;
       description = "OIDC endpoint for SSO";
       example = "https://authelia.example.com";
@@ -74,7 +74,7 @@ in
 
     shb.nginx.autheliaProtect = [
       {
-        inherit (cfg) subdomain domain oidcEndpoint;
+        inherit (cfg) subdomain domain authEndpoint;
         upstream = "http://${toString config.services.hledger-web.host}:${toString config.services.hledger-web.port}";
         autheliaRules = [{
           domain = fqdn;

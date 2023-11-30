@@ -467,7 +467,7 @@ shb.hledger = {
   enable = true;
   subdomain = "hledger";
   domain = "example.com";
-  oidcEndpoint = "https://authelia.example.com";
+  authEndpoint = "https://authelia.example.com";
   localNetworkIPRange = "192.168.1.0/24";
 };
 shb.backup.instances.hledger = # Same as the examples above
@@ -493,7 +493,7 @@ shb.jellyfin = {
   ldapHost = "127.0.0.1";
   ldapPort = 3890;
   dcdomain = config.shb.ldap.dcdomain;
-  oidcEndpoint = "https://${config.shb.authelia.subdomain}.${config.shb.authelia.domain}";
+  authEndpoint = "https://${config.shb.authelia.subdomain}.${config.shb.authelia.domain}";
   oidcClientID = "jellyfin";
   oidcUserGroup = "jellyfin_user";
   oidcAdminUserGroup = "jellyfin_admin";
