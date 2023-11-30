@@ -58,7 +58,7 @@
           };
 
           manual = pkgs.nmd.buildDocBookDocs {
-            pathName = "SelfHostBlocks";
+            pathName = "selfhostblocks";
             modulesDocs = [ modulesDocs ];
             documentsDirectory = ./docs;
             chunkToc = ''
