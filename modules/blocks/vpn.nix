@@ -205,40 +205,40 @@ in
     let
       instanceOption = lib.types.submodule {
         options = {
-          enable = lib.mkEnableOption (lib.mdDoc "OpenVPN config");
+          enable = lib.mkEnableOption "OpenVPN config";
 
           package = lib.mkPackageOptionMD pkgs "openvpn" {};
 
           provider = lib.mkOption {
-            description = lib.mdDoc "VPN provider, if given uses ready-made configuration.";
+            description = "VPN provider, if given uses ready-made configuration.";
             type = lib.types.nullOr (lib.types.enum [ "nordvpn" ]);
             default = null;
           };
 
           dev = lib.mkOption {
-            description = lib.mdDoc "Name of the interface.";
+            description = "Name of the interface.";
             type = lib.types.str;
             example = "tun0";
           };
 
           routingNumber = lib.mkOption {
-            description = lib.mdDoc "Unique number used to route packets.";
+            description = "Unique number used to route packets.";
             type = lib.types.int;
             example = 10;
           };
 
           remoteServerIP = lib.mkOption {
-            description = lib.mdDoc "IP of the VPN server to connect to.";
+            description = "IP of the VPN server to connect to.";
             type = lib.types.str;
           };
 
           sopsFile = lib.mkOption {
-            description = lib.mdDoc "Location of file holding authentication secrets for provider.";
+            description = "Location of file holding authentication secrets for provider.";
             type = lib.types.anything;
           };
 
           proxyPort = lib.mkOption {
-            description = lib.mdDoc "If not null, sets up a proxy that listens on the given port and sends traffic to the VPN.";
+            description = "If not null, sets up a proxy that listens on the given port and sends traffic to the VPN.";
             type = lib.types.nullOr lib.types.int;
             default = null;
           };

@@ -36,7 +36,7 @@ let
     };
 
     repositories = lib.mkOption {
-      description = lib.mdDoc "Repositories to back this instance to.";
+      description = "Repositories to back this instance to.";
       type = lib.types.nonEmptyListOf lib.types.str;
     };
 
@@ -96,26 +96,26 @@ in
 {
   options.shb.backup = {
     onlyOnAC = lib.mkOption {
-      description = lib.mdDoc "Run backups only if AC power is plugged in.";
+      description = "Run backups only if AC power is plugged in.";
       default = true;
       example = false;
       type = lib.types.bool;
     };
 
     user = lib.mkOption {
-      description = lib.mdDoc "Unix user doing the backups.";
+      description = "Unix user doing the backups.";
       type = lib.types.str;
       default = "backup";
     };
 
     group = lib.mkOption {
-      description = lib.mdDoc "Unix group doing the backups.";
+      description = "Unix group doing the backups.";
       type = lib.types.str;
       default = "backup";
     };
 
     instances = lib.mkOption {
-      description = lib.mdDoc "Each instance is a backup setting";
+      description = "Each instance is a backup setting";
       default = {};
       type = lib.types.attrsOf (lib.types.submodule {
         options = instanceOptions;
@@ -123,7 +123,7 @@ in
     };
 
     borgServer = lib.mkOption {
-      description = lib.mdDoc "Add borgbackup package so external backups can use this server as a remote.";
+      description = "Add borgbackup package so external backups can use this server as a remote.";
       default = false;
       example = true;
       type = lib.types.bool;

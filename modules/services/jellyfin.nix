@@ -28,7 +28,7 @@ in
     };
 
     domain = lib.mkOption {
-      description = lib.mdDoc "Domain to serve sites under.";
+      description = "Domain to serve sites under.";
       type = lib.types.str;
       example = "domain.com";
     };
