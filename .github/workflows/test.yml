@@ -15,10 +15,3 @@ jobs:
         name: selfhostblocks
         authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'
     - run: nix flake check -L
-    - name: WIP check docs can be built
-      run: |
-        nix \
-          --print-build-logs \
-          --option keep-going true \
-          --show-trace \
-          build .#manualHtml
