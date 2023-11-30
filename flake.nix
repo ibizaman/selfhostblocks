@@ -6,13 +6,15 @@
     sops-nix.url = "github:Mic92/sops-nix";
     nix-flake-tests.url = "github:antifuchs/nix-flake-tests";
     flake-utils.url = "github:numtide/flake-utils";
-    nmd.url = "git+https://git.sr.ht/~rycee/nmd";
-    nmd.inputs.nixpkgs.follows = "nixpkgs";
+    nmd.url = "github:gvolpe/nmd";
   };
 
   outputs = { nixpkgs, nix-flake-tests, flake-utils, nmd, ... }: flake-utils.lib.eachDefaultSystem (system:
     let
-      pkgs = nixpkgs.legacyPackages.${system};
+      pkgs = import nixpkgs {
+        inherit system;
+        overlays = [ nmd.overlays.default ];
+      };
     in
       {
         nixosModules.default = { config, ... }: {
@@ -40,14 +42,12 @@
 
         # Inspiration from https://github.com/nix-community/nix-on-droid/blob/039379abeee67144d4094d80bbdaf183fb2eabe5/docs/default.nix#L22
         packages.manualHtml = let
-          nmdlib = import nmd { inherit pkgs; };
-
           setupModule = {
-            _module.args.pkgs = pkgs.lib.mkForce (nmdlib.scrubDerivations "pkgs" pkgs);
+            _module.args.pkgs = pkgs.lib.mkForce (pkgs.nmd.scrubDerivations "pkgs" pkgs);
             _module.check = false;
           };
 
-          modulesDocs = nmdlib.buildModulesDocs {
+          modulesDocs = pkgs.nmd.buildModulesDocs {
             modules = [
               setupModule
               ./modules/blocks/ssl.nix
@@ -58,7 +58,7 @@
             docBook = { id = "selfhostblocks-options"; optionIdPrefix = "shb-opt"; };
           };
 
-          manual = nmdlib.buildDocBookDocs {
+          manual = pkgs.nmd.buildDocBookDocs {
             pathName = "SelfHostBlocks";
             modulesDocs = [ modulesDocs ];
             documentsDirectory = ./docs;

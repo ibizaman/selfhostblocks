@@ -1,13 +1,59 @@
+<!-- Copyright (c) 2019-2023, see AUTHORS. Licensed under MIT License, see LICENSE. -->
 <book xmlns="http://docbook.org/ns/docbook"
       xmlns:xlink="http://www.w3.org/1999/xlink"
       xmlns:xi="http://www.w3.org/2001/XInclude"
       version="5.0"
-      xml:id="book-minimal-example">
-  <info>
-    <title>A simple example</title>
-  </info>
-  <chapter>
-    <title>A simple example</title>
-    <simpara>Hello, world!</simpara>
-  </chapter>
+      xml:id="book-manual">
+ <info>
+  <title>Self Host Blocks manual</title>
+ </info>
+ <preface>
+  <title>Preface</title>
+  <para>
+   Some basic documentation of Self Host Blocks.
+  </para>
+  <para>
+   If you encounter problems or bugs then please report them on the
+   <link xlink:href="https://github.com/nix-community/nix-on-droid/issues">issue tracker</link>.
+  </para>
+ </preface>
+
+ <appendix xml:id="ch-options">
+  <title>Self Host Blocks configuration options</title>
+  <section xml:id="sec-usage">
+   <title>Usage</title>
+
+   <para>
+    To use these options, edit the config file in
+    <filename>~/.config/nixpkgs/selfhostblocks.nix</filename> or in case of a flake setup,
+    set the <replaceable>modules</replaceable> value in the <varname>nixOnDroidConfiguration</varname>
+    call:
+<programlisting language="nix">
+{
+  inputs = {
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-23.05";
+
+    nix-on-droid = {
+      url = "github:nix-community/nix-on-droid/release-23.05";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+  };
+
+  outputs = { self, nixpkgs, nix-on-droid }: {
+
+    nixOnDroidConfigurations.deviceName = nix-on-droid.lib.nixOnDroidConfiguration {
+      <replaceable>modules</replaceable> = [ ./nix-on-droid.nix ];
+    };
+
+  };
+}
+</programlisting>
+   </para>
+  </section>
+  <section xml:id="sec-options">
+   <title>Options</title>
+
+   <xi:include href="./nmd-result/selfhostblocks-options.xml" />
+  </section>
+ </appendix>
 </book>
