@@ -6,15 +6,19 @@
     sops-nix.url = "github:Mic92/sops-nix";
     nix-flake-tests.url = "github:antifuchs/nix-flake-tests";
     flake-utils.url = "github:numtide/flake-utils";
-    nmd.url = "github:gvolpe/nmd";
+    nmdsrc = {
+      url = "git+https://git.sr.ht/~rycee/nmd";
+      flake = false;
+    };
   };
 
-  outputs = { nixpkgs, nix-flake-tests, flake-utils, nmd, ... }: flake-utils.lib.eachDefaultSystem (system:
+  outputs = { nixpkgs, nix-flake-tests, flake-utils, nmdsrc, ... }: flake-utils.lib.eachDefaultSystem (system:
     let
       pkgs = import nixpkgs {
         inherit system;
-        overlays = [ nmd.overlays.default ];
       };
+
+      nmd = import nmdsrc { inherit pkgs; };
 
       allModules = [
         modules/blocks/authelia.nix
@@ -45,19 +49,19 @@
         # Inspiration from https://github.com/nix-community/nix-on-droid/blob/039379abeee67144d4094d80bbdaf183fb2eabe5/docs/default.nix#L22
         packages.manualHtml = let
           setupModule = {
-            _module.args.pkgs = pkgs.lib.mkForce (pkgs.nmd.scrubDerivations "pkgs" pkgs);
+            _module.args.pkgs = pkgs.lib.mkForce (nmd.scrubDerivations "pkgs" pkgs);
             _module.check = false;
           };
 
-          modulesDocs = pkgs.nmd.buildModulesDocs {
+          modulesDocs = nmd.buildModulesDocs {
             modules = allModules ++ [ setupModule ];
-            moduleRootPaths = [ ../. ];
-            mkModuleUrl = path: "https://github.com/ibizaman/selfhostblocks/blob/master//${path}";
+            moduleRootPaths = [ ./. ];
+            mkModuleUrl = path: "https://github.com/ibizaman/selfhostblocks/blob/main/${path}";
             channelName = "selfhostblocks";
             docBook = { id = "selfhostblocks-options"; optionIdPrefix = "shb-opt"; };
           };
 
-          manual = pkgs.nmd.buildDocBookDocs {
+          manual = nmd.buildDocBookDocs {
             pathName = "selfhostblocks";
             modulesDocs = [ modulesDocs ];
             documentsDirectory = ./docs;
@@ -65,6 +69,7 @@
               <toc>
                 <d:tocentry xmlns:d="http://docbook.org/ns/docbook" linkend="book-manual">
                   <?dbhtml filename="index.html"?>
+                  <d:tocentry linkend="ch-options"><?dbhtml filename="selfhostblocks-options.html"?></d:tocentry>
                 </d:tocentry>
               </toc>
             '';

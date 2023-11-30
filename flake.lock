@@ -81,19 +81,20 @@
         "type": "github"
       }
     },
-    "nmd": {
+    "nmdsrc": {
+      "flake": false,
       "locked": {
-        "lastModified": 1672240039,
-        "narHash": "sha256-lmct89fYDOr9YdWVvdJgklv/7WttRSiDAkoi2cvvAW4=",
-        "owner": "gvolpe",
-        "repo": "nmd",
-        "rev": "a59e840c2e8d54415485f349760e1350cb80d911",
-        "type": "github"
+        "lastModified": 1687627428,
+        "narHash": "sha256-7zGfXuNS5RHqhpEdz2fwrtqvF86JRo5U1hrxZSYgcm8=",
+        "ref": "refs/heads/master",
+        "rev": "824a380546b5d0d0eb701ff8cd5dbafb360750ff",
+        "revCount": 63,
+        "type": "git",
+        "url": "https://git.sr.ht/~rycee/nmd"
       },
       "original": {
-        "owner": "gvolpe",
-        "repo": "nmd",
-        "type": "github"
+        "type": "git",
+        "url": "https://git.sr.ht/~rycee/nmd"
       }
     },
     "root": {
@@ -101,7 +102,7 @@
         "flake-utils": "flake-utils",
         "nix-flake-tests": "nix-flake-tests",
         "nixpkgs": "nixpkgs",
-        "nmd": "nmd",
+        "nmdsrc": "nmdsrc",
         "sops-nix": "sops-nix"
       }
     },
