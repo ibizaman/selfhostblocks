@@ -74,9 +74,5 @@ in
         enableDebugLogs = cfg.debug;
       };
     };
-    sops.secrets.acme = {
-      inherit (cfg) sopsFile;
-      restartUnits = [ "acme-${cfg.domain}.service" ];
-    };
   };
 }
