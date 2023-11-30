@@ -46,6 +46,12 @@ in
       description = "Admin email in case certificate retrieval goes wrong.";
       type = lib.types.str;
     };
+
+    debug = lib.mkOption {
+      description = "Enable debug logging";
+      type = lib.types.bool;
+      default = false;
+    };
   };
 
   config = lib.mkIf cfg.enable {
@@ -64,8 +70,8 @@ in
       defaults = {
         email = cfg.adminEmail;
         inherit (cfg) dnsProvider dnsResolver;
-        enableDebugLogs = false;
         credentialsFile = cfg.credentialsFile;
+        enableDebugLogs = cfg.debug;
       };
     };
     sops.secrets.acme = {
