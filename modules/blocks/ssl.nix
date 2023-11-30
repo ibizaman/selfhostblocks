@@ -8,13 +8,13 @@ in
     enable = lib.mkEnableOption "selfhostblocks.ssl";
 
     domain = lib.mkOption {
-      description = lib.mdDoc "Domain to serve sites under.";
+      description = "Domain to ask a wildcard certificate for.";
       type = lib.types.str;
       example = "domain.com";
     };
 
     dnsProvider = lib.mkOption {
-      description = lib.mdDoc "DNS provider.";
+      description = "DNS provider to use. See https://go-acme.github.io/lego/dns/ for the list of supported providers.";
       type = lib.types.str;
       example = "linode";
     };
@@ -37,13 +37,13 @@ in
     };
 
     dnsResolver = lib.mkOption {
-      description = lib.mdDoc "IP of a DNS server used to resolve hostnames.";
+      description = "IP of a DNS server used to resolve hostnames.";
       type = lib.types.str;
       default = "8.8.8.8";
     };
 
     adminEmail = lib.mkOption {
-      description = lib.mdDoc "Admin email in case certificate retrieval goes wrong.";
+      description = "Admin email in case certificate retrieval goes wrong.";
       type = lib.types.str;
     };
   };
