@@ -38,7 +38,7 @@ in
 
     additionalCfg = lib.mkOption {
       type = lib.types.attrsOf lib.types.str;
-      description = lib.mdDoc ''Additional environment variables used to configure the DNS provider.
+      description = ''Additional environment variables used to configure the DNS provider.
 
       For secrets, use shb.ssl.credentialsFile instead.
 

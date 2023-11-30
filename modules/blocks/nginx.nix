@@ -59,7 +59,7 @@ in
     };
 
     autheliaProtect = lib.mkOption {
-      description = lib.mdDoc "Endpoints to be protected by authelia.";
+      description = "Endpoints to be protected by authelia.";
       type = lib.types.listOf autheliaConfig;
       default = [];
     };

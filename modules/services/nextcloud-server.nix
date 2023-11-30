@@ -16,7 +16,7 @@ in
     };
 
     domain = lib.mkOption {
-      description = lib.mdDoc "Domain to serve Nextcloud under.";
+      description = "Domain to serve Nextcloud under.";
       type = lib.types.str;
       example = "domain.com";
     };

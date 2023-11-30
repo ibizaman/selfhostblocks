@@ -40,13 +40,13 @@ in
     };
 
     proxyPort = lib.mkOption {
-      description = lib.mdDoc "If not null, sets up a deluge to forward all traffic to the Proxy listening at that port.";
+      description = "If not null, sets up a deluge to forward all traffic to the Proxy listening at that port.";
       type = lib.types.nullOr lib.types.int;
       default = null;
     };
 
     outgoingInterface = lib.mkOption {
-      description = lib.mdDoc "If not null, sets up a deluge to bind all outgoing traffic to the given interface.";
+      description = "If not null, sets up a deluge to bind all outgoing traffic to the given interface.";
       type = lib.types.nullOr lib.types.str;
       default = null;
     };

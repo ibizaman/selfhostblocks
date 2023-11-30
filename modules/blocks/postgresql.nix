@@ -6,7 +6,7 @@ in
   options.shb.postgresql = {
     debug = lib.mkOption {
       type = lib.types.bool;
-      description = lib.mdDoc ''
+      description = ''
       Enable debugging options.
 
       Currently enables shared_preload_libraries = "auto_explain, pg_stat_statements"
