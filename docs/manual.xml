@@ -10,11 +10,11 @@
  <preface>
   <title>Preface</title>
   <para>
-   Some basic documentation of Self Host Blocks.
+   Complete manual for Self Host Blocks, the building blocks for self-hosting with battery included.
   </para>
   <para>
    If you encounter problems or bugs then please report them on the
-   <link xlink:href="https://github.com/nix-community/nix-on-droid/issues">issue tracker</link>.
+   <link xlink:href="https://github.com/ibizaman/selfhostblocks/issues">issue tracker</link>.
   </para>
  </preface>
 
@@ -23,26 +23,38 @@
   <section xml:id="sec-usage">
    <title>Usage</title>
 
+   <!--
+   Tags:
+   <title>
+   <section xml:id="sec-NAME">
    <para>
-    To use these options, edit the config file in
-    <filename>~/.config/nixpkgs/selfhostblocks.nix</filename> or in case of a flake setup,
-    set the <replaceable>modules</replaceable> value in the <varname>nixOnDroidConfiguration</varname>
-    call:
+   <filename>
+   <replaceable>
+   <varname>
+   <programlisting language="nix">
+   -->
+
+   <para>
+    To use these options, import Self Host Blocks as a flake input, then import the default module for your system.
 <programlisting language="nix">
 {
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-23.05";
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
+    sops-nix.url = "github:Mic92/sops-nix";
 
-    nix-on-droid = {
-      url = "github:nix-community/nix-on-droid/release-23.05";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
+    shb.url = "github:ibizaman/selfhostblocks";
+    shb.inputs.nixpkgs.follows = "nixpkgs";
+    shb.inputs.sops-nix.follows = "sops-nix";
   };
 
-  outputs = { self, nixpkgs, nix-on-droid }: {
+  outputs = { self, nixpkgs, shb }: {
 
-    nixOnDroidConfigurations.deviceName = nix-on-droid.lib.nixOnDroidConfiguration {
-      <replaceable>modules</replaceable> = [ ./nix-on-droid.nix ];
+    nixosConfigurations.machine = nixpkgs.lib.nixosSystem {
+      system = "x86_64-linux";
+      modules = [
+        shb.nixosModules.x86_64-linux.default
+        ./machine.nix
+      ];
     };
 
   };
