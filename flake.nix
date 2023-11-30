@@ -52,7 +52,7 @@
           modulesDocs = pkgs.nmd.buildModulesDocs {
             modules = allModules ++ [ setupModule ];
             moduleRootPaths = [ ../. ];
-            mkModuleUrl = path: "https://myproject.foo/${path}";
+            mkModuleUrl = path: "https://github.com/ibizaman/selfhostblocks/blob/master//${path}";
             channelName = "selfhostblocks";
             docBook = { id = "selfhostblocks-options"; optionIdPrefix = "shb-opt"; };
           };
