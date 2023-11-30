@@ -36,6 +36,21 @@ in
       example = "/run/secrets/ssl";
     };
 
+    additionalCfg = lib.mkOption {
+      type = lib.types.attrsOf lib.types.str;
+      description = lib.mdDoc ''Additional environment variables used to configure the DNS provider.
+
+      For secrets, use shb.ssl.credentialsFile instead.
+
+      See the chose provider's [documentation](https://go-acme.github.io/lego/dns/) for available
+      options.
+      '';
+      example = lib.literalExpression ''{
+        DNSPROVIDER_TIMEOUT = "10";
+        DNSPROVIDER_PROPAGATION_TIMEOUT = "240";
+      }'';
+    };
+
     dnsResolver = lib.mkOption {
       description = "IP of a DNS server used to resolve hostnames.";
       type = lib.types.str;
@@ -74,5 +89,7 @@ in
         enableDebugLogs = cfg.debug;
       };
     };
+
+    systemd.services."acme-${cfg.domain}".environment = cfg.additionalCfg;
   };
 }
