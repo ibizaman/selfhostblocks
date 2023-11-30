@@ -211,7 +211,7 @@ in
 
           provider = lib.mkOption {
             description = lib.mdDoc "VPN provider, if given uses ready-made configuration.";
-            type = lib.types.nullOf (lib.types.enum [ "nordvpn" ]);
+            type = lib.types.nullOr (lib.types.enum [ "nordvpn" ]);
             default = null;
           };
 
