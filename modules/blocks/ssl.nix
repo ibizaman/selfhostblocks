@@ -7,42 +7,65 @@ in
   options.shb.ssl = {
     enable = lib.mkEnableOption "selfhostblocks.ssl";
 
-    sopsFile = lib.mkOption {
-      type = lib.types.path;
-      description = ''Sops file location.
-
-      To use Linode to prove the dns challenge, the content of the file should be the following,
-      with XXX replaced by your Linode API token.
-
-        LINODE_HTTP_TIMEOUT=10
-        LINODE_POLLING_INTERVAL=10
-        LINODE_PROPAGATION_TIMEOUT=240
-        LINODE_TOKEN=XXX
-      '';
-      example = "secrets/haproxy.yaml";
-    };
-
     domain = lib.mkOption {
-      description = lib.mdDoc "Domain to serve sites under.";
+      description = "Domain to ask a wildcard certificate for.";
       type = lib.types.str;
       example = "domain.com";
     };
 
     dnsProvider = lib.mkOption {
-      description = lib.mdDoc "DNS provider.";
+      description = "DNS provider to use. See https://go-acme.github.io/lego/dns/ for the list of supported providers.";
       type = lib.types.str;
       example = "linode";
     };
 
+    credentialsFile = lib.mkOption {
+      type = lib.types.path;
+      description = ''Credentials file location for the chosen DNS provider.
+
+      The content of this file must expose environment variables as written in the
+      [documentation](https://go-acme.github.io/lego/dns/) of each DNS provider.
+
+      For example, if the documentation says the credential must be located in the environment
+      variable DNSPROVIDER_TOKEN, then the file content must be:
+
+      DNSPROVIDER_TOKEN=xyz
+
+      You can put non-secret environment variables here too or use shb.ssl.additionalcfg instead.
+      '';
+      example = "/run/secrets/ssl";
+    };
+
+    additionalCfg = lib.mkOption {
+      type = lib.types.attrsOf lib.types.str;
+      description = lib.mdDoc ''Additional environment variables used to configure the DNS provider.
+
+      For secrets, use shb.ssl.credentialsFile instead.
+
+      See the chose provider's [documentation](https://go-acme.github.io/lego/dns/) for available
+      options.
+      '';
+      example = lib.literalExpression ''{
+        DNSPROVIDER_TIMEOUT = "10";
+        DNSPROVIDER_PROPAGATION_TIMEOUT = "240";
+      }'';
+    };
+
     dnsResolver = lib.mkOption {
-      description = lib.mdDoc "IP of a DNS server used to resolve hostnames.";
+      description = "IP of a DNS server used to resolve hostnames.";
       type = lib.types.str;
       default = "8.8.8.8";
     };
 
     adminEmail = lib.mkOption {
-      description = lib.mdDoc "Admin email in case certificate retrieval goes wrong.";
+      description = "Admin email in case certificate retrieval goes wrong.";
       type = lib.types.str;
+    };
+
+    debug = lib.mkOption {
+      description = "Enable debug logging";
+      type = lib.types.bool;
+      default = false;
     };
   };
 
@@ -62,13 +85,11 @@ in
       defaults = {
         email = cfg.adminEmail;
         inherit (cfg) dnsProvider dnsResolver;
-        credentialsFile = config.sops.secrets.acme.path;
-        enableDebugLogs = false;
+        credentialsFile = cfg.credentialsFile;
+        enableDebugLogs = cfg.debug;
       };
     };
-    sops.secrets.acme = {
-      inherit (cfg) sopsFile;
-      restartUnits = [ "acme-${cfg.domain}.service" ];
-    };
+
+    systemd.services."acme-${cfg.domain}".environment = cfg.additionalCfg;
   };
 }

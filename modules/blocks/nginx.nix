@@ -178,5 +178,9 @@ in
         authConfig = c: map (r: r // { domain = fqdn c; }) c.autheliaRules;
       in
         lib.flatten (map authConfig cfg.autheliaProtect);
+
+    security.acme.defaults.reloadServices = [
+      "nginx.service"
+    ];
   };
 }
