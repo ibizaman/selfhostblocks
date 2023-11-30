@@ -28,9 +28,8 @@
   <refsection>
    <title>Options</title>
    <para>
-    You can use the following options in <filename>selfhostblocks.nix</filename> or in the
-    <varname>modules</varname> argument of <varname>lib.nixOnDroidConfiguration</varname>
-    in your <filename>flake.nix</filename>:
+    You can use the following options after importing Self Host Blocks as a flake input, then
+    importing the default module for your system.
    </para>
    <xi:include href="./nmd-result/selfhostblocks-options.xml" />
   </refsection>
