@@ -7,23 +7,23 @@ let
 in
 {
   options.shb.ldap = {
-    enable = lib.mkEnableOption "selfhostblocks.home-assistant";
+    enable = lib.mkEnableOption "the LDAP service";
 
     dcdomain = lib.mkOption {
       type = lib.types.str;
-      description = "dc domain for ldap.";
+      description = "dc domain to serve.";
       example = "dc=mydomain,dc=com";
     };
 
     subdomain = lib.mkOption {
       type = lib.types.str;
-      description = "Subdomain under which home-assistant will be served.";
+      description = "Subdomain under which the LDAP service will be served.";
       example = "grafana";
     };
 
     domain = lib.mkOption {
       type = lib.types.str;
-      description = "domain under which home-assistant will be served.";
+      description = "Domain under which the LDAP service will be served.";
       example = "mydomain.com";
     };
 
@@ -33,43 +33,38 @@ in
       default = 3890;
     };
 
-    httpPort = lib.mkOption {
+    webUIListenPort = lib.mkOption {
       type = lib.types.port;
       description = "Port on which the web UI is exposed.";
       default = 17170;
     };
 
-    sopsFile = lib.mkOption {
+    ldapUserPasswordFile = lib.mkOption {
       type = lib.types.path;
-      description = "Sops file location";
-      example = "secrets/ldap.yaml";
+      description = "File containing the LDAP admin user password.";
     };
 
-    localNetworkIPRange = lib.mkOption {
+    jwtSecretFile = lib.mkOption {
+      type = lib.types.path;
+      description = "File containing the JWT secret.";
+    };
+
+    restrictAccessIPRange = lib.mkOption {
       type = lib.types.nullOr lib.types.str;
-      description = "Local network range, to restrict access to the UI to only those IPs.";
+      description = "Set a local network range to restrict access to the UI to only those IPs.";
       example = "192.168.1.1/24";
       default = null;
+    };
+
+    debug = lib.mkOption {
+      description = "Enable debug logging.";
+      type = lib.types.bool;
+      default = false;
     };
   };
 
   
   config = lib.mkIf cfg.enable {
-    sops.secrets."lldap/user_password" = {
-      inherit (cfg) sopsFile;
-      mode = "0440";
-      owner = "lldap";
-      group = "lldap";
-      restartUnits = [ "lldap.service" ];
-    };
-    sops.secrets."lldap/jwt_secret" = {
-      inherit (cfg) sopsFile;
-      mode = "0440";
-      owner = "lldap";
-      group = "lldap";
-      restartUnits = [ "lldap.service" ];
-    };
-
     services.nginx = {
       enable = true;
 
@@ -80,8 +75,8 @@ in
         locations."/" = {
           extraConfig = ''
             proxy_set_header Host $host;
-          '' + (if isNull cfg.localNetworkIPRange then "" else ''
-            allow ${cfg.localNetworkIPRange};
+          '' + (if isNull cfg.restrictAccessIPRange then "" else ''
+            allow ${cfg.restrictAccessIPRange};
             deny all;
           '');
           proxyPass = "http://${toString config.services.lldap.settings.http_host}:${toString config.services.lldap.settings.http_port}/";
@@ -103,23 +98,23 @@ in
       enable = true;
 
       environment = {
-        LLDAP_JWT_SECRET_FILE = "/run/secrets/lldap/jwt_secret";
-        LLDAP_LDAP_USER_PASS_FILE = "/run/secrets/lldap/user_password";
+        LLDAP_JWT_SECRET_FILE = toString cfg.jwtSecretFile;
+        LLDAP_LDAP_USER_PASS_FILE = toString cfg.ldapUserPasswordFile;
 
-        # RUST_LOG = "debug";
+        RUST_LOG = lib.mkIf cfg.debug "debug";
       };
 
       settings = {
         http_url = "https://${fqdn}";
         http_host = "127.0.0.1";
-        http_port = cfg.httpPort;
+        http_port = cfg.webUIListenPort;
 
         ldap_host = "127.0.0.1";
         ldap_port = cfg.ldapPort;
 
         ldap_base_dn = cfg.dcdomain;
 
-        # verbose = true;
+        verbose = cfg.debug;
       };
     };
 
