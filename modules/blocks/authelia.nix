@@ -36,17 +36,9 @@ in
     };
 
     autheliaUser = lib.mkOption {
-      type = lib.types.nullOr lib.types.str;
-      description = ''System user for this Authelia instance.
-
-If set to null, defaults to:
-<programlisting language="nix">
-"authelia_" +
-  (builtins.replaceStrings ["-" "."] ["_" "_"]
-    ''${shb.authelia.subdomain}.''${shb.authelia.domain}")
-</programlisting>
-'';
-      default = null;
+      type = lib.types.str;
+      description = "System user for this Authelia instance.";
+      default = "authelia";
     };
 
     secrets = lib.mkOption {
@@ -120,7 +112,7 @@ If set to null, defaults to:
 
     services.authelia.instances.${fqdn} = {
       enable = true;
-      user = cfg.autheliaUser or "authelia_" + builtins.replaceStrings ["-" "."] ["_" "_"] fqdn;
+      user = cfg.autheliaUser;
 
       secrets = {
         inherit (cfg.secrets) jwtSecretFile storageEncryptionKeyFile;

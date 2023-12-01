@@ -20,7 +20,7 @@ let
       };
 
       authEndpoint = lib.mkOption {
-        type = lib.types.nullOr lib.types.str;
+        type = lib.types.str;
         description = "Auth endpoint for SSO.";
         default = null;
         example = "https://authelia.example.com";
