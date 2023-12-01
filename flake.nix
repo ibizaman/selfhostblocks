@@ -108,6 +108,7 @@
                 mergeTests (importFiles [
                   ./test/modules/arr.nix
                   ./test/modules/davfs.nix
+                  ./test/modules/nginx.nix
                   ./test/modules/postgresql.nix
                 ]);
             };
