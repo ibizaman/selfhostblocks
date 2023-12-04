@@ -28,8 +28,11 @@ let
           m
         ];
       }).config;
+
+      systemdRedacted = lib.filterAttrsRecursive (n: v: n != "preStart") cfg.systemd;
     in {
-      inherit (cfg) systemd services users;
+      inherit (cfg) services users;
+      systemd = systemdRedacted;
       shb = { inherit (cfg.shb) backup nginx; };
     };
 in
@@ -54,7 +57,6 @@ in
   testRadarr = {
     expected = {
       systemd.services.radarr = {
-        preStart = "ln -fs /nix/store/z7gk6xfj51sr1n1bjj6lsadjrwjxzc5d--config.xml /var/lib/radarr/config.xml.template\nrm /var/lib/radarr/config.xml || :\nsed -e \"s|%APIKEY%|$(cat /run/radarr/apikey)|\" /var/lib/radarr/config.xml.template > /var/lib/radarr/config.xml\n";
         serviceConfig = {
           StateDirectoryMode = "0750";
           UMask = "0027";
@@ -122,7 +124,6 @@ in
   testRadarrWithBackup = {
     expected = {
       systemd.services.radarr = {
-        preStart = "ln -fs /nix/store/z7gk6xfj51sr1n1bjj6lsadjrwjxzc5d--config.xml /var/lib/radarr/config.xml.template\nrm /var/lib/radarr/config.xml || :\nsed -e \"s|%APIKEY%|$(cat /run/radarr/apikey)|\" /var/lib/radarr/config.xml.template > /var/lib/radarr/config.xml\n";
         serviceConfig = {
           StateDirectoryMode = "0750";
           UMask = "0027";
