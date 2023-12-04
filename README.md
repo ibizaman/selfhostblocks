@@ -658,6 +658,8 @@ Run all tests:
 $ nix build .#checks.${system}.all
 # or
 $ nix flake check
+# or
+$ nix run github:Mic92/nix-fast-build -- --skip-cached --flake ".#checks.$(nix eval --raw --impure --expr builtins.currentSystem)"
 ```
 
 Run one group of tests:
@@ -670,8 +672,13 @@ $ nix build .#checks.${system}.vm_postgresql_peerAuth
 ### Speed up CI
 
 Github actions do not have hardware acceleration and tests could timeout when running there. The
-easiest way to speed up CI is to push the test results to cachix. Instructions are given
-[here](https://docs.cachix.org/pushing#flakes).
+easiest way to speed up CI is to push the test results to cachix.
+
+After running the `nix-fast-build` command from the previous section, run:
+
+```bash
+$ find . -type l -name "result-vm_*" | xargs readlink | nix run nixpkgs#cachix -- push selfhostblocks
+```
 
 ### Deploy using colmena
 
