@@ -72,12 +72,8 @@ in
         services.postgresql.ensureDatabases = map ({ database, ... }: database) ensureCfgs;
         services.postgresql.ensureUsers = map ({ username, database, ... }: {
           name = username;
-          ensurePermissions = {
-            "DATABASE ${database}" = "ALL PRIVILEGES";
-          };
-          ensureClauses = {
-            "login" = true;
-          };
+          ensureDBOwnership = true;
+          ensureClauses.login = true;
         }) ensureCfgs;
       };
 

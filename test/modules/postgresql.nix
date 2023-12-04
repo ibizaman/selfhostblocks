@@ -64,9 +64,7 @@ in
         enable = true;
         ensureUsers = [{
           name = "myuser";
-          ensurePermissions = {
-            "DATABASE mydatabase" = "ALL PRIVILEGES";
-          };
+          ensureDBOwnership = true;
           ensureClauses = {
             "login" = true;
           };
@@ -92,9 +90,7 @@ in
         enable = true;
         ensureUsers = [{
           name = "myuser";
-          ensurePermissions = {
-            "DATABASE mydatabase" = "ALL PRIVILEGES";
-          };
+          ensureDBOwnership = true;
           ensureClauses = {
             "login" = true;
           };
@@ -131,18 +127,14 @@ in
         ensureUsers = [
           {
             name = "user1";
-            ensurePermissions = {
-              "DATABASE db1" = "ALL PRIVILEGES";
-            };
+            ensureDBOwnership = true;
             ensureClauses = {
               "login" = true;
             };
           }
           {
             name = "user2";
-            ensurePermissions = {
-              "DATABASE db2" = "ALL PRIVILEGES";
-            };
+            ensureDBOwnership = true;
             ensureClauses = {
               "login" = true;
             };
@@ -174,18 +166,14 @@ in
         ensureUsers = [
           {
             name = "user1";
-            ensurePermissions = {
-              "DATABASE db1" = "ALL PRIVILEGES";
-            };
+            ensureDBOwnership = true;
             ensureClauses = {
               "login" = true;
             };
           }
           {
             name = "user2";
-            ensurePermissions = {
-              "DATABASE db2" = "ALL PRIVILEGES";
-            };
+            ensureDBOwnership = true;
             ensureClauses = {
               "login" = true;
             };
@@ -230,18 +218,14 @@ in
         ensureUsers = [
           {
             name = "user1";
-            ensurePermissions = {
-              "DATABASE db1" = "ALL PRIVILEGES";
-            };
+            ensureDBOwnership = true;
             ensureClauses = {
               "login" = true;
             };
           }
           {
             name = "user2";
-            ensurePermissions = {
-              "DATABASE db2" = "ALL PRIVILEGES";
-            };
+            ensureDBOwnership = true;
             ensureClauses = {
               "login" = true;
             };
