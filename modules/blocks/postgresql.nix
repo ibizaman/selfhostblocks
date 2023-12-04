@@ -21,6 +21,7 @@ in
     };
 
     ensures = lib.mkOption {
+      description = "List of username, database and/or passwords that should be created.";
       type = lib.types.listOf (lib.types.submodule {
         options = {
           username = lib.mkOption {

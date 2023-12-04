@@ -42,28 +42,36 @@ in
     };
 
     secrets = lib.mkOption {
+      description = "Secrets needed by Authelia";
       type = lib.types.submodule {
         options = {
           jwtSecretFile = lib.mkOption {
             type = lib.types.str;
+            description = "File containing the JWT secret.";
           };
           ldapAdminPasswordFile = lib.mkOption {
             type = lib.types.str;
+            description = "File containing the LDAP admin user password.";
           };
           sessionSecretFile = lib.mkOption {
             type = lib.types.str;
+            description = "File containing the session secret.";
           };
           notifierSMTPPasswordFile = lib.mkOption {
             type = lib.types.str;
+            description = "File containing the STMP password for the notifier.";
           };
           storageEncryptionKeyFile = lib.mkOption {
             type = lib.types.str;
+            description = "File containing the storage encryption key.";
           };
           identityProvidersOIDCHMACSecretFile = lib.mkOption {
             type = lib.types.str;
+            description = "File containing the identity provider OIDC HMAC secret.";
           };
           identityProvidersOIDCIssuerPrivateKeyFile = lib.mkOption {
             type = lib.types.str;
+            description = "File containing the identity provider OIDC issuer private key.";
           };
         };
       };

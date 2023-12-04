@@ -57,6 +57,7 @@ in
     };
 
     smtp = lib.mkOption {
+      description = "SMTP options.";
       type = lib.types.submodule {
         options = {
           from_address = lib.mkOption {
@@ -102,6 +103,7 @@ in
 
     backupConfig = lib.mkOption {
       type = lib.types.nullOr lib.types.anything;
+      description = "Backup configuration of Vaultwarden.";
       default = null;
     };
 

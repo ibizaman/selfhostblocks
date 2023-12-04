@@ -14,11 +14,44 @@
 
   outputs = { nixpkgs, nix-flake-tests, flake-utils, nmdsrc, ... }: flake-utils.lib.eachDefaultSystem (system:
     let
-      pkgs = import nixpkgs {
-        inherit system;
+      patches = [
+        ''
+        From a4d67df38628eaa3e1823af7b7613af3d7ff7555 Mon Sep 17 00:00:00 2001
+        From: ibizaman <ibizapeanut@gmail.com>
+        Date: Sun, 3 Dec 2023 21:09:30 -0800
+        Subject: [PATCH] fix for nixos-render-docs media path
+        
+        ---
+         .../tools/nix/nixos-render-docs/src/nixos_render_docs/manual.py | 2 +-
+         1 file changed, 1 insertion(+), 1 deletion(-)
+        
+        diff --git a/pkgs/tools/nix/nixos-render-docs/src/nixos_render_docs/manual.py b/pkgs/tools/nix/nixos-render-docs/src/nixos_render_docs/manual.py
+        index d605dd88b37d..3482cc02c4d1 100644
+        --- a/pkgs/tools/nix/nixos-render-docs/src/nixos_render_docs/manual.py
+        +++ b/pkgs/tools/nix/nixos-render-docs/src/nixos_render_docs/manual.py
+        @@ -506,7 +506,7 @@ class ManualHTMLRenderer(RendererMixin, HTMLRenderer):
+                 in_dir = self._in_dir
+                 for included, path in fragments:
+                     try:
+        -                self._in_dir = (in_dir / path).parent
+        +                self._in_dir = path.parent
+                         inner.append(self.render(included))
+                     except Exception as e:
+                         raise RuntimeError(f"rendering {path}") from e
+        -- 
+        2.42.0
+        ''
+      ];
+      originPkgs = nixpkgs.legacyPackages.${system};
+      patchedNixpkgs = originPkgs.applyPatches {
+        name = "nixpkgs-patched";
+        src = nixpkgs;
+        patches = map (p: originPkgs.writeText "patch" p) patches;
       };
 
-      nmd = import nmdsrc { inherit pkgs; };
+      pkgs = import patchedNixpkgs {
+        inherit system;
+      };
 
       allModules = [
         modules/blocks/authelia.nix
@@ -46,36 +79,10 @@
           imports = allModules;
         };
 
-        # Inspiration from https://github.com/nix-community/nix-on-droid/blob/039379abeee67144d4094d80bbdaf183fb2eabe5/docs/default.nix#L22
-        packages.manualHtml = let
-          setupModule = {
-            _module.args.pkgs = pkgs.lib.mkForce (nmd.scrubDerivations "pkgs" pkgs);
-            _module.check = false;
-          };
-
-          modulesDocs = nmd.buildModulesDocs {
-            modules = allModules ++ [ setupModule ];
-            moduleRootPaths = [ ./. ];
-            mkModuleUrl = path: "https://github.com/ibizaman/selfhostblocks/blob/main/${path}";
-            channelName = "selfhostblocks";
-            docBook = { id = "selfhostblocks-options"; optionIdPrefix = "shb-opt"; };
-          };
-
-          manual = nmd.buildDocBookDocs {
-            pathName = "selfhostblocks";
-            modulesDocs = [ modulesDocs ];
-            documentsDirectory = ./docs;
-            chunkToc = ''
-              <toc>
-                <d:tocentry xmlns:d="http://docbook.org/ns/docbook" linkend="book-manual">
-                  <?dbhtml filename="index.html"?>
-                  <d:tocentry linkend="ch-options"><?dbhtml filename="selfhostblocks-options.html"?></d:tocentry>
-                </d:tocentry>
-              </toc>
-            '';
-          };
-        in
-          manual.html;
+        packages.manualHtml = pkgs.callPackage ./docs {
+          inherit allModules nmdsrc;
+          release = "0.0.1";
+        };
 
         checks =
           let

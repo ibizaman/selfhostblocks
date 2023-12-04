@@ -9,15 +9,18 @@ let
       settingsFormat = formatXML {};
       moreOptions = {
         settings = lib.mkOption {
+          description = "Specific options for radarr.";
           default = {};
           type = lib.types.submodule {
             freeformType = apps.radarr.settingsFormat.type;
             options = {
               APIKeyFile = lib.mkOption {
                 type = lib.types.path;
+                description = "Path to api key secret file.";
               };
               LogLevel = lib.mkOption {
                 type = lib.types.enum ["debug" "info"];
+                description = "Log level.";
                 default = "info";
               };
             };
@@ -58,6 +61,7 @@ let
               };
               OmdbApiKeyFile = lib.mkOption {
                 type = lib.types.nullOr lib.types.path;
+                description = "File containing the Open Movie Database API key.";
                 default = null;
               };
               ProxyType = lib.mkOption {
@@ -72,10 +76,12 @@ let
               };
               ProxyUrl = lib.mkOption {
                 type = lib.types.nullOr lib.types.str;
+                description = "URL of the proxy. Ignored if ProxyType is set to -1";
                 default = null;
               };
               ProxyPort = lib.mkOption {
                 type = lib.types.nullOr lib.types.port;
+                description = "Port of the proxy. Ignored if ProxyType is set to -1";
                 default = null;
               };
             };
