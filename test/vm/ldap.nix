@@ -34,6 +34,7 @@
 
     start_all()
     server.wait_for_unit("lldap.service")
+    server.wait_for_open_port(${toString nodes.server.services.lldap.settings.http_port})
 
     with subtest("fail without authenticating"):
         client.fail(

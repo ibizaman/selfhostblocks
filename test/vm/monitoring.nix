@@ -28,6 +28,7 @@
     testScript = { nodes, ... }: ''
     start_all()
     machine.wait_for_unit("grafana.service")
+    machine.wait_for_open_port(${toString nodes.machine.services.grafana.settings.server.http_port})
 
     def curl_req(password, wantStatus, endpoint):
         response = machine.wait_until_succeeds("curl -i http://admin:{password}@localhost:3000{endpoint}".format(password=password, endpoint=endpoint), timeout=10)
