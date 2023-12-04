@@ -19,6 +19,7 @@
     testScript = { nodes, ... }: ''
     start_all()
     machine.wait_for_unit("postgresql.service")
+    machine.wait_for_open_port(5432)
 
     def peer_cmd(user, database):
         return "sudo -u me psql -U {user} {db} --command \"\"".format(user=user, db=database)
@@ -60,6 +61,7 @@
     testScript = { nodes, ... }: ''
     start_all()
     machine.wait_for_unit("postgresql.service")
+    machine.wait_for_open_port(5432)
 
     def peer_cmd(user, database):
         return "sudo -u me psql -U {user} {db} --command \"\"".format(user=user, db=database)
@@ -101,6 +103,7 @@
     testScript = { nodes, ... }: ''
     start_all()
     machine.wait_for_unit("postgresql.service")
+    machine.wait_for_open_port(5432)
 
     def peer_cmd(user, database):
         return "sudo -u me psql -U {user} {db} --command \"\"".format(user=user, db=database)
@@ -147,6 +150,7 @@
     testScript = { nodes, ... }: ''
     start_all()
     machine.wait_for_unit("postgresql.service")
+    machine.wait_for_open_port(5432)
 
     def peer_cmd(user, database):
         return "sudo -u me psql -U {user} {db} --command \"\"".format(user=user, db=database)
