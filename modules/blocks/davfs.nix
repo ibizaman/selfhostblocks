@@ -18,6 +18,7 @@ in
 {
   options.shb.davfs = {
     mounts = lib.mkOption {
+      description = "List of mounts.";
       default = [];
       type = lib.types.listOf (lib.types.submodule {
         options = {

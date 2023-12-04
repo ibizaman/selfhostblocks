@@ -75,6 +75,7 @@ in
     };
 
     smtp = lib.mkOption {
+      description = "SMTP options.";
       default = null;
       type = lib.types.nullOr (lib.types.submodule {
         options = {
