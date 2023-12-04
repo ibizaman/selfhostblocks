@@ -76,12 +76,19 @@ in stdenv.mkDerivation {
   buildPhase = ''
     mkdir -p out/media
     mkdir -p out/highlightjs
+    mkdir -p out/static
 
     cp -t out/highlightjs \
       ${documentation-highlighter}/highlight.pack.js \
       ${documentation-highlighter}/LICENSE \
       ${documentation-highlighter}/mono-blue.css \
       ${documentation-highlighter}/loader.js
+
+    cp -t out/static \
+      ${nmdsrc}/static/style.css \
+      ${nmdsrc}/static/highlightjs/tomorrow-night.min.css \
+      ${nmdsrc}/static/highlightjs/highlight.min.js \
+      ${nmdsrc}/static/highlightjs/highlight.load.js
 
     substituteInPlace ./options.md \
       --replace \
@@ -100,10 +107,10 @@ in stdenv.mkDerivation {
       --manpage-urls ${manpage-urls} \
       --media-dir media \
       --revision ${lib.trivial.revisionWithDefault release} \
-      --stylesheet ${nmdsrc}/static/style.css \
-      --stylesheet ${nmdsrc}/static/highlightjs/tomorrow-night.min.css \
-      --script ${nmdsrc}/static/highlightjs/highlight.min.js \
-      --script ${nmdsrc}/static/highlightjs/highlight.load.js \
+      --stylesheet static/style.css \
+      --stylesheet static/tomorrow-night.min.css \
+      --script static/highlight.min.js \
+      --script static/highlight.load.js \
       --toc-depth 1 \
       --section-toc-depth 1 \
       manual.md \
