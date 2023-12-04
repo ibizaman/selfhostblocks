@@ -7,6 +7,10 @@
 preface.md
 ```
 
+```{=include=} parts html:into-file=//blocks-monitoring.html
+blocks/monitoring/default.md
+```
+
 ```{=include=} appendix html:into-file=//options.html
 options.md
 ```
