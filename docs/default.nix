@@ -71,9 +71,14 @@ in stdenv.mkDerivation {
 
   nativeBuildInputs = [ nixos-render-docs ];
 
-  src = ./.;
+  src = ./..;
 
   buildPhase = ''
+    cd docs
+
+    mkdir -p demo
+    cp -t . -r ../demo
+
     mkdir -p out/media
     mkdir -p out/highlightjs
     mkdir -p out/static

@@ -11,6 +11,10 @@ preface.md
 blocks/monitoring/default.md
 ```
 
+```{=include=} chapters html:into-file=//demo-homeassistant.html
+demo/homeassistant/README.md
+```
+
 ```{=include=} appendix html:into-file=//options.html
 options.md
 ```
