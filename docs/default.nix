@@ -96,12 +96,12 @@ in stdenv.mkDerivation {
         ${optionsDocs.optionsJSON}/share/doc/nixos/options.json
 
     find . -name "*.md" -print0 | \
-        while IFS= read -r -d ''' f; do
-          substituteInPlace "''${f}" \
-            --replace \
-              '@REPO@' \
-              "${lib.debug.traceVal ghRoot}"
-        done
+      while IFS= read -r -d ''' f; do
+        substituteInPlace "''${f}" \
+          --replace \
+            '@REPO@' \
+            "${ghRoot}"
+      done
 
     nixos-render-docs manual html \
       --manpage-urls ${manpage-urls} \
