@@ -15,32 +15,6 @@
   outputs = { nixpkgs, nix-flake-tests, flake-utils, nmdsrc, ... }: flake-utils.lib.eachDefaultSystem (system:
     let
       patches = [
-        ''
-        From a4d67df38628eaa3e1823af7b7613af3d7ff7555 Mon Sep 17 00:00:00 2001
-        From: ibizaman <ibizapeanut@gmail.com>
-        Date: Sun, 3 Dec 2023 21:09:30 -0800
-        Subject: [PATCH] fix for nixos-render-docs media path
-        
-        ---
-         .../tools/nix/nixos-render-docs/src/nixos_render_docs/manual.py | 2 +-
-         1 file changed, 1 insertion(+), 1 deletion(-)
-        
-        diff --git a/pkgs/tools/nix/nixos-render-docs/src/nixos_render_docs/manual.py b/pkgs/tools/nix/nixos-render-docs/src/nixos_render_docs/manual.py
-        index d605dd88b37d..3482cc02c4d1 100644
-        --- a/pkgs/tools/nix/nixos-render-docs/src/nixos_render_docs/manual.py
-        +++ b/pkgs/tools/nix/nixos-render-docs/src/nixos_render_docs/manual.py
-        @@ -506,7 +506,7 @@ class ManualHTMLRenderer(RendererMixin, HTMLRenderer):
-                 in_dir = self._in_dir
-                 for included, path in fragments:
-                     try:
-        -                self._in_dir = (in_dir / path).parent
-        +                self._in_dir = path.parent
-                         inner.append(self.render(included))
-                     except Exception as e:
-                         raise RuntimeError(f"rendering {path}") from e
-        -- 
-        2.42.0
-        ''
       ];
       originPkgs = nixpkgs.legacyPackages.${system};
       patchedNixpkgs = originPkgs.applyPatches {
