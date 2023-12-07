@@ -1,4 +1,4 @@
-# Home Assistant Demo
+# Home Assistant Demo {#demo-homeassistant}
 
 **This whole demo is highly insecure as all the private keys are available publicly. This is
 only done for convenience as it is just a demo. Do not expose the VM to the internet.**
@@ -9,7 +9,7 @@ setup users in only about [15 lines](./flake.nix#L29-L45) of related code.
 This guide will show how to deploy this setup to a Virtual Machine, like showed
 [here](https://nixos.wiki/wiki/NixOS_modules#Developing_modules), in 5 commands.
 
-## Deploy to the VM
+## Deploy to the VM {#deploy-to-the-vm}
 
 Build VM with:
 
@@ -54,7 +54,7 @@ SSH_CONFIG_FILE=ssh_config nix run nixpkgs#colmena --impure -- apply
 
 This step will require you to accept the host's fingerprint. The deploy will take a few minutes the first time and subsequent deploys will take around 15 seconds.
 
-## Access Home Assistant Through Your Browser
+## Access Home Assistant Through Your Browser {#access-home-assistant-through-your-browser}
 
 Add the following entry to your `/etc/hosts` file:
 
@@ -80,9 +80,9 @@ Create the group `homeassistant_user` and a user assigned to that group.
 Go to [http://ha.example.com:8080](http://ha.example.com:8080) and login with the
 user and password you just created above.
 
-## In More Details
+## In More Details {#in-more-details}
 
-### Files
+### Files {#files}
 
 - [`flake.nix`](./flake.nix): nix entry point, defines one target host for
   [colmena](https://colmena.cli.rs) to deploy to as well as the selfhostblock's config for
@@ -106,7 +106,7 @@ user and password you just created above.
     hostname `example`. Usually you would store this info in your `~/.ssh/config` file but it's
     provided here to avoid making you do that.
 
-### Virtual Machine
+### Virtual Machine {#virtual-machine}
 
 _More info about the VM._
 
@@ -117,7 +117,7 @@ The VM's User and password are both `nixos`, as setup in the [`configuration.nix
 
 You can login with `ssh -F ssh_config example`. You just need to accept the fingerprint.
 
-### Secrets
+### Secrets {#secrets}
 
 _More info about the secrets._
 
@@ -151,7 +151,7 @@ You can generate random secrets with:
 $ nix run nixpkgs#openssl -- rand -hex 64
 ```
 
-#### Why do we need the VM's public key
+#### Why do we need the VM's public key {#public-key-necessity}
 
 The [`sops.yaml`](./sops.yaml) file describes what private keys can decrypt and encrypt the
 [`secrets.yaml`](./secrets.yaml) file containing the application secrets. Usually, you will create and add
@@ -172,7 +172,7 @@ SOPS_AGE_KEY_FILE=keys.txt nix run --impure nixpkgs#sops -- \
   secrets.yaml
 ```
 
-### SSH
+### SSH {#ssh}
 
 The private and public ssh keys were created with:
 
@@ -189,7 +189,7 @@ For reference, here is what you would need to do if you didn't use the option:
 $ nix shell nixpkgs#openssh --command ssh-copy-id -i sshkey -F ssh_config example
 ```
 
-### Deploy
+### Deploy {#deploy}
 
 If you get a NAR hash mismatch error like herunder, you need to run `nix flake lock --update-input selfhostblocks`.
 
