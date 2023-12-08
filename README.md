@@ -114,6 +114,11 @@ Currently supported services and features are:
   - [ ] Self published documentation for options.
   - [ ] Examples for all building blocks.
 
+## Manual
+
+The (WIP) complete manual can be found at [shb.skarabox.com](shb.skarabox.com/). The information in
+this README will be slowly moved over there.
+
 ## Building Blocks
 
 The building blocks are the foundation selfhostblocks intend to provide to allow you to self host
