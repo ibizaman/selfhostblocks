@@ -128,6 +128,31 @@ in
       example = true;
       type = lib.types.bool;
     };
+
+    # Taken from https://github.com/HubbeKing/restic-kubernetes/blob/73bfbdb0ba76939a4c52173fa2dbd52070710008/README.md?plain=1#L23
+    performance = lib.mkOption {
+      description = "Reduce performance impact of backup jobs.";
+      default = {};
+      type = lib.types.submodule {
+        options = {
+          niceness = lib.mkOption {
+            type = lib.types.ints.between (-20) 19;
+            description = "nice priority adjustment, defaults to 15 for ~20% CPU time of normal-priority process";
+            default = 15;
+          };
+          ioSchedulingClass = lib.mkOption {
+            type = lib.types.enum [ "idle" "best-effort" "realtime" ];
+            description = "ionice scheduling class, defaults to best-effort IO. Only used for `restic backup`, `restic forget` and `restic check` commands.";
+            default = "best-effort";
+          };
+          ioPriority = lib.mkOption {
+            type = lib.types.nullOr (lib.types.ints.between 0 7);
+            description = "ionice priority, defaults to 7 for lowest priority IO. Only used for `restic backup`, `restic forget` and `restic check` commands.";
+            default = 7;
+          };
+        };
+      };
+    };
   };
 
   config = lib.mkIf (cfg.instances != {}) (
@@ -291,5 +316,19 @@ in
             mkSettings = name: instance: builtins.map (mkRepositorySettings name instance) instance.repositories;
           in
             lib.mkMerge (lib.flatten (lib.attrsets.mapAttrsToList mkSettings resticInstances));
+
+        systemd.services =
+          let
+            mkRepositorySettings = name: instance: repository: {
+              "restic-backups-${name}_${repoSlugName repository.path}".serviceConfig = {
+                Nice = cfg.performance.niceness;
+                IOSchedulingClass = cfg.performance.ioSchedulingClass;
+                IOSchedulingPriority = cfg.performance.ioPriority;
+              };
+            };
+            mkSettings = name: instance: builtins.map (mkRepositorySettings name instance) instance.repositories;
+          in
+            lib.mkMerge (lib.flatten (lib.attrsets.mapAttrsToList mkSettings resticInstances));
+      }
     ]);
 }
