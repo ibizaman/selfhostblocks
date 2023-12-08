@@ -16,7 +16,16 @@ jobs:
       with:
         name: selfhostblocks
         authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'
-    - run: |
+    - name: Run tests
+      run: |
         nix run github:Mic92/nix-fast-build -- \
           --skip-cached --no-nom \
           --flake ".#checks.$(nix eval --raw --impure --expr builtins.currentSystem)"
+
+    - name: Test building docs
+      run: |
+        nix \
+          --print-build-logs \
+          --option keep-going true \
+          --show-trace \
+          build .#manualHtml
