@@ -116,7 +116,7 @@ Currently supported services and features are:
 
 ## Manual
 
-The (WIP) complete manual can be found at [shb.skarabox.com](shb.skarabox.com/). The information in
+The (WIP) complete manual can be found at [shb.skarabox.com](https://shb.skarabox.com/). The information in
 this README will be slowly moved over there.
 
 ## Building Blocks
