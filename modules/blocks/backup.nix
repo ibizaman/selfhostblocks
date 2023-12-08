@@ -135,7 +135,8 @@ in
       enabledInstances = lib.attrsets.filterAttrs (k: i: i.enable) cfg.instances;
       borgmaticInstances = lib.attrsets.filterAttrs (k: i: i.backend == "borgmatic") enabledInstances;
       resticInstances = lib.attrsets.filterAttrs (k: i: i.backend == "restic") enabledInstances;
-    in
+    in lib.mkMerge [
+      # Secrets configuration
       {
         users.users = {
           ${cfg.user} = {
@@ -184,7 +185,9 @@ in
             );
           in
             lib.mkMerge (lib.flatten (lib.attrsets.mapAttrsToList mkSopsSecret enabledInstances));
-
+      }
+      # Borgmatic configuration
+      {
         systemd.timers.borgmatic = lib.mkIf (borgmaticInstances != {}) {
           timerConfig = {
             OnCalendar = "hourly";
@@ -207,44 +210,7 @@ in
         environment.systemPackages = (
           lib.optionals cfg.borgServer [ pkgs.borgbackup ]
           ++ lib.optionals (borgmaticInstances != {}) [ pkgs.borgbackup pkgs.borgmatic ]
-          ++ lib.optionals (resticInstances != {}) [ pkgs.restic ]
         );
-
-        services.restic.backups =
-          let
-            mkRepositorySettings = name: instance: repository: {
-              "${name}_${repoSlugName repository}" = {
-                inherit (cfg) user;
-                inherit repository;
-
-                paths = instance.sourceDirectories;
-
-                passwordFile = "/run/secrets/${instance.backend}/passphrases/${name}";
-
-                initialize = true;
-
-                timerConfig = {
-                  OnCalendar = "00,12:00:00";
-                  RandomizedDelaySec = "5m";
-                };
-
-                pruneOpts = lib.mapAttrsToList (name: value:
-                  "--${builtins.replaceStrings ["_"] ["-"] name} ${builtins.toString value}"
-                ) instance.retention;
-
-                backupPrepareCommand = lib.strings.concatStringsSep "\n" instance.hooks.before_backup;
-
-                backupCleanupCommand = lib.strings.concatStringsSep "\n" instance.hooks.after_backup;
-              } // lib.attrsets.optionalAttrs (instance.environmentFile) {
-                environmentFile = "/run/secrets/${instance.backend}/environmentfiles/${name}";
-              } // lib.attrsets.optionalAttrs (builtins.length instance.excludePatterns > 0) {
-                exclude = instance.excludePatterns;
-              };
-            };
-
-            mkSettings = name: instance: builtins.map (mkRepositorySettings name instance) instance.repositories;
-          in
-            lib.mkMerge (lib.flatten (lib.attrsets.mapAttrsToList mkSettings resticInstances));
 
         environment.etc =
           let
@@ -285,5 +251,45 @@ in
             };
           in
             lib.mkMerge (lib.attrsets.mapAttrsToList mkSettings borgmaticInstances);
-      });
+      }
+      # Restic configuration
+      {
+        environment.systemPackages = lib.optionals (resticInstances != {}) [ pkgs.restic ];
+
+        services.restic.backups =
+          let
+            mkRepositorySettings = name: instance: repository: {
+              "${name}_${repoSlugName repository}" = {
+                inherit (cfg) user;
+                inherit repository;
+
+                paths = instance.sourceDirectories;
+
+                passwordFile = "/run/secrets/${instance.backend}/passphrases/${name}";
+
+                initialize = true;
+
+                timerConfig = {
+                  OnCalendar = "00,12:00:00";
+                  RandomizedDelaySec = "5m";
+                };
+
+                pruneOpts = lib.mapAttrsToList (name: value:
+                  "--${builtins.replaceStrings ["_"] ["-"] name} ${builtins.toString value}"
+                ) instance.retention;
+
+                backupPrepareCommand = lib.strings.concatStringsSep "\n" instance.hooks.before_backup;
+
+                backupCleanupCommand = lib.strings.concatStringsSep "\n" instance.hooks.after_backup;
+              } // lib.attrsets.optionalAttrs (instance.environmentFile) {
+                environmentFile = "/run/secrets/${instance.backend}/environmentfiles/${name}";
+              } // lib.attrsets.optionalAttrs (builtins.length instance.excludePatterns > 0) {
+                exclude = instance.excludePatterns;
+              };
+            };
+
+            mkSettings = name: instance: builtins.map (mkRepositorySettings name instance) instance.repositories;
+          in
+            lib.mkMerge (lib.flatten (lib.attrsets.mapAttrsToList mkSettings resticInstances));
+    ]);
 }
