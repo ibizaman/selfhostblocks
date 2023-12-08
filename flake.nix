@@ -61,10 +61,7 @@
         checks =
           let
             importFiles = files:
-              map (m: import m {
-                inherit pkgs;
-                inherit (pkgs) lib;
-              }) files;
+              map (m: pkgs.callPackage m {}) files;
 
             mergeTests = pkgs.lib.lists.foldl pkgs.lib.trivial.mergeAttrs {};
 
