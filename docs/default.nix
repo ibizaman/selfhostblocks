@@ -25,12 +25,32 @@ let
   ghRoot = (gitHubDeclaration "ibizaman" "selfhostblocks" "").url;
 
   buildOptionsDocs = args@{ modules, includeModuleSystemOptions ? true, ... }:
-    let options = (lib.evalModules { inherit modules; }).options;
+    let
+      config = {
+        _module.check = false;
+        _module.args = {};
+        system.stateVersion = "22.11";
+      };
+
+      utils = import "${pkgs.path}/nixos/lib/utils.nix" {
+        inherit config lib;
+        pkgs = null;
+      };
+
+      eval = lib.evalModules {
+        inherit modules;
+
+        specialArgs = {
+          inherit utils;
+        };
+      };
+
+      options = if includeModuleSystemOptions
+                then eval.options
+                else builtins.removeAttrs eval.options [ "_module" ];
     in buildPackages.nixosOptionsDoc ({
-      options = if includeModuleSystemOptions then
-        options
-                else
-                  builtins.removeAttrs options [ "_module" ];
+      inherit options;
+
       transformOptions = opt:
         opt // {
           # Clean up declaration sites to not refer to the Home Manager
