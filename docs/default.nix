@@ -71,6 +71,8 @@ in stdenv.mkDerivation {
 
   nativeBuildInputs = [ nixos-render-docs ];
 
+  # We include the parent so we get the documentation inside the root
+  # modules/ and demo/ folders.
   src = ./..;
 
   buildPhase = ''
@@ -78,6 +80,7 @@ in stdenv.mkDerivation {
 
     mkdir -p demo
     cp -t . -r ../demo
+    cp -t . -r ../modules
 
     mkdir -p out/media
     mkdir -p out/highlightjs

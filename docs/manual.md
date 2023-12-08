@@ -8,7 +8,7 @@ preface.md
 ```
 
 ```{=include=} chapters html:into-file=//blocks-monitoring.html
-blocks/monitoring/default.md
+modules/blocks/monitoring/docs/default.md
 ```
 
 ```{=include=} chapters html:into-file=//demo-homeassistant.html
