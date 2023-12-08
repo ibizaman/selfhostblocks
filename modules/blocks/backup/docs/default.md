@@ -4,16 +4,14 @@ Defined in [`/modules/blocks/backup.nix`](@REPO@/modules/blocks/backup.nix).
 
 This block sets up backup jobs for Self Host Blocks.
 
-## Features
+## Features {#blocks-backup-features}
 Two implementations for this block are provided:
 - [Restic](https://restic.net/)
 - [Borgmatic](https://torsion.org/borgmatic/)
 
 No integration tests are provided yet.
 
-## Configuration
-
-### One folder backed up to mounted hard drives
+## One folder backed up to mounted hard drives {#blocks-backup-config-one}
 
 The following snippet shows how to configure backup of 1 folder using the Restic implementation to 1
 repository.
@@ -79,7 +77,7 @@ borgmatic:
 
 You can have both borgmatic and restic implementations working at the same time.
 
-### One folder backed up to S3
+## One folder backed up to S3 {#blocks-backup-config-remote}
 
 > This is only supported by the Restic implementation. 
 
@@ -117,7 +115,7 @@ The Sops file has a new required field:
 +             AWS_SECRET_ACCESS_KEY=<aws_secret_key>
 ```
 
-### Multiple folder to multiple destinations
+## Multiple folder to multiple destinations {#blocks-backup-config-multiple}
 
 The following snippet shows how to configure backup of any number of folders using the Restic
 implementation to 3 repositories, each happening at different times to avoid contending for I/O
