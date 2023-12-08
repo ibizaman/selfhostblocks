@@ -1,4 +1,4 @@
-{ config, pkgs, lib, ... }:
+{ config, pkgs, lib, utils, ... }:
 
 let
   cfg = config.shb.backup;
@@ -37,7 +37,28 @@ let
 
     repositories = lib.mkOption {
       description = "Repositories to back this instance to.";
-      type = lib.types.nonEmptyListOf lib.types.str;
+      type = lib.types.nonEmptyListOf (lib.types.submodule {
+        options = {
+          path = lib.mkOption {
+            type = lib.types.str;
+            description = "Repository location";
+          };
+
+          timerConfig = lib.mkOption {
+            type = lib.types.attrsOf utils.systemdUtils.unitOptions.unitOption;
+            default = {
+              OnCalendar = "daily";
+              Persistent = true;
+            };
+            description = ''When to run the backup. See {manpage}`systemd.timer(5)` for details.'';
+            example = {
+              OnCalendar = "00:05";
+              RandomizedDelaySec = "5h";
+              Persistent = true;
+            };
+          };
+        };
+      });
     };
 
     retention = lib.mkOption {
@@ -191,15 +212,15 @@ in
                     group = cfg.group;
                   };
                 }
-              ] ++ lib.optional ((lib.filter (lib.strings.hasPrefix "s3") instance.repositories) != []) {
+              ] ++ lib.optional ((lib.filter ({path, ...}: lib.strings.hasPrefix "s3" path) instance.repositories) != []) {
                 "${instance.backend}/environmentfiles/${if isNull instance.secretName then name else instance.secretName}" = {
                   sopsFile = instance.keySopsFile;
                   mode = "0440";
                   owner = cfg.user;
                   group = cfg.group;
                 };
-              } ++ lib.optionals (instance.backend == "borgmatic") (lib.flatten (map (repository: {
-                "${instance.backend}/keys/${repoSlugName repository}" = {
+              } ++ lib.optionals (instance.backend == "borgmatic") (lib.flatten (map ({path, ...}: {
+                "${instance.backend}/keys/${repoSlugName path}" = {
                   key = "${instance.backend}/keys/${if isNull instance.secretName then name else instance.secretName}";
                   sopsFile = instance.keySopsFile;
                   mode = "0440";
@@ -244,7 +265,7 @@ in
                 location =
                   {
                     source_directories = instance.sourceDirectories;
-                    repositories = instance.repositories;
+                    repositories = map ({path, ...}: path) instance.repositories;
                   }
                   // (lib.attrsets.optionalAttrs (builtins.length instance.excludePatterns > 0) {
                     excludePatterns = instance.excludePatterns;
@@ -284,9 +305,9 @@ in
         services.restic.backups =
           let
             mkRepositorySettings = name: instance: repository: {
-              "${name}_${repoSlugName repository}" = {
+              "${name}_${repoSlugName repository.path}" = {
                 inherit (cfg) user;
-                inherit repository;
+                repository = repository.path;
 
                 paths = instance.sourceDirectories;
 
@@ -294,10 +315,7 @@ in
 
                 initialize = true;
 
-                timerConfig = {
-                  OnCalendar = "00,12:00:00";
-                  RandomizedDelaySec = "5m";
-                };
+                inherit (repository) timerConfig;
 
                 pruneOpts = lib.mapAttrsToList (name: value:
                   "--${builtins.replaceStrings ["_"] ["-"] name} ${builtins.toString value}"
