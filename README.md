@@ -2,11 +2,20 @@
 
 *Building blocks for self-hosting with battery included.*
 
-SHB's (Self Host Blocks) goal is to provide a lower entry-bar for self-hosting. I intend to achieve
-this by providing opinionated [building blocks](#building-blocks) fitting together to self-host any service
+SHB's (Self Host Blocks) goal is to provide a lower entry-bar for self-hosting. SHB provides opinionated [building blocks](#building-blocks) fitting together to self-host any service
 you'd want. Some [common services](#provided-services) are provided out of the box.
 
-The building blocks allow you to easily setup:
+Each building block defines a part of what a self-hosted app should provide. For example, HTTPS
+access through a subdomain or Single Sign-On. The goal of SHB is to make sure those blocks all fit
+together, whatever the actual implementation you choose. For example, the subdomain access could be
+done using Caddy or Nginx. This is achieved by providing an explicit contract for each block and validating that contract using NixOS VM integration tests.
+
+One important goal of SHB is to be the smallest amount of code above what is available in
+[nixpkgs](https://github.com/NixOS/nixpkgs). It should be the minimum necessary to make packages
+available there conform with the contracts. This way, there are less chance of breakage when nixpkgs
+gets updated.
+
+SHB provides some out of the box implementation of those blocks:
 - Access through a subdomain ([Nginx](https://www.nginx.com/)).
 - HTTPS access ([Nginx](https://www.nginx.com/) + [Letsencrypt](https://letsencrypt.org/)).
 - Backup ([Borgmatic](https://torsion.org/borgmatic/) and/or [Restic](https://restic.net/)).
@@ -16,10 +25,11 @@ The building blocks allow you to easily setup:
 - Database setup (Only [Postgresql](https://www.postgresql.org/) so far).
 - VPN tunnels with optional proxys ([OpenVPN](https://openvpn.net/) with [Tinyproxy](http://tinyproxy.github.io/)).
 
-The provided services will have all those integrated. Progress is detailed in the [Supported Features](#supported-features) section.
+SHB provides also services that integrate with those blocks out of the box. Progress is detailed in the [Supported Features](#supported-features) section.
 
-You should know that although I am using everything in this repo for my personal production server, this is
-really just a one person effort for now and there are most certainly bugs that I didn't discover yet.
+> **Caution:** You should know that although I am using everything in this repo for my personal
+> production server, this is really just a one person effort for now and there are most certainly
+> bugs that I didn't discover yet.
 
 ## TOC
 
