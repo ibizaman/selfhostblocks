@@ -283,60 +283,15 @@ authelia:
         -----END PRIVATE KEY-----
 ```
 
-Add backup to LDAP:
-
-```nix
-shb.backup.instances.lldap = {
-  # Can also use "borgmatic".
-  backend = "restic";
-
-  keySopsFile = ./secrets/backup.yaml;
-
-  # Backs up to 2 repositories.
-  repositories = [
-    "/srv/backup/restic/nextcloud"
-    "s3:s3.us-west-000.backblazeb2.com/myserver-backup/nextcloud"
-  ];
-
-  retention = {
-    keep_within = "1d";
-    keep_hourly = 24;
-    keep_daily = 7;
-    keep_weekly = 4;
-    keep_monthly = 6;
-  };
-
-  consistency = {
-    repository = "2 weeks";
-    archives = "1 month";
-  };
-
-  environmentFile = true;  # Needed for the s3 repository
-}
-```
-
-This will backup the ldap users and groups to two different repositories. It assumes you have a
-backblaze account.
-
-The backup `sops` file format is:
-
-```yaml
-restic:
-    passphrases:
-        lldap: XYZ...
-    environmentfiles:
-        lldap: |-
-            AWS_ACCESS_KEY_ID=XXX...
-            AWS_SECRET_ACCESS_KEY=YYY...
-```
-
-The AWS keys are those provided by Backblaze.
-
 See the [`ldap.nix`](./modules/ldap.nix) and [`authelia.nix`](./modules/authelia.nix) modules for more info.
+
+### Backup folders
+
+See the [manual](https://shb.skarabox.com/blocks-backup.html).
 
 ### Deploy the full Grafana, Prometheus and Loki suite
 
-See [docs/blocks/monitoring.md](docs/blocks/monitoring.md).
+See the [manual](https://shb.skarabox.com/blocks-monitoring.html).
 
 ### Set up network tunnel with VPN and Proxy
 
