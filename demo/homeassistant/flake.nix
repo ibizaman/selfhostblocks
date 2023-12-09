@@ -26,6 +26,13 @@
           selfhostblocks.nixosModules.x86_64-linux.default
         ];
 
+        # Used by colmena to know which target host to deploy to.
+        deployment = {
+          targetHost = "example";
+          targetUser = "nixos";
+          targetPort = 2222;
+        };
+
         shb.ldap = {
           enable = true;
           domain = "example.com";

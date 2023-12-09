@@ -1,5 +1,9 @@
 { config, pkgs, ... }:
 
+let
+  targetUser = "nixos";
+  targetPort = 2222;
+in
 {
   imports =
     [ # Include the results of the hardware scan.
@@ -22,15 +26,8 @@
 
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
 
-  # Used by colmena to know which target host to deploy to.
-  deployment = {
-    targetHost = "example";
-    targetPort = 2222;
-    targetUser = "nixos";
-  };
-
   # We need to create the user we will deploy with.
-  users.users.${config.deployment.targetUser} = {
+  users.users.${targetUser} = {
     isNormalUser = true;
     extraGroups = [ "wheel" ]; # Enable ‘sudo’ for the user.
     initialPassword = "nixos";
@@ -42,7 +39,7 @@
 
   # The user we're deploying with must be able to run sudo without password.
   security.sudo.extraRules = [
-    { users = [ config.deployment.targetUser ];
+    { users = [ targetUser ];
       commands = [
         { command = "ALL";
           options = [ "NOPASSWD" ];
@@ -53,13 +50,13 @@
 
   # Needed to allow the user we're deploying with to write to the nix store.
   nix.settings.trusted-users = [
-    config.deployment.targetUser
+    targetUser
   ];
 
   # We need to enable the ssh daemon to be able to deploy.
   services.openssh = {
     enable = true;
-    ports = [ config.deployment.targetPort ];
+    ports = [ targetPort ];
     permitRootLogin = "no";
     passwordAuthentication = false;
   };
