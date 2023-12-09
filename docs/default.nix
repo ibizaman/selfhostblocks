@@ -68,6 +68,12 @@ let
 
   optionsDocs = buildOptionsDocs {
     modules = allModules ++ [ scrubbedModule ];
+    variablelistId = "selfhostblocks-block-backup-options";
+    includeModuleSystemOptions = false;
+  };
+
+  backupOptionsDocs = buildOptionsDocs {
+    modules = [ ../modules/blocks/backup.nix scrubbedModule ];
     variablelistId = "selfhostblocks-options";
     includeModuleSystemOptions = false;
   };
@@ -122,6 +128,11 @@ in stdenv.mkDerivation {
       --replace \
         '@OPTIONS_JSON@' \
         ${optionsDocs.optionsJSON}/share/doc/nixos/options.json
+
+    substituteInPlace ./modules/blocks/backup/docs/default.md \
+      --replace \
+        '@OPTIONS_JSON@' \
+        ${backupOptionsDocs.optionsJSON}/share/doc/nixos/options.json
 
     find . -name "*.md" -print0 | \
       while IFS= read -r -d ''' f; do
