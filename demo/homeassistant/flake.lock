@@ -117,11 +117,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1702104486,
-        "narHash": "sha256-xFNqHDyMfrhrzy6X6WfwsdIhRk/y/QtqfDNba4+En30=",
+        "lastModified": 1702146861,
+        "narHash": "sha256-pckbbwq4M6AwuQw1u+Y+Xg9DlkSUZK0m2J/Z70ObNyA=",
         "owner": "ibizaman",
         "repo": "selfhostblocks",
-        "rev": "ca2f7039cc22afcf5a62f09bd0f1ef3132c518c6",
+        "rev": "da2e1ff0e1ea6f0d9e881c92d4926558588f0222",
         "type": "github"
       },
       "original": {
