@@ -81,6 +81,22 @@
         "type": "github"
       }
     },
+    "nmdsrc": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1701431551,
+        "narHash": "sha256-5HPHG1u3koaWHG/TXHl5/YxYPYOuKc58104btrD8ypE=",
+        "ref": "refs/heads/master",
+        "rev": "f18defadcc25e69e95b04493ee02682005472255",
+        "revCount": 65,
+        "type": "git",
+        "url": "https://git.sr.ht/~rycee/nmd"
+      },
+      "original": {
+        "type": "git",
+        "url": "https://git.sr.ht/~rycee/nmd"
+      }
+    },
     "root": {
       "inputs": {
         "nixpkgs": "nixpkgs",
@@ -95,21 +111,23 @@
         "nixpkgs": [
           "nixpkgs"
         ],
+        "nmdsrc": "nmdsrc",
         "sops-nix": [
           "sops-nix"
         ]
       },
       "locked": {
-        "dirtyRev": "052a80567948d3dad69d016bfd0a139b0f75fbd9-dirty",
-        "dirtyShortRev": "052a805-dirty",
-        "lastModified": 1700293838,
-        "narHash": "sha256-iHQPbRA47mA1yGgCIrb4S9AuDC+RfvtvqOqOr+asBe0=",
-        "type": "git",
-        "url": "file:///home/timi/Projects/selfhostblocks"
+        "lastModified": 1702104486,
+        "narHash": "sha256-xFNqHDyMfrhrzy6X6WfwsdIhRk/y/QtqfDNba4+En30=",
+        "owner": "ibizaman",
+        "repo": "selfhostblocks",
+        "rev": "ca2f7039cc22afcf5a62f09bd0f1ef3132c518c6",
+        "type": "github"
       },
       "original": {
-        "type": "git",
-        "url": "file:///home/timi/Projects/selfhostblocks"
+        "owner": "ibizaman",
+        "repo": "selfhostblocks",
+        "type": "github"
       }
     },
     "sops-nix": {

@@ -5,7 +5,7 @@
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
     sops-nix.url = "github:Mic92/sops-nix";
 
-    selfhostblocks.url = "/home/timi/Projects/selfhostblocks";
+    selfhostblocks.url = "github:ibizaman/selfhostblocks";
     selfhostblocks.inputs.nixpkgs.follows = "nixpkgs";
     selfhostblocks.inputs.sops-nix.follows = "sops-nix";
   };
@@ -38,15 +38,30 @@
           domain = "example.com";
           subdomain = "ldap";
           ldapPort = 3890;
-          httpPort = 17170;
+          webUIListenPort = 17170;
           dcdomain = "dc=example,dc=com";
+          ldapUserPasswordFile = config.sops.secrets."lldap/user_password".path;
+          jwtSecretFile = config.sops.secrets."lldap/jwt_secret".path;
+        };
+        sops.secrets."lldap/user_password" = {
           sopsFile = ./secrets.yaml;
+          mode = "0440";
+          owner = "lldap";
+          group = "lldap";
+          restartUnits = [ "lldap.service" ];
+        };
+        sops.secrets."lldap/jwt_secret" = {
+          sopsFile = ./secrets.yaml;
+          mode = "0440";
+          owner = "lldap";
+          group = "lldap";
+          restartUnits = [ "lldap.service" ];
         };
 
         shb.home-assistant = {
           enable = true;
           domain = "example.com";
-          ldapEndpoint = "http://127.0.0.1:${builtins.toString config.shb.ldap.httpPort}";
+          ldapEndpoint = "http://127.0.0.1:${builtins.toString config.shb.ldap.webUIListenPort}";
           subdomain = "ha";
           sopsFile = ./secrets.yaml;
         };
