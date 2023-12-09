@@ -174,10 +174,13 @@ in
           }
         }
         '';
-        file = "${config.services.home-assistant.configDir}/.storage/onboarding";
+        storage = "${config.services.home-assistant.configDir}/.storage";
+        file = "${storage}/onboarding";
       in
       ''
-      -f ${file} || cp ${onboarding} ${file}
+      if ! -f ${file}; then
+        mkdir -p ${storage} && cp ${onboarding} ${file}
+      fi
       '';
 
     sops.secrets."home-assistant" = {
