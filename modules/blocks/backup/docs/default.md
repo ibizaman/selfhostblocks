@@ -11,7 +11,9 @@ Two implementations for this block are provided:
 
 No integration tests are provided yet.
 
-## One folder backed up to mounted hard drives {#blocks-backup-config-one}
+## Usage {#usage}
+
+### One folder backed up to mounted hard drives {#blocks-backup-config-one}
 
 The following snippet shows how to configure backup of 1 folder using the Restic implementation to 1
 repository.
@@ -77,7 +79,7 @@ borgmatic:
 
 You can have both borgmatic and restic implementations working at the same time.
 
-## One folder backed up to S3 {#blocks-backup-config-remote}
+### One folder backed up to S3 {#blocks-backup-config-remote}
 
 > This is only supported by the Restic implementation. 
 
@@ -115,7 +117,7 @@ The Sops file has a new required field:
 +             AWS_SECRET_ACCESS_KEY=<aws_secret_key>
 ```
 
-## Multiple folder to multiple destinations {#blocks-backup-config-multiple}
+### Multiple folder to multiple destinations {#blocks-backup-config-multiple}
 
 The following snippet shows how to configure backup of any number of folders using the Restic
 implementation to 3 repositories, each happening at different times to avoid contending for I/O
@@ -205,4 +207,20 @@ below) is the former splits the backups into sub-folders on the repositories.
 
 ```nix
 shb.backup.instances.all = backupcfg repos ["/var/lib/myfolder1" "/var/lib/myfolder2"];
+```
+
+## Monitoring {#monitoring-backup-block}
+
+[WIP]
+
+## Maintenance {#monitoring-maintenance}
+
+[WIP]
+
+## Options Reference {#opt-backup-block}
+
+```{=include=} options
+id-prefix: opt-blocks-backup-
+list-id: selfhostblocks-block-backup-options
+source: @OPTIONS_JSON@
 ```
