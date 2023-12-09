@@ -4,3 +4,5 @@ Host example
   HostName 127.0.0.1
   IdentityFile sshkey
   IdentitiesOnly yes
+  StrictHostKeyChecking no
+  UserKnownHostsFile=/dev/null
