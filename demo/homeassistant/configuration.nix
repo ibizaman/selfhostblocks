@@ -18,6 +18,8 @@ in
   
   # Needed otherwise deploy will say system won't be able to boot.
   boot.loader.grub.device = "/dev/vdb";
+  # Needed to avoid getting into not available disk space in /boot.
+  boot.loader.grub.configurationLimit = 1;
   # The NixOS /nix/.rw-store mountpoint is backed by tmpfs which uses memory. We need to increase
   # the available disk space to install home-assistant.
   virtualisation.vmVariantWithBootLoader.virtualisation.memorySize = 8192;
