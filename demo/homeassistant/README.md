@@ -52,6 +52,9 @@ SOPS_AGE_KEY_FILE=keys.txt nix run --impure nixpkgs#sops -- \
   secrets.yaml
 ```
 
+If you forget this step, the deploy will seem to go fine but the secrets won't be populated and
+neither LLDAP nor Home Assistant will start.
+
 Make the ssh key private:
 
 ```bash
