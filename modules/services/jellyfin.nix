@@ -372,7 +372,7 @@ in
       {
         id = cfg.oidcClientID;
         description = "Jellyfin";
-        secret = "jbmVCAZluESWbOvbKQtHhjwcuaNjlMVaidMbJGKaHXHPOmwilCWYBFAQtrnohJzIhbuhWTBwhbDKLmdtyrLXeankWgXNspWCmJxzayHiHRvOPDbcsnquYReI";
+        secretFile = config.sops.secrets."jellyfin/sso_secret".path;
         public = "false";
         authorization_policy = "one_factor";
         redirect_uris = [ "https://${cfg.subdomain}.${cfg.domain}/sso/OID/r/${cfg.oidcProvider}" ];
