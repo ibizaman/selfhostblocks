@@ -8,10 +8,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
-    - uses: cachix/install-nix-action@v22
+    - uses: DeterminateSystems/nix-installer-action@main
       with:
-        github_access_token: ${{ secrets.GITHUB_TOKEN }}
-        extra_nix_config: "system-features = nixos-test benchmark big-parallel kvm"
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        extra-conf: "system-features = nixos-test benchmark big-parallel kvm"
     - uses: cachix/cachix-action@v12
       with:
         name: selfhostblocks
