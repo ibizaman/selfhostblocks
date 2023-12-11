@@ -6,6 +6,18 @@ let
   fqdn = "${cfg.subdomain}.${cfg.domain}";
 
   autheliaCfg = config.services.authelia.instances.${fqdn};
+
+  template = file: newPath: replacements:
+    let
+      templatePath = newPath + ".template";
+
+      sedPatterns = lib.strings.concatStringsSep " " (lib.attrsets.mapAttrsToList (from: to: "\"s|${from}|${to}|\"") replacements);
+    in
+      ''
+      ln -fs ${file} ${templatePath}
+      rm ${newPath} || :
+      sed ${sedPatterns} ${templatePath} > ${newPath}
+      '';
 in
 {
   options.shb.authelia = {
@@ -46,31 +58,27 @@ in
       type = lib.types.submodule {
         options = {
           jwtSecretFile = lib.mkOption {
-            type = lib.types.str;
+            type = lib.types.path;
             description = "File containing the JWT secret.";
           };
           ldapAdminPasswordFile = lib.mkOption {
-            type = lib.types.str;
+            type = lib.types.path;
             description = "File containing the LDAP admin user password.";
           };
           sessionSecretFile = lib.mkOption {
-            type = lib.types.str;
+            type = lib.types.path;
             description = "File containing the session secret.";
           };
-          notifierSMTPPasswordFile = lib.mkOption {
-            type = lib.types.str;
-            description = "File containing the STMP password for the notifier.";
-          };
           storageEncryptionKeyFile = lib.mkOption {
-            type = lib.types.str;
+            type = lib.types.path;
             description = "File containing the storage encryption key.";
           };
           identityProvidersOIDCHMACSecretFile = lib.mkOption {
-            type = lib.types.str;
+            type = lib.types.path;
             description = "File containing the identity provider OIDC HMAC secret.";
           };
           identityProvidersOIDCIssuerPrivateKeyFile = lib.mkOption {
-            type = lib.types.str;
+            type = lib.types.path;
             description = "File containing the identity provider OIDC issuer private key.";
           };
         };
@@ -83,22 +91,40 @@ in
       default = [];
     };
 
-    smtpHost = lib.mkOption {
-      type = lib.types.str;
-      description = "SMTP host.";
-      example = "smtp.example.com";
-    };
-
-    smtpPort = lib.mkOption {
-      type = lib.types.int;
-      description = "SMTP port.";
-      default = 587;
-    };
-
-    smtpUsername = lib.mkOption {
-      type = lib.types.str;
-      description = "SMTP username.";
-      example = "postmaster@smtp.example.com";
+    smtp = lib.mkOption {
+      description = "SMTP options.";
+      default = null;
+      type = lib.types.nullOr (lib.types.submodule {
+        options = {
+          from_address = lib.mkOption {
+            type = lib.types.str;
+            description = "SMTP address from which the emails originate.";
+            example = "authelia@mydomain.com";
+          };
+          from_name = lib.mkOption {
+            type = lib.types.str;
+            description = "SMTP name from which the emails originate.";
+            default = "Authelia";
+          };
+          host = lib.mkOption {
+            type = lib.types.str;
+            description = "SMTP host to send the emails to.";
+          };
+          port = lib.mkOption {
+            type = lib.types.port;
+            description = "SMTP port to send the emails to.";
+            default = 25;
+          };
+          username = lib.mkOption {
+            type = lib.types.str;
+            description = "Username to connect to the SMTP host.";
+          };
+          passwordFile = lib.mkOption {
+            type = lib.types.str;
+            description = "File containing the password to connect to the SMTP host.";
+          };
+        };
+      });
     };
 
     rules = lib.mkOption {
@@ -109,6 +135,13 @@ in
   };
 
   config = lib.mkIf cfg.enable {
+    assertions = [
+      {
+        assertion = builtins.length cfg.oidcClients > 0;
+        message = "Must have at least one oidc client otherwise Authelia refuses to start.";
+      }
+    ];
+
     # Overriding the user name so we don't allow any weird characters anywhere. For example, postgres users do not accept the '.'.
     users = {
       groups.${autheliaCfg.user} = {};
@@ -127,14 +160,15 @@ in
       };
       # See https://www.authelia.com/configuration/methods/secrets/
       environmentVariables = {
-        AUTHELIA_AUTHENTICATION_BACKEND_LDAP_PASSWORD_FILE = cfg.secrets.ldapAdminPasswordFile;
-        AUTHELIA_SESSION_SECRET_FILE = cfg.secrets.sessionSecretFile;
+        AUTHELIA_AUTHENTICATION_BACKEND_LDAP_PASSWORD_FILE = toString cfg.secrets.ldapAdminPasswordFile;
+        AUTHELIA_SESSION_SECRET_FILE = toString cfg.secrets.sessionSecretFile;
         # Not needed since we use peer auth.
         # AUTHELIA_STORAGE_POSTGRES_PASSWORD_FILE = "/run/secrets/authelia/postgres_password";
-        AUTHELIA_STORAGE_ENCRYPTION_KEY_FILE = cfg.secrets.storageEncryptionKeyFile;
-        AUTHELIA_NOTIFIER_SMTP_PASSWORD_FILE = cfg.secrets.notifierSMTPPasswordFile;
-        AUTHELIA_IDENTITY_PROVIDERS_OIDC_HMAC_SECRET_FILE = cfg.secrets.identityProvidersOIDCHMACSecretFile;
-        AUTHELIA_IDENTITY_PROVIDERS_OIDC_ISSUER_PRIVATE_KEY_FILE = cfg.secrets.identityProvidersOIDCIssuerPrivateKeyFile;
+        AUTHELIA_STORAGE_ENCRYPTION_KEY_FILE = toString cfg.secrets.storageEncryptionKeyFile;
+        AUTHELIA_IDENTITY_PROVIDERS_OIDC_HMAC_SECRET_FILE = toString cfg.secrets.identityProvidersOIDCHMACSecretFile;
+        AUTHELIA_IDENTITY_PROVIDERS_OIDC_ISSUER_PRIVATE_KEY_FILE = toString cfg.secrets.identityProvidersOIDCIssuerPrivateKeyFile;
+
+        AUTHELIA_NOTIFIER_SMTP_PASSWORD_FILE = lib.mkIf (!(isNull cfg.smtp)) (toString cfg.smtp.passwordFile);
       };
       settings = {
         server.host = "127.0.0.1";
@@ -197,12 +231,14 @@ in
           };
         };
         notifier = {
-          smtp = {
-            host = cfg.smtpHost;
-            port = cfg.smtpPort;
-            username = cfg.smtpUsername;
-            sender = "Authelia <authelia@${cfg.domain}>";
-            # identifier = "";
+          filesystem = lib.mkIf (isNull cfg.smtp) {
+            filename = "/tmp/authelia-notifications";
+          };
+          smtp = lib.mkIf (!(isNull cfg.smtp)) {
+            host = cfg.smtp.host;
+            port = cfg.smtp.port;
+            username = cfg.smtp.username;
+            sender = "${cfg.smtp.from_name} <${cfg.smtp.from_address}>";
             subject = "[Authelia] {title}";
             startup_check_address = "test@authelia.com";
           };
@@ -225,7 +261,6 @@ in
             }
           ] ++ cfg.rules;
         };
-        identity_providers.oidc.clients = cfg.oidcClients;
         telemetry = {
           metrics = {
             enabled = true;
@@ -233,12 +268,34 @@ in
           };
         };
       };
+
+      settingsFiles = map (client: "/var/lib/authelia-${fqdn}/oidc_client_${client.id}.yaml") cfg.oidcClients;
     };
 
+    systemd.services."authelia-${fqdn}".preStart =
+      let
+        mkCfg = client:
+          let
+            secretFile = client.secretFile;
+            clientWithTmpl = {
+              identity_providers.oidc.clients = [
+                ((lib.attrsets.filterAttrs (name: v: name != "secretFile") client) // {
+                  secret = "%SECRET%";
+                })
+              ];
+            };
+            tmplFile = pkgs.writeText "oidc_client_${client.id}.yaml" (lib.generators.toYAML {} clientWithTmpl);
+          in
+            template tmplFile "/var/lib/authelia-${fqdn}/oidc_client_${client.id}.yaml" {
+              "%SECRET%" = "$(cat ${toString secretFile})";
+            };
+      in
+        lib.mkBefore (lib.concatStringsSep "\n" (map mkCfg cfg.oidcClients));
+
     services.nginx.virtualHosts.${fqdn} = {
-      sslCertificate = "/var/lib/acme/${cfg.domain}/cert.pem";
-      sslCertificateKey = "/var/lib/acme/${cfg.domain}/key.pem";
-      forceSSL = true;
+      forceSSL = lib.mkIf config.shb.ssl.enable true;
+      sslCertificate = lib.mkIf config.shb.ssl.enable "/var/lib/acme/${cfg.domain}/cert.pem";
+      sslCertificateKey = lib.mkIf config.shb.ssl.enable "/var/lib/acme/${cfg.domain}/key.pem";
       # Taken from https://github.com/authelia/authelia/issues/178
       # TODO: merge with config from https://matwick.ca/authelia-nginx-sso/
       locations."/".extraConfig = ''
