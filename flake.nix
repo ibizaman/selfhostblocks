@@ -91,6 +91,7 @@
                 ]);
             };
           }
+          // (vm_test "authelia" ./test/vm/authelia.nix)
           // (vm_test "ldap" ./test/vm/ldap.nix)
           // (vm_test "postgresql" ./test/vm/postgresql.nix)
           // (vm_test "monitoring" ./test/vm/monitoring.nix)
