@@ -49,7 +49,14 @@ in
 
     debug = lib.mkOption {
       type = lib.types.bool;
-      description = "Enable more verbose logging and xdebug tracing.";
+      description = "Enable more verbose logging.";
+      default = false;
+      example = true;
+    };
+
+    tracing = lib.mkOption {
+      type = lib.types.bool;
+      description = "Enable xdebug tracing.";
       default = false;
       example = true;
     };
@@ -141,14 +148,14 @@ in
         "redis.session.locking_enabled" = "1";
         "redis.session.lock_retries" = "-1";
         "redis.session.lock_wait_time" = "10000";
-      } // lib.optionalAttrs cfg.debug {
+      } // lib.optionalAttrs cfg.tracing {
         # "xdebug.remote_enable" = "on";
         # "xdebug.remote_host" = "127.0.0.1";
         # "xdebug.remote_port" = "9000";
         # "xdebug.remote_handler" = "dbgp";
         "xdebug.trigger_value" = "debug_me";
 
-        "xdebug.mode" = "profile";
+        "xdebug.mode" = "profile,trace";
         "xdebug.output_dir" = "/var/log/xdebug";
         "xdebug.start_with_request" = "trigger";
       };
