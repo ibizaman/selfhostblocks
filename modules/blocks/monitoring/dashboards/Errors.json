@@ -180,6 +180,7 @@
             "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
+            "axisSoftMin": 0.5,
             "barAlignment": 0,
             "drawStyle": "line",
             "fillOpacity": 0,
@@ -207,6 +208,7 @@
             }
           },
           "mappings": [],
+          "max": 1.01,
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -349,6 +351,8 @@
             }
           },
           "mappings": [],
+          "max": 1.01,
+          "min": 0,
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -465,8 +469,8 @@
         "enableLogDetails": true,
         "prettifyLogMessage": false,
         "showCommonLabels": false,
-        "showLabels": false,
-        "showTime": false,
+        "showLabels": true,
+        "showTime": true,
         "sortOrder": "Descending",
         "wrapLogMessage": false
       },
@@ -508,7 +512,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -517,7 +522,20 @@
             ]
           }
         },
-        "overrides": []
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Time"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 167
+              }
+            ]
+          }
+        ]
       },
       "gridPos": {
         "h": 14,
@@ -543,7 +561,8 @@
           ],
           "show": false
         },
-        "showHeader": true
+        "showHeader": true,
+        "sortBy": []
       },
       "pluginVersion": "10.2.0",
       "targets": [
@@ -563,34 +582,46 @@
         {
           "id": "extractFields",
           "options": {
-            "replace": true,
+            "keepTime": false,
+            "replace": false,
             "source": "Line"
           }
         },
         {
           "id": "organize",
           "options": {
-            "excludeByName": {},
+            "excludeByName": {
+              "Line": true,
+              "id": true,
+              "labels": true,
+              "time_local": true,
+              "tsNs": true
+            },
             "indexByName": {
-              "body_bytes_sent": 9,
-              "bytes_sent": 8,
-              "gzip_ration": 11,
-              "post": 12,
-              "referrer": 10,
-              "remote_addr": 3,
-              "remote_user": 6,
-              "request": 4,
-              "request_length": 7,
-              "request_time": 15,
-              "server_name": 2,
-              "status": 1,
-              "time_local": 0,
-              "upstream_addr": 13,
-              "upstream_connect_time": 17,
-              "upstream_header_time": 18,
-              "upstream_response_time": 16,
-              "upstream_status": 14,
-              "user_agent": 5
+              "Line": 21,
+              "Time": 0,
+              "body_bytes_sent": 10,
+              "bytes_sent": 9,
+              "gzip_ration": 12,
+              "id": 23,
+              "labels": 20,
+              "post": 13,
+              "referrer": 11,
+              "remote_addr": 4,
+              "remote_user": 7,
+              "request": 5,
+              "request_length": 8,
+              "request_time": 16,
+              "server_name": 3,
+              "status": 2,
+              "time_local": 1,
+              "tsNs": 22,
+              "upstream_addr": 14,
+              "upstream_connect_time": 18,
+              "upstream_header_time": 19,
+              "upstream_response_time": 17,
+              "upstream_status": 15,
+              "user_agent": 6
             },
             "renameByName": {}
           }
@@ -718,13 +749,14 @@
   "templating": {
     "list": [
       {
+        "allValue": ".+",
         "current": {
           "selected": true,
           "text": [
-            "jellyfin"
+            "All"
           ],
           "value": [
-            "jellyfin"
+            "$__all"
           ]
         },
         "datasource": {
@@ -777,6 +809,6 @@
   "timezone": "",
   "title": "Errors",
   "uid": "d66242cf-71e8-417c-8ef7-51b0741545df",
-  "version": 16,
+  "version": 29,
   "weekStart": ""
 }

@@ -378,35 +378,36 @@ in
     services.prometheus.scrapeConfigs = [
       {
         job_name = "node";
-        static_configs = [
-          {
-            targets = ["127.0.0.1:${toString config.services.prometheus.exporters.node.port}"];
-          }
-        ];
+        static_configs = [{
+          targets = ["127.0.0.1:${toString config.services.prometheus.exporters.node.port}"];
+        }];
+      }
+      {
+        job_name = "netdata";
+        metrics_path = "/api/v1/allmetrics";
+        params.format = [ "prometheus" ];
+        honor_labels = true;
+        static_configs = [{
+          targets = [ "127.0.0.1:19999" ];
+        }];
       }
       {
         job_name = "smartctl";
-        static_configs = [
-          {
-            targets = ["127.0.0.1:${toString config.services.prometheus.exporters.smartctl.port}"];
-          }
-        ];
+        static_configs = [{
+          targets = ["127.0.0.1:${toString config.services.prometheus.exporters.smartctl.port}"];
+        }];
       }
       {
         job_name = "prometheus_internal";
-        static_configs = [
-          {
-            targets = ["127.0.0.1:${toString config.services.prometheus.port}"];
-          }
-        ];
+        static_configs = [{
+          targets = ["127.0.0.1:${toString config.services.prometheus.port}"];
+        }];
       }
     ] ++ (lib.lists.optional config.services.nginx.enable {
         job_name = "nginx";
-        static_configs = [
-          {
-            targets = ["127.0.0.1:${toString config.services.prometheus.exporters.nginx.port}"];
-          }
-        ];
+        static_configs = [{
+          targets = ["127.0.0.1:${toString config.services.prometheus.exporters.nginx.port}"];
+        }];
     # }) ++ (lib.optional (builtins.length (lib.attrNames config.services.redis.servers) > 0) {
     #     job_name = "redis";
     #     static_configs = [
@@ -423,28 +424,26 @@ in
     #     ];
     }) ++ (lib.optional config.services.dnsmasq.enable {
         job_name = "dnsmasq";
-        static_configs = [
-          {
-            targets = ["127.0.0.1:${toString config.services.prometheus.exporters.dnsmasq.port}"];
-          }
-        ];
+        static_configs = [{
+          targets = ["127.0.0.1:${toString config.services.prometheus.exporters.dnsmasq.port}"];
+        }];
     });
     services.prometheus.exporters.nginx = lib.mkIf config.services.nginx.enable {
       enable = true;
-      port = 9113;
+      port = 9111;
       listenAddress = "127.0.0.1";
       scrapeUri = "http://localhost:80/nginx_status";
     };
     services.prometheus.exporters.node = {
       enable = true;
       # https://github.com/prometheus/node_exporter#collectors
-      enabledCollectors = ["systemd" "processes" "ethtool"];
-      port = 9115;
+      enabledCollectors = ["ethtool"];
+      port = 9112;
       listenAddress = "127.0.0.1";
     };
     services.prometheus.exporters.smartctl = {
       enable = true;
-      port = 9117;
+      port = 9115;
       listenAddress = "127.0.0.1";
     };
     # services.prometheus.exporters.redis = lib.mkIf (builtins.length (lib.attrNames config.services.redis.servers) > 0) {
@@ -460,9 +459,21 @@ in
     # };
     services.prometheus.exporters.dnsmasq = lib.mkIf config.services.dnsmasq.enable {
       enable = true;
-      port = 9123;
+      port = 9211;
       listenAddress = "127.0.0.1";
     };
     services.nginx.statusPage = lib.mkDefault config.services.nginx.enable;
+    services.netdata = {
+      enable = true;
+      config = {
+        # web.mode = "none";
+        # web."bind to" = "127.0.0.1:19999";
+        global = {
+          "debug log" = "syslog";
+          "access log" = "syslog";
+          "error log" = "syslog";
+        };
+      };
+    };
   };
 }
