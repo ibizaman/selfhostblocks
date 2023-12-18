@@ -368,6 +368,9 @@ in
         locations."/" = {
           proxyPass = "http://${toString config.services.grafana.settings.server.http_addr}:${toString config.services.grafana.settings.server.http_port}";
           proxyWebsockets = true;
+          extraConfig = ''
+          proxy_set_header Host $host;
+          '';
         };
       };
     };
