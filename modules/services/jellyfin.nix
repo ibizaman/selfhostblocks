@@ -372,12 +372,18 @@ in
       {
         id = cfg.oidcClientID;
         description = "Jellyfin";
-        secretFile = config.sops.secrets."jellyfin/sso_secret".path;
+        secretFile = config.sops.secrets."authelia/jellyfin_sso_secret".path;
         public = "false";
         authorization_policy = "one_factor";
         redirect_uris = [ "https://${cfg.subdomain}.${cfg.domain}/sso/OID/r/${cfg.oidcProvider}" ];
       }
     ];
+    sops.secrets."authelia/jellyfin_sso_secret" = {
+      inherit (cfg) sopsFile;
+      key = "jellyfin/sso_secret";
+      mode = "0400";
+      owner = config.shb.authelia.autheliaUser;
+    };
 
     # For backup
 
