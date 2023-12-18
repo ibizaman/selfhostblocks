@@ -109,12 +109,13 @@ Alert](#blocks-monitoring-budget-alerts) firing.
 This dashboard is meant to be the first stop to understand why a service is performing poorly.
 
 ![Performance Dashboard Top Part](./assets/dashboards_Performance_1.png)
-![Performance Dashboard Bottom Part](./assets/dashboards_Performance_2.png)
+![Performance Dashboard Middle Part](./assets/dashboards_Performance_2.png)
+![Performance Dashboard Bottom Part](./assets/dashboards_Performance_3.png)
 
 ## Requests Error Budget Alert {#blocks-monitoring-budget-alerts}
 
 This alert will fire when the ratio between number of requests getting a 5XX response from a service
 and the total requests to that service exceeds 1%.
 
-![](./assets/alert_rules_5xx_1.png)
-![](./assets/alert_rules_5xx_2.png)
+![Error Dashboard Top Part](./assets/alert_rules_5xx_1.png)
+![Error Dashboard Bottom Part](./assets/alert_rules_5xx_2.png)
