@@ -21,6 +21,12 @@ in
       example = "domain.com";
     };
 
+    dataDir = lib.mkOption {
+      description = "Folder where Nextcloud will store all its data.";
+      type = lib.types.str;
+      default = "/var/lib/nextcloud";
+    };
+
     sopsFile = lib.mkOption {
       type = lib.types.path;
       description = "Sops file location";
@@ -45,6 +51,59 @@ in
           };
         };
       });
+    };
+
+    postgresSettings = lib.mkOption {
+      type = lib.types.attrsOf lib.types.str;
+      description = "Settings for the PostgreSQL database. Go to https://pgtune.leopard.in.ua/ and copy the generated configuration here.";
+      example = lib.literalExpression ''
+      {
+        # From https://pgtune.leopard.in.ua/ with:
+
+        # DB Version: 14
+        # OS Type: linux
+        # DB Type: dw
+        # Total Memory (RAM): 7 GB
+        # CPUs num: 4
+        # Connections num: 100
+        # Data Storage: ssd
+
+        max_connections = "100";
+        shared_buffers = "1792MB";
+        effective_cache_size = "5376MB";
+        maintenance_work_mem = "896MB";
+        checkpoint_completion_target = "0.9";
+        wal_buffers = "16MB";
+        default_statistics_target = "500";
+        random_page_cost = "1.1";
+        effective_io_concurrency = "200";
+        work_mem = "4587kB";
+        huge_pages = "off";
+        min_wal_size = "4GB";
+        max_wal_size = "16GB";
+        max_worker_processes = "4";
+        max_parallel_workers_per_gather = "2";
+        max_parallel_workers = "4";
+        max_parallel_maintenance_workers = "2";
+      }
+      '';
+    };
+
+    phpFpmPoolSettings = lib.mkOption {
+      type = lib.types.attrsOf lib.types.anything;
+      description = "Settings for PHPFPM.";
+      default = lib.literalExpression ''
+      {
+        "pm" = "dynamic";
+        "pm.max_children" = 50;
+        "pm.start_servers" = 25;
+        "pm.min_spare_servers" = 10;
+        "pm.max_spare_servers" = 20;
+        "pm.max_spawn_rate" = 50;
+        "pm.max_requests" = 50;
+        "pm.process_idle_timeout" = "20s";
+      }
+      '';
     };
 
     debug = lib.mkOption {
@@ -92,6 +151,8 @@ in
     services.nextcloud = {
       enable = true;
       package = pkgs.nextcloud27;
+
+      datadir = cfg.dataDir;
 
       hostName = fqdn;
       nginx.hstsMaxAge = 31536000; # Needs > 1 year for https://hstspreload.org to be happy
@@ -160,6 +221,8 @@ in
         "xdebug.start_with_request" = "trigger";
       };
 
+      poolSettings = cfg.phpFpmPoolSettings;
+
       phpExtraExtensions = all: [ all.xdebug ];
     };
 
@@ -187,31 +250,7 @@ in
       pkgs.nodejs
     ];
 
-    services.postgresql.settings = {
-      # From https://pgtune.leopard.in.ua/
-
-      # DB Version: 16
-      # OS Type: linux
-      # DB Type: web
-      # Total Memory (RAM): 5 GB
-      # CPUs num: 2
-      # Connections num: 100
-      # Data Storage: hdd
-
-      max_connections = "100";
-      shared_buffers = "1280MB";
-      effective_cache_size = "3840MB";
-      maintenance_work_mem = "320MB";
-      checkpoint_completion_target = "0.9";
-      wal_buffers = "16MB";
-      default_statistics_target = "100";
-      random_page_cost = "4";
-      effective_io_concurrency = "2";
-      work_mem = "6553kB";
-      huge_pages = "off";
-      min_wal_size = "1GB";
-      max_wal_size = "4GB";
-    };
+    services.postgresql.settings = cfg.postgresSettings;
 
     systemd.services.phpfpm-nextcloud.serviceConfig = {
       # Setup permissions needed for backups, as the backup user is member of the jellyfin group.
@@ -228,7 +267,7 @@ in
     # Sets up backup for Nextcloud.
     shb.backup.instances.nextcloud = {
       sourceDirectories = [
-        config.services.nextcloud.datadir
+        cfg.dataDir
       ];
       excludePatterns = [".rnd"];
     };
