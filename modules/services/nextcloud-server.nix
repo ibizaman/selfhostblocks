@@ -27,10 +27,24 @@ in
       example = "secrets/nextcloud.yaml";
     };
 
-    localNetworkIPRange = lib.mkOption {
-      type = lib.types.str;
-      description = "Local network range, to restrict access to Open Office to only those IPs.";
-      example = "192.168.1.1/24";
+    onlyoffice = lib.mkOption {
+      description = "If non null, set up an Only Office service.";
+      default = null;
+      type = lib.types.nullOr (lib.types.submodule {
+        options = {
+          subdomain = lib.mkOption {
+            type = lib.types.str;
+            description = "Subdomain under which Only Office will be served.";
+            default = "oo";
+          };
+
+          localNetworkIPRange = lib.mkOption {
+            type = lib.types.str;
+            description = "Local network range, to restrict access to Open Office to only those IPs.";
+            example = "192.168.1.1/24";
+          };
+        };
+      });
     };
 
     debug = lib.mkOption {
@@ -41,7 +55,7 @@ in
     };
   };
 
-  config = lib.mkIf cfg.enable {
+  config = lib.mkMerge [(lib.mkIf cfg.enable {
     users.users = {
       nextcloud = {
         name = "nextcloud";
@@ -142,35 +156,6 @@ in
       phpExtraExtensions = all: [ all.xdebug ];
     };
 
-    services.onlyoffice = {
-      enable = true;
-      hostname = "oo.${cfg.domain}";
-      port = 13444;
-
-      postgresHost = "/run/postgresql";
-
-      jwtSecretFile = "/run/secrets/nextcloud/onlyoffice/jwt_secret";
-    };
-    services.nginx.virtualHosts."oo.${cfg.domain}" = {
-      sslCertificate = "/var/lib/acme/${cfg.domain}/cert.pem";
-      sslCertificateKey = "/var/lib/acme/${cfg.domain}/key.pem";
-      forceSSL = true;
-      locations."/" = {
-        extraConfig = ''
-        allow ${cfg.localNetworkIPRange};
-        '';
-      };
-    };
-
-    # Secret needed for services.onlyoffice.jwtSecretFile
-    sops.secrets."nextcloud/onlyoffice/jwt_secret" = {
-      inherit (cfg) sopsFile;
-      mode = "0440";
-      owner = "onlyoffice";
-      group = "onlyoffice";
-      restartUnits = [ "onlyoffice-docservice.service" ];
-    };
-
     # Secret needed for services.nextcloud.config.adminpassFile.
     sops.secrets."nextcloud/adminpass" = {
       inherit (cfg) sopsFile;
@@ -240,5 +225,35 @@ in
       ];
       excludePatterns = [".rnd"];
     };
-  };
+  }) (lib.mkIf (!(isNull cfg.onlyoffice)) {
+    services.onlyoffice = {
+      enable = true;
+      hostname = "${cfg.onlyoffice.subdomain}.${cfg.domain}";
+      port = 13444;
+
+      postgresHost = "/run/postgresql";
+
+      jwtSecretFile = "/run/secrets/nextcloud/onlyoffice/jwt_secret";
+    };
+
+    services.nginx.virtualHosts."${cfg.onlyoffice.subdomain}.${cfg.domain}" = {
+      sslCertificate = "/var/lib/acme/${cfg.domain}/cert.pem";
+      sslCertificateKey = "/var/lib/acme/${cfg.domain}/key.pem";
+      forceSSL = true;
+      locations."/" = {
+        extraConfig = ''
+        allow ${cfg.onlyoffice.localNetworkIPRange};
+        '';
+      };
+    };
+
+    # Secret needed for services.onlyoffice.jwtSecretFile
+    sops.secrets."nextcloud/onlyoffice/jwt_secret" = {
+      inherit (cfg) sopsFile;
+      mode = "0440";
+      owner = "onlyoffice";
+      group = "onlyoffice";
+      restartUnits = [ "onlyoffice-docservice.service" ];
+    };
+  })];
 }
