@@ -7,12 +7,8 @@
 preface.md
 ```
 
-```{=include=} chapters html:into-file=//blocks-backup.html
-modules/blocks/backup/docs/default.md
-```
-
-```{=include=} chapters html:into-file=//blocks-monitoring.html
-modules/blocks/monitoring/docs/default.md
+```{=include=} chapters html:into-file=//blocks.html
+blocks.md
 ```
 
 ```{=include=} chapters html:into-file=//demo-homeassistant.html

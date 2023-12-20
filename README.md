@@ -2,8 +2,9 @@
 
 *Building blocks for self-hosting with battery included.*
 
-SHB's (Self Host Blocks) goal is to provide a lower entry-bar for self-hosting. SHB provides opinionated [building blocks](#building-blocks) fitting together to self-host any service
-you'd want. Some [common services](#provided-services) are provided out of the box.
+SHB's (Self Host Blocks) goal is to provide a lower entry-bar for self-hosting. SHB provides
+opinionated [building blocks](#building-blocks) fitting together to self-host any service you'd
+want. Some [common services](#provided-services) are provided out of the box.
 
 Each building block defines a part of what a self-hosted app should provide. For example, HTTPS
 access through a subdomain or Single Sign-On. The goal of SHB is to make sure those blocks all fit
