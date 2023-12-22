@@ -7,48 +7,30 @@ The [`flake.nix`](./flake.nix) file sets up Home Assistant server that uses a LD
 setup users in only about [15 lines](./flake.nix#L29-L45) of related code.
 
 This guide will show how to deploy this setup to a Virtual Machine, like showed
-[here](https://nixos.wiki/wiki/NixOS_modules#Developing_modules), in 6 commands.
+[here](https://nixos.wiki/wiki/NixOS_modules#Developing_modules), in 4 commands.
 
 ## Deploy to the VM {#deploy-to-the-vm}
 
-Build the VM with:
+Build the VM and start it:
 
 ```bash
-nixos-rebuild build-vm-with-bootloader --fast -I nixos-config=./configuration.nix -I nixpkgs=.
+rm nixos.qcow2; \
+  nixos-rebuild build-vm-with-bootloader --fast -I nixos-config=./configuration.nix -I nixpkgs=. \
+  QEMU_NET_OPTS="hostfwd=tcp::2222-:2222,hostfwd=tcp::8080-:80" ./result/bin/run-nixos-vm
 ```
 
-Start the VM with (this call is blocking, so I advice adding a `&` at the end of the command otherwise
-you will need to run the rest of the commands in another terminal):
+This last call is blocking, so I advice adding a `&` at the end of the command otherwise you will
+need to run the rest of the commands in another terminal.
+
+The nested command, the one in between the parenthesis `$(...)` is used to print the VM's public age key, whic.
+
+With the VM started, make the secrets in `secrets.yaml` decryptable in the VM. This change will
+appear in `git status` but you don't need to commit this.
 
 ```bash
-QEMU_NET_OPTS="hostfwd=tcp::2222-:2222,hostfwd=tcp::8080-:80" ./result/bin/run-nixos-vm
-```
-
-With the VM started, print the VM's public age key with the following command.
-
-```bash
-nix shell nixpkgs#ssh-to-age --command sh -c 'ssh-keyscan -p 2222 -4 localhost | ssh-to-age'
-```
-
-The output will look like so. The value you need is the one staring with `age`.
-
-```
-# localshost:2222 SSH-2.0-OpenSSH_9.1
-# localhost:2222 SSH-2.0-OpenSSH_9.1
-# localhost:2222 SSH-2.0-OpenSSH_9.1
-# localhost:2222 SSH-2.0-OpenSSH_9.1
-# localhost:2222 SSH-2.0-OpenSSH_9.1
-skipped key: got ssh-rsa key type, but only ed25519 keys are supported
-age1l9dyy02qhlfcn5u9s4y2vhsvjtxj2c9avrpat6nvjd6rjar3tflq66jtz0
-```
-
-Now, make the `secrets.yaml` file decryptable in the VM. This change will appear in `git status` but
-you don't need to commit this.
-
-```bash
-SOPS_AGE_KEY_FILE=keys.txt nix run --impure nixpkgs#sops -- \
-  --config sops.yaml -r -i \
-  --add-age age1l9dyy02qhlfcn5u9s4y2vhsvjtxj2c9avrpat6nvjd6rjar3tflq66jtz0 \
+SOPS_AGE_KEY_FILE=keys.txt \
+  nix run --impure nixpkgs#sops -- --config sops.yaml -r -i \
+  --add-age $(nix shell nixpkgs#ssh-to-age --command sh -c 'ssh-keyscan -p 2222 -t ed25519 -4 localhost 2>/dev/null | ssh-to-age') ; \
   secrets.yaml
 ```
 
@@ -64,14 +46,20 @@ chmod 600 sshkey
 This is only needed because git mangles with the permissions. You will not even see this change in
 `git status`.
 
+You can ssh into the VM with, but this is not required for the demo:
+
+```bash
+ssh -F ssh_config example
+```
+
 Finally, deploy with:
 
 ```bash
 SSH_CONFIG_FILE=ssh_config nix run nixpkgs#colmena --impure -- apply
 ```
 
-This step will require you to accept the host's fingerprint. The deploy will take a few minutes the
-first time and subsequent deploys will take around 15 seconds.
+The deploy will take a few minutes the first time and subsequent deploys will take around 15
+seconds.
 
 ## Access Home Assistant Through Your Browser {#access-home-assistant-through-your-browser}
 
@@ -90,7 +78,8 @@ $ cat /etc/hosts
 127.0.0.1 ha.example.com ldap.example.com
 ```
 
-    Go to [http://ldap.example.com:8080](http://ldap.example.com:8080) and login with:
+Go to [http://ldap.example.com:8080](http://ldap.example.com:8080) and login with:
+
 - username: `admin`
 - password: the value of the field `lldap.user_password` in the `secrets.yaml` file which is `fccb94f0f64bddfe299c81410096499a`.
 
@@ -155,6 +144,14 @@ Public key: age1algdv9xwjre3tm7969eyremfw2ftx4h8qehmmjzksrv7f2qve9dqg8pug7
 
 We use the printed public key in the `admin` field of the `sops.yaml` file.
 
+To open the `secrets.yaml` file and optionnally edit it, run:
+
+```bash
+SOPS_AGE_KEY_FILE=keys.txt nix run --impure nixpkgs#sops -- \
+  --config sops.yaml \
+  secrets.yaml
+```
+
 The `secrets.yaml` file must follow the format:
 
 ```yaml
@@ -194,14 +191,6 @@ creating the VM in the step above, a new private key and its accompanying public
 automatically generated under `/etc/ssh/ssh_host_ed25519_key` in the VM. We just need to get the
 public key and add it to the `secrets.yaml` which we did in the Deploy section.
 
-To open the `secrets.yaml` file and optionnally edit it, run:
-
-```bash
-SOPS_AGE_KEY_FILE=keys.txt nix run --impure nixpkgs#sops -- \
-  --config sops.yaml \
-  secrets.yaml
-```
-
 ### SSH {#ssh}
 
 The private and public ssh keys were created with:
@@ -217,7 +206,7 @@ For reference, if instead you didn't copy the key over on VM creating and enable
 authentication, here is what you would need to do to copy over the key:
 
 ```bash
-$ nix shell nixpkgs#openssh --command ssh-copy-id -i sshkey -F ssh_config example
+nix shell nixpkgs#openssh --command ssh-copy-id -i sshkey -F ssh_config example
 ```
 
 ### Deploy {#deploy}
@@ -227,4 +216,16 @@ selfhostblocks`.
 
 ```
 error: NAR hash mismatch in input ...
+```
+
+### Update Demo {#update-demo}
+
+If you update the Self Host Blocks configuration in `flake.nix` file, you can just re-deploy.
+
+If you update the `configuration.nix` file, you will need to rebuild the VM from scratch.
+
+If you update a module in the Self Host Blocks repository, you will need to update the lock file with:
+
+```bash
+nix flake lock --override-input selfhostblocks ../.. --update-input selfhostblocks
 ```
