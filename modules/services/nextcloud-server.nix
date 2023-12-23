@@ -21,16 +21,22 @@ in
       example = "domain.com";
     };
 
+    externalFqdn = lib.mkOption {
+      description = "External fqdn used to access Nextcloud. Defaults to <subdomain>.<domain>. This should only be set if you include the port when accessing Nextcloud.";
+      type = lib.types.nullOr lib.types.str;
+      example = "nextcloud.domain.com:8080";
+      default = null;
+    };
+
     dataDir = lib.mkOption {
       description = "Folder where Nextcloud will store all its data.";
       type = lib.types.str;
       default = "/var/lib/nextcloud";
     };
 
-    sopsFile = lib.mkOption {
+    adminPassFile = lib.mkOption {
       type = lib.types.path;
-      description = "Sops file location";
-      example = "secrets/nextcloud.yaml";
+      description = "File containing the Nextcloud admin password.";
     };
 
     onlyoffice = lib.mkOption {
@@ -49,12 +55,18 @@ in
             description = "Local network range, to restrict access to Open Office to only those IPs.";
             example = "192.168.1.1/24";
           };
+
+          jwtSecretFile = lib.mkOption {
+            type = lib.types.path;
+            description = "File containing the JWT secret.";
+          };
         };
       });
     };
 
     postgresSettings = lib.mkOption {
-      type = lib.types.attrsOf lib.types.str;
+      type = lib.types.nullOr (lib.types.attrsOf lib.types.str);
+      default = null;
       description = "Settings for the PostgreSQL database. Go to https://pgtune.leopard.in.ua/ and copy the generated configuration here.";
       example = lib.literalExpression ''
       {
@@ -90,9 +102,10 @@ in
     };
 
     phpFpmPoolSettings = lib.mkOption {
-      type = lib.types.attrsOf lib.types.anything;
+      type = lib.types.nullOr (lib.types.attrsOf lib.types.anything);
       description = "Settings for PHPFPM.";
-      default = lib.literalExpression ''
+      default = null;
+      example = lib.literalExpression ''
       {
         "pm" = "dynamic";
         "pm.max_children" = 50;
@@ -114,10 +127,10 @@ in
     };
 
     tracing = lib.mkOption {
-      type = lib.types.bool;
+      type = lib.types.nullOr lib.types.str;
       description = "Enable xdebug tracing.";
-      default = false;
-      example = true;
+      default = null;
+      example = "debug_me";
     };
   };
 
@@ -160,7 +173,7 @@ in
       config = {
         dbtype = "pgsql";
         adminuser = "root";
-        adminpassFile = "/run/secrets/nextcloud/adminpass";
+        adminpassFile = cfg.adminPassFile;
         # Not using dbpassFile as we're using socket authentication.
         defaultPhoneRegion = "US";
         trustedProxies = [ "127.0.0.1" ];
@@ -177,14 +190,18 @@ in
       webfinger = true;
 
       # Very important for a bunch of scripts to load correctly. Otherwise you get Content-Security-Policy errors. See https://docs.nextcloud.com/server/13/admin_manual/configuration_server/harden_server.html#enable-http-strict-transport-security
-      https = true;
+      https = config.shb.ssl.enable;
 
-      extraOptions = {
-        "overwrite.cli.url" = "https://" + fqdn;
-        "overwritehost" = fqdn;
-         # 'trusted_domains' needed otherwise we get this issue https://help.nextcloud.com/t/the-polling-url-does-not-start-with-https-despite-the-login-url-started-with-https/137576/2
+      extraOptions = let
+        protocol = if config.shb.ssl.enable then "https" else "http";
+      in {
+        "overwrite.cli.url" = "${protocol}://${fqdn}";
+        "overwritehost" = if (isNull cfg.externalFqdn) then fqdn else cfg.externalFqdn;
+        # 'trusted_domains' needed otherwise we get this issue https://help.nextcloud.com/t/the-polling-url-does-not-start-with-https-despite-the-login-url-started-with-https/137576/2
+        # TODO: could instead set extraTrustedDomains
         "trusted_domains" = [ fqdn ];
-        "overwriteprotocol" = "https"; # Needed if behind a reverse_proxy
+        # TODO: could instead set overwriteProtocol
+        "overwriteprotocol" = protocol; # Needed if behind a reverse_proxy
         "overwritecondaddr" = ""; # We need to set it to empty otherwise overwriteprotocol does not work.
         "debug" = cfg.debug;
         "filelocking.debug" = cfg.debug;
@@ -209,37 +226,28 @@ in
         "redis.session.locking_enabled" = "1";
         "redis.session.lock_retries" = "-1";
         "redis.session.lock_wait_time" = "10000";
-      } // lib.optionalAttrs cfg.tracing {
+      } // lib.optionalAttrs (! (isNull cfg.tracing)) {
         # "xdebug.remote_enable" = "on";
         # "xdebug.remote_host" = "127.0.0.1";
         # "xdebug.remote_port" = "9000";
         # "xdebug.remote_handler" = "dbgp";
-        "xdebug.trigger_value" = "debug_me";
+        "xdebug.trigger_value" = cfg.tracing;
 
         "xdebug.mode" = "profile,trace";
         "xdebug.output_dir" = "/var/log/xdebug";
         "xdebug.start_with_request" = "trigger";
       };
 
-      poolSettings = cfg.phpFpmPoolSettings;
+      poolSettings = lib.mkIf (! (isNull cfg.phpFpmPoolSettings)) cfg.phpFpmPoolSettings;
 
       phpExtraExtensions = all: [ all.xdebug ];
     };
 
-    # Secret needed for services.nextcloud.config.adminpassFile.
-    sops.secrets."nextcloud/adminpass" = {
-      inherit (cfg) sopsFile;
-      mode = "0440";
-      owner = "nextcloud";
-      group = "nextcloud";
-      restartUnits = [ "phpfpm-nextcloud.service" ];
-    };
-
     services.nginx.virtualHosts.${fqdn} = {
       # listen = [ { addr = "0.0.0.0"; port = 443; } ];
-      sslCertificate = "/var/lib/acme/${cfg.domain}/cert.pem";
-      sslCertificateKey = "/var/lib/acme/${cfg.domain}/key.pem";
-      forceSSL = true;
+      sslCertificate = lib.mkIf config.shb.ssl.enable "/var/lib/acme/${cfg.domain}/cert.pem";
+      sslCertificateKey = lib.mkIf config.shb.ssl.enable "/var/lib/acme/${cfg.domain}/key.pem";
+      forceSSL = lib.mkIf config.shb.ssl.enable true;
     };
 
     environment.systemPackages = [
@@ -250,7 +258,7 @@ in
       pkgs.nodejs
     ];
 
-    services.postgresql.settings = cfg.postgresSettings;
+    services.postgresql.settings = lib.mkIf (! (isNull cfg.postgresSettings)) cfg.postgresSettings;
 
     systemd.services.phpfpm-nextcloud.serviceConfig = {
       # Setup permissions needed for backups, as the backup user is member of the jellyfin group.
@@ -279,27 +287,18 @@ in
 
       postgresHost = "/run/postgresql";
 
-      jwtSecretFile = "/run/secrets/nextcloud/onlyoffice/jwt_secret";
+      jwtSecretFile = cfg.onlyoffice.jwtSecretFile;
     };
 
     services.nginx.virtualHosts."${cfg.onlyoffice.subdomain}.${cfg.domain}" = {
-      sslCertificate = "/var/lib/acme/${cfg.domain}/cert.pem";
-      sslCertificateKey = "/var/lib/acme/${cfg.domain}/key.pem";
-      forceSSL = true;
+      sslCertificate = lib.mkIf config.shb.ssl.enable "/var/lib/acme/${cfg.domain}/cert.pem";
+      sslCertificateKey = lib.mkIf config.shb.ssl.enable "/var/lib/acme/${cfg.domain}/key.pem";
+      forceSSL = lib.mkIf config.shb.ssl.enable true;
       locations."/" = {
         extraConfig = ''
         allow ${cfg.onlyoffice.localNetworkIPRange};
         '';
       };
-    };
-
-    # Secret needed for services.onlyoffice.jwtSecretFile
-    sops.secrets."nextcloud/onlyoffice/jwt_secret" = {
-      inherit (cfg) sopsFile;
-      mode = "0440";
-      owner = "onlyoffice";
-      group = "onlyoffice";
-      restartUnits = [ "onlyoffice-docservice.service" ];
     };
   })];
 }
