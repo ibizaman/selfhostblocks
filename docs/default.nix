@@ -78,6 +78,12 @@ let
     includeModuleSystemOptions = false;
   };
 
+  nextcloudOptionsDocs = buildOptionsDocs {
+    modules = [ ../modules/services/nextcloud-server.nix scrubbedModule ];
+    variablelistId = "selfhostblocks-options";
+    includeModuleSystemOptions = false;
+  };
+
   nmd = import nmdsrc {
     inherit lib;
     # The DocBook output of `nixos-render-docs` doesn't have the change
@@ -133,6 +139,11 @@ in stdenv.mkDerivation {
       --replace \
         '@OPTIONS_JSON@' \
         ${backupOptionsDocs.optionsJSON}/share/doc/nixos/options.json
+
+    substituteInPlace ./modules/services/nextcloud-server/docs/default.md \
+      --replace \
+        '@OPTIONS_JSON@' \
+        ${nextcloudOptionsDocs.optionsJSON}/share/doc/nixos/options.json
 
     find . -name "*.md" -print0 | \
       while IFS= read -r -d ''' f; do

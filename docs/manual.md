@@ -7,12 +7,16 @@
 preface.md
 ```
 
+```{=include=} chapters html:into-file=//services.html
+services.md
+```
+
 ```{=include=} chapters html:into-file=//blocks.html
 blocks.md
 ```
 
-```{=include=} chapters html:into-file=//demo-homeassistant.html
-demo/homeassistant/README.md
+```{=include=} chapters html:into-file=//demos.html
+demos.md
 ```
 
 ```{=include=} appendix html:into-file=//options.html
