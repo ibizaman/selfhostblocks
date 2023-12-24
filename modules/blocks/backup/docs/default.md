@@ -209,6 +209,11 @@ below) is the former splits the backups into sub-folders on the repositories.
 shb.backup.instances.all = backupcfg repos ["/var/lib/myfolder1" "/var/lib/myfolder2"];
 ```
 
+## Demo {#blocks-backup-demo}
+
+Head over to the [Home Assistant demo](demo-homeassistant.html) for a demo that installs Home
+Assistant on a VM with minimal manual steps.
+
 ## Monitoring {#monitoring-backup-block}
 
 [WIP]

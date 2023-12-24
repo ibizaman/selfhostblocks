@@ -7,9 +7,9 @@ The [`flake.nix`](./flake.nix) file sets up a Nextcloud server in only about [15
 lines](./flake.nix#L29-L45) of related code.
 
 This guide will show how to deploy this setup to a Virtual Machine, like showed
-[here](https://nixos.wiki/wiki/NixOS_modules#Developing_modules), in 6 commands.
+[here](https://nixos.wiki/wiki/NixOS_modules#Developing_modules), in 4 commands.
 
-## Deploy to the VM {#deploy-to-the-vm}
+## Deploy to the VM {#demo-nextcloud-deploy-to-the-vm}
 
 Build the VM and start it:
 
@@ -22,8 +22,6 @@ rm nixos.qcow2; \
 This last call is blocking, so I advice adding a `&` at the end of the command otherwise you will
 need to run the rest of the commands in another terminal.
 
-The nested command, the one in between the parenthesis `$(...)` is used to print the VM's public age key, whic.
-
 With the VM started, make the secrets in `secrets.yaml` decryptable in the VM. This change will
 appear in `git status` but you don't need to commit this.
 
@@ -33,6 +31,10 @@ SOPS_AGE_KEY_FILE=keys.txt \
   --add-age $(nix shell nixpkgs#ssh-to-age --command sh -c 'ssh-keyscan -p 2222 -t ed25519 -4 localhost 2>/dev/null | ssh-to-age') \
   secrets.yaml
 ```
+
+The nested command, the one in between the parenthesis `$(...)`, is used to print the VM's public
+age key, which is then added to the `secrets.yaml` file in order to make the secrets decryptable by
+the VM.
 
 If you forget this step, the deploy will seem to go fine but the secrets won't be populated and
 Nextcloud will not start.
@@ -61,7 +63,7 @@ SSH_CONFIG_FILE=ssh_config nix run nixpkgs#colmena --impure -- apply
 The deploy will take a few minutes the first time and subsequent deploys will take around 15
 seconds.
 
-## Access Nextcloud Through Your Browser {#access-nextcloud-through-your-browser}
+## Access Nextcloud Through Your Browser {#demo-nextcloud-access-through-your-browser}
 
 Add the following entry to your `/etc/hosts` file:
 
@@ -86,9 +88,9 @@ Go to [http://n.example.com:8080](http://n.example.com:8080) and login with:
 Nextcloud doesn't like being run without SSL protection, which this demo does not setup yet, so you
 might see errors loading scripts.
 
-## In More Details {#in-more-details}
+## In More Details {#demo-nextcloud-in-more-details}
 
-### Files {#files}
+### Files {#demo-nextcloud-files}
 
 - [`flake.nix`](./flake.nix): nix entry point, defines one target host for
   [colmena](https://colmena.cli.rs) to deploy to as well as the selfhostblock's config for
@@ -111,7 +113,7 @@ might see errors loading scripts.
     hostname `example`. Usually you would store this info in your `~/.ssh/config` file but it's
     provided here to avoid making you do that.
 
-### Virtual Machine {#virtual-machine}
+### Virtual Machine {#demo-nextcloud-virtual-machine}
 
 _More info about the VM._
 
@@ -128,7 +130,7 @@ That being said, the VM uses `tmpfs` to create the writable nix store so if you 
 space issue, you must increase the
 `virtualisation.vmVariantWithBootLoader.virtualisation.memorySize` setting.
 
-### Secrets {#secrets}
+### Secrets {#demo-nextcloud-secrets}
 
 _More info about the secrets._
 
@@ -166,7 +168,7 @@ $ nix run nixpkgs#openssl -- rand -hex 64
 
 If you choose a password too small, ldap could refuse to start.
 
-#### Why do we need the VM's public key {#public-key-necessity}
+#### Why do we need the VM's public key {#demo-nextcloud-public-key-necessity}
 
 The [`sops.yaml`](./sops.yaml) file describes what private keys can decrypt and encrypt the
 [`secrets.yaml`](./secrets.yaml) file containing the application secrets. Usually, you will create and add
@@ -179,7 +181,7 @@ creating the VM in the step above, a new private key and its accompanying public
 automatically generated under `/etc/ssh/ssh_host_ed25519_key` in the VM. We just need to get the
 public key and add it to the `secrets.yaml` which we did in the Deploy section.
 
-### SSH {#ssh}
+### SSH {#demo-nextcloud-ssh}
 
 The private and public ssh keys were created with:
 
@@ -197,7 +199,7 @@ authentication, here is what you would need to do to copy over the key:
 $ nix shell nixpkgs#openssh --command ssh-copy-id -i sshkey -F ssh_config example
 ```
 
-### Deploy {#deploy}
+### Deploy {#demo-nextcloud-deploy}
 
 If you get a NAR hash mismatch error like hereunder, you need to run `nix flake lock --update-input
 selfhostblocks`.
@@ -206,7 +208,7 @@ selfhostblocks`.
 error: NAR hash mismatch in input ...
 ```
 
-### Update Demo {#update-demo}
+### Update Demo {#demo-nextcloud-update-demo}
 
 If you update the Self Host Blocks configuration in `flake.nix` file, you can just re-deploy.
 
