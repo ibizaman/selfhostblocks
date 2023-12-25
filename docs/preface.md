@@ -23,3 +23,6 @@ with all those building blocks.
 - You are a user of Self Host Blocks but would like to use your own implementation for a block. Head
   over to the [matrix channel](https://matrix.to/#/#selfhostblocks:matrix.org) (the manual for this
   is WIP).
+
+Self Host Blocks uses the full power of NixOS modules to achieve these goals. Blocks and service are
+both NixOS modules.
