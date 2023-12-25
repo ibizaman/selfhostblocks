@@ -6,6 +6,10 @@ SHB's (Self Host Blocks) goal is to provide a lower entry-bar for self-hosting. 
 opinionated [building blocks](#building-blocks) fitting together to self-host any service you'd
 want. Some [common services](#provided-services) are provided out of the box.
 
+To achieve this, SHB is using the full power of NixOS modules. Indeed, each building block and each
+service is a NixOS module and uses the modules defined in
+[Nixpkgs](https://github.com/NixOS/nixpkgs/).
+
 Each building block defines a part of what a self-hosted app should provide. For example, HTTPS
 access through a subdomain or Single Sign-On. The goal of SHB is to make sure those blocks all fit
 together, whatever the actual implementation you choose. For example, the subdomain access could be
@@ -36,7 +40,7 @@ SHB provides also services that integrate with those blocks out of the box. Prog
 
 <!--toc:start-->
 - [Supported Features](#supported-features)
-- [Building Blocks](#building-blocks)
+- [Manual](#manual)
 - [Provided Services](#provided-services)
 - [Demos](#demos)
 - [Import selfhostblocks](#import-selfhostblocks)
@@ -120,19 +124,8 @@ Currently supported services and features are:
 The (WIP) complete manual can be found at [shb.skarabox.com](https://shb.skarabox.com/). The information in
 this README will be slowly moved over there.
 
-## Building Blocks
-
-The building blocks are the foundation selfhostblocks intend to provide to allow you to self host
-easily and with best practices any service of your choosing. Some services are already provided out of
-the box but you might not want to use those if for example you want to integrate with existing
-services or slowly transition to NixOS.
-
-Following somewhat the Unix principle, each block has one goal and does it correctly. They also are
-independent of each other, you can use only one or combine them to your liking.
-
-Although these blocks provide options that encourage best practices, these are just NixOS modules that
-configure other modules provided by nixpkgs. Would you need to make tweaks, you can always
-access those underlying modules directly, like for any NixOS module.
+- [Building Blocks](https://shb.skarabox.com/blocks.html)
+- [Services Provided](https://shb.skarabox.com/services.html)
 
 - [`authelia.nix`](./modules/blocks/authelia.nix) for Single Sign On.
 - [`backup.nix`](./modules/blocks/backup.nix).
@@ -338,7 +331,7 @@ $ curl --proxy 127.0.0.1:12000 'https://api.ipify.org?format=json'
 - [`hledger.nix`](./modules/services/hledger.nix) for managing finances https://hledger.org/.
 - [`home-assistant.nix`](./modules/services/home-assistant.nix) for private IoT https://www.home-assistant.io/.
 - [`jellyfin.nix`](./modules/services/jellyfin.nix) for watching media https://jellyfin.org/.
-- [`nextcloud-server.nix`](./modules/services/nextcloud-server.nix) for private documents, contacts, calendar, etc https://nextcloud.com.
+- [Nextcloud Server](https://shb.skarabox.com/services-nextcloud.html) for private documents, contacts, calendar, etc https://nextcloud.com.
 - [`vaultwarden.nix`](./modules/services/vaultwarden.nix) for passwords https://github.com/dani-garcia/vaultwarden.
 
 The services above are those I am using myself. I intend to add more.
@@ -361,75 +354,6 @@ Some other common options are the following. I am not satisfied with how those a
 - Backups.
 
 Note that for backups, every service exposes what directory should be backed up, you must merely choose when those backups will take place and where they will be stored.
-
-### Deploy a Nextcloud Instance
-
-```nix
-shb.nextcloud = {
-  enable = true;
-  domain = "example.com";
-  subdomain = "nextcloud";
-  sopsFile = ./secrets/nextcloud.yaml;
-  localNetworkIPRange = "192.168.1.0/24";
-  debug = false;
-};
-
-# Only needed if you want to override some default settings.
-services.nextcloud = {
-  datadir = "/srv/nextcloud";
-  poolSettings = {
-    "pm" = "dynamic";
-    "pm.max_children" = 120;
-    "pm.start_servers" = 12;
-    "pm.min_spare_servers" = 6;
-    "pm.max_spare_servers" = 18;
-  };
-};
-
-# Backup the Nextcloud data.
-shb.backup.instances.nextcloud = # Same as for the Authelia one above;
-
-# For onlyoffice
-nixpkgs.config.allowUnfreePredicate = pkg: builtins.elem (pkgs.lib.getName pkg) [
-  "corefonts"
-];
-```
-
-The snippet above sets up:
-- The nginx reverse proxy to listen on requests for the `nextcloud.example.com` domain.
-- An onlyoffice instance listening at `oo.example.com` that only listens on the local
-  nextwork; you still need to setup manually the onlyoffice plugin in Nextcloud.
-- All the required databases and secrets.
-
-The sops file format is:
-
-```yaml
-nextcloud:
-    adminpass: XXX...
-    onlyoffice:
-        jwt_secret: YYY...
-```
-
-See the [`nextcloud-server.nix`](./modules/nextcloud-server.nix) module for more info.
-
-You can enable tracing with:
-
-```nix
-shb.nextcloud.debug = true;
-```
-
-See [my blog post](http://blog.tiserbox.com/posts/2023-08-12-what%27s-up-with-nextcloud-webdav-slowness.html) for how to look at the traces.
-
-### Enable verbose Nginx logging
-
-In case you need more verbose logging to investigate an issue:
-
-```nix
-shb.nginx.accessLog = true;
-shb.nginx.debugLog = true;
-```
-
-See the [`nginx.nix`](./modules/nginx.nix) module to see the effect of those options.
 
 ### Deploy an hledger Instance with LDAP and SSO support
 
@@ -640,10 +564,10 @@ $ nix build .#checks.${system}.modules
 $ nix build .#checks.${system}.vm_postgresql_peerAuth
 ```
 
-### Speed up CI
+### Upload test results to CI
 
-Github actions do not have hardware acceleration and tests could timeout when running there. The
-easiest way to speed up CI is to push the test results to cachix.
+Github actions do now have hardware acceleration, so running them there is not slow anymore. If
+needed, the tests results can still be pushed to cachix so they can be reused in CI.
 
 After running the `nix-fast-build` command from the previous section, run:
 

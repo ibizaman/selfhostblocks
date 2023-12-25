@@ -1,4 +1,4 @@
-# Self Host Blocks Options {#ch-options}
+# All Options {#ch-options}
 
 ```{=include=} options
 id-prefix: opt-
