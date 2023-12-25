@@ -1,0 +1,21 @@
+name: update-flake-lock
+on:
+  workflow_dispatch: # allows manual triggering
+  pull_request: # triggers on every Pull Request
+  schedule:
+    - cron: '0 * * * 0' # runs daily at 00:00
+
+jobs:
+  lockfile:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      - name: Install Nix
+        uses: DeterminateSystems/nix-installer-action@main
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          extra-conf: "system-features = nixos-test benchmark big-parallel kvm"
+      - name: Update flake.lock
+        if: ${{ github.event_name != 'pull_request' }}
+        uses: DeterminateSystems/update-flake-lock@main
