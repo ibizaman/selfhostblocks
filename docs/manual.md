@@ -7,6 +7,10 @@
 preface.md
 ```
 
+```{=include=} chapters html:into-file=//usage.html
+usage.md
+```
+
 ```{=include=} chapters html:into-file=//services.html
 services.md
 ```

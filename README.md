@@ -40,10 +40,10 @@ SHB provides also services that integrate with those blocks out of the box. Prog
 
 <!--toc:start-->
 - [Supported Features](#supported-features)
+- [Usage](#usage)
 - [Manual](#manual)
 - [Provided Services](#provided-services)
 - [Demos](#demos)
-- [Import selfhostblocks](#import-selfhostblocks)
 - [Community](#community)
 - [Tips](#tips)
 - [TODOs](#todos)
@@ -118,6 +118,45 @@ Currently supported services and features are:
   - [ ] Integration tests with real nodes.
   - [ ] Self published documentation for options.
   - [ ] Examples for all building blocks.
+
+## Usage
+
+The following snippet shows how to deploy to a machine (here `machine2`) using
+[Colmena](https://colmena.cli.rs):
+
+```nix
+{
+  inputs = {
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
+
+    selfhostblocks.url = "github:ibizaman/selfhostblocks";
+  };
+
+  outputs = { self, selfhostblocks }: {
+    colmena = {
+      meta =
+        let
+          system = "x86_64-linux";
+        in {
+          nixpkgs = import nixpkgs { inherit system; };
+          nodeNixpkgs = {
+            machine2 = import selfhostblocks.inputs.nixpkgs { inherit system; };
+          };
+        };
+
+      machine1 = ...;
+
+      machine2 = { selfhostblocks, ... }: {
+        imports = [
+          selfhostblocks.nixosModules.${system}.default
+        ];
+      };
+    };
+  };
+}
+```
+
+More information is provided in the manual (see below).
 
 ## Manual
 
@@ -476,64 +515,6 @@ home-assistant: |
 Demos that start and deploy a service on a Virtual Machine on your computer are located under the
 [demo](./demo/) folder. These show the onboarding experience you would get if you deployed
 one of the services on your own server.
-
-## Import selfhostblocks
-
-Ready to start using selfhostblocks? Thank you for trusting selfhostblocks. Please raise any
-question you have or hurdle you encounter by creating an issue.
-
-The top-level `flake.nix` just outputs a nixos module that gathers all other modules from
-the [`modules/`](./modules/) directory. Use this repo as a flake input to your own repo.
-The `inputs` field of your `flake.nix` file in your repo should look like so:
-
-```nix
-inputs = {
-  nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
-  sops-nix.url = "github:Mic92/sops-nix";
-
-  selfhostblocks.url = "github:ibizaman/selfhostblocks";
-  selfhostblocks.inputs.nixpkgs.follows = "nixpkgs";
-  selfhostblocks.inputs.sops-nix.follows = "sops-nix";
-};
-```
-
-`sops-nix` is used to setup passwords and secrets. Currently `selfhostblocks` has a strong
-dependency on it but I'm working on removing that so you could use any secret provider.
-
-The snippet above makes `selfhostblocks`' inputs follow yours. This is not maintainable though
-because options that `selfhostblocks` rely on can change or disappear and you have no control on
-that. Later, I intend to make `selfhostblocks` provide its own `nixpkgs` input and update it myself
-through CI.
-
-How you actually deploy using selfhostblocks depends on what system you choose. If you use
-[colmena](https://colmena.cli.rs), this is what your `outputs` field could look like:
-
-```nix
-outputs = inputs@{ self, nixpkgs, ... }: {
-  colmena = {
-    meta = {
-      nixpkgs = import inputs.nixpkgs {
-        system = "x86_64-linux";
-      };
-      specialArgs = inputs;
-    };
-
-    myserver = import ./machines/myserver.nix;
-  };
-}
-```
-
-Now, what goes inside this `./machines/myserver.nix` file? First, import `selfhostblocks` and
-`sops-nix`:
-
-```nix
-imports = [
-  selfhostblocks.nixosModules.x86_64-linux.default
-  sops-nix.nixosModules.default
-]
-```
-
-For the rest, see the above [building blocks](#building-blocks), [provided services](#provided-services) and [demos](#demos) sections.
 
 ## Community
 
