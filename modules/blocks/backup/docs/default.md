@@ -11,9 +11,9 @@ Two implementations for this block are provided:
 
 No integration tests are provided yet.
 
-## Usage {#usage}
+## Usage {#blocks-backup-usage}
 
-### One folder backed up to mounted hard drives {#blocks-backup-config-one}
+### One folder backed up to mounted hard drives {#blocks-backup-usage-one}
 
 The following snippet shows how to configure backup of 1 folder using the Restic implementation to 1
 repository.
@@ -79,7 +79,7 @@ borgmatic:
 
 You can have both borgmatic and restic implementations working at the same time.
 
-### One folder backed up to S3 {#blocks-backup-config-remote}
+### One folder backed up to S3 {#blocks-backup-usage-remote}
 
 > This is only supported by the Restic implementation. 
 
@@ -117,7 +117,7 @@ The Sops file has a new required field:
 +             AWS_SECRET_ACCESS_KEY=<aws_secret_key>
 ```
 
-### Multiple folder to multiple destinations {#blocks-backup-config-multiple}
+### Multiple folder to multiple destinations {#blocks-backup-usage-multiple}
 
 The following snippet shows how to configure backup of any number of folders using the Restic
 implementation to 3 repositories, each happening at different times to avoid contending for I/O
@@ -214,18 +214,18 @@ shb.backup.instances.all = backupcfg repos ["/var/lib/myfolder1" "/var/lib/myfol
 Head over to the [Home Assistant demo](demo-homeassistant.html) for a demo that installs Home
 Assistant on a VM with minimal manual steps.
 
-## Monitoring {#monitoring-backup-block}
+## Monitoring {#blocks-backup-monitoring}
 
 [WIP]
 
-## Maintenance {#monitoring-maintenance}
+## Maintenance {#blocks-backup-maintenance}
 
 [WIP]
 
-## Options Reference {#opt-backup-block}
+## Options Reference {#blocks-backup-options}
 
 ```{=include=} options
-id-prefix: opt-blocks-backup-
+id-prefix: blocks-backup-options-
 list-id: selfhostblocks-block-backup-options
 source: @OPTIONS_JSON@
 ```
