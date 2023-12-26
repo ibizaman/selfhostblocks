@@ -1,7 +1,6 @@
 name: update-flake-lock
 on:
-  workflow_dispatch: # allows manual triggering
-  pull_request: # triggers on every Pull Request
+  workflow_dispatch:
   schedule:
     - cron: '0 * * * 0' # runs daily at 00:00
 
@@ -17,5 +16,6 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           extra-conf: "system-features = nixos-test benchmark big-parallel kvm"
       - name: Update flake.lock
-        if: ${{ github.event_name != 'pull_request' }}
         uses: DeterminateSystems/update-flake-lock@main
+        with:
+          token: ${{ secrets.GH_TOKEN_FOR_UPDATES }}
