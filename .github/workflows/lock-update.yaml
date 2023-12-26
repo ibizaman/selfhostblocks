@@ -1,4 +1,5 @@
-name: update-flake-lock
+name: Update Flake Lock
+
 on:
   workflow_dispatch:
   schedule:
@@ -19,3 +20,5 @@ jobs:
         uses: DeterminateSystems/update-flake-lock@main
         with:
           token: ${{ secrets.GH_TOKEN_FOR_UPDATES }}
+          pr-labels: |
+            automerge
