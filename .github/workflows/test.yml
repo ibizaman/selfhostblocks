@@ -19,6 +19,33 @@ jobs:
         with:
           name: selfhostblocks
           authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'
+      - name: Test demos
+        run: |
+          set -x
+
+          cd ./demo/nextcloud/
+
+          nix run nixpkgs#nixos-rebuild -- build-vm --fast -I nixos-config=./configuration.nix -I nixpkgs=.
+
+          QEMU_OPTS="-nographic" QEMU_NET_OPTS="hostfwd=tcp::2222-:2222,hostfwd=tcp::8080-:80" ./result/bin/run-nixos-vm &
+
+          AGE_KEY=
+          while [ -z "$AGE_KEY" ]; do
+            sleep 1
+            AGE_KEY=$(nix shell nixpkgs#ssh-to-age --command sh -c 'ssh-keyscan -p 2222 -t ed25519 -4 localhost 2>/dev/null | ssh-to-age')
+          done
+
+          ls
+
+          SOPS_AGE_KEY_FILE=keys.txt \
+            nix run --impure nixpkgs#sops -- --config sops.yaml -r -i \
+            --add-age $AGE_KEY \
+            secrets.yaml
+
+          chmod 600 sshkey
+
+          SSH_CONFIG_FILE=ssh_config nix run nixpkgs#colmena --impure -- apply
+
       - name: Run tests
         run: |
           nix run github:Mic92/nix-fast-build -- \

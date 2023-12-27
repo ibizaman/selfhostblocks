@@ -10,6 +10,10 @@
       meta = {
         nixpkgs = import selfhostblocks.inputs.nixpkgs {
           system = "x86_64-linux";
+          # Needed because of a recent update to Home Assistant
+          permittedInsecurePackages = [
+            "openssl-1.1.1w"
+          ];
         };
         specialArgs = inputs;
       };
