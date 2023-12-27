@@ -51,10 +51,93 @@ in
       default = null;
     };
 
-    downloadLocation = lib.mkOption {
-      type = lib.types.str;
-      description = "Folder where torrents gets downloaded";
-      example = "/srv/torrents";
+    settings = lib.mkOption {
+      description = "Deluge operational settings.";
+      type = lib.types.submodule {
+        options = {
+          downloadLocation = lib.mkOption {
+            type = lib.types.str;
+            description = "Folder where torrents gets downloaded";
+            example = "/srv/torrents";
+          };
+
+          max_active_limit = lib.mkOption {
+            type = lib.types.int;
+            description = "Maximum Active Limit";
+            default = 200;
+          };
+          max_active_downloading = lib.mkOption {
+            type = lib.types.int;
+            description = "Maximum Active Downloading";
+            default = 30;
+          };
+          max_active_seeding = lib.mkOption {
+            type = lib.types.int;
+            description = "Maximum Active Seeding";
+            default = 100;
+          };
+          max_connections_global = lib.mkOption {
+            type = lib.types.int;
+            description = "Maximum Connections Global";
+            default = 200;
+          };
+          max_connections_per_torrent = lib.mkOption {
+            type = lib.types.int;
+            description = "Maximum Connections Per Torrent";
+            default = 50;
+          };
+
+          max_download_speed = lib.mkOption {
+            type = lib.types.int;
+            description = "Maximum Download Speed";
+            default = 1000;
+          };
+          max_download_speed_per_torrent = lib.mkOption {
+            type = lib.types.int;
+            description = "Maximum Download Speed Per Torrent";
+            default = -1;
+          };
+
+          max_upload_slots_global = lib.mkOption {
+            type = lib.types.int;
+            description = "Maximum Upload Slots Global";
+            default = 100;
+          };
+          max_upload_slots_per_torrent = lib.mkOption {
+            type = lib.types.int;
+            description = "Maximum Upload Slots Per Torrent";
+            default = 4;
+          };
+          max_upload_speed = lib.mkOption {
+            type = lib.types.int;
+            description = "Maximum Upload Speed";
+            default = 200;
+          };
+          max_upload_speed_per_torrent = lib.mkOption {
+            type = lib.types.int;
+            description = "Maximum Upload Speed Per Torrent";
+            default = 50;
+          };
+
+          dont_count_slow_torrents = lib.mkOption {
+            type = lib.types.bool;
+            description = "Do not count slow torrents towards any limits.";
+            default = true;
+          };
+        };
+      };
+    };
+
+    extraServiceConfig = lib.mkOption {
+      type = lib.types.attrsOf lib.types.str;
+      description = "Extra configuration given to the systemd service file.";
+      default = {};
+      example = lib.literalExpression ''
+      {
+        MemoryHigh = "512M";
+        MemoryMax = "900M";
+      }
+      '';
     };
 
     authEndpoint = lib.mkOption {
@@ -90,13 +173,13 @@ in
     };
   };
 
-  config = lib.mkIf cfg.enable {
+  config = lib.mkIf cfg.enable (lib.mkMerge [{
     services.deluge = {
       enable = true;
       declarative = true;
       openFirewall = true;
       config = {
-        download_location = cfg.downloadLocation;
+        download_location = cfg.settings.downloadLocation;
         allow_remote = true;
         daemon_port = cfg.daemonPort;
         listen_ports = cfg.daemonListenPorts;
@@ -120,22 +203,23 @@ in
                               config.shb.arr.lidarr
                           ]) "Label";
 
-        # TODO: expose these
-        max_active_limit = 10000;
-        max_active_downloading = 30;
-        max_active_seeding = 10000;
-        max_connections_global = 1000;
-        max_connections_per_torrent = 50;
+        inherit (cfg.settings)
+          max_active_limit
+          max_active_downloading
+          max_active_seeding
+          max_connections_global
+          max_connections_per_torrent
 
-        max_download_speed = 1000;
-        max_download_speed_per_torrent = -1;
+          max_download_speed
+          max_download_speed_per_torrent
 
-        max_upload_slots_global = 100;
-        max_upload_slots_per_torrent = 4;
-        max_upload_speed = 200;
-        max_upload_speed_per_torrent = 50;
+          max_upload_slots_global
+          max_upload_slots_per_torrent
+          max_upload_speed
+          max_upload_speed_per_torrent
 
-        dont_count_slow_torrents = true;
+          dont_count_slow_torrents;
+
         new_release_check = false;
       };
       authFile = config.sops.secrets."deluge/auth".path;
@@ -197,5 +281,7 @@ in
         config.services.deluge.dataDir
       ];
     };
-  };
+  } {
+    systemd.services.deluged.serviceConfig = cfg.extraServiceConfig;
+  }]);
 }
