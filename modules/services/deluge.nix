@@ -170,7 +170,7 @@ in
       restartUnits = [ "deluged.service" "delugeweb.service" ];
     };
 
-    shb.nginx.autheliaProtect = [
+    shb.nginx.autheliaProtect = lib.mkIf config.shb.authelia.enable [
       {
         inherit (cfg) subdomain domain authEndpoint;
         upstream = "http://127.0.0.1:${toString config.services.deluge.web.port}";
