@@ -39,6 +39,15 @@ in
       description = "File containing the Nextcloud admin password.";
     };
 
+    maxUploadSize = lib.mkOption {
+      default = "4G";
+      type = lib.types.str;
+      description = ''
+        The upload limit for files. This changes the relevant options
+        in php.ini and nginx if enabled.
+      '';
+    };
+
     onlyoffice = lib.mkOption {
       description = "If non null, set up an Only Office service.";
       default = null;
@@ -170,6 +179,8 @@ in
       hostName = fqdn;
       nginx.hstsMaxAge = 31536000; # Needs > 1 year for https://hstspreload.org to be happy
 
+      inherit (cfg) maxUploadSize;
+
       config = {
         dbtype = "pgsql";
         adminuser = "root";
@@ -248,6 +259,14 @@ in
       sslCertificate = lib.mkIf config.shb.ssl.enable "/var/lib/acme/${cfg.domain}/cert.pem";
       sslCertificateKey = lib.mkIf config.shb.ssl.enable "/var/lib/acme/${cfg.domain}/key.pem";
       forceSSL = lib.mkIf config.shb.ssl.enable true;
+
+      # From [1] this should fix downloading of big files. [2] seems to indicate that buffering
+      # happens at multiple places anyway, so disabling one place should be okay.
+      # [1]: https://help.nextcloud.com/t/download-aborts-after-time-or-large-file/25044/6
+      # [2]: https://stackoverflow.com/a/50891625/1013628
+      extraConfig = ''
+      proxy_buffering off;
+      '';
     };
 
     environment.systemPackages = [
