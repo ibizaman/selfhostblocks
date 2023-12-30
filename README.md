@@ -545,6 +545,16 @@ $ nix build .#checks.${system}.modules
 $ nix build .#checks.${system}.vm_postgresql_peerAuth
 ```
 
+Run one VM test interactively:
+
+```bash
+$ nix run .#checks.${system}.vm_postgresql_peerAuth.driverInteractive
+```
+
+When you get to the shell, run either `start_all()` or `test_script()`. The former just starts all
+the VMs and service, then you can introspect. The latter also starts the VMs if they are not yet and
+then will run the test script.
+
 ### Upload test results to CI
 
 Github actions do now have hardware acceleration, so running them there is not slow anymore. If

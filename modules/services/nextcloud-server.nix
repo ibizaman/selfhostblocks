@@ -34,6 +34,12 @@ in
       default = "/var/lib/nextcloud";
     };
 
+    adminUser = lib.mkOption {
+      type = lib.types.str;
+      description = "Username of the initial admin user.";
+      default = "root";
+    };
+
     adminPassFile = lib.mkOption {
       type = lib.types.path;
       description = "File containing the Nextcloud admin password.";
@@ -183,8 +189,8 @@ in
 
       config = {
         dbtype = "pgsql";
-        adminuser = "root";
-        adminpassFile = cfg.adminPassFile;
+        adminuser = cfg.adminUser;
+        adminpassFile = toString cfg.adminPassFile;
         # Not using dbpassFile as we're using socket authentication.
         defaultPhoneRegion = "US";
         trustedProxies = [ "127.0.0.1" ];
