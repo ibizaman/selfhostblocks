@@ -6,8 +6,13 @@ This NixOS module is a service that sets up a [Nextcloud Server](https://nextclo
 
 ## Features {#services-nextcloud-server-features}
 
-- Integration Tests (TODO: need to add some)
+- [Integration Tests](@REPO@/test/vm/nextcloud.nix)
+  - Tests cron job is setup correctly.
+  - Tests initial admin user and password are setup correctly.
+  - Tests admin user can create and retrieve a file through WebDAV.
 - [Demo](./demo-nextcloud-server.html)
+  - Demo deploying a Nextcloud server with [Colmena](https://colmena.cli.rs/) and with proper
+    secrets management with [sops-nix](https://github.com/Mic92/sops-nix).
 - Access through subdomain using reverse proxy.
 - Access through HTTPS using reverse proxy.
 - Automatic setup of PostgreSQL database.
