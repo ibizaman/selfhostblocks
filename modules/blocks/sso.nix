@@ -16,6 +16,125 @@ let
       rm ${newPath} || :
       sed ${sedPatterns} ${templatePath} > ${newPath}
       '';
+
+  rulesConfig = lib.types.submodule {
+    description = ''
+      Rule to apply a policy to matching requests.
+
+      More information can be found at
+      https://www.authelia.com/configuration/security/access-control
+    '';
+    options = {
+      domains = lib.mkOption {
+        type = lib.types.listOf lib.types.str;
+        description = ''
+          Fully qualified domain names that are used to match this rule. Only one of them must
+          match.
+
+          See https://www.authelia.com/configuration/security/access-control/#domain for more
+          information.
+        '';
+        example = "subdomain.mydomain.com";
+      };
+
+      subjects = lib.mkOption {
+        type =
+          let
+            subjectType = lib.types.submodule {
+              options = {
+                type = lib.mkOption {
+                  type = lib.types.enum [ "user" "group" ];
+                  description = "Identify which part of the identity to check.";
+                };
+
+                subject = lib.mkOption {
+                  type = lib.types.str;
+                  description = "Subject to match.";
+                };
+              };
+            };
+          in
+            lib.types.listOf (lib.types.listOf subjectType);
+        description = ''
+          Subjects used to match this rule. This is a doubly nested list of subjects. The top level
+          matches one of the items in the list while the second level must match all subjects in the
+          list.
+
+          See https://www.authelia.com/configuration/security/access-control/#subject for more information.
+        '';
+        default = [];
+        example = lib.literalExpression ''
+        [
+          [
+            { type = "user"; subject = "john"; }
+          ] # OR
+          [
+            { type = "group"; subject = "admin"; } # AND
+            { type = "group"; subject = "app-name"; }
+          ] # OR
+          [
+            { type = "group"; subject = "super-admin"; }
+          ]
+        ]
+        '';
+      };
+
+      methods = lib.mkOption {
+        type = lib.types.listOf (lib.types.enum [
+          "GET" "HEAD" "POST" "PUT" "DELETE" "CONNECT"
+          "OPTIONS" "TRACE" "PATCH" "PROPFIND" "PROPPATCH"
+          "MKCOL" "COPY" "MOVE" "LOCK" "UNLOCK"
+        ]);
+        description = ''
+          Methods to match this rule.
+
+          See https://www.authelia.com/configuration/security/access-control/#methods for more information.
+        '';
+        default = [];
+      };
+
+      networks = lib.mkOption {
+        type = lib.types.listOf lib.types.str;
+        description = ''
+          Networks to match this rule.
+
+          The "internal" network alias is already defined as the list of:
+            - "10.0.0.0/8"
+            - "172.16.0.0/12"
+            - "192.168.0.0/18"
+
+          See https://www.authelia.com/configuration/security/access-control/#networks for more information.
+        '';
+        example = lib.literalExpression ''
+        [
+          "internal"
+          "112.134.145.167/32"
+        ]
+        '';
+      };
+
+      resources = lib.mkOption {
+        type = lib.types.listOf lib.types.str;
+        description = ''
+          Resources to match this rule. Matches the path and query of the request using regular expressions.
+
+          See https://www.authelia.com/configuration/security/access-control/#resources for more information.
+        '';
+        example = lib.literalExpression ''
+        [
+          "^/api([/?].*)?$"
+        ]
+        '';
+      };
+
+      policy = lib.mkOption {
+        type = lib.types.enum [ "deny" "bypass" "one_factor" "two_factor" ];
+        description = ''
+          See https://www.authelia.com/configuration/security/access-control/#policies for more information.
+        '';
+      };
+    };
+  };
 in
 {
   options.shb.sso = {
@@ -132,7 +251,7 @@ in
     };
 
     rules = lib.mkOption {
-      type = lib.types.listOf lib.types.anything;
+      type = lib.types.listOf rulesConfig;
       description = "Rule based clients";
       default = [];
     };
