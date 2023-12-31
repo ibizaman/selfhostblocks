@@ -18,7 +18,7 @@ in
             shb.backup = lib.mkOption { type = lib.types.anything; };
           };
         }
-        # ../../modules/blocks/authelia.nix
+        # ../../modules/blocks/sso.nix
         # ../../modules/blocks/ldap.nix
         ../../modules/services/nextcloud-server.nix
       ];

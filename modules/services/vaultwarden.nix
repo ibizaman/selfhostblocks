@@ -23,13 +23,13 @@ in
 
     subdomain = lib.mkOption {
       type = lib.types.str;
-      description = "Subdomain under which Authelia will be served.";
+      description = "Subdomain under which Vaultwarden will be served.";
       example = "ha";
     };
 
     domain = lib.mkOption {
       type = lib.types.str;
-      description = "domain under which Authelia will be served.";
+      description = "domain under which Vaultwarden will be served.";
       example = "mydomain.com";
     };
 
@@ -48,7 +48,7 @@ in
     authEndpoint = lib.mkOption {
       type = lib.types.str;
       description = "OIDC endpoint for SSO";
-      example = "https://authelia.example.com";
+      example = "https://auth.example.com";
     };
 
     databasePasswordFile = lib.mkOption {
@@ -162,11 +162,11 @@ in
           "%SMTP_PASSWORD%" = "$(cat ${cfg.smtp.passwordFile})";
         };
 
-    shb.nginx.autheliaProtect = [
+    shb.nginx.ssoProtect = [
       {
         inherit (cfg) subdomain domain authEndpoint;
         upstream = "http://127.0.0.1:${toString config.services.vaultwarden.config.ROCKET_PORT}";
-        autheliaRules = [
+        ssoRules = [
           {
             domain = "${fqdn}";
             policy = "two_factor";
@@ -175,7 +175,7 @@ in
               "^/admin"
             ];
           }
-          # There's no way to protect the webapp using Authelia this way, see
+          # There's no way to protect the webapp using SSO this way, see
           # https://github.com/dani-garcia/vaultwarden/discussions/3188
           {
             domain = fqdn;

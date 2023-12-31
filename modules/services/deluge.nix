@@ -143,7 +143,7 @@ in
     authEndpoint = lib.mkOption {
       type = lib.types.str;
       description = "OIDC endpoint for SSO";
-      example = "https://authelia.example.com";
+      example = "https://auth.example.com";
     };
 
     sopsFile = lib.mkOption {
@@ -254,7 +254,7 @@ in
       restartUnits = [ "deluged.service" "delugeweb.service" ];
     };
 
-    shb.nginx.autheliaProtect = lib.mkIf config.shb.authelia.enable [
+    shb.nginx.ssoProtect = lib.mkIf config.shb.sso.enable [
       {
         inherit (cfg) subdomain domain authEndpoint;
         upstream = "http://127.0.0.1:${toString config.services.deluge.web.port}";

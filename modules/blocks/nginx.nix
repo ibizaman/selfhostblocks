@@ -5,17 +5,17 @@ let
 
   fqdn = c: "${c.subdomain}.${c.domain}";
 
-  autheliaConfig = lib.types.submodule {
+  ssoConfig = lib.types.submodule {
     options = {
       subdomain = lib.mkOption {
         type = lib.types.str;
-        description = "Subdomain which must be protected.";
+        description = "Subdomain part of the fqdn that must be protected.";
         example = "subdomain";
       };
 
       domain = lib.mkOption {
         type = lib.types.str;
-        description = "Domain of the subdomain.";
+        description = "Domain part of the fqdn that must be protected.";
         example = "mydomain.com";
       };
 
@@ -23,7 +23,7 @@ let
         type = lib.types.str;
         description = "Auth endpoint for SSO.";
         default = null;
-        example = "https://authelia.example.com";
+        example = "https://auth.example.com";
       };
 
       upstream = lib.mkOption {
@@ -32,9 +32,9 @@ let
         example = "http://127.0.0.1:1234";
       };
 
-      autheliaRules = lib.mkOption {
+      ssoRules = lib.mkOption {
         type = lib.types.listOf (lib.types.attrsOf lib.types.anything);
-        description = "Authelia rule configuration";
+        description = "SSO rules configuration";
         example = lib.literalExpression ''[{
         policy = "two_factor";
         subject = ["group:service_user"];
@@ -59,9 +59,9 @@ in
       example = true;
     };
 
-    autheliaProtect = lib.mkOption {
-      description = "Endpoints to be protected by authelia.";
-      type = lib.types.listOf autheliaConfig;
+    ssoProtect = lib.mkOption {
+      description = "Endpoints to be protected by SSO.";
+      type = lib.types.listOf ssoConfig;
       default = [];
     };
   };
@@ -125,7 +125,7 @@ in
               proxy_set_header Connection "upgrade";
               proxy_cache_bypass $http_upgrade;
 
-              auth_request /authelia;
+              auth_request /sso;
               auth_request_set $user $upstream_http_remote_user;
               auth_request_set $groups $upstream_http_remote_groups;
               proxy_set_header X-Forwarded-User $user;
@@ -150,7 +150,7 @@ in
             '';
 
             # Virtual endpoint created by nginx to forward auth requests.
-            locations."/authelia".extraConfig = ''
+            locations."/sso".extraConfig = ''
               internal;
               proxy_pass ${c.authEndpoint}/api/verify;
 
@@ -172,13 +172,13 @@ in
           };
         };
       in
-        lib.mkMerge (map vhostCfg cfg.autheliaProtect);
+        lib.mkMerge (map vhostCfg cfg.ssoProtect);
 
-    shb.authelia.rules =
+    shb.sso.rules =
       let
-        authConfig = c: map (r: r // { domain = fqdn c; }) c.autheliaRules;
+        authConfig = c: map (r: r // { domain = fqdn c; }) c.ssoRules;
       in
-        lib.flatten (map authConfig cfg.autheliaProtect);
+        lib.flatten (map authConfig cfg.ssoProtect);
 
     security.acme.defaults.reloadServices = [
       "nginx.service"

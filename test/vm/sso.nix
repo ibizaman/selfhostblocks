@@ -14,7 +14,7 @@ in
             shb.backup = lib.mkOption { type = lib.types.anything; };
           };
         }
-        ../../modules/blocks/authelia.nix
+        ../../modules/blocks/sso.nix
         ../../modules/blocks/ldap.nix
         ../../modules/blocks/postgresql.nix
       ];
@@ -28,8 +28,9 @@ in
         jwtSecretFile = pkgs.writeText "jwt_secret" "securejwtsecret";
       };
 
-      shb.authelia = {
+      shb.sso = {
         enable = true;
+        backend = "authelia";
         subdomain = "authelia";
         domain = "example.com";
         ldapEndpoint = "ldap://127.0.0.1:${builtins.toString config.shb.ldap.ldapPort}";

@@ -28,7 +28,6 @@
       };
 
       allModules = [
-        modules/blocks/authelia.nix
         modules/blocks/backup.nix
         modules/blocks/davfs.nix
         modules/blocks/ldap.nix
@@ -36,6 +35,7 @@
         modules/blocks/nginx.nix
         modules/blocks/postgresql.nix
         modules/blocks/ssl.nix
+        modules/blocks/sso.nix
         modules/blocks/tinyproxy.nix
         modules/blocks/vpn.nix
 
@@ -91,7 +91,7 @@
                 ]);
             };
           }
-          // (vm_test "authelia" ./test/vm/authelia.nix)
+          // (vm_test "sso" ./test/vm/sso.nix)
           // (vm_test "ldap" ./test/vm/ldap.nix)
           // (vm_test "postgresql" ./test/vm/postgresql.nix)
           // (vm_test "monitoring" ./test/vm/monitoring.nix)

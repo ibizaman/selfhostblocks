@@ -162,7 +162,7 @@ let
           type = lib.types.nullOr lib.types.str;
           default = null;
           description = "Endpoint to the SSO provider. Leave null to not have SSO configured.";
-          example = "https://authelia.example.com";
+          example = "https://auth.example.com";
         };
 
         backupCfg = lib.mkOption {
@@ -297,7 +297,7 @@ config.xml" templatedSettings) "${config.services.radarr.dataDir}/config.xml" (
         in
           lib.mkIf cfg.jackett.enable t;
 
-      shb.nginx.autheliaProtect =
+      shb.nginx.ssoProtect =
         let
           appProtectConfig = name: _defaults:
             let
@@ -306,7 +306,7 @@ config.xml" templatedSettings) "${config.services.radarr.dataDir}/config.xml" (
               lib.mkIf (c.authEndpoint != null) {
                 inherit (c) subdomain domain authEndpoint;
                 upstream = "http://127.0.0.1:${toString c.port}";
-                autheliaRules = [
+                ssoRules = [
                   {
                     domain = "${c.subdomain}.${c.domain}";
                     policy = "bypass";

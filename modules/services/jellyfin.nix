@@ -54,13 +54,13 @@ in
     oidcProvider = lib.mkOption {
       type = lib.types.str;
       description = "OIDC provider name";
-      default = "Authelia";
+      default = "SSO";
     };
 
     authEndpoint = lib.mkOption {
       type = lib.types.str;
       description = "OIDC endpoint for SSO";
-      example = "https://authelia.example.com";
+      example = "https://auth.example.com";
     };
 
     oidcClientID = lib.mkOption {
@@ -368,7 +368,7 @@ in
         }
         + template brandingConfig "/var/lib/jellyfin/config/branding.xml" {"%a%" = "%a%";};
 
-    shb.authelia.oidcClients = [
+    shb.sso.oidcClients = [
       {
         id = cfg.oidcClientID;
         description = "Jellyfin";
@@ -382,7 +382,7 @@ in
       inherit (cfg) sopsFile;
       key = "jellyfin/sso_secret";
       mode = "0400";
-      owner = config.shb.authelia.autheliaUser;
+      owner = config.shb.sso.unixUser;
     };
 
     # For backup

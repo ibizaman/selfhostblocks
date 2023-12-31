@@ -11,13 +11,13 @@ in
 
     subdomain = lib.mkOption {
       type = lib.types.str;
-      description = "Subdomain under which Authelia will be served.";
+      description = "Subdomain under which Hledger will be served.";
       example = "ha";
     };
 
     domain = lib.mkOption {
       type = lib.types.str;
-      description = "domain under which Authelia will be served.";
+      description = "domain under which Hledger will be served.";
       example = "mydomain.com";
     };
 
@@ -37,7 +37,7 @@ in
     authEndpoint = lib.mkOption {
       type = lib.types.str;
       description = "OIDC endpoint for SSO";
-      example = "https://authelia.example.com";
+      example = "https://auth.example.com";
     };
   };
 
@@ -72,11 +72,11 @@ in
       serviceConfig.StateDirectory = "hledger";
     };
 
-    shb.nginx.autheliaProtect = [
+    shb.nginx.ssoProtect = [
       {
         inherit (cfg) subdomain domain authEndpoint;
         upstream = "http://${toString config.services.hledger-web.host}:${toString config.services.hledger-web.port}";
-        autheliaRules = [{
+        ssoRules = [{
           domain = fqdn;
           policy = "two_factor";
           subject = ["group:hledger_user"];

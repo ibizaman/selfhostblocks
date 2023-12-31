@@ -42,7 +42,7 @@ in
       systemd.services.radarr = {};
       systemd.services.jackett = {};
       shb.backup = {};
-      shb.nginx.autheliaProtect = [];
+      shb.nginx.ssoProtect = [];
       users.users = {};
       services.bazarr = {};
       services.jackett = {};
@@ -67,9 +67,9 @@ in
         "d '/var/lib/radarr' 0750 radarr radarr - -"
       ];
       shb.backup = {};
-      shb.nginx.autheliaProtect = [
+      shb.nginx.ssoProtect = [
         {
-          autheliaRules = [
+          ssoRules = [
             {
               domain = "radarr.example.com";
               policy = "bypass";
@@ -140,9 +140,9 @@ in
           excludePatterns = [ ".db-shm" ".db-wal" ".mono" ];
         };
       };
-      shb.nginx.autheliaProtect = [
+      shb.nginx.ssoProtect = [
         {
-          autheliaRules = [
+          ssoRules = [
             {
               domain = "radarr.example.com";
               policy = "bypass";
