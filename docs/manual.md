@@ -11,6 +11,10 @@ preface.md
 usage.md
 ```
 
+```{=include=} chapters html:into-file=//core-principles.html
+coreprinciples.md
+```
+
 ```{=include=} chapters html:into-file=//services.html
 services.md
 ```

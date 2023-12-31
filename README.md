@@ -3,34 +3,19 @@
 *Building blocks for self-hosting with battery included.*
 
 SHB's (Self Host Blocks) goal is to provide a lower entry-bar for self-hosting. SHB provides
-opinionated [building blocks](#building-blocks) fitting together to self-host any service you'd
-want. Some [common services](#provided-services) are provided out of the box.
+opinionated building blocks fitting together to self-host any service you want. Some common services
+are provided out of the box.
 
-To achieve this, SHB is using the full power of NixOS modules. Indeed, each building block and each
-service is a NixOS module and uses the modules defined in
-[Nixpkgs](https://github.com/NixOS/nixpkgs/).
+- You are new to self hosting and want pre-configured services to deploy easily. Look at the
+  [services section](https://shb.skarabox.com/services.html).
+- You are a seasoned self-hoster but want to enhance some services you deploy already. Go to the
+  [blocks section](https://shb.skarabox.com/blocks.html).
+- You are a user of Self Host Blocks but would like to use your own implementation for a block. Head
+  over to the [matrix channel](https://matrix.to/#/#selfhostblocks:matrix.org) to talk about it
+  (this is WIP).
 
-Each building block defines a part of what a self-hosted app should provide. For example, HTTPS
-access through a subdomain or Single Sign-On. The goal of SHB is to make sure those blocks all fit
-together, whatever the actual implementation you choose. For example, the subdomain access could be
-done using Caddy or Nginx. This is achieved by providing an explicit contract for each block and validating that contract using NixOS VM integration tests.
-
-One important goal of SHB is to be the smallest amount of code above what is available in
-[nixpkgs](https://github.com/NixOS/nixpkgs). It should be the minimum necessary to make packages
-available there conform with the contracts. This way, there are less chance of breakage when nixpkgs
-gets updated.
-
-SHB provides some out of the box implementation of those blocks:
-- Access through a subdomain ([Nginx](https://www.nginx.com/)).
-- HTTPS access ([Nginx](https://www.nginx.com/) + [Letsencrypt](https://letsencrypt.org/)).
-- Backup ([Borgmatic](https://torsion.org/borgmatic/) and/or [Restic](https://restic.net/)).
-- Single sign-on ([Authelia](https://www.authelia.com/)).
-- LDAP user management ([LLDAP](https://github.com/lldap/lldap)).
-- Metrics, logs and alerting ([Grafana](https://grafana.com/) + [Prometheus](https://prometheus.io/) + [Loki](https://grafana.com/oss/loki/) + [Promtail](https://grafana.com/docs/loki/latest/send-data/promtail/) + [Alertmanager](https://prometheus.io/docs/alerting/latest/alertmanager/)).
-- Database setup (Only [Postgresql](https://www.postgresql.org/) so far).
-- VPN tunnels with optional proxys ([OpenVPN](https://openvpn.net/) with [Tinyproxy](http://tinyproxy.github.io/)).
-
-SHB provides also services that integrate with those blocks out of the box. Progress is detailed in the [Supported Features](#supported-features) section.
+SHB is using the full power of NixOS. Indeed, each building block and each service is a NixOS module
+and uses the modules defined in [Nixpkgs](https://github.com/NixOS/nixpkgs/).
 
 > **Caution:** You should know that although I am using everything in this repo for my personal
 > production server, this is really just a one person effort for now and there are most certainly
@@ -39,6 +24,8 @@ SHB provides also services that integrate with those blocks out of the box. Prog
 ## TOC
 
 <!--toc:start-->
+- [Core Principles](#core-principles)
+- [Provided Blocks](#provided-blocks)
 - [Supported Features](#supported-features)
 - [Usage](#usage)
 - [Manual](#manual)
@@ -50,6 +37,113 @@ SHB provides also services that integrate with those blocks out of the box. Prog
 - [Links that helped](#links-that-helped)
 - [License](#license)
 <!--toc:end-->
+
+## Why Should You Use Self Host Blocks?
+
+Self Host Blocks is an opinionated layer on top of nixpkgs that makes sure blocks and services fit
+nicely together and it does that by having an extensive test suite. (To be honest, the test suite
+exists but has very poor coverage yet).
+
+By using Self Host Blocks, you get all the benefits of NixOS which are, for self hosted applications
+specifically:
+
+- declarative configuration;
+- atomic configuration rollbacks;
+- real programming language to define configurations;
+- user-defined abstractions (create your own functions or NixOS modules on top of SHB!);
+- integration with the rest of nixpkgs.
+
+Also, SHB intends to be a library, not a framework, so you can make it fit in your existing
+deployment, slowly transitioning to using SHB one block at a time.
+
+That leaves one big issue though, application state management. For example, not all applications
+can be downgraded as easily as configuration files can be. There's no silver bullet for that and
+each application must be managed differently. NixOS at least allows us to handle those issues in a
+principle manner.
+
+## Core Principles
+
+### Best practices by default
+
+Backups, SSL, monitoring, etc. should be enabled by default and should be easier to configure than
+not having those.
+
+### Contracts With Tests
+
+Each building block defines a part of what a self-hosted app should provide. For example, HTTPS
+access through a subdomain or Single Sign-On.
+
+The goal of SHB is to make sure those blocks all fit together, whatever the actual implementation.
+For example, the subdomain access could be done using Caddy or Nginx. This is achieved by providing
+an explicit contract for each block and validating that contract using NixOS VM integration tests.
+
+Ensuring the blocks respect their respective contracts is done through module and NixOS VM tests.
+
+### Nixpkgs First
+
+SHB uses as many packages already defined in [nixpkgs](https://github.com/NixOS/nixpkgs) as
+possible. Not doing so would be at minimum a terrible waste of time and efficiency.
+
+SHB should then be the smallest amount of code above what is available in nixpkgs. It should be the
+minimum necessary to make packages available there conform with the contracts. This way, there are
+less chance of breakage when nixpkgs gets updated. Related, SHB should contribute as much upstream
+as it makes sense.
+
+### Be a library, not a framework
+
+Users should be able to pick one block from SHB and add it to their pre-existing system.
+
+Deploying SHB to a machine is done through any of the [supported
+methods](https://nixos.wiki/wiki/Applications#Deployment) for NixOS.
+
+### Perennial Software
+
+Thanks to the principles above, I believe Self Host Blocks can be useful even if the project one day
+does not get updates anymore. You can always copy parts you like and incorporate that in your own repository.
+
+## Why Not?
+
+Self Host Block is still in alpha version.
+
+I'm still making progress and making breaking changes with no intent to be backwards compatible. I
+will consider this project to be v1 when I'll have a contract fully defined for each block, with a
+default implementation for each, a way for you to add your own implementation easily and with tests
+to ensure the contracts and to be able to test your own implementation.
+
+That being said, what's already in this repo works and I use it personally. You can probably read
+through the source code and find useful things you can copy over in your project.
+
+## Provided Blocks
+
+SHB provides some out of the box implementation of these blocks:
+- Access through a subdomain with [Nginx](https://www.nginx.com/).
+- HTTPS access with [Nginx](https://www.nginx.com/) and [Letsencrypt](https://letsencrypt.org/).
+- Backup with [Borgmatic](https://torsion.org/borgmatic/) and/or [Restic](https://restic.net/).
+- Single sign-on with [Authelia](https://www.authelia.com/).
+- LDAP user management with [LLDAP](https://github.com/lldap/lldap).
+- Metrics, logs and alerting with the [Grafana](https://grafana.com/) /
+  [Prometheus](https://prometheus.io/) / [Loki](https://grafana.com/oss/loki/) /
+  [Promtail](https://grafana.com/docs/loki/latest/send-data/promtail/) /
+  [Alertmanager](https://prometheus.io/docs/alerting/latest/alertmanager/) suite with out of the box
+  dashboards and alerts.
+- Database setup with [Postgresql](https://www.postgresql.org/).
+- VPN tunnels and optional proxys with [OpenVPN](https://openvpn.net/) and
+  [Tinyproxy](http://tinyproxy.github.io/).
+
+SHB provides also services that integrate with those blocks out of the box. Progress is detailed in
+the [Supported Features](#supported-features) section.
+
+## Provided Services
+
+- [`arr.nix`](./modules/services/arr.nix) for finding media https://wiki.servarr.com/.
+- [`deluge.nix`](./modules/services/deluge.nix) for downloading linux isos https://deluge-torrent.org/.
+- [`hledger.nix`](./modules/services/hledger.nix) for managing finances https://hledger.org/.
+- [`home-assistant.nix`](./modules/services/home-assistant.nix) for private IoT https://www.home-assistant.io/.
+- [`jellyfin.nix`](./modules/services/jellyfin.nix) for watching media https://jellyfin.org/.
+- [Nextcloud Server](https://shb.skarabox.com/services-nextcloud.html) for private documents, contacts, calendar, etc. https://nextcloud.com.
+- [`vaultwarden.nix`](./modules/services/vaultwarden.nix) for passwords https://github.com/dani-garcia/vaultwarden.
+
+The services above are those I am using myself. I intend to add more.
 
 ## Supported Features
 
@@ -70,13 +164,16 @@ Currently supported services and features are:
   - [X] Backup support.
 - [X] Monitoring through Prometheus and Grafana.
   - [X] Export systemd services status.
-  - [ ] Provide out of the box dashboards and alerts for common tasks.
+  - [X] Out of the box dashboards and alerts for common tasks.
   - [ ] LDAP auth.
   - [ ] SSO auth.
 - [X] Vaultwarden
   - [X] UI only accessible for `vaultwarden_user` LDAP group.
   - [X] `/admin` only accessible for `vaultwarden_admin` LDAP group.
-  - [WIP] True SSO support, see [dani-garcia/vaultwarden/issues/246](https://github.com/dani-garcia/vaultwarden/issues/246). For now, Authelia protects access to the UI but you need to login afterwards to Vaultwarden. So there are two login required.
+  - [WIP] True SSO support, see
+    [dani-garcia/vaultwarden/issues/246](https://github.com/dani-garcia/vaultwarden/issues/246). For
+    now, Authelia protects access to the UI but you need to login afterwards to Vaultwarden. So
+    there are two login required.
 - [X] Nextcloud
   - [X] LDAP auth, unfortunately we need to configure this manually.
     - [ ] Declarative setup.
@@ -86,23 +183,27 @@ Currently supported services and features are:
   - [X] Optional tracing debug.
   - [ ] Export traces to Prometheus.
   - [ ] Export metrics to Prometheus.
+  - [X] Export requests to Prometheus (through Nginx).
 - [X] Home Assistant.
-  - [ ] Export metrics to Prometheus.
   - [X] LDAP auth through `homeassistant_user` LDAP group.
   - [ ] SSO auth.
   - [X] Backup support.
-- [X] Jellyfin
   - [ ] Export metrics to Prometheus.
+  - [X] Export requests to Prometheus (through Nginx).
+- [X] Jellyfin
   - [X] LDAP auth through `jellyfin_user` and `jellyfin_admin` LDAP groups.
   - [X] SSO auth.
   - [X] Backup support.
-- [X] Hledger
   - [ ] Export metrics to Prometheus.
+  - [X] Export requests to Prometheus (through Nginx).
+- [X] Hledger
   - [X] LDAP auth through `hledger_user` LDAP group.
   - [X] SSO auth.
   - [ ] Backup support.
+  - [ ] Export metrics to Prometheus.
+  - [X] Export requests to Prometheus (through Nginx).
 - [X] Database Postgres
-  - [ ] Slow log monitoring.
+  - [X] Slow log monitoring.
   - [ ] Export metrics to Prometheus.
 - [X] VPN tunnel
 - [X] Arr suite
@@ -112,11 +213,11 @@ Currently supported services and features are:
 - [ ] Gitea to deploy
 - [ ] Scrutiny to monitor hard drives health
   - [ ] Export metrics to Prometheus.
-- [x] QoL
-  - [x] Unit tests for modules.
-  - [x] Running in CI.
-  - [ ] Integration tests with real nodes.
-  - [ ] Self published documentation for options.
+- [X] QoL
+  - [X] Unit tests for modules.
+  - [X] Running in CI.
+  - [X] Integration tests with real nodes.
+  - [X] Self published documentation for options.
   - [ ] Examples for all building blocks.
 
 ## Usage
@@ -179,6 +280,8 @@ this README will be slowly moved over there.
 The best way for now to understand how to use those modules is to read the code linked above and see
 how they are used in the [provided services](#provided-services) and in the [demos](#demos). Also, here are a
 few examples taken from my personal usage of selfhostblocks.
+
+## Examples
 
 ### Add SSL configuration
 
@@ -363,21 +466,6 @@ $ curl --proxy 127.0.0.1:12000 'https://api.ipify.org?format=json'
 {"ip":"46.12.123.113"}
 ```
 
-## Provided Services
-
-- [`arr.nix`](./modules/services/arr.nix) for finding media https://wiki.servarr.com/.
-- [`deluge.nix`](./modules/services/deluge.nix) for downloading linux isos https://deluge-torrent.org/.
-- [`hledger.nix`](./modules/services/hledger.nix) for managing finances https://hledger.org/.
-- [`home-assistant.nix`](./modules/services/home-assistant.nix) for private IoT https://www.home-assistant.io/.
-- [`jellyfin.nix`](./modules/services/jellyfin.nix) for watching media https://jellyfin.org/.
-- [Nextcloud Server](https://shb.skarabox.com/services-nextcloud.html) for private documents, contacts, calendar, etc https://nextcloud.com.
-- [`vaultwarden.nix`](./modules/services/vaultwarden.nix) for passwords https://github.com/dani-garcia/vaultwarden.
-
-The services above are those I am using myself. I intend to add more.
-
-The best way for now to understand how to use those modules is to read the code linked above and see
-how they are used in the demos. Also, here are a
-few examples taken from my personal usage of selfhostblocks.
 
 ### Common Options
 
@@ -531,24 +619,32 @@ Along the way, I made quite a few changes to the ubderlying nixpkgs module I'm u
 Run all tests:
 
 ```bash
-$ nix build .#checks.${system}.all
-# or
-$ nix flake check
-# or
-$ nix run github:Mic92/nix-fast-build -- --skip-cached --flake ".#checks.$(nix eval --raw --impure --expr builtins.currentSystem)"
+nix build .#checks.${system}.all
 ```
 
-Run one group of tests:
+or
 
 ```bash
-$ nix build .#checks.${system}.modules
-$ nix build .#checks.${system}.vm_postgresql_peerAuth
+nix flake check
+```
+
+or
+
+```bash
+nix run github:Mic92/nix-fast-build -- --skip-cached --flake ".#checks.$(nix eval --raw --impure --expr builtins.currentSystem)"
+```
+
+Run one group of tests (this has bash autocompletion!):
+
+```bash
+nix build .#checks.${system}.modules
+nix build .#checks.${system}.vm_postgresql_peerAuth
 ```
 
 Run one VM test interactively:
 
 ```bash
-$ nix run .#checks.${system}.vm_postgresql_peerAuth.driverInteractive
+nix run .#checks.${system}.vm_postgresql_peerAuth.driverInteractive
 ```
 
 When you get to the shell, run either `start_all()` or `test_script()`. The former just starts all
