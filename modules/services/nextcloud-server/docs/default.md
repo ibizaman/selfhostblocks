@@ -11,6 +11,7 @@ This NixOS module is a service that sets up a [Nextcloud Server](https://nextclo
     up required cron job.
   - [Only Office](https://apps.nextcloud.com/apps/onlyoffice) app: enables app and sets up Only
     Office service.
+  - Any other app through the `shb.nextcloud.extraApps` option.
 - [Demo](./demo-nextcloud-server.html)
   - Demo deploying a Nextcloud server with [Colmena](https://colmena.cli.rs/) and with proper
     secrets management with [sops-nix](https://github.com/Mic92/sops-nix).
