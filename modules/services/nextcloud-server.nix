@@ -54,31 +54,6 @@ in
       '';
     };
 
-    onlyoffice = lib.mkOption {
-      description = "If non null, set up an Only Office service.";
-      default = null;
-      type = lib.types.nullOr (lib.types.submodule {
-        options = {
-          subdomain = lib.mkOption {
-            type = lib.types.str;
-            description = "Subdomain under which Only Office will be served.";
-            default = "oo";
-          };
-
-          localNetworkIPRange = lib.mkOption {
-            type = lib.types.str;
-            description = "Local network range, to restrict access to Open Office to only those IPs.";
-            example = "192.168.1.1/24";
-          };
-
-          jwtSecretFile = lib.mkOption {
-            type = lib.types.path;
-            description = "File containing the JWT secret.";
-          };
-        };
-      });
-    };
-
     postgresSettings = lib.mkOption {
       type = lib.types.nullOr (lib.types.attrsOf lib.types.str);
       default = null;
@@ -134,6 +109,41 @@ in
       '';
     };
 
+    apps = lib.mkOption {
+      description = ''
+        Applications to enable in Nextcloud. Enabling an application here will also configure
+        various services needed for this application.
+      '';
+      type = lib.types.submodule {
+        options = {
+          onlyoffice = lib.mkOption {
+            description = "If non null, set up an Only Office service.";
+            default = null;
+            type = lib.types.nullOr (lib.types.submodule {
+              options = {
+                subdomain = lib.mkOption {
+                  type = lib.types.str;
+                  description = "Subdomain under which Only Office will be served.";
+                  default = "oo";
+                };
+
+                localNetworkIPRange = lib.mkOption {
+                  type = lib.types.str;
+                  description = "Local network range, to restrict access to Open Office to only those IPs.";
+                  example = "192.168.1.1/24";
+                };
+
+                jwtSecretFile = lib.mkOption {
+                  type = lib.types.path;
+                  description = "File containing the JWT secret.";
+                };
+              };
+            });
+          };
+        };
+      };
+    };
+
     extraApps = lib.mkOption {
       type = lib.types.raw;
       description = ''
@@ -170,187 +180,191 @@ in
     };
   };
 
-  config = lib.mkMerge [(lib.mkIf cfg.enable {
-    users.users = {
-      nextcloud = {
-        name = "nextcloud";
-        group = "nextcloud";
-        isSystemUser = true;
-      };
-    };
-
-    users.groups = {
-      nextcloud = {
-        members = [ "backup" ];
-      };
-    };
-
-    # LDAP is manually configured through
-    # https://github.com/lldap/lldap/blob/main/example_configs/nextcloud.md, see also
-    # https://docs.nextcloud.com/server/latest/admin_manual/configuration_user/user_auth_ldap.html
-    #
-    # Verify setup with:
-    #  - On admin page
-    #  - https://scan.nextcloud.com/
-    #  - https://www.ssllabs.com/ssltest/
-    # As of writing this, we got no warning on admin page and A+ on both tests.
-    #
-    # Content-Security-Policy is hard. I spent so much trying to fix lingering issues with .js files
-    # not loading to realize those scripts are inserted by extensions. Doh.
-    services.nextcloud = {
-      enable = true;
-      package = pkgs.nextcloud27;
-
-      datadir = cfg.dataDir;
-
-      hostName = fqdn;
-      nginx.hstsMaxAge = 31536000; # Needs > 1 year for https://hstspreload.org to be happy
-
-      inherit (cfg) maxUploadSize;
-
-      config = {
-        dbtype = "pgsql";
-        adminuser = cfg.adminUser;
-        adminpassFile = toString cfg.adminPassFile;
-        # Not using dbpassFile as we're using socket authentication.
-        defaultPhoneRegion = "US";
-        trustedProxies = [ "127.0.0.1" ];
-      };
-      database.createLocally = true;
-
-      # Enable caching using redis https://nixos.wiki/wiki/Nextcloud#Caching.
-      configureRedis = true;
-      caching.apcu = false;
-      # https://docs.nextcloud.com/server/26/admin_manual/configuration_server/caching_configuration.html
-      caching.redis = true;
-
-      # Adds appropriate nginx rewrite rules.
-      webfinger = true;
-
-      # Very important for a bunch of scripts to load correctly. Otherwise you get Content-Security-Policy errors. See https://docs.nextcloud.com/server/13/admin_manual/configuration_server/harden_server.html#enable-http-strict-transport-security
-      https = config.shb.ssl.enable;
-
-      extraApps = cfg.extraApps pkgs.nextcloud27Packages.apps;
-      extraAppsEnable = true;
-      appstoreEnable = true;
-
-      extraOptions = let
-        protocol = if config.shb.ssl.enable then "https" else "http";
-      in {
-        "overwrite.cli.url" = "${protocol}://${fqdn}";
-        "overwritehost" = if (isNull cfg.externalFqdn) then fqdn else cfg.externalFqdn;
-        # 'trusted_domains' needed otherwise we get this issue https://help.nextcloud.com/t/the-polling-url-does-not-start-with-https-despite-the-login-url-started-with-https/137576/2
-        # TODO: could instead set extraTrustedDomains
-        "trusted_domains" = [ fqdn ];
-        # TODO: could instead set overwriteProtocol
-        "overwriteprotocol" = protocol; # Needed if behind a reverse_proxy
-        "overwritecondaddr" = ""; # We need to set it to empty otherwise overwriteprotocol does not work.
-        "debug" = cfg.debug;
-        "filelocking.debug" = cfg.debug;
+  config = lib.mkMerge [
+    (lib.mkIf cfg.enable {
+      users.users = {
+        nextcloud = {
+          name = "nextcloud";
+          group = "nextcloud";
+          isSystemUser = true;
+        };
       };
 
-      phpOptions = {
-        # The OPcache interned strings buffer is nearly full with 8, bump to 16.
-        catch_workers_output = "yes";
-        display_errors = "stderr";
-        error_reporting = "E_ALL & ~E_DEPRECATED & ~E_STRICT";
-        expose_php = "Off";
-        "opcache.enable_cli" = "1";
-        "opcache.fast_shutdown" = "1";
-        "opcache.interned_strings_buffer" = "16";
-        "opcache.max_accelerated_files" = "10000";
-        "opcache.memory_consumption" = "128";
-        "opcache.revalidate_freq" = "1";
-        "openssl.cafile" = "/etc/ssl/certs/ca-certificates.crt";
-        short_open_tag = "Off";
-
-        output_buffering = "Off";
-
-        # Needed to avoid corruption per https://docs.nextcloud.com/server/21/admin_manual/configuration_server/caching_configuration.html#id2
-        "redis.session.locking_enabled" = "1";
-        "redis.session.lock_retries" = "-1";
-        "redis.session.lock_wait_time" = "10000";
-      } // lib.optionalAttrs (! (isNull cfg.tracing)) {
-        # "xdebug.remote_enable" = "on";
-        # "xdebug.remote_host" = "127.0.0.1";
-        # "xdebug.remote_port" = "9000";
-        # "xdebug.remote_handler" = "dbgp";
-        "xdebug.trigger_value" = cfg.tracing;
-
-        "xdebug.mode" = "profile,trace";
-        "xdebug.output_dir" = "/var/log/xdebug";
-        "xdebug.start_with_request" = "trigger";
+      users.groups = {
+        nextcloud = {
+          members = [ "backup" ];
+        };
       };
 
-      poolSettings = lib.mkIf (! (isNull cfg.phpFpmPoolSettings)) cfg.phpFpmPoolSettings;
+      # LDAP is manually configured through
+      # https://github.com/lldap/lldap/blob/main/example_configs/nextcloud.md, see also
+      # https://docs.nextcloud.com/server/latest/admin_manual/configuration_user/user_auth_ldap.html
+      #
+      # Verify setup with:
+      #  - On admin page
+      #  - https://scan.nextcloud.com/
+      #  - https://www.ssllabs.com/ssltest/
+      # As of writing this, we got no warning on admin page and A+ on both tests.
+      #
+      # Content-Security-Policy is hard. I spent so much trying to fix lingering issues with .js files
+      # not loading to realize those scripts are inserted by extensions. Doh.
+      services.nextcloud = {
+        enable = true;
+        package = pkgs.nextcloud27;
 
-      phpExtraExtensions = all: [ all.xdebug ];
-    };
+        datadir = cfg.dataDir;
 
-    services.nginx.virtualHosts.${fqdn} = {
-      # listen = [ { addr = "0.0.0.0"; port = 443; } ];
-      sslCertificate = lib.mkIf config.shb.ssl.enable "/var/lib/acme/${cfg.domain}/cert.pem";
-      sslCertificateKey = lib.mkIf config.shb.ssl.enable "/var/lib/acme/${cfg.domain}/key.pem";
-      forceSSL = lib.mkIf config.shb.ssl.enable true;
+        hostName = fqdn;
+        nginx.hstsMaxAge = 31536000; # Needs > 1 year for https://hstspreload.org to be happy
 
-      # From [1] this should fix downloading of big files. [2] seems to indicate that buffering
-      # happens at multiple places anyway, so disabling one place should be okay.
-      # [1]: https://help.nextcloud.com/t/download-aborts-after-time-or-large-file/25044/6
-      # [2]: https://stackoverflow.com/a/50891625/1013628
-      extraConfig = ''
+        inherit (cfg) maxUploadSize;
+
+        config = {
+          dbtype = "pgsql";
+          adminuser = cfg.adminUser;
+          adminpassFile = toString cfg.adminPassFile;
+          # Not using dbpassFile as we're using socket authentication.
+          defaultPhoneRegion = "US";
+          trustedProxies = [ "127.0.0.1" ];
+        };
+        database.createLocally = true;
+
+        # Enable caching using redis https://nixos.wiki/wiki/Nextcloud#Caching.
+        configureRedis = true;
+        caching.apcu = false;
+        # https://docs.nextcloud.com/server/26/admin_manual/configuration_server/caching_configuration.html
+        caching.redis = true;
+
+        # Adds appropriate nginx rewrite rules.
+        webfinger = true;
+
+        # Very important for a bunch of scripts to load correctly. Otherwise you get Content-Security-Policy errors. See https://docs.nextcloud.com/server/13/admin_manual/configuration_server/harden_server.html#enable-http-strict-transport-security
+        https = config.shb.ssl.enable;
+
+        extraApps = cfg.extraApps pkgs.nextcloud27Packages.apps;
+        extraAppsEnable = true;
+        appstoreEnable = true;
+
+        extraOptions = let
+          protocol = if config.shb.ssl.enable then "https" else "http";
+        in {
+          "overwrite.cli.url" = "${protocol}://${fqdn}";
+          "overwritehost" = if (isNull cfg.externalFqdn) then fqdn else cfg.externalFqdn;
+          # 'trusted_domains' needed otherwise we get this issue https://help.nextcloud.com/t/the-polling-url-does-not-start-with-https-despite-the-login-url-started-with-https/137576/2
+          # TODO: could instead set extraTrustedDomains
+          "trusted_domains" = [ fqdn ];
+          # TODO: could instead set overwriteProtocol
+          "overwriteprotocol" = protocol; # Needed if behind a reverse_proxy
+          "overwritecondaddr" = ""; # We need to set it to empty otherwise overwriteprotocol does not work.
+          "debug" = cfg.debug;
+          "filelocking.debug" = cfg.debug;
+        };
+
+        phpOptions = {
+          # The OPcache interned strings buffer is nearly full with 8, bump to 16.
+          catch_workers_output = "yes";
+          display_errors = "stderr";
+          error_reporting = "E_ALL & ~E_DEPRECATED & ~E_STRICT";
+          expose_php = "Off";
+          "opcache.enable_cli" = "1";
+          "opcache.fast_shutdown" = "1";
+          "opcache.interned_strings_buffer" = "16";
+          "opcache.max_accelerated_files" = "10000";
+          "opcache.memory_consumption" = "128";
+          "opcache.revalidate_freq" = "1";
+          "openssl.cafile" = "/etc/ssl/certs/ca-certificates.crt";
+          short_open_tag = "Off";
+
+          output_buffering = "Off";
+
+          # Needed to avoid corruption per https://docs.nextcloud.com/server/21/admin_manual/configuration_server/caching_configuration.html#id2
+          "redis.session.locking_enabled" = "1";
+          "redis.session.lock_retries" = "-1";
+          "redis.session.lock_wait_time" = "10000";
+        } // lib.optionalAttrs (! (isNull cfg.tracing)) {
+          # "xdebug.remote_enable" = "on";
+          # "xdebug.remote_host" = "127.0.0.1";
+          # "xdebug.remote_port" = "9000";
+          # "xdebug.remote_handler" = "dbgp";
+          "xdebug.trigger_value" = cfg.tracing;
+
+          "xdebug.mode" = "profile,trace";
+          "xdebug.output_dir" = "/var/log/xdebug";
+          "xdebug.start_with_request" = "trigger";
+        };
+
+        poolSettings = lib.mkIf (! (isNull cfg.phpFpmPoolSettings)) cfg.phpFpmPoolSettings;
+
+        phpExtraExtensions = all: [ all.xdebug ];
+      };
+
+      services.nginx.virtualHosts.${fqdn} = {
+        # listen = [ { addr = "0.0.0.0"; port = 443; } ];
+        sslCertificate = lib.mkIf config.shb.ssl.enable "/var/lib/acme/${cfg.domain}/cert.pem";
+        sslCertificateKey = lib.mkIf config.shb.ssl.enable "/var/lib/acme/${cfg.domain}/key.pem";
+        forceSSL = lib.mkIf config.shb.ssl.enable true;
+
+        # From [1] this should fix downloading of big files. [2] seems to indicate that buffering
+        # happens at multiple places anyway, so disabling one place should be okay.
+        # [1]: https://help.nextcloud.com/t/download-aborts-after-time-or-large-file/25044/6
+        # [2]: https://stackoverflow.com/a/50891625/1013628
+        extraConfig = ''
       proxy_buffering off;
       '';
-    };
+      };
 
-    environment.systemPackages = [
-      # Needed for a few apps. Would be nice to avoid having to put that in the environment and instead override https://github.com/NixOS/nixpkgs/blob/261abe8a44a7e8392598d038d2e01f7b33cf26d0/nixos/modules/services/web-apps/nextcloud.nix#L1035
-      pkgs.ffmpeg
+      environment.systemPackages = [
+        # Needed for a few apps. Would be nice to avoid having to put that in the environment and instead override https://github.com/NixOS/nixpkgs/blob/261abe8a44a7e8392598d038d2e01f7b33cf26d0/nixos/modules/services/web-apps/nextcloud.nix#L1035
+        pkgs.ffmpeg
 
-      # Needed for the recognize app.
-      pkgs.nodejs
-    ];
+        # Needed for the recognize app.
+        pkgs.nodejs
+      ];
 
-    services.postgresql.settings = lib.mkIf (! (isNull cfg.postgresSettings)) cfg.postgresSettings;
+      services.postgresql.settings = lib.mkIf (! (isNull cfg.postgresSettings)) cfg.postgresSettings;
 
-    systemd.services.phpfpm-nextcloud.serviceConfig = {
-      # Setup permissions needed for backups, as the backup user is member of the jellyfin group.
-      UMask = lib.mkForce "0027";
-    };
-    systemd.services.phpfpm-nextcloud.preStart = ''
+      systemd.services.phpfpm-nextcloud.serviceConfig = {
+        # Setup permissions needed for backups, as the backup user is member of the jellyfin group.
+        UMask = lib.mkForce "0027";
+      };
+      systemd.services.phpfpm-nextcloud.preStart = ''
       mkdir -p /var/log/xdebug; chown -R nextcloud: /var/log/xdebug
     '';
 
-    systemd.services.nextcloud-cron.path = [
-      pkgs.perl
-    ];
-
-    # Sets up backup for Nextcloud.
-    shb.backup.instances.nextcloud = {
-      sourceDirectories = [
-        cfg.dataDir
+      systemd.services.nextcloud-cron.path = [
+        pkgs.perl
       ];
-      excludePatterns = [".rnd"];
-    };
-  }) (lib.mkIf (!(isNull cfg.onlyoffice)) {
-    services.onlyoffice = {
-      enable = true;
-      hostname = "${cfg.onlyoffice.subdomain}.${cfg.domain}";
-      port = 13444;
 
-      postgresHost = "/run/postgresql";
-
-      jwtSecretFile = cfg.onlyoffice.jwtSecretFile;
-    };
-
-    services.nginx.virtualHosts."${cfg.onlyoffice.subdomain}.${cfg.domain}" = {
-      sslCertificate = lib.mkIf config.shb.ssl.enable "/var/lib/acme/${cfg.domain}/cert.pem";
-      sslCertificateKey = lib.mkIf config.shb.ssl.enable "/var/lib/acme/${cfg.domain}/key.pem";
-      forceSSL = lib.mkIf config.shb.ssl.enable true;
-      locations."/" = {
-        extraConfig = ''
-        allow ${cfg.onlyoffice.localNetworkIPRange};
-        '';
+      # Sets up backup for Nextcloud.
+      shb.backup.instances.nextcloud = {
+        sourceDirectories = [
+          cfg.dataDir
+        ];
+        excludePatterns = [".rnd"];
       };
-    };
-  })];
+    })
+
+    (lib.mkIf (!(isNull cfg.apps.onlyoffice)) {
+      services.onlyoffice = {
+        enable = true;
+        hostname = "${cfg.apps.onlyoffice.subdomain}.${cfg.domain}";
+        port = 13444;
+
+        postgresHost = "/run/postgresql";
+
+        jwtSecretFile = cfg.apps.onlyoffice.jwtSecretFile;
+      };
+
+      services.nginx.virtualHosts."${cfg.apps.onlyoffice.subdomain}.${cfg.domain}" = {
+        sslCertificate = lib.mkIf config.shb.ssl.enable "/var/lib/acme/${cfg.domain}/cert.pem";
+        sslCertificateKey = lib.mkIf config.shb.ssl.enable "/var/lib/acme/${cfg.domain}/key.pem";
+        forceSSL = lib.mkIf config.shb.ssl.enable true;
+        locations."/" = {
+          extraConfig = ''
+        allow ${cfg.apps.onlyoffice.localNetworkIPRange};
+        '';
+        };
+      };
+    })
+  ];
 }
