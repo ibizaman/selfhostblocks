@@ -7,6 +7,8 @@ This NixOS module is a service that sets up a [Nextcloud Server](https://nextclo
 ## Features {#services-nextcloud-server-features}
 
 - Declarative Apps Configuration - no need to configure through the UI.
+  - [Preview Generator](https://apps.nextcloud.com/apps/previewgenerator) app: enables app and sets
+    up required cron job.
   - [Only Office](https://apps.nextcloud.com/apps/onlyoffice) app: enables app and sets up Only
     Office service.
 - [Demo](./demo-nextcloud-server.html)

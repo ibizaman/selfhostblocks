@@ -4,6 +4,10 @@ let
   cfg = config.shb.nextcloud;
 
   fqdn = "${cfg.subdomain}.${cfg.domain}";
+
+  # Make sure to bump both nextcloudPkg and nextcloudApps at the same time.
+  nextcloudPkg = pkgs.nextcloud27;
+  nextcloudApps = pkgs.nextcloud27Packages.apps;
 in
 {
   options.shb.nextcloud = {
@@ -121,11 +125,12 @@ in
       type = lib.types.submodule {
         options = {
           onlyoffice = lib.mkOption {
-            description = "If non null, set up an Only Office service.";
-            default = {
-              enable = false;
-              jwtSecretFile = "";
-            };
+            description = ''
+              Only Office App. [Nextcloud App Store](https://apps.nextcloud.com/apps/onlyoffice)
+
+              Enabling this app will also start an OnlyOffice instance accessible at the given
+              subdomain from the given network range.
+            '';
             type = lib.types.submodule {
               options = {
                 enable = lib.mkEnableOption "Nextcloud OnlyOffice App";
@@ -144,7 +149,35 @@ in
 
                 jwtSecretFile = lib.mkOption {
                   type = lib.types.path;
-                  description = "File containing the JWT secret.";
+                  description = "File containing the JWT secret. This option is required.";
+                  default = "";
+                };
+              };
+            };
+          };
+
+          previewgenerator = lib.mkOption {
+            description = ''
+              Preview Generator App. [Nextcloud App Store](https://apps.nextcloud.com/apps/previewgenerator)
+
+              Enabling this app will create a cron job running every minute to generate thumbnails
+              for new and updated files.
+
+              To generate thumbnails for already existing files, run:
+
+              ```
+              nextcloud-occ -vvv preview:generate-all
+              ```
+            '';
+            type = lib.types.nullOr (lib.types.submodule {
+              options = {
+                enable = lib.mkEnableOption "Nextcloud Preview Generator App";
+
+                debug = lib.mkOption {
+                  type = lib.types.bool;
+                  description = "Enable more verbose logging.";
+                  default = false;
+                  example = true;
                 };
               };
             });
@@ -219,7 +252,7 @@ in
       # not loading to realize those scripts are inserted by extensions. Doh.
       services.nextcloud = {
         enable = true;
-        package = pkgs.nextcloud27;
+        package = nextcloudPkg;
 
         datadir = cfg.dataDir;
 
@@ -250,7 +283,7 @@ in
         # Very important for a bunch of scripts to load correctly. Otherwise you get Content-Security-Policy errors. See https://docs.nextcloud.com/server/13/admin_manual/configuration_server/harden_server.html#enable-http-strict-transport-security
         https = config.shb.ssl.enable;
 
-        extraApps = cfg.extraApps pkgs.nextcloud27Packages.apps;
+        extraApps = cfg.extraApps nextcloudApps;
         extraAppsEnable = true;
         appstoreEnable = true;
 
@@ -384,6 +417,32 @@ in
         allow ${cfg.apps.onlyoffice.localNetworkIPRange};
         '';
         };
+      };
+    })
+
+    (lib.mkIf cfg.apps.previewgenerator.enable {
+      services.nextcloud.extraApps = {
+        inherit (nextcloudApps) previewgenerator;
+      };
+
+      # Configured as defined in https://github.com/nextcloud/previewgenerator
+      systemd.timers.nextcloud-cron-previewgenerator = {
+        wantedBy = [ "timers.target" ];
+        after = [ "nextcloud-setup.service" ];
+        timerConfig.OnBootSec = "10m";
+        timerConfig.OnUnitActiveSec = "10m";
+        timerConfig.Unit = "nextcloud-cron-previewgenerator.service";
+      };
+
+      systemd.services.nextcloud-cron-previewgenerator = {
+        environment.NEXTCLOUD_CONFIG_DIR = "${config.services.nextcloud.datadir}/config";
+        serviceConfig.Type = "oneshot";
+        serviceConfig.User = "nextcloud";
+        serviceConfig.ExecStart =
+          let
+            debug = if cfg.debug or cfg.apps.previewgenerator.debug then "-vvv" else "";
+          in
+            "${config.services.nextcloud.occ}/bin/nextcloud-occ ${debug} preview:pre-generate";
       };
     })
   ];
