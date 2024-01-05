@@ -239,6 +239,8 @@ in
         "openssl.cafile" = "/etc/ssl/certs/ca-certificates.crt";
         short_open_tag = "Off";
 
+        output_buffering = "Off";
+
         # Needed to avoid corruption per https://docs.nextcloud.com/server/21/admin_manual/configuration_server/caching_configuration.html#id2
         "redis.session.locking_enabled" = "1";
         "redis.session.lock_retries" = "-1";
