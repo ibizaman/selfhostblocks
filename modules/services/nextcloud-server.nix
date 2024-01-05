@@ -122,6 +122,7 @@ in
         through the UI. You can still make changes but they will be overridden on next deploy. You
         can still install and configure other apps through the UI.
       '';
+      default = {};
       type = lib.types.submodule {
         options = {
           onlyoffice = lib.mkOption {
