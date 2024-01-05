@@ -345,6 +345,10 @@ in
     })
 
     (lib.mkIf (!(isNull cfg.apps.onlyoffice)) {
+      services.nextcloud.extraApps = {
+        inherit (nextcloudApps) onlyoffice;
+      };
+
       services.onlyoffice = {
         enable = true;
         hostname = "${cfg.apps.onlyoffice.subdomain}.${cfg.domain}";
