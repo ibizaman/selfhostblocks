@@ -113,14 +113,23 @@ in
       description = ''
         Applications to enable in Nextcloud. Enabling an application here will also configure
         various services needed for this application.
+
+        Enabled apps will automatically be installed, enabled and configured, so no need to do that
+        through the UI. You can still make changes but they will be overridden on next deploy. You
+        can still install and configure other apps through the UI.
       '';
       type = lib.types.submodule {
         options = {
           onlyoffice = lib.mkOption {
             description = "If non null, set up an Only Office service.";
-            default = null;
-            type = lib.types.nullOr (lib.types.submodule {
+            default = {
+              enable = false;
+              jwtSecretFile = "";
+            };
+            type = lib.types.submodule {
               options = {
+                enable = lib.mkEnableOption "Nextcloud OnlyOffice App";
+
                 subdomain = lib.mkOption {
                   type = lib.types.str;
                   description = "Subdomain under which Only Office will be served.";
@@ -130,7 +139,7 @@ in
                 localNetworkIPRange = lib.mkOption {
                   type = lib.types.str;
                   description = "Local network range, to restrict access to Open Office to only those IPs.";
-                  example = "192.168.1.1/24";
+                  default = "192.168.1.1/24";
                 };
 
                 jwtSecretFile = lib.mkOption {
@@ -344,7 +353,14 @@ in
       };
     })
 
-    (lib.mkIf (!(isNull cfg.apps.onlyoffice)) {
+    (lib.mkIf cfg.apps.onlyoffice.enable {
+      assertions = [
+        {
+          assertion = cfg.apps.onlyoffice.jwtSecretFile != "";
+          message = "Must set jwtSecretFile.";
+        }
+      ];
+
       services.nextcloud.extraApps = {
         inherit (nextcloudApps) onlyoffice;
       };
