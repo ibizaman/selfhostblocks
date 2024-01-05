@@ -6,21 +6,23 @@ This NixOS module is a service that sets up a [Nextcloud Server](https://nextclo
 
 ## Features {#services-nextcloud-server-features}
 
-- [Integration Tests](@REPO@/test/vm/nextcloud.nix)
-  - Tests cron job is setup correctly.
-  - Tests initial admin user and password are setup correctly.
-  - Tests admin user can create and retrieve a file through WebDAV.
+- Declarative Apps Configuration - no need to configure through the UI.
+  - [Only Office](https://apps.nextcloud.com/apps/onlyoffice) app: enables app and sets up Only
+    Office service.
 - [Demo](./demo-nextcloud-server.html)
   - Demo deploying a Nextcloud server with [Colmena](https://colmena.cli.rs/) and with proper
     secrets management with [sops-nix](https://github.com/Mic92/sops-nix).
 - Access through subdomain using reverse proxy.
 - Access through HTTPS using reverse proxy.
 - Automatic setup of PostgreSQL database.
+- Automatic setup of Redis database for caching.
 - Backup of the [`shb.nextcloud.dataDir`][1] through the [backup block](./blocks-backup.html).
 - Monitoring of reverse proxy, PHP-FPM, and database backups through the [monitoring
   block](./blocks-monitoring.html).
-- Automatic setup of Only Office service if the `shb.nextcloud.onlyoffice` option is given. The
-  integration still needs to be set up in the UI manually though.
+- [Integration Tests](@REPO@/test/vm/nextcloud.nix)
+  - Tests system cron job is setup correctly.
+  - Tests initial admin user and password are setup correctly.
+  - Tests admin user can create and retrieve a file through WebDAV.
 - Access to advanced options not exposed here thanks to how NixOS modules work.
 
 [1]: ./services-nextcloud.html#services-nextcloud-server-options-shb.nextcloud.dataDir
