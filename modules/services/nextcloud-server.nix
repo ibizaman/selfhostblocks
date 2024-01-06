@@ -277,7 +277,21 @@ in
 
     tracing = lib.mkOption {
       type = lib.types.nullOr lib.types.str;
-      description = "Enable xdebug tracing.";
+      description = ''
+        Enable xdebug tracing.
+
+        To trigger writing a trace to `/var/log/xdebug`, add a the following header:
+
+        ```
+        XDEBUG_TRACE <shb.nextcloud.tracing value>
+        ```
+
+        The response will contain the following header:
+
+        ```
+        x-xdebug-profile-filename /var/log/xdebug/cachegrind.out.63484
+        ```
+      '';
       default = null;
       example = "debug_me";
     };
@@ -533,9 +547,6 @@ in
         fi
 
         echo "Using configId $CONFIG_ID"
-
-        CONFIG="$(echo "$ALL_CONFIG" | jq ".$CONFIG_ID")"
-
 
         # The following CLI commands follow
         # https://github.com/lldap/lldap/blob/main/example_configs/nextcloud.md#nextcloud-config--the-cli-way
