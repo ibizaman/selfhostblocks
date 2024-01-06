@@ -8,6 +8,8 @@ let
   # Make sure to bump both nextcloudPkg and nextcloudApps at the same time.
   nextcloudPkg = pkgs.nextcloud27;
   nextcloudApps = pkgs.nextcloud27Packages.apps;
+
+  occ = "${config.services.nextcloud.occ}/bin/nextcloud-occ";
 in
 {
   options.shb.nextcloud = {
@@ -185,6 +187,61 @@ in
                 };
               };
             };
+          };
+
+          ldap = lib.mkOption {
+            description = ''
+              LDAP Integration App. [Manual](https://docs.nextcloud.com/server/latest/admin_manual/configuration_user/user_auth_ldap.html)
+
+              Enabling this app will create a new LDAP configuration or update one that exists with
+              the given host.
+            '';
+            default = {};
+            type = lib.types.nullOr (lib.types.submodule {
+              options = {
+                enable = lib.mkEnableOption "LDAP app.";
+
+                host = lib.mkOption {
+                  type = lib.types.nullOr lib.types.str;
+                  description = ''
+                    Host serving the LDAP server.
+                  '';
+                  default = "127.0.0.1";
+                };
+
+                port = lib.mkOption {
+                  type = lib.types.nullOr lib.types.port;
+                  description = ''
+                    Port of the service serving the LDAP server.
+                  '';
+                  default = 389;
+                };
+
+                dcdomain = lib.mkOption {
+                  type = lib.types.str;
+                  description = "dc domain for ldap.";
+                  example = "dc=mydomain,dc=com";
+                };
+
+                adminName = lib.mkOption {
+                  type = lib.types.str;
+                  description = "Admin user of the LDAP server.";
+                  default = "admin";
+                };
+
+                adminPasswordFile = lib.mkOption {
+                  type = lib.types.path;
+                  description = "File containing the admin password of the LDAP server.";
+                  default = "";
+                };
+
+                userGroup = lib.mkOption {
+                  type = lib.types.str;
+                  description = "Group users must belong to to be able to login to Nextcloud.";
+                  default = "nextcloud_user";
+                };
+              };
+            });
           };
         };
       };
@@ -453,8 +510,86 @@ in
           let
             debug = if cfg.debug or cfg.apps.previewgenerator.debug then "-vvv" else "";
           in
-            "${config.services.nextcloud.occ}/bin/nextcloud-occ ${debug} preview:pre-generate";
+            "${occ} ${debug} preview:pre-generate";
       };
+    })
+
+    (lib.mkIf cfg.apps.ldap.enable {
+      systemd.services.nextcloud-setup.path = [ pkgs.jq ];
+      systemd.services.nextcloud-setup.script = ''
+        ${occ} app:install user_ldap || :
+        ${occ} app:enable  user_ldap
+
+        # The following code tries to match an existing config or creates a new one.
+        # The criteria for matching is the ldapHost value.
+
+        ALL_CONFIG="$(${occ} ldap:show-config --output=json --show-password)"
+
+        MATCHING_CONFIG_IDs="$(echo "$ALL_CONFIG" | jq '[to_entries[] | select(.value.ldapHost=="127.0.0.1") | .key]')"
+        if [[ $(echo "$MATCHING_CONFIG_IDs" | jq 'length') > 0 ]]; then
+          CONFIG_ID="$(echo "$MATCHING_CONFIG_IDs" | jq --raw-output '.[0]')"
+        else
+          CONFIG_ID="$(${occ} ldap:create-empty-config --only-print-prefix)"
+        fi
+
+        echo "Using configId $CONFIG_ID"
+
+        CONFIG="$(echo "$ALL_CONFIG" | jq ".$CONFIG_ID")"
+
+
+        # The following CLI commands follow
+        # https://github.com/lldap/lldap/blob/main/example_configs/nextcloud.md#nextcloud-config--the-cli-way
+
+        ${occ} ldap:set-config "$CONFIG_ID" 'ldapHost' \
+                  '${cfg.apps.ldap.host}'
+        ${occ} ldap:set-config "$CONFIG_ID" 'ldapPort' \
+                  '${toString cfg.apps.ldap.port}'
+        ${occ} ldap:set-config "$CONFIG_ID" 'ldapAgentName' \
+                  'uid=${cfg.apps.ldap.adminName},ou=people,${cfg.apps.ldap.dcdomain}'
+        ${occ} ldap:set-config "$CONFIG_ID" 'ldapAgentPassword'  \
+                  "$(cat ${cfg.apps.ldap.adminPasswordFile})"
+        ${occ} ldap:set-config "$CONFIG_ID" 'ldapBase' \
+                  '${cfg.apps.ldap.dcdomain}'
+        ${occ} ldap:set-config "$CONFIG_ID" 'ldapBaseGroups' \
+                  '${cfg.apps.ldap.dcdomain}'
+        ${occ} ldap:set-config "$CONFIG_ID" 'ldapBaseUsers' \
+                  '${cfg.apps.ldap.dcdomain}'
+        ${occ} ldap:set-config "$CONFIG_ID" 'ldapEmailAttribute' \
+                  'mail'
+        ${occ} ldap:set-config "$CONFIG_ID" 'ldapGroupFilter' \
+                  '(&(|(objectclass=groupOfUniqueNames))(|(cn=${cfg.apps.ldap.userGroup})))'
+        ${occ} ldap:set-config "$CONFIG_ID" 'ldapGroupFilterGroups' \
+                  '${cfg.apps.ldap.userGroup}'
+        ${occ} ldap:set-config "$CONFIG_ID" 'ldapGroupFilterObjectclass' \
+                  'groupOfUniqueNames'
+        ${occ} ldap:set-config "$CONFIG_ID" 'ldapGroupMemberAssocAttr' \
+                  'uniqueMember'
+        ${occ} ldap:set-config "$CONFIG_ID" 'ldapLoginFilter' \
+                  '(&(&(objectclass=person)(memberOf=cn=${cfg.apps.ldap.userGroup},ou=groups,${cfg.apps.ldap.dcdomain}))(|(uid=%uid)(|(mail=%uid)(objectclass=%uid))))'
+        ${occ} ldap:set-config "$CONFIG_ID" 'ldapLoginFilterAttributes' \
+                  'mail;objectclass'
+        ${occ} ldap:set-config "$CONFIG_ID" 'ldapUserDisplayName' \
+                  'displayname'
+        ${occ} ldap:set-config "$CONFIG_ID" 'ldapUserFilter' \
+                  '(&(objectclass=person)(memberOf=cn=${cfg.apps.ldap.userGroup},ou=groups,${cfg.apps.ldap.dcdomain}))'
+        ${occ} ldap:set-config "$CONFIG_ID" 'ldapUserFilterMode' \
+                  '1'
+        ${occ} ldap:set-config "$CONFIG_ID" 'ldapUserFilterObjectclass' \
+                  'person'
+
+        ${occ} ldap:test-config -- "$CONFIG_ID"
+
+        # Only one active at the same time
+
+        for configid in $(echo "$ALL_CONFIG" | jq --raw-output "keys[]"); do
+          echo "Deactivating $configid"
+          ${occ} ldap:set-config "$configid" 'ldapConfigurationActive' \
+                    '0'
+        done
+
+        ${occ} ldap:set-config "$CONFIG_ID" 'ldapConfigurationActive' \
+                  '1'
+      '';
     })
   ];
 }
