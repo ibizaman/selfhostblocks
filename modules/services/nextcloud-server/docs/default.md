@@ -6,12 +6,17 @@ This NixOS module is a service that sets up a [Nextcloud Server](https://nextclo
 
 ## Features {#services-nextcloud-server-features}
 
-- Declarative Apps Configuration - no need to configure through the UI.
+- Declarative [Apps](#services-nextcloud-server-options-shb.nextcloud.apps) Configuration - no need
+  to configure those with the UI.
+  - LDAP app: enables app and sets up integration with an existing LDAP server. The defaults are
+    suited to work with [LLDAP](https://github.com/lldap/lldap) which is provided as a [building
+    block](./block-ldap.html).
   - [Preview Generator](https://apps.nextcloud.com/apps/previewgenerator) app: enables app and sets
     up required cron job.
   - [Only Office](https://apps.nextcloud.com/apps/onlyoffice) app: enables app and sets up Only
     Office service.
-  - Any other app through the `shb.nextcloud.extraApps` option.
+  - Any other app through the
+    [shb.nextcloud.extraApps](#services-nextcloud-server-options-shb.nextcloud.extraApps) option.
 - [Demo](./demo-nextcloud-server.html)
   - Demo deploying a Nextcloud server with [Colmena](https://colmena.cli.rs/) and with proper
     secrets management with [sops-nix](https://github.com/Mic92/sops-nix).
