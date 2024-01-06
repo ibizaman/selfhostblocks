@@ -8,12 +8,10 @@ This NixOS module is a service that sets up a [Nextcloud Server](https://nextclo
 
 - Declarative [Apps](#services-nextcloud-server-options-shb.nextcloud.apps) Configuration - no need
   to configure those with the UI.
-  - LDAP app: enables app and sets up integration with an existing LDAP server. The defaults are
-    suited to work with [LLDAP](https://github.com/lldap/lldap) which is provided as a [building
-    block](./block-ldap.html).
-  - [Preview Generator](https://apps.nextcloud.com/apps/previewgenerator) app: enables app and sets
+  - [LDAP](#services-nextcloud-server-usage-ldap) app: enables app and sets up integration with an existing LDAP server.
+  - [Preview Generator](#services-nextcloud-server-usage-previewgenerator) app: enables app and sets
     up required cron job.
-  - [Only Office](https://apps.nextcloud.com/apps/onlyoffice) app: enables app and sets up Only
+  - [Only Office](#services-nextcloud-server-usage-onlyoffice) app: enables app and sets up Only
     Office service.
   - Any other app through the
     [shb.nextcloud.extraApps](#services-nextcloud-server-options-shb.nextcloud.extraApps) option.
@@ -37,7 +35,9 @@ This NixOS module is a service that sets up a [Nextcloud Server](https://nextclo
 
 ## Usage {#services-nextcloud-server-usage}
 
-### Minimal {#services-nextcloud-server-usage-minimal}
+### Basic Configuration {#services-nextcloud-server-usage-basic}
+
+This section corresponds to the `basic` target host defined in the [flake.nix](./flake.nix) file.
 
 This will set up a Nextcloud service that runs on the NixOS target machine, reachable at
 `http://nextcloud.example.com`. If the `shb.ssl` block is [enabled](block-ssl.html#usage), the
@@ -68,6 +68,59 @@ sops.secrets."nextcloud/adminpass" = {
   restartUnits = [ "phpfpm-nextcloud.service" ];
 };
 ```
+
+### With LDAP Support {#services-nextcloud-server-usage-ldap}
+
+This section corresponds to the `ldap` target host defined in the [flake.nix](./flake.nix) file. The same information from the [basic](#services-nextcloud-server-usage-basic) section applies, so please read that first.
+
+This target host uses the LDAP block provided by Self Host Blocks to setup a
+[LLDAP](https://github.com/lldap/lldap) service.
+
+```nix
+shb.ldap = {
+  enable = true;
+  domain = "example.com";
+  subdomain = "ldap";
+  ldapPort = 3890;
+  webUIListenPort = 17170;
+  dcdomain = "dc=example,dc=com";
+  ldapUserPasswordFile = config.sops.secrets."lldap/user_password".path;
+  jwtSecretFile = config.sops.secrets."lldap/jwt_secret".path;
+};
+
+sops.secrets."lldap/user_password" = {
+  sopsFile = ./secrets.yaml;
+  mode = "0440";
+  owner = "lldap";
+  group = "lldap";
+  restartUnits = [ "lldap.service" ];
+};
+
+sops.secrets."lldap/jwt_secret" = {
+  sopsFile = ./secrets.yaml;
+  mode = "0440";
+  owner = "lldap";
+  group = "lldap";
+  restartUnits = [ "lldap.service" ];
+};
+```
+
+We also need to configure the `nextcloud` Self Host Blocks service to talk to the LDAP server we
+just defined:
+
+```nix
+shb.nextcloud.apps.ldap
+  enable = true;
+  host = "127.0.0.1";
+  port = config.shb.ldap.ldapPort;
+  dcdomain = config.shb.ldap.dcdomain;
+  adminName = "admin";
+  adminPasswordFile = config.sops.secrets."nextcloud/ldap_admin_password".path;
+  userGroup = "nextcloud_user";
+};
+```
+
+It's nice to be able to reference a options that were defined in the ldap block.
 
 ### Tweak PHPFpm Config {#services-nextcloud-server-usage-phpfpm}
 
@@ -108,20 +161,35 @@ shb.nextcloud.postgresSettings = {
 
 TODO
 
-### Enable OnlyOffice Server {#services-nextcloud-server-usage-onlyoffice}
+### Enable Preview Generator App {#services-nextcloud-server-usage-previewgenerator}
 
-The following snippets sets up an onlyoffice instance listening at `onlyoffice.example.com` that
-only listens on the local nextwork.
+The following snippet installs and enables the [Preview
+Generator](https://apps.nextcloud.com/apps/previewgenerator) application as well as creates the
+required cron job that generates previews every 10 minutes.
 
 ```nix
-shb.nextcloud.onlyoffice = {
+shb.nextcloud.apps.previewgenerator.enable = true;
+```
+
+Note that you still need to generate the previews for any pre-existing files with:
+
+```bash
+nextcloud-occ -vvv preview:generate-all
+```
+
+### Enable OnlyOffice App {#services-nextcloud-server-usage-onlyoffice}
+
+The following snippet installs and enables the [Only
+Office](https://apps.nextcloud.com/apps/onlyoffice) application as well as sets up an Only Office
+instance listening at `onlyoffice.example.com` that only listens on the local network.
+
+```nix
+shb.nextcloud.apps.onlyoffice = {
+  enable = true;
   subdomain = "onlyoffice";
   localNextworkIPRange = "192.168.1.1/24";
 };
 ```
-
-You still need to install the OnlyOffice integration in Nextcloud UI. Setting up the integration
-declaratively is WIP.
 
 Also, you will need to explicitly allow the package `corefonts`:
 
@@ -133,7 +201,8 @@ nixpkgs.config.allowUnfreePredicate = pkg: builtins.elem (pkgs.lib.getName pkg) 
 
 ### Enable Monitoring {#services-nextcloud-server-server-usage-monitoring}
 
-Enable the [monitoring block](./blocks-monitoring.html).
+Enable the [monitoring block](./blocks-monitoring.html). The metrics will automatically appear in
+the corresponding dashboards.
 
 ### Enable Tracing {#services-nextcloud-server-server-usage-tracing}
 
@@ -151,8 +220,8 @@ how to look at the traces.
 
 ## Demo {#services-nextcloud-server-demo}
 
-Head over to the [Nextcloud demo](demo-nextcloud.html) for a demo that installs Nextcloud on a VM
-with minimal manual steps.
+Head over to the [Nextcloud demo](demo-nextcloud-server.html) for a demo that installs Nextcloud with or
+without LDAP integration on a VM with minimal manual steps.
 
 ## Maintenance {#services-nextcloud-server-maintenance}
 

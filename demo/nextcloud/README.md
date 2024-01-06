@@ -3,8 +3,9 @@
 **This whole demo is highly insecure as all the private keys are available publicly. This is
 only done for convenience as it is just a demo. Do not expose the VM to the internet.**
 
-The [`flake.nix`](./flake.nix) file sets up a Nextcloud server in only about [15
-lines](./flake.nix#L29-L45) of related code.
+The [`flake.nix`](./flake.nix) file sets up a Nextcloud server in only about [25
+lines](./flake.nix#L31-L55) of related code. It also defines a Nextcloud server that integrates with
+a [LDAP server](./flake.nix#L76-L143).
 
 This guide will show how to deploy this setup to a Virtual Machine, like showed
 [here](https://nixos.wiki/wiki/NixOS_modules#Developing_modules), in 4 commands.
@@ -54,10 +55,18 @@ You can ssh into the VM with, but this is not required for the demo:
 ssh -F ssh_config example
 ```
 
-Finally, deploy with:
+Finally, we can deploy. To deploy a basic Nextcloud with only the Preview Generator app enabled,
+run:
 
 ```bash
-SSH_CONFIG_FILE=ssh_config nix run nixpkgs#colmena --impure -- apply
+SSH_CONFIG_FILE=ssh_config nix run nixpkgs#colmena --impure -- apply --on basic
+```
+
+To deploy a Nextcloud configuration with the Preview Generator app and integrated with a LDAP
+service, run:
+
+```bash
+SSH_CONFIG_FILE=ssh_config nix run nixpkgs#colmena --impure -- apply --on ldap
 ```
 
 The deploy will take a few minutes the first time and subsequent deploys will take around 15
@@ -80,10 +89,30 @@ $ cat /etc/hosts
 127.0.0.1 n.example.com
 ```
 
-Go to [http://n.example.com:8080](http://n.example.com:8080) and login with:
+If you deployed the `ldap` target host, add instead:
+
+```nix
+networking.hosts = {
+  "127.0.0.1" = [ "n.example.com" "ldap.example.com" ];
+};
+```
+
+If you deployed the `basic` target host, go to
+[http://n.example.com:8080](http://n.example.com:8080) and login with:
 
 - username: `root`
 - password: the value of the field `nextcloud.adminpass` in the `secrets.yaml` file which is `43bb4b8f82fc645ce3260b5db803c5a8`.
+
+And that's the end of the demo. Otherwise if you deployed the `ldap` target host, go first to
+[http://ldap.example.com:8080](http://ldap.example.com:8080) and login with:
+
+- username: `admin`
+- password: the value of the field `lldap.user_password` in the `secrets.yaml` file which is `c2e32e54ea3e0053eb30841f818a3d9a`.
+
+Create the group `nextcloud_user` and a user assigned to that group.
+
+Finally, go to [http://n.example.com:8080](http://n.example.com:8080) and login with the user and
+password you just created above.
 
 Nextcloud doesn't like being run without SSL protection, which this demo does not setup yet, so you
 might see errors loading scripts.
@@ -92,9 +121,9 @@ might see errors loading scripts.
 
 ### Files {#demo-nextcloud-files}
 
-- [`flake.nix`](./flake.nix): nix entry point, defines one target host for
-  [colmena](https://colmena.cli.rs) to deploy to as well as the selfhostblock's config for
-  setting up the Nextcloud service.
+- [`flake.nix`](./flake.nix): nix entry point, defines the target hosts for
+  [colmena](https://colmena.cli.rs) to deploy to as well as the selfhostblock's config for setting
+  up Nextcloud and the auxiliary services.
 - [`configuration.nix`](./configuration.nix): defines all configuration required for colmena
   to deploy to the VM. The file has comments if you're interested.
 - [`hardware-configuration.nix`](./hardware-configuration.nix): defines VM specific layout.
@@ -150,6 +179,9 @@ nextcloud:
     adminpass: 43bb4b8f82fc645ce3260b5db803c5a8
     onlyoffice:
         jwt_secret: XYZ...
+lldap:
+    user_password: c2e32e54ea3e0053eb30841f818a3d9a
+    jwt_secret: 3b19030938608881dc1d2cb2753d9778
 ```
 
 To open the `secrets.yaml` file and optionnally edit it, run:

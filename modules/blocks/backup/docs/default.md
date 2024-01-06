@@ -211,8 +211,7 @@ shb.backup.instances.all = backupcfg repos ["/var/lib/myfolder1" "/var/lib/myfol
 
 ## Demo {#blocks-backup-demo}
 
-Head over to the [Home Assistant demo](demo-homeassistant.html) for a demo that installs Home
-Assistant on a VM with minimal manual steps.
+[WIP]
 
 ## Monitoring {#blocks-backup-monitoring}
 
