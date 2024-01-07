@@ -33,10 +33,54 @@ in
       example = "mydomain.com";
     };
 
-    ldapEndpoint = lib.mkOption {
-      type = lib.types.str;
-      description = "host serving the LDAP server";
-      example = "http://127.0.0.1:389";
+    ldap = lib.mkOption {
+      description = ''
+        LDAP Integration App. [Manual](https://docs.nextcloud.com/server/latest/admin_manual/configuration_user/user_auth_ldap.html)
+
+        Enabling this app will create a new LDAP configuration or update one that exists with
+        the given host.
+      '';
+      default = {};
+      type = lib.types.submodule {
+        options = {
+          enable = lib.mkEnableOption "LDAP app.";
+
+          host = lib.mkOption {
+            type = lib.types.str;
+            description = ''
+              Host serving the LDAP server.
+
+
+              If set, the Home Assistant auth will be disabled. To keep it, set
+              `keepDefaultAuth` to `true`.
+            '';
+            default = "127.0.0.1";
+          };
+
+          port = lib.mkOption {
+            type = lib.types.port;
+            description = ''
+              Port of the service serving the LDAP server.
+            '';
+            default = 389;
+          };
+
+          userGroup = lib.mkOption {
+            type = lib.types.str;
+            description = "Group users must belong to to be able to login to Nextcloud.";
+            default = "homeassistant_user";
+          };
+
+          keepDefaultAuth = lib.mkOption {
+            type = lib.types.bool;
+            description = ''
+              Keep Home Assistant auth active, even if LDAP is configured. Usually, you want to enable
+              this to transfer existing users to LDAP and then you can disabled it.
+            '';
+            default = false;
+          };
+        };
+      };
     };
 
     sopsFile = lib.mkOption {
@@ -100,17 +144,20 @@ in
           longitude = "!secret longitude_home";
           time_zone = "!secret time_zone";
           unit_system = "metric";
-          auth_providers = [
-            # Ensure you have the homeassistant provider enabled if you want to continue using your existing accounts
-            # { type = "homeassistant"; }
-            { type = "command_line";
-              command = ldap_auth_script + "/bin/ldap_auth.sh";
-              # Only allow users in the 'homeassistant_user' group to login.
-              # Change to ["https://lldap.example.com"] to allow all users
-              args = [ cfg.ldapEndpoint "homeassistant_user" ];
-              meta = true;
-            }
-          ];
+          auth_providers =
+            (lib.optionals (!cfg.ldap.enable || cfg.ldap.keepDefaultAuth) [
+              {
+                type = "homeassistant";
+              }
+            ])
+            ++ (lib.optionals cfg.ldap.enable [
+              {
+                type = "command_line";
+                command = ldap_auth_script + "/bin/ldap_auth.sh";
+                args = [ "http://${cfg.ldap.host}:${toString cfg.ldap.port}" cfg.ldap.userGroup ];
+                meta = true;
+              }
+            ]);
         };
         "automation ui" = "!include automations.yaml";
         "scene ui" = "!include scenes.yaml";
@@ -159,29 +206,29 @@ in
       };
     };
 
-    systemd.services.home-assistant.preStart =
+    systemd.services.home-assistant.preStart = lib.mkIf cfg.ldap.enable (
       let
         onboarding = pkgs.writeText "onboarding" ''
-        {
-          "version": 4,
-          "minor_version": 1,
-          "key": "onboarding",
-          "data": {
-            "done": [
-              "user",
-              "core_config"
-            ]
+          {
+            "version": 4,
+            "minor_version": 1,
+            "key": "onboarding",
+            "data": {
+              "done": [
+                "user",
+                "core_config"
+              ]
+            }
           }
-        }
         '';
         storage = "${config.services.home-assistant.configDir}/.storage";
         file = "${storage}/onboarding";
       in
-      ''
-      if ! -f ${file}; then
-        mkdir -p ${storage} && cp ${onboarding} ${file}
-      fi
-      '';
+        ''
+          if ! -f ${file}; then
+            mkdir -p ${storage} && cp ${onboarding} ${file}
+          fi
+        '');
 
     sops.secrets."home-assistant" = {
       inherit (cfg) sopsFile;
