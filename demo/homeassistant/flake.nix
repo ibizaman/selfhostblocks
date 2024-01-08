@@ -14,7 +14,37 @@
         specialArgs = inputs;
       };
 
-      myserver = { config, ... }: {
+      basic = { config, ... }: {
+        imports = [
+          ./configuration.nix
+          selfhostblocks.inputs.sops-nix.nixosModules.default
+          selfhostblocks.nixosModules.x86_64-linux.default
+        ];
+
+        # Used by colmena to know which target host to deploy to.
+        deployment = {
+          targetHost = "example";
+          targetUser = "nixos";
+          targetPort = 2222;
+        };
+
+        shb.home-assistant = {
+          enable = true;
+          domain = "example.com";
+          subdomain = "ha";
+          sopsFile = ./secrets.yaml;
+        };
+
+        nixpkgs.config.permittedInsecurePackages = [
+          "openssl-1.1.1w"
+        ];
+
+        # Set to true for more debug info with `journalctl -f -u nginx`.
+        shb.nginx.accessLog = false;
+        shb.nginx.debugLog = false;
+      };
+
+      ldap = { config, ... }: {
         imports = [
           ./configuration.nix
           selfhostblocks.inputs.sops-nix.nixosModules.default
@@ -56,14 +86,19 @@
         shb.home-assistant = {
           enable = true;
           domain = "example.com";
-          ldapEndpoint = "http://127.0.0.1:${builtins.toString config.shb.ldap.webUIListenPort}";
+          ldap = {
+            enable = true;
+            host = "127.0.0.1";
+            port = config.shb.ldap.webUIListenPort;
+            userGroup = "homeassistant_user";
+          };
           subdomain = "ha";
           sopsFile = ./secrets.yaml;
         };
 
-        # Set to true for more debug info with `journalctl -f -u nginx`.
-        shb.nginx.accessLog = false;
-        shb.nginx.debugLog = false;
+        nixpkgs.config.permittedInsecurePackages = [
+          "openssl-1.1.1w"
+        ];
       };
     };
   };

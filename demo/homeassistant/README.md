@@ -3,8 +3,9 @@
 **This whole demo is highly insecure as all the private keys are available publicly. This is
 only done for convenience as it is just a demo. Do not expose the VM to the internet.**
 
-The [`flake.nix`](./flake.nix) file sets up Home Assistant server that uses a LDAP server to
-setup users in only about [15 lines](./flake.nix#L29-L45) of related code.
+The [`flake.nix`](./flake.nix) file sets up a Home Assistant server in only about [15
+lines](./flake.nix#L31-L37) of related code. It also defines a Home Assistant server that integrates with
+a [LDAP server](./flake.nix#L58-L94).
 
 This guide will show how to deploy this setup to a Virtual Machine, like showed
 [here](https://nixos.wiki/wiki/NixOS_modules#Developing_modules), in 4 commands.
@@ -15,7 +16,7 @@ Build the VM and start it:
 
 ```bash
 rm nixos.qcow2; \
-  nixos-rebuild build-vm-with-bootloader --fast -I nixos-config=./configuration.nix -I nixpkgs=. \
+  nixos-rebuild build-vm-with-bootloader --fast -I nixos-config=./configuration.nix -I nixpkgs=. ; \
   QEMU_NET_OPTS="hostfwd=tcp::2222-:2222,hostfwd=tcp::8080-:80" ./result/bin/run-nixos-vm
 ```
 
@@ -28,7 +29,7 @@ appear in `git status` but you don't need to commit this.
 ```bash
 SOPS_AGE_KEY_FILE=keys.txt \
   nix run --impure nixpkgs#sops -- --config sops.yaml -r -i \
-  --add-age $(nix shell nixpkgs#ssh-to-age --command sh -c 'ssh-keyscan -p 2222 -t ed25519 -4 localhost 2>/dev/null | ssh-to-age') ; \
+  --add-age $(nix shell nixpkgs#ssh-to-age --command sh -c 'ssh-keyscan -p 2222 -t ed25519 -4 localhost 2>/dev/null | ssh-to-age') \
   secrets.yaml
 ```
 
@@ -54,10 +55,16 @@ You can ssh into the VM with, but this is not required for the demo:
 ssh -F ssh_config example
 ```
 
-Finally, deploy with:
+Finally, we can deploy. To deploy a Home Assistant server, run:
 
 ```bash
-SSH_CONFIG_FILE=ssh_config nix run nixpkgs#colmena --impure -- apply
+SSH_CONFIG_FILE=ssh_config nix run nixpkgs#colmena --impure -- apply --on basic
+```
+
+To deploy a Home Assistant server integrated with a LDAP service, run:
+
+```bash
+SSH_CONFIG_FILE=ssh_config nix run nixpkgs#colmena --impure -- apply --on ldap
 ```
 
 The deploy will take a few minutes the first time and subsequent deploys will take around 15
@@ -69,7 +76,7 @@ Add the following entry to your `/etc/hosts` file:
 
 ```nix
 networking.hosts = {
-  "127.0.0.1" = [ "ha.example.com" "ldap.example.com" ];
+  "127.0.0.1" = [ "ha.example.com" ];
 };
 ```
 
@@ -77,10 +84,23 @@ Which produces:
 
 ```bash
 $ cat /etc/hosts
-127.0.0.1 ha.example.com ldap.example.com
+127.0.0.1 ha.example.com
 ```
 
-Go to [http://ldap.example.com:8080](http://ldap.example.com:8080) and login with:
+If you deployed the `ldap` target host, add instead:
+
+```nix
+networking.hosts = {
+  "127.0.0.1" = [ "ha.example.com" "ldap.example.com" ];
+};
+```
+
+If you deployed the `basic` target host, go to
+[http://ha.example.com:8080](http://ha.example.com:8080) and you will be greeted with the Home
+Assistant setup wizard which will allow you to create an admin user:
+
+And that's the end of the demo. Otherwise if you deployed the `ldap` target host, go first to
+[http://ldap.example.com:8080](http://ldap.example.com:8080) and login with:
 
 - username: `admin`
 - password: the value of the field `lldap.user_password` in the `secrets.yaml` file which is `fccb94f0f64bddfe299c81410096499a`.
