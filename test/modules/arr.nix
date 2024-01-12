@@ -89,6 +89,7 @@ in
           authEndpoint = "https://oidc.example.com";
           subdomain = "radarr";
           upstream = "http://127.0.0.1:7001";
+          ssl = null;
         }
       ];
       users.users.radarr.extraGroups = [ "media" ];
@@ -162,6 +163,7 @@ in
           authEndpoint = "https://oidc.example.com";
           subdomain = "radarr";
           upstream = "http://127.0.0.1:7001";
+          ssl = null;
         }
       ];
       users.users.radarr.extraGroups = [ "media" ];

@@ -26,6 +26,10 @@ Self Host Blocks provides at least one implementation for each block and allows 
 implementation if you want to, as long as it passes the tests. You can then use blocks to improve
 services you already have deployed.
 
+```{=include=} chapters html:into-file=//blocks-ssl.html
+modules/blocks/ssl/docs/default.md
+```
+
 ```{=include=} chapters html:into-file=//blocks-backup.html
 modules/blocks/backup/docs/default.md
 ```

@@ -58,6 +58,8 @@
           release = "0.0.1";
         };
 
+        lib.contracts = pkgs.callPackage ./modules/contracts {};
+
         checks =
           let
             importFiles = files:
@@ -96,6 +98,7 @@
           // (vm_test "postgresql" ./test/vm/postgresql.nix)
           // (vm_test "monitoring" ./test/vm/monitoring.nix)
           // (vm_test "nextcloud" ./test/vm/nextcloud.nix)
+          // (vm_test "ssl" ./test/vm/ssl.nix)
           );
       }
   );

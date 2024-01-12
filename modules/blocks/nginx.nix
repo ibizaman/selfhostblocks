@@ -3,6 +3,8 @@
 let
   cfg = config.shb.nginx;
 
+  contracts = pkgs.callPackage ../contracts {};
+
   fqdn = c: "${c.subdomain}.${c.domain}";
 
   autheliaConfig = lib.types.submodule {
@@ -17,6 +19,12 @@ let
         type = lib.types.str;
         description = "Domain of the subdomain.";
         example = "mydomain.com";
+      };
+
+      ssl = lib.mkOption {
+        description = "Path to SSL files";
+        type = lib.types.nullOr contracts.ssl.certs;
+        default = null;
       };
 
       authEndpoint = lib.mkOption {
@@ -102,9 +110,9 @@ in
       let
         vhostCfg = c: {
           ${fqdn c} = {
-            forceSSL = lib.mkIf config.shb.ssl.enable true;
-            sslCertificate = lib.mkIf config.shb.ssl.enable "/var/lib/acme/${c.domain}/cert.pem";
-            sslCertificateKey = lib.mkIf config.shb.ssl.enable "/var/lib/acme/${c.domain}/key.pem";
+            forceSSL = !(isNull c.ssl);
+            sslCertificate = lib.mkIf (!(isNull c.ssl)) c.ssl.paths.cert;
+            sslCertificateKey = lib.mkIf (!(isNull c.ssl)) c.ssl.paths.key;
 
             # Taken from https://github.com/authelia/authelia/issues/178
             locations."/".extraConfig = ''

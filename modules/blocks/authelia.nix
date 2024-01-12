@@ -3,6 +3,8 @@
 let
   cfg = config.shb.authelia;
 
+  contracts = pkgs.callPackage ../contracts {};
+
   fqdn = "${cfg.subdomain}.${cfg.domain}";
 
   autheliaCfg = config.services.authelia.instances.${fqdn};
@@ -33,6 +35,12 @@ in
       type = lib.types.str;
       description = "domain under which Authelia will be served.";
       example = "mydomain.com";
+    };
+
+    ssl = lib.mkOption {
+      description = "Path to SSL files";
+      type = lib.types.nullOr contracts.ssl.certs;
+      default = null;
     };
 
     ldapEndpoint = lib.mkOption {
@@ -293,9 +301,9 @@ in
         lib.mkBefore (lib.concatStringsSep "\n" (map mkCfg cfg.oidcClients));
 
     services.nginx.virtualHosts.${fqdn} = {
-      forceSSL = lib.mkIf config.shb.ssl.enable true;
-      sslCertificate = lib.mkIf config.shb.ssl.enable "/var/lib/acme/${cfg.domain}/cert.pem";
-      sslCertificateKey = lib.mkIf config.shb.ssl.enable "/var/lib/acme/${cfg.domain}/key.pem";
+      forceSSL = !(isNull cfg.ssl);
+      sslCertificate = lib.mkIf (!(isNull cfg.ssl)) cfg.ssl.paths.cert;
+      sslCertificateKey = lib.mkIf (!(isNull cfg.ssl)) cfg.ssl.paths.key;
       # Taken from https://github.com/authelia/authelia/issues/178
       # TODO: merge with config from https://matwick.ca/authelia-nginx-sso/
       locations."/".extraConfig = ''

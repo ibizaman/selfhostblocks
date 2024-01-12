@@ -3,6 +3,8 @@
 let
   cfg = config.shb.arr;
 
+  contracts = pkgs.callPackage ../contracts {};
+
   apps = {
     radarr = {
       defaultPort = 7001;
@@ -144,6 +146,12 @@ let
           type = lib.types.str;
           description = "Domain under which ${name} will be served.";
           example = "example.com";
+        };
+
+        ssl = lib.mkOption {
+          description = "Path to SSL files";
+          type = lib.types.nullOr contracts.ssl.certs;
+          default = null;
         };
 
         port = lib.mkOption {
@@ -304,7 +312,7 @@ config.xml" templatedSettings) "${config.services.radarr.dataDir}/config.xml" (
               c = cfg.${name};
             in
               lib.mkIf (c.authEndpoint != null) {
-                inherit (c) subdomain domain authEndpoint;
+                inherit (c) subdomain domain authEndpoint ssl;
                 upstream = "http://127.0.0.1:${toString c.port}";
                 autheliaRules = [
                   {

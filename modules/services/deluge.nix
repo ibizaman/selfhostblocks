@@ -3,6 +3,8 @@
 let
   cfg = config.shb.deluge;
 
+  contracts = pkgs.callPackage ../contracts {};
+
   fqdn = "${cfg.subdomain}.${cfg.domain}";
 in
 {
@@ -19,6 +21,12 @@ in
       type = lib.types.str;
       description = "domain under which deluge will be served.";
       example = "mydomain.com";
+    };
+
+    ssl = lib.mkOption {
+      description = "Path to SSL files";
+      type = lib.types.nullOr contracts.ssl.certs;
+      default = null;
     };
 
     daemonPort = lib.mkOption {
@@ -256,7 +264,7 @@ in
 
     shb.nginx.autheliaProtect = lib.mkIf config.shb.authelia.enable [
       {
-        inherit (cfg) subdomain domain authEndpoint;
+        inherit (cfg) subdomain domain authEndpoint ssl;
         upstream = "http://127.0.0.1:${toString config.services.deluge.web.port}";
         autheliaRules = [{
           domain = fqdn;

@@ -18,9 +18,11 @@ let
               services = anyOpt {};
               shb.authelia = anyOpt {};
               shb.backup = anyOpt {};
-              shb.ssl = anyOpt {};
+              systemd = anyOpt {};
+              users = anyOpt {};
             };
           }
+          ../../modules/blocks/ssl.nix
           ../../modules/blocks/nginx.nix
           m
         ];
@@ -46,36 +48,32 @@ in
 
   testAuth = {
     expected = {
-      shb.backup = {};
-      shb.nginx = {
-        accessLog = false;
-        autheliaProtect = [{
-          authEndpoint = "hello";
-          autheliaRules = [{}];
-          subdomain = "my";
-          domain = "example.com";
-          upstream = "http://127.0.0.1:1234";
-        }];
-        debugLog = false;
-      };
-      services.nginx.enable = true;
-      services.nginx.virtualHosts."my.example.com" = {
+      nginx.enable = true;
+      nginx.virtualHosts."my.example.com" = {
         forceSSL = true;
         locations."/" = {};
         locations."/authelia" = {};
-        sslCertificate = "/var/lib/acme/example.com/cert.pem";
-        sslCertificateKey = "/var/lib/acme/example.com/key.pem";
+        sslCertificate = "/var/lib/certs/selfsigned/example.com.cert";
+        sslCertificateKey = "/var/lib/certs/selfsigned/example.com.key";
       };
     };
-    expr = testConfig {
-      shb.ssl.enable = true;
+    expr = (testConfig ({ config, ... }: {
+      shb.certs.cas.selfsigned.myca = {};
+
+      shb.certs.certs.selfsigned."example.com" = {
+        ca = config.shb.certs.cas.selfsigned.myca;
+
+        domain = "example.com";
+      };
+
       shb.nginx.autheliaProtect = [{
         subdomain = "my";
         domain = "example.com";
+        ssl = config.shb.certs.certs.selfsigned."example.com";
         upstream = "http://127.0.0.1:1234";
         authEndpoint = "hello";
         autheliaRules = [{}];
       }];
-    };
+    })).services;
   };
 }

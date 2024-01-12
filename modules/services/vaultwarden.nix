@@ -3,6 +3,8 @@
 let
   cfg = config.shb.vaultwarden;
 
+  contracts = pkgs.callPackage ../contracts {};
+
   fqdn = "${cfg.subdomain}.${cfg.domain}";
 
   template = file: newPath: replacements:
@@ -31,6 +33,12 @@ in
       type = lib.types.str;
       description = "domain under which Authelia will be served.";
       example = "mydomain.com";
+    };
+
+    ssl = lib.mkOption {
+      description = "Path to SSL files";
+      type = lib.types.nullOr contracts.ssl.certs;
+      default = null;
     };
 
     port = lib.mkOption {
@@ -164,7 +172,7 @@ in
 
     shb.nginx.autheliaProtect = [
       {
-        inherit (cfg) subdomain domain authEndpoint;
+        inherit (cfg) subdomain domain authEndpoint ssl;
         upstream = "http://127.0.0.1:${toString config.services.vaultwarden.config.ROCKET_PORT}";
         autheliaRules = [
           {

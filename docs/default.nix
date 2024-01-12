@@ -68,21 +68,15 @@ let
 
   optionsDocs = buildOptionsDocs {
     modules = allModules ++ [ scrubbedModule ];
-    variablelistId = "selfhostblocks-block-backup-options";
-    includeModuleSystemOptions = false;
-  };
-
-  backupOptionsDocs = buildOptionsDocs {
-    modules = [ ../modules/blocks/backup.nix scrubbedModule ];
     variablelistId = "selfhostblocks-options";
     includeModuleSystemOptions = false;
   };
 
-  nextcloudOptionsDocs = buildOptionsDocs {
-    modules = [ ../modules/services/nextcloud-server.nix scrubbedModule ];
+  individualModuleOptionsDocs = path: (buildOptionsDocs {
+    modules = [ path scrubbedModule ];
     variablelistId = "selfhostblocks-options";
     includeModuleSystemOptions = false;
-  };
+  }).optionsJSON;
 
   nmd = import nmdsrc {
     inherit lib;
@@ -135,22 +129,27 @@ in stdenv.mkDerivation {
         '@OPTIONS_JSON@' \
         ${optionsDocs.optionsJSON}/share/doc/nixos/options.json
 
+    substituteInPlace ./modules/blocks/ssl/docs/default.md \
+      --replace \
+        '@OPTIONS_JSON@' \
+        ${individualModuleOptionsDocs ../modules/blocks/ssl.nix}/share/doc/nixos/options.json
+
     substituteInPlace ./modules/blocks/backup/docs/default.md \
       --replace \
         '@OPTIONS_JSON@' \
-        ${backupOptionsDocs.optionsJSON}/share/doc/nixos/options.json
+        ${individualModuleOptionsDocs ../modules/blocks/backup.nix}/share/doc/nixos/options.json
 
     substituteInPlace ./modules/services/nextcloud-server/docs/default.md \
       --replace \
         '@OPTIONS_JSON@' \
-        ${nextcloudOptionsDocs.optionsJSON}/share/doc/nixos/options.json
+       ${individualModuleOptionsDocs ../modules/services/nextcloud-server.nix}/share/doc/nixos/options.json
 
     find . -name "*.md" -print0 | \
       while IFS= read -r -d ''' f; do
         substituteInPlace "''${f}" \
           --replace \
             '@REPO@' \
-            "${ghRoot}"
+            "${ghRoot}" 2>/dev/null
       done
 
     nixos-render-docs manual html \
