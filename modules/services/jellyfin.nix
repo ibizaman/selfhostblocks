@@ -3,6 +3,8 @@
 let
   cfg = config.shb.jellyfin;
 
+  contracts = pkgs.callPackage ../contracts {};
+
   fqdn = "${cfg.subdomain}.${cfg.domain}";
 
   template = file: newPath: replacements:
@@ -31,6 +33,12 @@ in
       description = "Domain to serve sites under.";
       type = lib.types.str;
       example = "domain.com";
+    };
+
+    ssl = lib.mkOption {
+      description = "Path to SSL files";
+      type = lib.types.nullOr contracts.ssl.certs;
+      default = null;
     };
 
     ldapHost = lib.mkOption {
@@ -108,10 +116,12 @@ in
 
     # Take advice from https://jellyfin.org/docs/general/networking/nginx/ and https://nixos.wiki/wiki/Plex
     services.nginx.virtualHosts."${fqdn}" = {
-      forceSSL = true;
+      forceSSL = !(isNull cfg.ssl);
+      sslCertificate = lib.mkIf (!(isNull cfg.ssl)) cfg.ssl.paths.cert;
+      sslCertificateKey = lib.mkIf (!(isNull cfg.ssl)) cfg.ssl.paths.key;
+
       http2 = true;
-      sslCertificate = "/var/lib/acme/${cfg.domain}/cert.pem";
-      sslCertificateKey = "/var/lib/acme/${cfg.domain}/key.pem";
+
       extraConfig = ''
         # The default `client_max_body_size` is 1M, this might not be enough for some posters, etc.
         client_max_body_size 20M;

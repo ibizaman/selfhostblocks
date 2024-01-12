@@ -3,6 +3,8 @@
 let
   cfg = config.shb.monitoring;
 
+  contracts = pkgs.callPackage ../contracts {};
+
   fqdn = "${cfg.subdomain}.${cfg.domain}";
 in
 {
@@ -19,6 +21,12 @@ in
       type = lib.types.str;
       description = "domain under which home-assistant will be served.";
       example = "mydomain.com";
+    };
+
+    ssl = lib.mkOption {
+      description = "Path to SSL files";
+      type = lib.types.nullOr contracts.ssl.certs;
+      default = null;
     };
 
     grafanaPort = lib.mkOption {
@@ -362,9 +370,10 @@ in
       enable = true;
 
       virtualHosts.${fqdn} = {
-        forceSSL = lib.mkIf config.shb.ssl.enable true;
-        sslCertificate = lib.mkIf config.shb.ssl.enable "/var/lib/acme/${cfg.domain}/cert.pem";
-        sslCertificateKey = lib.mkIf config.shb.ssl.enable "/var/lib/acme/${cfg.domain}/key.pem";
+        forceSSL = !(isNull cfg.ssl);
+        sslCertificate = lib.mkIf (!(isNull cfg.ssl)) cfg.ssl.paths.cert;
+        sslCertificateKey = lib.mkIf (!(isNull cfg.ssl)) cfg.ssl.paths.key;
+
         locations."/" = {
           proxyPass = "http://${toString config.services.grafana.settings.server.http_addr}:${toString config.services.grafana.settings.server.http_port}";
           proxyWebsockets = true;

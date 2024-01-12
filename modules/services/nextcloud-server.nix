@@ -5,6 +5,8 @@ let
 
   fqdn = "${cfg.subdomain}.${cfg.domain}";
 
+  contracts = pkgs.callPackage ../contracts {};
+
   # Make sure to bump both nextcloudPkg and nextcloudApps at the same time.
   nextcloudPkg = pkgs.nextcloud27;
   nextcloudApps = pkgs.nextcloud27Packages.apps;
@@ -25,6 +27,12 @@ in
       description = "Domain to serve Nextcloud under.";
       type = lib.types.str;
       example = "domain.com";
+    };
+
+    ssl = lib.mkOption {
+      description = "Path to SSL files";
+      type = lib.types.nullOr contracts.ssl.certs;
+      default = null;
     };
 
     externalFqdn = lib.mkOption {
@@ -144,6 +152,12 @@ in
                   type = lib.types.str;
                   description = "Subdomain under which Only Office will be served.";
                   default = "oo";
+                };
+
+                ssl = lib.mkOption {
+                  description = "Path to SSL files";
+                  type = lib.types.nullOr contracts.ssl.certs;
+                  default = null;
                 };
 
                 localNetworkIPRange = lib.mkOption {
@@ -363,14 +377,14 @@ in
         webfinger = true;
 
         # Very important for a bunch of scripts to load correctly. Otherwise you get Content-Security-Policy errors. See https://docs.nextcloud.com/server/13/admin_manual/configuration_server/harden_server.html#enable-http-strict-transport-security
-        https = config.shb.ssl.enable;
+        https = !(isNull cfg.ssl);
 
         extraApps = if isNull cfg.extraApps then {} else cfg.extraApps nextcloudApps;
         extraAppsEnable = true;
         appstoreEnable = true;
 
         extraOptions = let
-          protocol = if config.shb.ssl.enable then "https" else "http";
+          protocol = if !(isNull cfg.ssl) then "https" else "http";
         in {
           "overwrite.cli.url" = "${protocol}://${fqdn}";
           "overwritehost" = if (isNull cfg.externalFqdn) then fqdn else cfg.externalFqdn;
@@ -382,6 +396,9 @@ in
           "overwritecondaddr" = ""; # We need to set it to empty otherwise overwriteprotocol does not work.
           "debug" = cfg.debug;
           "filelocking.debug" = cfg.debug;
+
+          # Use persistent SQL connections.
+          "dbpersistent" = "true";
         };
 
         phpOptions = {
@@ -396,7 +413,7 @@ in
           "opcache.max_accelerated_files" = "10000";
           "opcache.memory_consumption" = "128";
           "opcache.revalidate_freq" = "1";
-          "openssl.cafile" = "/etc/ssl/certs/ca-certificates.crt";
+          "openssl.cafile" = "/etc/ssl/certs/ca-certificates.cert";
           short_open_tag = "Off";
 
           output_buffering = "Off";
@@ -424,9 +441,9 @@ in
 
       services.nginx.virtualHosts.${fqdn} = {
         # listen = [ { addr = "0.0.0.0"; port = 443; } ];
-        sslCertificate = lib.mkIf config.shb.ssl.enable "/var/lib/acme/${cfg.domain}/cert.pem";
-        sslCertificateKey = lib.mkIf config.shb.ssl.enable "/var/lib/acme/${cfg.domain}/key.pem";
-        forceSSL = lib.mkIf config.shb.ssl.enable true;
+        forceSSL = !(isNull cfg.ssl);
+        sslCertificate = lib.mkIf (!(isNull cfg.ssl)) cfg.ssl.paths.cert;
+        sslCertificateKey = lib.mkIf (!(isNull cfg.ssl)) cfg.ssl.paths.key;
 
         # From [1] this should fix downloading of big files. [2] seems to indicate that buffering
         # happens at multiple places anyway, so disabling one place should be okay.
@@ -491,9 +508,10 @@ in
       };
 
       services.nginx.virtualHosts."${cfg.apps.onlyoffice.subdomain}.${cfg.domain}" = {
-        sslCertificate = lib.mkIf config.shb.ssl.enable "/var/lib/acme/${cfg.domain}/cert.pem";
-        sslCertificateKey = lib.mkIf config.shb.ssl.enable "/var/lib/acme/${cfg.domain}/key.pem";
-        forceSSL = lib.mkIf config.shb.ssl.enable true;
+        forceSSL = !(isNull cfg.ssl);
+        sslCertificate = lib.mkIf (!(isNull cfg.ssl)) cfg.ssl.paths.cert;
+        sslCertificateKey = lib.mkIf (!(isNull cfg.ssl)) cfg.ssl.paths.key;
+
         locations."/" = {
           extraConfig = ''
         allow ${cfg.apps.onlyoffice.localNetworkIPRange};
