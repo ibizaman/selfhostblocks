@@ -96,22 +96,22 @@ To use either a self-signed certificates or a Let's Encrypt generated one, we ca
 where the certificate and the private key are located:
 
 ```nix
-config.shb.certs.<implementation>.<name>.paths.cert
-config.shb.certs.<implementation>.<name>.paths.key
+config.shb.certs.certs.<implementation>.<name>.paths.cert
+config.shb.certs.certs.<implementation>.<name>.paths.key
 ```
 
 For example:
 
 ```nix
-config.shb.certs.selfsigned."example.com".paths.cert
-config.shb.certs.selfsigned."example.com".paths.key
+config.shb.certs.certs.selfsigned."example.com".paths.cert
+config.shb.certs.certs.selfsigned."example.com".paths.key
 ```
 We can then configure Nginx to use those certificates:
 
 ```nix
 services.nginx.virtualHosts."example.com" =
   let
-    cert = config.shb.certs.selfsigned."example.com";
+    cert = config.shb.certs.certs.selfsigned."example.com";
   in
   {
     onlySSL = true;
@@ -130,8 +130,8 @@ certificate to the generated:
 
 ```nix
 systemd.services.nginx = {
-  after = [ config.shb.certs.selfsigned."example.com".systemdService ];
-  requires = [ config.shb.certs.selfsigned."example.com".systemdService ];
+  after = [ config.shb.certs.certs.selfsigned."example.com".systemdService ];
+  requires = [ config.shb.certs.certs.selfsigned."example.com".systemdService ];
 };
 ```
 

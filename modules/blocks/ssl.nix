@@ -257,8 +257,13 @@ in
             script = ''
             mkdir -p /etc/ssl/certs
 
+            rm -f /etc/ssl/certs/ca-bundle.crt
             rm -f /etc/ssl/certs/ca-certificates.crt
+
+            cat /etc/static/ssl/certs/ca-bundle.crt > /etc/ssl/certs/ca-bundle.crt
+            cat /etc/static/ssl/certs/ca-bundle.crt > /etc/ssl/certs/ca-certificates.crt
             for file in ${lib.concatStringsSep " " (lib.mapAttrsToList (_name: caCfg: caCfg.paths.cert) cfg.cas.selfsigned)}; do
+                cat "$file" >> /etc/ssl/certs/ca-bundle.crt
                 cat "$file" >> /etc/ssl/certs/ca-certificates.crt
             done
             '';
