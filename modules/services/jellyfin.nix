@@ -383,7 +383,7 @@ in
         id = cfg.oidcClientID;
         description = "Jellyfin";
         secretFile = config.sops.secrets."authelia/jellyfin_sso_secret".path;
-        public = "false";
+        public = false;
         authorization_policy = "one_factor";
         redirect_uris = [ "https://${cfg.subdomain}.${cfg.domain}/sso/OID/r/${cfg.oidcProvider}" ];
       }

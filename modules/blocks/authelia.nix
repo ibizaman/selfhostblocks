@@ -12,13 +12,12 @@ let
   template = file: newPath: replacements:
     let
       templatePath = newPath + ".template";
-
-      sedPatterns = lib.strings.concatStringsSep " " (lib.attrsets.mapAttrsToList (from: to: "\"s|${from}|${to}|\"") replacements);
+      sedPatterns = lib.strings.concatStringsSep ";" (lib.attrsets.mapAttrsToList (from: to: "s|${from}|${to}|") replacements);
     in
       ''
       ln -fs ${file} ${templatePath}
       rm ${newPath} || :
-      sed ${sedPatterns} ${templatePath} > ${newPath}
+      sed "${sedPatterns}" ${templatePath} > ${newPath}
       '';
 in
 {
@@ -277,28 +276,21 @@ in
         };
       };
 
-      settingsFiles = map (client: "/var/lib/authelia-${fqdn}/oidc_client_${client.id}.yaml") cfg.oidcClients;
+      settingsFiles = [ "/var/lib/authelia-${fqdn}/oidc_clients.yaml" ];
     };
 
     systemd.services."authelia-${fqdn}".preStart =
       let
-        mkCfg = client:
-          let
-            secretFile = client.secretFile;
-            clientWithTmpl = {
-              identity_providers.oidc.clients = [
-                ((lib.attrsets.filterAttrs (name: v: name != "secretFile") client) // {
-                  secret = "%SECRET%";
-                })
-              ];
-            };
-            tmplFile = pkgs.writeText "oidc_client_${client.id}.yaml" (lib.generators.toYAML {} clientWithTmpl);
-          in
-            template tmplFile "/var/lib/authelia-${fqdn}/oidc_client_${client.id}.yaml" {
-              "%SECRET%" = "$(cat ${toString secretFile})";
-            };
+        mkCfg = clients:
+        let
+          addTemplate = client: (builtins.removeAttrs client ["secretFile"]) // {secret = "%SECRET_${client.id}%";};
+          tmplFile = pkgs.writeText "oidc_clients.yaml" (lib.generators.toYAML {} {identity_providers.oidc.clients = map addTemplate clients;});
+          replace = client: {"%SECRET_${client.id}%" = "$(cat ${toString client.secretFile})";};
+          replacements = lib.foldl (container: client: container // (replace client) ) {} clients;
+        in
+          template tmplFile "/var/lib/authelia-${fqdn}/oidc_clients.yaml" replacements;
       in
-        lib.mkBefore (lib.concatStringsSep "\n" (map mkCfg cfg.oidcClients));
+        lib.mkBefore (mkCfg cfg.oidcClients);
 
     services.nginx.virtualHosts.${fqdn} = {
       forceSSL = !(isNull cfg.ssl);

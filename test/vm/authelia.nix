@@ -51,7 +51,7 @@ in
             id = "myclient";
             description = "My Client";
             secretFile = pkgs.writeText "secret" "mysecuresecret";
-            public = "false";
+            public = false;
             authorization_policy = "one_factor";
             redirect_uris = [ "https://myclient.exapmle.com/redirect" ];
           }
