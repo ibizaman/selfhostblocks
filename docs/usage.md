@@ -8,6 +8,24 @@ Self Host Blocks is available as a flake. To use it in your project, add the fol
 inputs.selfhostblocks.url = "github:ibizaman/selfhostblocks";
 ```
 
+Then, in your `nixosConfigurations`, import the module with:
+
+```nix
+imports = [
+  inputs.selfhostblocks.nixosModules.x86_64-linux.default
+];
+```
+
+For now, Self Host Blocks has a hard dependency on `sops-nix`. I am [working on removing
+that](https://github.com/ibizaman/selfhostblocks/issues/24) so you can use any secrets manager you
+want. Until then, you also need to import the `sops-nix` module:
+
+```nix
+imports = [
+  inputs.selfhostblocks.inputs.sops-nix.nixosModules.default
+];
+```
+
 Self Host Blocks provides its own `nixpkgs` input so both can be updated in lock step, ensuring
 maximum compatibility. It is recommended to use the following `nixpkgs` as input for your deployments:
 
@@ -38,20 +56,20 @@ The following snippets show how to deploy Self Host Blocks using the deployment 
   };
 
   outputs = { self, selfhostblocks }: {
-    colmena = {
-      meta =
-        let
-          system = "x86_64-linux";
-        in {
+    colmena =
+      let
+        system = "x86_64-linux";
+      in {
+        meta = {
           nixpkgs = import selfhostblocks.inputs.nixpkgs { inherit system; };
         };
 
-      machine = { selfhostblocks, ... }: {
-        imports = [
-          selfhostblocks.nixosModules.${system}.default
-        ];
+        machine = { selfhostblocks, ... }: {
+          imports = [
+            selfhostblocks.nixosModules.${system}.default
+          ];
+        };
       };
-    };
   };
 }
 ```
@@ -69,23 +87,23 @@ is defined exclusively by the `selfhostblocks` input. It is more likely that you
 
   outputs = { self, selfhostblocks }: {
     colmena = {
-      meta =
-        let
-          system = "x86_64-linux";
-        in {
+      let
+        system = "x86_64-linux";
+      in {
+        meta =
           nixpkgs = import nixpkgs { inherit system; };
           nodeNixpkgs = {
             machine2 = import selfhostblocks.inputs.nixpkgs { inherit system; };
           };
         };
 
-      machine1 = ...;
+        machine1 = ...;
 
-      machine2 = { selfhostblocks, ... }: {
-        imports = [
-          selfhostblocks.nixosModules.${system}.default
-        ];
-      };
+        machine2 = { selfhostblocks, ... }: {
+          imports = [
+            selfhostblocks.nixosModules.${system}.default
+          ];
+        };
     };
   };
 }
