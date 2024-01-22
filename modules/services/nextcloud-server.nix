@@ -4,6 +4,10 @@ let
   cfg = config.shb.nextcloud;
 
   fqdn = "${cfg.subdomain}.${cfg.domain}";
+  fqdnWithPort = if isNull cfg.port then fqdn else "${fqdn}:${toString cfg.port}";
+  protocol = if !(isNull cfg.ssl) then "https" else "http";
+
+  ssoFqdnWithPort = if isNull cfg.apps.sso.port then cfg.apps.sso.endpoint else "${cfg.apps.sso.endpoint}:${toString cfg.apps.sso.port}";
 
   contracts = pkgs.callPackage ../contracts {};
 
@@ -19,14 +23,38 @@ in
 
     subdomain = lib.mkOption {
       type = lib.types.str;
-      description = "Subdomain under which Nextcloud will be served.";
+      description = ''
+        Subdomain under which Nextcloud will be served.
+
+        ```
+        <subdomain>.<domain>[:<port>]
+        ```
+      '';
       example = "nextcloud";
     };
 
     domain = lib.mkOption {
-      description = "Domain to serve Nextcloud under.";
+      description = ''
+        Domain under which Nextcloud is served.
+
+        ```
+        <subdomain>.<domain>[:<port>]
+        ```
+      '';
       type = lib.types.str;
       example = "domain.com";
+    };
+
+    port = lib.mkOption {
+      description = ''
+        Port under which Nextcloud will be served. If null is given, then the port is omitted.
+
+        ```
+        <subdomain>.<domain>[:<port>]
+        ```
+      '';
+      type = lib.types.nullOr lib.types.port;
+      default = null;
     };
 
     ssl = lib.mkOption {
@@ -168,7 +196,11 @@ in
 
                 jwtSecretFile = lib.mkOption {
                   type = lib.types.nullOr lib.types.path;
-                  description = "File containing the JWT secret. This option is required.";
+                  description = ''
+                    File containing the JWT secret. This option is required.
+
+                    Must be readable by the nextcloud system user.
+                  '';
                   default = null;
                 };
               };
@@ -216,7 +248,7 @@ in
                 enable = lib.mkEnableOption "LDAP app.";
 
                 host = lib.mkOption {
-                  type = lib.types.nullOr lib.types.str;
+                  type = lib.types.str;
                   description = ''
                     Host serving the LDAP server.
                   '';
@@ -224,7 +256,7 @@ in
                 };
 
                 port = lib.mkOption {
-                  type = lib.types.nullOr lib.types.port;
+                  type = lib.types.port;
                   description = ''
                     Port of the service serving the LDAP server.
                   '';
@@ -245,7 +277,11 @@ in
 
                 adminPasswordFile = lib.mkOption {
                   type = lib.types.path;
-                  description = "File containing the admin password of the LDAP server.";
+                  description = ''
+                    File containing the admin password of the LDAP server.
+
+                    Must be readable by the nextcloud system user.
+                  '';
                   default = "";
                 };
 
@@ -256,6 +292,81 @@ in
                 };
               };
             });
+          };
+
+          sso = lib.mkOption {
+            description = ''
+              SSO Integration App. [Manual](https://docs.nextcloud.com/server/latest/admin_manual/configuration_user/oidc_auth.html)
+
+              Enabling this app will create a new LDAP configuration or update one that exists with
+              the given host.
+            '';
+            default = {};
+            type = lib.types.submodule {
+              options = {
+                enable = lib.mkEnableOption "SSO app.";
+
+                endpoint = lib.mkOption {
+                  type = lib.types.str;
+                  description = "OIDC endpoint for SSO.";
+                  example = "https://authelia.example.com";
+                };
+
+                port = lib.mkOption {
+                  description = "If given, adds a port to the endpoint.";
+                  type = lib.types.nullOr lib.types.port;
+                  default = null;
+                };
+
+                provider = lib.mkOption {
+                  type = lib.types.enum [ "Authelia" ];
+                  description = "OIDC provider name, used for display.";
+                  default = "Authelia";
+                };
+
+                clientID = lib.mkOption {
+                  type = lib.types.str;
+                  description = "Client ID for the OIDC endpoint.";
+                  default = "nextcloud";
+                };
+
+                authorization_policy = lib.mkOption {
+                  type = lib.types.enum [ "one_factor" "two_factor" ];
+                  description = "Require one factor (password) or two factor (device) authentication.";
+                  default = "one_factor";
+                };
+
+                secretFile = lib.mkOption {
+                  type = lib.types.path;
+                  description = ''
+                    File containing the secret for the OIDC endpoint.
+
+                    Must be readable by the nextcloud system user.
+                  '';
+                  default = "";
+                };
+
+                secretFileForAuthelia = lib.mkOption {
+                  type = lib.types.path;
+                  description = ''
+                    File containing the secret for the OIDC endpoint, must be readable by the Authelia user.
+
+                    Must be readable by the authelia system user.
+                  '';
+                  default = "";
+                };
+
+                fallbackDefaultAuth = lib.mkOption {
+                  type = lib.types.bool;
+                  description = ''
+                    Fallback to normal Nextcloud auth if something goes wrong with the SSO app.
+                    Usually, you want to enable this to transfer existing users to LDAP and then you
+                    can disabled it.
+                  '';
+                  default = false;
+                };
+              };
+            };
           };
         };
       };
@@ -387,7 +498,7 @@ in
           protocol = if !(isNull cfg.ssl) then "https" else "http";
         in {
           "overwrite.cli.url" = "${protocol}://${fqdn}";
-          "overwritehost" = if (isNull cfg.externalFqdn) then fqdn else cfg.externalFqdn;
+          "overwritehost" = fqdnWithPort;
           # 'trusted_domains' needed otherwise we get this issue https://help.nextcloud.com/t/the-polling-url-does-not-start-with-https-despite-the-login-url-started-with-https/137576/2
           # TODO: could instead set extraTrustedDomains
           "trusted_domains" = [ fqdn ];
@@ -450,8 +561,8 @@ in
         # [1]: https://help.nextcloud.com/t/download-aborts-after-time-or-large-file/25044/6
         # [2]: https://stackoverflow.com/a/50891625/1013628
         extraConfig = ''
-      proxy_buffering off;
-      '';
+        proxy_buffering off;
+        '';
       };
 
       environment.systemPackages = [
@@ -470,7 +581,7 @@ in
       };
       systemd.services.phpfpm-nextcloud.preStart = ''
       mkdir -p /var/log/xdebug; chown -R nextcloud: /var/log/xdebug
-    '';
+      '';
 
       systemd.services.nextcloud-cron.path = [
         pkgs.perl
@@ -514,8 +625,8 @@ in
 
         locations."/" = {
           extraConfig = ''
-        allow ${cfg.apps.onlyoffice.localNetworkIPRange};
-        '';
+          allow ${cfg.apps.onlyoffice.localNetworkIPRange};
+          '';
         };
       };
     })
@@ -619,6 +730,104 @@ in
         ${occ} ldap:set-config "$CONFIG_ID" 'ldapConfigurationActive' \
                   '1'
       '';
+    })
+
+    (lib.mkIf cfg.apps.sso.enable {
+      assertions = [
+        {
+          assertion = cfg.apps.sso.enable -> cfg.apps.ldap.enable;
+          message = "SSO app requires LDAP app to work correctly.";
+        }
+      ];
+
+      systemd.services.nextcloud-setup.script =
+        ''
+        ${occ} app:install oidc_login || :
+        ${occ} app:enable  oidc_login
+        '';
+
+      systemd.services.nextcloud-setup.preStart =
+        ''
+        mkdir -p ${cfg.dataDir}/config
+        cat <<EOF > "${cfg.dataDir}/config/secretFile"
+        {
+          "oidc_login_client_secret": "$(cat ${cfg.apps.sso.secretFile})"
+        }
+        EOF
+        '';
+
+      services.nextcloud = {
+        secretFile = "${cfg.dataDir}/config/secretFile";
+
+        # See all options at https://github.com/pulsejet/nextcloud-oidc-login
+        extraOptions = {
+          allow_user_to_change_display_name = false;
+          lost_password_link = "disabled";
+          oidc_login_provider_url = ssoFqdnWithPort;
+          oidc_login_client_id = cfg.apps.sso.clientID;
+
+          # Automatically redirect the login page to the provider.
+          oidc_login_auto_redirect = !cfg.apps.sso.fallbackDefaultAuth;
+          # Authelia at least does not support this.
+          oidc_login_end_session_redirect = false;
+          # Redirect to this page after logging out the user
+          oidc_login_logout_url = ssoFqdnWithPort;
+          oidc_login_button_text = "Log in with ${cfg.apps.sso.provider}";
+          oidc_login_hide_password_form = false;
+          oidc_login_use_id_token = true;
+          oidc_login_attributes = {
+            id = "preferred_username";
+            name = "name";
+            mail = "email";
+            groups = "groups";
+          };
+          oidc_login_default_group = "oidc";
+          oidc_login_use_external_storage = false;
+          oidc_login_scope = "openid profile email groups";
+          oidc_login_proxy_ldap = false;
+          # Enable creation of users new to Nextcloud from OIDC login. A user may be known to the
+          # IdP but not (yet) known to Nextcloud. This setting controls what to do in this case.
+          # * 'true' (default): if the user authenticates to the IdP but is not known to Nextcloud,
+          #     then they will be returned to the login screen and not allowed entry;
+          # * 'false': if the user authenticates but is not yet known to Nextcloud, then the user
+          #     will be automatically created; note that with this setting, you will be allowing (or
+          #     relying on) a third-party (the IdP) to create new users
+          oidc_login_disable_registration = false;
+          oidc_login_redir_fallback = cfg.apps.sso.fallbackDefaultAuth;
+          # oidc_login_alt_login_page = "assets/login.php";
+          oidc_login_tls_verify = true;
+          # If you get your groups from the oidc_login_attributes, you might want to create them if
+          # they are not already existing, Default is `false`.
+          oidc_create_groups = true;
+          # Enable use of WebDAV via OIDC bearer token.
+          oidc_login_webdav_enabled = true;
+          oidc_login_password_authentication = false;
+          oidc_login_public_key_caching_time = 86400;
+          oidc_login_min_time_between_jwks_requests = 10;
+          oidc_login_well_known_caching_time = 86400;
+          # If true, nextcloud will download user avatars on login. This may lead to security issues
+          # as the server does not control which URLs will be requested. Use with care.
+          oidc_login_update_avatar = false;
+        };
+      };
+
+      shb.authelia.oidcClients = lib.mkIf (cfg.apps.sso.provider == "Authelia") [
+        {
+          id = cfg.apps.sso.clientID;
+          description = "Nextcloud";
+          secretFile = cfg.apps.sso.secretFileForAuthelia;
+          public = "false";
+          authorization_policy = cfg.apps.sso.authorization_policy;
+          redirect_uris = [ "${protocol}://${fqdnWithPort}/apps/oidc_login/oidc" ];
+          scopes = [
+            "openid"
+            "profile"
+            "email"
+            "groups"
+          ];
+          userinfo_signing_algorithm = "none";
+        }
+      ];
     })
   ];
 }
