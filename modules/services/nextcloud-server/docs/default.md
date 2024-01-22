@@ -9,6 +9,7 @@ This NixOS module is a service that sets up a [Nextcloud Server](https://nextclo
 - Declarative [Apps](#services-nextcloud-server-options-shb.nextcloud.apps) Configuration - no need
   to configure those with the UI.
   - [LDAP](#services-nextcloud-server-usage-ldap) app: enables app and sets up integration with an existing LDAP server.
+  - [OIDC](#services-nextcloud-server-usage-oidc) app: enables app and sets up integration with an existing OIDC server.
   - [Preview Generator](#services-nextcloud-server-usage-previewgenerator) app: enables app and sets
     up required cron job.
   - [Only Office](#services-nextcloud-server-usage-onlyoffice) app: enables app and sets up Only
@@ -35,9 +36,36 @@ This NixOS module is a service that sets up a [Nextcloud Server](https://nextclo
 
 ## Usage {#services-nextcloud-server-usage}
 
-### Basic Configuration {#services-nextcloud-server-usage-basic}
+### Secrets {#services-nextcloud-server-secrets}
 
-This section corresponds to the `basic` target host defined in the [flake.nix](./flake.nix) file.
+All the secrets should be readable by the nextcloud user.
+
+Secret should not be stored in the nix store. If you're using
+[sops-nix](https://github.com/Mic92/sops-nix) and assuming your secrets file is located at
+`./secrets.yaml`, you can define a secret with:
+
+```nix
+sops.secrets."nextcloud/adminpass" = {
+  sopsFile = ./secrets.yaml;
+  mode = "0400";
+  owner = "nextcloud";
+  group = "nextcloud";
+  restartUnits = [ "phpfpm-nextcloud.service" ];
+};
+```
+
+Then you can use that secret:
+
+```nix
+shb.nextcloud.adminPassFile = config.sops.secrets."nextcloud/adminpass".path;
+```
+
+### Nextcloud through HTTP {#services-nextcloud-server-usage-basic}
+
+:::: {.note}
+This section corresponds to the `basic` section of the [Nextcloud
+demo](demo-nextcloud-server.html#demo-nextcloud-deploy-basic).
+::::
 
 This will set up a Nextcloud service that runs on the NixOS target machine, reachable at
 `http://nextcloud.example.com`. If the `shb.ssl` block is [enabled](block-ssl.html#usage), the
@@ -53,27 +81,19 @@ shb.nextcloud = {
 };
 ```
 
-The secret should not be stored in the nix store. If you're using
-[sops-nix](https://github.com/Mic92/sops-nix) and assuming your secrets file is located at
-`./secrets.yaml`, you can set the `adminPassFile` option with:
-
-```nix
-shb.nextcloud.adminPassFile = config.sops.secrets."nextcloud/adminpass".path;
-
-sops.secrets."nextcloud/adminpass" = {
-  sopsFile = ./secrets.yaml;
-  mode = "0400";
-  owner = "nextcloud";
-  group = "nextcloud";
-  restartUnits = [ "phpfpm-nextcloud.service" ];
-};
-```
+After deploying, the Nextcloud server will be reachable at `http://nextcloud.example.com`.
 
 ### With LDAP Support {#services-nextcloud-server-usage-ldap}
 
-This section corresponds to the `ldap` target host defined in the [flake.nix](./flake.nix) file. The same information from the [basic](#services-nextcloud-server-usage-basic) section applies, so please read that first.
+:::: {.note}
+This section corresponds to the `ldap` section of the [Nextcloud
+demo](demo-nextcloud-server.html#demo-nextcloud-deploy-ldap).
+::::
 
-This target host uses the LDAP block provided by Self Host Blocks to setup a
+We will build upon the [Basic Configuration](#services-nextcloud-server-usage-basic) section, so
+please read that first.
+
+We will use the LDAP block provided by Self Host Blocks to setup a
 [LLDAP](https://github.com/lldap/lldap) service.
 
 ```nix
@@ -84,24 +104,8 @@ shb.ldap = {
   ldapPort = 3890;
   webUIListenPort = 17170;
   dcdomain = "dc=example,dc=com";
-  ldapUserPasswordFile = config.sops.secrets."lldap/user_password".path;
-  jwtSecretFile = config.sops.secrets."lldap/jwt_secret".path;
-};
-
-sops.secrets."lldap/user_password" = {
-  sopsFile = ./secrets.yaml;
-  mode = "0440";
-  owner = "lldap";
-  group = "lldap";
-  restartUnits = [ "lldap.service" ];
-};
-
-sops.secrets."lldap/jwt_secret" = {
-  sopsFile = ./secrets.yaml;
-  mode = "0440";
-  owner = "lldap";
-  group = "lldap";
-  restartUnits = [ "lldap.service" ];
+  ldapUserPasswordFile = <path/to/ldapUserPasswordSecret>;
+  jwtSecretFile = <path/to/ldapJwtSecret>;
 };
 ```
 
@@ -115,12 +119,110 @@ shb.nextcloud.apps.ldap
   port = config.shb.ldap.ldapPort;
   dcdomain = config.shb.ldap.dcdomain;
   adminName = "admin";
-  adminPasswordFile = config.sops.secrets."nextcloud/ldap_admin_password".path;
+  adminPasswordFile = <path/to/ldapUserPasswordSecret>;
   userGroup = "nextcloud_user";
 };
 ```
 
-It's nice to be able to reference a options that were defined in the ldap block.
+The `shb.nextcloud.apps.ldap.adminPasswordFile` must be the same as the
+`shb.ldap.ldapUserPasswordFile`. The other secret can be randomly generated with `nix run
+nixpkgs#openssl -- rand -hex 64`.
+
+And that's it. Now, go to the LDAP server at `http://ldap.example.com`, create the `nextcloud_user`
+group, create a user and add it to the group. When that's done, go back to the Nextcloud server at
+`http://nextcloud.example.com` and login with that user.
+
+Note that we cannot create an admin user from the LDAP server, so you need to create a normal user
+like above, login with it once so it is known to Nextcloud, then logout, login with the admin
+Nextcloud user and promote that new user to admin level.
+
+### With OIDC Support {#services-nextcloud-server-usage-oidc}
+
+:::: {.note}
+This section corresponds to the `sso` section of the [Nextcloud
+demo](demo-nextcloud-server.html#demo-nextcloud-deploy-sso).
+::::
+
+We will build upon the [Basic Configuration](#services-nextcloud-server-usage-basic) and [With LDAP
+Support](#services-nextcloud-server-usage-ldap) sections, so please read those first and setup the
+LDAP app as described above.
+
+Here though, we must setup SSL certificates because the SSO provider only works with the https
+protocol. This is actually quite easy thanks to the [SSL block](blocks-ssl.html). For example, with
+self-signed certificates:
+
+```nix
+shb.certs = {
+  cas.selfsigned.myca = {
+    name = "My CA";
+  };
+  certs.selfsigned = {
+    nextcloud = {
+      ca = config.shb.certs.cas.selfsigned.myca;
+      domain = "nextcloud.example.com";
+    };
+    auth = {
+      ca = config.shb.certs.cas.selfsigned.myca;
+      domain = "auth.example.com";
+    };
+    ldap = {
+      ca = config.shb.certs.cas.selfsigned.myca;
+      domain = "ldap.example.com";
+    };
+  };
+};
+```
+
+We need to setup the SSO provider, here Authelia thanks to the corresponding SHB block:
+
+```nix
+shb.authelia = {
+  enable = true;
+  domain = "example.com";
+  subdomain = "auth";
+  ssl = config.shb.certs.certs.selfsigned.auth;
+
+  ldapEndpoint = "ldap://127.0.0.1:${builtins.toString config.shb.ldap.ldapPort}";
+  dcdomain = config.shb.ldap.dcdomain;
+
+  secrets = {
+    jwtSecretFile = <path/to/autheliaJwtSecret>;
+    ldapAdminPasswordFile = <path/to/ldapUserPasswordSecret>;
+    sessionSecretFile = <path/to/autheliaSessionSecret>;
+    storageEncryptionKeyFile = <path/to/autheliaStorageEncryptionKeySecret>;
+    identityProvidersOIDCHMACSecretFile = <path/to/providersOIDCHMACSecret>;
+    identityProvidersOIDCIssuerPrivateKeyFile = <path/to/providersOIDCIssuerSecret>;
+  };
+};
+```
+
+The `shb.authelia.secrets.ldapAdminPasswordFile` must be the same as the
+`shb.ldap.ldapUserPasswordFile` defined in the previous section. The secrets can be randomly
+generated with `nix run nixpkgs#openssl -- rand -hex 64`.
+
+Now, on the Nextcloud side, you need to add the following options:
+
+```nix
+shb.nextcloud.ssl = config.shb.certs.certs.selfsigned.nextcloud;
+
+shb.nextcloud.apps.sso = {
+  enable = true;
+  endpoint = "https://${config.shb.authelia.subdomain}.${config.shb.authelia.domain}";
+  clientID = "nextcloud";
+  fallbackDefaultAuth = false;
+
+  secretFile = <path/to/oidcNextcloudSharedSecret>;
+  secretFileForAuthelia = <path/to/oidcNextcloudSharedSecret>;
+};
+```
+
+Passing the `ssl` option will auto-configure nginx to force SSL connections with the given
+certificate.
+
+The `shb.nextcloud.apps.sso.secretFile` and `shb.nextcloud.apps.sso.secretFileForAuthelia` options
+must have the same content. The former is a file that must be owned by the `nextcloud` user while
+the latter must be owned by the `authelia` user. I want to avoid needing to define the same secret
+twice with a future secrets SHB block.
 
 ### Tweak PHPFpm Config {#services-nextcloud-server-usage-phpfpm}
 
@@ -138,6 +240,8 @@ shb.nextcloud.phpFpmPoolSettings = {
 ```
 
 ### Tweak PostgreSQL Settings {#services-nextcloud-server-usage-postgres}
+
+These settings will impact all databases.
 
 ```nix
 shb.nextcloud.postgresSettings = {
@@ -226,6 +330,19 @@ without LDAP integration on a VM with minimal manual steps.
 ## Maintenance {#services-nextcloud-server-maintenance}
 
 On the command line, the `occ` tool is called `nextcloud-occ`.
+
+## Debug {#services-nextcloud-server-debug}
+
+In case of an issue, check the logs for any systemd service mentioned in this section.
+
+On startup, the oneshot systemd service `nextcloud-setup.service` starts. After it finishes, the
+`phpfpm-nextcloud.service` starts to serve Nextcloud. The `nginx.service` is used as the reverse
+proxy. `postgresql.service` run the database.
+
+Nextcloud' configuration is found at `${shb.nextcloud.dataDir}/config/config.php`. Nginx'
+configuration can be found with `systemctl cat nginx | grep -om 1 -e "[^ ]\+conf"`.
+
+Enable verbose logging by setting the `shb.nextcloud.debug` boolean to `true`.
 
 ## Options Reference {#services-nextcloud-server-options}
 

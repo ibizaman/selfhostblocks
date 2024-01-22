@@ -50,9 +50,6 @@ in
     let
       commonConfig = {
         services.postgresql.settings = {
-          idle_in_transaction_session_timeout = "30s";
-          idle_session_timeout = "30s";
-          track_io_timing = "true";
         };
       };
 

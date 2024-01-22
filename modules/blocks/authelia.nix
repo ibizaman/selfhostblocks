@@ -6,6 +6,7 @@ let
   contracts = pkgs.callPackage ../contracts {};
 
   fqdn = "${cfg.subdomain}.${cfg.domain}";
+  fqdnWithPort = if isNull cfg.port then fqdn else "${fqdn}:${toString cfg.port}";
 
   autheliaCfg = config.services.authelia.instances.${fqdn};
 
@@ -34,6 +35,12 @@ in
       type = lib.types.str;
       description = "domain under which Authelia will be served.";
       example = "mydomain.com";
+    };
+
+    port = lib.mkOption {
+      description = "If given, adds a port to the `<subdomain>.<domain>` endpoint.";
+      type = lib.types.nullOr lib.types.port;
+      default = null;
     };
 
     ssl = lib.mkOption {
@@ -86,7 +93,11 @@ in
           };
           identityProvidersOIDCIssuerPrivateKeyFile = lib.mkOption {
             type = lib.types.path;
-            description = "File containing the identity provider OIDC issuer private key.";
+            description = ''
+              File containing the identity provider OIDC issuer private key.
+
+              Generate one with `nix run nixpkgs#openssl -- genrsa -out keypair.pem 2048`
+            '';
           };
         };
       };
@@ -99,39 +110,47 @@ in
     };
 
     smtp = lib.mkOption {
-      description = "SMTP options.";
-      default = null;
-      type = lib.types.nullOr (lib.types.submodule {
-        options = {
-          from_address = lib.mkOption {
-            type = lib.types.str;
-            description = "SMTP address from which the emails originate.";
-            example = "authelia@mydomain.com";
+      description = ''
+        If a string is given, writes notifications to the given path.Otherwise, send notifications
+        by smtp.
+
+        https://www.authelia.com/configuration/notifications/introduction/
+      '';
+      default = "/tmp/authelia-notifications";
+      type = lib.types.oneOf [
+        lib.types.str
+        (lib.types.nullOr (lib.types.submodule {
+          options = {
+            from_address = lib.mkOption {
+              type = lib.types.str;
+              description = "SMTP address from which the emails originate.";
+              example = "authelia@mydomain.com";
+            };
+            from_name = lib.mkOption {
+              type = lib.types.str;
+              description = "SMTP name from which the emails originate.";
+              default = "Authelia";
+            };
+            host = lib.mkOption {
+              type = lib.types.str;
+              description = "SMTP host to send the emails to.";
+            };
+            port = lib.mkOption {
+              type = lib.types.port;
+              description = "SMTP port to send the emails to.";
+              default = 25;
+            };
+            username = lib.mkOption {
+              type = lib.types.str;
+              description = "Username to connect to the SMTP host.";
+            };
+            passwordFile = lib.mkOption {
+              type = lib.types.str;
+              description = "File containing the password to connect to the SMTP host.";
+            };
           };
-          from_name = lib.mkOption {
-            type = lib.types.str;
-            description = "SMTP name from which the emails originate.";
-            default = "Authelia";
-          };
-          host = lib.mkOption {
-            type = lib.types.str;
-            description = "SMTP host to send the emails to.";
-          };
-          port = lib.mkOption {
-            type = lib.types.port;
-            description = "SMTP port to send the emails to.";
-            default = 25;
-          };
-          username = lib.mkOption {
-            type = lib.types.str;
-            description = "Username to connect to the SMTP host.";
-          };
-          passwordFile = lib.mkOption {
-            type = lib.types.str;
-            description = "File containing the password to connect to the SMTP host.";
-          };
-        };
-      });
+        }))
+      ];
     };
 
     rules = lib.mkOption {
@@ -175,7 +194,7 @@ in
         AUTHELIA_IDENTITY_PROVIDERS_OIDC_HMAC_SECRET_FILE = toString cfg.secrets.identityProvidersOIDCHMACSecretFile;
         AUTHELIA_IDENTITY_PROVIDERS_OIDC_ISSUER_PRIVATE_KEY_FILE = toString cfg.secrets.identityProvidersOIDCIssuerPrivateKeyFile;
 
-        AUTHELIA_NOTIFIER_SMTP_PASSWORD_FILE = lib.mkIf (!(isNull cfg.smtp)) (toString cfg.smtp.passwordFile);
+        AUTHELIA_NOTIFIER_SMTP_PASSWORD_FILE = lib.mkIf (!(builtins.isString cfg.smtp)) (toString cfg.smtp.passwordFile);
       };
       settings = {
         server.host = "127.0.0.1";
@@ -207,7 +226,7 @@ in
         };
         totp = {
           disable = "false";
-          issuer = fqdn;
+          issuer = fqdnWithPort;
           algorithm = "sha1";
           digits = "6";
           period = "30";
@@ -217,7 +236,7 @@ in
         # Inspired from https://www.authelia.com/configuration/session/introduction/ and https://www.authelia.com/configuration/session/redis
         session = {
           name = "authelia_session";
-          domain = cfg.domain;
+          domain = if isNull cfg.port then cfg.domain else "${cfg.domain}:${toString cfg.port}";
           same_site = "lax";
           expiration = "1h";
           inactivity = "5m";
@@ -238,10 +257,10 @@ in
           };
         };
         notifier = {
-          filesystem = lib.mkIf (isNull cfg.smtp) {
-            filename = "/tmp/authelia-notifications";
+          filesystem = lib.mkIf (builtins.isString cfg.smtp) {
+            filename = cfg.smtp;
           };
-          smtp = lib.mkIf (!(isNull cfg.smtp)) {
+          smtp = lib.mkIf (!(builtins.isString cfg.smtp)) {
             host = cfg.smtp.host;
             port = cfg.smtp.port;
             username = cfg.smtp.username;
@@ -260,7 +279,7 @@ in
           ];
           rules = [
             {
-              domain = fqdn;
+              domain = fqdnWithPort;
               policy = "bypass";
               resources = [
                 "^/api/.*"
