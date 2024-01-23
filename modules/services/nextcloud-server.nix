@@ -524,7 +524,6 @@ in
           "opcache.max_accelerated_files" = "10000";
           "opcache.memory_consumption" = "128";
           "opcache.revalidate_freq" = "1";
-          "openssl.cafile" = "/etc/ssl/certs/ca-certificates.cert";
           short_open_tag = "Off";
 
           output_buffering = "Off";
