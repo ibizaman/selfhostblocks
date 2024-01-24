@@ -796,8 +796,9 @@ in
           # oidc_login_alt_login_page = "assets/login.php";
           oidc_login_tls_verify = true;
           # If you get your groups from the oidc_login_attributes, you might want to create them if
-          # they are not already existing, Default is `false`.
-          oidc_create_groups = true;
+          # they are not already existing, Default is `false`. This creates groups for all groups
+          # the user is associated with in LDAP. It's too much.
+          oidc_create_groups = false;
           # Enable use of WebDAV via OIDC bearer token.
           oidc_login_webdav_enabled = true;
           oidc_login_password_authentication = false;
