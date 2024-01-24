@@ -28,33 +28,45 @@
 
             domain = "subdomain.example.com";
           };
+          multi = {
+            ca = config.shb.certs.cas.selfsigned.myca;
+
+            domain = "multi1.example.com";
+            extraDomains = [ "multi2.example.com" "multi3.example.com" ];
+          };
         };
       };
 
       # The configuration below is to create a webserver that uses the server certificate.
-      networking.hosts."127.0.0.1" = [ "example.com" "subdomain.example.com" "wrong.example.com" ];
+      networking.hosts."127.0.0.1" = [
+        "example.com"
+        "subdomain.example.com"
+        "wrong.example.com"
+        "multi1.example.com"
+        "multi2.example.com"
+        "multi3.example.com"
+      ];
 
       services.nginx.enable = true;
-      services.nginx.virtualHosts."example.com" =
-        {
-          onlySSL = true;
-          sslCertificate = config.shb.certs.certs.selfsigned.top.paths.cert;
-          sslCertificateKey = config.shb.certs.certs.selfsigned.top.paths.key;
-          locations."/".extraConfig = ''
-            add_header Content-Type text/plain;
-            return 200 'Top domain';
-          '';
-        };
-      services.nginx.virtualHosts."subdomain.example.com" =
-        {
-          onlySSL = true;
-          sslCertificate = config.shb.certs.certs.selfsigned.subdomain.paths.cert;
-          sslCertificateKey = config.shb.certs.certs.selfsigned.subdomain.paths.key;
-          locations."/".extraConfig = ''
-            add_header Content-Type text/plain;
-            return 200 'Subdomain';
-          '';
-        };
+      services.nginx.virtualHosts =
+        let
+          mkVirtualHost = response: cert: {
+            onlySSL = true;
+            sslCertificate = cert.paths.cert;
+            sslCertificateKey = cert.paths.key;
+            locations."/".extraConfig = ''
+              add_header Content-Type text/plain;
+              return 200 '${response}';
+            '';
+          };
+        in
+          {
+            "example.com" = mkVirtualHost "Top domain" config.shb.certs.certs.selfsigned.top;
+            "subdomain.example.com" = mkVirtualHost "Subdomain" config.shb.certs.certs.selfsigned.subdomain;
+            "multi1.example.com" = mkVirtualHost "multi1" config.shb.certs.certs.selfsigned.multi;
+            "multi2.example.com" = mkVirtualHost "multi2" config.shb.certs.certs.selfsigned.multi;
+            "multi3.example.com" = mkVirtualHost "multi3" config.shb.certs.certs.selfsigned.multi;
+          };
       systemd.services.nginx = {
         after = [ config.shb.certs.certs.selfsigned.top.systemdService config.shb.certs.certs.selfsigned.subdomain.systemdService ];
         requires = [ config.shb.certs.certs.selfsigned.top.systemdService config.shb.certs.certs.selfsigned.subdomain.systemdService ];
@@ -68,6 +80,7 @@
         myotherca = nodes.server.shb.certs.cas.selfsigned.myotherca;
         top = nodes.server.shb.certs.certs.selfsigned.top;
         subdomain = nodes.server.shb.certs.certs.selfsigned.subdomain;
+        multi = nodes.server.shb.certs.certs.selfsigned.multi;
       in
         ''
         start_all()
@@ -81,27 +94,40 @@
         server.wait_for_file("${top.paths.cert}")
         server.wait_for_file("${subdomain.paths.key}")
         server.wait_for_file("${subdomain.paths.cert}")
+        server.wait_for_file("${multi.paths.key}")
+        server.wait_for_file("${multi.paths.cert}")
 
-        # Wait for jkkk
         server.require_unit_state("${nodes.server.shb.certs.systemdService}", "inactive")
 
-        machine.wait_for_unit("nginx")
-        machine.wait_for_open_port(443)
+        server.wait_for_unit("nginx")
+        server.wait_for_open_port(443)
 
         with subtest("Certificate is trusted in curl"):
-            resp = machine.succeed("curl --fail-with-body -v https://example.com")
+            resp = server.succeed("curl --fail-with-body -v https://example.com")
             if resp != "Top domain":
                 raise Exception('Unexpected response, got: {}'.format(resp))
 
-            resp = machine.succeed("curl --fail-with-body -v https://subdomain.example.com")
+            resp = server.succeed("curl --fail-with-body -v https://subdomain.example.com")
             if resp != "Subdomain":
                 raise Exception('Unexpected response, got: {}'.format(resp))
 
+            resp = server.succeed("curl --fail-with-body -v https://multi1.example.com")
+            if resp != "multi1":
+                raise Exception('Unexpected response, got: {}'.format(resp))
+
+            resp = server.succeed("curl --fail-with-body -v https://multi2.example.com")
+            if resp != "multi2":
+                raise Exception('Unexpected response, got: {}'.format(resp))
+
+            resp = server.succeed("curl --fail-with-body -v https://multi3.example.com")
+            if resp != "multi3":
+                raise Exception('Unexpected response, got: {}'.format(resp))
+
         with subtest("Fail if certificate is not in CA bundle"):
-            machine.fail("curl --cacert /etc/static/ssl/certs/ca-bundle.crt --fail-with-body -v https://example.com")
-            machine.fail("curl --cacert /etc/static/ssl/certs/ca-bundle.crt --fail-with-body -v https://subdomain.example.com")
-            machine.fail("curl --cacert /etc/static/ssl/certs/ca-certificates.crt --fail-with-body -v https://example.com")
-            machine.fail("curl --cacert /etc/static/ssl/certs/ca-certificates.crt --fail-with-body -v https://subdomain.example.com")
+            server.fail("curl --cacert /etc/static/ssl/certs/ca-bundle.crt --fail-with-body -v https://example.com")
+            server.fail("curl --cacert /etc/static/ssl/certs/ca-bundle.crt --fail-with-body -v https://subdomain.example.com")
+            server.fail("curl --cacert /etc/static/ssl/certs/ca-certificates.crt --fail-with-body -v https://example.com")
+            server.fail("curl --cacert /etc/static/ssl/certs/ca-certificates.crt --fail-with-body -v https://subdomain.example.com")
         '';
   };
 }

@@ -73,6 +73,20 @@ in
             example = "example.com";
           };
 
+          extraDomains = lib.mkOption {
+            type = lib.types.listOf lib.types.str;
+            description = ''
+              Other domains to generate a certificate for.
+            '';
+            default = [];
+            example = lib.literalExpression ''
+              [
+                "sub1.example.com"
+                "sub2.example.com"
+              ]
+            '';
+          };
+
           paths = lib.mkOption {
             description = ''
               Paths where certs will be located.
@@ -107,6 +121,20 @@ in
               `*.example.com`.
             '';
             example = "example.com";
+          };
+
+          extraDomains = lib.mkOption {
+            type = lib.types.listOf lib.types.str;
+            description = ''
+              Other domains to generate a certificate for.
+            '';
+            default = [];
+            example = lib.literalExpression ''
+              [
+                "sub1.example.com"
+                "sub2.example.com"
+              ]
+            '';
           };
 
           paths = lib.mkOption {
@@ -278,7 +306,11 @@ in
               wantedBy = [ "multi-user.target" ];
               serviceConfig.RuntimeDirectory = serviceName certCfg.systemdService;
               # Taken from https://github.com/NixOS/nixpkgs/blob/7f311dd9226bbd568a43632c977f4992cfb2b5c8/nixos/tests/custom-ca.nix
-              script = ''
+              script =
+                let
+                  extraDnsNames = lib.strings.concatStringsSep "\n" (map (n: "dns_name = ${n}") certCfg.extraDomains);
+                in
+                ''
                 cd $RUNTIME_DIRECTORY
 
                 # server cert template
@@ -287,6 +319,7 @@ in
                 cn = "${certCfg.domain}"
                 expiration_days = 30
                 dns_name = "${certCfg.domain}"
+                ${extraDnsNames}
                 encryption_key
                 signing_key
                 EOF
@@ -327,7 +360,7 @@ in
 
           security.acme.certs = lib.mkMerge (lib.mapAttrsToList (name: certCfg: {
             "${name}" = {
-              extraDomainNames = [ certCfg.domain ];
+              extraDomainNames = [ certCfg.domain ] ++ certCfg.extraDomains;
               email = certCfg.adminEmail;
               inherit (certCfg) dnsProvider dnsResolver;
               credentialsFile = certCfg.credentialsFile;
