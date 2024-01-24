@@ -23,7 +23,7 @@ in
         enable = true;
         dcdomain = "dc=example,dc=com";
         subdomain = "ldap";
-        domain = "example.com";
+        domain = "machine";
         ldapUserPasswordFile = pkgs.writeText "user_password" ldapAdminPassword;
         jwtSecretFile = pkgs.writeText "jwt_secret" "securejwtsecret";
       };
@@ -31,7 +31,7 @@ in
       shb.authelia = {
         enable = true;
         subdomain = "authelia";
-        domain = "example.com";
+        domain = "machine";
         ldapEndpoint = "ldap://127.0.0.1:${builtins.toString config.shb.ldap.ldapPort}";
         dcdomain = config.shb.ldap.dcdomain;
         secrets = {
@@ -45,25 +45,67 @@ in
           identityProvidersOIDCIssuerPrivateKeyFile = pkgs.writeText "identityProvidersOIDCIssuerPrivateKeyFile" (builtins.readFile ./keypair.pem);
         };
 
-
         oidcClients = [
           {
-            id = "myclient";
-            description = "My Client";
+            id = "client1";
+            description = "My Client 1";
             secretFile = pkgs.writeText "secret" "mysecuresecret";
             public = false;
             authorization_policy = "one_factor";
-            redirect_uris = [ "https://myclient.exapmle.com/redirect" ];
+            redirect_uris = [ "http://client1.machine/redirect" ];
+          }
+          {
+            id = "client2";
+            description = "My Client 2";
+            secretFile = pkgs.writeText "secret" "myothersecret";
+            public = false;
+            authorization_policy = "one_factor";
+            redirect_uris = [ "http://client2.machine/redirect" ];
           }
         ];
       };
     };
 
     testScript = { nodes, ... }: ''
+    import json
+
     start_all()
     machine.wait_for_unit("lldap.service")
-    machine.wait_for_unit("authelia-authelia.example.com.service")
+    machine.wait_for_unit("authelia-authelia.machine.service")
+    machine.wait_for_open_port(${toString nodes.machine.services.authelia.instances."authelia.machine".settings.server.port})
 
+    endpoints = json.loads(machine.succeed("curl -s http://machine/.well-known/openid-configuration"))
+    auth_endpoint = endpoints['authorization_endpoint']
+
+    machine.succeed(
+        "curl -f -s '"
+        + auth_endpoint
+        + "?client_id=other"
+        + "&redirect_uri=http://client1.machine/redirect"
+        + "&scope=openid%20profile%20email"
+        + "&response_type=code"
+        + "&state=99999999'"
+    )
+
+    machine.succeed(
+        "curl -f -s '"
+        + auth_endpoint
+        + "?client_id=client1"
+        + "&redirect_uri=http://client1.machine/redirect"
+        + "&scope=openid%20profile%20email"
+        + "&response_type=code"
+        + "&state=11111111'"
+    )
+
+    machine.succeed(
+        "curl -f -s '"
+        + auth_endpoint
+        + "?client_id=client2"
+        + "&redirect_uri=http://client2.machine/redirect"
+        + "&scope=openid%20profile%20email"
+        + "&response_type=code"
+        + "&state=22222222'"
+    )
     '';
   };
 }
