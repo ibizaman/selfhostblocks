@@ -3,27 +3,75 @@
 **This whole demo is highly insecure as all the private keys are available publicly. This is
 only done for convenience as it is just a demo. Do not expose the VM to the internet.**
 
-The [`flake.nix`](./flake.nix) file sets up a Nextcloud server with Self Host Blocks. There are actually 3 demos:
+The [`flake.nix`](./flake.nix) file sets up a Nextcloud server with Self Host Blocks. There are
+actually 3 demos:
 
-- The `basic` demo sets up a lone Nextcloud server accessible through http.
-- The `ldap` demo sets up a Nextcloud server integrated with a LDAP provider.
-- The `sso` demo sets up a Nextcloud server integrated with a LDAP provider and an SSO provider.
+- The `basic` demo sets up a lone Nextcloud server accessible through http with the Preview
+  Generator app enabled.
+- The `ldap` demo builds on top of the `basic` demo integrating Nextcloud with a LDAP provider.
+- The `sso` demo builds on top of the `lsap` demo integrating Nextcloud with a SSO provider.
 
 They were set up by following the [manual](https://shb.skarabox.com/services-nextcloud.html). This
 guide will show how to deploy these demos to a Virtual Machine, like showed
-[here](https://nixos.wiki/wiki/NixOS_modules#Developing_modules), in 4 commands.
+[here](https://nixos.wiki/wiki/NixOS_modules#Developing_modules).
 
 ## Deploy to the VM {#demo-nextcloud-deploy}
 
-### Prerequisite {#demo-nextcloud-deploy-prereq}
+The demos are setup to either deploy to a VM through `nixos-rebuild` or through
+[Colmena](https://colmena.cli.rs).
 
-Build the VM and start it:
+Using `nixos-rebuild` is very fast and requires less steps because it reuses your nix store.
+
+Using `colmena` is more authentic because you are deploying to a stock VM, like you would with a
+real machine but it needs to copy over all required store derivations so it takes a few minutes the
+first time.
+
+### Deploy with nixos-rebuild {#demo-nextcloud-deploy-nixosrebuild}
+
+Assuming your current working directory is the one where this Readme file is located, the one-liner
+command which builds and starts the VM configured to run Self Host Blocks' Nextcloud is:
+
+```nix
+rm nixos.qcow2; \
+  nixos-rebuild build-vm --flake .#basic \
+  && QEMU_NET_OPTS="hostfwd=tcp::2222-:2222,hostfwd=tcp::8080-:80" \
+     ./result/bin/run-nixos-vm
+```
+
+This will deploy the `basic` demo. If you want to deploy the `ldap` or `sso` demos, use respectively
+the `.#ldap` or `.#sso` flake uris.
+
+You can even test the demos from any directory without cloning this repository by using the GitHub
+uri like `github:ibizaman/selfhostblocks?path=demo/nextcloud`
+
+It is very important to remove leftover `nixos.qcow2` files, if any.
+
+You can ssh into the VM like this, but this is not required for the demo:
+
+```bash
+ssh -F ssh_config example
+```
+
+But before that works, you will need to change the permission of the ssh key like so:
+
+```bash
+chmod 600 sshkey
+```
+
+This is only needed because git mangles with the permissions. You will not even see this change in
+`git status`.
+
+### Deploy with Colmena {#demo-nextcloud-deploy-colmena}
+
+If you deploy with Colmena, you must first build the VM and start it:
 
 ```bash
 rm nixos.qcow2; \
   nixos-rebuild build-vm-with-bootloader --fast -I nixos-config=./configuration.nix -I nixpkgs=. ; \
   QEMU_NET_OPTS="hostfwd=tcp::2222-:2222,hostfwd=tcp::8080-:80" ./result/bin/run-nixos-vm
 ```
+
+It is very important to remove leftover `nixos.qcow2` files, if any.
 
 This last call is blocking, so I advice adding a `&` at the end of the command otherwise you will
 need to run the rest of the commands in another terminal.
@@ -67,16 +115,8 @@ This section corresponds to the `basic` section of the [Nextcloud
 manual](services-nextcloud.html#services-nextcloud-server-usage-basic).
 ::::
 
-To deploy a basic Nextcloud with only the Preview Generator app enabled, run:
-
-```bash
-SSH_CONFIG_FILE=ssh_config nix run nixpkgs#colmena --impure -- apply --on basic
-```
-
-The deploy will take a few minutes the first time and subsequent deploys will take around 15
-seconds.
-
-Add the following entry to the `/etc/hosts` file on the host machine (not the VM):
+Assuming you already deployed the `basic` demo, now you must add the following entry to the
+`/etc/hosts` file on the host machine (not the VM):
 
 ```nix
 networking.hosts = {
@@ -106,17 +146,8 @@ This section corresponds to the `ldap` section of the [Nextcloud
 manual](services-nextcloud.html#services-nextcloud-server-usage-ldap).
 ::::
 
-To deploy a Nextcloud configuration with the Preview Generator app and integrated with a LDAP
-service, run:
-
-```bash
-SSH_CONFIG_FILE=ssh_config nix run nixpkgs#colmena --impure -- apply --on ldap
-```
-
-The deploy will take a few minutes the first time and subsequent deploys will take around 15
-seconds.
-
-Add the following entry to the `/etc/hosts` file on the host machine (not the VM):
+Assuming you already deployed the `ldap` demo, now you must add the following entry to the
+`/etc/hosts` file on the host machine (not the VM):
 
 ```nix
 networking.hosts = {
@@ -134,7 +165,8 @@ $ cat /etc/hosts
 Go first to [http://ldap.example.com:8080](http://ldap.example.com:8080) and login with:
 
 - username: `admin`
-- password: the value of the field `lldap.user_password` in the `secrets.yaml` file which is `c2e32e54ea3e0053eb30841f818a3d9a`.
+- password: the value of the field `lldap.user_password` in the `secrets.yaml` file which is
+  `c2e32e54ea3e0053eb30841f818a3d9a`.
 
 Create the group `nextcloud_user` and a create a user and assign them to that group.
 
@@ -153,32 +185,23 @@ This section corresponds to the `sso` section of the [Nextcloud
 manual](services-nextcloud.html#services-nextcloud-server-usage-oidc).
 ::::
 
-To deploy a Nextcloud configuration with the Preview Generator app and integrated with a LDAP
-service and an SSO service, run:
-
-```bash
-SSH_CONFIG_FILE=ssh_config nix run nixpkgs#colmena --impure -- apply --on sso
-```
-
-The deploy will take a few minutes the first time and subsequent deploys will take around 15
-seconds.
-
-Here, there is a `dnsmasq` server running in the VM. You must create a SOCKS proxy to the `dnsmasq`
-service like so:
+At this point, it is assumed you already deployed the `sso` demo. There is no host to add to
+`/etc/hosts` here. Instead, there is a `dnsmasq` server running in the VM and you must create a
+SOCKS proxy to connect to it like so:
 
 ```bash
 ssh -F ssh_config -D 1080 -N example
 ```
 
-This is a blocking call that will create a SOCKS proxy on port 1080. It is not necessary to fork
-this process in the background by appending `&` because we will not need to use the terminal for the
-rest of the demo.
+This is a blocking call but it is not necessary to fork this process in the background by appending
+`&` because we will not need to use the terminal for the rest of the demo.
 
-Now, configure your browser to use that proxy. When that's done go to
+Now, configure your browser to use that SOCKS proxy. When that's done go to
 [https://ldap.example.com](https://ldap.example.com) and login with:
 
 - username: `admin`
-- password: the value of the field `lldap.user_password` in the `secrets.yaml` file which is `c2e32e54ea3e0053eb30841f818a3d9a`.
+- password: the value of the field `lldap.user_password` in the `secrets.yaml` file which is
+  `c2e32e54ea3e0053eb30841f818a3d9a`.
 
 Create the group `nextcloud_user` and a create a user and assign them to that group.
 
@@ -233,39 +256,7 @@ space issue, you must increase the
 
 ### Secrets {#demo-nextcloud-tips-secrets}
 
-_More info about the secrets._
-
-The private key in the `keys.txt` file is created with:
-
-```bash
-$ nix shell nixpkgs#age --command age-keygen -o keys.txt
-Public key: age1algdv9xwjre3tm7969eyremfw2ftx4h8qehmmjzksrv7f2qve9dqg8pug7
-```
-
-We use the printed public key in the `admin` field of the `sops.yaml` file.
-
-The `secrets.yaml` file must follow the format:
-
-```yaml
-nextcloud:
-    adminpass: 43bb4b8f82fc645ce3260b5db803c5a8
-    onlyoffice:
-        jwt_secret: XXX...
-    sso:
-        secret: YYY...
-lldap:
-    user_password: c2e32e54ea3e0053eb30841f818a3d9a
-    jwt_secret: ZZZ...
-authelia:
-    jwt_secret: AAA...
-    storage_encryption_key: BBB...
-    session_secret: CCC...
-    hmac_secret: DDD.
-    private_key: |
-        -----BEGIN PRIVATE KEY-----
-        MII...
-        -----END PRIVATE KEY-----
-```
+_More info about the secrets can be found in the [Usage](https://shb.skarabox.com/usage.html) manual_
 
 To open the `secrets.yaml` file and optionnally edit it, run:
 
@@ -292,9 +283,9 @@ in the `/run/secrets` folder on the VM. We thus need one private key for you to 
 [`secrets.yaml`](./secrets.yaml) file and one in the VM for it to decrypt the secrets.
 
 Your private key is already pre-generated in this repo, it's the [`sshkey`](./sshkey) file. But when
-creating the VM in the step above, a new private key and its accompanying public key were
-automatically generated under `/etc/ssh/ssh_host_ed25519_key` in the VM. We just need to get the
-public key and add it to the `secrets.yaml` which we did in the Deploy section.
+creating the VM for Colmena, a new private key and its accompanying public key were automatically
+generated under `/etc/ssh/ssh_host_ed25519_key` in the VM. We just need to get the public key and
+add it to the `secrets.yaml` which we did in the Deploy section.
 
 ### SSH {#demo-nextcloud-tips-ssh}
 

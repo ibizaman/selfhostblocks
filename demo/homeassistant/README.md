@@ -3,22 +3,74 @@
 **This whole demo is highly insecure as all the private keys are available publicly. This is
 only done for convenience as it is just a demo. Do not expose the VM to the internet.**
 
-The [`flake.nix`](./flake.nix) file sets up a Home Assistant server in only about [15
-lines](./flake.nix#L31-L37) of related code. It also defines a Home Assistant server that integrates with
-a [LDAP server](./flake.nix#L58-L94).
+The [`flake.nix`](./flake.nix) file sets up a Home Assistant server with Self Host Blocks. There are actually 2 demos:
 
-This guide will show how to deploy this setup to a Virtual Machine, like showed
-[here](https://nixos.wiki/wiki/NixOS_modules#Developing_modules), in 4 commands.
+- The `basic` demo sets up a lone Home Assistant server accessible through http.
+- The `ldap` demo builds on top of the `basic` demo integrating Home Assistant with a LDAP provider.
 
-## Deploy to the VM {#demo-homeassistant-deploy-to-the-vm}
+<!--
+They were set up by following the [manual](https://shb.skarabox.com/services-homeassistant.html).
+-->
 
-Build the VM and start it:
+This guide will show how to deploy these demos to a Virtual Machine, like showed
+[here](https://nixos.wiki/wiki/NixOS_modules#Developing_modules).
+
+## Deploy to the VM {#demo-homeassistant-deploy}
+
+The demos are setup to either deploy to a VM through `nixos-rebuild` or through
+[Colmena](https://colmena.cli.rs).
+
+Using `nixos-rebuild` is very fast and requires less steps because it reuses your nix store.
+
+Using `colmena` is more authentic because you are deploying to a stock VM, like you would with a
+real machine but it needs to copy over all required store derivations so it takes a few minutes the
+first time.
+
+### Deploy with nixos-rebuild {#demo-homeassistant-deploy-nixosrebuild}
+
+Assuming your current working directory is the one where this Readme file is located, the one-liner
+command which builds and starts the VM configured to run Self Host Blocks' Nextcloud is:
+
+```nix
+rm nixos.qcow2; \
+  nixos-rebuild build-vm --flake .#basic \
+  && QEMU_NET_OPTS="hostfwd=tcp::2222-:2222,hostfwd=tcp::8080-:80" \
+     ./result/bin/run-nixos-vm
+```
+
+This will deploy the `basic` demo. If you want to deploy the `ldap` demo, use the `.#ldap` flake
+uris.
+
+You can even test the demos from any directory without cloning this repository by using the GitHub
+uri like `github:ibizaman/selfhostblocks?path=demo/nextcloud`
+
+It is very important to remove leftover `nixos.qcow2` files, if any.
+
+You can ssh into the VM like this, but this is not required for the demo:
+
+```bash
+ssh -F ssh_config example
+```
+
+But before that works, you will need to change the permission of the ssh key like so:
+
+```bash
+chmod 600 sshkey
+```
+
+This is only needed because git mangles with the permissions. You will not even see this change in
+`git status`.
+### Deploy with Colmena {#demo-homeassitant-deploy-colmena}
+
+If you deploy with Colmena, you must first build the VM and start it:
 
 ```bash
 rm nixos.qcow2; \
   nixos-rebuild build-vm-with-bootloader --fast -I nixos-config=./configuration.nix -I nixpkgs=. ; \
   QEMU_NET_OPTS="hostfwd=tcp::2222-:2222,hostfwd=tcp::8080-:80" ./result/bin/run-nixos-vm
 ```
+
+It is very important to remove leftover `nixos.qcow2` files, if any.
 
 This last call is blocking, so I advice adding a `&` at the end of the command otherwise you will
 need to run the rest of the commands in another terminal.
@@ -55,24 +107,17 @@ You can ssh into the VM with, but this is not required for the demo:
 ssh -F ssh_config example
 ```
 
-Finally, we can deploy. To deploy a Home Assistant server, run:
+### Home Assistant through HTTP {#demo-homeassistant-deploy-basic}
 
-```bash
-SSH_CONFIG_FILE=ssh_config nix run nixpkgs#colmena --impure -- apply --on basic
-```
+<!--
+:::: {.note}
+This section corresponds to the `basic` section of the [Home Assistant
+manual](services-nextcloud.html#services-homeassistant-server-usage-basic).
+::::
+-->
 
-To deploy a Home Assistant server integrated with a LDAP service, run:
-
-```bash
-SSH_CONFIG_FILE=ssh_config nix run nixpkgs#colmena --impure -- apply --on ldap
-```
-
-The deploy will take a few minutes the first time and subsequent deploys will take around 15
-seconds.
-
-## Access Home Assistant Through Your Browser {#demo-homeassistant-access-through-your-browser}
-
-Add the following entry to your `/etc/hosts` file:
+Assuming you already deployed the `basic` demo, now you must add the following entry to the
+`/etc/hosts` file on the host machine (not the VM):
 
 ```nix
 networking.hosts = {
@@ -87,7 +132,22 @@ $ cat /etc/hosts
 127.0.0.1 ha.example.com
 ```
 
-If you deployed the `ldap` target host, add instead:
+Go to [http://ha.example.com:8080](http://ha.example.com:8080) and you will be greeted with the Home
+Assistant setup wizard which will allow you to create an admin user.
+
+And that's the end of the demo
+
+### Home Assistant with LDAP through HTTP {#demo-homeassistant-deploy-ldap}
+
+<!--
+:::: {.note}
+This section corresponds to the `ldap` section of the [Home Assistant
+manual](services-nextcloud.html#services-homeassistant-server-usage-ldap).
+::::
+-->
+
+Assuming you already deployed the `ldap` demo, now you must add the following entry to the
+`/etc/hosts` file on the host machine (not the VM):
 
 ```nix
 networking.hosts = {
@@ -95,12 +155,14 @@ networking.hosts = {
 };
 ```
 
-If you deployed the `basic` target host, go to
-[http://ha.example.com:8080](http://ha.example.com:8080) and you will be greeted with the Home
-Assistant setup wizard which will allow you to create an admin user:
+Which produces:
 
-And that's the end of the demo. Otherwise if you deployed the `ldap` target host, go first to
-[http://ldap.example.com:8080](http://ldap.example.com:8080) and login with:
+```bash
+$ cat /etc/hosts
+127.0.0.1 ha.example.com ldap.example.com
+```
+
+Go first to [http://ldap.example.com:8080](http://ldap.example.com:8080) and login with:
 
 - username: `admin`
 - password: the value of the field `lldap.user_password` in the `secrets.yaml` file which is `fccb94f0f64bddfe299c81410096499a`.
@@ -155,16 +217,7 @@ space issue, you must increase the
 
 ### Secrets {#demo-homeassistant-secrets}
 
-_More info about the secrets._
-
-The private key in the `keys.txt` file is created with:
-
-```bash
-$ nix shell nixpkgs#age --command age-keygen -o keys.txt
-Public key: age1algdv9xwjre3tm7969eyremfw2ftx4h8qehmmjzksrv7f2qve9dqg8pug7
-```
-
-We use the printed public key in the `admin` field of the `sops.yaml` file.
+_More info about the secrets can be found in the [Usage](https://shb.skarabox.com/usage.html) manual_
 
 To open the `secrets.yaml` file and optionnally edit it, run:
 
@@ -198,9 +251,9 @@ You can generate random secrets with:
 $ nix run nixpkgs#openssl -- rand -hex 64
 ```
 
-If you choose a password too small, ldap could refuse to start.
+If you choose a password too small, some services could refuse to start.
 
-#### Why do we need the VM's public key {#demo-homeassistant-public-key-necessity}
+#### Why do we need the VM's public key {#demo-homeassistant-tips-public-key-necessity}
 
 The [`sops.yaml`](./sops.yaml) file describes what private keys can decrypt and encrypt the
 [`secrets.yaml`](./secrets.yaml) file containing the application secrets. Usually, you will create and add
@@ -209,11 +262,11 @@ in the `/run/secrets` folder on the VM. We thus need one private key for you to 
 [`secrets.yaml`](./secrets.yaml) file and one in the VM for it to decrypt the secrets.
 
 Your private key is already pre-generated in this repo, it's the [`sshkey`](./sshkey) file. But when
-creating the VM in the step above, a new private key and its accompanying public key were
-automatically generated under `/etc/ssh/ssh_host_ed25519_key` in the VM. We just need to get the
-public key and add it to the `secrets.yaml` which we did in the Deploy section.
+creating the VM for Colmena, a new private key and its accompanying public key were automatically
+generated under `/etc/ssh/ssh_host_ed25519_key` in the VM. We just need to get the public key and
+add it to the `secrets.yaml` which we did in the Deploy section.
 
-### SSH {#demo-homeassistant-ssh}
+### SSH {#demo-homeassistant-tips-ssh}
 
 The private and public ssh keys were created with:
 
@@ -231,7 +284,7 @@ authentication, here is what you would need to do to copy over the key:
 nix shell nixpkgs#openssh --command ssh-copy-id -i sshkey -F ssh_config example
 ```
 
-### Deploy {#demo-homeassistant-deploy}
+### Deploy {#demo-homeassistant-tips-deploy}
 
 If you get a NAR hash mismatch error like hereunder, you need to run `nix flake lock --update-input
 selfhostblocks`.
@@ -240,7 +293,7 @@ selfhostblocks`.
 error: NAR hash mismatch in input ...
 ```
 
-### Update Demo {#demo-homeassistant-update-demo}
+### Update Demo {#demo-homeassistant-tips-update-demo}
 
 If you update the Self Host Blocks configuration in `flake.nix` file, you can just re-deploy.
 

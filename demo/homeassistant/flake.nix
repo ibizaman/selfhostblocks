@@ -5,28 +5,14 @@
     selfhostblocks.url = "github:ibizaman/selfhostblocks";
   };
 
-  outputs = inputs@{ self, selfhostblocks, ... }: {
-    colmena = {
-      meta = {
-        nixpkgs = import selfhostblocks.inputs.nixpkgs {
-          system = "x86_64-linux";
-        };
-        specialArgs = inputs;
-      };
-
-      basic = { config, ... }: {
+  outputs = inputs@{ self, selfhostblocks, ... }:
+    let
+      basic = { config, ...  }: {
         imports = [
           ./configuration.nix
           selfhostblocks.inputs.sops-nix.nixosModules.default
           selfhostblocks.nixosModules.x86_64-linux.default
         ];
-
-        # Used by colmena to know which target host to deploy to.
-        deployment = {
-          targetHost = "example";
-          targetUser = "nixos";
-          targetPort = 2222;
-        };
 
         shb.home-assistant = {
           enable = true;
@@ -38,26 +24,9 @@
         nixpkgs.config.permittedInsecurePackages = [
           "openssl-1.1.1w"
         ];
-
-        # Set to true for more debug info with `journalctl -f -u nginx`.
-        shb.nginx.accessLog = false;
-        shb.nginx.debugLog = false;
       };
 
-      ldap = { config, ... }: {
-        imports = [
-          ./configuration.nix
-          selfhostblocks.inputs.sops-nix.nixosModules.default
-          selfhostblocks.nixosModules.x86_64-linux.default
-        ];
-
-        # Used by colmena to know which target host to deploy to.
-        deployment = {
-          targetHost = "example";
-          targetUser = "nixos";
-          targetPort = 2222;
-        };
-
+      ldap = { config, ...  }: {
         shb.ldap = {
           enable = true;
           domain = "example.com";
@@ -83,23 +52,73 @@
           restartUnits = [ "lldap.service" ];
         };
 
-        shb.home-assistant = {
+        shb.home-assistant.ldap = {
           enable = true;
-          domain = "example.com";
-          ldap = {
-            enable = true;
-            host = "127.0.0.1";
-            port = config.shb.ldap.webUIListenPort;
-            userGroup = "homeassistant_user";
+          host = "127.0.0.1";
+          port = config.shb.ldap.webUIListenPort;
+          userGroup = "homeassistant_user";
+        };
+      };
+
+      sopsConfig = {
+        sops.age.keyFile = "/etc/sops/my_key";
+        environment.etc."sops/my_key".source = ./keys.txt;
+      };
+    in
+      {
+        nixosConfigurations = {
+          basic = selfhostblocks.inputs.nixpkgs.lib.nixosSystem {
+            system = "x86_64-linux";
+            modules = [
+              basic
+              sopsConfig
+            ];
           };
-          subdomain = "ha";
-          sopsFile = ./secrets.yaml;
+
+          ldap = selfhostblocks.inputs.nixpkgs.lib.nixosSystem {
+            system = "x86_64-linux";
+            modules = [
+              basic
+              ldap
+              sopsConfig
+            ];
+          };
         };
 
-        nixpkgs.config.permittedInsecurePackages = [
-          "openssl-1.1.1w"
-        ];
+        colmena = {
+          meta = {
+            nixpkgs = import selfhostblocks.inputs.nixpkgs {
+              system = "x86_64-linux";
+            };
+            specialArgs = inputs;
+          };
+
+          basic = { config, ... }: {
+            imports = [
+              basic
+            ];
+
+            # Used by colmena to know which target host to deploy to.
+            deployment = {
+              targetHost = "example";
+              targetUser = "nixos";
+              targetPort = 2222;
+            };
+          };
+
+          ldap = { config, ... }: {
+            imports = [
+              basic
+              ldap
+            ];
+
+            # Used by colmena to know which target host to deploy to.
+            deployment = {
+              targetHost = "example";
+              targetUser = "nixos";
+              targetPort = 2222;
+            };
+          };
+        };
       };
-    };
-  };
 }
