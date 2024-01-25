@@ -22,6 +22,7 @@ in
   boot.loader.grub.configurationLimit = 1;
   # The NixOS /nix/.rw-store mountpoint is backed by tmpfs which uses memory. We need to increase
   # the available disk space to install home-assistant.
+  virtualisation.vmVariant.virtualisation.memorySize = 8192;
   virtualisation.vmVariantWithBootLoader.virtualisation.memorySize = 8192;
 
   # Options above are needed to deploy in a VM.
