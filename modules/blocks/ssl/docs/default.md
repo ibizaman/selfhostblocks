@@ -20,6 +20,10 @@ The contract for this block is defined in [`/modules/contracts/ssl.nix`](@REPO@/
 
 Every module implementing this contract provides the following options:
 
+- `domain`: Domain to generate the certificate for.
+- `extraDomains`: Other domains the certificate should be generated for.
+- `group`: The unix group owning this certificate.
+- `reloadServices`: Systemd services to reload when the certificate gets renewed.
 - `paths.cert`: Path to the cert file.
 - `paths.key`: Path to the key file.
 - `systemdService`: Systemd oneshot service used to generate the certificate.
@@ -53,14 +57,20 @@ shb.certs.certs.selfsigned = {
     ca = config.shb.certs.cas.selfsigned.myca;
 
     domain = "example.com";
+    group = "nginx";
+    reloadServices = [ "nginx.service" ];
   };
   "www.example.com" = {
     ca = config.shb.certs.cas.selfsigned.myca;
 
     domain = "www.example.com";
+    group = "nginx";
   };
 };
 ```
+
+The group has been chosen to be `nginx` to be consistent with the examples further down in this
+document.
 
 ### Let's Encrypt {#ssl-block-impl-lets-encrypt}
 
@@ -71,6 +81,7 @@ We can ask Let's Encrypt to generate a certificate with:
 ```nix
 shb.certs.certs.letsencrypt."example.com" = {
   domain = "example.com";
+  group = "nginx";
   dnsProvider = "linode";
   adminEmail = "admin@example.com";
   credentialsFile = /path/to/secret/file;

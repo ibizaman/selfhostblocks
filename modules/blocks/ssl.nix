@@ -87,6 +87,15 @@ in
             '';
           };
 
+          group = lib.mkOption {
+            type = lib.types.str;
+            description = ''
+              Unix group owning this certificate.
+            '';
+            default = "root";
+            example = "nginx";
+          };
+
           paths = lib.mkOption {
             description = ''
               Paths where certs will be located.
@@ -104,6 +113,15 @@ in
             description = "Systemd oneshot service used to generate the certs.";
             type = lib.types.str;
             default = "shb-certs-cert-selfsigned-${config._module.args.name}.service";
+          };
+
+          reloadServices = lib.mkOption {
+            description = ''
+              The list of systemd services to call `systemctl try-reload-or-restart` on.
+            '';
+            type = lib.types.listOf lib.types.str;
+            default = [];
+            example = [ "nginx.service" ];
           };
         };
       }));
@@ -150,10 +168,28 @@ in
             };
           };
 
+          group = lib.mkOption {
+            type = lib.types.nullOr lib.types.str;
+            description = ''
+              Unix group owning this certificate.
+            '';
+            default = "acme";
+            example = "nginx";
+          };
+
           systemdService = lib.mkOption {
             description = "Systemd oneshot service used to generate the certs.";
             type = lib.types.str;
             default = "shb-certs-cert-letsencrypt-${config._module.args.name}.service";
+          };
+
+          reloadServices = lib.mkOption {
+            description = ''
+              The list of systemd services to call `systemctl try-reload-or-restart` on.
+            '';
+            type = lib.types.listOf lib.types.str;
+            default = [];
+            example = [ "nginx.service" ];
           };
 
           dnsProvider = lib.mkOption {
@@ -245,7 +281,6 @@ in
               before = [ config.shb.certs.systemdService ];
               serviceConfig.Type = "oneshot";
               serviceConfig.RuntimeDirectory = serviceName caCfg.systemdService;
-              # serviceConfig.User = "nextcloud";
               # Taken from https://github.com/NixOS/nixpkgs/blob/7f311dd9226bbd568a43632c977f4992cfb2b5c8/nixos/tests/custom-ca.nix
               script = ''
                 cd $RUNTIME_DIRECTORY
@@ -278,6 +313,7 @@ in
             }
           ) cfg.cas.selfsigned;
         }
+        # Config for self-signed CA bundle.
         {
           systemd.services.${serviceName config.shb.certs.systemdService} = (lib.mkIf (cfg.cas.selfsigned != {}) {
             wantedBy = [ "multi-user.target" ];
@@ -309,6 +345,11 @@ in
               script =
                 let
                   extraDnsNames = lib.strings.concatStringsSep "\n" (map (n: "dns_name = ${n}") certCfg.extraDomains);
+                  chmod = cert:
+                    ''
+                      chown root:${certCfg.group} ${cert}
+                      chmod 640 ${cert}
+                    '';
                 in
                 ''
                 cd $RUNTIME_DIRECTORY
@@ -330,7 +371,7 @@ in
                   --key-type rsa             \
                   --sec-param High           \
                   --outfile ${certCfg.paths.key}
-                chmod 666 ${certCfg.paths.key}
+                ${chmod certCfg.paths.key}
 
                 mkdir -p "$(dirname -- "${certCfg.paths.cert}")"
                 ${pkgs.gnutls}/bin/certtool                      \
@@ -340,7 +381,11 @@ in
                   --load-ca-certificate ${certCfg.ca.paths.cert} \
                   --template server.template                     \
                   --outfile ${certCfg.paths.cert}
-                chmod 666 ${certCfg.paths.cert}
+                ${chmod certCfg.paths.cert}
+              '';
+
+              postStart = lib.optionalString (certCfg.reloadServices != []) ''
+                systemctl --no-block try-reload-or-restart ${lib.escapeShellArgs certCfg.reloadServices}
               '';
 
               serviceConfig.Type = "oneshot";
@@ -363,6 +408,7 @@ in
               extraDomainNames = [ certCfg.domain ] ++ certCfg.extraDomains;
               email = certCfg.adminEmail;
               inherit (certCfg) dnsProvider dnsResolver;
+              inherit (certCfg) group reloadServices;
               credentialsFile = certCfg.credentialsFile;
               enableDebugLogs = certCfg.debug;
             };
