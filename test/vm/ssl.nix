@@ -8,6 +8,21 @@
         ../../modules/blocks/ssl.nix
       ];
 
+      users.users = {
+        user1 = {
+          group = "group1";
+          isSystemUser = true;
+        };
+        user2 = {
+          group = "group2";
+          isSystemUser = true;
+        };
+      };
+      users.groups = {
+        group1 = {};
+        group2 = {};
+      };
+
       shb.certs = {
         cas.selfsigned = {
           myca = {
@@ -22,17 +37,32 @@
             ca = config.shb.certs.cas.selfsigned.myca;
 
             domain = "example.com";
+            group = "nginx";
           };
           subdomain = {
             ca = config.shb.certs.cas.selfsigned.myca;
 
             domain = "subdomain.example.com";
+            group = "nginx";
           };
           multi = {
             ca = config.shb.certs.cas.selfsigned.myca;
 
             domain = "multi1.example.com";
             extraDomains = [ "multi2.example.com" "multi3.example.com" ];
+            group = "nginx";
+          };
+
+          cert1 = {
+            ca = config.shb.certs.cas.selfsigned.myca;
+
+            domain = "cert1.example.com";
+          };
+          cert2 = {
+            ca = config.shb.certs.cas.selfsigned.myca;
+
+            domain = "cert2.example.com";
+            group = "group2";
           };
         };
       };
@@ -81,6 +111,9 @@
         top = nodes.server.shb.certs.certs.selfsigned.top;
         subdomain = nodes.server.shb.certs.certs.selfsigned.subdomain;
         multi = nodes.server.shb.certs.certs.selfsigned.multi;
+        cert1 = nodes.server.shb.certs.certs.selfsigned.cert1;
+        cert2 = nodes.server.shb.certs.certs.selfsigned.cert2;
+        cert3 = nodes.server.shb.certs.certs.selfsigned.cert3;
       in
         ''
         start_all()
@@ -96,11 +129,26 @@
         server.wait_for_file("${subdomain.paths.cert}")
         server.wait_for_file("${multi.paths.key}")
         server.wait_for_file("${multi.paths.cert}")
+        server.wait_for_file("${cert1.paths.key}")
+        server.wait_for_file("${cert1.paths.cert}")
+        server.wait_for_file("${cert2.paths.key}")
+        server.wait_for_file("${cert2.paths.cert}")
 
         server.require_unit_state("${nodes.server.shb.certs.systemdService}", "inactive")
 
         server.wait_for_unit("nginx")
         server.wait_for_open_port(443)
+
+        def assert_owner(path, user, group):
+            owner = server.succeed("stat --format '%U:%G' {}".format(path)).strip();
+            want_owner = user + ":" + group
+            if owner != want_owner:
+                raise Exception('Unexpected owner for {}: wanted "{}", got: "{}"'.format(path, want_owner, owner))
+
+        def assert_perm(path, want_perm):
+            perm = server.succeed("stat --format '%a' {}".format(path)).strip();
+            if perm != want_perm:
+                raise Exception('Unexpected perm for {}: wanted "{}", got: "{}"'.format(path, want_perm, perm))
 
         with subtest("Certificate is trusted in curl"):
             resp = server.succeed("curl --fail-with-body -v https://example.com")
@@ -122,6 +170,17 @@
             resp = server.succeed("curl --fail-with-body -v https://multi3.example.com")
             if resp != "multi3":
                 raise Exception('Unexpected response, got: {}'.format(resp))
+
+        with subtest("Certificate has correct permission"):
+            assert_owner("${cert1.paths.key}", "root", "root")
+            assert_owner("${cert1.paths.cert}", "root", "root")
+            assert_perm("${cert1.paths.key}", "640")
+            assert_perm("${cert1.paths.cert}", "640")
+            
+            assert_owner("${cert2.paths.key}", "root", "group2")
+            assert_owner("${cert2.paths.cert}", "root", "group2")
+            assert_perm("${cert2.paths.key}", "640")
+            assert_perm("${cert2.paths.cert}", "640")
 
         with subtest("Fail if certificate is not in CA bundle"):
             server.fail("curl --cacert /etc/static/ssl/certs/ca-bundle.crt --fail-with-body -v https://example.com")
