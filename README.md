@@ -2,6 +2,10 @@
 
 *Building blocks for self-hosting with battery included.*
 
+[![Tests](https://github.com/ibizaman/selfhostblocks/actions/workflows/test.yml/badge.svg)](https://github.com/ibizaman/selfhostblocks/actions/workflows/test.yml)
+[![Demo](https://github.com/ibizaman/selfhostblocks/actions/workflows/demo.yml/badge.svg)](https://github.com/ibizaman/selfhostblocks/actions/workflows/demo.yml)
+[![Documentation](https://github.com/ibizaman/selfhostblocks/actions/workflows/docs.yml/badge.svg)](https://github.com/ibizaman/selfhostblocks/actions/workflows/docs.yml)
+
 SHB's (Self Host Blocks) goal is to provide a lower entry-bar for self-hosting. SHB provides
 opinionated [building blocks](#building-blocks) fitting together to self-host any service you'd
 want. Some [common services](#provided-services) are provided out of the box.
