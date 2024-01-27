@@ -8,14 +8,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Install Nix
         uses: DeterminateSystems/nix-installer-action@main
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           extra-conf: "system-features = nixos-test benchmark big-parallel kvm"
       - name: Setup Caching
-        uses: cachix/cachix-action@v12
+        uses: cachix/cachix-action@v14
         with:
           name: selfhostblocks
           authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'
@@ -38,14 +38,14 @@ jobs:
           - nextcloud#sso
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Install Nix
         uses: DeterminateSystems/nix-installer-action@main
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           extra-conf: "system-features = nixos-test benchmark big-parallel kvm"
       - name: Setup Caching
-        uses: cachix/cachix-action@v12
+        uses: cachix/cachix-action@v14
         with:
           name: selfhostblocks
           authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'
@@ -68,14 +68,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Install Nix
         uses: DeterminateSystems/nix-installer-action@main
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           extra-conf: "system-features = nixos-test benchmark big-parallel kvm"
       - name: Setup Caching
-        uses: cachix/cachix-action@v12
+        uses: cachix/cachix-action@v14
         with:
           name: selfhostblocks
           authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'
