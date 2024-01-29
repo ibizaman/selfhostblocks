@@ -2,7 +2,7 @@
 
 | Service               | Backup | Reverse Proxy | SSO | LDAP  | Monitoring | Profiling |
 |-----------------------|--------|---------------|-----|-------|------------|-----------|
-| [Nextcloud Server][1] | P (1)  | Y             | N   | Y     | Y          | P (2)     |
+| [Nextcloud Server][1] | P (1)  | Y             | Y   | Y     | Y          | P (2)     |
 
 Legend: **N**: no but WIP; **P**: partial; **Y**: yes
 
