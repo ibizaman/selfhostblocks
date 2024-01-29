@@ -344,6 +344,10 @@ configuration can be found with `systemctl cat nginx | grep -om 1 -e "[^ ]\+conf
 
 Enable verbose logging by setting the `shb.nextcloud.debug` boolean to `true`.
 
+Access the database with `sudo -u nextcloud psql`.
+
+Access Redis with `sudo -u nextcloud redis-cli -s /run/redis-nextcloud/redis.sock`.
+
 ## Options Reference {#services-nextcloud-server-options}
 
 ```{=include=} options
