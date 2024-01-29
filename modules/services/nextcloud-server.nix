@@ -12,8 +12,8 @@ let
   contracts = pkgs.callPackage ../contracts {};
 
   # Make sure to bump both nextcloudPkg and nextcloudApps at the same time.
-  nextcloudPkg = pkgs.nextcloud27;
-  nextcloudApps = pkgs.nextcloud27Packages.apps;
+  nextcloudPkg = version: builtins.getAttr ("nextcloud" + builtins.toString version) pkgs;
+  nextcloudApps = version: (builtins.getAttr ("nextcloud" + builtins.toString version + "Packages") pkgs).apps;
 
   occ = "${config.services.nextcloud.occ}/bin/nextcloud-occ";
 in
@@ -68,6 +68,12 @@ in
       type = lib.types.nullOr lib.types.str;
       example = "nextcloud.domain.com:8080";
       default = null;
+    };
+
+    version = lib.mkOption {
+      description = "Nextcloud version to choose from.";
+      type = lib.types.enum [ 27 28 ];
+      default = 27;
     };
 
     dataDir = lib.mkOption {
@@ -459,7 +465,7 @@ in
       # not loading to realize those scripts are inserted by extensions. Doh.
       services.nextcloud = {
         enable = true;
-        package = nextcloudPkg;
+        package = nextcloudPkg cfg.version;
 
         datadir = cfg.dataDir;
 
@@ -490,7 +496,7 @@ in
         # Very important for a bunch of scripts to load correctly. Otherwise you get Content-Security-Policy errors. See https://docs.nextcloud.com/server/13/admin_manual/configuration_server/harden_server.html#enable-http-strict-transport-security
         https = !(isNull cfg.ssl);
 
-        extraApps = if isNull cfg.extraApps then {} else cfg.extraApps nextcloudApps;
+        extraApps = if isNull cfg.extraApps then {} else cfg.extraApps (nextcloudApps cfg.version);
         extraAppsEnable = true;
         appstoreEnable = true;
 
@@ -604,7 +610,7 @@ in
       ];
 
       services.nextcloud.extraApps = {
-        inherit (nextcloudApps) onlyoffice;
+        inherit ((nextcloudApps cfg.version)) onlyoffice;
       };
 
       services.onlyoffice = {
@@ -632,7 +638,7 @@ in
 
     (lib.mkIf cfg.apps.previewgenerator.enable {
       services.nextcloud.extraApps = {
-        inherit (nextcloudApps) previewgenerator;
+        inherit ((nextcloudApps cfg.version)) previewgenerator;
       };
 
       # Configured as defined in https://github.com/nextcloud/previewgenerator
