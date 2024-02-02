@@ -23,6 +23,10 @@ blocks.md
 demos.md
 ```
 
+```{=include=} chapters html:into-file=//contributing.html
+contributing.md
+```
+
 ```{=include=} appendix html:into-file=//options.html
 options.md
 ```
