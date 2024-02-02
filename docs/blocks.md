@@ -26,6 +26,10 @@ Self Host Blocks provides at least one implementation for each block and allows 
 implementation if you want to, as long as it passes the tests. You can then use blocks to improve
 services you already have deployed.
 
+::: {.note}
+Not all blocks are yet documented. You can find all available blocks [in the repository](@REPO@/modules/blocks).
+:::
+
 ```{=include=} chapters html:into-file=//blocks-ssl.html
 modules/blocks/ssl/docs/default.md
 ```
