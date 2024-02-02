@@ -1,5 +1,15 @@
 # Services {#services}
 
+Services are usually web applications that SHB help you self-host. Configuration of those is
+purposely made opinionated and require as few nix options as can make sense. That is possible thanks to the extensive use of blocks provided by SHB.
+
+::: {.note}
+Not all services are yet documented. You can find all available services [in the repository](@REPO@/modules/services).
+:::
+
+The following table summarizes for each documented service what features it provides. More
+information is provided in the respective manual sections.
+
 | Service               | Backup | Reverse Proxy | SSO | LDAP  | Monitoring | Profiling |
 |-----------------------|--------|---------------|-----|-------|------------|-----------|
 | [Nextcloud Server][1] | P (1)  | Y             | Y   | Y     | Y          | P (2)     |

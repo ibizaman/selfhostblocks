@@ -11,8 +11,10 @@ Come hang out in the [Matrix channel](https://matrix.to/#/%23selfhostblocks%3Ama
 
 ## Upstream Changes {#contributing-upstream}
 
-Along the way, I made quite a few changes to the ubderlying nixpkgs module I'm using. I intend to
-upstream to nixpkgs as much of those as makes sense.
+One important goal of SHB is to be the smallest amount of code above what is available in
+[nixpkgs](https://github.com/NixOS/nixpkgs). It should be the minimum necessary to make packages
+available there conform with the contracts. This way, there are less chance of breakage when nixpkgs
+gets updated. I intend to upstream to nixpkgs as much of those as makes sense.
 
 ## Run tests {#contributing-runtests}
 

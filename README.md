@@ -62,16 +62,22 @@ specifically:
 - user-defined abstractions (create your own functions or NixOS modules on top of SHB!);
 - integration with the rest of nixpkgs.
 
-Also, SHB intends to be a library, not a framework, so you can make it fit in your existing
-deployment, slowly transitioning to using SHB one block or service at a time.
+In no particular order, here are some aspects of SHB which I find interesting and differentiates it
+from other server management projects:
 
-Each [building block](#available-blocks) defines a part of what a self-hosted app should provide.
-For example, HTTPS access through a subdomain or Single Sign-On. The goal of SHB is to make sure
-those blocks all fit together, whatever the actual implementation you choose. For example, the
-subdomain access could be done using Caddy or Nginx. This is achieved by providing an explicit
-contract for each block like for the [SSL
-block](https://shb.skarabox.com/blocks-ssl.html#ssl-block-contract) and validating that contract
-using NixOS VM integration tests.
+- SHB intends to be a library, not a framework. You can either go all in and use SHB provided
+  services directly or use just one block in your existing infrastructure.
+- SHB introduces contracts to allow you to swap implementation for each self-hosting need.
+  For example, you should be able to use the reverse proxy you want without modifying any services
+  depending on it.
+- SHB contracts also allows you to use your own custom implementation instead of the provided one,
+  as long as it follows the contract and passes the tests.
+- SHB provides at least one implementation for each self-hosting need like backups, SSL
+  certificates, reverse proxy, VPN, etc. Those are called blocks here. They are documented in [the
+  manual](https://shb.skarabox.com/blocks.html).
+- SHB follows nixpkgs unstable branch closely. There is a GitHub action running daily that updates
+  the `nixpkgs` input in the root `flakes.nix`, runs the tests and merges a PR with the new input if
+  the tests pass.
 
 ## Manual
 
@@ -125,14 +131,13 @@ the services on your own server.
 ## Community
 
 All issues and PRs are welcome. For PRs, if they are substantial changes, please open an issue to
-discuss the details first.
+discuss the details first. More details in [here](https://shb.skarabox.com/contributing.html).
 
 Come hang out in the [Matrix channel](https://matrix.to/#/%23selfhostblocks%3Amatrix.org). :)
 
-One important goal of SHB is to be the smallest amount of code above what is available in
-[nixpkgs](https://github.com/NixOS/nixpkgs). It should be the minimum necessary to make packages
-available there conform with the contracts. This way, there are less chance of breakage when nixpkgs
-gets updated. I intend to upstream to nixpkgs as much of those as makes sense.
+One aspect that's close to my heart is I intent to make SHB the lightest layer on top of nixpkgs as
+possible. I want to upstream as much as possible. I will still take some time to experiment here but
+when I'm satisfied with how things look, I'll upstream changes.
 
 ## License
 
