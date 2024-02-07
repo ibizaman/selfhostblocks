@@ -30,6 +30,7 @@ in
         subdomain = "n";
         dataDir = "/var/lib/nextcloud";
         tracing = null;
+        defaultPhoneRegion = "US";
 
         # This option is only needed because we do not access Nextcloud at the default port in the VM.
         externalFqdn = "n.example.com:8080";
