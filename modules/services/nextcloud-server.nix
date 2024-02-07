@@ -103,6 +103,14 @@ in
       '';
     };
 
+    defaultPhoneRegion = lib.mkOption {
+      type = lib.types.str;
+      description = ''
+        Two letters region defining default region.
+      '';
+      example = "US";
+    };
+
     postgresSettings = lib.mkOption {
       type = lib.types.nullOr (lib.types.attrsOf lib.types.str);
       default = null;
@@ -478,9 +486,6 @@ in
           dbtype = "pgsql";
           adminuser = cfg.adminUser;
           adminpassFile = toString cfg.adminPassFile;
-          # Not using dbpassFile as we're using socket authentication.
-          defaultPhoneRegion = "US";
-          trustedProxies = [ "127.0.0.1" ];
         };
         database.createLocally = true;
 
@@ -500,14 +505,17 @@ in
         extraAppsEnable = true;
         appstoreEnable = true;
 
-        extraOptions = let
+        settings = let
           protocol = if !(isNull cfg.ssl) then "https" else "http";
         in {
+          "default_phone_region" = cfg.defaultPhoneRegion;
+
           "overwrite.cli.url" = "${protocol}://${fqdn}";
           "overwritehost" = fqdnWithPort;
           # 'trusted_domains' needed otherwise we get this issue https://help.nextcloud.com/t/the-polling-url-does-not-start-with-https-despite-the-login-url-started-with-https/137576/2
           # TODO: could instead set extraTrustedDomains
           "trusted_domains" = [ fqdn ];
+          "trusted_proxies" = [ "127.0.0.1" ];
           # TODO: could instead set overwriteProtocol
           "overwriteprotocol" = protocol; # Needed if behind a reverse_proxy
           "overwritecondaddr" = ""; # We need to set it to empty otherwise overwriteprotocol does not work.
@@ -765,7 +773,7 @@ in
         secretFile = "${cfg.dataDir}/config/secretFile";
 
         # See all options at https://github.com/pulsejet/nextcloud-oidc-login
-        extraOptions = {
+        settings = {
           allow_user_to_change_display_name = false;
           lost_password_link = "disabled";
           oidc_login_provider_url = ssoFqdnWithPort;
