@@ -232,7 +232,7 @@ in
             type = lib.types.str;
           };
 
-          sopsFile = lib.mkOption {
+          authFile = lib.mkOption {
             description = "Location of file holding authentication secrets for provider.";
             type = lib.types.anything;
           };
@@ -264,22 +264,9 @@ in
 
             config = nordvpnConfig {
               inherit name;
-              inherit (c) dev remoteServerIP;
-              authFile = config.sops.secrets."${name}/auth".path;
+              inherit (c) dev remoteServerIP authFile;
               dependentServices = lib.optional (c.proxyPort != null) "tinyproxy-${name}.service";
             };
-          };
-        };
-      in
-        lib.mkMerge (lib.mapAttrsToList instanceConfig cfg);
-
-    sops.secrets =
-      let
-        instanceConfig = name: c: lib.mkIf c.enable {
-          "${name}/auth" = {
-            sopsFile = c.sopsFile;
-            mode = "0440";
-            restartUnits = [ "openvpn-${name}" ];
           };
         };
       in
