@@ -154,10 +154,9 @@ in
       example = "https://authelia.example.com";
     };
 
-    sopsFile = lib.mkOption {
+    authFile = lib.mkOption {
       type = lib.types.path;
-      description = "Sops file location.";
-      example = "secrets/torrent.yaml";
+      description = "File containing auth lines in the format expected by deluge. See https://dev.deluge-torrent.org/wiki/UserGuide/Authentication.";
     };
 
     enabledPlugins = lib.mkOption {
@@ -230,7 +229,7 @@ in
 
         new_release_check = false;
       };
-      authFile = config.sops.secrets."deluge/auth".path;
+      inherit (cfg) authFile;
 
       web.enable = true;
       web.port = cfg.webPort;
@@ -253,14 +252,6 @@ in
         [
           "L+ ${config.services.deluge.dataDir}/.config/deluge/plugins - - - - ${plugins}"
         ];
-
-    sops.secrets."deluge/auth" = {
-      inherit (cfg) sopsFile;
-      mode = "0440";
-      owner = config.services.deluge.user;
-      group = config.services.deluge.group;
-      restartUnits = [ "deluged.service" "delugeweb.service" ];
-    };
 
     shb.nginx.autheliaProtect = lib.mkIf config.shb.authelia.enable [
       {
