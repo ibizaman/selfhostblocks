@@ -89,10 +89,14 @@ in
       default = "jellyfin_user";
     };
 
-    sopsFile = lib.mkOption {
+    ldapPasswordFile = lib.mkOption {
       type = lib.types.path;
-      description = "Sops file location";
-      example = "secrets/jellyfin.yaml";
+      description = "File containing the LDAP admin password.";
+    };
+
+    ssoSecretFile = lib.mkOption {
+      type = lib.types.path;
+      description = "File containing the SSO shared secret.";
     };
   };
 
@@ -221,21 +225,6 @@ in
             proxy_set_header X-Forwarded-Host $http_host;
         }
         '';
-    };
-
-    sops.secrets."jellyfin/ldap_password" = {
-      inherit (cfg) sopsFile;
-      mode = "0440";
-      owner = "jellyfin";
-      group = "jellyfin";
-      restartUnits = [ "jellyfin.service" ];
-    };
-    sops.secrets."jellyfin/sso_secret" = {
-      inherit (cfg) sopsFile;
-      mode = "0440";
-      owner = "jellyfin";
-      group = "jellyfin";
-      restartUnits = [ "jellyfin.service" ];
     };
 
     shb.backup.instances.jellyfin = {
@@ -371,10 +360,10 @@ in
         '';
       in
         template ldapConfig "/var/lib/jellyfin/plugins/configurations/LDAP-Auth.xml" {
-          "%LDAP_PASSWORD%" = "$(cat /run/secrets/jellyfin/ldap_password)";
+          "%LDAP_PASSWORD%" = "$(cat ${cfg.ldapPasswordFile})";
         }
         + template ssoConfig "/var/lib/jellyfin/plugins/configurations/SSO-Auth.xml" {
-          "%SSO_SECRET%" = "$(cat /run/secrets/jellyfin/sso_secret)";
+          "%SSO_SECRET%" = "$(cat ${cfg.ssoSecretFile})";
         }
         + template brandingConfig "/var/lib/jellyfin/config/branding.xml" {"%a%" = "%a%";};
 
@@ -382,18 +371,12 @@ in
       {
         id = cfg.oidcClientID;
         description = "Jellyfin";
-        secretFile = config.sops.secrets."authelia/jellyfin_sso_secret".path;
+        secretFile = cfg.ssoSecretFile;
         public = false;
         authorization_policy = "one_factor";
         redirect_uris = [ "https://${cfg.subdomain}.${cfg.domain}/sso/OID/r/${cfg.oidcProvider}" ];
       }
     ];
-    sops.secrets."authelia/jellyfin_sso_secret" = {
-      inherit (cfg) sopsFile;
-      key = "jellyfin/sso_secret";
-      mode = "0400";
-      owner = config.shb.authelia.autheliaUser;
-    };
 
     # For backup
 
