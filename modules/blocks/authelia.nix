@@ -4,22 +4,12 @@ let
   cfg = config.shb.authelia;
 
   contracts = pkgs.callPackage ../contracts {};
+  shblib = pkgs.callPackage ../../lib {};
 
   fqdn = "${cfg.subdomain}.${cfg.domain}";
   fqdnWithPort = if isNull cfg.port then fqdn else "${fqdn}:${toString cfg.port}";
 
   autheliaCfg = config.services.authelia.instances.${fqdn};
-
-  template = file: newPath: replacements:
-    let
-      templatePath = newPath + ".template";
-      sedPatterns = lib.strings.concatStringsSep ";" (lib.attrsets.mapAttrsToList (from: to: "s|${from}|${to}|") replacements);
-    in
-      ''
-      ln -fs ${file} ${templatePath}
-      rm ${newPath} || :
-      sed "${sedPatterns}" ${templatePath} > ${newPath}
-      '';
 in
 {
   options.shb.authelia = {
@@ -307,7 +297,7 @@ in
           replace = client: {"%SECRET_${client.id}%" = "$(cat ${toString client.secretFile})";};
           replacements = lib.foldl (container: client: container // (replace client) ) {} clients;
         in
-          template tmplFile "/var/lib/authelia-${fqdn}/oidc_clients.yaml" replacements;
+          shblib.template tmplFile "/var/lib/authelia-${fqdn}/oidc_clients.yaml" replacements;
       in
         lib.mkBefore (mkCfg cfg.oidcClients);
 
