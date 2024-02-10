@@ -4,20 +4,9 @@ let
   cfg = config.shb.jellyfin;
 
   contracts = pkgs.callPackage ../contracts {};
+  shblib = pkgs.callPackage ../../lib {};
 
   fqdn = "${cfg.subdomain}.${cfg.domain}";
-
-  template = file: newPath: replacements:
-    let
-      templatePath = newPath + ".template";
-
-      sedPatterns = lib.strings.concatStringsSep " " (lib.attrsets.mapAttrsToList (from: to: "\"s|${from}|${to}|\"") replacements);
-    in
-      ''
-      ln -fs ${file} ${templatePath}
-      rm ${newPath} || :
-      sed ${sedPatterns} ${templatePath} > ${newPath}
-      '';
 in
 {
   options.shb.jellyfin = {
@@ -359,13 +348,13 @@ in
           </BrandingOptions>
         '';
       in
-        template ldapConfig "/var/lib/jellyfin/plugins/configurations/LDAP-Auth.xml" {
+        shblib.template ldapConfig "/var/lib/jellyfin/plugins/configurations/LDAP-Auth.xml" {
           "%LDAP_PASSWORD%" = "$(cat ${cfg.ldapPasswordFile})";
         }
-        + template ssoConfig "/var/lib/jellyfin/plugins/configurations/SSO-Auth.xml" {
+        + shblib.template ssoConfig "/var/lib/jellyfin/plugins/configurations/SSO-Auth.xml" {
           "%SSO_SECRET%" = "$(cat ${cfg.ssoSecretFile})";
         }
-        + template brandingConfig "/var/lib/jellyfin/config/branding.xml" {"%a%" = "%a%";};
+        + shblib.template brandingConfig "/var/lib/jellyfin/config/branding.xml" {"%a%" = "%a%";};
 
     shb.authelia.oidcClients = [
       {

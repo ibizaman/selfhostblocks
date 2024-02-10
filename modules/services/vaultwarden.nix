@@ -4,20 +4,9 @@ let
   cfg = config.shb.vaultwarden;
 
   contracts = pkgs.callPackage ../contracts {};
+  shblib = pkgs.callPackage ../../lib {};
 
   fqdn = "${cfg.subdomain}.${cfg.domain}";
-
-  template = file: newPath: replacements:
-    let
-      templatePath = newPath + ".template";
-
-      sedPatterns = lib.strings.concatStringsSep " " (lib.attrsets.mapAttrsToList (from: to: "-e \"s|${from}|${to}|\"") replacements);
-    in
-      ''
-      ln -fs ${file} ${templatePath}
-      rm ${newPath} || :
-      sed ${sedPatterns} ${templatePath} > ${newPath}
-      '';
 in
 {
   options.shb.vaultwarden = {
@@ -165,7 +154,7 @@ in
         SMTP_PASSWORD=%SMTP_PASSWORD%
         '';
       in
-        template envFile "/var/lib/bitwarden_rs/vaultwarden.env" {
+        shblib.template envFile "/var/lib/bitwarden_rs/vaultwarden.env" {
           "%DB_PASSWORD%" = "$(cat ${cfg.databasePasswordFile})";
           "%SMTP_PASSWORD%" = "$(cat ${cfg.smtp.passwordFile})";
         };

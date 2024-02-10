@@ -3,17 +3,7 @@
 let
   cfg = config.shb.davfs;
 
-  template = file: newPath: replacements:
-    let
-      templatePath = newPath + ".template";
-
-      sedPatterns = lib.strings.concatStringsSep " " (lib.attrsets.mapAttrsToList (from: to: "\"s|${from}|${to}|\"") replacements);
-    in
-      ''
-      ln -fs ${file} ${templatePath}
-      rm ${newPath} || :
-      sed ${sedPatterns} ${templatePath} > ${newPath}
-      '';
+  shblib = pkgs.callPackage ../../lib {};
 in
 {
   options.shb.davfs = {

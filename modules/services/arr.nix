@@ -4,6 +4,7 @@ let
   cfg = config.shb.arr;
 
   contracts = pkgs.callPackage ../contracts {};
+  shblib = pkgs.callPackage ../../lib {};
 
   apps = {
     radarr = {
@@ -185,18 +186,6 @@ let
       } // (c.moreOptions or {});
     };
   });
-
-  template = file: newPath: replacements:
-    let
-      templatePath = newPath + ".template";
-
-      sedPatterns = lib.strings.concatStringsSep " " (lib.attrsets.mapAttrsToList (from: to: "-e \"s|${from}|${to}|\"") replacements);
-    in
-      ''
-      ln -fs ${file} ${templatePath}
-      rm ${newPath} || :
-      sed ${sedPatterns} ${templatePath} > ${newPath}
-      '';
 in
 {
   options.shb.arr = lib.listToAttrs (lib.mapAttrsToList appOption apps);
@@ -227,7 +216,7 @@ in
             };
           templatedSettings = (removeAttrs s [ "APIKeyFile" ]) // templatedfileSettings;
 
-          t = template (apps.radarr.settingsFormat.generate "
+          t = shblib.template (apps.radarr.settingsFormat.generate "
 config.xml" templatedSettings) "${config.services.radarr.dataDir}/config.xml" (
             lib.optionalAttrs (!(isNull s.APIKeyFile)) {
               "%APIKEY%" = "$(cat ${s.APIKeyFile})";
@@ -295,7 +284,7 @@ config.xml" templatedSettings) "${config.services.radarr.dataDir}/config.xml" (
             };
           templatedSettings = (removeAttrs s [ "APIKeyFile" "OmdbApiKeyFile" ]) // templatedfileSettings;
 
-          t = template (apps.jackett.settingsFormat.generate "jackett.json" templatedSettings) "${config.services.jackett.dataDir}/ServerConfig.json" (
+          t = shblib.template (apps.jackett.settingsFormat.generate "jackett.json" templatedSettings) "${config.services.jackett.dataDir}/ServerConfig.json" (
             lib.optionalAttrs (!(isNull s.APIKeyFile)) {
               "%APIKEY%" = "$(cat ${s.APIKeyFile})";
             } // lib.optionalAttrs (!(isNull s.OmdbApiKeyFile)) {
