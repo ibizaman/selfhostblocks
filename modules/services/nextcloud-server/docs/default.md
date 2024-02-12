@@ -68,7 +68,7 @@ demo](demo-nextcloud-server.html#demo-nextcloud-deploy-basic).
 ::::
 
 This will set up a Nextcloud service that runs on the NixOS target machine, reachable at
-`http://nextcloud.example.com`. If the `shb.ssl` block is [enabled](block-ssl.html#usage), the
+`http://nextcloud.example.com`. If the `shb.ssl` block is [enabled](blocks-ssl.html#usage), the
 instance will be reachable at `https://nextcloud.example.com`.
 
 ```nix
