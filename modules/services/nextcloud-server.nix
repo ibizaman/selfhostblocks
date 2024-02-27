@@ -71,8 +71,8 @@ in
 
     version = lib.mkOption {
       description = "Nextcloud version to choose from.";
-      type = lib.types.enum [ 28 29 ];
-      default = 28;
+      type = lib.types.enum [ 29 30 ];
+      default = 29;
     };
 
     dataDir = lib.mkOption {
@@ -560,6 +560,27 @@ in
             type = lib.types.submodule {
               options = {
                 enable = lib.mkEnableOption "Recognize app.";
+              };
+            };
+          };
+
+          mediadc = lib.mkOption {
+            description = ''
+              MediaDC App. [Nextcloud App Store](https://apps.nextcloud.com/apps/mediadc)
+
+              Enabling this app will all enable the supporting cloud_py_api app.
+            '';
+            default = {};
+            type = lib.types.submodule {
+              options = {
+                enable = lib.mkEnableOption "MediaDC app.";
+
+                debug = lib.mkOption {
+                  type = lib.types.bool;
+                  description = "Enable more verbose logging.";
+                  default = false;
+                  example = true;
+                };
               };
             };
           };
@@ -1249,5 +1270,76 @@ in
             ${occ} config:app:set recognize musicnn.batchSize --value 100
             '';
         }))
+
+    (lib.mkIf cfg.apps.mediadc.enable {
+      services.nextcloud.extraApps = {
+        cloud_py_api =
+          if cfg.version == 30
+          then pkgs.fetchNextcloudApp { # Needed for MediaDC
+            sha256 = "sha256-ZcGqq5BEibUsEabyrGQRqRE7kjkSz9mKOSjaLbEEay8=";
+            url = "https://github.com/cloud-py-api/cloud_py_api/releases/download/v0.2.0/cloud_py_api.tar.gz";
+            license = "lgpl3";
+          }
+          else pkgs.fetchNextcloudApp { # Needed for MediaDC
+            sha256 = "sha256-BlFm4zwmwfGflojwG7D67fEm/+8UE7Hm8MLWdeznOHU=";
+            url = "https://github.com/cloud-py-api/cloud_py_api/releases/download/v0.1.9/cloud_py_api.tar.gz";
+            license = "lgpl3";
+          };
+        mediadc =
+          if cfg.version == 30
+          then pkgs.fetchNextcloudApp {
+            sha256 = "sha256-zwxM9R2KtID8kI4M3P8+Cp2I8oHJrVQ0eF5qxBaXyJU=";
+            url = "https://github.com/cloud-py-api/mediadc/releases/download/v0.4.0/mediadc.tar.gz";
+            license = "lgpl3";
+          }
+          else pkgs.fetchNextcloudApp {
+            sha256 = "sha256-NVva+lGZl0Q0/eCzbdhxP/pQcG3w21eb+POju0S1LkE=";
+            url = "https://github.com/cloud-py-api/mediadc/releases/download/v0.3.9/mediadc.tar.gz";
+            license = "lgpl3";
+          };
+      };
+
+      systemd.services.nextcloud-setup.script =
+        ''
+        ${occ} app:install mediadc || :
+        ${occ} app:enable  mediadc
+        '';
+
+      # systemd.services.nextcloud-setup.script =
+      #   let
+      #     escape = value: lib.strings.stringAsChars (x: if x == "\"" then "\\\"" else x) (builtins.toJSON value);
+      #     set = { table, name, value }: ''
+      #       ${pkgs.postgresql}/bin/psql --command "UPDATE ${table} SET value='${escape value}' WHERE name='${name}'";
+      #     '';
+      #   in
+      #     lib.strings.concatMapStrings set [
+      #       {
+      #         table = "oc_cloud_py_api_settings";
+      #         name = "python_command";
+      #         value = "${pkgs.python3}/bin/python3";
+      #       }
+      #       {
+      #         table = "oc_cloud_py_api_settings";
+      #         name = "php_path";
+      #         value = "${pkgs.php}/bin/php";
+      #       }
+      #       {
+      #         table = "oc_cloud_py_api_settings";
+      #         name = "use_php_path_from_settings";
+      #         value = true;
+      #       }
+      #       {
+      #         table = "oc_cloud_py_api_settings";
+      #         name = "cpa_loglevel";
+      #         # WARNING is the default.
+      #         value = if cfg.apps.mediadc.debug then "DEBUG" else "WARNING";
+      #       }
+      #       {
+      #         table = "oc_mediadc_settings";
+      #         name = "python_binary";
+      #         value = false;
+      #       }
+      #     ];
+    })
   ];
 }
