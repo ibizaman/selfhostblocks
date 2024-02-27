@@ -471,6 +471,27 @@ in
               };
             };
           };
+
+          mediadc = lib.mkOption {
+            description = ''
+              MediaDC App. [Nextcloud App Store](https://apps.nextcloud.com/apps/mediadc)
+
+              Enabling this app will all enable the supporting cloud_py_api app.
+            '';
+            default = {};
+            type = lib.types.submodule {
+              options = {
+                enable = lib.mkEnableOption "MediaDC app.";
+
+                debug = lib.mkOption {
+                  type = lib.types.bool;
+                  description = "Enable more verbose logging.";
+                  default = false;
+                  example = true;
+                };
+              };
+            };
+          };
         };
       };
     };
@@ -978,6 +999,57 @@ in
           userinfo_signing_algorithm = "none";
         }
       ];
+    })
+
+    (lib.mkIf cfg.apps.mediadc.enable {
+      services.nextcloud.extraApps = {
+        cloud_py_api = pkgs.fetchNextcloudApp { # Needed for MediaDC
+          sha256 = "sha256-NHSshC8gUmBof02E0alXWuEUnQvRadGK0PxSX5qKY7w=";
+          url = "https://github.com/cloud-py-api/cloud_py_api/releases/download/v0.1.9/cloud_py_api.tar.gz";
+          license = "agpl3";
+        };
+        mediadc = pkgs.fetchNextcloudApp {
+          sha256 = "sha256-gtq6dHiCHpht4RuRbyiAfmucfykkuQhFCxdq8DuwuGQ=";
+          url = "https://github.com/cloud-py-api/mediadc/releases/download/v0.3.8/mediadc.tar.gz";
+          license = "agpl3";
+        };
+      };
+
+      systemd.services.nextcloud-setup.script =
+        let
+          escape = value: lib.strings.stringAsChars (x: if x == "\"" then "\\\"" else x) (builtins.toJSON value);
+          set = { table, name, value }: ''
+            ${pkgs.postgresql}/bin/psql --command "UPDATE ${table} SET value='${escape value}' WHERE name='${name}'";
+          '';
+        in
+          lib.strings.concatMapStrings set [
+            {
+              table = "oc_cloud_py_api_settings";
+              name = "python_command";
+              value = "${pkgs.python3}/bin/python3";
+            }
+            {
+              table = "oc_cloud_py_api_settings";
+              name = "php_path";
+              value = "${pkgs.php}/bin/php";
+            }
+            {
+              table = "oc_cloud_py_api_settings";
+              name = "use_php_path_from_settings";
+              value = true;
+            }
+            {
+              table = "oc_cloud_py_api_settings";
+              name = "cpa_loglevel";
+              # WARNING is the default.
+              value = if cfg.apps.mediadc.debug then "DEBUG" else "WARNING";
+            }
+            {
+              table = "oc_mediadc_settings";
+              name = "python_binary";
+              value = false;
+            }
+          ];
     })
   ];
 }
