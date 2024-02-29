@@ -348,19 +348,33 @@ in
           </BrandingOptions>
         '';
       in
-        shblib.template ldapConfig "/var/lib/jellyfin/plugins/configurations/LDAP-Auth.xml" {
-          "%LDAP_PASSWORD%" = "$(cat ${cfg.ldapPasswordFile})";
+        shblib.replaceSecretsScript {
+          file = ldapConfig;
+          resultPath = "/var/lib/jellyfin/plugins/configurations/LDAP-Auth.xml";
+          userConfig = {
+            "%LDAP_PASSWORD%" = "$(cat ${cfg.ldapPasswordFile})";
+          };
         }
-        + shblib.template ssoConfig "/var/lib/jellyfin/plugins/configurations/SSO-Auth.xml" {
-          "%SSO_SECRET%" = "$(cat ${cfg.ssoSecretFile})";
+        + shblib.replaceSecretsScript {
+          file = ssoConfig;
+          resultPath = "/var/lib/jellyfin/plugins/configurations/SSO-Auth.xml";
+          userConfig = {
+            "%SSO_SECRET%" = "$(cat ${cfg.ssoSecretFile})";
+          };
         }
-        + shblib.template brandingConfig "/var/lib/jellyfin/config/branding.xml" {"%a%" = "%a%";};
+        + shblib.replaceSecretsScript {
+          file = brandingConfig;
+          resultPath = "/var/lib/jellyfin/config/branding.xml";
+          userConfig = {
+            "%a%" = "%a%";
+          };
+        };
 
     shb.authelia.oidcClients = [
       {
         id = cfg.oidcClientID;
         description = "Jellyfin";
-        secretFile = cfg.ssoSecretFile;
+        secret.source = cfg.ssoSecretFile;
         public = false;
         authorization_policy = "one_factor";
         redirect_uris = [ "https://${cfg.subdomain}.${cfg.domain}/sso/OID/r/${cfg.oidcProvider}" ];
