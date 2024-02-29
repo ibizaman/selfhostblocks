@@ -94,9 +94,54 @@ in
     };
 
     oidcClients = lib.mkOption {
-      type = lib.types.listOf lib.types.anything;
       description = "OIDC clients";
       default = [];
+      type = lib.types.listOf (lib.types.submodule {
+        freeformType = lib.types.attrsOf lib.types.anything;
+
+        options = {
+          id = lib.mkOption {
+            type = lib.types.str;
+            description = "Unique identifier of the OIDC client.";
+          };
+
+          description = lib.mkOption {
+            type = lib.types.nullOr lib.types.str;
+            description = "Human readable description of the OIDC client.";
+            default = null;
+          };
+
+          secret = lib.mkOption {
+            type = shblib.secretFileType;
+            description = "File containing the shared secret with the OIDC client.";
+          };
+
+          public = lib.mkOption {
+            type = lib.types.bool;
+            description = "If the OIDC client is public or not.";
+            default = false;
+            apply = v: if v then "true" else "false";
+          };
+
+          authorization_policy = lib.mkOption {
+            type = lib.types.enum [ "one_factor" "two_factor" ];
+            description = "Require one factor (password) or two factor (device) authentication.";
+            default = "one_factor";
+          };
+
+          redirect_uris = lib.mkOption {
+            type = lib.types.listOf lib.types.str;
+            description = "List of uris that are allowed to be redirected to.";
+          };
+
+          scopes = lib.mkOption {
+            type = lib.types.listOf lib.types.str;
+            description = "Scopes to ask for";
+            example = [ "openid" "profile" "email" "groups" ];
+            default = [];
+          };
+        };
+      });
     };
 
     smtp = lib.mkOption {
@@ -291,13 +336,13 @@ in
     systemd.services."authelia-${fqdn}".preStart =
       let
         mkCfg = clients:
-        let
-          addTemplate = client: (builtins.removeAttrs client ["secretFile"]) // {secret = "%SECRET_${client.id}%";};
-          tmplFile = pkgs.writeText "oidc_clients.yaml" (lib.generators.toYAML {} {identity_providers.oidc.clients = map addTemplate clients;});
-          replace = client: {"%SECRET_${client.id}%" = "$(cat ${toString client.secretFile})";};
-          replacements = lib.foldl (container: client: container // (replace client) ) {} clients;
-        in
-          shblib.template tmplFile "/var/lib/authelia-${fqdn}/oidc_clients.yaml" replacements;
+          shblib.replaceSecrets {
+            userConfig = {
+              identity_providers.oidc.clients = clients;
+            };
+            resultPath = "/var/lib/authelia-${fqdn}/oidc_clients.yaml";
+            generator = lib.generators.toYAML {};
+          };
       in
         lib.mkBefore (mkCfg cfg.oidcClients);
 

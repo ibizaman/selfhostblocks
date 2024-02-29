@@ -10,7 +10,6 @@ in
       imports = [
         {
           options = {
-            shb.ssl.enable = lib.mkEnableOption "ssl";
             shb.backup = lib.mkOption { type = lib.types.anything; };
           };
         }
@@ -49,7 +48,7 @@ in
           {
             id = "client1";
             description = "My Client 1";
-            secretFile = pkgs.writeText "secret" "mysecuresecret";
+            secret.source = pkgs.writeText "secret" "mysecuresecret";
             public = false;
             authorization_policy = "one_factor";
             redirect_uris = [ "http://client1.machine/redirect" ];
@@ -57,7 +56,7 @@ in
           {
             id = "client2";
             description = "My Client 2";
-            secretFile = pkgs.writeText "secret" "myothersecret";
+            secret.source = pkgs.writeText "secret" "myothersecret";
             public = false;
             authorization_policy = "one_factor";
             redirect_uris = [ "http://client2.machine/redirect" ];
