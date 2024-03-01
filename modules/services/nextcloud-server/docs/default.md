@@ -83,6 +83,18 @@ shb.nextcloud = {
 
 After deploying, the Nextcloud server will be reachable at `http://nextcloud.example.com`.
 
+### Mount Point  {#services-nextcloud-server-mount-point}
+
+If the `dataDir` exists in a mount point, it is highly recommended to make the various Nextcloud
+services wait on the mount point before starting. Doing that is just a matter of setting the `mountPointServices` option.
+
+Assuming a mount point on `/var`, the configuration would look like so:
+
+```nix
+fileSystems."/var".device = "...";
+shb.nextcloud.mountPointServices = [ "var.mount" ];
+```
+
 ### With LDAP Support {#services-nextcloud-server-usage-ldap}
 
 :::: {.note}
