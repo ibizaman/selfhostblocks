@@ -239,6 +239,27 @@ in
               options = {
                 enable = lib.mkEnableOption "Nextcloud Preview Generator App";
 
+                recommendedSettings = lib.mkOption {
+                  type = lib.types.bool;
+                  description = ''
+                    Better defaults than the defaults. Taken from [this article](http://web.archive.org/web/20200513043150/https://ownyourbits.com/2019/06/29/understanding-and-improving-nextcloud-previews/).
+
+                    Sets the following options:
+
+                    ```
+                    nextcloud-occ config:app:set previewgenerator squareSizes --value="32 256"
+                    nextcloud-occ config:app:set previewgenerator widthSizes  --value="256 384"
+                    nextcloud-occ config:app:set previewgenerator heightSizes --value="256"
+                    nextcloud-occ config:system:set preview_max_x --value 2048
+                    nextcloud-occ config:system:set preview_max_y --value 2048
+                    nextcloud-occ config:system:set jpeg_quality --value 60
+                    nextcloud-occ config:app:set preview jpeg_quality --value="60"
+                    ```
+                  '';
+                  default = true;
+                  example = false;
+                };
+
                 debug = lib.mkOption {
                   type = lib.types.bool;
                   description = "Enable more verbose logging.";
@@ -648,6 +669,18 @@ in
       services.nextcloud.extraApps = {
         inherit ((nextcloudApps cfg.version)) previewgenerator;
       };
+
+      # Values taken from
+      # http://web.archive.org/web/20200513043150/https://ownyourbits.com/2019/06/29/understanding-and-improving-nextcloud-previews/
+      systemd.services.nextcloud-setup.script = lib.mkIf cfg.apps.previewgenerator.recommendedSettings ''
+        ${occ} config:app:set previewgenerator squareSizes --value="32 256"
+        ${occ} config:app:set previewgenerator widthSizes  --value="256 384"
+        ${occ} config:app:set previewgenerator heightSizes --value="256"
+        ${occ} config:system:set preview_max_x --value 2048
+        ${occ} config:system:set preview_max_y --value 2048
+        ${occ} config:system:set jpeg_quality --value 60
+        ${occ} config:app:set preview jpeg_quality --value="60"
+      '';
 
       # Configured as defined in https://github.com/nextcloud/previewgenerator
       systemd.timers.nextcloud-cron-previewgenerator = {
