@@ -331,6 +331,31 @@ See [my blog
 post](http://blog.tiserbox.com/posts/2023-08-12-what%27s-up-with-nextcloud-webdav-slowness.html) for
 how to look at the traces.
 
+### Appdata Location {#services-nextcloud-server-server-usage-appdata}
+
+The appdata folder is a special folder located under the `shb.nextcloud.dataDir` directory. It is
+named `appdata_<instanceid>` with the Nextcloud's instance ID as a suffix. You can find your current
+instance ID with `nextcloud-occ config:system:get instanceid`. In there, you will find one subfolder
+for every installed app that needs to store files.
+
+For performance reasons, it is recommended to store this folder on a fast drive that is optimized
+for randomized read and write access. The best would be either an SSD or an NVMe drive.
+
+If you intentionally put Nextcloud's `shb.nextcloud.dataDir` folder on a HDD with spinning disks,
+for example because they offer more disk space, then the appdata folder is also located on spinning
+drives. You are thus faced with a conundrum. The only way to solve this is to bind mount a folder
+from an SSD over the appdata folder. SHB does not provide (yet?) a declarative way to setup this but
+this command should be enough:
+
+```bash
+mount /dev/sdd /srv/sdd
+mkdir -p /srv/sdd/appdata_nextcloud
+mount --bind /srv/sdd/appdata_nextcloud /var/lib/nextcloud/data/appdata_ocxvky2f5ix7
+```
+
+Note that you can re-generate a new appdata folder by issuing the command `occ config:system:delete
+instanceid`.
+
 ## Demo {#services-nextcloud-server-demo}
 
 Head over to the [Nextcloud demo](demo-nextcloud-server.html) for a demo that installs Nextcloud with or
