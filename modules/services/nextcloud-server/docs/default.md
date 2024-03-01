@@ -281,6 +281,15 @@ Note that you still need to generate the previews for any pre-existing files wit
 nextcloud-occ -vvv preview:generate-all
 ```
 
+The default settings generates all possible sizes which is a waste since most are not used. SHB will
+change the generation settings to optimize disk space and CPU usage as outlined in [this
+article](http://web.archive.org/web/20200513043150/https://ownyourbits.com/2019/06/29/understanding-and-improving-nextcloud-previews/).
+You can opt-out with:
+
+```nix
+shb.nextcloud.apps.previewgenerator.recommendedSettings = false;
+```
+
 ### Enable OnlyOffice App {#services-nextcloud-server-usage-onlyoffice}
 
 The following snippet installs and enables the [Only
