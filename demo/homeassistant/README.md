@@ -230,20 +230,15 @@ SOPS_AGE_KEY_FILE=keys.txt nix run --impure nixpkgs#sops -- \
 The `secrets.yaml` file must follow the format:
 
 ```yaml
-home-assistant: |
-    name: "My Instance"
+home-assistant:
     country: "US"
-    latitude_home: "0.100"
-    longitude_home: "-0.100"
+    latitude: "0.100"
+    longitude: "-0.100"
     time_zone: "America/Los_Angeles"
-    unit_system: "metric"
 lldap:
     user_password: XXX...
     jwt_secret: YYY...
 ```
-
-> Important: the value of the `home-assistant` field is a string that looks like yaml. Do _not_
-> remove the pipe (|) sign.
 
 You can generate random secrets with:
 

@@ -18,7 +18,42 @@
           enable = true;
           domain = "example.com";
           subdomain = "ha";
+          config = {
+            name = "SHB Home Assistant";
+            country.source = config.sops.secrets."home-assistant/country".path;
+            latitude.source = config.sops.secrets."home-assistant/latitude".path;
+            longitude.source = config.sops.secrets."home-assistant/longitude".path;
+            time_zone.source = config.sops.secrets."home-assistant/time_zone".path;
+            unit_system = "metric";
+          };
+        };
+        sops.secrets."home-assistant/country" = {
           sopsFile = ./secrets.yaml;
+          mode = "0440";
+          owner = "hass";
+          group = "hass";
+          restartUnits = [ "home-assistant.service" ];
+        };
+        sops.secrets."home-assistant/latitude" = {
+          sopsFile = ./secrets.yaml;
+          mode = "0440";
+          owner = "hass";
+          group = "hass";
+          restartUnits = [ "home-assistant.service" ];
+        };
+        sops.secrets."home-assistant/longitude" = {
+          sopsFile = ./secrets.yaml;
+          mode = "0440";
+          owner = "hass";
+          group = "hass";
+          restartUnits = [ "home-assistant.service" ];
+        };
+        sops.secrets."home-assistant/time_zone" = {
+          sopsFile = ./secrets.yaml;
+          mode = "0440";
+          owner = "hass";
+          group = "hass";
+          restartUnits = [ "home-assistant.service" ];
         };
 
         nixpkgs.config.permittedInsecurePackages = [
