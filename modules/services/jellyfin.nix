@@ -351,21 +351,21 @@ in
         shblib.replaceSecretsScript {
           file = ldapConfig;
           resultPath = "/var/lib/jellyfin/plugins/configurations/LDAP-Auth.xml";
-          userConfig = {
+          replacements = {
             "%LDAP_PASSWORD%" = "$(cat ${cfg.ldapPasswordFile})";
           };
         }
         + shblib.replaceSecretsScript {
           file = ssoConfig;
           resultPath = "/var/lib/jellyfin/plugins/configurations/SSO-Auth.xml";
-          userConfig = {
+          replacements = {
             "%SSO_SECRET%" = "$(cat ${cfg.ssoSecretFile})";
           };
         }
         + shblib.replaceSecretsScript {
           file = brandingConfig;
           resultPath = "/var/lib/jellyfin/config/branding.xml";
-          userConfig = {
+          replacements = {
             "%a%" = "%a%";
           };
         };

@@ -863,7 +863,7 @@ in
           id = cfg.apps.sso.clientID;
           description = "Nextcloud";
           secret.source = cfg.apps.sso.secretFileForAuthelia;
-          public = "false";
+          public = false;
           authorization_policy = cfg.apps.sso.authorization_policy;
           redirect_uris = [ "${protocol}://${fqdnWithPort}/apps/oidc_login/oidc" ];
           scopes = [
