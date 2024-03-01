@@ -82,6 +82,13 @@ in
       default = "/var/lib/nextcloud";
     };
 
+    mountPointServices = lib.mkOption {
+      description = "If given, all the systemd services and timers will depend on the specified mount point systemd services.";
+      type = lib.types.listOf lib.types.str;
+      default = [];
+      example = lib.literalExpression ''["var.mount"]'';
+    };
+
     adminUser = lib.mkOption {
       type = lib.types.str;
       description = "Username of the initial admin user.";
@@ -616,10 +623,17 @@ in
       systemd.services.phpfpm-nextcloud.preStart = ''
       mkdir -p /var/log/xdebug; chown -R nextcloud: /var/log/xdebug
       '';
+      systemd.services.phpfpm-nextcloud.requires = cfg.mountPointServices;
+      systemd.services.phpfpm-nextcloud.after = cfg.mountPointServices;
 
       systemd.services.nextcloud-cron.path = [
         pkgs.perl
       ];
+      systemd.timers.nextcloud-cron.requires = cfg.mountPointServices;
+      systemd.timers.nextcloud-cron.after = cfg.mountPointServices;
+
+      systemd.services.nextcloud-setup.requires = cfg.mountPointServices;
+      systemd.services.nextcloud-setup.after = cfg.mountPointServices;
 
       # Sets up backup for Nextcloud.
       shb.backup.instances.nextcloud = {
@@ -685,7 +699,8 @@ in
       # Configured as defined in https://github.com/nextcloud/previewgenerator
       systemd.timers.nextcloud-cron-previewgenerator = {
         wantedBy = [ "timers.target" ];
-        after = [ "nextcloud-setup.service" ];
+        requires = cfg.mountPointServices;
+        after = [ "nextcloud-setup.service" ] + cfg.mountPointServices;
         timerConfig.OnBootSec = "10m";
         timerConfig.OnUnitActiveSec = "10m";
         timerConfig.Unit = "nextcloud-cron-previewgenerator.service";
