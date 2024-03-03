@@ -46,6 +46,7 @@
         modules/services/jellyfin.nix
         modules/services/nextcloud-server.nix
         modules/services/vaultwarden.nix
+        modules/services/grocy.nix
       ];
     in
       {
