@@ -22,9 +22,9 @@ rec {
       ''
       set -euo pipefail
       set -x
+      mkdir -p $(dirname ${templatePath})
       ln -fs ${file} ${templatePath}
       rm -f ${resultPath}
-      ${pkgs.gnused}/bin/sed ${sedPatterns} ${templatePath}
       ${pkgs.gnused}/bin/sed ${sedPatterns} ${templatePath} > ${resultPath}
       '';
 
