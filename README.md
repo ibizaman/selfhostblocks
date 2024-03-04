@@ -121,6 +121,7 @@ That being said, I am personally using all the blocks and services in this proje
 - [`jellyfin.nix`](./modules/services/jellyfin.nix) for watching media https://jellyfin.org/.
 - [Nextcloud Server](https://shb.skarabox.com/services-nextcloud.html) for private documents, contacts, calendar, etc https://nextcloud.com.
 - [`vaultwarden.nix`](./modules/services/vaultwarden.nix) for passwords https://github.com/dani-garcia/vaultwarden.
+- [`audiobookshelf.nix`](./modules/services/audiobookshelf.nix) for hosting podcasts and audio books https://www.audiobookshelf.org/.
 
 ## Demos
 
