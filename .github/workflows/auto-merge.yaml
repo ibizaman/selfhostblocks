@@ -29,7 +29,7 @@ jobs:
       - uses: reitermarkus/automerge@v2
         with:
           token: ${{ secrets.GH_TOKEN_FOR_UPDATES }}
-          merge-method: rebase
+          merge-method: squash
           do-not-merge-labels: never-merge
           required-labels: automerge
           pull-request: ${{ github.event.inputs.pull-request }}
