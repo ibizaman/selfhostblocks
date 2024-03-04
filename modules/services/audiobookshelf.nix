@@ -100,6 +100,7 @@ in
       port = cfg.webPort;
     };
 
+    services.nginx.enable = true;
     services.nginx.virtualHosts."${fqdn}" = {
       http2 = true;
       forceSSL = !(isNull cfg.ssl);
