@@ -4,6 +4,7 @@ let
   cfg = config.shb.home-assistant;
 
   contracts = pkgs.callPackage ../contracts {};
+  shblib = pkgs.callPackage ../../lib {};
 
   fqdn = "${cfg.subdomain}.${cfg.domain}";
 
@@ -18,6 +19,15 @@ let
     export PATH=${pkgs.gnused}/bin:${pkgs.curl}/bin:${pkgs.jq}/bin
     exec ${pkgs.bash}/bin/bash ${ldap_auth_script_repo}/example_configs/lldap-ha-auth.sh $@
   '';
+
+  # Filter secrets from config. Secrets are those of the form { source = <path>; }
+  secrets = lib.attrsets.filterAttrs (k: v: builtins.isAttrs v) cfg.config;
+
+  nonSecrets = (lib.attrsets.filterAttrs (k: v: !(builtins.isAttrs v)) cfg.config);
+
+  configWithSecretsIncludes =
+    nonSecrets
+    // (lib.attrsets.mapAttrs (k: v: "!secret ${k}") secrets);
 in
 {
   options.shb.home-assistant = {
@@ -39,6 +49,41 @@ in
       description = "Path to SSL files";
       type = lib.types.nullOr contracts.ssl.certs;
       default = null;
+    };
+
+    config = lib.mkOption {
+      description = "See all available settings at https://www.home-assistant.io/docs/configuration/basic/";
+      type = lib.types.submodule {
+        freeformType = lib.types.attrsOf lib.types.str;
+        options = {
+          name = lib.mkOption {
+            type = lib.types.oneOf [ lib.types.str shblib.secretFileType ];
+            description = "Name of the Home Assistant instance.";
+          };
+          country = lib.mkOption {
+            type = lib.types.oneOf [ lib.types.str shblib.secretFileType ];
+            description = "Two letter country code where this instance is located.";
+          };
+          latitude = lib.mkOption {
+            type = lib.types.oneOf [ lib.types.str shblib.secretFileType ];
+            description = "Latitude where this instance is located.";
+          };
+          longitude = lib.mkOption {
+            type = lib.types.oneOf [ lib.types.str shblib.secretFileType ];
+            description = "Longitude where this instance is located.";
+          };
+          time_zone = lib.mkOption {
+            type = lib.types.oneOf [ lib.types.str shblib.secretFileType ];
+            description = "Timezone of this instance.";
+            example = "America/Los_Angeles";
+          };
+          unit_system = lib.mkOption {
+            type = lib.types.oneOf [ lib.types.str (lib.types.enum [ "metric" "us_customary" ]) ];
+            description = "Timezone of this instance.";
+            example = "America/Los_Angeles";
+          };
+        };
+      };
     };
 
     ldap = lib.mkOption {
@@ -91,12 +136,6 @@ in
       };
     };
 
-    sopsFile = lib.mkOption {
-      type = lib.types.path;
-      description = "Sops file location";
-      example = "secrets/homeassistant.yaml";
-    };
-
     backupCfg = lib.mkOption {
       type = lib.types.anything;
       description = "Backup configuration for home-assistant";
@@ -144,14 +183,8 @@ in
           trusted_proxies = "127.0.0.1";
         };
         logger.default = "info";
-        homeassistant = {
+        homeassistant = configWithSecretsIncludes // {
           external_url = "https://${cfg.subdomain}.${cfg.domain}";
-          name = "!secret name";
-          country = "!secret country";
-          latitude = "!secret latitude_home";
-          longitude = "!secret longitude_home";
-          time_zone = "!secret time_zone";
-          unit_system = "metric";
           auth_providers =
             (lib.optionals (!cfg.ldap.enable || cfg.ldap.keepDefaultAuth) [
               {
@@ -256,23 +289,18 @@ in
             }
           }
         '';
-        storage = "${config.services.home-assistant.configDir}/.storage";
-        file = "${storage}/onboarding";
+        storage = "${config.services.home-assistant.configDir}";
+        file = "${storage}/.storage/onboarding";
       in
         ''
           if ! -f ${file}; then
             mkdir -p ${storage} && cp ${onboarding} ${file}
           fi
-        '');
-
-    sops.secrets."home-assistant" = {
-      inherit (cfg) sopsFile;
-      mode = "0440";
-      owner = "hass";
-      group = "hass";
-      path = "${config.services.home-assistant.configDir}/secrets.yaml";
-      restartUnits = [ "home-assistant.service" ];
-    };
+        '' + shblib.replaceSecrets {
+          userConfig = cfg.config;
+          resultPath = "${config.services.home-assistant.configDir}/secrets.yaml";
+          generator = lib.generators.toYAML {};
+        });
 
     systemd.tmpfiles.rules = [
       "f ${config.services.home-assistant.configDir}/automations.yaml 0755 hass hass"

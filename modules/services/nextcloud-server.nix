@@ -82,6 +82,13 @@ in
       default = "/var/lib/nextcloud";
     };
 
+    mountPointServices = lib.mkOption {
+      description = "If given, all the systemd services and timers will depend on the specified mount point systemd services.";
+      type = lib.types.listOf lib.types.str;
+      default = [];
+      example = lib.literalExpression ''["var.mount"]'';
+    };
+
     adminUser = lib.mkOption {
       type = lib.types.str;
       description = "Username of the initial admin user.";
@@ -238,6 +245,27 @@ in
             type = lib.types.submodule {
               options = {
                 enable = lib.mkEnableOption "Nextcloud Preview Generator App";
+
+                recommendedSettings = lib.mkOption {
+                  type = lib.types.bool;
+                  description = ''
+                    Better defaults than the defaults. Taken from [this article](http://web.archive.org/web/20200513043150/https://ownyourbits.com/2019/06/29/understanding-and-improving-nextcloud-previews/).
+
+                    Sets the following options:
+
+                    ```
+                    nextcloud-occ config:app:set previewgenerator squareSizes --value="32 256"
+                    nextcloud-occ config:app:set previewgenerator widthSizes  --value="256 384"
+                    nextcloud-occ config:app:set previewgenerator heightSizes --value="256"
+                    nextcloud-occ config:system:set preview_max_x --value 2048
+                    nextcloud-occ config:system:set preview_max_y --value 2048
+                    nextcloud-occ config:system:set jpeg_quality --value 60
+                    nextcloud-occ config:app:set preview jpeg_quality --value="60"
+                    ```
+                  '';
+                  default = true;
+                  example = false;
+                };
 
                 debug = lib.mkOption {
                   type = lib.types.bool;
@@ -595,10 +623,17 @@ in
       systemd.services.phpfpm-nextcloud.preStart = ''
       mkdir -p /var/log/xdebug; chown -R nextcloud: /var/log/xdebug
       '';
+      systemd.services.phpfpm-nextcloud.requires = cfg.mountPointServices;
+      systemd.services.phpfpm-nextcloud.after = cfg.mountPointServices;
 
       systemd.services.nextcloud-cron.path = [
         pkgs.perl
       ];
+      systemd.timers.nextcloud-cron.requires = cfg.mountPointServices;
+      systemd.timers.nextcloud-cron.after = cfg.mountPointServices;
+
+      systemd.services.nextcloud-setup.requires = cfg.mountPointServices;
+      systemd.services.nextcloud-setup.after = cfg.mountPointServices;
 
       # Sets up backup for Nextcloud.
       shb.backup.instances.nextcloud = {
@@ -649,10 +684,23 @@ in
         inherit ((nextcloudApps cfg.version)) previewgenerator;
       };
 
+      # Values taken from
+      # http://web.archive.org/web/20200513043150/https://ownyourbits.com/2019/06/29/understanding-and-improving-nextcloud-previews/
+      systemd.services.nextcloud-setup.script = lib.mkIf cfg.apps.previewgenerator.recommendedSettings ''
+        ${occ} config:app:set previewgenerator squareSizes --value="32 256"
+        ${occ} config:app:set previewgenerator widthSizes  --value="256 384"
+        ${occ} config:app:set previewgenerator heightSizes --value="256"
+        ${occ} config:system:set preview_max_x --value 2048
+        ${occ} config:system:set preview_max_y --value 2048
+        ${occ} config:system:set jpeg_quality --value 60
+        ${occ} config:app:set preview jpeg_quality --value="60"
+      '';
+
       # Configured as defined in https://github.com/nextcloud/previewgenerator
       systemd.timers.nextcloud-cron-previewgenerator = {
         wantedBy = [ "timers.target" ];
-        after = [ "nextcloud-setup.service" ];
+        requires = cfg.mountPointServices;
+        after = [ "nextcloud-setup.service" ] + cfg.mountPointServices;
         timerConfig.OnBootSec = "10m";
         timerConfig.OnUnitActiveSec = "10m";
         timerConfig.Unit = "nextcloud-cron-previewgenerator.service";
@@ -829,8 +877,8 @@ in
         {
           id = cfg.apps.sso.clientID;
           description = "Nextcloud";
-          secretFile = cfg.apps.sso.secretFileForAuthelia;
-          public = "false";
+          secret.source = cfg.apps.sso.secretFileForAuthelia;
+          public = false;
           authorization_policy = cfg.apps.sso.authorization_policy;
           redirect_uris = [ "${protocol}://${fqdnWithPort}/apps/oidc_login/oidc" ];
           scopes = [

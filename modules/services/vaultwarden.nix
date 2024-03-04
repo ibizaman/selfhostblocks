@@ -148,16 +148,15 @@ in
       "f /var/lib/bitwarden_rs/vaultwarden.env 0640 vaultwarden vaultwarden"
     ];
     systemd.services.vaultwarden.preStart =
-      let
-        envFile = pkgs.writeText "vaultwarden.env" ''
-        DATABASE_URL=postgresql://vaultwarden:%DB_PASSWORD%@127.0.0.1:5432/vaultwarden
-        SMTP_PASSWORD=%SMTP_PASSWORD%
-        '';
-      in
-        shblib.template envFile "/var/lib/bitwarden_rs/vaultwarden.env" {
-          "%DB_PASSWORD%" = "$(cat ${cfg.databasePasswordFile})";
-          "%SMTP_PASSWORD%" = "$(cat ${cfg.smtp.passwordFile})";
+      shblib.replaceSecrets {
+        userConfig = {
+          DATABASE_URL.source = cfg.databasePasswordFile;
+          DATABASE_URL.transform = v: "postgresql://vaultwarden:${v}@127.0.0.1:5432/vaultwarden";
+          SMTP_PASSWORD.source = cfg.smtp.passwordFile;
         };
+        resultPath = "/var/lib/bitwarden_rs/vaultwarden.env";
+        generator = v: lib.generators.toINIWithGlobalSection {} { globalSection = v; };
+      };
 
     shb.nginx.autheliaProtect = [
       {
