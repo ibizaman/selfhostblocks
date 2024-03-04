@@ -40,13 +40,14 @@
         modules/blocks/vpn.nix
 
         modules/services/arr.nix
+        modules/services/audiobookshelf.nix
         modules/services/deluge.nix
+        modules/services/grocy.nix
         modules/services/hledger.nix
         modules/services/home-assistant.nix
         modules/services/jellyfin.nix
         modules/services/nextcloud-server.nix
         modules/services/vaultwarden.nix
-        modules/services/grocy.nix
       ];
     in
       {
@@ -100,6 +101,7 @@
               tests = pkgs.callPackage ./test/modules/lib.nix {};
             };
           }
+          // (vm_test "audiobookshelf" ./test/vm/audiobookshelf.nix)
           // (vm_test "authelia" ./test/vm/authelia.nix)
           // (vm_test "jellyfin" ./test/vm/jellyfin.nix)
           // (vm_test "ldap" ./test/vm/ldap.nix)
