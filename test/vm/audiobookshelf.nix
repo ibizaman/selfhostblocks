@@ -1,4 +1,42 @@
 { pkgs, lib, ... }:
+let
+  # TODO: Test login
+  commonTestScript = { nodes, ... }:
+    let
+      hasSSL = !(isNull nodes.server.shb.audiobookshelf.ssl);
+      fqdn = if hasSSL then "https://a.example.com" else "http://a.example.com";
+    in
+    ''
+    import json
+    import os
+    import pathlib
+
+    start_all()
+    server.wait_for_unit("audiobookshelf.service")
+    server.wait_for_unit("nginx.service")
+    server.wait_for_open_port(${builtins.toString nodes.server.shb.audiobookshelf.webPort})
+
+    if ${if hasSSL then "True" else "False"}:
+        server.copy_from_vm("/etc/ssl/certs/ca-certificates.crt")
+        client.succeed("rm -r /etc/ssl/certs")
+        client.copy_from_host(str(pathlib.Path(os.environ.get("out", os.getcwd())) / "ca-certificates.crt"), "/etc/ssl/certs/ca-certificates.crt")
+
+    def curl(target, format, endpoint, succeed=True):
+        return json.loads(target.succeed(
+            "curl --fail-with-body --silent --show-error --output /dev/null --location"
+            + " --connect-to a.example.com:443:server:443"
+            + " --connect-to a.example.com:80:server:80"
+            + f" --write-out '{format}'"
+            + " " + endpoint
+        ))
+
+    with subtest("access"):
+        response = curl(client, """{"code":%{response_code}}""", "${fqdn}")
+
+        if response['code'] != 200:
+            raise Exception(f"Code is {response['code']}")
+    '';
+in
 {
   basic = pkgs.nixosTest {
     name = "audiobookshelf-basic";
@@ -25,29 +63,7 @@
 
     nodes.client = {};
 
-    # TODO: Test login
-    testScript = { nodes, ... }: ''
-    import json
-
-    def curl(target, format, endpoint):
-        return json.loads(target.succeed(
-            "curl --fail-with-body --silent --show-error --output /dev/null --location"
-            + " --connect-to a.example.com:443:server:443"
-            + " --connect-to a.example.com:80:server:80"
-            + f" --write-out '{format}'"
-            + " " + endpoint
-        ))
-
-    start_all()
-    server.wait_for_unit("audiobookshelf.service")
-    server.wait_for_unit("nginx.service")
-    server.wait_for_open_port(${builtins.toString nodes.server.shb.audiobookshelf.webPort})
-
-    response = curl(client, """{"code":%{response_code}}""", "http://a.example.com")
-
-    if response['code'] != 200:
-        raise Exception(f"Code is {response['code']}")
-    '';
+    testScript = commonTestScript;
   };
 
   cert = pkgs.nixosTest {
@@ -96,35 +112,7 @@
 
     nodes.client = {};
 
-    # TODO: Test login
-    testScript = { nodes, ... }: ''
-    import json
-    import os
-    import pathlib
-
-    def curl(target, format, endpoint):
-        return json.loads(target.succeed(
-            "curl --fail-with-body --silent --show-error --output /dev/null --location"
-            + " --connect-to a.example.com:443:server:443"
-            + " --connect-to a.example.com:80:server:80"
-            + f" --write-out '{format}'"
-            + " " + endpoint
-        ))
-
-    start_all()
-    server.wait_for_unit("audiobookshelf.service")
-    server.wait_for_unit("nginx.service")
-    server.wait_for_open_port(${builtins.toString nodes.server.shb.audiobookshelf.webPort})
-
-    server.copy_from_vm("/etc/ssl/certs/ca-certificates.crt")
-    client.succeed("rm -r /etc/ssl/certs")
-    client.copy_from_host(str(pathlib.Path(os.environ.get("out", os.getcwd())) / "ca-certificates.crt"), "/etc/ssl/certs/ca-certificates.crt")
-
-    response = curl(client, """{"code":%{response_code}}""", "https://a.example.com")
-
-    if response['code'] != 200:
-        raise Exception(f"Code is {response['code']}")
-    '';
+    testScript = commonTestScript;
   };
 
   sso = pkgs.nixosTest {
@@ -208,36 +196,6 @@
 
     nodes.client = {};
 
-    # TODO: Test login with ldap user
-    testScript = { nodes, ... }: ''
-    import json
-    import os
-    import pathlib
-
-    def curl(target, format, endpoint):
-        return json.loads(target.succeed(
-            "curl --fail-with-body --silent --show-error --output /dev/null --location"
-            + " --connect-to a.example.com:443:server:443"
-            + " --connect-to a.example.com:80:server:80"
-            + f" --write-out '{format}'"
-            + " " + endpoint
-        ))
-
-    start_all()
-    server.wait_for_unit("audiobookshelf.service")
-    server.wait_for_unit("nginx.service")
-    server.wait_for_unit("lldap.service")
-    server.wait_for_unit("authelia-auth.example.com.service")
-    server.wait_for_open_port(${builtins.toString nodes.server.shb.audiobookshelf.webPort})
-
-    server.copy_from_vm("/etc/ssl/certs/ca-certificates.crt")
-    client.succeed("rm -r /etc/ssl/certs")
-    client.copy_from_host(str(pathlib.Path(os.environ.get("out", os.getcwd())) / "ca-certificates.crt"), "/etc/ssl/certs/ca-certificates.crt")
-
-    response = curl(client, """{"code":%{response_code}}""", "https://a.example.com")
-
-    if response['code'] != 200:
-        raise Exception(f"Code is {response['code']}")
-    '';
+    testScript = commonTestScript;
   };
 }

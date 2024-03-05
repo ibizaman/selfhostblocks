@@ -1,4 +1,42 @@
 { pkgs, lib, ... }:
+let
+  # TODO: Test login
+  commonTestScript = { nodes, ... }:
+    let
+      hasSSL = !(isNull nodes.server.shb.jellyfin.ssl);
+      fqdn = if hasSSL then "https://j.example.com" else "http://j.example.com";
+    in
+    ''
+    import json
+    import os
+    import pathlib
+
+    start_all()
+    server.wait_for_unit("jellyfin.service")
+    server.wait_for_unit("nginx.service")
+    server.wait_for_open_port(8096)
+
+    if ${if hasSSL then "True" else "False"}:
+        server.copy_from_vm("/etc/ssl/certs/ca-certificates.crt")
+        client.succeed("rm -r /etc/ssl/certs")
+        client.copy_from_host(str(pathlib.Path(os.environ.get("out", os.getcwd())) / "ca-certificates.crt"), "/etc/ssl/certs/ca-certificates.crt")
+
+    def curl(target, format, endpoint, succeed=True):
+        return json.loads(target.succeed(
+            "curl --fail-with-body --silent --show-error --output /dev/null --location"
+            + " --connect-to j.example.com:443:server:443"
+            + " --connect-to j.example.com:80:server:80"
+            + f" --write-out '{format}'"
+            + " " + endpoint
+        ))
+
+    with subtest("access"):
+        response = curl(client, """{"code":%{response_code}}""", "${fqdn}")
+
+        if response['code'] != 200:
+            raise Exception(f"Code is {response['code']}")
+    '';
+in
 {
   basic = pkgs.nixosTest {
     name = "jellyfin-basic";
@@ -25,29 +63,7 @@
 
     nodes.client = {};
 
-    # TODO: Test login
-    testScript = { nodes, ... }: ''
-    import json
-
-    def curl(target, format, endpoint):
-        return json.loads(target.succeed(
-            "curl --fail-with-body --silent --show-error --output /dev/null --location"
-            + " --connect-to j.example.com:443:server:443"
-            + " --connect-to j.example.com:80:server:80"
-            + f" --write-out '{format}'"
-            + " " + endpoint
-        ))
-
-    start_all()
-    server.wait_for_unit("jellyfin.service")
-    server.wait_for_unit("nginx.service")
-    server.wait_for_open_port(8096)
-
-    response = curl(client, """{"code":%{response_code}}""", "http://j.example.com")
-
-    if response['code'] != 200:
-        raise Exception(f"Code is {response['code']}")
-    '';
+    testScript = commonTestScript;
   };
 
   ldap = pkgs.nixosTest {
@@ -95,30 +111,7 @@
 
     nodes.client = {};
 
-    # TODO: Test login with ldap user
-    testScript = { nodes, ... }: ''
-    import json
-
-    def curl(target, format, endpoint):
-        return json.loads(target.succeed(
-            "curl --fail-with-body --silent --show-error --output /dev/null --location"
-            + " --connect-to j.example.com:443:server:443"
-            + " --connect-to j.example.com:80:server:80"
-            + f" --write-out '{format}'"
-            + " " + endpoint
-        ))
-
-    start_all()
-    server.wait_for_unit("jellyfin.service")
-    server.wait_for_unit("nginx.service")
-    server.wait_for_unit("lldap.service")
-    server.wait_for_open_port(8096)
-
-    response = curl(client, """{"code":%{response_code}}""", "http://j.example.com")
-
-    if response['code'] != 200:
-        raise Exception(f"Code is {response['code']}")
-    '';
+    testScript = commonTestScript;
   };
 
   cert = pkgs.nixosTest {
@@ -168,35 +161,7 @@
 
     nodes.client = {};
 
-    # TODO: Test login
-    testScript = { nodes, ... }: ''
-    import json
-    import os
-    import pathlib
-
-    def curl(target, format, endpoint):
-        return json.loads(target.succeed(
-            "curl --fail-with-body --silent --show-error --output /dev/null --location"
-            + " --connect-to j.example.com:443:server:443"
-            + " --connect-to j.example.com:80:server:80"
-            + f" --write-out '{format}'"
-            + " " + endpoint
-        ))
-
-    start_all()
-    server.wait_for_unit("jellyfin.service")
-    server.wait_for_unit("nginx.service")
-    server.wait_for_open_port(8096)
-
-    server.copy_from_vm("/etc/ssl/certs/ca-certificates.crt")
-    client.succeed("rm -r /etc/ssl/certs")
-    client.copy_from_host(str(pathlib.Path(os.environ.get("out", os.getcwd())) / "ca-certificates.crt"), "/etc/ssl/certs/ca-certificates.crt")
-
-    response = curl(client, """{"code":%{response_code}}""", "https://j.example.com")
-
-    if response['code'] != 200:
-        raise Exception(f"Code is {response['code']}")
-    '';
+    testScript = commonTestScript;
   };
 
   sso = pkgs.nixosTest {
@@ -291,36 +256,6 @@
 
     nodes.client = {};
 
-    # TODO: Test login with ldap user
-    testScript = { nodes, ... }: ''
-    import json
-    import os
-    import pathlib
-
-    def curl(target, format, endpoint):
-        return json.loads(target.succeed(
-            "curl --fail-with-body --silent --show-error --output /dev/null --location"
-            + " --connect-to j.example.com:443:server:443"
-            + " --connect-to j.example.com:80:server:80"
-            + f" --write-out '{format}'"
-            + " " + endpoint
-        ))
-
-    start_all()
-    server.wait_for_unit("jellyfin.service")
-    server.wait_for_unit("nginx.service")
-    server.wait_for_unit("lldap.service")
-    server.wait_for_unit("authelia-auth.example.com.service")
-    server.wait_for_open_port(8096)
-
-    server.copy_from_vm("/etc/ssl/certs/ca-certificates.crt")
-    client.succeed("rm -r /etc/ssl/certs")
-    client.copy_from_host(str(pathlib.Path(os.environ.get("out", os.getcwd())) / "ca-certificates.crt"), "/etc/ssl/certs/ca-certificates.crt")
-
-    response = curl(client, """{"code":%{response_code}}""", "https://j.example.com")
-
-    if response['code'] != 200:
-        raise Exception(f"Code is {response['code']}")
-    '';
+    testScript = commonTestScript;
   };
 }

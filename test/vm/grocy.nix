@@ -1,4 +1,42 @@
 { pkgs, lib, ... }:
+let
+  # TODO: Test login
+  commonTestScript = { nodes, ... }:
+    let
+      hasSSL = !(isNull nodes.server.shb.grocy.ssl);
+      fqdn = if hasSSL then "https://g.example.com" else "http://g.example.com";
+    in
+    ''
+    import json
+    import os
+    import pathlib
+
+    start_all()
+    server.wait_for_unit("phpfpm-grocy.service")
+    server.wait_for_unit("nginx.service")
+    server.wait_for_open_unix_socket("${nodes.server.services.phpfpm.pools.grocy.socket}")
+
+    if ${if hasSSL then "True" else "False"}:
+        server.copy_from_vm("/etc/ssl/certs/ca-certificates.crt")
+        client.succeed("rm -r /etc/ssl/certs")
+        client.copy_from_host(str(pathlib.Path(os.environ.get("out", os.getcwd())) / "ca-certificates.crt"), "/etc/ssl/certs/ca-certificates.crt")
+
+    def curl(target, format, endpoint, succeed=True):
+        return json.loads(target.succeed(
+            "curl --fail-with-body --silent --show-error --output /dev/null --location"
+            + " --connect-to g.example.com:443:server:443"
+            + " --connect-to g.example.com:80:server:80"
+            + f" --write-out '{format}'"
+            + " " + endpoint
+        ))
+
+    with subtest("access"):
+        response = curl(client, """{"code":%{response_code}}""", "${fqdn}")
+
+        if response['code'] != 200:
+            raise Exception(f"Code is {response['code']}")
+    '';
+in
 {
   basic = pkgs.nixosTest {
     name = "grocy-basic";
@@ -24,29 +62,7 @@
 
     nodes.client = {};
 
-    # TODO: Test login
-    testScript = { nodes, ... }: ''
-    import json
-
-    def curl(target, format, endpoint):
-        return json.loads(target.succeed(
-            "curl --fail-with-body --silent --show-error --output /dev/null --location"
-            + " --connect-to g.example.com:443:server:443"
-            + " --connect-to g.example.com:80:server:80"
-            + f" --write-out '{format}'"
-            + " " + endpoint
-        ))
-
-    start_all()
-    server.wait_for_unit("phpfpm-grocy.service")
-    server.wait_for_unit("nginx.service")
-    server.wait_for_open_unix_socket("${nodes.server.services.phpfpm.pools.grocy.socket}")
-
-    response = curl(client, """{"code":%{response_code}}""", "http://g.example.com")
-
-    if response['code'] != 200:
-        raise Exception(f"Code is {response['code']}")
-    '';
+    testScript = commonTestScript;
   };
 
   cert = pkgs.nixosTest {
@@ -95,34 +111,6 @@
 
     nodes.client = {};
 
-    # TODO: Test login
-    testScript = { nodes, ... }: ''
-    import json
-    import os
-    import pathlib
-
-    def curl(target, format, endpoint):
-        return json.loads(target.succeed(
-            "curl --fail-with-body --silent --show-error --output /dev/null --location"
-            + " --connect-to g.example.com:443:server:443"
-            + " --connect-to g.example.com:80:server:80"
-            + f" --write-out '{format}'"
-            + " " + endpoint
-        ))
-
-    start_all()
-    server.wait_for_unit("phpfpm-grocy.service")
-    server.wait_for_unit("nginx.service")
-    server.wait_for_open_unix_socket("${nodes.server.services.phpfpm.pools.grocy.socket}")
-
-    server.copy_from_vm("/etc/ssl/certs/ca-certificates.crt")
-    client.succeed("rm -r /etc/ssl/certs")
-    client.copy_from_host(str(pathlib.Path(os.environ.get("out", os.getcwd())) / "ca-certificates.crt"), "/etc/ssl/certs/ca-certificates.crt")
-
-    response = curl(client, """{"code":%{response_code}}""", "https://g.example.com")
-
-    if response['code'] != 200:
-        raise Exception(f"Code is {response['code']}")
-    '';
+    testScript = commonTestScript;
   };
 }
