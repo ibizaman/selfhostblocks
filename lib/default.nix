@@ -21,7 +21,7 @@ rec {
     in
       ''
       set -euo pipefail
-      set -x
+
       mkdir -p $(dirname ${templatePath})
       ln -fs ${file} ${templatePath}
       rm -f ${resultPath}

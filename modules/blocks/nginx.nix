@@ -27,17 +27,17 @@ let
         default = null;
       };
 
-      authEndpoint = lib.mkOption {
-        type = lib.types.str;
-        description = "Auth endpoint for SSO.";
-        default = null;
-        example = "https://authelia.example.com";
-      };
-
       upstream = lib.mkOption {
         type = lib.types.str;
         description = "Upstream url to be protected.";
         example = "http://127.0.0.1:1234";
+      };
+
+      authEndpoint = lib.mkOption {
+        type = lib.types.nullOr lib.types.str;
+        description = "Optional auth endpoint for SSO.";
+        default = null;
+        example = "https://authelia.example.com";
       };
 
       autheliaRules = lib.mkOption {
@@ -133,6 +133,9 @@ in
               proxy_set_header Connection "upgrade";
               proxy_cache_bypass $http_upgrade;
 
+              proxy_pass ${c.upstream};
+            ''
+            + lib.optionalString (!(isNull c.authEndpoint)) ''
               auth_request /authelia;
               auth_request_set $user $upstream_http_remote_user;
               auth_request_set $groups $upstream_http_remote_groups;
@@ -153,12 +156,10 @@ in
               auth_request_set $redirect $scheme://$http_host$request_uri;
               error_page 401 =302 ${c.authEndpoint}?rd=$redirect;
               error_page 403 = ${c.authEndpoint}/error/403;
-
-              proxy_pass ${c.upstream};
             '';
 
             # Virtual endpoint created by nginx to forward auth requests.
-            locations."/authelia".extraConfig = ''
+            locations."/authelia".extraConfig = lib.mkIf (!(isNull c.authEndpoint)) ''
               internal;
               proxy_pass ${c.authEndpoint}/api/verify;
 

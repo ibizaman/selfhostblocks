@@ -101,6 +101,7 @@
               tests = pkgs.callPackage ./test/modules/lib.nix {};
             };
           }
+          // (vm_test "arr" ./test/vm/arr.nix)
           // (vm_test "audiobookshelf" ./test/vm/audiobookshelf.nix)
           // (vm_test "authelia" ./test/vm/authelia.nix)
           // (vm_test "grocy" ./test/vm/grocy.nix)
