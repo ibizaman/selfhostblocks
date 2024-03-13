@@ -20,6 +20,7 @@ jobs:
           name: selfhostblocks
           authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'
       - name: Run tests
+        timeout-minutes: 30
         run: |
           nix run github:Mic92/nix-fast-build -- \
             --skip-cached --no-nom \
