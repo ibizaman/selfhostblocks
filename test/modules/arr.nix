@@ -16,6 +16,7 @@ let
               shb.backup = anyOpt {};
               shb.nginx = anyOpt {};
               users = anyOpt {};
+              services.nginx = anyOpt {};
               services.bazarr = anyOpt {};
               services.jackett = anyOpt {};
               services.lidarr = anyOpt {};
@@ -39,11 +40,11 @@ in
 {
   testArrNoOptions = {
     expected = {
-      systemd.services.radarr = {};
-      systemd.services.jackett = {};
+      systemd = {};
       shb.backup = {};
-      shb.nginx.autheliaProtect = [];
-      users.users = {};
+      shb.nginx = {};
+      users = {};
+      services.nginx = {};
       services.bazarr = {};
       services.jackett = {};
       services.lidarr = {};
@@ -51,6 +52,7 @@ in
       services.readarr = {};
       services.sonarr = {};
     };
+
     expr = testConfig {};
   };
 
@@ -62,11 +64,19 @@ in
           UMask = "0027";
         };
       };
-      systemd.services.jackett = {};
       systemd.tmpfiles.rules = [
         "d '/var/lib/radarr' 0750 radarr radarr - -"
       ];
-      shb.backup = {};
+      shb.backup.instances.radarr = {
+        excludePatterns = [
+          ".db-shm"
+          ".db-wal"
+          ".mono"
+        ];
+        sourceDirectories = [
+          "/var/lib/radarr"
+        ];
+      };
       shb.nginx.autheliaProtect = [
         {
           autheliaRules = [
@@ -88,12 +98,12 @@ in
           domain = "example.com";
           authEndpoint = "https://oidc.example.com";
           subdomain = "radarr";
-          upstream = "http://127.0.0.1:7001";
+          upstream = "http://127.0.0.1:7878";
           ssl = null;
         }
       ];
-      users.users.radarr.extraGroups = [ "media" ];
       users.groups.radarr.members = [ "backup" ];
+      services.nginx.enable = true;
       services.bazarr = {};
       services.jackett = {};
       services.lidarr = {};
@@ -130,7 +140,6 @@ in
           UMask = "0027";
         };
       };
-      systemd.services.jackett = {};
       systemd.tmpfiles.rules = [
         "d '/var/lib/radarr' 0750 radarr radarr - -"
       ];
@@ -162,12 +171,12 @@ in
           domain = "example.com";
           authEndpoint = "https://oidc.example.com";
           subdomain = "radarr";
-          upstream = "http://127.0.0.1:7001";
+          upstream = "http://127.0.0.1:7878";
           ssl = null;
         }
       ];
-      users.users.radarr.extraGroups = [ "media" ];
       users.groups.radarr.members = [ "backup" ];
+      services.nginx.enable = true;
       services.bazarr = {};
       services.jackett = {};
       services.lidarr = {};
