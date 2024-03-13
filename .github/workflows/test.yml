@@ -23,5 +23,5 @@ jobs:
         run: |
           nix run github:Mic92/nix-fast-build -- \
             --skip-cached --no-nom \
-            --max-jobs 2 \
+            --max-jobs 1 \
             --flake ".#checks.$(nix eval --raw --impure --expr builtins.currentSystem)"
