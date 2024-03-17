@@ -1,5 +1,6 @@
 { pkgs, lib, ... }:
 let
+  pkgs' = pkgs;
   # TODO: Test login
   commonTestScript = appname: { nodes, ... }:
     let
@@ -58,6 +59,9 @@ let
         ../../modules/blocks/postgresql.nix
         ../../modules/blocks/nginx.nix
         ../../modules/services/arr.nix
+        (pkgs'.path + "/nixos/modules/profiles/minimal.nix")
+        (pkgs'.path + "/nixos/modules/profiles/headless.nix")
+        (pkgs'.path + "/nixos/modules/profiles/qemu-guest.nix")
       ];
 
       shb.arr.${appname} = {

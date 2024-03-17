@@ -1,5 +1,6 @@
 { pkgs, lib, ... }:
 let
+  pkgs' = pkgs;
   adminUser = "root";
   adminPass = "rootpw";
 
@@ -129,6 +130,9 @@ in
 
     nodes.server = { config, pkgs, ... }: {
       imports = [
+        (pkgs'.path + "/nixos/modules/profiles/minimal.nix")
+        (pkgs'.path + "/nixos/modules/profiles/headless.nix")
+        (pkgs'.path + "/nixos/modules/profiles/qemu-guest.nix")
         {
           options = {
             shb.backup = lib.mkOption { type = lib.types.anything; };
@@ -169,6 +173,9 @@ in
 
     nodes.server = { config, pkgs, ... }: {
       imports = [
+        (pkgs'.path + "/nixos/modules/profiles/minimal.nix")
+        (pkgs'.path + "/nixos/modules/profiles/headless.nix")
+        (pkgs'.path + "/nixos/modules/profiles/qemu-guest.nix")
         {
           options = {
             shb.backup = lib.mkOption { type = lib.types.anything; };

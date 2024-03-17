@@ -1,10 +1,16 @@
 { pkgs, lib, ... }:
+let
+  pkgs' = pkgs;
+in
 {
   peerWithoutUser = pkgs.nixosTest {
     name = "postgresql-peerWithoutUser";
 
     nodes.machine = { config, pkgs, ... }: {
       imports = [
+        (pkgs'.path + "/nixos/modules/profiles/minimal.nix")
+        (pkgs'.path + "/nixos/modules/profiles/headless.nix")
+        (pkgs'.path + "/nixos/modules/profiles/qemu-guest.nix")
         ../../modules/blocks/postgresql.nix
       ];
 
@@ -40,6 +46,9 @@
 
     nodes.machine = { config, pkgs, ... }: {
       imports = [
+        (pkgs'.path + "/nixos/modules/profiles/minimal.nix")
+        (pkgs'.path + "/nixos/modules/profiles/headless.nix")
+        (pkgs'.path + "/nixos/modules/profiles/qemu-guest.nix")
         ../../modules/blocks/postgresql.nix
       ];
 
@@ -88,6 +97,9 @@
 
     nodes.machine = { config, pkgs, ... }: {
       imports = [
+        (pkgs'.path + "/nixos/modules/profiles/minimal.nix")
+        (pkgs'.path + "/nixos/modules/profiles/headless.nix")
+        (pkgs'.path + "/nixos/modules/profiles/qemu-guest.nix")
         ../../modules/blocks/postgresql.nix
       ];
 
@@ -124,6 +136,9 @@
 
     nodes.machine = { config, pkgs, ... }: {
       imports = [
+        (pkgs'.path + "/nixos/modules/profiles/minimal.nix")
+        (pkgs'.path + "/nixos/modules/profiles/headless.nix")
+        (pkgs'.path + "/nixos/modules/profiles/qemu-guest.nix")
         ../../modules/blocks/postgresql.nix
       ];
 
