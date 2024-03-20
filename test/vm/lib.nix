@@ -1,5 +1,7 @@
 { pkgs, lib, ... }:
 let
+  pkgs' = pkgs;
+
   shblib = pkgs.callPackage ../../lib {};
 in
 {
@@ -40,11 +42,13 @@ in
         generator = lib.generators.toJSON {};
       };
     in
-      pkgs.nixosTest {
+      pkgs.testers.runNixOSTest {
         name = "lib-template";
         nodes.machine = { config, pkgs, ... }:
           {
             imports = [
+              (pkgs'.path + "/nixos/modules/profiles/headless.nix")
+              (pkgs'.path + "/nixos/modules/profiles/qemu-guest.nix")
               {
                 options = {
                   libtest.config = lib.mkOption {

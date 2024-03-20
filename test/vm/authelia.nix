@@ -1,13 +1,17 @@
 { pkgs, lib, ... }:
 let
+  pkgs' = pkgs;
+
   ldapAdminPassword = "ldapAdminPassword";
 in
 {
-  basic = pkgs.nixosTest {
+  basic = pkgs.testers.runNixOSTest {
     name = "authelia-basic";
 
     nodes.machine = { config, pkgs, ... }: {
       imports = [
+        (pkgs'.path + "/nixos/modules/profiles/headless.nix")
+        (pkgs'.path + "/nixos/modules/profiles/qemu-guest.nix")
         {
           options = {
             shb.backup = lib.mkOption { type = lib.types.anything; };

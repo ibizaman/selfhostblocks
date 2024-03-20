@@ -1,5 +1,6 @@
 { pkgs, lib, ... }:
 let
+  pkgs' = pkgs;
   adminUser = "root";
   adminPass = "rootpw";
 
@@ -124,11 +125,13 @@ let
     '';
 in
 {
-  basic = pkgs.nixosTest {
+  basic = pkgs.testers.runNixOSTest {
     name = "nextcloud-basic";
 
     nodes.server = { config, pkgs, ... }: {
       imports = [
+        (pkgs'.path + "/nixos/modules/profiles/headless.nix")
+        (pkgs'.path + "/nixos/modules/profiles/qemu-guest.nix")
         {
           options = {
             shb.backup = lib.mkOption { type = lib.types.anything; };
@@ -164,11 +167,13 @@ in
     testScript = commonTestScript;
   };
 
-  cert = pkgs.nixosTest {
+  cert = pkgs.testers.runNixOSTest {
     name = "nextcloud-cert";
 
     nodes.server = { config, pkgs, ... }: {
       imports = [
+        (pkgs'.path + "/nixos/modules/profiles/headless.nix")
+        (pkgs'.path + "/nixos/modules/profiles/qemu-guest.nix")
         {
           options = {
             shb.backup = lib.mkOption { type = lib.types.anything; };

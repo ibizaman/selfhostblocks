@@ -1,5 +1,7 @@
 { pkgs, lib, ... }:
 let
+  pkgs' = pkgs;
+
   # TODO: Test login
   commonTestScript = { nodes, ... }:
     let
@@ -38,11 +40,13 @@ let
     '';
 in
 {
-  basic = pkgs.nixosTest {
+  basic = pkgs.testers.runNixOSTest {
     name = "audiobookshelf-basic";
 
     nodes.server = { config, pkgs, ... }: {
       imports = [
+        (pkgs'.path + "/nixos/modules/profiles/headless.nix")
+        (pkgs'.path + "/nixos/modules/profiles/qemu-guest.nix")
         {
           options = {
             shb.backup = lib.mkOption { type = lib.types.anything; };
@@ -66,11 +70,13 @@ in
     testScript = commonTestScript;
   };
 
-  cert = pkgs.nixosTest {
+  cert = pkgs.testers.runNixOSTest {
     name = "audiobookshelf-cert";
 
     nodes.server = { config, pkgs, ... }: {
       imports = [
+        (pkgs'.path + "/nixos/modules/profiles/headless.nix")
+        (pkgs'.path + "/nixos/modules/profiles/qemu-guest.nix")
         {
           options = {
             shb.backup = lib.mkOption { type = lib.types.anything; };
@@ -115,11 +121,13 @@ in
     testScript = commonTestScript;
   };
 
-  sso = pkgs.nixosTest {
+  sso = pkgs.testers.runNixOSTest {
     name = "audiobookshelf-sso";
 
     nodes.server = { config, pkgs, ... }: {
       imports = [
+        (pkgs'.path + "/nixos/modules/profiles/headless.nix")
+        (pkgs'.path + "/nixos/modules/profiles/qemu-guest.nix")
         {
           options = {
             shb.backup = lib.mkOption { type = lib.types.anything; };

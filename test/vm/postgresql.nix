@@ -1,10 +1,15 @@
 { pkgs, lib, ... }:
+let
+  pkgs' = pkgs;
+in
 {
-  peerWithoutUser = pkgs.nixosTest {
+  peerWithoutUser = pkgs.testers.runNixOSTest {
     name = "postgresql-peerWithoutUser";
 
     nodes.machine = { config, pkgs, ... }: {
       imports = [
+        (pkgs'.path + "/nixos/modules/profiles/headless.nix")
+        (pkgs'.path + "/nixos/modules/profiles/qemu-guest.nix")
         ../../modules/blocks/postgresql.nix
       ];
 
@@ -35,11 +40,13 @@
     '';
   };
 
-  peerAuth = pkgs.nixosTest {
+  peerAuth = pkgs.testers.runNixOSTest {
     name = "postgresql-peerAuth";
 
     nodes.machine = { config, pkgs, ... }: {
       imports = [
+        (pkgs'.path + "/nixos/modules/profiles/headless.nix")
+        (pkgs'.path + "/nixos/modules/profiles/qemu-guest.nix")
         ../../modules/blocks/postgresql.nix
       ];
 
@@ -83,11 +90,13 @@
     '';
   };
 
-  tcpIPWithoutPasswordAuth = pkgs.nixosTest {
+  tcpIPWithoutPasswordAuth = pkgs.testers.runNixOSTest {
     name = "postgresql-tcpIpWithoutPasswordAuth";
 
     nodes.machine = { config, pkgs, ... }: {
       imports = [
+        (pkgs'.path + "/nixos/modules/profiles/headless.nix")
+        (pkgs'.path + "/nixos/modules/profiles/qemu-guest.nix")
         ../../modules/blocks/postgresql.nix
       ];
 
@@ -119,11 +128,13 @@
     '';
   };
 
-  tcpIPPasswordAuth = pkgs.nixosTest {
+  tcpIPPasswordAuth = pkgs.testers.runNixOSTest {
     name = "postgresql-tcpIPPasswordAuth";
 
     nodes.machine = { config, pkgs, ... }: {
       imports = [
+        (pkgs'.path + "/nixos/modules/profiles/headless.nix")
+        (pkgs'.path + "/nixos/modules/profiles/qemu-guest.nix")
         ../../modules/blocks/postgresql.nix
       ];
 

@@ -1,5 +1,6 @@
 { pkgs, lib, ... }:
 let
+  pkgs' = pkgs;
   # TODO: Test login
   commonTestScript = appname: { nodes, ... }:
     let
@@ -44,7 +45,7 @@ let
             raise Exception(f"Code is {response['code']}")
     '';
 
-  basic = appname: pkgs.nixosTest {
+  basic = appname: pkgs.testers.runNixOSTest {
     name = "arr-${appname}-basic";
 
     nodes.server = { config, pkgs, ... }: {
@@ -58,6 +59,8 @@ let
         ../../modules/blocks/postgresql.nix
         ../../modules/blocks/nginx.nix
         ../../modules/services/arr.nix
+        (pkgs'.path + "/nixos/modules/profiles/headless.nix")
+        (pkgs'.path + "/nixos/modules/profiles/qemu-guest.nix")
       ];
 
       shb.arr.${appname} = {

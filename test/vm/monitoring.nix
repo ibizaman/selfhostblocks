@@ -1,11 +1,16 @@
 { pkgs, lib, ... }:
+let
+  pkgs' = pkgs;
+in
 {
   # This test, although simple, makes sure all provisioning went fine.
-  auth = pkgs.nixosTest {
+  auth = pkgs.testers.runNixOSTest {
     name = "monitoring-basic";
 
     nodes.machine = { config, pkgs, ... }: {
       imports = [
+        (pkgs'.path + "/nixos/modules/profiles/headless.nix")
+        (pkgs'.path + "/nixos/modules/profiles/qemu-guest.nix")
         {
           options = {
             shb.ssl.enable = lib.mkEnableOption "ssl";
