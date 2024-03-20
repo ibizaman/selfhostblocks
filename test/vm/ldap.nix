@@ -3,12 +3,11 @@ let
   pkgs' = pkgs;
 in
 {
-  auth = pkgs.nixosTest {
+  auth = pkgs.testers.runNixOSTest {
     name = "ldap-auth";
 
     nodes.server = { config, pkgs, ... }: {
       imports = [
-        (pkgs'.path + "/nixos/modules/profiles/minimal.nix")
         (pkgs'.path + "/nixos/modules/profiles/headless.nix")
         (pkgs'.path + "/nixos/modules/profiles/qemu-guest.nix")
         {

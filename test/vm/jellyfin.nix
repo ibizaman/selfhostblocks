@@ -40,12 +40,11 @@ let
     '';
 in
 {
-  basic = pkgs.nixosTest {
+  basic = pkgs.testers.runNixOSTest {
     name = "jellyfin-basic";
 
     nodes.server = { config, pkgs, ... }: {
       imports = [
-        (pkgs'.path + "/nixos/modules/profiles/minimal.nix")
         (pkgs'.path + "/nixos/modules/profiles/headless.nix")
         (pkgs'.path + "/nixos/modules/profiles/qemu-guest.nix")
         {
@@ -71,12 +70,11 @@ in
     testScript = commonTestScript;
   };
 
-  ldap = pkgs.nixosTest {
+  ldap = pkgs.testers.runNixOSTest {
     name = "jellyfin-ldap";
 
     nodes.server = { config, pkgs, ... }: {
       imports = [
-        (pkgs'.path + "/nixos/modules/profiles/minimal.nix")
         (pkgs'.path + "/nixos/modules/profiles/headless.nix")
         (pkgs'.path + "/nixos/modules/profiles/qemu-guest.nix")
         {
@@ -122,12 +120,11 @@ in
     testScript = commonTestScript;
   };
 
-  cert = pkgs.nixosTest {
+  cert = pkgs.testers.runNixOSTest {
     name = "jellyfin_cert";
 
     nodes.server = { config, pkgs, ... }: {
       imports = [
-        (pkgs'.path + "/nixos/modules/profiles/minimal.nix")
         (pkgs'.path + "/nixos/modules/profiles/headless.nix")
         (pkgs'.path + "/nixos/modules/profiles/qemu-guest.nix")
         {
@@ -175,12 +172,11 @@ in
     testScript = commonTestScript;
   };
 
-  sso = pkgs.nixosTest {
+  sso = pkgs.testers.runNixOSTest {
     name = "jellyfin_sso";
 
     nodes.server = { config, pkgs, ... }: {
       imports = [
-        (pkgs'.path + "/nixos/modules/profiles/minimal.nix")
         (pkgs'.path + "/nixos/modules/profiles/headless.nix")
         (pkgs'.path + "/nixos/modules/profiles/qemu-guest.nix")
         {

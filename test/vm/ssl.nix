@@ -3,12 +3,11 @@ let
   pkgs' = pkgs;
 in
 {
-  test = pkgs.nixosTest {
+  test = pkgs.testers.runNixOSTest {
     name = "ssl-test";
 
     nodes.server = { config, pkgs, ... }: {
       imports = [
-        (pkgs'.path + "/nixos/modules/profiles/minimal.nix")
         (pkgs'.path + "/nixos/modules/profiles/headless.nix")
         (pkgs'.path + "/nixos/modules/profiles/qemu-guest.nix")
         ../../modules/blocks/ssl.nix

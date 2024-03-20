@@ -40,12 +40,11 @@ let
     '';
 in
 {
-  basic = pkgs.nixosTest {
+  basic = pkgs.testers.runNixOSTest {
     name = "grocy-basic";
 
     nodes.server = { config, pkgs, ... }: {
       imports = [
-        (pkgs'.path + "/nixos/modules/profiles/minimal.nix")
         (pkgs'.path + "/nixos/modules/profiles/headless.nix")
         (pkgs'.path + "/nixos/modules/profiles/qemu-guest.nix")
         {
@@ -70,12 +69,11 @@ in
     testScript = commonTestScript;
   };
 
-  cert = pkgs.nixosTest {
+  cert = pkgs.testers.runNixOSTest {
     name = "grocy-cert";
 
     nodes.server = { config, pkgs, ... }: {
       imports = [
-        (pkgs'.path + "/nixos/modules/profiles/minimal.nix")
         (pkgs'.path + "/nixos/modules/profiles/headless.nix")
         (pkgs'.path + "/nixos/modules/profiles/qemu-guest.nix")
         {
