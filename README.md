@@ -3,6 +3,7 @@
 *Building blocks for self-hosting with battery included.*
 
 [![Documentation](https://github.com/ibizaman/selfhostblocks/actions/workflows/pages.yml/badge.svg)](https://github.com/ibizaman/selfhostblocks/actions/workflows/pages.yml)
+[![Tests](https://img.shields.io/endpoint.svg?url=https%3A%2F%2Fgarnix.io%2Fapi%2Fbadges%2Fibizaman%2Fselfhostblocks%3Fbranch%3Dmain)](https://garnix.io) (using Garnix)
 
 SHB's (Self Host Blocks) is yet another server management tool whose goal is to provide a lower
 entry-bar for self-hosting. SHB provides opinionated [building blocks](#available-blocks) fitting
