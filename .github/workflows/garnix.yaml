@@ -1,0 +1,20 @@
+name: "Final Results"
+
+on:
+  check_suite:
+    types: [completed]
+
+jobs:
+  results:
+    name: Final Results
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo
+      - run: exit 1
+        # see https://stackoverflow.com/a/67532120/4907315
+        if: >-
+          ${{
+               contains(needs.*.result, 'failure')
+            || contains(needs.*.result, 'cancelled')
+            || contains(needs.*.result, 'skipped')
+          }}
