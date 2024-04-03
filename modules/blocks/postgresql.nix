@@ -1,6 +1,35 @@
-{ config, lib, ... }:
+{ config, lib, pkgs, ... }:
 let
   cfg = config.shb.postgresql;
+
+  upgrade-script = old: new:
+    let
+      oldStr = builtins.toString old;
+      newStr = builtins.toString new;
+
+      oldPkg = pkgs.${"postgresql_${oldStr}"};
+      newPkg = pkgs.${"postgresql_${newStr}"};
+    in
+      pkgs.writeScriptBin "upgrade-pg-cluster-${oldStr}-${newStr}" ''
+        set -eux
+        # XXX it's perhaps advisable to stop all services that depend on postgresql
+        systemctl stop postgresql
+
+        export NEWDATA="/var/lib/postgresql/${newPkg.psqlSchema}"
+        export NEWBIN="${newPkg}/bin"
+
+        export OLDDATA="/var/lib/postgresql/${oldPkg.psqlSchema}"
+        export OLDBIN="${oldPkg}/bin"
+
+        install -d -m 0700 -o postgres -g postgres "$NEWDATA"
+        cd "$NEWDATA"
+        sudo -u postgres $NEWBIN/initdb -D "$NEWDATA"
+
+        sudo -u postgres $NEWBIN/pg_upgrade \
+          --old-datadir "$OLDDATA" --new-datadir "$NEWDATA" \
+          --old-bindir $OLDBIN --new-bindir $NEWBIN \
+          "$@"
+      '';
 in
 {
   options.shb.postgresql = {
@@ -102,13 +131,18 @@ in
         services.postgresql.settings.shared_preload_libraries = "auto_explain, pg_stat_statements";
       };
     in
-      lib.mkMerge (
-        [
-          commonConfig
-          (dbConfig cfg.ensures)
-          (pwdConfig cfg.ensures)
-          (lib.mkIf cfg.enableTCPIP tcpConfig)
-          (debugConfig cfg.debug)
-        ]
-      );
+      lib.mkMerge ([
+        commonConfig
+        (dbConfig cfg.ensures)
+        (pwdConfig cfg.ensures)
+        (lib.mkIf cfg.enableTCPIP tcpConfig)
+        (debugConfig cfg.debug)
+        {
+          environment.systemPackages = [
+            (upgrade-script 13 14)
+            (upgrade-script 14 15)
+            (upgrade-script 15 16)
+          ];
+        }
+      ]);
 }
