@@ -192,7 +192,7 @@ in
 
     systemd.services.vaultwarden.serviceConfig.UMask = lib.mkForce "0027";
     # systemd.services.vaultwarden.serviceConfig.Group = lib.mkForce "media";
-    users.users.deluge = {
+    users.users.vaultwarden = {
       extraGroups = [ "media" ];
     };
 
