@@ -138,7 +138,7 @@ in
         (lib.mkIf cfg.enableTCPIP tcpConfig)
         (debugConfig cfg.debug)
         {
-          environment.systemPackages = [
+          environment.systemPackages = lib.mkIf config.services.postgresql.enable [
             (upgrade-script 13 14)
             (upgrade-script 14 15)
             (upgrade-script 15 16)

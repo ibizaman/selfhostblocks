@@ -1,4 +1,4 @@
-{ lib, ... }:
+{ lib, pkgs, ... }:
 let
   anyOpt = default: lib.mkOption {
     type = lib.types.anything;
@@ -8,11 +8,13 @@ let
   testConfig = m:
     let
       cfg = (lib.evalModules {
+        specialArgs = { inherit pkgs; };
         modules = [
           {
             options = {
               services = anyOpt {};
               systemd = anyOpt {};
+              environment = anyOpt {};
             };
           }
           ../../modules/blocks/postgresql.nix
