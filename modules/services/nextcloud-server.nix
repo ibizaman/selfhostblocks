@@ -277,6 +277,50 @@ in
             };
           };
 
+          externalStorage = lib.mkOption {
+            # TODO: would be nice to have quota include external storage but it's not supported for root:
+            # https://docs.nextcloud.com/server/latest/admin_manual/configuration_user/user_configuration.html#setting-storage-quotas
+            description = ''
+              External Storage App. [Manual](https://docs.nextcloud.com/server/28/go.php?to=admin-external-storage)
+
+              Set `userLocalMount` to automatically add a local directory as an external storage.
+              Use this option if you want to store user data in another folder or another hard drive
+              altogether.
+
+              In the `directory` option, you can use either `$user` and/or `$home` which will be
+              replaced by the user's name and home directory.
+
+              Recommended use of this option is to have the Nextcloud's `dataDir` on a SSD and the
+              `userLocalRooDirectory` on a HDD. Indeed, a SSD is much quicker than a spinning hard
+              drive, which is well suited for randomly accessing small files like thumbnails. On the
+              other side, a spinning hard drive can store more data which is well suited for storing
+              user data.
+            '';
+            default = {};
+            type = lib.types.submodule {
+              options = {
+                enable = lib.mkEnableOption "Nextcloud External Storage App";
+                userLocalMount = lib.mkOption {
+                  default = null;
+                  type = lib.types.nullOr (lib.types.submodule {
+                    options = {
+                      directory = lib.mkOption {
+                        type = lib.types.str;
+                        example = "/srv/nextcloud";
+                      };
+
+                      mountName = lib.mkOption {
+                        type = lib.types.str;
+                        default = "";
+                        example = "local";
+                      };
+                    };
+                  });
+                };
+              };
+            };
+          };
+
           ldap = lib.mkOption {
             description = ''
               LDAP Integration App. [Manual](https://docs.nextcloud.com/server/latest/admin_manual/configuration_user/user_auth_ldap.html)
@@ -716,6 +760,28 @@ in
           in
             "${occ} ${debug} preview:pre-generate";
       };
+    })
+
+    (lib.mkIf cfg.apps.externalStorage.enable {
+      systemd.services.nextcloud-setup.script = ''
+        ${occ} app:install files_external || :
+        ${occ} app:enable  files_external
+      '' + lib.optionalString (cfg.apps.externalStorage.userLocalMount != "") (
+        let
+          cfg' = cfg.apps.externalStorage.userLocalMount;
+
+          escape = x: builtins.replaceStrings ["/"] [''\\\/''] x;
+        in
+          ''
+          ${occ} files_external:list \
+                   | grep '${escape cfg'.mountName}' \
+                   | grep '${escape cfg'.directory}' \
+          || ${occ} files_external:create \
+                   '${cfg'.mountName}' \
+                   local \
+                   null::null \
+                   --config datadir='${cfg'.directory}'
+          '');
     })
 
     (lib.mkIf cfg.apps.ldap.enable {
