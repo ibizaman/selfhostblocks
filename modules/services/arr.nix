@@ -385,6 +385,7 @@ in
     (lib.mkIf cfg.radarr.enable (
     let
       cfg' = cfg.radarr;
+      isSSOEnabled = !(isNull cfg'.authEndpoint);
     in
     {
       services.nginx.enable = true;
@@ -399,7 +400,11 @@ in
       };
 
       systemd.services.radarr.preStart = shblib.replaceSecrets {
-        userConfig = cfg'.settings;
+        userConfig = cfg'.settings
+                     // (lib.optionalAttrs isSSOEnabled {
+                       AuthenticationRequired = "DisabledForLocalAddresses";
+                       AuthenticationMethod = "External";
+                     });
         resultPath = "${config.services.radarr.dataDir}/config.xml";
         generator = apps.radarr.settingsFormat.generate;
       };
@@ -417,6 +422,7 @@ in
     (lib.mkIf cfg.sonarr.enable (
     let
       cfg' = cfg.sonarr;
+      isSSOEnabled = !(isNull cfg'.authEndpoint);
     in
     {
       services.nginx.enable = true;
@@ -430,7 +436,11 @@ in
       };
 
       systemd.services.sonarr.preStart = shblib.replaceSecrets {
-        userConfig = cfg'.settings;
+        userConfig = cfg'.settings
+                     // (lib.optionalAttrs isSSOEnabled {
+                       AuthenticationRequired = "DisabledForLocalAddresses";
+                       AuthenticationMethod = "External";
+                     });
         resultPath = "${config.services.sonarr.dataDir}/config.xml";
         generator = apps.sonarr.settingsFormat.generate;
       };
