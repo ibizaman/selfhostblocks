@@ -700,7 +700,7 @@ in
       systemd.timers.nextcloud-cron-previewgenerator = {
         wantedBy = [ "timers.target" ];
         requires = cfg.mountPointServices;
-        after = [ "nextcloud-setup.service" ] + cfg.mountPointServices;
+        after = [ "nextcloud-setup.service" ] ++ cfg.mountPointServices;
         timerConfig.OnBootSec = "10m";
         timerConfig.OnUnitActiveSec = "10m";
         timerConfig.Unit = "nextcloud-cron-previewgenerator.service";
