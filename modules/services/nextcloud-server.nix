@@ -302,17 +302,25 @@ in
                 enable = lib.mkEnableOption "Nextcloud External Storage App";
                 userLocalMount = lib.mkOption {
                   default = null;
+                  description = "If set, adds a local mount as external storage.";
                   type = lib.types.nullOr (lib.types.submodule {
                     options = {
                       directory = lib.mkOption {
                         type = lib.types.str;
-                        example = "/srv/nextcloud";
+                        description = ''
+                          Local directory on the filesystem to mount. Use `$user` and/or `$home`
+                          which will be replaced by the user's name and home directory.
+                        '';
+                        example = "/srv/nextcloud/$user";
                       };
 
                       mountName = lib.mkOption {
                         type = lib.types.str;
+                        description = ''
+                          Path of the mount in Nextcloud. Use `/` to mount as the root.
+                        '';
                         default = "";
-                        example = "local";
+                        example = [ "home" "/" ];
                       };
                     };
                   });
