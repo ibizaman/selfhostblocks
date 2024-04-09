@@ -230,4 +230,156 @@ in
     # TODO: Test login
     testScript = commonTestScript;
   };
+
+  previewGenerator = pkgs.testers.runNixOSTest {
+    name = "nextcloud-previewGenerator";
+
+    nodes.server = { config, pkgs, ... }: {
+      imports = [
+        (pkgs'.path + "/nixos/modules/profiles/headless.nix")
+        (pkgs'.path + "/nixos/modules/profiles/qemu-guest.nix")
+        {
+          options = {
+            shb.backup = lib.mkOption { type = lib.types.anything; };
+            shb.authelia = lib.mkOption { type = lib.types.anything; };
+          };
+        }
+        ../../modules/services/nextcloud-server.nix
+      ];
+
+      systemd.tmpfiles.rules = [
+        "d '/srv/nextcloud' 0750 nextcloud nextcloud - -"
+      ];
+
+      shb.nextcloud = {
+        enable = true;
+        domain = "example.com";
+        subdomain = "n";
+        dataDir = "/var/lib/nextcloud";
+        tracing = null;
+        defaultPhoneRegion = "US";
+
+        # This option is only needed because we do not access Nextcloud at the default port in the VM.
+        externalFqdn = "n.example.com:8080";
+
+        adminUser = adminUser;
+        adminPassFile = pkgs.writeText "adminPassFile" adminPass;
+        debug = true;
+
+        apps.previewgenerator.enable = true;
+      };
+      # Nginx port.
+      networking.firewall.allowedTCPPorts = [ 80 ];
+      # VM needs a bit more memory than default.
+      virtualisation.memorySize = 4096;
+    };
+
+    nodes.client = {};
+
+    testScript = { nodes, ... }:
+      ''
+      import json
+
+      start_all()
+      server.wait_for_unit("phpfpm-nextcloud.service")
+      server.wait_for_unit("nginx.service")
+      server.wait_for_open_unix_socket("${nodes.server.services.phpfpm.pools.nextcloud.socket}")
+
+      def find_in_logs(unit, text):
+          return server.systemctl("status {}".format(unit))[1].find(text) != -1
+
+      def curl(target, format, endpoint, succeed=True):
+          return json.loads(target.succeed(
+              "curl --fail-with-body --silent --show-error --output /dev/null --location"
+              + " --connect-to n.example.com:443:server:443"
+              + " --connect-to n.example.com:80:server:80"
+              + f" --write-out '{format}'"
+              + " " + endpoint
+          ))
+
+      with subtest("access"):
+          response = curl(client, """{"code":%{response_code}}""", "http://n.example.com")
+
+          if response['code'] != 200:
+              raise Exception(f"Code is {response['code']}")
+      '';
+  };
+
+  externalStorage = pkgs.testers.runNixOSTest {
+    name = "nextcloud-externalStorage";
+
+    nodes.server = { config, pkgs, ... }: {
+      imports = [
+        (pkgs'.path + "/nixos/modules/profiles/headless.nix")
+        (pkgs'.path + "/nixos/modules/profiles/qemu-guest.nix")
+        {
+          options = {
+            shb.backup = lib.mkOption { type = lib.types.anything; };
+            shb.authelia = lib.mkOption { type = lib.types.anything; };
+          };
+        }
+        ../../modules/services/nextcloud-server.nix
+      ];
+
+      systemd.tmpfiles.rules = [
+        "d '/srv/nextcloud' 0750 nextcloud nextcloud - -"
+      ];
+
+      shb.nextcloud = {
+        enable = true;
+        domain = "example.com";
+        subdomain = "n";
+        dataDir = "/var/lib/nextcloud";
+        tracing = null;
+        defaultPhoneRegion = "US";
+
+        # This option is only needed because we do not access Nextcloud at the default port in the VM.
+        externalFqdn = "n.example.com:8080";
+
+        adminUser = adminUser;
+        adminPassFile = pkgs.writeText "adminPassFile" adminPass;
+        debug = true;
+
+        apps.externalStorage = {
+          enable = true;
+          userLocalMount.directory = "/srv/nextcloud/$user";
+          userLocalMount.mountName = "home";
+        };
+      };
+      # Nginx port.
+      networking.firewall.allowedTCPPorts = [ 80 ];
+      # VM needs a bit more memory than default.
+      virtualisation.memorySize = 4096;
+    };
+
+    nodes.client = {};
+
+    testScript = { nodes, ... }:
+      ''
+      import json
+
+      start_all()
+      server.wait_for_unit("phpfpm-nextcloud.service")
+      server.wait_for_unit("nginx.service")
+      server.wait_for_open_unix_socket("${nodes.server.services.phpfpm.pools.nextcloud.socket}")
+
+      def find_in_logs(unit, text):
+          return server.systemctl("status {}".format(unit))[1].find(text) != -1
+
+      def curl(target, format, endpoint, succeed=True):
+          return json.loads(target.succeed(
+              "curl --fail-with-body --silent --show-error --output /dev/null --location"
+              + " --connect-to n.example.com:443:server:443"
+              + " --connect-to n.example.com:80:server:80"
+              + f" --write-out '{format}'"
+              + " " + endpoint
+          ))
+
+      with subtest("access"):
+          response = curl(client, """{"code":%{response_code}}""", "http://n.example.com")
+
+          if response['code'] != 200:
+              raise Exception(f"Code is {response['code']}")
+      '';
+  };
 }
