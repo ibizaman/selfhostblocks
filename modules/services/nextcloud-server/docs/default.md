@@ -12,6 +12,8 @@ This NixOS module is a service that sets up a [Nextcloud Server](https://nextclo
   - [OIDC](#services-nextcloud-server-usage-oidc) app: enables app and sets up integration with an existing OIDC server.
   - [Preview Generator](#services-nextcloud-server-usage-previewgenerator) app: enables app and sets
     up required cron job.
+  - [External Storage](#services-nextcloud-server-usage-externalstorage) app: enables app and
+    optionally configures one local mount.
   - [Only Office](#services-nextcloud-server-usage-onlyoffice) app: enables app and sets up Only
     Office service.
   - Any other app through the
@@ -301,6 +303,35 @@ You can opt-out with:
 ```nix
 shb.nextcloud.apps.previewgenerator.recommendedSettings = false;
 ```
+
+### Enable External Storage App {#services-nextcloud-server-usage-externalstorage}
+
+The following snippet installs and enables the [External
+Storage](https://docs.nextcloud.com/server/28/go.php?to=admin-external-storage) application.
+
+```nix
+shb.nextcloud.apps.externalStorage.enable = true;
+```
+
+Optionally creates a local mount point with:
+
+```nix
+externalStorage = {
+  userLocalMount.rootDirectory = "/srv/nextcloud/$user";
+  userLocalMount.mountName = "home";
+};
+```
+
+You can even make the external storage be at the root with:
+
+```nix
+externalStorage.userLocalMount.mountName = "/";
+```
+
+Recommended use of this app is to have the Nextcloud's `dataDir` on a SSD and the
+`userLocalRooDirectory` on a HDD. Indeed, a SSD is much quicker than a spinning hard drive, which is
+well suited for randomly accessing small files like thumbnails. On the other side, a spinning hard
+drive can store more data which is well suited for storing user data.
 
 ### Enable OnlyOffice App {#services-nextcloud-server-usage-onlyoffice}
 
