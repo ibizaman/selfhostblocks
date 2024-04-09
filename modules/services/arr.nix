@@ -382,7 +382,11 @@ in
   options.shb.arr = lib.listToAttrs (lib.mapAttrsToList appOption apps);
 
   config = lib.mkMerge ([
-    (lib.mkIf cfg.radarr.enable ({
+    (lib.mkIf cfg.radarr.enable (
+    let
+      cfg' = cfg.radarr;
+    in
+    {
       services.nginx.enable = true;
 
       services.radarr = {
@@ -395,22 +399,26 @@ in
       };
 
       systemd.services.radarr.preStart = shblib.replaceSecrets {
-        userConfig = cfg.radarr.settings;
+        userConfig = cfg'.settings;
         resultPath = "${config.services.radarr.dataDir}/config.xml";
         generator = apps.radarr.settingsFormat.generate;
       };
 
-      shb.nginx.autheliaProtect = [ (autheliaProtect {} config.shb.arr.radarr) ];
+      shb.nginx.autheliaProtect = [ (autheliaProtect {} cfg') ];
 
-      shb.backup.instances.radarr = cfg.radarr.backupCfg // {
+      shb.backup.instances.radarr = cfg'.backupCfg // {
         sourceDirectories = [
-          config.shb.arr.radarr.dataDir
+          cfg'.dataDir
         ];
         excludePatterns = [".db-shm" ".db-wal" ".mono"];
       };
     } // backup "radarr"))
 
-    (lib.mkIf cfg.sonarr.enable ({
+    (lib.mkIf cfg.sonarr.enable (
+    let
+      cfg' = cfg.sonarr;
+    in
+    {
       services.nginx.enable = true;
 
       services.sonarr = {
@@ -420,47 +428,56 @@ in
       users.users.sonarr = {
         extraGroups = [ "media" ];
       };
+
       systemd.services.sonarr.preStart = shblib.replaceSecrets {
-        userConfig = cfg.sonarr.settings;
+        userConfig = cfg'.settings;
         resultPath = "${config.services.sonarr.dataDir}/config.xml";
         generator = apps.sonarr.settingsFormat.generate;
       };
 
-      shb.nginx.autheliaProtect = [ (autheliaProtect {} config.shb.arr.sonarr) ];
+      shb.nginx.autheliaProtect = [ (autheliaProtect {} cfg') ];
 
-      shb.backup.instances.sonarr = cfg.sonarr.backupCfg // {
+      shb.backup.instances.sonarr = cfg'.backupCfg // {
         sourceDirectories = [
-          config.shb.arr.sonarr.dataDir
+          cfg'.dataDir
         ];
         excludePatterns = [".db-shm" ".db-wal" ".mono"];
       };
     } // backup "sonarr"))
 
-    (lib.mkIf cfg.bazarr.enable ({
+    (lib.mkIf cfg.bazarr.enable (
+    let
+      cfg' = cfg.bazarr;
+    in
+    {
       services.bazarr = {
         enable = true;
-        listenPort = cfg.bazarr.settings.Port;
+        listenPort = cfg'.settings.Port;
       };
       users.users.bazarr = {
         extraGroups = [ "media" ];
       };
       systemd.services.bazarr.preStart = shblib.replaceSecrets {
-        userConfig = cfg.bazarr.settings;
+        userConfig = cfg'.settings;
         resultPath = "/var/lib/${config.systemd.services.bazarr.serviceConfig.StateDirectory}/config.xml";
         generator = apps.bazarr.settingsFormat.generate;
       };
 
-      shb.nginx.autheliaProtect = [ (autheliaProtect {} config.shb.arr.bazarr) ];
+      shb.nginx.autheliaProtect = [ (autheliaProtect {} cfg') ];
 
-      shb.backup.instances.bazarr = cfg.bazarr.backupCfg // {
+      shb.backup.instances.bazarr = cfg'.backupCfg // {
         sourceDirectories = [
-          config.shb.arr.bazarr.dataDir
+          cfg'.dataDir
         ];
         excludePatterns = [".db-shm" ".db-wal" ".mono"];
       };
     } // backup "bazarr"))
 
-    (lib.mkIf cfg.readarr.enable ({
+    (lib.mkIf cfg.readarr.enable (
+    let
+      cfg' = cfg.readarr;
+    in
+    {
       services.readarr = {
         enable = true;
         dataDir = "/var/lib/readarr";
@@ -469,22 +486,26 @@ in
         extraGroups = [ "media" ];
       };
       systemd.services.readarr.preStart = shblib.replaceSecrets {
-        userConfig = cfg.readarr.settings;
+        userConfig = cfg'.settings;
         resultPath = "${config.services.readarr.dataDir}/config.xml";
         generator = apps.readarr.settingsFormat.generate;
       };
 
-      shb.nginx.autheliaProtect = [ (autheliaProtect {} config.shb.arr.readarr) ];
+      shb.nginx.autheliaProtect = [ (autheliaProtect {} cfg') ];
 
-      shb.backup.instances.readarr = cfg.readarr.backupCfg // {
+      shb.backup.instances.readarr = cfg'.backupCfg // {
         sourceDirectories = [
-          config.shb.arr.readarr.dataDir
+          cfg'.dataDir
         ];
         excludePatterns = [".db-shm" ".db-wal" ".mono"];
       };
     } // backup "readarr"))
 
-    (lib.mkIf cfg.lidarr.enable ({
+    (lib.mkIf cfg.lidarr.enable (
+    let
+      cfg' = cfg.lidarr;
+    in
+    {
       services.lidarr = {
         enable = true;
         dataDir = "/var/lib/lidarr";
@@ -493,22 +514,26 @@ in
         extraGroups = [ "media" ];
       };
       systemd.services.lidarr.preStart = shblib.replaceSecrets {
-        userConfig = cfg.lidarr.settings;
+        userConfig = cfg'.settings;
         resultPath = "${config.services.lidarr.dataDir}/config.xml";
         generator = apps.lidarr.settingsFormat.generate;
       };
 
-      shb.nginx.autheliaProtect = [ (autheliaProtect {} config.shb.arr.lidarr) ];
+      shb.nginx.autheliaProtect = [ (autheliaProtect {} cfg') ];
 
-      shb.backup.instances.lidarr = cfg.lidarr.backupCfg // {
+      shb.backup.instances.lidarr = cfg'.backupCfg // {
         sourceDirectories = [
-          config.shb.arr.lidarr.dataDir
+          cfg'.dataDir
         ];
         excludePatterns = [".db-shm" ".db-wal" ".mono"];
       };
     } // backup "lidarr"))
 
-    (lib.mkIf cfg.jackett.enable ({
+    (lib.mkIf cfg.jackett.enable (
+    let
+      cfg' = cfg.jackett;
+    in
+    {
       services.jackett = {
         enable = true;
         dataDir = "/var/lib/jackett";
@@ -517,18 +542,18 @@ in
         extraGroups = [ "media" ];
       };
       systemd.services.jackett.preStart = shblib.replaceSecrets {
-        userConfig = cfg.jackett.settings;
+        userConfig = cfg'.settings;
         resultPath = "${config.services.jackett.dataDir}/config.xml";
         generator = apps.jackett.settingsFormat.generate;
       };
 
       shb.nginx.autheliaProtect = [ (autheliaProtect {
         extraBypassResources = [ "^/dl.*" ];
-      } config.shb.arr.jackett) ];
+      } cfg') ];
 
-      shb.backup.instances.jackett = cfg.jackett.backupCfg // {
+      shb.backup.instances.jackett = cfg'.backupCfg // {
         sourceDirectories = [
-          config.shb.arr.jackett.dataDir
+          cfg'.dataDir
         ];
         excludePatterns = [".db-shm" ".db-wal" ".mono"];
       };
