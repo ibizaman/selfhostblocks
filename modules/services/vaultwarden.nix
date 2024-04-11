@@ -155,7 +155,7 @@ in
           SMTP_PASSWORD.source = cfg.smtp.passwordFile;
         };
         resultPath = "/var/lib/bitwarden_rs/vaultwarden.env";
-        generator = v: lib.generators.toINIWithGlobalSection {} { globalSection = v; };
+        generator = name: v: lib.generators.toINIWithGlobalSection {} { globalSection = v; };
       };
 
     shb.nginx.autheliaProtect = [

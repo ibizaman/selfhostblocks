@@ -126,7 +126,7 @@ in
         enable = true;
         authEndpoint = "https://oidc.example.com";
         settings = {
-          APIKeyFile = "/run/radarr/apikey";
+          APIKey.source = pkgs.writeText "key" "/run/radarr/apikey";
         };
       };
     };
@@ -199,7 +199,7 @@ in
         enable = true;
         authEndpoint = "https://oidc.example.com";
         settings = {
-          APIKeyFile = "/run/radarr/apikey";
+          APIKey.source = pkgs.writeText "key" "/run/radarr/apikey";
         };
         backupCfg = {
           enable = true;
