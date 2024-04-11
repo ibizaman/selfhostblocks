@@ -462,6 +462,37 @@ in
               };
             };
           };
+
+          memories = lib.mkOption {
+            description = ''
+              Memories App. [Nextcloud App Store](https://apps.nextcloud.com/apps/memories)
+
+              Enabling this app will set up the Memories app and configure all its dependencies.
+
+              To generate metadata for existing files, run:
+
+              ```nix
+              nextcloud-occ memories:index
+              ```
+            '';
+            default = {};
+            type = lib.types.submodule {
+              options = {
+                enable = lib.mkEnableOption "Memories app.";
+
+                vaapi = lib.mkOption {
+                  type = lib.types.bool;
+                  description = ''
+                    Enable VAAPI transcoding.
+
+                    Will make `nextcloud` user part of the `render` group to be able to access
+                    `/dev/dri/renderD128`.
+                  '';
+                  default = false;
+                };
+              };
+            };
+          };
         };
       };
     };
@@ -600,6 +631,7 @@ in
           "overwriteprotocol" = protocol; # Needed if behind a reverse_proxy
           "overwritecondaddr" = ""; # We need to set it to empty otherwise overwriteprotocol does not work.
           "debug" = cfg.debug;
+          "loglevel" = if !cfg.debug then 2 else 0;
           "filelocking.debug" = cfg.debug;
 
           # Use persistent SQL connections.
@@ -678,9 +710,6 @@ in
       systemd.services.phpfpm-nextcloud.requires = cfg.mountPointServices;
       systemd.services.phpfpm-nextcloud.after = cfg.mountPointServices;
 
-      systemd.services.nextcloud-cron.path = [
-        pkgs.perl
-      ];
       systemd.timers.nextcloud-cron.requires = cfg.mountPointServices;
       systemd.timers.nextcloud-cron.after = cfg.mountPointServices;
 
@@ -734,6 +763,22 @@ in
     (lib.mkIf cfg.apps.previewgenerator.enable {
       services.nextcloud.extraApps = {
         inherit ((nextcloudApps cfg.version)) previewgenerator;
+      };
+
+      services.nextcloud.settings = {
+        enabledPreviewProviders = [
+          "OC\\Preview\\BMP"
+          "OC\\Preview\\GIF"
+          "OC\\Preview\\JPEG"
+          "OC\\Preview\\Krita"
+          "OC\\Preview\\MarkDown"
+          "OC\\Preview\\MP3"
+          "OC\\Preview\\OpenDocument"
+          "OC\\Preview\\PNG"
+          "OC\\Preview\\TXT"
+          "OC\\Preview\\XBitmap"
+          "OC\\Preview\\HEIC"
+        ];
       };
 
       # Values taken from
@@ -965,5 +1010,47 @@ in
         }
       ];
     })
+
+    # Great source of inspiration:
+    # https://github.com/Shawn8901/nix-configuration/blob/538c18d9ecbf7c7e649b1540c0d40881bada6690/modules/nixos/private/nextcloud/memories.nix#L226
+    (lib.mkIf cfg.apps.memories.enable
+      (let
+        cfg' = cfg.apps.memories;
+        tf = x: if x then "true" else "false";
+      in
+        {
+
+          systemd.services.nextcloud-cron = {
+            # required for memories
+            # see https://github.com/pulsejet/memories/blob/master/docs/troubleshooting.md#issues-with-nixos
+            path = [ pkgs.perl ];
+          };
+
+
+          systemd.services.nextcloud-setup.script =
+            ''
+            ${occ} app:install memories || :
+            ${occ} app:enable  memories
+            '';
+
+          services.nextcloud = {
+            # See all options at https://memories.gallery/system-config/
+            settings = {
+              "memories.exiftool" = "${pkgs.exiftool}/bin/exiftool";
+              "memories.exiftool_no_local" = "false";
+              "memories.index.mode" = "3";
+              "memories.index.path" = "/Photos";
+              "memories.vod.disable" = "false";
+              "memories.vod.vaapi" = tf cfg'.vaapi;
+              "memories.readonly" = "true";
+              "preview_ffmpeg_path" = "${pkgs.ffmpeg-headless}/bin/ffmpeg";
+            };
+          };
+
+          systemd.services.phpfpm-nextcloud.serviceConfig = lib.mkIf cfg'.vaapi {
+            DeviceAllow = [ "/dev/dri/renderD128 rwm" ];
+            PrivateDevices = lib.mkForce false;
+          };
+        }))
   ];
 }
