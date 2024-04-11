@@ -4,7 +4,7 @@ rec {
     let
       configWithTemplates = withReplacements userConfig;
 
-      nonSecretConfigFile = pkgs.writeText "${resultPath}.template" (generator configWithTemplates);
+      nonSecretConfigFile = pkgs.writeText "${resultPath}.template" (generator "template" configWithTemplates);
 
       replacements = getReplacements userConfig;
     in
@@ -13,7 +13,11 @@ rec {
         inherit resultPath replacements;
       };
 
-  template = file: newPath: replacements: replaceSecretsScript { inherit file replacements; resultPath = newPath; };
+  template = file: newPath: replacements: replaceSecretsScript {
+    inherit file replacements;
+    resultPath = newPath;
+  };
+
   replaceSecretsScript = { file, resultPath, replacements }:
     let
       templatePath = resultPath + ".template";
@@ -25,7 +29,11 @@ rec {
       mkdir -p $(dirname ${templatePath})
       ln -fs ${file} ${templatePath}
       rm -f ${resultPath}
-      ${pkgs.gnused}/bin/sed ${sedPatterns} ${templatePath} > ${resultPath}
+      if [ -z "${sedPatterns}" ]; then
+        cat ${templatePath} > ${resultPath}
+      else
+        ${pkgs.gnused}/bin/sed ${sedPatterns} ${templatePath} > ${resultPath}
+      fi
       '';
 
   secretFileType = lib.types.submodule {

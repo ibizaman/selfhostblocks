@@ -299,7 +299,7 @@ in
         '' + shblib.replaceSecrets {
           userConfig = cfg.config;
           resultPath = "${config.services.home-assistant.configDir}/secrets.yaml";
-          generator = lib.generators.toYAML {};
+          generator = name: value: lib.generators.toYAML {} value;
         });
 
     systemd.tmpfiles.rules = [

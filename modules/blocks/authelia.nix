@@ -341,7 +341,7 @@ in
               identity_providers.oidc.clients = clients;
             };
             resultPath = "/var/lib/authelia-${fqdn}/oidc_clients.yaml";
-            generator = lib.generators.toYAML {};
+            generator = name: value: lib.generators.toYAML {} value;
           };
       in
         lib.mkBefore (mkCfg cfg.oidcClients);

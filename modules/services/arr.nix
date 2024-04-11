@@ -306,7 +306,7 @@ let
       };
     in valueType;
 
-    generate = value: builtins.readFile (pkgs.callPackage ({ runCommand, python3 }: runCommand "config" {
+    generate = name: value: builtins.readFile (pkgs.callPackage ({ runCommand, python3 }: runCommand "config" {
       value = builtins.toJSON {Config = value;};
       passAsFile = [ "value" ];
     } (pkgs.writers.writePython3 "dict2xml" {
@@ -381,7 +381,7 @@ in
 {
   options.shb.arr = lib.listToAttrs (lib.mapAttrsToList appOption apps);
 
-  config = lib.mkMerge ([
+  config = lib.mkMerge [
     (lib.mkIf cfg.radarr.enable (
     let
       cfg' = cfg.radarr;
@@ -393,10 +393,6 @@ in
       services.radarr = {
         enable = true;
         dataDir = "/var/lib/radarr";
-      };
-
-      users.users.radarr = {
-        extraGroups = [ "media" ];
       };
 
       systemd.services.radarr.preStart = shblib.replaceSecrets {
@@ -417,7 +413,8 @@ in
         ];
         excludePatterns = [".db-shm" ".db-wal" ".mono"];
       };
-    } // backup "radarr"))
+    }))
+    (lib.mkIf cfg.radarr.enable (backup "radarr"))
 
     (lib.mkIf cfg.sonarr.enable (
     let
@@ -453,11 +450,13 @@ in
         ];
         excludePatterns = [".db-shm" ".db-wal" ".mono"];
       };
-    } // backup "sonarr"))
+    }))
+    (lib.mkIf cfg.sonarr.enable (backup "sonarr"))
 
     (lib.mkIf cfg.bazarr.enable (
     let
       cfg' = cfg.bazarr;
+      isSSOEnabled = !(isNull cfg'.authEndpoint);
     in
     {
       services.bazarr = {
@@ -468,8 +467,12 @@ in
         extraGroups = [ "media" ];
       };
       systemd.services.bazarr.preStart = shblib.replaceSecrets {
-        userConfig = cfg'.settings;
-        resultPath = "/var/lib/${config.systemd.services.bazarr.serviceConfig.StateDirectory}/config.xml";
+        userConfig = cfg'.settings
+                     // (lib.optionalAttrs isSSOEnabled {
+                       AuthenticationRequired = "DisabledForLocalAddresses";
+                       AuthenticationMethod = "External";
+                     });
+        resultPath = "/var/lib/bazarr/config.xml";
         generator = apps.bazarr.settingsFormat.generate;
       };
 
@@ -481,7 +484,8 @@ in
         ];
         excludePatterns = [".db-shm" ".db-wal" ".mono"];
       };
-    } // backup "bazarr"))
+    }))
+    (lib.mkIf cfg.bazarr.enable (backup "sonarr"))
 
     (lib.mkIf cfg.readarr.enable (
     let
@@ -509,11 +513,13 @@ in
         ];
         excludePatterns = [".db-shm" ".db-wal" ".mono"];
       };
-    } // backup "readarr"))
+    }))
+    (lib.mkIf cfg.readarr.enable (backup "bazarr"))
 
     (lib.mkIf cfg.lidarr.enable (
     let
       cfg' = cfg.lidarr;
+      isSSOEnabled = !(isNull cfg'.authEndpoint);
     in
     {
       services.lidarr = {
@@ -524,7 +530,11 @@ in
         extraGroups = [ "media" ];
       };
       systemd.services.lidarr.preStart = shblib.replaceSecrets {
-        userConfig = cfg'.settings;
+        userConfig = cfg'.settings
+                     // (lib.optionalAttrs isSSOEnabled {
+                       AuthenticationRequired = "DisabledForLocalAddresses";
+                       AuthenticationMethod = "External";
+                     });
         resultPath = "${config.services.lidarr.dataDir}/config.xml";
         generator = apps.lidarr.settingsFormat.generate;
       };
@@ -537,7 +547,8 @@ in
         ];
         excludePatterns = [".db-shm" ".db-wal" ".mono"];
       };
-    } // backup "lidarr"))
+    }))
+    (lib.mkIf cfg.lidarr.enable (backup "readarr"))
 
     (lib.mkIf cfg.jackett.enable (
     let
@@ -553,7 +564,7 @@ in
       };
       systemd.services.jackett.preStart = shblib.replaceSecrets {
         userConfig = cfg'.settings;
-        resultPath = "${config.services.jackett.dataDir}/config.xml";
+        resultPath = "${config.services.jackett.dataDir}/ServerConfig.json";
         generator = apps.jackett.settingsFormat.generate;
       };
 
@@ -567,6 +578,7 @@ in
         ];
         excludePatterns = [".db-shm" ".db-wal" ".mono"];
       };
-    } // backup "jackett"))
-  ]);
+    }))
+    (lib.mkIf cfg.jackett.enable (backup "lidarr"))
+  ];
 }

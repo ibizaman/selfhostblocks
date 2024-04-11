@@ -39,7 +39,7 @@ in
       replaceInTemplate2 = shblib.replaceSecrets {
         inherit userConfig;
         resultPath = "/var/lib/config2.yaml";
-        generator = lib.generators.toJSON {};
+        generator = name: value: lib.generators.toJSON {} value;
       };
     in
       pkgs.testers.runNixOSTest {
