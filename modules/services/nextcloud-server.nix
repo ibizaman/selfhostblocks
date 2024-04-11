@@ -1019,19 +1019,15 @@ in
         tf = x: if x then "true" else "false";
       in
         {
+          services.nextcloud.extraApps = {
+            inherit ((nextcloudApps cfg.version)) memories;
+          };
 
           systemd.services.nextcloud-cron = {
             # required for memories
             # see https://github.com/pulsejet/memories/blob/master/docs/troubleshooting.md#issues-with-nixos
             path = [ pkgs.perl ];
           };
-
-
-          systemd.services.nextcloud-setup.script =
-            ''
-            ${occ} app:install memories || :
-            ${occ} app:enable  memories
-            '';
 
           services.nextcloud = {
             # See all options at https://memories.gallery/system-config/
