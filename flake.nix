@@ -49,6 +49,11 @@
         modules/services/nextcloud-server.nix
         modules/services/vaultwarden.nix
       ];
+
+      # Only used for documentation.
+      contractDummyModules = [
+        modules/contracts/ssl/dummyModule.nix
+      ];
     in
       {
         nixosModules.default = { config, ... }: {
@@ -56,7 +61,8 @@
         };
 
         packages.manualHtml = pkgs.callPackage ./docs {
-          inherit allModules nmdsrc;
+          inherit nmdsrc;
+          allModules = allModules ++ contractDummyModules;
           release = "0.0.1";
         };
 

@@ -32,7 +32,7 @@ in
             description = ''
               Paths where CA certs will be located.
 
-              This option is the contract output of the `shb.certs.cas` SSL block.
+              This option implements the SSL Generator contract.
             '';
             type = contracts.ssl.certs-paths;
             default = rec {
@@ -42,7 +42,11 @@ in
           };
 
           systemdService = lib.mkOption {
-            description = "Systemd oneshot service used to generate the certs.";
+            description = ''
+              Systemd oneshot service used to generate the certs.
+
+              This option implements the SSL Generator contract.
+            '';
             type = lib.types.str;
             default = "shb-certs-ca-${config._module.args.name}.service";
           };
@@ -100,7 +104,7 @@ in
             description = ''
               Paths where certs will be located.
 
-              This option is the contract output of the `shb.certs.certs` SSL block.
+              This option implements the SSL Generator contract.
             '';
             type = contracts.ssl.certs-paths;
             default = rec {
@@ -110,7 +114,11 @@ in
           };
 
           systemdService = lib.mkOption {
-            description = "Systemd oneshot service used to generate the certs.";
+            description = ''
+              Systemd oneshot service used to generate the certs.
+
+              This option implements the SSL Generator contract.
+            '';
             type = lib.types.str;
             default = "shb-certs-cert-selfsigned-${config._module.args.name}.service";
           };
@@ -159,7 +167,7 @@ in
             description = ''
               Paths where certs will be located.
 
-              This option is the contract output of the `shb.certs.certs` SSL block.
+              This option implements the SSL Generator contract.
             '';
             type = contracts.ssl.certs-paths;
             default = {
@@ -178,7 +186,11 @@ in
           };
 
           systemdService = lib.mkOption {
-            description = "Systemd oneshot service used to generate the certs.";
+            description = ''
+              Systemd oneshot service used to generate the certs.
+
+              This option implements the SSL Generator contract.
+            '';
             type = lib.types.str;
             default = "shb-certs-cert-letsencrypt-${config._module.args.name}.service";
           };

@@ -92,7 +92,7 @@ Self Host Blocks will create automatically the following resources:
 
 Those resources are namespaced as appropriate under the Self Host Blocks namespace:
 
-[](./assets/folder.png)
+![](./assets/folder.png)
 
 ## Errors Dashboard {#blocks-monitoring-error-dashboard}
 
