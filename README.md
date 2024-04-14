@@ -5,14 +5,20 @@
 [![Documentation](https://github.com/ibizaman/selfhostblocks/actions/workflows/pages.yml/badge.svg)](https://github.com/ibizaman/selfhostblocks/actions/workflows/pages.yml)
 [![Tests](https://img.shields.io/endpoint.svg?url=https%3A%2F%2Fgarnix.io%2Fapi%2Fbadges%2Fibizaman%2Fselfhostblocks%3Fbranch%3Dmain)](https://garnix.io) (using Garnix)
 
-SHB's (Self Host Blocks) is yet another server management tool whose goal is to provide a lower
-entry-bar for self-hosting. SHB provides opinionated [building blocks](#available-blocks) fitting
-together to self-host any service you'd want. Some [common services](#provided-services) are
-provided out of the box.
+SHB's (Self Host Blocks) is yet another server management tool whose goal is to provide better
+building blocks for self-hosting. Indeed, SHB provides opinionated [building
+blocks](#available-blocks) fitting together to self-host any service you'd want. Some [common
+services](#provided-services) are provided out of the box.
 
-To achieve this, SHB is using the full power of NixOS modules. Indeed, each building block and each
-service is a NixOS module and uses the modules defined in
-[Nixpkgs](https://github.com/NixOS/nixpkgs/).
+SHB's goal is to make these building blocks plug-and-play. To achieve this, SHB pioneers
+[contracts](https://shb.skarabox.com/usage.html) which allows you, the final user, to be more in
+control of which pieces go where. The promise here is to let you choose, for example, any reverse
+proxy you want or any database you want, without requiring work from maintainers of the services you
+want to self host.
+
+To achieve all this, SHB is using the full power of NixOS modules and NixOS VM tests. Indeed, each
+building block and each service is a NixOS module using modules defined in
+[Nixpkgs](https://github.com/NixOS/nixpkgs/) and they are tested using full VMs on every commit.
 
 ## TOC
 
@@ -39,16 +45,18 @@ Self Host Blocks is available as a flake. To use it in your project, add the fol
 inputs.selfhostblocks.url = "github:ibizaman/selfhostblocks";
 ```
 
-See [the manual](https://shb.skarabox.com/usage.html) for more information about installing Self
-Host Blocks.
+This is not quite enough though and more information is provided in [the
+manual](https://shb.skarabox.com/usage.html).
 
 - You are new to self hosting and want pre-configured services to deploy easily. Look at the
   [services section](https://shb.skarabox.com/services.html).
 - You are a seasoned self-hoster but want to enhance some services you deploy already. Go to the
   [blocks section](https://shb.skarabox.com/blocks.html).
-- You are a user of Self Host Blocks but would like to use your own implementation for a block. Head
-  over to the [matrix channel](https://matrix.to/#/#selfhostblocks:matrix.org) to talk about it
-  (this is WIP).
+- You are a user of Self Host Blocks but would like to use your own implementation for a block. Go
+  to the [contracts section](https://shb.skarabox.com/contracts.html).
+
+Head over to the [matrix channel](https://matrix.to/#/#selfhostblocks:matrix.org) for any remaining
+question, or just to say hi :)
 
 ## Why yet another self hosting tool?
 
@@ -59,21 +67,24 @@ specifically:
 - atomic configuration rollbacks;
 - real programming language to define configurations;
 - user-defined abstractions (create your own functions or NixOS modules on top of SHB!);
-- integration with the rest of nixpkgs.
+- integration with the rest of nixpkgs;
+- much fewer "works on my machine" type of issues.
 
 In no particular order, here are some aspects of SHB which I find interesting and differentiates it
 from other server management projects:
 
 - SHB intends to be a library, not a framework. You can either go all in and use SHB provided
   services directly or use just one block in your existing infrastructure.
-- SHB introduces contracts to allow you to swap implementation for each self-hosting need.
-  For example, you should be able to use the reverse proxy you want without modifying any services
-  depending on it.
+- SHB introduces [contracts](https://shb.skarabox.com/contracts.html) to allow you to swap
+  implementation for each self-hosting need. For example, you should be able to use the reverse
+  proxy you want without modifying any services depending on it.
 - SHB contracts also allows you to use your own custom implementation instead of the provided one,
   as long as it follows the contract and passes the tests.
-- SHB provides at least one implementation for each self-hosting need like backups, SSL
-  certificates, reverse proxy, VPN, etc. Those are called blocks here. They are documented in [the
+- SHB provides at least one implementation for each contract like backups, SSL certificates, reverse
+  proxy, VPN, etc. Those are called blocks here and are documented in [the
   manual](https://shb.skarabox.com/blocks.html).
+- SHB provides several services out of the box fully using the blocks provided. Those can also be
+  found in [the manual](https://shb.skarabox.com/services.html).
 - SHB follows nixpkgs unstable branch closely. There is a GitHub action running daily that updates
   the `nixpkgs` input in the root `flakes.nix`, runs the tests and merges a PR with the new input if
   the tests pass.
@@ -82,9 +93,9 @@ from other server management projects:
 
 The manual can be found at [shb.skarabox.com](https://shb.skarabox.com/).
 
-Currently, only some services and blocks are documented. For the rest, unfortunately the source code
-is the best place to read about them. [Here](./modules/services) for services and
-[here](./modules/blocks) for blocks.
+Work is in progress to document everything in the manual but I'm not there yet. For what's not yet
+documented, unfortunately the source code is the best place to read about them.
+[Here](./modules/services) for services and [here](./modules/blocks) for blocks.
 
 ## Roadmap
 
@@ -95,9 +106,11 @@ contracts.
 
 Upstreaming changes is also on the roadmap.
 
-Check [the issues](https://github.com/ibizaman/selfhostblocks/issues) to see planned works.
+Check [the issues](https://github.com/ibizaman/selfhostblocks/issues) to see planned works. Feel
+free to add more!
 
-That being said, I am personally using all the blocks and services in this project, so they do work.
+That being said, I am personally using all the blocks and services in this project, so they do work
+to some extent.
 
 ## Available Blocks
 

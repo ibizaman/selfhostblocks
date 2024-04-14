@@ -144,6 +144,11 @@ in stdenv.mkDerivation {
         '@OPTIONS_JSON@' \
        ${individualModuleOptionsDocs ../modules/services/nextcloud-server.nix}/share/doc/nixos/options.json
 
+    substituteInPlace ./modules/contracts/ssl/docs/default.md \
+      --replace \
+        '@OPTIONS_JSON@' \
+       ${individualModuleOptionsDocs ../modules/contracts/ssl/dummyModule.nix}/share/doc/nixos/options.json
+
     find . -name "*.md" -print0 | \
       while IFS= read -r -d ''' f; do
         substituteInPlace "''${f}" \

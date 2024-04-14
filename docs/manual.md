@@ -15,6 +15,10 @@ usage.md
 services.md
 ```
 
+```{=include=} chapters html:into-file=//contracts.html
+contracts.md
+```
+
 ```{=include=} chapters html:into-file=//blocks.html
 blocks.md
 ```

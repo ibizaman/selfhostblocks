@@ -1,4 +1,4 @@
-{ lib }:
+{ lib, ... }:
 rec {
   certs-paths = lib.types.submodule {
     freeformType = lib.types.anything;
@@ -28,8 +28,14 @@ rec {
       };
 
       systemdService = lib.mkOption {
-        description = "Systemd oneshot service used to generate the CA.";
+        description = ''
+          Systemd oneshot service used to generate the CA. Ends with the `.service` suffix.
+
+          Use this if downstream services must wait for the certificates to be generated before
+          starting.
+        '';
         type = lib.types.str;
+        example = "ca-generator.service";
       };
     };
   };
@@ -48,10 +54,13 @@ rec {
 
       systemdService = lib.mkOption {
         description = ''
-          Systemd oneshot service used to generate the certificate. The name must include the
-          `.service` suffix.
+          Systemd oneshot service used to generate the certificate. Ends with the `.service` suffix.
+
+          Use this if downstream services must wait for the certificates to be generated before
+          starting.
         '';
         type = lib.types.str;
+        example = "cert-generator.service";
       };
     };
   };

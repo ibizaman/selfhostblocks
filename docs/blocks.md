@@ -1,12 +1,12 @@
 # Blocks {#blocks}
 
-Blocks help you self-host apps or services. They define and implement a specific function like
-backup or secure access through a subdomain. Each block is designed to be usable on its own and to
-fit nicely with others.
+Blocks help you self-host apps or services. They implement a specific function like backup or secure
+access through a subdomain. Each block is designed to be usable on its own and to fit nicely with
+others.
 
-In practice, a block defines a contract that must be followed to implement a specific self-hosting
-function. It also comes with a unit test and NixOS VM test suite to ensure any implementation
-follows the contract.
+In practice, a block implements a [contract](contracts.html) that must be followed to implement a
+specific self-hosting function. It also comes with a unit test and NixOS VM test suite to ensure any
+implementation follows the contract.
 
 As an example, let's take the HTTPS access block which allows for a service to be accessible through
 a specific subdomain. In Nix terms, this block defines at minimum the inputs:
