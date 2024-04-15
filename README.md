@@ -11,7 +11,7 @@ blocks](#available-blocks) fitting together to self-host any service you'd want.
 services](#provided-services) are provided out of the box.
 
 SHB's goal is to make these building blocks plug-and-play. To achieve this, SHB pioneers
-[contracts](https://shb.skarabox.com/usage.html) which allows you, the final user, to be more in
+[contracts](https://shb.skarabox.com/contracts.html) which allows you, the final user, to be more in
 control of which pieces go where. The promise here is to let you choose, for example, any reverse
 proxy you want or any database you want, without requiring work from maintainers of the services you
 want to self host.
