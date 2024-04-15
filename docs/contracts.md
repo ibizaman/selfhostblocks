@@ -62,15 +62,15 @@ Indeed, contracts allow:
   importantly, the contracts themselves can be created and maintained by the community.
 - Full **extensibility**. The final user themselves can choose an implementation, even new custom
   implementations not available in nixpkgs, without changing existing code.
+- Last but not least, **Testability**. Thanks to NixOS VM test, we can even go one step further by
+  ensuring each implementation of a contract, even custom ones, provides required options and
+  behaves as the contract requires.
 
 ![](./assets/contracts_separationofconcerns.png "Separation of concerns thanks to contracts.")
 
-Thanks to NixOS VM test, we can even go one step further by ensuring each implementation of a
-contract provides required options and behaves as the contract requires.
-
 ## Are there contracts in nixpkgs already? {#contracts-nixpkgs}
 
-Actually yes, there are some ubiquitous options in nixpkgs. Those I found are:
+Actually not quite, but close. There are some ubiquitous options in nixpkgs. Those I found are:
 
 - `services.<name>.enable`
 - `services.<name>.package`
