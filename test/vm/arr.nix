@@ -7,6 +7,8 @@ let
       shbapp = nodes.server.shb.arr.${appname};
       hasSSL = !(isNull shbapp.ssl);
       fqdn = if hasSSL then "https://${appname}.example.com" else "http://${appname}.example.com";
+      healthUrl = "/health";
+      loginUrl = "/UI/Login";
     in
     ''
     import json
@@ -28,18 +30,21 @@ let
             "curl -X GET --fail-with-body --silent --show-error --output /dev/null --location"
             + " --connect-to ${appname}.example.com:443:server:443"
             + " --connect-to ${appname}.example.com:80:server:80"
+            + " --cookie-jar /tmp/cookies"
+            # Uncomment for debugging:
+            # + " -v"
             + f" --write-out '{format}'"
             + " " + endpoint
         ))
 
     with subtest("health"):
-        response = curl(client, """{"code":%{response_code}}""", "${fqdn}/health")
+        response = curl(client, """{"code":%{response_code}}""", "${fqdn}${healthUrl}")
 
         if response['code'] != 200:
             raise Exception(f"Code is {response['code']}")
 
     with subtest("login"):
-        response = curl(client, """{"code":%{response_code}}""", "${fqdn}/UI/Login")
+        response = curl(client, """{"code":%{response_code}}""", "${fqdn}${loginUrl}")
 
         if response['code'] != 200:
             raise Exception(f"Code is {response['code']}")

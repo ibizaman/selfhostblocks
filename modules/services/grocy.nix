@@ -39,7 +39,7 @@ in
     culture = lib.mkOption {
       type = lib.types.enum [ "de" "en" "da" "en_GB" "es" "fr" "hu" "it" "nl" "no" "pl" "pt_BR" "ru" "sk_SK" "sv_SE" "tr" ];
       default = "en";
-      description = lib.mdDoc ''
+      description = ''
         Display language of the frontend.
       '';
     };
