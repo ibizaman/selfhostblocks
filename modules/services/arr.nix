@@ -485,7 +485,7 @@ in
         excludePatterns = [".db-shm" ".db-wal" ".mono"];
       };
     }))
-    (lib.mkIf cfg.bazarr.enable (backup "sonarr"))
+    (lib.mkIf cfg.bazarr.enable (backup "bazarr"))
 
     (lib.mkIf cfg.readarr.enable (
     let
@@ -514,7 +514,7 @@ in
         excludePatterns = [".db-shm" ".db-wal" ".mono"];
       };
     }))
-    (lib.mkIf cfg.readarr.enable (backup "bazarr"))
+    (lib.mkIf cfg.readarr.enable (backup "readarr"))
 
     (lib.mkIf cfg.lidarr.enable (
     let
@@ -548,7 +548,7 @@ in
         excludePatterns = [".db-shm" ".db-wal" ".mono"];
       };
     }))
-    (lib.mkIf cfg.lidarr.enable (backup "readarr"))
+    (lib.mkIf cfg.lidarr.enable (backup "lidarr"))
 
     (lib.mkIf cfg.jackett.enable (
     let
@@ -579,6 +579,6 @@ in
         excludePatterns = [".db-shm" ".db-wal" ".mono"];
       };
     }))
-    (lib.mkIf cfg.jackett.enable (backup "lidarr"))
+    (lib.mkIf cfg.jackett.enable (backup "jackett"))
   ];
 }
