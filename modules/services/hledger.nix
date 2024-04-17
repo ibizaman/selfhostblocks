@@ -61,9 +61,7 @@ in
       host = "127.0.0.1";
       port = cfg.port;
 
-      capabilities.view = true;
-      capabilities.add = true;
-      capabilities.manage = true;
+      allow = "edit";
       extraOptions = [
         # https://hledger.org/1.30/hledger-web.html
         # "--capabilities-header=HLEDGER-CAP"
