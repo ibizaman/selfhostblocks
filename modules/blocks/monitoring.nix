@@ -47,6 +47,16 @@ in
       default = 3002;
     };
 
+    lokiMajorVersion = lib.mkOption {
+      type = lib.types.enum [ 2 3 ];
+      description = ''
+        Switching from version 2 to 3 requires manual intervention
+        https://grafana.com/docs/loki/latest/setup/upgrade/#main--unreleased. So this let's the user
+        upgrade at their own pace.
+      '';
+      default = 2;
+    };
+
     debugLog = lib.mkOption {
       type = lib.types.bool;
       description = "Set to true to enable debug logging of the infrastructure serving Grafana.";
@@ -266,6 +276,28 @@ in
     services.loki = {
       enable = true;
       dataDir = "/var/lib/loki";
+      package = if cfg.lokiMajorVersion == 3 then pkgs.grafana-loki else
+        # Comes from https://github.com/NixOS/nixpkgs/commit/8f95320f39d7e4e4a29ee70b8718974295a619f4
+        (pkgs.grafana-loki.overrideAttrs (finalAttrs: previousAttrs: rec {
+          version = "2.9.6";
+
+          src = pkgs.fetchFromGitHub {
+            owner = "grafana";
+            repo = "loki";
+            rev = "v${version}";
+            hash = "sha256-79hK7axHf6soku5DvdXkE/0K4WKc4pnS9VMbVc1FS2I=";
+          };
+
+          ldflags = let t = "github.com/grafana/loki/pkg/util/build"; in [
+            "-s"
+            "-w"
+            "-X ${t}.Version=${version}"
+            "-X ${t}.BuildUser=nix@nixpkgs"
+            "-X ${t}.BuildDate=unknown"
+            "-X ${t}.Branch=unknown"
+            "-X ${t}.Revision=unknown"
+          ];
+        }));
       configuration = {
         auth_enabled = false;
 
