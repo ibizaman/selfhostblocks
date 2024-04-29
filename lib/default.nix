@@ -29,12 +29,11 @@ rec {
       mkdir -p $(dirname ${templatePath})
       ln -fs ${file} ${templatePath}
       rm -f ${resultPath}
-      if [ -z "${sedPatterns}" ]; then
+      '' + (if sedPatterns == "" then ''
         cat ${templatePath} > ${resultPath}
-      else
+      '' else ''
         ${pkgs.gnused}/bin/sed ${sedPatterns} ${templatePath} > ${resultPath}
-      fi
-      '';
+      '');
 
   secretFileType = lib.types.submodule {
     options = {

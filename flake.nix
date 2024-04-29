@@ -111,6 +111,7 @@
           // (vm_test "audiobookshelf" ./test/vm/audiobookshelf.nix)
           // (vm_test "authelia" ./test/vm/authelia.nix)
           // (vm_test "grocy" ./test/vm/grocy.nix)
+          // (vm_test "home-assistant" ./test/vm/home-assistant.nix)
           // (vm_test "jellyfin" ./test/vm/jellyfin.nix)
           // (vm_test "ldap" ./test/vm/ldap.nix)
           // (vm_test "lib" ./test/vm/lib.nix)
