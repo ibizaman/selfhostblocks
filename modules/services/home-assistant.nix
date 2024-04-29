@@ -139,6 +139,42 @@ in
       };
     };
 
+    voice = lib.mkOption {
+      description = "Options related to voice service.";
+      default = {};
+      type = lib.types.submodule {
+        options = {
+          speech-to-text = lib.mkOption {
+            description = ''
+              Wyoming piper servers.
+
+              https://search.nixos.org/options?channel=23.11&from=0&size=50&sort=relevance&type=packages&query=services.wyoming.piper.servers
+            '';
+            type = lib.types.attrsOf lib.types.anything;
+            default = {};
+          };
+          text-to-speech = lib.mkOption {
+            description = ''
+              Wyoming faster-whisper servers.
+
+              https://search.nixos.org/options?channel=23.11&from=0&size=50&sort=relevance&type=packages&query=services.wyoming.faster-whisper.servers
+            '';
+            type = lib.types.attrsOf lib.types.anything;
+            default = {};
+          };
+          wakeword = lib.mkOption {
+            description = ''
+              Wyoming open wakework servers.
+
+              https://search.nixos.org/options?channel=23.11&from=0&size=50&sort=relevance&type=packages&query=services.wyoming.openwakeword
+            '';
+            type = lib.types.anything;
+            default = { enable = false; };
+          };
+        };
+      };
+    };
+
     backup = lib.mkOption {
       description = ''
         Backup configuration.
@@ -266,6 +302,10 @@ in
         };
       };
     };
+
+    services.wyoming.piper.servers = cfg.voice.text-to-speech;
+    services.wyoming.faster-whisper.servers = cfg.voice.speech-to-text;
+    services.wyoming.openwakeword = cfg.voice.wakeword;
 
     services.nginx.virtualHosts."${fqdn}" = {
       http2 = true;

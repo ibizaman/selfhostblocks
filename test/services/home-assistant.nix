@@ -64,6 +64,50 @@ let
   #     };
   #   };
   # };
+
+  voice = {
+    shb.home-assistant.voice.text-to-speech = {
+      "fr" = {
+        enable = true;
+        voice = "fr-siwis-medium";
+        uri = "tcp://0.0.0.0:10200";
+        speaker = 0;
+      };
+      "en" = {
+        enable = true;
+        voice = "en_GB-alba-medium";
+        uri = "tcp://0.0.0.0:10201";
+        speaker = 0;
+      };
+    };
+    shb.home-assistant.voice.speech-to-text = {
+      "tiny-fr" = {
+        enable = true;
+        model = "base-int8";
+        language = "fr";
+        uri = "tcp://0.0.0.0:10300";
+        device = "cpu";
+      };
+      "tiny-en" = {
+        enable = true;
+        model = "base-int8";
+        language = "en";
+        uri = "tcp://0.0.0.0:10301";
+        device = "cpu";
+      };
+    };
+    shb.home-assistant.voice.wakeword = {
+      enable = true;
+      uri = "tcp://127.0.0.1:10400";
+      preloadModels = [
+        "alexa"
+        "hey_jarvis"
+        "hey_mycroft"
+        "hey_rhasspy"
+        "ok_nabu"
+      ];
+    };
+  };
 in
 {
   basic = pkgs.testers.runNixOSTest {
@@ -151,4 +195,20 @@ in
   #
   #   testScript = commonTestScript.access;
   # };
+
+  voice = pkgs.testers.runNixOSTest {
+    name = "homeassistant_ldap";
+  
+    nodes.server = {
+      imports = [ 
+        base
+        basic
+        voice
+      ];
+    };
+  
+    nodes.client = {};
+  
+    testScript = commonTestScript.access;
+  };
 }
