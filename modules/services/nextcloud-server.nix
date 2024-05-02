@@ -613,6 +613,9 @@ in
 
           # Use persistent SQL connections.
           "dbpersistent" = "true";
+
+          # https://help.nextcloud.com/t/very-slow-sync-for-small-files/11064/13
+          "chunkSize" = "5120MB";
         };
 
         phpOptions = {
@@ -629,6 +632,8 @@ in
           "opcache.revalidate_freq" = "1";
           short_open_tag = "Off";
 
+          # https://docs.nextcloud.com/server/stable/admin_manual/configuration_files/big_file_upload_configuration.html#configuring-php
+          # > Output Buffering must be turned off [...] or PHP will return memory-related errors.
           output_buffering = "Off";
 
           # Needed to avoid corruption per https://docs.nextcloud.com/server/21/admin_manual/configuration_server/caching_configuration.html#id2
