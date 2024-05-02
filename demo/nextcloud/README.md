@@ -170,7 +170,7 @@ Go first to [http://ldap.example.com:8080](http://ldap.example.com:8080) and log
 
 Create the group `nextcloud_user` and a create a user and assign them to that group.
 
-Finally, go to [http://n.example.com:8080](http://n.example.com:8080) and login with the user and
+Finally, go to [http://n.example.com/login:8080](http://n.example.com/login:8080) and login with the user and
 password you just created above.
 
 Nextcloud doesn't like being run without SSL protection, which this demo does not setup, so you
