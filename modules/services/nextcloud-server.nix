@@ -869,7 +869,14 @@ in
       '';
     })
 
-    (lib.mkIf cfg.apps.sso.enable {
+    (let
+        scopes = [
+          "openid"
+          "profile"
+          "email"
+          "groups"
+        ];
+    in lib.mkIf cfg.apps.sso.enable {
       assertions = [
         {
           assertion = cfg.apps.sso.enable -> cfg.apps.ldap.enable;
@@ -920,7 +927,7 @@ in
           };
           oidc_login_default_group = "oidc";
           oidc_login_use_external_storage = false;
-          oidc_login_scope = "openid profile email groups";
+          oidc_login_scope = lib.concatStringsSep " " scopes;
           oidc_login_proxy_ldap = false;
           # Enable creation of users new to Nextcloud from OIDC login. A user may be known to the
           # IdP but not (yet) known to Nextcloud. This setting controls what to do in this case.
@@ -957,12 +964,7 @@ in
           public = false;
           authorization_policy = cfg.apps.sso.authorization_policy;
           redirect_uris = [ "${protocol}://${fqdnWithPort}/apps/oidc_login/oidc" ];
-          scopes = [
-            "openid"
-            "profile"
-            "email"
-            "groups"
-          ];
+          inherit scopes;
           userinfo_signing_algorithm = "none";
         }
       ];
