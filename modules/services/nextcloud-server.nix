@@ -384,6 +384,15 @@ in
                   description = "Group users must belong to to be able to login to Nextcloud.";
                   default = "nextcloud_user";
                 };
+
+                configID = lib.mkOption {
+                  type = lib.types.int;
+                  description = ''
+                    Multiple LDAP configs can co-exist with only one active at a time.This option
+                    sets the config ID used by Self Host Blocks.
+                  '';
+                  default = 50;
+                };
               };
             });
           };
@@ -794,75 +803,68 @@ in
 
     (lib.mkIf cfg.apps.ldap.enable {
       systemd.services.nextcloud-setup.path = [ pkgs.jq ];
-      systemd.services.nextcloud-setup.script = ''
+      systemd.services.nextcloud-setup.script =
+        let
+          cfg' = cfg.apps.ldap;
+          cID = "s" + toString cfg'.configID;
+        in ''
         ${occ} app:install user_ldap || :
         ${occ} app:enable  user_ldap
 
-        # The following code tries to match an existing config or creates a new one.
-        # The criteria for matching is the ldapHost value.
-
-        ALL_CONFIG="$(${occ} ldap:show-config --output=json --show-password)"
-
-        MATCHING_CONFIG_IDs="$(echo "$ALL_CONFIG" | jq '[to_entries[] | select(.value.ldapHost=="127.0.0.1") | .key]')"
-        if [[ $(echo "$MATCHING_CONFIG_IDs" | jq 'length') > 0 ]]; then
-          CONFIG_ID="$(echo "$MATCHING_CONFIG_IDs" | jq --raw-output '.[0]')"
-        else
-          CONFIG_ID="$(${occ} ldap:create-empty-config --only-print-prefix)"
-        fi
-
-        echo "Using configId $CONFIG_ID"
+        ${occ} config:app:set user_ldap ${cID}ldap_configuration_active --value=0
 
         # The following CLI commands follow
         # https://github.com/lldap/lldap/blob/main/example_configs/nextcloud.md#nextcloud-config--the-cli-way
 
-        ${occ} ldap:set-config "$CONFIG_ID" 'ldapHost' \
-                  '${cfg.apps.ldap.host}'
-        ${occ} ldap:set-config "$CONFIG_ID" 'ldapPort' \
-                  '${toString cfg.apps.ldap.port}'
-        ${occ} ldap:set-config "$CONFIG_ID" 'ldapAgentName' \
-                  'uid=${cfg.apps.ldap.adminName},ou=people,${cfg.apps.ldap.dcdomain}'
-        ${occ} ldap:set-config "$CONFIG_ID" 'ldapAgentPassword'  \
-                  "$(cat ${cfg.apps.ldap.adminPasswordFile})"
-        ${occ} ldap:set-config "$CONFIG_ID" 'ldapBase' \
-                  '${cfg.apps.ldap.dcdomain}'
-        ${occ} ldap:set-config "$CONFIG_ID" 'ldapBaseGroups' \
-                  '${cfg.apps.ldap.dcdomain}'
-        ${occ} ldap:set-config "$CONFIG_ID" 'ldapBaseUsers' \
-                  '${cfg.apps.ldap.dcdomain}'
-        ${occ} ldap:set-config "$CONFIG_ID" 'ldapEmailAttribute' \
+        ${occ} ldap:set-config "${cID}" 'ldapHost' \
+                  '${cfg'.host}'
+        ${occ} ldap:set-config "${cID}" 'ldapPort' \
+                  '${toString cfg'.port}'
+        ${occ} ldap:set-config "${cID}" 'ldapAgentName' \
+                  'uid=${cfg'.adminName},ou=people,${cfg'.dcdomain}'
+        ${occ} ldap:set-config "${cID}" 'ldapAgentPassword'  \
+                  "$(cat ${cfg'.adminPasswordFile})"
+        ${occ} ldap:set-config "${cID}" 'ldapBase' \
+                  '${cfg'.dcdomain}'
+        ${occ} ldap:set-config "${cID}" 'ldapBaseGroups' \
+                  '${cfg'.dcdomain}'
+        ${occ} ldap:set-config "${cID}" 'ldapBaseUsers' \
+                  '${cfg'.dcdomain}'
+        ${occ} ldap:set-config "${cID}" 'ldapEmailAttribute' \
                   'mail'
-        ${occ} ldap:set-config "$CONFIG_ID" 'ldapGroupFilter' \
-                  '(&(|(objectclass=groupOfUniqueNames))(|(cn=${cfg.apps.ldap.userGroup})))'
-        ${occ} ldap:set-config "$CONFIG_ID" 'ldapGroupFilterGroups' \
-                  '${cfg.apps.ldap.userGroup}'
-        ${occ} ldap:set-config "$CONFIG_ID" 'ldapGroupFilterObjectclass' \
+        ${occ} ldap:set-config "${cID}" 'ldapGroupFilter' \
+                  '(&(|(objectclass=groupOfUniqueNames))(|(cn=${cfg'.userGroup})))'
+        ${occ} ldap:set-config "${cID}" 'ldapGroupFilterGroups' \
+                  '${cfg'.userGroup}'
+        ${occ} ldap:set-config "${cID}" 'ldapGroupFilterObjectclass' \
                   'groupOfUniqueNames'
-        ${occ} ldap:set-config "$CONFIG_ID" 'ldapGroupMemberAssocAttr' \
+        ${occ} ldap:set-config "${cID}" 'ldapGroupMemberAssocAttr' \
                   'uniqueMember'
-        ${occ} ldap:set-config "$CONFIG_ID" 'ldapLoginFilter' \
-                  '(&(&(objectclass=person)(memberOf=cn=${cfg.apps.ldap.userGroup},ou=groups,${cfg.apps.ldap.dcdomain}))(|(uid=%uid)(|(mail=%uid)(objectclass=%uid))))'
-        ${occ} ldap:set-config "$CONFIG_ID" 'ldapLoginFilterAttributes' \
+        ${occ} ldap:set-config "${cID}" 'ldapLoginFilter' \
+                  '(&(&(objectclass=person)(memberOf=cn=${cfg'.userGroup},ou=groups,${cfg'.dcdomain}))(|(uid=%uid)(|(mail=%uid)(objectclass=%uid))))'
+        ${occ} ldap:set-config "${cID}" 'ldapLoginFilterAttributes' \
                   'mail;objectclass'
-        ${occ} ldap:set-config "$CONFIG_ID" 'ldapUserDisplayName' \
+        ${occ} ldap:set-config "${cID}" 'ldapUserDisplayName' \
                   'displayname'
-        ${occ} ldap:set-config "$CONFIG_ID" 'ldapUserFilter' \
-                  '(&(objectclass=person)(memberOf=cn=${cfg.apps.ldap.userGroup},ou=groups,${cfg.apps.ldap.dcdomain}))'
-        ${occ} ldap:set-config "$CONFIG_ID" 'ldapUserFilterMode' \
+        ${occ} ldap:set-config "${cID}" 'ldapUserFilter' \
+                  '(&(objectclass=person)(memberOf=cn=${cfg'.userGroup},ou=groups,${cfg'.dcdomain}))'
+        ${occ} ldap:set-config "${cID}" 'ldapUserFilterMode' \
                   '1'
-        ${occ} ldap:set-config "$CONFIG_ID" 'ldapUserFilterObjectclass' \
+        ${occ} ldap:set-config "${cID}" 'ldapUserFilterObjectclass' \
                   'person'
 
-        ${occ} ldap:test-config -- "$CONFIG_ID"
+        ${occ} ldap:test-config -- "${cID}"
 
         # Only one active at the same time
 
+        ALL_CONFIG="$(${occ} ldap:show-config --output=json)"
         for configid in $(echo "$ALL_CONFIG" | jq --raw-output "keys[]"); do
           echo "Deactivating $configid"
           ${occ} ldap:set-config "$configid" 'ldapConfigurationActive' \
                     '0'
         done
 
-        ${occ} ldap:set-config "$CONFIG_ID" 'ldapConfigurationActive' \
+        ${occ} ldap:set-config "${cID}" 'ldapConfigurationActive' \
                   '1'
       '';
     })

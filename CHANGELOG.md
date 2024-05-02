@@ -38,6 +38,7 @@
      ]
    }
   ```
+- Made Nextcloud LDAP setup use a hardcoded configID. This makes the detection of an existing config much more robust.
 
 # 0.1.0
 
