@@ -852,6 +852,11 @@ in
                   '1'
         ${occ} ldap:set-config "${cID}" 'ldapUserFilterObjectclass' \
                   'person'
+        # Makes the user_id used when creating a user through LDAP which means the ID used in
+        # Nextcloud is compatible with the one returned by a (possibly added in the future) SSO
+        # provider.
+        ${occ} ldap:set-config "${cID}" 'ldapExpertUsernameAttr' \
+                  'user_id'
 
         ${occ} ldap:test-config -- "${cID}"
 
