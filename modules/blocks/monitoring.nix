@@ -482,6 +482,11 @@ in
       port = 9112;
       listenAddress = "127.0.0.1";
     };
+    # https://github.com/nixos/nixpkgs/commit/12c26aca1fd55ab99f831bedc865a626eee39f80
+    # TODO: remove when https://github.com/NixOS/nixpkgs/pull/205165 is merged
+    services.udev.extraRules = ''
+      SUBSYSTEM=="nvme", KERNEL=="nvme[0-9]*", GROUP="disk"
+    '';
     services.prometheus.exporters.smartctl = {
       enable = true;
       port = 9115;
