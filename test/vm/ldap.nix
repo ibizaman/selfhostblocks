@@ -27,6 +27,20 @@ in
         ldapUserPasswordFile = pkgs.writeText "user_password" "securepw";
         jwtSecretFile = pkgs.writeText "jwt_secret" "securejwtsecret";
         debug = true;
+
+        # groups = {
+        #   "test-group" = {};
+        # };
+        # users = {
+        #   "42" = {
+        #     email = "my@test.com";
+        #     displayName = "My Test";
+        #     firstName = "My";
+        #     lastName = "My";
+        #     groups = [ "test-group" ];
+        #     passwordFile = pkgs.writeText "userpw" "userpw78";
+        #   };
+        # };
       };
       networking.firewall.allowedTCPPorts = [ 80 ]; # nginx port
     };
@@ -78,6 +92,34 @@ in
 
         assert data['user']['displayName'] == "Administrator"
         assert data['user']['groups'][0]['displayName'] == "lldap_admin"
+
+    # with subtest("check user exists"):
+    #     ids = server.succeed("lldap-cli user list uid").splitlines()
+    #     print(ids)
+    #     if "42" not in ids:
+    #         raise Exception("Did not find user for email my@test.com")
+
+    #     groups = server.succeed("lldap-cli user group list 42").splitlines()
+    #     print(groups)
+    #     if "test-group" not in groups:
+    #         raise Exception("Did not find group for email my@test.com")
+
+    # with subtest("service updates attributes"):
+    #     server.succeed("lldap-cli user update set 42 mail other@test.com")
+
+    #     emails = server.succeed("lldap-cli user list email").splitlines()
+    #     print("after update", emails)
+    #     if "my@test.com" in emails:
+    #         raise Exception("Did not find user for email other@test.com")
+
+    #     server.succeed("systemctl restart lldap")
+
+    #     emails = server.succeed("lldap-cli user list email").splitlines()
+    #     print("after restart", emails)
+    #     if "my@test.com" not in emails:
+    #         raise Exception("Did not find user for email my@test.com")
+
+    # print(server.succeed("systemctl cat lldap | grep Post"))
     '';
   };
 }
