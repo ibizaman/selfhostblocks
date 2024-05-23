@@ -2,9 +2,11 @@
 let
   pkgs' = pkgs;
   # TODO: Test login
-  commonTestScript = appname: { nodes, ... }:
+  commonTestScript = appname: cfgPathFn: { nodes, ... }:
     let
       shbapp = nodes.server.shb.arr.${appname};
+      cfgPath = cfgPathFn shbapp;
+      apiKey = if (shbapp.settings ? ApiKey) then "01234567890123456789" else null;
       hasSSL = !(isNull shbapp.ssl);
       fqdn = if hasSSL then "https://${appname}.example.com" else "http://${appname}.example.com";
       healthUrl = "/health";
@@ -48,9 +50,15 @@ let
 
         if response['code'] != 200:
             raise Exception(f"Code is {response['code']}")
+    '' + lib.optionalString (apiKey != null) ''
+
+    with subtest("apikey"):
+        config = server.succeed("cat ${cfgPath}")
+        if "${apiKey}" not in config:
+            raise Exception(f"Unexpected API Key. Want '${apiKey}', got '{config}'")
     '';
 
-  basic = appname: pkgs.testers.runNixOSTest {
+  basic = appname: cfgPathFn: pkgs.testers.runNixOSTest {
     name = "arr-${appname}-basic";
 
     nodes.server = { config, pkgs, ... }: {
@@ -73,7 +81,7 @@ let
         domain = "example.com";
         subdomain = appname;
 
-        settings.APIKey.source = pkgs.writeText "APIKey" "01234567890123456789"; # Needs to be >=20 characters.
+        settings.ApiKey.source = pkgs.writeText "APIKey" "01234567890123456789"; # Needs to be >=20 characters.
       };
       # Nginx port.
       networking.firewall.allowedTCPPorts = [ 80 ];
@@ -81,14 +89,14 @@ let
 
     nodes.client = {};
 
-    testScript = commonTestScript appname;
+    testScript = commonTestScript appname cfgPathFn;
   };
 in
 {
-  radarr_basic = basic "radarr";
-  sonarr_basic = basic "sonarr";
-  bazarr_basic = basic "bazarr";
-  readarr_basic = basic "readarr";
-  lidarr_basic = basic "lidarr";
-  jackett_basic = basic "jackett";
+  radarr_basic = basic "radarr" (cfg: "${cfg.dataDir}/config.xml");
+  sonarr_basic = basic "sonarr" (cfg: "${cfg.dataDir}/config.xml");
+  bazarr_basic = basic "bazarr" (cfg: "/var/lib/bazarr/config.xml");
+  readarr_basic = basic "readarr" (cfg: "${cfg.dataDir}/config.xml");
+  lidarr_basic = basic "lidarr" (cfg: "${cfg.dataDir}/config.xml");
+  jackett_basic = basic "jackett" (cfg: "${cfg.dataDir}/ServerConfig.json");
 }

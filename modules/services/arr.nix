@@ -8,7 +8,7 @@ let
 
   apps = {
     radarr = {
-      settingsFormat = formatXML {};
+      settingsFormat = shblib.formatXML { enclosingRoot = "Config"; };
       moreOptions = {
         settings = lib.mkOption {
           description = "Specific options for radarr.";
@@ -16,7 +16,7 @@ let
           type = lib.types.submodule {
             freeformType = apps.radarr.settingsFormat.type;
             options = {
-              APIKey = lib.mkOption {
+              ApiKey = lib.mkOption {
                 type = shblib.secretFileType;
                 description = "Path to api key secret file.";
               };
@@ -66,7 +66,7 @@ let
       };
     };
     sonarr = {
-      settingsFormat = formatXML {};
+      settingsFormat = shblib.formatXML { enclosingRoot = "Config"; };
       moreOptions = {
         settings = lib.mkOption {
           description = "Specific options for sonarr.";
@@ -74,7 +74,7 @@ let
           type = lib.types.submodule {
             freeformType = apps.sonarr.settingsFormat.type;
             options = {
-              APIKey = lib.mkOption {
+              ApiKey = lib.mkOption {
                 type = shblib.secretFileType;
                 description = "Path to api key secret file.";
               };
@@ -119,7 +119,7 @@ let
       };
     };
     bazarr = {
-      settingsFormat = formatXML {};
+      settingsFormat = shblib.formatXML { enclosingRoot = "Config"; };
       moreOptions = {
         settings = lib.mkOption {
           description = "Specific options for bazarr.";
@@ -144,7 +144,7 @@ let
       };
     };
     readarr = {
-      settingsFormat = formatXML {};
+      settingsFormat = shblib.formatXML { enclosingRoot = "Config"; };
       moreOptions = {
         settings = lib.mkOption {
           description = "Specific options for readarr.";
@@ -168,7 +168,7 @@ let
       };
     };
     lidarr = {
-      settingsFormat = formatXML {};
+      settingsFormat = shblib.formatXML { enclosingRoot = "Config"; };
       moreOptions = {
         settings = lib.mkOption {
           description = "Specific options for lidarr.";
@@ -200,7 +200,7 @@ let
           type = lib.types.submodule {
             freeformType = apps.jackett.settingsFormat.type;
             options = {
-              APIKey = lib.mkOption {
+              ApiKey = lib.mkOption {
                 type = shblib.secretFileType;
                 description = "Path to api key secret file.";
               };
@@ -291,42 +291,6 @@ let
     };
   };
 
-  formatXML = {}: {
-    type = with lib.types; let
-      valueType = nullOr (oneOf [
-        bool
-        int
-        float
-        str
-        path
-        (attrsOf valueType)
-        (listOf valueType)
-      ]) // {
-        description = "XML value";
-      };
-    in valueType;
-
-    generate = name: value: builtins.readFile (pkgs.callPackage ({ runCommand, python3 }: runCommand "config" {
-      value = builtins.toJSON {Config = value;};
-      passAsFile = [ "value" ];
-    } (pkgs.writers.writePython3 "dict2xml" {
-      libraries = with python3.pkgs; [ python dict2xml ];
-    } ''
-      import os
-      import json
-      from dict2xml import dict2xml
-
-      with open(os.environ["valuePath"]) as f:
-          content = json.loads(f.read())
-          if content is None:
-              print("Could not parse env var valuePath as json")
-              os.exit(2)
-          with open(os.environ["out"], "w") as out:
-              out.write(dict2xml(content))
-    '')) {});
-
-  };
-
   appOption = name: c: lib.nameValuePair name (lib.mkOption {
     description = "Configuration for ${name}";
     default = {};
@@ -402,7 +366,7 @@ in
                        AuthenticationMethod = "External";
                      });
         resultPath = "${config.services.radarr.dataDir}/config.xml";
-        generator = apps.radarr.settingsFormat.generate;
+        generator = shblib.replaceSecretsFormatAdapter apps.radarr.settingsFormat;
       };
 
       shb.nginx.autheliaProtect = [ (autheliaProtect {} cfg') ];
@@ -563,7 +527,7 @@ in
         extraGroups = [ "media" ];
       };
       systemd.services.jackett.preStart = shblib.replaceSecrets {
-        userConfig = cfg'.settings;
+        userConfig = shblib.renameAttrName cfg'.settings "ApiKey" "APIKey";
         resultPath = "${config.services.jackett.dataDir}/ServerConfig.json";
         generator = apps.jackett.settingsFormat.generate;
       };

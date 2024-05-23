@@ -107,4 +107,22 @@ in
           }
         );
   };
+
+  testParseXML = {
+    expected = {
+      "a" = {
+        "b" = "1";
+        "c" = {
+          "d" = "1";
+        };
+      };
+    };
+
+    expr = shblib.parseXML ''
+    <a>
+      <b>1</b>
+      <c><d>1</d></c>
+    </a>
+    '';
+  };
 }
