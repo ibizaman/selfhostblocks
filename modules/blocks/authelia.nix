@@ -95,7 +95,16 @@ in
 
     oidcClients = lib.mkOption {
       description = "OIDC clients";
-      default = [];
+      default = [
+        {
+          id = "dummy_client";
+          description = "Dummy Client so Authelia can start";
+          secret.source = pkgs.writeText "dummy.secret" "dummy_client_secret";
+          public = false;
+          authorization_policy = "one_factor";
+          redirect_uris = [];
+        }
+      ];
       type = lib.types.listOf (lib.types.submodule {
         freeformType = lib.types.attrsOf lib.types.anything;
 
