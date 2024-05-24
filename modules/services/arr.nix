@@ -257,7 +257,7 @@ let
     };
   };
 
-  autheliaProtect = { extraBypassResources ? [] }: c: {
+  vhosts = { extraBypassResources ? [] }: c: {
     inherit (c) subdomain domain authEndpoint ssl;
 
     upstream = "http://127.0.0.1:${toString c.settings.Port}";
@@ -369,7 +369,7 @@ in
         generator = shblib.replaceSecretsFormatAdapter apps.radarr.settingsFormat;
       };
 
-      shb.nginx.autheliaProtect = [ (autheliaProtect {} cfg') ];
+      shb.nginx.vhosts = [ (vhosts {} cfg') ];
 
       shb.backup.instances.radarr = cfg'.backupCfg // {
         sourceDirectories = [
@@ -406,7 +406,7 @@ in
         generator = apps.sonarr.settingsFormat.generate;
       };
 
-      shb.nginx.autheliaProtect = [ (autheliaProtect {} cfg') ];
+      shb.nginx.vhosts = [ (vhosts {} cfg') ];
 
       shb.backup.instances.sonarr = cfg'.backupCfg // {
         sourceDirectories = [
@@ -440,7 +440,7 @@ in
         generator = apps.bazarr.settingsFormat.generate;
       };
 
-      shb.nginx.autheliaProtect = [ (autheliaProtect {} cfg') ];
+      shb.nginx.vhosts = [ (vhosts {} cfg') ];
 
       shb.backup.instances.bazarr = cfg'.backupCfg // {
         sourceDirectories = [
@@ -469,7 +469,7 @@ in
         generator = apps.readarr.settingsFormat.generate;
       };
 
-      shb.nginx.autheliaProtect = [ (autheliaProtect {} cfg') ];
+      shb.nginx.vhosts = [ (vhosts {} cfg') ];
 
       shb.backup.instances.readarr = cfg'.backupCfg // {
         sourceDirectories = [
@@ -503,7 +503,7 @@ in
         generator = apps.lidarr.settingsFormat.generate;
       };
 
-      shb.nginx.autheliaProtect = [ (autheliaProtect {} cfg') ];
+      shb.nginx.vhosts = [ (vhosts {} cfg') ];
 
       shb.backup.instances.lidarr = cfg'.backupCfg // {
         sourceDirectories = [
@@ -532,7 +532,7 @@ in
         generator = apps.jackett.settingsFormat.generate;
       };
 
-      shb.nginx.autheliaProtect = [ (autheliaProtect {
+      shb.nginx.vhosts = [ (vhosts {
         extraBypassResources = [ "^/dl.*" ];
       } cfg') ];
 

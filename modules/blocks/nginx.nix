@@ -7,7 +7,7 @@ let
 
   fqdn = c: "${c.subdomain}.${c.domain}";
 
-  autheliaConfig = lib.types.submodule {
+  vhostConfig = lib.types.submodule {
     options = {
       subdomain = lib.mkOption {
         type = lib.types.str;
@@ -67,9 +67,9 @@ in
       example = true;
     };
 
-    autheliaProtect = lib.mkOption {
+    vhosts = lib.mkOption {
       description = "Endpoints to be protected by authelia.";
-      type = lib.types.listOf autheliaConfig;
+      type = lib.types.listOf vhostConfig;
       default = [];
     };
   };
@@ -135,7 +135,7 @@ in
 
               proxy_pass ${c.upstream};
             ''
-            + lib.optionalString (!(isNull c.authEndpoint)) ''
+            + lib.optionalString (c.authEndpoint != null) ''
               auth_request /authelia;
               auth_request_set $user $upstream_http_remote_user;
               auth_request_set $groups $upstream_http_remote_groups;
@@ -181,13 +181,13 @@ in
           };
         };
       in
-        lib.mkMerge (map vhostCfg cfg.autheliaProtect);
+        lib.mkMerge (map vhostCfg cfg.vhosts);
 
     shb.authelia.rules =
       let
         authConfig = c: map (r: r // { domain = fqdn c; }) c.autheliaRules;
       in
-        lib.flatten (map authConfig cfg.autheliaProtect);
+        lib.flatten (map authConfig cfg.vhosts);
 
     security.acme.defaults.reloadServices = [
       "nginx.service"

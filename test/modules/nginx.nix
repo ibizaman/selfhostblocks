@@ -38,7 +38,7 @@ in
       shb.backup = {};
       shb.nginx = {
         accessLog = false;
-        autheliaProtect = [];
+        vhosts = [];
         debugLog = false;
       };
       services.nginx.enable = true;
@@ -66,7 +66,7 @@ in
         domain = "example.com";
       };
 
-      shb.nginx.autheliaProtect = [{
+      shb.nginx.vhosts = [{
         subdomain = "my";
         domain = "example.com";
         ssl = config.shb.certs.certs.selfsigned."example.com";

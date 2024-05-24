@@ -149,7 +149,7 @@ in
     };
 
     authEndpoint = lib.mkOption {
-      type = lib.types.str;
+      type = lib.types.nullOr lib.types.str;
       description = "OIDC endpoint for SSO";
       example = "https://authelia.example.com";
     };
@@ -253,11 +253,11 @@ in
           "L+ ${config.services.deluge.dataDir}/.config/deluge/plugins - - - - ${plugins}"
         ];
 
-    shb.nginx.autheliaProtect = lib.mkIf config.shb.authelia.enable [
+    shb.nginx.vhosts = [
       {
         inherit (cfg) subdomain domain authEndpoint ssl;
         upstream = "http://127.0.0.1:${toString config.services.deluge.web.port}";
-        autheliaRules = [{
+        autheliaRules = lib.mkIf (cfg.authEndpoint != null) [{
           domain = fqdn;
           policy = "two_factor";
           subject = ["group:deluge_user"];
