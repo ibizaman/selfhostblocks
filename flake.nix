@@ -118,6 +118,7 @@
           // (vm_test "nextcloud" ./test/vm/nextcloud.nix)
           // (vm_test "postgresql" ./test/vm/postgresql.nix)
           // (vm_test "ssl" ./test/vm/ssl.nix)
+          // (vm_test "vaultwarden" ./test/vm/vaultwarden.nix)
           );
       }
   );

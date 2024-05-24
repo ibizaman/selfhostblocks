@@ -36,26 +36,22 @@ in
       default = 8222;
     };
 
-    ldapEndpoint = lib.mkOption {
-      type = lib.types.str;
-      description = "Endpoint for LDAP authentication backend.";
-      example = "ldap.example.com";
-    };
-
     authEndpoint = lib.mkOption {
-      type = lib.types.str;
+      type = lib.types.nullOr lib.types.str;
       description = "OIDC endpoint for SSO";
+      default = null;
       example = "https://authelia.example.com";
     };
 
     databasePasswordFile = lib.mkOption {
-      type = lib.types.str;
+      type = lib.types.path;
       description = "File containing the password to connect to the postgresql database.";
     };
 
     smtp = lib.mkOption {
       description = "SMTP options.";
-      type = lib.types.submodule {
+      default = null;
+      type = lib.types.nullOr (lib.types.submodule {
         options = {
           from_address = lib.mkOption {
             type = lib.types.str;
@@ -95,7 +91,7 @@ in
             description = "File containing the password to connect to the SMTP host.";
           };
         };
-      };
+      });
     };
 
     backupConfig = lib.mkOption {
@@ -130,7 +126,7 @@ in
         ROCKET_LOG = if cfg.debug then "trace" else "info";
         ROCKET_ADDRESS = "127.0.0.1";
         ROCKET_PORT = cfg.port;
-
+      } // lib.optionalAttrs (cfg.smtp != null) {
         SMTP_FROM = cfg.smtp.from_address;
         SMTP_FROM_NAME = cfg.smtp.from_name;
         SMTP_HOST = cfg.smtp.host;
@@ -152,10 +148,11 @@ in
         userConfig = {
           DATABASE_URL.source = cfg.databasePasswordFile;
           DATABASE_URL.transform = v: "postgresql://vaultwarden:${v}@127.0.0.1:5432/vaultwarden";
+        } // lib.optionalAttrs (cfg.smtp != null) {
           SMTP_PASSWORD.source = cfg.smtp.passwordFile;
         };
         resultPath = "/var/lib/bitwarden_rs/vaultwarden.env";
-        generator = name: v: lib.generators.toINIWithGlobalSection {} { globalSection = v; };
+        generator = name: v: pkgs.writeText "template" (lib.generators.toINIWithGlobalSection {} { globalSection = v; });
       };
 
     shb.nginx.vhosts = [
@@ -186,7 +183,7 @@ in
       {
         username = "vaultwarden";
         database = "vaultwarden";
-        passwordFile = cfg.databasePasswordFile;
+        passwordFile = builtins.toString cfg.databasePasswordFile;
       }
     ];
 
