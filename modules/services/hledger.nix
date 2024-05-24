@@ -78,7 +78,7 @@ in
       serviceConfig.StateDirectory = "hledger";
     };
 
-    shb.nginx.autheliaProtect = [
+    shb.nginx.vhosts = [
       {
         inherit (cfg) subdomain domain authEndpoint ssl;
         upstream = "http://${toString config.services.hledger-web.host}:${toString config.services.hledger-web.port}";

@@ -150,7 +150,7 @@ in
           excludePatterns = [ ".db-shm" ".db-wal" ".mono" ];
         };
       };
-      shb.nginx.autheliaProtect = [
+      shb.nginx.vhosts = [
         {
           autheliaRules = [
             {
