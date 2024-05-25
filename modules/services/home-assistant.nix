@@ -294,12 +294,12 @@ in
       in
         ''
           if ! -f ${file}; then
-            mkdir -p ${storage} && cp ${onboarding} ${file}
+            mkdir -p ''$(dirname ${file}) && cp ${onboarding} ${file}
           fi
         '' + shblib.replaceSecrets {
           userConfig = cfg.config;
           resultPath = "${config.services.home-assistant.configDir}/secrets.yaml";
-          generator = name: value: lib.generators.toYAML {} value;
+          generator = shblib.replaceSecretsGeneratorAdapter (lib.generators.toYAML {});
         });
 
     systemd.tmpfiles.rules = [
