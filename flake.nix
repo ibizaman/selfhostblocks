@@ -14,13 +14,17 @@
 
   outputs = { nixpkgs, nix-flake-tests, flake-utils, nmdsrc, ... }: flake-utils.lib.eachDefaultSystem (system:
     let
-      patches = [
-      ];
       originPkgs = nixpkgs.legacyPackages.${system};
+      patches = [
+        (originPkgs.fetchpatch {
+          url = "https://patch-diff.githubusercontent.com/raw/NixOS/nixpkgs/pull/315018.patch";
+          hash = "sha256-8jcGyO/d+htfv/ZajxXh89S3OiDZAr7/fsWC1JpGczM=";
+        })
+      ];
       patchedNixpkgs = originPkgs.applyPatches {
         name = "nixpkgs-patched";
         src = nixpkgs;
-        patches = map (p: originPkgs.writeText "patch" p) patches;
+        inherit patches;
       };
 
       pkgs = import patchedNixpkgs {
@@ -85,12 +89,14 @@
                 inherit (pkgs) lib;
               }
             );
+
+            shblib = pkgs.callPackage ./lib {};
           in (rec {
             all = mergeTests [
               modules
             ];
 
-            modules = nix-flake-tests.lib.check {
+            modules = shblib.check {
               inherit pkgs;
               tests =
                 mergeTests (importFiles [
