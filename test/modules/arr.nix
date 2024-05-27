@@ -77,7 +77,7 @@ in
           "/var/lib/radarr"
         ];
       };
-      shb.nginx.autheliaProtect = [
+      shb.nginx.vhosts = [
         {
           autheliaRules = [
             {
