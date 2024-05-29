@@ -13,6 +13,7 @@ let
     import json
     import os
     import pathlib
+    import time
 
     start_all()
     server.wait_for_unit("phpfpm-nextcloud.service")
@@ -47,7 +48,12 @@ let
         server.systemctl("start nextcloud-cron.service")
 
         # If the service failed, then we're not happy.
-        server.require_unit_state("nextcloud-cron", "inactive")
+        status = "active"
+        while status == "active":
+            status = server.get_unit_info("nextcloud-cron")["ActiveState"]
+            time.sleep(5)
+        if status != "inactive":
+            raise Exception("Cron job did not finish correctly")
 
         if not find_in_logs("nextcloud-cron", "nextcloud-cron.service: Deactivated successfully."):
             raise Exception("Nextcloud cron job did not finish successfully.")
