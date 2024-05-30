@@ -16,6 +16,18 @@ imports = [
 ];
 ```
 
+You can also use the public cache as a substituter with:
+
+```nix
+nix.settings.trusted-public-keys = [
+  "selfhostblocks.cachix.org-1:H5h6Uj188DObUJDbEbSAwc377uvcjSFOfpxyCFP7cVs="
+];
+
+nix.settings.substituters = [
+  "https://selfhostblocks.cachix.org"
+];
+```
+
 For now, Self Host Blocks has a hard dependency on `sops-nix`. I am [working on removing
 that](https://github.com/ibizaman/selfhostblocks/issues/24) so you can use any secrets manager you
 want. Until then, you also need to import the `sops-nix` module:
