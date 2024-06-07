@@ -2,6 +2,10 @@
 let
   pkgs' = pkgs;
 
+  subdomain = "g";
+  domain = "example.com";
+  fqdn = "${subdomain}.${domain}";
+
   # TODO: Test login
   commonTestScript = { nodes, ... }:
     let
@@ -38,82 +42,91 @@ let
         if response['code'] != 200:
             raise Exception(f"Code is {response['code']}")
     '';
+
+  base = {
+    imports = [
+      (pkgs'.path + "/nixos/modules/profiles/headless.nix")
+      (pkgs'.path + "/nixos/modules/profiles/qemu-guest.nix")
+      {
+        options = {
+          shb.backup = lib.mkOption { type = lib.types.anything; };
+        };
+      }
+      ../../modules/services/grocy.nix
+    ];
+
+    # Nginx port.
+    networking.firewall.allowedTCPPorts = [ 80 443 ];
+  };
+
+  certs = { config, ... }: {
+    imports = [
+      ../../modules/blocks/ssl.nix
+    ];
+
+    shb.certs = {
+      cas.selfsigned.myca = {
+        name = "My CA";
+      };
+      certs.selfsigned = {
+        n = {
+          ca = config.shb.certs.cas.selfsigned.myca;
+          domain = "*.${domain}";
+          group = "nginx";
+        };
+      };
+    };
+
+    systemd.services.nginx.after = [ config.shb.certs.certs.selfsigned.n.systemdService ];
+    systemd.services.nginx.requires = [ config.shb.certs.certs.selfsigned.n.systemdService ];
+  };
+
+  basic = { config, ... }: {
+    shb.grocy = {
+      enable = true;
+      inherit domain subdomain;
+    };
+  };
+
+  https = { config, ...}: {
+    shb.grocy = {
+      ssl = config.shb.certs.certs.selfsigned.n;
+    };
+  };
 in
 {
   basic = pkgs.testers.runNixOSTest {
     name = "grocy-basic";
 
-    nodes.server = { config, pkgs, ... }: {
-      imports = [
-        (pkgs'.path + "/nixos/modules/profiles/headless.nix")
-        (pkgs'.path + "/nixos/modules/profiles/qemu-guest.nix")
-        {
-          options = {
-            shb.backup = lib.mkOption { type = lib.types.anything; };
-          };
-        }
-        ../../modules/services/grocy.nix
-      ];
-
-      shb.grocy = {
-        enable = true;
-        domain = "example.com";
-        subdomain = "g";
-      };
-      # Nginx port.
-      networking.firewall.allowedTCPPorts = [ 80 ];
-    };
+    nodes.server = lib.mkMerge [
+      base
+      basic
+      {
+        options = {
+          shb.authelia = lib.mkOption { type = lib.types.anything; };
+        };
+      }
+    ];
 
     nodes.client = {};
 
     testScript = commonTestScript;
   };
 
-  cert = pkgs.testers.runNixOSTest {
-    name = "grocy-cert";
+  https = pkgs.testers.runNixOSTest {
+    name = "grocy-https";
 
-    nodes.server = { config, pkgs, ... }: {
-      imports = [
-        (pkgs'.path + "/nixos/modules/profiles/headless.nix")
-        (pkgs'.path + "/nixos/modules/profiles/qemu-guest.nix")
-        {
-          options = {
-            shb.backup = lib.mkOption { type = lib.types.anything; };
-            shb.authelia = lib.mkOption { type = lib.types.anything; };
-          };
-        }
-        ../../modules/blocks/nginx.nix
-        ../../modules/blocks/ssl.nix
-        ../../modules/services/grocy.nix
-      ];
-
-      shb.certs = {
-        cas.selfsigned.myca = {
-          name = "My CA";
+    nodes.server = lib.mkMerge [
+      base
+      certs
+      basic
+      https
+      {
+        options = {
+          shb.authelia = lib.mkOption { type = lib.types.anything; };
         };
-        certs.selfsigned = {
-          n = {
-            ca = config.shb.certs.cas.selfsigned.myca;
-            domain = "*.example.com";
-            group = "nginx";
-          };
-        };
-      };
-
-      systemd.services.nginx.after = [ config.shb.certs.certs.selfsigned.n.systemdService ];
-      systemd.services.nginx.requires = [ config.shb.certs.certs.selfsigned.n.systemdService ];
-
-      shb.grocy = {
-        enable = true;
-        domain = "example.com";
-        subdomain = "g";
-        ssl = config.shb.certs.certs.selfsigned.n;
-      };
-      # Nginx port.
-      networking.firewall.allowedTCPPorts = [ 80 443 ];
-
-      shb.nginx.accessLog = true;
-    };
+      }
+    ];
 
     nodes.client = {};
 
