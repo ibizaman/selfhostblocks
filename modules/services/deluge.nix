@@ -4,8 +4,18 @@ let
   cfg = config.shb.deluge;
 
   contracts = pkgs.callPackage ../contracts {};
+  shblib = pkgs.callPackage ../../lib {};
 
   fqdn = "${cfg.subdomain}.${cfg.domain}";
+
+  authGenerator = users:
+    let
+      genLine = name: { password, priority ? 10 }:
+        "${name}:${password}:${toString priority}";
+
+      lines = lib.mapAttrsToList genLine users;
+    in
+      lib.concatStringsSep "\n" lines;
 in
 {
   options.shb.deluge = {
@@ -151,17 +161,34 @@ in
     authEndpoint = lib.mkOption {
       type = lib.types.nullOr lib.types.str;
       description = "OIDC endpoint for SSO";
+      default = null;
       example = "https://authelia.example.com";
     };
 
-    authFile = lib.mkOption {
+    extraUsers = lib.mkOption {
+      description = "Users having access to this deluge instance. Attrset of username to user options.";
+      type = lib.types.attrsOf (lib.types.submodule {
+        options = {
+          password = lib.mkOption {
+            type = shblib.secretFileType;
+            description = "File containing the user password.";
+          };
+        };
+      });
+    };
+
+    localclientPasswordFile = lib.mkOption {
+      description = "File containing password for mandatory localclient user.";
       type = lib.types.path;
-      description = "File containing auth lines in the format expected by deluge. See https://dev.deluge-torrent.org/wiki/UserGuide/Authentication.";
     };
 
     enabledPlugins = lib.mkOption {
       type = lib.types.listOf lib.types.str;
-      description = "Plugins to enable, can include those from additionalPlugins.";
+      description = ''
+        Plugins to enable, can include those from additionalPlugins.
+
+        Label is automatically enabled if any of the `shb.arr.*` service is enabled.
+      '';
       example = ["Label"];
       default = [];
     };
@@ -175,7 +202,7 @@ in
     logLevel = lib.mkOption {
       type = lib.types.nullOr (lib.types.enum ["critical" "error" "warning" "info" "debug"]);
       description = "Enable logging.";
-      default = false;
+      default = null;
       example = true;
     };
   };
@@ -229,11 +256,20 @@ in
 
         new_release_check = false;
       };
-      inherit (cfg) authFile;
+
+      authFile = "${config.services.deluge.dataDir}/.config/deluge/authTemplate";
 
       web.enable = true;
       web.port = cfg.webPort;
     };
+
+    systemd.services.deluged.preStart = lib.mkBefore (shblib.replaceSecrets {
+      userConfig = cfg.extraUsers // {
+        localclient.password.source = config.shb.deluge.localclientPasswordFile;
+      };
+      resultPath = "${config.services.deluge.dataDir}/.config/deluge/authTemplate";
+      generator = name: value: pkgs.writeText "delugeAuth" (authGenerator value);
+    });
 
     systemd.services.deluged.serviceConfig.ExecStart = lib.mkForce (lib.concatStringsSep " \\\n    " ([
       "${config.services.deluge.package}/bin/deluged"
@@ -254,15 +290,17 @@ in
         ];
 
     shb.nginx.vhosts = [
-      {
-        inherit (cfg) subdomain domain authEndpoint ssl;
+      ({
+        inherit (cfg) subdomain domain ssl;
         upstream = "http://127.0.0.1:${toString config.services.deluge.web.port}";
         autheliaRules = lib.mkIf (cfg.authEndpoint != null) [{
           domain = fqdn;
           policy = "two_factor";
           subject = ["group:deluge_user"];
         }];
-      }
+      } // (lib.optionalAttrs (cfg.authEndpoint != null) {
+        inherit (cfg) authEndpoint;
+      }))
     ];
 
     # We want deluge to create files in the media group and to make those files group readable.
