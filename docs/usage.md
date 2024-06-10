@@ -39,10 +39,24 @@ imports = [
 ```
 
 Self Host Blocks provides its own `nixpkgs` input so both can be updated in lock step, ensuring
-maximum compatibility. It is recommended to use the following `nixpkgs` as input for your deployments:
+maximum compatibility. It is recommended to use the following `nixpkgs` as input for your
+deployments. Also, patches can be applied by Self Host Blocks. To handle all this, you need the
+following code instead wherever you import `nixpkgs`:
 
 ```nix
-inputs.selfhostblocks.inputs.nixpkgs
+let
+  system = "x86_64-linux";
+  originPkgs = selfhostblocks.inputs.nixpkgs;
+
+  nixpkgs' = originPkgs.legacyPackages.${system}.applyPatches {
+    name = "nixpkgs-patched";
+    src = originPkgs;
+    patches = selfhostblocks.patches.${system};
+  };
+in
+  nixpkgs = import nixpkgs' {
+    inherit system;
+  };
 ```
 
 Advanced users can if they wish use a version of `nixpkgs` of their choosing but then we cannot

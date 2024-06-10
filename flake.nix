@@ -64,6 +64,8 @@
       ];
     in
       {
+        inherit patches;
+
         nixosModules.default = { config, ... }: {
           imports = allModules;
         };
