@@ -6,6 +6,7 @@
 - Rename all `shb.arr.*.APIKey` to `shb.arr.*.ApiKey`.
 - Remove `shb.vaultwarden.ldapEndpoint` option because it was not used in the implementation anyway.
 - Bump Nextcloud default version from 27 to 28. Add support for version 29.
+- Deluge config breaks the authFile into an attrset of user to password file. Also deluge has tests now.
 
 ## User Facing Backwards Compatible Changes
 
