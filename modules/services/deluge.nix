@@ -182,6 +182,12 @@ in
       type = lib.types.path;
     };
 
+    prometheusScraperPasswordFile = lib.mkOption {
+      description = "File containing password for prometheus scraper. Setting this option will activate the prometheus deluge exporter.";
+      type = lib.types.nullOr lib.types.path;
+      default = null;
+    };
+
     enabledPlugins = lib.mkOption {
       type = lib.types.listOf lib.types.str;
       description = ''
@@ -266,7 +272,9 @@ in
     systemd.services.deluged.preStart = lib.mkBefore (shblib.replaceSecrets {
       userConfig = cfg.extraUsers // {
         localclient.password.source = config.shb.deluge.localclientPasswordFile;
-      };
+      } // (lib.optionalAttrs (config.shb.deluge.prometheusScraperPasswordFile != null) {
+        prometheus_scraper.password.source = config.shb.deluge.prometheusScraperPasswordFile;
+      });
       resultPath = "${config.services.deluge.dataDir}/.config/deluge/authTemplate";
       generator = name: value: pkgs.writeText "delugeAuth" (authGenerator value);
     });
@@ -320,5 +328,24 @@ in
     };
   } {
     systemd.services.deluged.serviceConfig = cfg.extraServiceConfig;
-  }]);
+  } (lib.mkIf (config.shb.deluge.prometheusScraperPasswordFile != null) {
+    services.prometheus.exporters.deluge = {
+      enable = true;
+
+      delugeHost = "127.0.0.1";
+      delugePort = config.services.deluge.config.daemon_port;
+      delugeUser = "prometheus_scraper";
+      delugePasswordFile = config.shb.deluge.prometheusScraperPasswordFile;
+    };
+
+    services.prometheus.scrapeConfigs = [
+      {
+        job_name = "deluge";
+        static_configs = [{
+          targets = ["127.0.0.1:${toString config.services.prometheus.exporters.deluge.port}"];
+        }];
+      }
+    ];
+  })
+  ]);
 }

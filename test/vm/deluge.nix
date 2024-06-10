@@ -98,6 +98,21 @@ let
             raise Exception(f"result had an error {response['error']}")
     '';
 
+  prometheusTestScript = { nodes, ... }:
+    let
+      hasSSL = !(isNull nodes.server.shb.deluge.ssl);
+      proto_fqdn = if hasSSL then "https://${fqdn}" else "http://${fqdn}";
+    in
+    ''
+    server.wait_for_open_port(${toString nodes.server.services.prometheus.exporters.deluge.port})
+    with subtest("prometheus"):
+        response = server.succeed(
+            "curl -sSf "
+            + " http://localhost:${toString nodes.server.services.prometheus.exporters.deluge.port}/metrics"
+        )
+        print(response)
+    '';
+
   base = {
     imports = [
       (pkgs'.path + "/nixos/modules/profiles/headless.nix")
@@ -293,4 +308,27 @@ in
   #
   #   testScript = commonTestScript;
   # };
+
+  prometheus = pkgs.testers.runNixOSTest {
+    name = "deluge_https";
+
+    nodes.server = lib.mkMerge [
+      base
+      certs
+      basic
+      https
+      prometheus
+      {
+        options = {
+          shb.authelia = lib.mkOption { type = lib.types.anything; };
+        };
+      }
+    ];
+
+    nodes.client = {};
+
+    testScript = inputs:
+      (commonTestScript inputs)
+      + (prometheusTestScript inputs);
+  };
 }
