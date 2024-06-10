@@ -10,7 +10,7 @@ let
   commonTestScript = { nodes, ... }:
     let
       hasSSL = !(isNull nodes.server.shb.grocy.ssl);
-      fqdn = if hasSSL then "https://g.example.com" else "http://g.example.com";
+      proto_fqdn = if hasSSL then "https://${fqdn}" else "http://${fqdn}";
     in
     ''
     import json
@@ -30,14 +30,14 @@ let
     def curl(target, format, endpoint, succeed=True):
         return json.loads(target.succeed(
             "curl --fail-with-body --silent --show-error --output /dev/null --location"
-            + " --connect-to g.example.com:443:server:443"
-            + " --connect-to g.example.com:80:server:80"
+            + " --connect-to ${fqdn}:443:server:443"
+            + " --connect-to ${fqdn}:80:server:80"
             + f" --write-out '{format}'"
             + " " + endpoint
         ))
 
     with subtest("access"):
-        response = curl(client, """{"code":%{response_code}}""", "${fqdn}")
+        response = curl(client, """{"code":%{response_code}}""", "${proto_fqdn}")
 
         if response['code'] != 200:
             raise Exception(f"Code is {response['code']}")
