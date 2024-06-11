@@ -336,6 +336,7 @@ in
       delugePort = config.services.deluge.config.daemon_port;
       delugeUser = "prometheus_scraper";
       delugePasswordFile = config.shb.deluge.prometheusScraperPasswordFile;
+      exportPerTorrentMetrics = true;
     };
 
     services.prometheus.scrapeConfigs = [
