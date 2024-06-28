@@ -24,6 +24,10 @@
           url = "https://github.com/NixOS/nixpkgs/pull/317107.patch";
           hash = "sha256-hoLrqV7XtR1hP/m0rV9hjYUBtrSjay0qcPUYlKKuVWk=";
         })
+        (originPkgs.fetchpatch {
+          url = "https://patch-diff.githubusercontent.com/raw/NixOS/nixpkgs/pull/304721.patch";
+          sha256 = "sha256-AOTtqbsDkykJKeE/e0Y2IscSHZ56vLEbl7lzxd+QfKo=";
+        })
       ];
       patchedNixpkgs = originPkgs.applyPatches {
         name = "nixpkgs-patched";
