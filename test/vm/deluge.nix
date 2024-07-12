@@ -6,47 +6,26 @@ let
   domain = "example.com";
   fqdn = "${subdomain}.${domain}";
 
-  commonTestScript = { nodes, ... }:
-    let
-      hasSSL = !(isNull nodes.server.shb.deluge.ssl);
-      proto_fqdn = if hasSSL then "https://${fqdn}" else "http://${fqdn}";
-    in
-    ''
-    import json
-    import os
-    import pathlib
+  testLib = pkgs.callPackage ../common.nix {};
 
-    start_all()
-    server.wait_for_unit("nginx.service")
-    server.wait_for_unit("deluged.service")
-    server.wait_for_unit("delugeweb.service")
-    server.wait_for_open_port(${toString nodes.server.shb.deluge.daemonPort})
-    server.wait_for_open_port(${toString nodes.server.shb.deluge.webPort})
-
-    if ${if hasSSL then "True" else "False"}:
-        server.copy_from_vm("/etc/ssl/certs/ca-certificates.crt")
-        client.succeed("rm -r /etc/ssl/certs")
-        client.copy_from_host(str(pathlib.Path(os.environ.get("out", os.getcwd())) / "ca-certificates.crt"), "/etc/ssl/certs/ca-certificates.crt")
-
-    def curl(target, format, endpoint, succeed=True):
-        return json.loads(target.succeed(
-            "curl --fail-with-body --silent --show-error --output /dev/null --location"
-            + " --connect-to ${fqdn}:443:server:443"
-            + " --connect-to ${fqdn}:80:server:80"
-            + f" --write-out '{format}'"
-            + " " + endpoint
-        ))
-
-    print(server.succeed('journalctl -n100 -u deluged'))
-    print(server.succeed('systemctl status deluged'))
-    print(server.succeed('systemctl status delugeweb'))
-
-    with subtest("access"):
-        response = curl(client, """{"code":%{response_code}}""", "${proto_fqdn}")
-
-        if response['code'] != 200:
-            raise Exception(f"Code is {response['code']}")
+  commonTestScript = testLib.accessScript {
+    inherit fqdn;
+    hasSSL = { node, ... }: !(isNull node.config.shb.deluge.ssl);
+    waitForServices = { ... }: [
+      "nginx.service"
+      "deluged.service"
+      "delugeweb.service"
+    ];
+    waitForPorts = { node, ... }: [
+      node.config.shb.deluge.daemonPort
+      node.config.shb.deluge.webPort
+    ];
+    extraScript = { node, ... }: ''
+    print(${node.name}.succeed('journalctl -n100 -u deluged'))
+    print(${node.name}.succeed('systemctl status deluged'))
+    print(${node.name}.succeed('systemctl status delugeweb'))
     '';
+  };
 
   # TODO: Test login directly to deluge daemon to exercise extraUsers
   authTestScript = { nodes, ... }:

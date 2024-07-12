@@ -2,42 +2,23 @@
 let
   pkgs' = pkgs;
 
-  # TODO: Test login
-  commonTestScript = { nodes, ... }:
-    let
-      hasSSL = !(isNull nodes.server.shb.jellyfin.ssl);
-      fqdn = if hasSSL then "https://j.example.com" else "http://j.example.com";
-    in
-    ''
-    import json
-    import os
-    import pathlib
+  testLib = pkgs.callPackage ../common.nix {};
 
-    start_all()
-    server.wait_for_unit("jellyfin.service")
-    server.wait_for_unit("nginx.service")
-    server.wait_for_open_port(8096)
+  subdomain = "j";
+  domain = "example.com";
+  fqdn = "${subdomain}.${domain}";
 
-    if ${if hasSSL then "True" else "False"}:
-        server.copy_from_vm("/etc/ssl/certs/ca-certificates.crt")
-        client.succeed("rm -r /etc/ssl/certs")
-        client.copy_from_host(str(pathlib.Path(os.environ.get("out", os.getcwd())) / "ca-certificates.crt"), "/etc/ssl/certs/ca-certificates.crt")
-
-    def curl(target, format, endpoint, succeed=True):
-        return json.loads(target.succeed(
-            "curl --fail-with-body --silent --show-error --output /dev/null --location"
-            + " --connect-to j.example.com:443:server:443"
-            + " --connect-to j.example.com:80:server:80"
-            + f" --write-out '{format}'"
-            + " " + endpoint
-        ))
-
-    with subtest("access"):
-        response = curl(client, """{"code":%{response_code}}""", "${fqdn}")
-
-        if response['code'] != 200:
-            raise Exception(f"Code is {response['code']}")
-    '';
+  commonTestScript = testLib.accessScript {
+    inherit fqdn;
+    hasSSL = { node, ... }: !(isNull node.config.shb.jellyfin.ssl);
+    waitForServices = { ... }: [
+      "jellyfin.service"
+      "nginx.service"
+    ];
+    waitForPorts = { node, ... }: [
+      8096
+    ];
+  };
 in
 {
   basic = pkgs.testers.runNixOSTest {
