@@ -1,62 +1,51 @@
 { pkgs, lib, ... }:
 let
   pkgs' = pkgs;
+
+  domain = "example.com";
+  healthUrl = "/health";
+  loginUrl = "/UI/Login";
+
+  testLib = pkgs.callPackage ../common.nix {};
+
   # TODO: Test login
-  commonTestScript = appname: cfgPathFn: { nodes, ... }:
+  commonTestScript = appname: cfgPathFn:
     let
-      shbapp = nodes.server.shb.arr.${appname};
-      cfgPath = cfgPathFn shbapp;
-      apiKey = if (shbapp.settings ? ApiKey) then "01234567890123456789" else null;
-      hasSSL = !(isNull shbapp.ssl);
-      fqdn = if hasSSL then "https://${appname}.example.com" else "http://${appname}.example.com";
-      healthUrl = "/health";
-      loginUrl = "/UI/Login";
-    in
-    ''
-    import json
-    import os
-    import pathlib
+      fqdn = "${appname}.${domain}";
+    in testLib.accessScript {
+      inherit fqdn;
+      hasSSL = { node, ... }: !(isNull node.config.shb.arr.${appname}.ssl);
+      waitForServices = { ... }: [
+        "${appname}.service"
+        "nginx.service"
+      ];
+      waitForPorts = { node, ... }: [
+        node.config.shb.arr.${appname}.settings.Port
+      ];
+      extraScript = { node, proto_fqdn, ... }: let
+        shbapp = node.config.shb.arr.${appname};
+        cfgPath = cfgPathFn shbapp;
+        apiKey = if (shbapp.settings ? ApiKey) then "01234567890123456789" else null;
+      in ''
+        with subtest("health"):
+            response = curl(client, """{"code":%{response_code}}""", "${fqdn}${healthUrl}")
 
-    start_all()
-    server.wait_for_unit("${appname}.service")
-    server.wait_for_unit("nginx.service")
-    server.wait_for_open_port(${builtins.toString shbapp.settings.Port})
+            if response['code'] != 200:
+                raise Exception(f"Code is {response['code']}")
 
-    if ${if hasSSL then "True" else "False"}:
-        server.copy_from_vm("/etc/ssl/certs/ca-certificates.crt")
-        client.succeed("rm -r /etc/ssl/certs")
-        client.copy_from_host(str(pathlib.Path(os.environ.get("out", os.getcwd())) / "ca-certificates.crt"), "/etc/ssl/certs/ca-certificates.crt")
+        with subtest("login"):
+            response = curl(client, """{"code":%{response_code}}""", "${fqdn}${loginUrl}")
 
-    def curl(target, format, endpoint, succeed=True):
-        return json.loads(target.succeed(
-            "curl -X GET --fail-with-body --silent --show-error --output /dev/null --location"
-            + " --connect-to ${appname}.example.com:443:server:443"
-            + " --connect-to ${appname}.example.com:80:server:80"
-            + " --cookie-jar /tmp/cookies"
-            # Uncomment for debugging:
-            # + " -v"
-            + f" --write-out '{format}'"
-            + " " + endpoint
-        ))
+            if response['code'] != 200:
+                raise Exception(f"Code is {response['code']}")
+      '' + lib.optionalString (apiKey != null) ''
 
-    with subtest("health"):
-        response = curl(client, """{"code":%{response_code}}""", "${fqdn}${healthUrl}")
-
-        if response['code'] != 200:
-            raise Exception(f"Code is {response['code']}")
-
-    with subtest("login"):
-        response = curl(client, """{"code":%{response_code}}""", "${fqdn}${loginUrl}")
-
-        if response['code'] != 200:
-            raise Exception(f"Code is {response['code']}")
-    '' + lib.optionalString (apiKey != null) ''
-
-    with subtest("apikey"):
-        config = server.succeed("cat ${cfgPath}")
-        if "${apiKey}" not in config:
-            raise Exception(f"Unexpected API Key. Want '${apiKey}', got '{config}'")
-    '';
+        with subtest("apikey"):
+            config = server.succeed("cat ${cfgPath}")
+            if "${apiKey}" not in config:
+                raise Exception(f"Unexpected API Key. Want '${apiKey}', got '{config}'")
+      '';
+    };
 
   basic = appname: cfgPathFn: pkgs.testers.runNixOSTest {
     name = "arr-${appname}-basic";
@@ -78,7 +67,7 @@ let
 
       shb.arr.${appname} = {
         enable = true;
-        domain = "example.com";
+        inherit domain;
         subdomain = appname;
 
         settings.ApiKey.source = pkgs.writeText "APIKey" "01234567890123456789"; # Needs to be >=20 characters.

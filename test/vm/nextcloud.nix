@@ -8,44 +8,23 @@ let
   domain = "example.com";
   fqdn = "${subdomain}.${domain}";
 
-  commonTestScript = { nodes, ... }:
-    let
-      hasSSL = !(isNull nodes.server.shb.nextcloud.ssl);
-      proto_fqdn = if hasSSL then "https://${fqdn}" else "http://${fqdn}";
-    in
-    ''
-    import json
-    import os
-    import pathlib
+  testLib = pkgs.callPackage ../common.nix {};
+
+  commonTestScript = testLib.accessScript {
+    inherit fqdn;
+    hasSSL = { node, ... }: !(isNull node.config.shb.nextcloud.ssl);
+    waitForServices = { ... }: [
+      "phpfpm-nextcloud.service"
+      "nginx.service"
+    ];
+    waitForUnixSocket = { node, ... }: [
+      node.config.services.phpfpm.pools.nextcloud.socket
+    ];
+    extraScript = { node, proto_fqdn, ... }: ''
     import time
-
-    start_all()
-    server.wait_for_unit("phpfpm-nextcloud.service")
-    server.wait_for_unit("nginx.service")
-    server.wait_for_open_unix_socket("${nodes.server.services.phpfpm.pools.nextcloud.socket}")
-
-    if ${if hasSSL then "True" else "False"}:
-        server.copy_from_vm("/etc/ssl/certs/ca-certificates.crt")
-        client.succeed("rm -r /etc/ssl/certs")
-        client.copy_from_host(str(pathlib.Path(os.environ.get("out", os.getcwd())) / "ca-certificates.crt"), "/etc/ssl/certs/ca-certificates.crt")
 
     def find_in_logs(unit, text):
         return server.systemctl("status {}".format(unit))[1].find(text) != -1
-
-    def curl(target, format, endpoint, succeed=True):
-        return json.loads(target.succeed(
-            "curl --fail-with-body --silent --show-error --output /dev/null --location"
-            + " --connect-to ${fqdn}:443:server:443"
-            + " --connect-to ${fqdn}:80:server:80"
-            + f" --write-out '{format}'"
-            + " " + endpoint
-        ))
-
-    with subtest("access"):
-        response = curl(client, """{"code":%{response_code}}""", "${proto_fqdn}")
-
-        if response['code'] != 200:
-            raise Exception(f"Code is {response['code']}")
 
     with subtest("cron job succeeds"):
         # This calls blocks until the service is done.
@@ -133,6 +112,7 @@ let
         if content != "hello\n":
             raise Exception("Got incorrect content for file, expected 'hello\n' but got:\n{}".format(content))
     '';
+  };
 
   base = {
     imports = [
