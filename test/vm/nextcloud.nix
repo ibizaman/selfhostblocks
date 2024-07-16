@@ -10,8 +10,8 @@ let
 
   testLib = pkgs.callPackage ../common.nix {};
 
-  commonTestScript = testLib.accessScript {
-    inherit fqdn;
+  commonTestScript = lib.makeOverridable testLib.accessScript {
+    inherit subdomain domain;
     hasSSL = { node, ... }: !(isNull node.config.shb.nextcloud.ssl);
     waitForServices = { ... }: [
       "phpfpm-nextcloud.service"
@@ -114,48 +114,15 @@ let
     '';
   };
 
-  base = {
-    imports = [
-      (pkgs'.path + "/nixos/modules/profiles/headless.nix")
-      (pkgs'.path + "/nixos/modules/profiles/qemu-guest.nix")
-      {
-        options = {
-          shb.backup = lib.mkOption { type = lib.types.anything; };
-        };
-      }
-      ../../modules/services/nextcloud-server.nix
-    ];
-
-    # Nginx port.
-    networking.firewall.allowedTCPPorts = [ 80 443 ];
-  };
-
-  certs = { config, ... }: {
-    imports = [
-      ../../modules/blocks/ssl.nix
-    ];
-
-    shb.certs = {
-      cas.selfsigned.myca = {
-        name = "My CA";
-      };
-      certs.selfsigned = {
-        n = {
-          ca = config.shb.certs.cas.selfsigned.myca;
-          domain = "*.${domain}";
-          group = "nginx";
-        };
-      };
-    };
-
-    systemd.services.nginx.after = [ config.shb.certs.certs.selfsigned.n.systemdService ];
-    systemd.services.nginx.requires = [ config.shb.certs.certs.selfsigned.n.systemdService ];
-  };
+  base = testLib.base pkgs' [
+    ../../modules/services/nextcloud-server.nix
+  ];
 
   basic = { config, ... }: {
     shb.nextcloud = {
       enable = true;
       inherit domain subdomain;
+
       dataDir = "/var/lib/nextcloud";
       tracing = null;
       defaultPhoneRegion = "US";
@@ -175,6 +142,40 @@ let
 
       externalFqdn = lib.mkForce null;
     };
+  };
+
+  ldap = { config, ... }: {
+    shb.nextcloud = {
+      apps.ldap = {
+        enable = true;
+        host = "127.0.0.1";
+        port = config.shb.ldap.ldapPort;
+        dcdomain = config.shb.ldap.dcdomain;
+        adminName = "admin";
+        adminPasswordFile = config.shb.ldap.ldapUserPasswordFile;
+        userGroup = "nextcloud_user";
+      };
+    };
+  };
+
+  sso = { config, ... }:
+    let
+      authSecret = pkgs.writeText "authSecret" "authSecret";
+    in
+      {
+        shb.nextcloud = {
+          apps.sso = {
+            enable = true;
+            endpoint = "https://${config.shb.authelia.subdomain}.${config.shb.authelia.domain}";
+            clientID = "nextcloud";
+            # adminUserGroup = "nextcloud_admin";
+
+            secretFile = authSecret;
+            secretFileForAuthelia = authSecret;
+
+            fallbackDefaultAuth = false;
+          };
+        };
   };
 
   previewgenerator = { config, ...}: {
@@ -203,17 +204,14 @@ let
 in
 {
   basic = pkgs.testers.runNixOSTest {
-    name = "nextcloud-basic";
+    name = "nextcloud_basic";
 
-    nodes.server = lib.mkMerge [
-      base
-      basic
-      {
-        options = {
-          shb.authelia = lib.mkOption { type = lib.types.anything; };
-        };
-      }
-    ];
+    nodes.server = {
+      imports = [
+        base
+        basic
+      ];
+    };
 
     nodes.client = {};
 
@@ -221,19 +219,16 @@ in
   };
 
   https = pkgs.testers.runNixOSTest {
-    name = "nextcloud-https";
+    name = "nextcloud_https";
 
-    nodes.server = lib.mkMerge [
-      base
-      certs
-      basic
-      https
-      {
-        options = {
-          shb.authelia = lib.mkOption { type = lib.types.anything; };
-        };
-      }
-    ];
+    nodes.server = {
+      imports = [
+        base
+        (testLib.certs domain)
+        basic
+        https
+      ];
+    };
 
     nodes.client = {};
 
@@ -242,20 +237,17 @@ in
   };
 
   previewGenerator = pkgs.testers.runNixOSTest {
-    name = "nextcloud-previewGenerator";
+    name = "nextcloud_previewGenerator";
 
-    nodes.server = lib.mkMerge [
-      base
-      certs
-      basic
-      https
-      previewgenerator
-      {
-        options = {
-          shb.authelia = lib.mkOption { type = lib.types.anything; };
-        };
-      }
-    ];
+    nodes.server = {
+      imports = [
+        base
+        (testLib.certs domain)
+        basic
+        https
+        previewgenerator
+      ];
+    };
 
     nodes.client = {};
 
@@ -263,23 +255,60 @@ in
   };
 
   externalStorage = pkgs.testers.runNixOSTest {
-    name = "nextcloud-externalStorage";
+    name = "nextcloud_externalStorage";
 
-    nodes.server = lib.mkMerge [
-      base
-      certs
-      basic
-      https
-      externalstorage
-      {
-        options = {
-          shb.authelia = lib.mkOption { type = lib.types.anything; };
-        };
-      }
-    ];
+    nodes.server = {
+      imports = [
+        base
+        (testLib.certs domain)
+        basic
+        https
+        externalstorage
+      ];
+    };
 
     nodes.client = {};
 
+    testScript = commonTestScript;
+  };
+
+  ldap = pkgs.testers.runNixOSTest {
+    name = "nextcloud_ldap";
+  
+    nodes.server = { config, ... }: {
+      imports = [
+        base
+        (testLib.certs domain)
+        basic
+        https
+        (testLib.ldap domain pkgs')
+        ldap
+      ];
+    };
+  
+    nodes.client = {};
+  
+    testScript = commonTestScript;
+  };
+
+  sso = pkgs.testers.runNixOSTest {
+    name = "nextcloud_sso";
+  
+    nodes.server = { config, ... }: {
+      imports = [
+        base
+        (testLib.certs domain)
+        basic
+        https
+        (testLib.ldap domain pkgs')
+        ldap
+        (testLib.sso domain pkgs' config.shb.certs.certs.selfsigned.n)
+        sso
+      ];
+    };
+  
+    nodes.client = {};
+  
     testScript = commonTestScript;
   };
 }

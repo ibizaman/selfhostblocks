@@ -8,8 +8,8 @@ let
   domain = "example.com";
   fqdn = "${subdomain}.${domain}";
 
-  commonTestScript = testLib.accessScript {
-    inherit fqdn;
+  commonTestScript = lib.makeOverridable testLib.accessScript {
+    inherit subdomain domain;
     hasSSL = { node, ... }: !(isNull node.config.shb.grocy.ssl);
     waitForServices = { ... }: [
       "phpfpm-grocy.service"
@@ -23,43 +23,9 @@ let
     # '';
   };
 
-  base = {
-    imports = [
-      (pkgs'.path + "/nixos/modules/profiles/headless.nix")
-      (pkgs'.path + "/nixos/modules/profiles/qemu-guest.nix")
-      {
-        options = {
-          shb.backup = lib.mkOption { type = lib.types.anything; };
-        };
-      }
-      ../../modules/services/grocy.nix
-    ];
-
-    # Nginx port.
-    networking.firewall.allowedTCPPorts = [ 80 443 ];
-  };
-
-  certs = { config, ... }: {
-    imports = [
-      ../../modules/blocks/ssl.nix
-    ];
-
-    shb.certs = {
-      cas.selfsigned.myca = {
-        name = "My CA";
-      };
-      certs.selfsigned = {
-        n = {
-          ca = config.shb.certs.cas.selfsigned.myca;
-          domain = "*.${domain}";
-          group = "nginx";
-        };
-      };
-    };
-
-    systemd.services.nginx.after = [ config.shb.certs.certs.selfsigned.n.systemdService ];
-    systemd.services.nginx.requires = [ config.shb.certs.certs.selfsigned.n.systemdService ];
-  };
+  base = testLib.base pkgs' [
+    ../../modules/services/grocy.nix
+  ];
 
   basic = { config, ... }: {
     shb.grocy = {
@@ -76,17 +42,14 @@ let
 in
 {
   basic = pkgs.testers.runNixOSTest {
-    name = "grocy-basic";
+    name = "grocy_basic";
 
-    nodes.server = lib.mkMerge [
-      base
-      basic
-      {
-        options = {
-          shb.authelia = lib.mkOption { type = lib.types.anything; };
-        };
-      }
-    ];
+    nodes.server = {
+      imports = [
+        base
+        basic
+      ];
+    };
 
     nodes.client = {};
 
@@ -94,19 +57,16 @@ in
   };
 
   https = pkgs.testers.runNixOSTest {
-    name = "grocy-https";
+    name = "grocy_https";
 
-    nodes.server = lib.mkMerge [
-      base
-      certs
-      basic
-      https
-      {
-        options = {
-          shb.authelia = lib.mkOption { type = lib.types.anything; };
-        };
-      }
-    ];
+    nodes.server = {
+      imports = [
+        base
+        (testLib.certs domain)
+        basic
+        https
+      ];
+    };
 
     nodes.client = {};
 
