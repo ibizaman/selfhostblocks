@@ -203,6 +203,28 @@ in
       type = lib.types.listOf lib.types.path;
       description = "Location of additional plugins. Each item in the list must be the path to the directory containing the plugin .egg file.";
       default = [];
+      example = lib.literalExpression ''
+      additionalPlugins = [
+        (pkgs.callPackage ({ python3, fetchFromGitHub }: python3.pkgs.buildPythonPackage {
+          name = "deluge-autotracker";
+          version = "1.0.0";
+          src = fetchFromGitHub {
+            owner = "ibizaman";
+            repo = "deluge-autotracker";
+            rev = "cc40d816a497bbf1c2ebeb3d8b1176210548a3e6";
+            sha256 = "sha256-0LpVdv1fak2a5eX4unjhUcN7nMAl9fgpr3X+7XnQE6c=";
+          } + "/autotracker";
+          doCheck = false;
+          format = "other";
+          nativeBuildInputs = [ python3.pkgs.setuptools ];
+          buildPhase = '''
+          mkdir "$out"
+          python3 setup.py install --install-lib "$out"
+          ''';
+          doInstallPhase = false;
+        }) {})
+      ];
+      '';
     };
 
     logLevel = lib.mkOption {
@@ -236,11 +258,11 @@ in
 
         enabled_plugins = cfg.enabledPlugins
                           ++ lib.optional (lib.any (x: x.enable) [
-                              config.shb.arr.radarr
-                              config.shb.arr.sonarr
-                              config.shb.arr.bazarr
-                              config.shb.arr.readarr
-                              config.shb.arr.lidarr
+                              config.services.radarr
+                              config.services.sonarr
+                              config.services.bazarr
+                              config.services.readarr
+                              config.services.lidarr
                           ]) "Label";
 
         inherit (cfg.settings)
@@ -301,11 +323,20 @@ in
       ({
         inherit (cfg) subdomain domain ssl;
         upstream = "http://127.0.0.1:${toString config.services.deluge.web.port}";
-        autheliaRules = lib.mkIf (cfg.authEndpoint != null) [{
-          domain = fqdn;
-          policy = "two_factor";
-          subject = ["group:deluge_user"];
-        }];
+        autheliaRules = lib.mkIf (cfg.authEndpoint != null) [
+          {
+            domain = fqdn;
+            policy = "bypass";
+            resources = [
+              "^/json"
+            ];
+          }
+          {
+            domain = fqdn;
+            policy = "two_factor";
+            subject = ["group:deluge_user"];
+          }
+        ];
       } // (lib.optionalAttrs (cfg.authEndpoint != null) {
         inherit (cfg) authEndpoint;
       }))

@@ -11,9 +11,10 @@ let
   # TODO: Test login
   commonTestScript = appname: cfgPathFn:
     let
-      fqdn = "${appname}.${domain}";
+      subdomain = appname;
+      fqdn = "${subdomain}.${domain}";
     in testLib.accessScript {
-      inherit fqdn;
+      inherit subdomain domain;
       hasSSL = { node, ... }: !(isNull node.config.shb.arr.${appname}.ssl);
       waitForServices = { ... }: [
         "${appname}.service"
@@ -47,45 +48,81 @@ let
       '';
     };
 
-  basic = appname: cfgPathFn: pkgs.testers.runNixOSTest {
+  base = testLib.base pkgs' [
+    ../../modules/services/arr.nix
+  ];
+
+  basic = appname: { ... }: {
+    shb.arr.${appname} = {
+      enable = true;
+      inherit domain;
+      subdomain = appname;
+
+      settings.ApiKey.source = pkgs.writeText "APIKey" "01234567890123456789"; # Needs to be >=20 characters.
+    };
+  };
+
+  basicTest = appname: cfgPathFn: pkgs.testers.runNixOSTest {
     name = "arr-${appname}-basic";
 
     nodes.server = { config, pkgs, ... }: {
       imports = [
-        {
-          options = {
-            shb.backup = lib.mkOption { type = lib.types.anything; };
-          };
-        }
-        ../../modules/blocks/authelia.nix
-        ../../modules/blocks/postgresql.nix
-        ../../modules/blocks/nginx.nix
-        ../../modules/services/arr.nix
-        (pkgs'.path + "/nixos/modules/profiles/headless.nix")
-        (pkgs'.path + "/nixos/modules/profiles/qemu-guest.nix")
+        base
+        (basic appname)
       ];
-
-      shb.arr.${appname} = {
-        enable = true;
-        inherit domain;
-        subdomain = appname;
-
-        settings.ApiKey.source = pkgs.writeText "APIKey" "01234567890123456789"; # Needs to be >=20 characters.
-      };
-      # Nginx port.
-      networking.firewall.allowedTCPPorts = [ 80 ];
     };
 
     nodes.client = {};
 
     testScript = commonTestScript appname cfgPathFn;
   };
+
+  https = appname: { config, ...}: {
+    shb.arr.${appname} = {
+      ssl = config.shb.certs.certs.selfsigned.n;
+    };
+  };
+
+  httpsTest = appname: cfgPathFn: pkgs.testers.runNixOSTest {
+    name = "arr-${appname}-https";
+
+    nodes.server = { config, pkgs, ... }: {
+      imports = [
+        base
+        (basic appname)
+        (testLib.certs domain)
+        (https appname)
+      ];
+    };
+
+    nodes.client = {};
+
+    testScript = commonTestScript appname cfgPathFn;
+  };
+
+  radarrCfgFn = cfg: "${cfg.dataDir}/config.xml";
+  sonarrCfgFn = cfg: "${cfg.dataDir}/config.xml";
+  bazarrCfgFn = cfg: "/var/lib/bazarr/config.xml";
+  readarrCfgFn = cfg: "${cfg.dataDir}/config.xml";
+  lidarrCfgFn = cfg: "${cfg.dataDir}/config.xml";
+  jackettCfgFn = cfg: "${cfg.dataDir}/ServerConfig.json";
 in
 {
-  radarr_basic = basic "radarr" (cfg: "${cfg.dataDir}/config.xml");
-  sonarr_basic = basic "sonarr" (cfg: "${cfg.dataDir}/config.xml");
-  bazarr_basic = basic "bazarr" (cfg: "/var/lib/bazarr/config.xml");
-  readarr_basic = basic "readarr" (cfg: "${cfg.dataDir}/config.xml");
-  lidarr_basic = basic "lidarr" (cfg: "${cfg.dataDir}/config.xml");
-  jackett_basic = basic "jackett" (cfg: "${cfg.dataDir}/ServerConfig.json");
+  radarr_basic = basicTest "radarr" radarrCfgFn;
+  radarr_https = httpsTest "radarr" radarrCfgFn;
+
+  sonarr_basic = basicTest "sonarr" sonarrCfgFn;
+  sonarr_https = httpsTest "sonarr" sonarrCfgFn;
+
+  bazarr_basic = basicTest "bazarr" bazarrCfgFn;
+  bazarr_https = httpsTest "bazarr" bazarrCfgFn;
+
+  readarr_basic = basicTest "readarr" readarrCfgFn;
+  readarr_https = httpsTest "readarr" readarrCfgFn;
+
+  lidarr_basic = basicTest "lidarr" lidarrCfgFn;
+  lidarr_https = httpsTest "lidarr" lidarrCfgFn;
+
+  jackett_basic = basicTest "jackett" jackettCfgFn;
+  jackett_https = httpsTest "jackett" jackettCfgFn;
 }
