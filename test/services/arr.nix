@@ -13,7 +13,7 @@ let
     let
       subdomain = appname;
       fqdn = "${subdomain}.${domain}";
-    in testLib.accessScript {
+    in lib.makeOverridable testLib.accessScript {
       inherit subdomain domain;
       hasSSL = { node, ... }: !(isNull node.config.shb.arr.${appname}.ssl);
       waitForServices = { ... }: [
@@ -28,8 +28,10 @@ let
         cfgPath = cfgPathFn shbapp;
         apiKey = if (shbapp.settings ? ApiKey) then "01234567890123456789" else null;
       in ''
+        # These curl requests still return a 200 even with sso redirect.
         with subtest("health"):
             response = curl(client, """{"code":%{response_code}}""", "${fqdn}${healthUrl}")
+            print("response =", response)
 
             if response['code'] != 200:
                 raise Exception(f"Code is {response['code']}")
@@ -63,7 +65,7 @@ let
   };
 
   basicTest = appname: cfgPathFn: pkgs.testers.runNixOSTest {
-    name = "arr-${appname}-basic";
+    name = "arr_${appname}_basic";
 
     nodes.server = { config, pkgs, ... }: {
       imports = [
@@ -84,13 +86,13 @@ let
   };
 
   httpsTest = appname: cfgPathFn: pkgs.testers.runNixOSTest {
-    name = "arr-${appname}-https";
+    name = "arr_${appname}_https";
 
     nodes.server = { config, pkgs, ... }: {
       imports = [
         base
-        (basic appname)
         (testLib.certs domain)
+        (basic appname)
         (https appname)
       ];
     };
@@ -98,6 +100,34 @@ let
     nodes.client = {};
 
     testScript = commonTestScript appname cfgPathFn;
+  };
+
+  sso = appname: { config, ...}: {
+    shb.arr.${appname} = {
+      authEndpoint = "https://${config.shb.authelia.subdomain}.${config.shb.authelia.domain}";
+    };
+  };
+
+  ssoTest = appname: cfgPathFn: pkgs.testers.runNixOSTest {
+    name = "arr_${appname}_sso";
+
+    nodes.server = { config, pkgs, ... }: {
+      imports = [
+        base
+        (testLib.certs domain)
+        (basic appname)
+        (https appname)
+        (testLib.ldap domain pkgs')
+        (testLib.sso domain pkgs' config.shb.certs.certs.selfsigned.n)
+        (sso appname)
+      ];
+    };
+
+    nodes.client = {};
+
+    testScript = (commonTestScript appname cfgPathFn).override {
+      redirectSSO = true;
+    };
   };
 
   radarrCfgFn = cfg: "${cfg.dataDir}/config.xml";
@@ -110,19 +140,25 @@ in
 {
   radarr_basic = basicTest "radarr" radarrCfgFn;
   radarr_https = httpsTest "radarr" radarrCfgFn;
+  radarr_sso   = ssoTest   "radarr" radarrCfgFn;
 
   sonarr_basic = basicTest "sonarr" sonarrCfgFn;
   sonarr_https = httpsTest "sonarr" sonarrCfgFn;
+  sonarr_sso   = ssoTest   "sonarr" sonarrCfgFn;
 
   bazarr_basic = basicTest "bazarr" bazarrCfgFn;
   bazarr_https = httpsTest "bazarr" bazarrCfgFn;
+  bazarr_sso   = ssoTest   "bazarr" bazarrCfgFn;
 
   readarr_basic = basicTest "readarr" readarrCfgFn;
   readarr_https = httpsTest "readarr" readarrCfgFn;
+  readarr_sso   = ssoTest   "readarr" readarrCfgFn;
 
   lidarr_basic = basicTest "lidarr" lidarrCfgFn;
   lidarr_https = httpsTest "lidarr" lidarrCfgFn;
+  lidarr_sso   = ssoTest   "lidarr" lidarrCfgFn;
 
   jackett_basic = basicTest "jackett" jackettCfgFn;
   jackett_https = httpsTest "jackett" jackettCfgFn;
+  jackett_sso   = ssoTest   "jackett" jackettCfgFn;
 }
