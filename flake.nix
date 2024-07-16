@@ -119,20 +119,21 @@
               tests = pkgs.callPackage ./test/modules/lib.nix {};
             };
           }
-          // (vm_test "arr" ./test/vm/arr.nix)
-          // (vm_test "audiobookshelf" ./test/vm/audiobookshelf.nix)
-          // (vm_test "authelia" ./test/vm/authelia.nix)
-          // (vm_test "deluge" ./test/vm/deluge.nix)
-          // (vm_test "grocy" ./test/vm/grocy.nix)
-          // (vm_test "home-assistant" ./test/vm/home-assistant.nix)
-          // (vm_test "jellyfin" ./test/vm/jellyfin.nix)
-          // (vm_test "ldap" ./test/vm/ldap.nix)
-          // (vm_test "lib" ./test/vm/lib.nix)
-          // (vm_test "monitoring" ./test/vm/monitoring.nix)
-          // (vm_test "nextcloud" ./test/vm/nextcloud.nix)
-          // (vm_test "postgresql" ./test/vm/postgresql.nix)
-          // (vm_test "ssl" ./test/vm/ssl.nix)
-          // (vm_test "vaultwarden" ./test/vm/vaultwarden.nix)
+          // (vm_test "arr" ./test/services/arr.nix)
+          // (vm_test "audiobookshelf" ./test/services/audiobookshelf.nix)
+          // (vm_test "deluge" ./test/services/deluge.nix)
+          // (vm_test "grocy" ./test/services/grocy.nix)
+          // (vm_test "home-assistant" ./test/services/home-assistant.nix)
+          // (vm_test "jellyfin" ./test/services/jellyfin.nix)
+          // (vm_test "monitoring" ./test/services/monitoring.nix)
+          // (vm_test "nextcloud" ./test/services/nextcloud.nix)
+          // (vm_test "vaultwarden" ./test/services/vaultwarden.nix)
+
+          // (vm_test "authelia" ./test/blocks/authelia.nix)
+          // (vm_test "ldap" ./test/blocks/ldap.nix)
+          // (vm_test "lib" ./test/blocks/lib.nix)
+          // (vm_test "postgresql" ./test/blocks/postgresql.nix)
+          // (vm_test "ssl" ./test/blocks/ssl.nix)
           );
       }
   );
