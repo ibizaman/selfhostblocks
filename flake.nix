@@ -24,6 +24,12 @@
         # Remove when this PR is merged:
         # https://github.com/NixOS/nixpkgs/pull/368325
         ./patches/prometheusnodecertexporter.nix
+
+        (originPkgs.fetchpatch {
+          url = "https://patch-diff.githubusercontent.com/raw/NixOS/nixpkgs/pull/374905.patch";
+          hash = "sha256-9n3HYu0QM+MVLJ3FyOHAd1vdtoK+U5wNQiUwz3L6Bqs=";
+        })
+
       ];
       patchedNixpkgs = originPkgs.applyPatches {
         name = "nixpkgs-patched";
