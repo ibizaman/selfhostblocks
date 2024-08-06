@@ -1,6 +1,6 @@
 # Self Host Blocks
 
-*Building blocks for self-hosting with battery included.*
+*Modular server management based on NixOS modules and focused on best practices.*
 
 [![Documentation](https://github.com/ibizaman/selfhostblocks/actions/workflows/pages.yml/badge.svg)](https://github.com/ibizaman/selfhostblocks/actions/workflows/pages.yml)
 [![Tests](https://img.shields.io/endpoint.svg?url=https%3A%2F%2Fgarnix.io%2Fapi%2Fbadges%2Fibizaman%2Fselfhostblocks%3Fbranch%3Dmain)](https://garnix.io) (using Garnix)
