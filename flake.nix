@@ -46,6 +46,7 @@
         modules/blocks/ssl.nix
         modules/blocks/tinyproxy.nix
         modules/blocks/vpn.nix
+        modules/blocks/zfs.nix
 
         modules/services/arr.nix
         modules/services/audiobookshelf.nix
