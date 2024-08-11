@@ -69,6 +69,24 @@ in
       type = lib.types.bool;
       default = false;
     };
+
+    mount = lib.mkOption {
+      type = contracts.mount;
+      description = ''
+        Mount configuration. This is an output option.
+
+        Use it to initialize a block implementing the "mount" contract.
+        For example, with a zfs dataset:
+
+        ```
+        shb.zfs.datasets."ldap" = {
+          poolName = "root";
+        } // config.shb.ldap.mount;
+        ```
+      '';
+      readOnly = true;
+      default = { path = "/var/lib/lldap"; };
+    };
   };
 
   
