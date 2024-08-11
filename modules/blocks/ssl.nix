@@ -238,6 +238,7 @@ in
 
           additionalEnvironment = lib.mkOption {
             type = lib.types.attrsOf lib.types.str;
+            default = {};
             description = ''
               Additional environment variables used to configure the DNS provider.
 
@@ -265,6 +266,12 @@ in
           adminEmail = lib.mkOption {
             description = "Admin email in case certificate retrieval goes wrong.";
             type = lib.types.str;
+          };
+
+          stagingServer = lib.mkOption {
+            description = "User Let's Encrypt's staging server.";
+            type = lib.types.bool;
+            default = false;
           };
 
           debug = lib.mkOption {
@@ -415,20 +422,36 @@ in
 
           security.acme.acceptTerms = lib.mkIf (cfg.certs.letsencrypt != {}) true;
 
-          security.acme.certs = lib.mkMerge (lib.mapAttrsToList (name: certCfg: {
-            "${name}" = {
-              extraDomainNames = [ certCfg.domain ] ++ certCfg.extraDomains;
-              email = certCfg.adminEmail;
-              inherit (certCfg) dnsProvider dnsResolver;
-              inherit (certCfg) group reloadServices;
-              credentialsFile = certCfg.credentialsFile;
-              enableDebugLogs = certCfg.debug;
-            };
-          }) cfg.certs.letsencrypt);
+          security.acme.certs = lib.mkMerge (lib.mapAttrsToList (name: certCfg:
+            {
+              "${name}" = ({
+                extraDomainNames = [ certCfg.domain ] ++ certCfg.extraDomains;
+                email = certCfg.adminEmail;
+                enableDebugLogs = certCfg.debug;
+                server = lib.mkIf certCfg.stagingServer "https://acme-staging-v02.api.letsencrypt.org/directory";
+              } // lib.optionalAttrs (certCfg.dnsProvider != null) {
+                inherit (certCfg) dnsProvider dnsResolver;
+                inherit (certCfg) group reloadServices;
+                credentialsFile = certCfg.credentialsFile;
+              });
+            }) cfg.certs.letsencrypt);
 
-          systemd.services = lib.mkMerge (lib.mapAttrsToList (name: certCfg: {
-            "acme-${certCfg.domain}".environment = certCfg.additionalEnvironment;
-          }) cfg.certs.letsencrypt);
+          services.nginx = lib.mkMerge (lib.mapAttrsToList (name: certCfg:
+            lib.optionalAttrs (certCfg.dnsProvider == null) {
+              virtualHosts."${name}" = {
+                addSSL = true;
+                enableACME = true;
+                serverAliases = certCfg.extraDomains;
+                # locations."/" = {
+                #   root = "/var/www";
+                # };
+              };
+            }) cfg.certs.letsencrypt);
+
+          systemd.services = lib.mkMerge (lib.mapAttrsToList (name: certCfg:
+            lib.optionalAttrs (certCfg.additionalEnvironment != {}) {
+              "acme-${certCfg.domain}".environment = certCfg.additionalEnvironment;
+            }) cfg.certs.letsencrypt);
         }
       ];
 }
