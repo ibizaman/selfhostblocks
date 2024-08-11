@@ -441,7 +441,6 @@ in
               virtualHosts."${name}" = {
                 addSSL = true;
                 enableACME = true;
-                serverAliases = certCfg.extraDomains;
                 # locations."/" = {
                 #   root = "/var/www";
                 # };
