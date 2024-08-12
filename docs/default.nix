@@ -144,6 +144,11 @@ in stdenv.mkDerivation {
         '@OPTIONS_JSON@' \
        ${individualModuleOptionsDocs ../modules/services/nextcloud-server.nix}/share/doc/nixos/options.json
 
+    substituteInPlace ./modules/services/vaultwarden/docs/default.md \
+      --replace \
+        '@OPTIONS_JSON@' \
+       ${individualModuleOptionsDocs ../modules/services/vaultwarden.nix}/share/doc/nixos/options.json
+
     substituteInPlace ./modules/contracts/ssl/docs/default.md \
       --replace \
         '@OPTIONS_JSON@' \
