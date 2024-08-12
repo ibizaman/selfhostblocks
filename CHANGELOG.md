@@ -11,6 +11,9 @@
 
 ## User Facing Backwards Compatible Changes
 
+- Add mount contract.
+- Export torrent metrics.
+- Bump chunkSize in Nextcloud to boost performance.
 - Fix home-assistant onboarding file generation. Added new VM test.
 - OIDC and SMTP config are now optional in Vaultwarden. Added new VM test.
 - Add default OIDC config for Authelia. This way, Authelia can start even with no config or only forward auth configs.
