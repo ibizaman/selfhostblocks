@@ -202,6 +202,43 @@ in
       description = "Rule based clients";
       default = [];
     };
+
+    mount = lib.mkOption {
+      type = contracts.mount;
+      description = ''
+        Mount configuration. This is an output option.
+
+        Use it to initialize a block implementing the "mount" contract.
+        For example, with a zfs dataset:
+
+        ```
+        shb.zfs.datasets."authelia" = {
+          poolName = "root";
+        } // config.shb.authelia.mount;
+        ```
+      '';
+      readOnly = true;
+      default = { path = "/var/lib/authelia-authelia.${cfg.domain}"; };
+      defaultText = { path = "/var/lib/authelia-authelia.example.com"; };
+    };
+
+    mountRedis = lib.mkOption {
+      type = contracts.mount;
+      description = ''
+        Mount configuration for Redis. This is an output option.
+
+        Use it to initialize a block implementing the "mount" contract.
+        For example, with a zfs dataset:
+
+        ```
+        shb.zfs.datasets."redis-authelia" = {
+          poolName = "root";
+        } // config.shb.authelia.mountRedis;
+        ```
+      '';
+      readOnly = true;
+      default = { path = "/var/lib/redis-authelia"; };
+    };
   };
 
   config = lib.mkIf cfg.enable {
