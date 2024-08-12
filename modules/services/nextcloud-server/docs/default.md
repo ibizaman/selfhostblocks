@@ -28,7 +28,7 @@ This NixOS module is a service that sets up a [Nextcloud Server](https://nextclo
 - Backup of the [`shb.nextcloud.dataDir`][1] through the [backup block](./blocks-backup.html).
 - Monitoring of reverse proxy, PHP-FPM, and database backups through the [monitoring
   block](./blocks-monitoring.html).
-- [Integration Tests](@REPO@/test/vm/nextcloud.nix)
+- [Integration Tests](@REPO@/test/services/nextcloud.nix)
   - Tests system cron job is setup correctly.
   - Tests initial admin user and password are setup correctly.
   - Tests admin user can create and retrieve a file through WebDAV.
@@ -42,7 +42,7 @@ This NixOS module is a service that sets up a [Nextcloud Server](https://nextclo
 
 All the secrets should be readable by the nextcloud user.
 
-Secret should not be stored in the nix store. If you're using
+Secrets should not be stored in the nix store. If you're using
 [sops-nix](https://github.com/Mic92/sops-nix) and assuming your secrets file is located at
 `./secrets.yaml`, you can define a secret with:
 
