@@ -7,6 +7,8 @@ let
   shblib = pkgs.callPackage ../../lib {};
 
   fqdn = "${cfg.subdomain}.${cfg.domain}";
+
+  dataFolder = "/var/lib/bitwarden_rs";
 in
 {
   options.shb.vaultwarden = {
@@ -94,6 +96,24 @@ in
       });
     };
 
+    mount = lib.mkOption {
+      type = contracts.mount;
+      description = ''
+        Mount configuration. This is an output option.
+
+        Use it to initialize a block implementing the "mount" contract.
+        For example, with a zfs dataset:
+
+        ```
+        shb.zfs.datasets."vaultwarden" = {
+          poolName = "root";
+        } // config.shb.vaultwarden.mount;
+        ```
+      '';
+      readOnly = true;
+      default = { path = dataFolder; };
+    };
+
     backupConfig = lib.mkOption {
       type = lib.types.nullOr lib.types.anything;
       description = "Backup configuration of Vaultwarden.";
@@ -113,7 +133,7 @@ in
       enable = true;
       dbBackend = "postgresql";
       config = {
-        DATA_FOLDER = "/var/lib/bitwarden_rs";
+        DATA_FOLDER = dataFolder;
         IP_HEADER = "X-Real-IP";
         SIGNUPS_ALLOWED = false;
         # Disabled because the /admin path is protected by SSO
@@ -135,13 +155,13 @@ in
         SMTP_PORT = cfg.smtp.port;
         SMTP_AUTH_MECHANISM = cfg.smtp.auth_mechanism;
       };
-      environmentFile = "/var/lib/bitwarden_rs/vaultwarden.env";
+      environmentFile = "${dataFolder}/vaultwarden.env";
     };
     # We create a blank environment file for the service to start. Then, ExecPreStart kicks in and
     # fills out the environment file for ExecStart to pick it up.
     systemd.tmpfiles.rules = [
-      "d /var/lib/bitwarden_rs 0750 vaultwarden vaultwarden"
-      "f /var/lib/bitwarden_rs/vaultwarden.env 0640 vaultwarden vaultwarden"
+      "d ${dataFolder} 0750 vaultwarden vaultwarden"
+      "f ${dataFolder}/vaultwarden.env 0640 vaultwarden vaultwarden"
     ];
     systemd.services.vaultwarden.preStart =
       shblib.replaceSecrets {
@@ -151,7 +171,7 @@ in
         } // lib.optionalAttrs (cfg.smtp != null) {
           SMTP_PASSWORD.source = cfg.smtp.passwordFile;
         };
-        resultPath = "/var/lib/bitwarden_rs/vaultwarden.env";
+        resultPath = "${dataFolder}/vaultwarden.env";
         generator = name: v: pkgs.writeText "template" (lib.generators.toINIWithGlobalSection {} { globalSection = v; });
       };
 
@@ -197,12 +217,16 @@ in
       members = [ "backup" ];
     };
 
-    shb.backup.instances.vaultwarden =
+    shb.backup.instances.vaultwarden = lib.mkIf (cfg.backupConfig != null) (
       cfg.backupConfig //
       {
         sourceDirectories = [
           config.services.vaultwarden.config.DATA_FOLDER
         ];
-      };
+      });
+
+    # TODO: make this work.
+    # It does not work because it leads to infinite recursion.
+    # ${cfg.mount}.path = dataFolder;
   };
 }
