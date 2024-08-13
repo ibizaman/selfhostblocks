@@ -41,6 +41,7 @@ in
         settings = commonSettings;
       };
       systemd.services.postgresql.postStart = "";
+      systemd.services.postgresql.serviceConfig.Restart = "always";
     };
     expr = testConfig {};
   };
@@ -54,6 +55,7 @@ in
         settings = commonSettings;
       };
       systemd.services.postgresql.postStart = "";
+      systemd.services.postgresql.serviceConfig.Restart = "always";
     };
     expr = testConfig {
       services.postgresql.enable = true;
@@ -75,6 +77,7 @@ in
         settings = commonSettings;
       };
       systemd.services.postgresql.postStart = "";
+      systemd.services.postgresql.serviceConfig.Restart = "always";
     };
     expr = testConfig {
       shb.postgresql.ensures = [
@@ -110,6 +113,7 @@ in
         END $$;
       EOF
       '';
+      systemd.services.postgresql.serviceConfig.Restart = "always";
     };
     expr = testConfig {
       shb.postgresql.ensures = [
@@ -146,6 +150,7 @@ in
         settings = commonSettings;
       };
       systemd.services.postgresql.postStart = "";
+      systemd.services.postgresql.serviceConfig.Restart = "always";
     };
     expr = testConfig {
       shb.postgresql.ensures = [
@@ -196,6 +201,7 @@ in
         END $$;
       EOF
       '';
+      systemd.services.postgresql.serviceConfig.Restart = "always";
     };
     expr = testConfig {
       shb.postgresql.ensures = [
@@ -246,6 +252,7 @@ in
         END $$;
       EOF
       '';
+      systemd.services.postgresql.serviceConfig.Restart = "always";
     };
     expr = testConfig {
       shb.postgresql.ensures = [
@@ -281,6 +288,7 @@ in
         '';
       };
       systemd.services.postgresql.postStart = "";
+      systemd.services.postgresql.serviceConfig.Restart = "always";
     };
     expr = testConfig {
       shb.postgresql.enableTCPIP = true;
