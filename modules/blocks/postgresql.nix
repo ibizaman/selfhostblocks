@@ -78,6 +78,8 @@ in
   config =
     let
       commonConfig = {
+        systemd.services.postgresql.serviceConfig.Restart = "always";
+
         services.postgresql.settings = {
         };
       };
