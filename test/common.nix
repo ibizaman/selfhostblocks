@@ -47,21 +47,21 @@
     def curl(target, format, endpoint, data="", extra=""):
         data = ' '.join(data.replace("\n", "").split())
         extra = ' '.join(extra.replace("\n", "").split())
-        c = target.succeed(
-            "curl --show-error --location"
-            + " --cookie-jar cookie.txt"
-            + " --cookie cookie.txt"
-            + " --connect-to ${fqdn}:443:server:443"
-            + " --connect-to ${fqdn}:80:server:80"
-            # Client must be able to resolve talking to auth server
-            + " --connect-to auth.${domain}:443:server:443"
-            + (f" --data '{data}'" if data != "" else "")
-            + (f" --silent --output /dev/null --write-out '{format}'" if format != "" else "")
-            + (f" {extra}" if extra != "" else "")
-            + f" {endpoint}"
-        )
-        # print(c)
-        return json.loads(c)
+        cmd = ("curl --show-error --location"
+              + " --cookie-jar cookie.txt"
+              + " --cookie cookie.txt"
+              + " --connect-to ${fqdn}:443:server:443"
+              + " --connect-to ${fqdn}:80:server:80"
+              # Client must be able to resolve talking to auth server
+              + " --connect-to auth.${domain}:443:server:443"
+              + (f" --data '{data}'" if data != "" else "")
+              + (f" --silent --output /dev/null --write-out '{format}'" if format != "" else "")
+              + (f" {extra}" if extra != "" else "")
+              + f" {endpoint}")
+        print(cmd)
+        _, r = target.execute(cmd)
+        # print(r)
+        return json.loads(r)
 
     ''
     + (if (! redirectSSO) then ''
