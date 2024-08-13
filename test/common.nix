@@ -82,7 +82,14 @@
             raise Exception(f"auth query should be rd=${proto_fqdn}/ but is {response['auth_query']}")
     ''
     )
-    + extraScript args;
+    + (let
+      script = extraScript args;
+      indent = indent: str: lib.concatMapStringsSep "\n" (x: (lib. replicate indent " ") + x) (lib.splitString "\n" script);
+    in
+      lib.optionalString (script != "") ''
+        with subtest("extraScript"):
+        ${indent 4 script}
+      '');
 
   base = pkgs: additionalModules: {
     imports = [
