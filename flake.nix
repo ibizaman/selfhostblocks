@@ -3,7 +3,6 @@
 
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
-    sops-nix.url = "github:Mic92/sops-nix";
     nix-flake-tests.url = "github:antifuchs/nix-flake-tests";
     flake-utils.url = "github:numtide/flake-utils";
     nmdsrc = {

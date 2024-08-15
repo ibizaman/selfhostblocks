@@ -2,6 +2,7 @@
 
 ## Breaking Changes
 
+- Remove dependency on `sops-nix`.
 - Rename `shb.nginx.autheliaProtect` to `shb.nginx.vhosts`. Indeed, the option allows to define a vhost with _optional_ Authelia protection but the former name made it look like Authelia protection was enforced.
 - Rename all `shb.arr.*.APIKey` to `shb.arr.*.ApiKey`.
 - Remove `shb.vaultwarden.ldapEndpoint` option because it was not used in the implementation anyway.
