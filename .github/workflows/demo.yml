@@ -1,0 +1,42 @@
+name: Demo
+
+on:
+  workflow_dispatch:
+  pull_request:
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        demo:
+          - name:  homeassistant
+            flake: basic
+          - name:  homeassistant
+            flake: ldap
+
+          - name:  nextcloud
+            flake: basic
+          - name:  nextcloud
+            flake: ldap
+          - name:  nextcloud
+            flake: sso
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Install nix
+        uses: cachix/install-nix-action@v20
+
+      - name: Build ${{ matrix.demo.name }} .#${{ matrix.demo.flake }}
+        run: |
+          cd demo/${{ matrix.demo.name }}
+          nix \
+            --print-build-logs \
+            --option keep-going true \
+            --show-trace \
+            build .#nixosConfigurations.${{ matrix.demo.flake }}.config.system.build.vm
+
+
