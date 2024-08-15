@@ -18,6 +18,36 @@ let
       8222
       5432
     ];
+    # to get the get token test to succeed we need:
+    # 1. add group Vaultwarden_admin to LLDAP
+    # 2. add an Authelia user with to that group
+    # 3. login in Authelia with that user
+    # 4. go to the Vaultwarden /admin endpoint
+    # 5. create a Vaultwarden user
+    # 6. now login with that new user to Vaultwarden
+    extraScript = { node, proto_fqdn, ... }: ''
+    with subtest("prelogin"):
+        response = curl(client, "", "${proto_fqdn}/identity/accounts/prelogin", data=unline_with("", """
+            {"email": "me@example.com"}
+        """))
+        print(response)
+        if 'Kdf' not in response:
+            raise Exception("Unrecognized response: {}".format(response))
+
+    with subtest("get token"):
+        response = curl(client, "", "${proto_fqdn}/identity/connect/token", data=unline_with("", """
+          scope=api%20offline_access
+          &client_id=web
+          &deviceType=10
+          &deviceIdentifier=a60323bf-4686-4b4d-96e0-3c241fa5581c
+          &deviceName=firefox
+          &grant_type=password&username=me
+          &password=mypassword
+        """))
+        print(response)
+        if response["Message"] != "Username or password is incorrect. Try again":
+            raise Exception("Unrecognized response: {}".format(response))
+    '';
   };
 
   base = testLib.base pkgs' [
@@ -25,6 +55,7 @@ let
   ];
 
   basic = { config, ... }: {
+    shb.nginx.accessLog = true;
     shb.vaultwarden = {
       enable = true;
       inherit subdomain domain;
