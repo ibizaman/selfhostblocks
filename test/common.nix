@@ -45,8 +45,6 @@
         client.copy_from_host(str(pathlib.Path(os.environ.get("out", os.getcwd())) / "ca-certificates.crt"), "/etc/ssl/certs/ca-certificates.crt")
 
     def curl(target, format, endpoint, data="", extra=""):
-        data = ' '.join(data.replace("\n", "").split())
-        extra = ' '.join(extra.replace("\n", "").split())
         cmd = ("curl --show-error --location"
               + " --cookie-jar cookie.txt"
               + " --cookie cookie.txt"
@@ -62,6 +60,9 @@
         _, r = target.execute(cmd)
         # print(r)
         return json.loads(r)
+
+    def unline_with(j, s):
+        return j.join((x.strip() for x in s.split("\n")))
 
     ''
     + (if (! redirectSSO) then ''
@@ -84,7 +85,7 @@
     )
     + (let
       script = extraScript args;
-      indent = indent: str: lib.concatMapStringsSep "\n" (x: (lib. replicate indent " ") + x) (lib.splitString "\n" script);
+      indent = i: str: lib.concatMapStringsSep "\n" (x: (lib.strings.replicate i " ") + x) (lib.splitString "\n" script);
     in
       lib.optionalString (script != "") ''
         with subtest("extraScript"):
