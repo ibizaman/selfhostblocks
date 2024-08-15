@@ -40,6 +40,11 @@ jobs:
       - name: Install nix
         uses: cachix/install-nix-action@v20
 
+      - uses: cachix/cachix-action@v14
+        with:
+          name: mycache
+          authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'
+
       - name: Build docs
         run: |
           nix \
