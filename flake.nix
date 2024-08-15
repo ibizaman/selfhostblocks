@@ -99,10 +99,6 @@
 
             shblib = pkgs.callPackage ./lib {};
           in (rec {
-            all = mergeTests [
-              modules
-            ];
-
             modules = shblib.check {
               inherit pkgs;
               tests =
