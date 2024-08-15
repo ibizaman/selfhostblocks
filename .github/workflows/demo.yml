@@ -3,9 +3,12 @@ name: Demo
 on:
   workflow_dispatch:
   pull_request:
+    paths: &paths
+      - 'demo/**'
   push:
     branches:
       - main
+    paths: *paths
 
 jobs:
   build:
