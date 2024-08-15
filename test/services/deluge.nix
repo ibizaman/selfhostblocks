@@ -27,35 +27,35 @@ let
     with subtest("web connect"):
         print(server.succeed("cat ${node.config.services.deluge.dataDir}/.config/deluge/auth"))
 
-        response = curl(client, "", "${proto_fqdn}/json", extra = """
+        response = curl(client, "", "${proto_fqdn}/json", extra = unline_with(" ", """
           -H "Content-Type: application/json"
           -H "Accept: application/json"
-          """, data = """
+          """), data = unline_with(" ", """
           {"method": "auth.login", "params": ["deluge"], "id": 1}
-          """)
+          """))
         print(response)
         if response['error']:
             raise Exception(f"error is {response['error']}")
         if not response['result']:
             raise Exception(f"response is {response}")
 
-        response = curl(client, "", "${proto_fqdn}/json", extra = """
+        response = curl(client, "", "${proto_fqdn}/json", extra = unline_with(" ", """
           -H "Content-Type: application/json"
           -H "Accept: application/json"
-          """, data = """
+          """), data = unline_with(" ", """
           {"method": "web.get_hosts", "params": [], "id": 1}
-          """)
+          """))
         print(response)
         if response['error']:
             raise Exception(f"error is {response['error']}")
 
         hostID = response['result'][0][0]
-        response = curl(client, "", "${proto_fqdn}/json", extra = """
+        response = curl(client, "", "${proto_fqdn}/json", extra = unline_with(" ", """
           -H "Content-Type: application/json"
           -H "Accept: application/json"
-          """, data = f"""
+          """), data = unline_with(" ", f"""
           {{"method": "web.connect", "params": ["{hostID}"], "id": 1}}
-          """)
+          """))
         print(response)
         if response['error']:
             raise Exception(f"result had an error {response['error']}")
