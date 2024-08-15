@@ -28,16 +28,6 @@ nix.settings.substituters = [
 ];
 ```
 
-For now, Self Host Blocks has a hard dependency on `sops-nix`. I am [working on removing
-that](https://github.com/ibizaman/selfhostblocks/issues/24) so you can use any secrets manager you
-want. Until then, you also need to import the `sops-nix` module:
-
-```nix
-imports = [
-  inputs.selfhostblocks.inputs.sops-nix.nixosModules.default
-];
-```
-
 Self Host Blocks provides its own `nixpkgs` input so both can be updated in lock step, ensuring
 maximum compatibility. It is recommended to use the following `nixpkgs` as input for your
 deployments. Also, patches can be applied by Self Host Blocks. To handle all this, you need the
