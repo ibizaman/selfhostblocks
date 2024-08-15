@@ -60,7 +60,9 @@ in
   services.openssh = {
     enable = true;
     ports = [ targetPort ];
-    permitRootLogin = "no";
-    passwordAuthentication = false;
+    settings = {
+      PermitRootLogin = "no";
+      PasswordAuthentication = false;
+    };
   };
 }

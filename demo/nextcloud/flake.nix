@@ -3,15 +3,16 @@
 
   inputs = {
     selfhostblocks.url = "github:ibizaman/selfhostblocks";
+    sops-nix.url = "github:Mic92/sops-nix";
   };
 
-  outputs = inputs@{ self, selfhostblocks, ... }:
+  outputs = inputs@{ self, selfhostblocks, sops-nix }:
     let
       basic = { config, ... }: {
         imports = [
           ./configuration.nix
-          selfhostblocks.inputs.sops-nix.nixosModules.default
           selfhostblocks.nixosModules.x86_64-linux.default
+          sops-nix.nixosModules.default
         ];
 
         shb.nextcloud = {
