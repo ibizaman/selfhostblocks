@@ -15,14 +15,11 @@
     let
       originPkgs = nixpkgs.legacyPackages.${system};
       patches = [
-        (originPkgs.fetchpatch {
-          url = "https://patch-diff.githubusercontent.com/raw/NixOS/nixpkgs/pull/315018.patch";
-          hash = "sha256-8jcGyO/d+htfv/ZajxXh89S3OiDZAr7/fsWC1JpGczM=";
-        })
-        (originPkgs.fetchpatch {
-          url = "https://github.com/NixOS/nixpkgs/pull/317107.patch";
-          hash = "sha256-hoLrqV7XtR1hP/m0rV9hjYUBtrSjay0qcPUYlKKuVWk=";
-        })
+        # Leaving commented out for an example.
+        # (originPkgs.fetchpatch {
+        #   url = "https://github.com/NixOS/nixpkgs/pull/317107.patch";
+        #   hash = "sha256-hoLrqV7XtR1hP/m0rV9hjYUBtrSjay0qcPUYlKKuVWk=";
+        # })
       ];
       patchedNixpkgs = originPkgs.applyPatches {
         name = "nixpkgs-patched";
