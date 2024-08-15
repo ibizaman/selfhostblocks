@@ -4,6 +4,7 @@
 
 [![Documentation](https://github.com/ibizaman/selfhostblocks/actions/workflows/pages.yml/badge.svg)](https://github.com/ibizaman/selfhostblocks/actions/workflows/pages.yml)
 [![Tests](https://img.shields.io/endpoint.svg?url=https%3A%2F%2Fgarnix.io%2Fapi%2Fbadges%2Fibizaman%2Fselfhostblocks%3Fbranch%3Dmain)](https://garnix.io) (using Garnix)
+![Demos](https://github.com/ibizaman/selfhostblocks/actions/workflows/Demo/badge.svg)
 
 SHB's (Self Host Blocks) is yet another server management tool whose goal is to provide better
 building blocks for self-hosting. Indeed, SHB provides opinionated [building
