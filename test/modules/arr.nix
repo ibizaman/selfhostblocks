@@ -13,7 +13,6 @@ let
           {
             options = {
               systemd = anyOpt {};
-              shb.backup = anyOpt {};
               shb.nginx = anyOpt {};
               users = anyOpt {};
               services.nginx = anyOpt {};
@@ -34,14 +33,13 @@ let
     in {
       inherit (cfg) services users;
       systemd = systemdRedacted;
-      shb = { inherit (cfg.shb) backup nginx; };
+      shb = { inherit (cfg.shb) nginx; };
     };
 in
 {
   testArrNoOptions = {
     expected = {
       systemd = {};
-      shb.backup = {};
       shb.nginx = {};
       users = {};
       services.nginx = {};
@@ -67,16 +65,6 @@ in
       systemd.tmpfiles.rules = [
         "d '/var/lib/radarr' 0750 radarr radarr - -"
       ];
-      shb.backup.instances.radarr = {
-        excludePatterns = [
-          ".db-shm"
-          ".db-wal"
-          ".mono"
-        ];
-        sourceDirectories = [
-          "/var/lib/radarr"
-        ];
-      };
       shb.nginx.vhosts = [
         {
           autheliaRules = [
@@ -143,13 +131,6 @@ in
       systemd.tmpfiles.rules = [
         "d '/var/lib/radarr' 0750 radarr radarr - -"
       ];
-      shb.backup.instances = {
-        radarr = {
-          enable = true;
-          sourceDirectories = [ "/var/lib/radarr" ];
-          excludePatterns = [ ".db-shm" ".db-wal" ".mono" ];
-        };
-      };
       shb.nginx.vhosts = [
         {
           autheliaRules = [
@@ -200,9 +181,6 @@ in
         authEndpoint = "https://oidc.example.com";
         settings = {
           ApiKey.source = pkgs.writeText "key" "/run/radarr/apikey";
-        };
-        backupCfg = {
-          enable = true;
         };
       };
     };

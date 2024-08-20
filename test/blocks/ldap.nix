@@ -13,7 +13,6 @@ in
         {
           options = {
             shb.ssl.enable = lib.mkEnableOption "ssl";
-            shb.backup = lib.mkOption { type = lib.types.anything; };
           };
         }
         ../../modules/blocks/ldap.nix

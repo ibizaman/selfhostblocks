@@ -124,7 +124,9 @@ in
 
         ```
         shb.restic.instances."vaultwarden" = {
-          poolName = "root";
+          enable = true;
+
+          # Options specific to Restic.
         } // config.shb.vaultwarden.backup;
         ```
       '';

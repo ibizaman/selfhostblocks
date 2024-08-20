@@ -62,6 +62,30 @@ in
       '';
     };
 
+    backup = lib.mkOption {
+      type = contracts.backup;
+      description = ''
+        Backup configuration. This is an output option.
+
+        Use it to initialize a block implementing the "backup" contract.
+        For example, with the restic block:
+
+        ```
+        shb.restic.instances."grocy" = {
+          enable = true;
+
+          # Options specific to Restic.
+        } // config.shb.grocy.backup;
+        ```
+      '';
+      readOnly = true;
+      default = {
+        sourceDirectories = [
+          cfg.dataDir
+        ];
+      };
+    };
+
     logLevel = lib.mkOption {
       type = lib.types.nullOr (lib.types.enum ["critical" "error" "warning" "info" "debug"]);
       description = "Enable logging.";
@@ -95,11 +119,6 @@ in
     # We backup the whole grocy directory and set permissions for the backup user accordingly.
     users.groups.grocy.members = [ "backup" ];
     users.groups.media.members = [ "backup" ];
-    shb.backup.instances.grocy = {
-      sourceDirectories = [
-        config.services.grocy.dataDir
-      ];
-    };
   } {
     systemd.services.grocyd.serviceConfig = cfg.extraServiceConfig;
   }]);

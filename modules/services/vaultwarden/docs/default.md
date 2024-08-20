@@ -9,7 +9,7 @@ This NixOS module is a service that sets up a [Vaultwarden Server](https://githu
 - Access through subdomain using reverse proxy.
 - Access through HTTPS using reverse proxy.
 - Automatic setup of Redis database for caching.
-- Backup of the data directory through the [backup block](./blocks-backup.html).
+- Backup of the data directory through the [backup contract](./contracts-backup.html).
 - [Integration Tests](@REPO@/test/services/vaultwarden.nix)
   - Tests /admin can only be accessed when authenticated with SSO.
 - Access to advanced options not exposed here thanks to how NixOS modules work.
@@ -92,13 +92,27 @@ shb.zfs.datasets."vaultwarden" = config.shb.vaultwarden.mount;
 shb.zfs.datasets."postgresql".path = "/var/lib/postgresql";
 ```
 
+### Backup {#services-vaultwarden-backup}
+
+Backing up Vaultwarden using the [Restic block](blocks-restic.html) is done like so:
+
+```nix
+shb.restic.instances."vaultwarden" = config.shb.vaultwarden.backup // {
+  enable = true;
+};
+```
+
+The name `"vaultwarden"` in the `instances` can be anything.
+The `config.shb.vaultwarden.backup` option provides what directories to backup.
+You can define any number of Restic instances to backup Vaultwarden multiple times.
+
 ## Maintenance {#services-vaultwarden-maintenance}
 
 No command-line tool is provided to administer Vaultwarden.
 
 Instead, the admin section can be found at the `/admin` endpoint.
 
-## Debug {#services-backup-debug}
+## Debug {#services-vaultwarden-debug}
 
 In case of an issue, check the logs of the `vaultwarden.service` systemd service.
 

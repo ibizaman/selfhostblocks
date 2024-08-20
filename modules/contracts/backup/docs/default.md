@@ -34,7 +34,7 @@ Then, to actually backup the service, one would write:
 shb.<backup_impl>.instances."<service>" = shb.<service>.backup // {
   enable = true;
 
-  // Options specific to backup_impl
+  # Options specific to backup_impl
 };
 ```
 
@@ -44,7 +44,7 @@ Then, for extra caution, a second backup could be made using another module `shb
 shb.<backup_impl_2>.instances."<service>" = shb.<service>.backup // {
   enable = true;
 
-  // Options specific to backup_impl_2
+  # Options specific to backup_impl_2
 };
 ```
 

@@ -12,11 +12,6 @@ in
       imports = [
         (pkgs'.path + "/nixos/modules/profiles/headless.nix")
         (pkgs'.path + "/nixos/modules/profiles/qemu-guest.nix")
-        {
-          options = {
-            shb.backup = lib.mkOption { type = lib.types.anything; };
-          };
-        }
         ../../modules/blocks/authelia.nix
         ../../modules/blocks/ldap.nix
         ../../modules/blocks/postgresql.nix

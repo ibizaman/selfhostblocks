@@ -119,6 +119,30 @@ in
         };
       };
     };
+
+    backup = lib.mkOption {
+      type = contracts.backup;
+      description = ''
+        Backup configuration. This is an output option.
+
+        Use it to initialize a block implementing the "backup" contract.
+        For example, with the restic block:
+
+        ```
+        shb.restic.instances."jellyfin" = {
+          enable = true;
+
+          # Options specific to Restic.
+        } // config.shb.jellyfin.backup;
+        ```
+      '';
+      readOnly = true;
+      default = {
+        sourceDirectories = [
+          "/var/lib/jellyfin"
+        ];
+      };
+    };
   };
 
   config = lib.mkIf cfg.enable {
@@ -248,12 +272,6 @@ in
             proxy_set_header X-Forwarded-Host $http_host;
         }
         '';
-    };
-
-    shb.backup.instances.jellyfin = {
-      sourceDirectories = [
-        "/var/lib/jellyfin"
-      ];
     };
 
     services.prometheus.scrapeConfigs = [{

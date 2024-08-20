@@ -1,4 +1,4 @@
-{ config, pkgs, lib, ... }:
+{ config, options, pkgs, lib, ... }:
 
 let
   cfg = config.shb.arr;
@@ -329,13 +329,28 @@ let
           example = "https://authelia.example.com";
         };
 
-        backupCfg = lib.mkOption {
-          type = lib.types.anything;
-          description = "Backup configuration for ${name}.";
-          default = {};
-          example = {
-            backend = "restic";
-            repositories = [];
+        backup = lib.mkOption {
+          type = contracts.backup;
+          description = ''
+            Backup configuration. This is an output option.
+
+            Use it to initialize a block implementing the "backup" contract.
+            For example, with the restic block:
+
+            ```
+            shb.restic.instances."${name}" = {
+              enable = true;
+
+              # Options specific to Restic.
+            } // config.shb.${name}.backup;
+            ```
+          '';
+          readOnly = true;
+          default = {
+            sourceDirectories = [
+              cfg.${name}.dataDir
+            ];
+            excludePatterns = [".db-shm" ".db-wal" ".mono"];
           };
         };
       } // (c.moreOptions or {});
@@ -370,13 +385,6 @@ in
       };
 
       shb.nginx.vhosts = [ (vhosts {} cfg') ];
-
-      shb.backup.instances.radarr = cfg'.backupCfg // {
-        sourceDirectories = [
-          cfg'.dataDir
-        ];
-        excludePatterns = [".db-shm" ".db-wal" ".mono"];
-      };
     }))
     (lib.mkIf cfg.radarr.enable (backup "radarr"))
 
@@ -407,13 +415,6 @@ in
       };
 
       shb.nginx.vhosts = [ (vhosts {} cfg') ];
-
-      shb.backup.instances.sonarr = cfg'.backupCfg // {
-        sourceDirectories = [
-          cfg'.dataDir
-        ];
-        excludePatterns = [".db-shm" ".db-wal" ".mono"];
-      };
     }))
     (lib.mkIf cfg.sonarr.enable (backup "sonarr"))
 
@@ -441,13 +442,6 @@ in
       };
 
       shb.nginx.vhosts = [ (vhosts {} cfg') ];
-
-      shb.backup.instances.bazarr = cfg'.backupCfg // {
-        sourceDirectories = [
-          cfg'.dataDir
-        ];
-        excludePatterns = [".db-shm" ".db-wal" ".mono"];
-      };
     }))
     (lib.mkIf cfg.bazarr.enable (backup "bazarr"))
 
@@ -470,13 +464,6 @@ in
       };
 
       shb.nginx.vhosts = [ (vhosts {} cfg') ];
-
-      shb.backup.instances.readarr = cfg'.backupCfg // {
-        sourceDirectories = [
-          cfg'.dataDir
-        ];
-        excludePatterns = [".db-shm" ".db-wal" ".mono"];
-      };
     }))
     (lib.mkIf cfg.readarr.enable (backup "readarr"))
 
@@ -504,13 +491,6 @@ in
       };
 
       shb.nginx.vhosts = [ (vhosts {} cfg') ];
-
-      shb.backup.instances.lidarr = cfg'.backupCfg // {
-        sourceDirectories = [
-          cfg'.dataDir
-        ];
-        excludePatterns = [".db-shm" ".db-wal" ".mono"];
-      };
     }))
     (lib.mkIf cfg.lidarr.enable (backup "lidarr"))
 
@@ -535,13 +515,6 @@ in
       shb.nginx.vhosts = [ (vhosts {
         extraBypassResources = [ "^/dl.*" ];
       } cfg') ];
-
-      shb.backup.instances.jackett = cfg'.backupCfg // {
-        sourceDirectories = [
-          cfg'.dataDir
-        ];
-        excludePatterns = [".db-shm" ".db-wal" ".mono"];
-      };
     }))
     (lib.mkIf cfg.jackett.enable (backup "jackett"))
   ];

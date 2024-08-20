@@ -39,6 +39,12 @@ in
       default = null;
     };
 
+    dataDir = lib.mkOption {
+      type = lib.types.str;
+      description = "Path where all configuration and state is stored.";
+      default = "/var/lib/deluge";
+    };
+
     daemonPort = lib.mkOption {
       type = lib.types.int;
       description = "Deluge daemon port";
@@ -227,6 +233,30 @@ in
       '';
     };
 
+    backup = lib.mkOption {
+      type = contracts.backup;
+      description = ''
+        Backup configuration. This is an output option.
+
+        Use it to initialize a block implementing the "backup" contract.
+        For example, with the restic block:
+
+        ```
+        shb.restic.instances."vaultwarden" = {
+          enable = true;
+
+          # Options specific to Restic.
+        } // config.shb.vaultwarden.backup;
+        ```
+      '';
+      readOnly = true;
+      default = {
+        sourceDirectories = [
+          cfg.dataDir
+        ];
+      };
+    };
+
     logLevel = lib.mkOption {
       type = lib.types.nullOr (lib.types.enum ["critical" "error" "warning" "info" "debug"]);
       description = "Enable logging.";
@@ -240,6 +270,8 @@ in
       enable = true;
       declarative = true;
       openFirewall = true;
+      inherit (cfg) dataDir;
+
       config = {
         download_location = cfg.settings.downloadLocation;
         allow_remote = true;
@@ -285,7 +317,7 @@ in
         new_release_check = false;
       };
 
-      authFile = "${config.services.deluge.dataDir}/.config/deluge/authTemplate";
+      authFile = "${cfg.dataDir}/.config/deluge/authTemplate";
 
       web.enable = true;
       web.port = cfg.webPort;
@@ -297,14 +329,14 @@ in
       } // (lib.optionalAttrs (config.shb.deluge.prometheusScraperPasswordFile != null) {
         prometheus_scraper.password.source = config.shb.deluge.prometheusScraperPasswordFile;
       });
-      resultPath = "${config.services.deluge.dataDir}/.config/deluge/authTemplate";
+      resultPath = "${cfg.dataDir}/.config/deluge/authTemplate";
       generator = name: value: pkgs.writeText "delugeAuth" (authGenerator value);
     });
 
     systemd.services.deluged.serviceConfig.ExecStart = lib.mkForce (lib.concatStringsSep " \\\n    " ([
       "${config.services.deluge.package}/bin/deluged"
       "--do-not-daemonize"
-      "--config ${config.services.deluge.dataDir}/.config/deluge"
+      "--config ${cfg.dataDir}/.config/deluge"
     ] ++ (lib.optional (!(isNull cfg.logLevel)) "-L ${cfg.logLevel}")
     ));
     
@@ -316,7 +348,7 @@ in
         };
       in
         [
-          "L+ ${config.services.deluge.dataDir}/.config/deluge/plugins - - - - ${plugins}"
+          "L+ ${cfg.dataDir}/.config/deluge/plugins - - - - ${plugins}"
         ];
 
     shb.nginx.vhosts = [
@@ -352,11 +384,6 @@ in
     # We backup the whole deluge directory and set permissions for the backup user accordingly.
     users.groups.deluge.members = [ "backup" ];
     users.groups.media.members = [ "backup" ];
-    shb.backup.instances.deluge = {
-      sourceDirectories = [
-        config.services.deluge.dataDir
-      ];
-    };
   } {
     systemd.services.deluged.serviceConfig = cfg.extraServiceConfig;
   } (lib.mkIf (config.shb.deluge.prometheusScraperPasswordFile != null) {
