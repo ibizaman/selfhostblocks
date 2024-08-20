@@ -91,3 +91,25 @@ Integration with the ZFS block allows to automatically create the relevant datas
 shb.zfs.datasets."vaultwarden" = config.shb.vaultwarden.mount;
 shb.zfs.datasets."postgresql".path = "/var/lib/postgresql";
 ```
+
+## Maintenance {#services-vaultwarden-maintenance}
+
+No command-line tool is provided to administer Vaultwarden.
+
+Instead, the admin section can be found at the `/admin` endpoint.
+
+## Debug {#services-backup-debug}
+
+In case of an issue, check the logs of the `vaultwarden.service` systemd service.
+
+Enable verbose logging by setting the `shb.vaultwarden.debug` boolean to `true`.
+
+Access the database with `sudo -u vaultwarden psql`.
+
+## Options Reference {#services-vaultwarden-options}
+
+```{=include=} options
+id-prefix: services-vaultwarden-options-
+list-id: selfhostblocks-vaultwarden-options
+source: @OPTIONS_JSON@
+```
