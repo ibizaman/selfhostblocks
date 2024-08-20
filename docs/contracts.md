@@ -19,10 +19,17 @@ as possible, reducing the quite thick layer that it is now.
 
 Provided contracts are:
 
-- [SSL generator contract](contracts-ssl.html) to generate SSL certificates. Two implementations are provided: self-signed and Let's Encrypt.
+- [SSL generator contract](contracts-ssl.html) to generate SSL certificates.
+  Two implementations are provided: self-signed and Let's Encrypt.
+- [Backup contract](contracts-backup.html) to backup directories.
+  This contract allows to backup multiple times the same directories for extra protection.
 
 ```{=include=} chapters html:into-file=//contracts-ssl.html
 modules/contracts/ssl/docs/default.md
+```
+
+```{=include=} chapters html:into-file=//contracts-backup.html
+modules/contracts/backup/docs/default.md
 ```
 
 ## Why do we need this new concept? {#contracts-why}

@@ -67,7 +67,9 @@ let
   };
 
   optionsDocs = buildOptionsDocs {
-    modules = allModules ++ [ scrubbedModule ];
+    modules = allModules ++ [
+      scrubbedModule
+    ];
     variablelistId = "selfhostblocks-options";
     includeModuleSystemOptions = false;
   };
@@ -134,10 +136,10 @@ in stdenv.mkDerivation {
         '@OPTIONS_JSON@' \
         ${individualModuleOptionsDocs ../modules/blocks/ssl.nix}/share/doc/nixos/options.json
 
-    substituteInPlace ./modules/blocks/backup/docs/default.md \
+    substituteInPlace ./modules/blocks/restic/docs/default.md \
       --replace \
         '@OPTIONS_JSON@' \
-        ${individualModuleOptionsDocs ../modules/blocks/backup.nix}/share/doc/nixos/options.json
+        ${individualModuleOptionsDocs ../modules/blocks/restic.nix}/share/doc/nixos/options.json
 
     substituteInPlace ./modules/services/nextcloud-server/docs/default.md \
       --replace \
@@ -148,6 +150,11 @@ in stdenv.mkDerivation {
       --replace \
         '@OPTIONS_JSON@' \
        ${individualModuleOptionsDocs ../modules/services/vaultwarden.nix}/share/doc/nixos/options.json
+
+    substituteInPlace ./modules/contracts/backup/docs/default.md \
+      --replace \
+        '@OPTIONS_JSON@' \
+       ${individualModuleOptionsDocs ../modules/contracts/backup/dummyModule.nix}/share/doc/nixos/options.json
 
     substituteInPlace ./modules/contracts/ssl/docs/default.md \
       --replace \

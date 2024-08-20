@@ -36,12 +36,12 @@
 
       allModules = [
         modules/blocks/authelia.nix
-        modules/blocks/backup.nix
         modules/blocks/davfs.nix
         modules/blocks/ldap.nix
         modules/blocks/monitoring.nix
         modules/blocks/nginx.nix
         modules/blocks/postgresql.nix
+        modules/blocks/restic.nix
         modules/blocks/ssl.nix
         modules/blocks/tinyproxy.nix
         modules/blocks/vpn.nix
@@ -60,6 +60,7 @@
 
       # Only used for documentation.
       contractDummyModules = [
+        modules/contracts/backup/dummyModule.nix
         modules/contracts/ssl/dummyModule.nix
       ];
     in
@@ -133,6 +134,7 @@
           // (vm_test "ldap" ./test/blocks/ldap.nix)
           // (vm_test "lib" ./test/blocks/lib.nix)
           // (vm_test "postgresql" ./test/blocks/postgresql.nix)
+          // (vm_test "restic" ./test/blocks/restic.nix)
           // (vm_test "ssl" ./test/blocks/ssl.nix)
           );
       }

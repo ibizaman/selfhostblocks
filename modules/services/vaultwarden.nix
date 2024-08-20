@@ -114,10 +114,26 @@ in
       default = { path = dataFolder; };
     };
 
-    backupConfig = lib.mkOption {
-      type = lib.types.nullOr lib.types.anything;
-      description = "Backup configuration of Vaultwarden.";
-      default = null;
+    backup = lib.mkOption {
+      type = contracts.backup;
+      description = ''
+        Backup configuration. This is an output option.
+
+        Use it to initialize a block implementing the "backup" contract.
+        For example, with the restic block:
+
+        ```
+        shb.restic.instances."vaultwarden" = {
+          poolName = "root";
+        } // config.shb.vaultwarden.backup;
+        ```
+      '';
+      readOnly = true;
+      default = {
+        sourceDirectories = [
+          dataFolder
+        ];
+      };
     };
 
     debug = lib.mkOption {
@@ -216,14 +232,6 @@ in
     users.groups.vaultwarden = {
       members = [ "backup" ];
     };
-
-    shb.backup.instances.vaultwarden = lib.mkIf (cfg.backupConfig != null) (
-      cfg.backupConfig //
-      {
-        sourceDirectories = [
-          config.services.vaultwarden.config.DATA_FOLDER
-        ];
-      });
 
     # TODO: make this work.
     # It does not work because it leads to infinite recursion.

@@ -1,6 +1,12 @@
 {
   lib,
 }:
+let
+  baseImports = pkgs: [
+    (pkgs.path + "/nixos/modules/profiles/headless.nix")
+    (pkgs.path + "/nixos/modules/profiles/qemu-guest.nix")
+  ];
+in
 {
   accessScript = {
     subdomain
@@ -92,21 +98,24 @@
         ${indent 4 script}
       '');
 
+  inherit baseImports;
+
   base = pkgs: additionalModules: {
-    imports = [
-      (pkgs.path + "/nixos/modules/profiles/headless.nix")
-      (pkgs.path + "/nixos/modules/profiles/qemu-guest.nix")
-      # TODO: replace this option by the backup contract
-      {
-        options = {
-          shb.backup = lib.mkOption { type = lib.types.anything; };
-        };
-      }
-      # TODO: replace postgresql.nix and authelia.nix by the sso contract
-      ../modules/blocks/postgresql.nix
-      ../modules/blocks/authelia.nix
-      ../modules/blocks/nginx.nix
-    ] ++ additionalModules;
+    imports =
+      ( baseImports pkgs )
+      ++ [
+        # TODO: replace this option by the backup contract
+        {
+          options = {
+            shb.backup = lib.mkOption { type = lib.types.anything; };
+          };
+        }
+        # TODO: replace postgresql.nix and authelia.nix by the sso contract
+        ../modules/blocks/postgresql.nix
+        ../modules/blocks/authelia.nix
+        ../modules/blocks/nginx.nix
+      ]
+      ++ additionalModules;
 
     # Nginx port.
     networking.firewall.allowedTCPPorts = [ 80 443 ];

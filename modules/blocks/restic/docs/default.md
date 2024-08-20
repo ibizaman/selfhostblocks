@@ -1,33 +1,32 @@
-# Backup Block {#blocks-backup}
+# Restic Block {#blocks-restic}
 
-Defined in [`/modules/blocks/backup.nix`](@REPO@/modules/blocks/backup.nix).
+Defined in [`/modules/blocks/restic.nix`](@REPO@/modules/blocks/restic.nix).
 
-This block sets up backup jobs for Self Host Blocks.
+This block sets up a backup job using [Restic][restic].
 
-## Features {#blocks-backup-features}
-Two implementations for this block are provided:
-- [Restic](https://restic.net/)
-- [Borgmatic](https://torsion.org/borgmatic/)
+[restic]: https://restic.net/
 
-No integration tests are provided yet.
+## Contract {#blocks-restic-features}
+
+This block implements the [backup](contracts-backup.html) contract.
+
+Integration tests are defined in [`/test/blocks/restic.nix`](@REPO@/test/blocks/restic.nix).
 
 ## Usage {#blocks-backup-usage}
 
 ### One folder backed up to mounted hard drives {#blocks-backup-usage-one}
 
-The following snippet shows how to configure backup of 1 folder using the Restic implementation to 1
-repository.
+The following snippet shows how to configure
+the backup of 1 folder to 1 repository.
 
 Assumptions:
 - 1 hard drive pool is used for backup and is mounted on `/srv/pool1`.
 
 ```nix
-shb.backup.instances.myfolder = {
+shb.restic.instances.myfolder = {
   enable = true;
 
-  backend = "restic";
-
-  keySopsFile = ./secrets.yaml;
+  passphraseFile = "<path/to/passphrase>";
 
   repositories = [{
     path = "/srv/pool1/backups/myfolder";
@@ -56,36 +55,14 @@ shb.backup.instances.myfolder = {
 };
 ```
 
-The referenced Sops file must follow this structure:
+To be secure, the `passphraseFile` must contain a secret that is deployed out of band, otherwise it will be world-readable in the nix store.
+To achieve that, I recommend [sops](usage.html#usage-secrets) although other methods work great too.
 
-```yaml
-restic:
-    passphrases:
-        myfolder: <secret>
-```
-
-To generate a secret, use: `nix run nixpkgs#openssl -- rand -hex 64`.
-
-With the borgmatic implementation, the structure should be:
-
-```yaml
-borgmatic:
-    keys:
-        myfolder: |
-            BORG_KEY <key>
-    passphrases:
-        myfolder: <secret>
-```
-
-You can have both borgmatic and restic implementations working at the same time.
-
-### One folder backed up to S3 {#blocks-backup-usage-remote}
-
-> This is only supported by the Restic implementation. 
+### One folder backed up to S3 {#blocks-restic-usage-remote}
 
 Here we will only highlight the differences with the previous configuration.
 
-This assumes you have access to such a remote S3 store, for example by using Backblaze.
+This assumes you have access to such a remote S3 store, for example by using [Backblaze](https://www.backblaze.com/).
 
 ```diff
   shb.backup.instances.myfolder = {
@@ -97,31 +74,19 @@ This assumes you have access to such a remote S3 store, for example by using Bac
         OnCalendar = "00:00:00";
         RandomizedDelaySec = "3h";
       };
+
++     extraSecrets = {
++       AWS_ACCESS_KEY_ID="<path/to/access_key_id>";
++       AWS_SECRET_ACCESS_KEY="<path/to/secret_access_key>";
++     };
     }];
-
-
-+   environmentFile = true; # Needed for s3
   }
 ```
 
-The Sops file has a new required field:
+### Multiple directories to multiple destinations {#blocks-restic-usage-multiple}
 
-```yaml
-
-  restic:
-      passphrases:
-          myfolder: <secret>
-+     environmentfiles:
-+         myfolder: |-
-+             AWS_ACCESS_KEY_ID=<aws_key_id>
-+             AWS_SECRET_ACCESS_KEY=<aws_secret_key>
-```
-
-### Multiple folder to multiple destinations {#blocks-backup-usage-multiple}
-
-The following snippet shows how to configure backup of any number of folders using the Restic
-implementation to 3 repositories, each happening at different times to avoid contending for I/O
-time.
+The following snippet shows how to configure backup of any number of folders to 3 repositories,
+each happening at different times to avoid I/O contention.
 
 We will also make sure to be able to re-use as much as the configuration as possible.
 
@@ -129,7 +94,7 @@ A few assumptions:
 - 2 hard drive pools used for backup are mounted respectively on `/srv/pool1` and `/srv/pool2`.
 - You have a backblaze account.
 
-First, let's define a variable to hold all our repositories you want to back up to:
+First, let's define a variable to hold all the repositories we want to back up to:
 
 ```nix
 repos = [
@@ -209,19 +174,38 @@ below) is the former splits the backups into sub-folders on the repositories.
 shb.backup.instances.all = backupcfg repos ["/var/lib/myfolder1" "/var/lib/myfolder2"];
 ```
 
-## Demo {#blocks-backup-demo}
+## Demo {#blocks-restic-demo}
 
 [WIP]
 
-## Monitoring {#blocks-backup-monitoring}
+## Monitoring {#blocks-restic-monitoring}
 
 [WIP]
 
-## Maintenance {#blocks-backup-maintenance}
+## Maintenance {#blocks-restic-maintenance}
 
-[WIP]
+One command-line helper is provided per backup instance and repository pair to automatically supply the needed secrets.
 
-## Options Reference {#blocks-backup-options}
+In the [multiple directories example](#blocks-restic-usage-multiple) above, the following 6 helpers are provided in the `$PATH`:
+
+```bash
+restic-myfolder1_srv_pool1_backups
+restic-myfolder1_srv_pool2_backups
+restic-myfolder1_s3_s3.us-west-000.backblazeb2.com_backups
+restic-myfolder2_srv_pool1_backups
+restic-myfolder2_srv_pool2_backups
+restic-myfolder2_s3_s3.us-west-000.backblazeb2.com_backups
+```
+
+Discovering those is easy thanks to tab-completion.
+
+One can then restore a backup with:
+
+```bash
+restic-myfolder1_srv_pool1_backups restore latest -t /
+```
+
+## Options Reference {#blocks-restic-options}
 
 ```{=include=} options
 id-prefix: blocks-backup-options-

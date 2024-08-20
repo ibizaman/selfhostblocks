@@ -1,30 +1,32 @@
 { config, pkgs, lib, utils, ... }:
 
 let
-  cfg = config.shb.backup;
+  cfg = config.shb.borgbackup;
 
   instanceOptions = {
-    enable = lib.mkEnableOption "shb backup instance";
-
-    backend = lib.mkOption {
-      description = "What program to use to make the backups.";
-      type = lib.types.enum [ "borgmatic" "restic" ];
-      example = "borgmatic";
-    };
+    enable = lib.mkEnableOption "shb borgbackup";
 
     keySopsFile = lib.mkOption {
-      description = "Sops file that holds this instance's Borgmatic repository key and passphrase.";
+      description = "Sops file that holds this instance's repository key and passphrase.";
       type = lib.types.path;
       example = "secrets/backup.yaml";
     };
 
+    encryptionKeyFile = lib.mkOption {
+      description = "Encryption key for the backup.";
+      type = lib.types.path;
+    };
+
+    encryption_passcommand = "cat /run/secrets/borgmatic/passphrases/${if isNull instance.secretName then name else instance.secretName}";
+    borg_keys_directory = "/run/secrets/borgmatic/keys";
+
     sourceDirectories = lib.mkOption {
-      description = "Borgmatic source directories.";
+      description = "Source directories.";
       type = lib.types.nonEmptyListOf lib.types.str;
     };
 
     excludePatterns = lib.mkOption {
-      description = "Borgmatic exclude patterns.";
+      description = "Exclude patterns.";
       type = lib.types.listOf lib.types.str;
       default = [];
     };
@@ -74,7 +76,7 @@ let
     };
 
     consistency = lib.mkOption {
-      description = "Consistency frequency options. Only applicable for borgmatic";
+      description = "Consistency frequency options.";
       type = lib.types.attrsOf lib.types.nonEmptyStr;
       default = {};
       example = {
@@ -84,7 +86,7 @@ let
     };
 
     hooks = lib.mkOption {
-      description = "Borgmatic hooks.";
+      description = "Hooks to run before or after the backup.";
       default = {};
       type = lib.types.submodule {
         options = {
@@ -115,14 +117,7 @@ let
 
 in
 {
-  options.shb.backup = {
-    onlyOnAC = lib.mkOption {
-      description = "Run backups only if AC power is plugged in.";
-      default = true;
-      example = false;
-      type = lib.types.bool;
-    };
-
+  options.shb.borgbackup = {
     user = lib.mkOption {
       description = "Unix user doing the backups.";
       type = lib.types.str;
@@ -163,12 +158,12 @@ in
           };
           ioSchedulingClass = lib.mkOption {
             type = lib.types.enum [ "idle" "best-effort" "realtime" ];
-            description = "ionice scheduling class, defaults to best-effort IO. Only used for `restic backup`, `restic forget` and `restic check` commands.";
+            description = "ionice scheduling class, defaults to best-effort IO.";
             default = "best-effort";
           };
           ioPriority = lib.mkOption {
             type = lib.types.nullOr (lib.types.ints.between 0 7);
-            description = "ionice priority, defaults to 7 for lowest priority IO. Only used for `restic backup`, `restic forget` and `restic check` commands.";
+            description = "ionice priority, defaults to 7 for lowest priority IO.";
             default = 7;
           };
         };
@@ -179,8 +174,6 @@ in
   config = lib.mkIf (cfg.instances != {}) (
     let
       enabledInstances = lib.attrsets.filterAttrs (k: i: i.enable) cfg.instances;
-      borgmaticInstances = lib.attrsets.filterAttrs (k: i: i.backend == "borgmatic") enabledInstances;
-      resticInstances = lib.attrsets.filterAttrs (k: i: i.backend == "restic") enabledInstances;
     in lib.mkMerge [
       # Secrets configuration
       {
@@ -234,13 +227,13 @@ in
       }
       # Borgmatic configuration
       {
-        systemd.timers.borgmatic = lib.mkIf (borgmaticInstances != {}) {
+        systemd.timers.borgmatic = lib.mkIf (enabledInstances != {}) {
           timerConfig = {
             OnCalendar = "hourly";
           };
         };
 
-        systemd.services.borgmatic = lib.mkIf (borgmaticInstances != {}) {
+        systemd.services.borgmatic = lib.mkIf (enabledInstances != {}) {
           serviceConfig = {
             User = cfg.user;
             Group = cfg.group;
@@ -252,10 +245,10 @@ in
           };
         };
 
-        systemd.packages = lib.mkIf (borgmaticInstances != {}) [ pkgs.borgmatic ];
+        systemd.packages = lib.mkIf (enabledInstances != {}) [ pkgs.borgmatic ];
         environment.systemPackages = (
           lib.optionals cfg.borgServer [ pkgs.borgbackup ]
-          ++ lib.optionals (borgmaticInstances != {}) [ pkgs.borgbackup pkgs.borgmatic ]
+          ++ lib.optionals (enabledInstances != {}) [ pkgs.borgbackup pkgs.borgmatic ]
         );
 
         environment.etc =
@@ -272,7 +265,7 @@ in
                   });
 
                 storage = {
-                  encryption_passcommand = "cat /run/secrets/borgmatic/passphrases/${if isNull instance.secretName then name else instance.secretName}";
+                  encryption_passcommand = "cat ${instance.encryptionKeyFile}";
                   borg_keys_directory = "/run/secrets/borgmatic/keys";
                 };
 
@@ -296,57 +289,7 @@ in
               };
             };
           in
-            lib.mkMerge (lib.attrsets.mapAttrsToList mkSettings borgmaticInstances);
-      }
-      # Restic configuration
-      {
-        environment.systemPackages = lib.optionals (resticInstances != {}) [ pkgs.restic ];
-
-        services.restic.backups =
-          let
-            mkRepositorySettings = name: instance: repository: {
-              "${name}_${repoSlugName repository.path}" = {
-                inherit (cfg) user;
-                repository = repository.path;
-
-                paths = instance.sourceDirectories;
-
-                passwordFile = "/run/secrets/${instance.backend}/passphrases/${name}";
-
-                initialize = true;
-
-                inherit (repository) timerConfig;
-
-                pruneOpts = lib.mapAttrsToList (name: value:
-                  "--${builtins.replaceStrings ["_"] ["-"] name} ${builtins.toString value}"
-                ) instance.retention;
-
-                backupPrepareCommand = lib.strings.concatStringsSep "\n" instance.hooks.before_backup;
-
-                backupCleanupCommand = lib.strings.concatStringsSep "\n" instance.hooks.after_backup;
-              } // lib.attrsets.optionalAttrs (instance.environmentFile) {
-                environmentFile = "/run/secrets/${instance.backend}/environmentfiles/${name}";
-              } // lib.attrsets.optionalAttrs (builtins.length instance.excludePatterns > 0) {
-                exclude = instance.excludePatterns;
-              };
-            };
-
-            mkSettings = name: instance: builtins.map (mkRepositorySettings name instance) instance.repositories;
-          in
-            lib.mkMerge (lib.flatten (lib.attrsets.mapAttrsToList mkSettings resticInstances));
-
-        systemd.services =
-          let
-            mkRepositorySettings = name: instance: repository: {
-              "restic-backups-${name}_${repoSlugName repository.path}".serviceConfig = {
-                Nice = cfg.performance.niceness;
-                IOSchedulingClass = cfg.performance.ioSchedulingClass;
-                IOSchedulingPriority = cfg.performance.ioPriority;
-              };
-            };
-            mkSettings = name: instance: builtins.map (mkRepositorySettings name instance) instance.repositories;
-          in
-            lib.mkMerge (lib.flatten (lib.attrsets.mapAttrsToList mkSettings resticInstances));
+            lib.mkMerge (lib.attrsets.mapAttrsToList mkSettings enabledInstances);
       }
     ]);
 }
