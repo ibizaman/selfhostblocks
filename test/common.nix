@@ -104,12 +104,6 @@ in
     imports =
       ( baseImports pkgs )
       ++ [
-        # TODO: replace this option by the backup contract
-        {
-          options = {
-            shb.backup = lib.mkOption { type = lib.types.anything; };
-          };
-        }
         # TODO: replace postgresql.nix and authelia.nix by the sso contract
         ../modules/blocks/postgresql.nix
         ../modules/blocks/authelia.nix

@@ -1,7 +1,8 @@
-{ config, pkgs, lib, ... }:
+{ config, options, pkgs, lib, ... }:
 
 let
   cfg = config.shb.nextcloud;
+  opt = options.shb.nextcloud;
 
   fqdn = "${cfg.subdomain}.${cfg.domain}";
   fqdnWithPort = if isNull cfg.port then fqdn else "${fqdn}:${toString cfg.port}";
@@ -496,6 +497,32 @@ in
       '';
     };
 
+
+    backup = lib.mkOption {
+      type = contracts.backup;
+      description = ''
+        Backup configuration. This is an output option.
+
+        Use it to initialize a block implementing the "backup" contract.
+        For example, with the restic block:
+
+        ```
+        shb.restic.instances."nextcloud" = {
+          enable = true;
+
+          # Options specific to Restic.
+        } // config.shb.nextcloud.backup;
+        ```
+      '';
+      readOnly = true;
+      default = {
+        sourceDirectories = [
+          cfg.dataDir
+        ];
+        excludePatterns = [".rnd"];
+      };
+    };
+
     debug = lib.mkOption {
       type = lib.types.bool;
       description = "Enable more verbose logging.";
@@ -542,11 +569,11 @@ in
         };
       };
 
-      users.groups = {
-        nextcloud = {
-          members = [ "backup" ];
-        };
-      };
+      # users.groups = {
+      #   nextcloud = {
+      #     members = [ "backup" ];
+      #   };
+      # };
 
       # LDAP is manually configured through
       # https://github.com/lldap/lldap/blob/main/example_configs/nextcloud.md, see also
@@ -700,14 +727,6 @@ in
 
       systemd.services.nextcloud-setup.requires = cfg.mountPointServices;
       systemd.services.nextcloud-setup.after = cfg.mountPointServices;
-
-      # Sets up backup for Nextcloud.
-      shb.backup.instances.nextcloud = {
-        sourceDirectories = [
-          cfg.dataDir
-        ];
-        excludePatterns = [".rnd"];
-      };
     })
 
     (lib.mkIf cfg.apps.onlyoffice.enable {

@@ -87,6 +87,30 @@ in
       readOnly = true;
       default = { path = "/var/lib/lldap"; };
     };
+
+    backup = lib.mkOption {
+      type = contracts.backup;
+      description = ''
+        Backup configuration. This is an output option.
+
+        Use it to initialize a block implementing the "backup" contract.
+        For example, with the restic block:
+
+        ```
+        shb.restic.instances."lldap" = {
+          enable = true;
+
+          # Options specific to Restic.
+        } // config.shb.lldap.backup;
+        ```
+      '';
+      readOnly = true;
+      default = {
+        sourceDirectories = [
+          "/var/lib/lldap"
+        ];
+      };
+    };
   };
 
   
@@ -142,12 +166,6 @@ in
 
         verbose = cfg.debug;
       };
-    };
-
-    shb.backup.instances.lldap = {
-      sourceDirectories = [
-        "/var/lib/lldap"
-      ];
     };
   };
 }

@@ -136,13 +136,28 @@ in
       };
     };
 
-    backupCfg = lib.mkOption {
-      type = lib.types.anything;
-      description = "Backup configuration for home-assistant";
-      default = {};
-      example = {
-        backend = "restic";
-        repositories = [];
+    backup = lib.mkOption {
+      type = contracts.backup;
+      description = ''
+        Backup configuration. This is an output option.
+
+        Use it to initialize a block implementing the "backup" contract.
+        For example, with the restic block:
+
+        ```
+        shb.restic.instances."home-assistant" = {
+          enable = true;
+
+          # Options specific to Restic.
+        } // config.shb.home-assistant.backup;
+        ```
+      '';
+      readOnly = true;
+      default = {
+        # No need for backup hooks as we use an hourly automation job in home assistant directly with a cron job.
+        sourceDirectories = [
+          "/var/lib/hass/backups"
+        ];
       };
     };
   };
@@ -307,17 +322,6 @@ in
       "f ${config.services.home-assistant.configDir}/scenes.yaml      0755 hass hass"
       "f ${config.services.home-assistant.configDir}/scripts.yaml     0755 hass hass"
     ];
-
-    shb.backup.instances.home-assistant = lib.mkIf (cfg.backupCfg != {}) (
-      cfg.backupCfg
-      // {
-        sourceDirectories = [
-          "${config.services.home-assistant.configDir}/backups"
-        ];
-
-        # No need for backup hooks as we use an hourly automation job in home assistant directly with a cron job.
-      }
-    );
 
     # Adds the "backup" user to the "hass" group.
     users.groups.hass = {

@@ -23,6 +23,12 @@ in
       example = "mydomain.com";
     };
 
+    dataDir = lib.mkOption {
+      description = "Folder where Hledger will store all its data.";
+      type = lib.types.str;
+      default = "/var/lib/hledger";
+    };
+
     ssl = lib.mkOption {
       description = "Path to SSL files";
       type = lib.types.nullOr contracts.ssl.certs;
@@ -47,6 +53,30 @@ in
       description = "OIDC endpoint for SSO";
       example = "https://authelia.example.com";
     };
+
+    backup = lib.mkOption {
+      type = contracts.backup;
+      description = ''
+        Backup configuration. This is an output option.
+
+        Use it to initialize a block implementing the "backup" contract.
+        For example, with the restic block:
+
+        ```
+        shb.restic.instances."hledger" = {
+          enable = true;
+
+          # Options specific to Restic.
+        } // config.shb.hledger.backup;
+        ```
+      '';
+      readOnly = true;
+      default = {
+        sourceDirectories = [
+          cfg.dataDir
+        ];
+      };
+    };
   };
 
   config = lib.mkIf cfg.enable {
@@ -55,7 +85,7 @@ in
       # Must be empty otherwise it repeats the fqdn, we get something like https://${fqdn}/${fqdn}/
       baseUrl = "";
 
-      stateDir = "/var/lib/hledger";
+      stateDir = cfg.dataDir;
       journalFiles = ["hledger.journal"];
 
       host = "127.0.0.1";
@@ -89,11 +119,5 @@ in
         }];
       }
     ];
-
-    shb.backup.instances.hledger = {
-      sourceDirectories = [
-        config.services.hledger-web.stateDir
-      ];
-    };
   };
 }

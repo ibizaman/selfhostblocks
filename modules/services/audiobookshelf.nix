@@ -82,6 +82,30 @@ in
       description = "File containing the SSO shared secret.";
     };
 
+    backup = lib.mkOption {
+      type = contracts.backup;
+      description = ''
+        Backup configuration. This is an output option.
+
+        Use it to initialize a block implementing the "backup" contract.
+        For example, with the restic block:
+
+        ```
+        shb.restic.instances."audiobookshelf" = {
+          enable = true;
+
+          # Options specific to Restic.
+        } // config.shb.audiobookshelf.backup;
+        ```
+      '';
+      readOnly = true;
+      default = {
+        sourceDirectories = [
+          "/var/lib/audiobookshelf"
+        ];
+      };
+    };
+
     logLevel = lib.mkOption {
       type = lib.types.nullOr (lib.types.enum ["critical" "error" "warning" "info" "debug"]);
       description = "Enable logging.";
@@ -149,11 +173,6 @@ in
     # We backup the whole audiobookshelf directory and set permissions for the backup user accordingly.
     users.groups.audiobookshelf.members = [ "backup" ];
     users.groups.media.members = [ "backup" ];
-    shb.backup.instances.audiobookshelf = {
-      sourceDirectories = [
-        /var/lib/${config.services.audiobookshelf.dataDir}
-      ];
-    };
   } {
     systemd.services.audiobookshelfd.serviceConfig = cfg.extraServiceConfig;
   }]);

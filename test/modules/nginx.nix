@@ -17,7 +17,6 @@ let
               security = anyOpt {};
               services = anyOpt {};
               shb.authelia = anyOpt {};
-              shb.backup = anyOpt {};
               systemd = anyOpt {};
               users = anyOpt {};
             };
@@ -29,13 +28,12 @@ let
       }).config;
     in lib.attrsets.filterAttrsRecursive (n: v: n != "extraConfig") {
       inherit (cfg) services;
-      shb = { inherit (cfg.shb) backup nginx; };
+      shb = { inherit (cfg.shb) nginx; };
     };
 in
 {
   testNoOptions = {
     expected = {
-      shb.backup = {};
       shb.nginx = {
         accessLog = false;
         vhosts = [];
