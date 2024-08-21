@@ -13,6 +13,28 @@ let
       type = lib.types.path;
     };
 
+    user = lib.mkOption {
+      description = ''
+        Unix user doing the backups.
+
+        For Restic, the same user must be used for all instances.
+      '';
+      type = lib.types.str;
+      readOnly = true;
+      default = cfg.user;
+    };
+
+    group = lib.mkOption {
+      description = ''
+        Unix group doing the backups.
+
+        For Restic, the same group must be used for all instances.
+      '';
+      type = lib.types.str;
+      readOnly = true;
+      default = cfg.group;
+    };
+
     sourceDirectories = lib.mkOption {
       description = "Source directories.";
       type = lib.types.nonEmptyListOf lib.types.str;
@@ -154,6 +176,17 @@ in
       enabledInstances = lib.attrsets.filterAttrs (k: i: i.enable) cfg.instances;
     in lib.mkMerge [
       {
+        assertions = [
+          {
+            assertion = lib.all (x: x.user == cfg.user) (lib.mapAttrsToList (n: v: v)cfg.instances);
+            message = "All Restic instances must have the same user as 'shb.restic.user'.";
+          }
+          {
+            assertion = lib.all (x: x.group == cfg.group) (lib.mapAttrsToList (n: v: v) cfg.instances);
+            message = "All Restic instances must have the same group as 'shb.restic.group'.";
+          }
+        ];
+
         users.users = {
           ${cfg.user} = {
             name = cfg.user;
