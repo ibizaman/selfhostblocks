@@ -13,6 +13,26 @@ let
       type = lib.types.path;
     };
 
+    user = lib.mkOption {
+      description = ''
+        Unix user doing the backups.
+
+        For Restic, the same user must be used for all instances.
+      '';
+      type = lib.types.str;
+      default = cfg.user;
+    };
+
+    group = lib.mkOption {
+      description = ''
+        Unix group doing the backups.
+
+        For Restic, the same group must be used for all instances.
+      '';
+      type = lib.types.str;
+      default = cfg.group;
+    };
+
     sourceDirectories = lib.mkOption {
       description = "Source directories.";
       type = lib.types.nonEmptyListOf lib.types.str;
@@ -33,13 +53,15 @@ let
             description = "Repository location";
           };
 
-          extraSecrets = lib.mkOption {
+          secrets = lib.mkOption {
             type = lib.types.attrsOf shblib.secretFileType;
             default = {};
             description = ''
-              Extra secrets needed to access the repository where the backups will be stored.
+              Secrets needed to access the repository where the backups will be stored.
 
-              See [s3 config](https://restic.readthedocs.io/en/latest/030_preparing_a_new_repo.html#amazon-s3) for an example.
+              See [s3 config](https://restic.readthedocs.io/en/latest/030_preparing_a_new_repo.html#amazon-s3) for an example
+              and [list](https://restic.readthedocs.io/en/latest/040_backup.html#environment-variables) for the list of all secrets.
+
               '';
             example = lib.literalExpression ''
               {
@@ -154,6 +176,17 @@ in
       enabledInstances = lib.attrsets.filterAttrs (k: i: i.enable) cfg.instances;
     in lib.mkMerge [
       {
+        assertions = [
+          {
+            assertion = lib.all (x: x.user == cfg.user) (lib.mapAttrsToList (n: v: v)cfg.instances);
+            message = "All Restic instances must have the same user as 'shb.restic.user'.";
+          }
+          {
+            assertion = lib.all (x: x.group == cfg.group) (lib.mapAttrsToList (n: v: v) cfg.instances);
+            message = "All Restic instances must have the same group as 'shb.restic.group'.";
+          }
+        ];
+
         users.users = {
           ${cfg.user} = {
             name = cfg.user;
@@ -195,12 +228,6 @@ in
                 backupPrepareCommand = lib.strings.concatStringsSep "\n" instance.hooks.before_backup;
 
                 backupCleanupCommand = lib.strings.concatStringsSep "\n" instance.hooks.after_backup;
-              } // lib.attrsets.optionalAttrs (repository.extraSecrets != {}) {
-                environmentFile = shblib.replaceSecrets {
-                  userConfig = repository.extraSecrets;
-                  resultPath = "/var/lib/backup/${name}";
-                  generator = name: v: pkgs.writeText "template" (lib.generators.toINIWithGlobalSection {} v);
-                };
               } // lib.attrsets.optionalAttrs (builtins.length instance.excludePatterns > 0) {
                 exclude = instance.excludePatterns;
               };
@@ -212,12 +239,42 @@ in
 
         systemd.services =
           let
-            mkRepositorySettings = name: instance: repository: {
-              "restic-backups-${name}_${repoSlugName repository.path}".serviceConfig = {
-                Nice = cfg.performance.niceness;
-                IOSchedulingClass = cfg.performance.ioSchedulingClass;
-                IOSchedulingPriority = cfg.performance.ioPriority;
-              };
+            mkRepositorySettings = name: instance: repository:
+              let
+                serviceName = "restic-backups-${name}_${repoSlugName repository.path}";
+              in
+                {
+                  ${serviceName} = lib.mkMerge [
+                    {
+                      serviceConfig = {
+                        Nice = cfg.performance.niceness;
+                        IOSchedulingClass = cfg.performance.ioSchedulingClass;
+                        IOSchedulingPriority = cfg.performance.ioPriority;
+                      };
+                    }
+                    (lib.attrsets.optionalAttrs (repository.secrets != {})
+                      {
+                        serviceConfig.EnvironmentFile = [
+                          "/run/secrets/restic/${serviceName}"
+                        ];
+                        after = [ "${serviceName}-pre.service" ];
+                        requires = [ "${serviceName}-pre.service" ];
+                      })
+                  ];
+
+                  "${serviceName}-pre" = lib.mkIf (repository.secrets != {})
+                    (let
+                      script = shblib.genConfigOutOfBandSystemd {
+                        config = repository.secrets;
+                        configLocation = "/run/secrets/restic/${serviceName}";
+                        generator = name: v: pkgs.writeText "template" (lib.generators.toINIWithGlobalSection {} { globalSection = v; });
+                      };
+                    in
+                      {
+                        script = script.preStart;
+                        serviceConfig.Type = "oneshot";
+                        serviceConfig.LoadCredential = script.loadCredentials;
+                      });
             };
             mkSettings = name: instance: builtins.map (mkRepositorySettings name instance) instance.repositories;
           in

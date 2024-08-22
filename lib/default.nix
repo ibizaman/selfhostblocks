@@ -1,4 +1,8 @@
 { pkgs, lib }:
+let
+  inherit (builtins) isAttrs hasAttr;
+  inherit (lib) concatStringsSep;
+in
 rec {
   # Replace secrets in a file.
   # - userConfig is an attrset that will produce a config file.
@@ -228,8 +232,47 @@ rec {
       results = pkgs.lib.runTests tests;
     in
     if results != [ ] then
-      builtins.throw (builtins.concatStringsSep "\n" (map resultToString results))
+      builtins.throw (builtins.concatStringsSep "\n" (map resultToString (lib.traceValSeqN 3 results)))
     else
       pkgs.runCommand "nix-flake-tests-success" { } "echo > $out";
 
+
+  genConfigOutOfBandSystemd = { config, configLocation, generator }:
+    {
+      loadCredentials = getLoadCredentials "source" config;
+      preStart = lib.mkBefore (replaceSecrets {
+        userConfig = updateToLoadCredentials "source" "$CREDENTIALS_DIRECTORY" config;
+        resultPath = configLocation;
+        inherit generator;
+      });
+    };
+
+  updateToLoadCredentials = sourceField: rootDir: attrs:
+    let
+      hasPlaceholderField = v: isAttrs v && hasAttr sourceField v;
+
+      valueOrLoadCredential = path: value:
+        if ! (hasPlaceholderField value)
+        then value
+        else value // { ${sourceField} = rootDir + "/" + concatStringsSep "_" path; };
+    in
+      mapAttrsRecursiveCond (v: ! (hasPlaceholderField v)) valueOrLoadCredential attrs;
+
+  getLoadCredentials = sourceField: attrs:
+    let
+      hasPlaceholderField = v: isAttrs v && hasAttr sourceField v;
+
+      addPathField = path: value:
+        if ! (hasPlaceholderField value)
+        then value
+        else value // { inherit path; };
+
+      secretsWithPath = mapAttrsRecursiveCond (v: ! (hasPlaceholderField v)) addPathField attrs;
+
+      allSecrets = collect (v: hasPlaceholderField v) secretsWithPath;
+
+      genLoadCredentials = secret:
+        "${concatStringsSep "_" secret.path}:${secret.${sourceField}}";
+    in
+      map genLoadCredentials allSecrets;
 }
