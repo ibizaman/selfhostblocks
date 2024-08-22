@@ -76,8 +76,8 @@ This assumes you have access to such a remote S3 store, for example by using [Ba
       };
 
 +     extraSecrets = {
-+       AWS_ACCESS_KEY_ID="<path/to/access_key_id>";
-+       AWS_SECRET_ACCESS_KEY="<path/to/secret_access_key>";
++       AWS_ACCESS_KEY_ID.source="<path/to/access_key_id>";
++       AWS_SECRET_ACCESS_KEY.source="<path/to/secret_access_key>";
 +     };
     }];
   }

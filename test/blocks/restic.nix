@@ -3,6 +3,7 @@ let
   pkgs' = pkgs;
 
   testLib = pkgs.callPackage ../common.nix {};
+  shblib = pkgs.callPackage ../../lib {};
 
   base = testLib.base [
     ../../modules/blocks/restic.nix
@@ -38,6 +39,12 @@ in
               OnCalendar = "00:00:00";
               RandomizedDelaySec = "5h";
             };
+            # Those are not needed by the repository but are still included
+            # so we can test them in the hooks section.
+            secrets = {
+              A.source = pkgs.writeText "A" "secretA";
+              B.source = pkgs.writeText "B" "secretB";
+            };
           }
           {
             path = "/opt/repos/B";
@@ -47,6 +54,23 @@ in
             };
           }
         ];
+
+        hooks.before_backup = [''
+        echo $RUNTIME_DIRECTORY
+        if [ "$RUNTIME_DIRECTORY" = /run/restic-backups-testinstance_opt_repos_A ]; then
+          if ! [ -f /run/secrets/restic/restic-backups-testinstance_opt_repos_A ]; then
+            exit 10
+          fi
+          if [ -z "$A" ] || ! [ "$A" = "secretA" ]; then
+            echo "A:$A"
+            exit 11
+          fi
+          if [ -z "$B" ] || ! [ "$B" = "secretB" ]; then
+            echo "A:$A"
+            exit 12
+          fi
+        fi
+        ''];
       };
     };
 
