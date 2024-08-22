@@ -206,6 +206,16 @@ in
       {
         environment.systemPackages = lib.optionals (enabledInstances != {}) [ pkgs.restic ];
 
+        systemd.tmpfiles.rules =
+          let
+            mkRepositorySettings = name: instance: repository: lib.optionals (lib.hasPrefix "/" repository.path) [
+              "d '${repository.path}' 0750 ${instance.user} ${instance.group} - -"
+            ];
+
+            mkSettings = name: instance: builtins.map (mkRepositorySettings name instance) instance.repositories;
+          in
+            lib.flatten (lib.attrsets.mapAttrsToList mkSettings enabledInstances);
+
         services.restic.backups =
           let
             mkRepositorySettings = name: instance: repository: {
