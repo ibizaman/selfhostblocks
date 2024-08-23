@@ -275,9 +275,19 @@ shb.nextcloud.postgresSettings = {
 };
 ```
 
-### Backup the Nextcloud data {#services-nextcloud-server-usage-backup}
+### Backup {#services-nextcloud-server-usage-backup}
 
-TODO
+Backing up Nextcloud using the [Restic block](blocks-restic.html) is done like so:
+
+```nix
+shb.restic.instances."nextcloud" = config.shb.nextcloud.backup // {
+  enable = true;
+};
+```
+
+The name `"nextcloud"` in the `instances` can be anything.
+The `config.shb.nextcloud.backup` option provides what directories to backup.
+You can define any number of Restic instances to backup Nextcloud multiple times.
 
 ### Enable Preview Generator App {#services-nextcloud-server-usage-previewgenerator}
 
