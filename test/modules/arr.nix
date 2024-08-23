@@ -90,7 +90,6 @@ in
           ssl = null;
         }
       ];
-      users.groups.radarr.members = [ "backup" ];
       services.nginx.enable = true;
       services.bazarr = {};
       services.jackett = {};
@@ -156,7 +155,6 @@ in
           ssl = null;
         }
       ];
-      users.groups.radarr.members = [ "backup" ];
       services.nginx.enable = true;
       services.bazarr = {};
       services.jackett = {};

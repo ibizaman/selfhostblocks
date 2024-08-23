@@ -132,6 +132,7 @@ in
       '';
       readOnly = true;
       default = {
+        user = "vaultwarden";
         sourceDirectories = [
           dataFolder
         ];
@@ -224,17 +225,6 @@ in
         passwordFile = builtins.toString cfg.databasePasswordFile;
       }
     ];
-
-    systemd.services.vaultwarden.serviceConfig.UMask = lib.mkForce "0027";
-    # systemd.services.vaultwarden.serviceConfig.Group = lib.mkForce "media";
-    users.users.vaultwarden = {
-      extraGroups = [ "media" ];
-    };
-
-    users.groups.vaultwarden = {
-      members = [ "backup" ];
-    };
-
     # TODO: make this work.
     # It does not work because it leads to infinite recursion.
     # ${cfg.mount}.path = dataFolder;

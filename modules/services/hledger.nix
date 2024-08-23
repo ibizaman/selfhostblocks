@@ -72,6 +72,7 @@ in
       '';
       readOnly = true;
       default = {
+        user = "hledger";
         sourceDirectories = [
           cfg.dataDir
         ];

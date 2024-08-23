@@ -100,6 +100,7 @@ in
       '';
       readOnly = true;
       default = {
+        user = "audiobookshelf";
         sourceDirectories = [
           "/var/lib/audiobookshelf"
         ];
@@ -162,17 +163,6 @@ in
         ];
       }
     ];
-    
-    # We want audiobookshelf to create files in the media group and to make those files group readable.
-    users.users.audiobookshelf = {
-      extraGroups = [ "media" ];
-    };
-    systemd.services.audiobookshelfd.serviceConfig.Group = lib.mkForce "media";
-    systemd.services.audiobookshelfd.serviceConfig.UMask = lib.mkForce "0027";
-
-    # We backup the whole audiobookshelf directory and set permissions for the backup user accordingly.
-    users.groups.audiobookshelf.members = [ "backup" ];
-    users.groups.media.members = [ "backup" ];
   } {
     systemd.services.audiobookshelfd.serviceConfig = cfg.extraServiceConfig;
   }]);

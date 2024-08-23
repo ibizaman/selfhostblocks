@@ -515,6 +515,7 @@ in
       '';
       readOnly = true;
       default = {
+        user = "nextcloud";
         sourceDirectories = [
           cfg.dataDir
         ];
@@ -567,12 +568,6 @@ in
           isSystemUser = true;
         };
       };
-
-      # users.groups = {
-      #   nextcloud = {
-      #     members = [ "backup" ];
-      #   };
-      # };
 
       # LDAP is manually configured through
       # https://github.com/lldap/lldap/blob/main/example_configs/nextcloud.md, see also
@@ -708,10 +703,6 @@ in
 
       services.postgresql.settings = lib.mkIf (! (isNull cfg.postgresSettings)) cfg.postgresSettings;
 
-      systemd.services.phpfpm-nextcloud.serviceConfig = {
-        # Setup permissions needed for backups, as the backup user is member of the jellyfin group.
-        UMask = lib.mkForce "0027";
-      };
       systemd.services.phpfpm-nextcloud.preStart = ''
       mkdir -p /var/log/xdebug; chown -R nextcloud: /var/log/xdebug
       '';

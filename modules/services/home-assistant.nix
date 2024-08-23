@@ -154,6 +154,7 @@ in
       '';
       readOnly = true;
       default = {
+        user = "hass";
         # No need for backup hooks as we use an hourly automation job in home assistant directly with a cron job.
         sourceDirectories = [
           "/var/lib/hass/backups"
@@ -322,22 +323,5 @@ in
       "f ${config.services.home-assistant.configDir}/scenes.yaml      0755 hass hass"
       "f ${config.services.home-assistant.configDir}/scripts.yaml     0755 hass hass"
     ];
-
-    # Adds the "backup" user to the "hass" group.
-    users.groups.hass = {
-      members = [ "backup" ];
-    };
-
-    # This allows the "backup" user, member of the "backup" group, to access what's inside the home
-    # folder, which is needed for accessing the "backups" folder. It allows to read (r), enter the
-    # directory (x) but not modify what's inside.
-    users.users.hass.homeMode = "0750";
-
-    systemd.services.home-assistant.serviceConfig = {
-      # This allows all members of the "hass" group to read files, list directories and enter
-      # directories created by the home-assistant service. This is needed for the "backup" user,
-      # member of the "hass" group, to backup what is inside the "backup/" folder.
-      UMask = lib.mkForce "0027";
-    };
   };
 }
