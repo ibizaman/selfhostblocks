@@ -9,7 +9,7 @@ rec {
   # - resultPath is the location the config file should have on the filesystem.
   # - generator is a function taking two arguments name and value and returning path in the nix
   #   nix store where the
-  replaceSecrets = { userConfig, resultPath, generator }:
+  replaceSecrets = { userConfig, resultPath, generator, user ? "root", permissions ? "u=r,g=r,o=" }:
     let
       configWithTemplates = withReplacements userConfig;
 
@@ -20,6 +20,7 @@ rec {
       replaceSecretsScript {
         file = nonSecretConfigFile;
         inherit resultPath replacements;
+        inherit user permissions;
       };
 
   replaceSecretsFormatAdapter = format: format.generate;
@@ -30,7 +31,7 @@ rec {
     resultPath = newPath;
   };
 
-  replaceSecretsScript = { file, resultPath, replacements }:
+  replaceSecretsScript = { file, resultPath, replacements, user ? "root", permissions ? "u=r,g=r,o=" }:
     let
       templatePath = resultPath + ".template";
       sedPatterns = lib.strings.concatStringsSep " " (lib.attrsets.mapAttrsToList (from: to: "-e \"s|${from}|${to}|\"") replacements);
@@ -44,6 +45,9 @@ rec {
       mkdir -p $(dirname ${templatePath})
       ln -fs ${file} ${templatePath}
       rm -f ${resultPath}
+      touch ${resultPath}
+      chown ${user} ${resultPath}
+      chmod ${permissions} ${resultPath}
       ${sedCmd} ${templatePath} > ${resultPath}
       '';
 
@@ -237,13 +241,14 @@ rec {
       pkgs.runCommand "nix-flake-tests-success" { } "echo > $out";
 
 
-  genConfigOutOfBandSystemd = { config, configLocation, generator }:
+  genConfigOutOfBandSystemd = { config, configLocation, generator, user ? "root", permissions ? "u=r,g=r,o=" }:
     {
       loadCredentials = getLoadCredentials "source" config;
       preStart = lib.mkBefore (replaceSecrets {
         userConfig = updateToLoadCredentials "source" "$CREDENTIALS_DIRECTORY" config;
         resultPath = configLocation;
         inherit generator;
+        inherit user permissions;
       });
     };
 
