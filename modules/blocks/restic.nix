@@ -23,16 +23,6 @@ let
       default = cfg.user;
     };
 
-    group = lib.mkOption {
-      description = ''
-        Unix group doing the backups.
-
-        For Restic, the same group must be used for all instances.
-      '';
-      type = lib.types.str;
-      default = cfg.group;
-    };
-
     sourceDirectories = lib.mkOption {
       description = "Source directories.";
       type = lib.types.nonEmptyListOf lib.types.str;
@@ -131,12 +121,6 @@ in
       default = "backup";
     };
 
-    group = lib.mkOption {
-      description = "Unix group doing the backups.";
-      type = lib.types.str;
-      default = "backup";
-    };
-
     instances = lib.mkOption {
       description = "Each instance is a backup setting";
       default = {};
@@ -209,7 +193,7 @@ in
         systemd.tmpfiles.rules =
           let
             mkRepositorySettings = name: instance: repository: lib.optionals (lib.hasPrefix "/" repository.path) [
-              "d '${repository.path}' 0750 ${instance.user} ${instance.group} - -"
+              "d '${repository.path}' 0750 ${instance.user} root - -"
             ];
 
             mkSettings = name: instance: builtins.map (mkRepositorySettings name instance) instance.repositories;
