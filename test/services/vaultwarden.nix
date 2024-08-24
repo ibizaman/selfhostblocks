@@ -87,6 +87,25 @@ let
       authEndpoint = "https://${config.shb.authelia.subdomain}.${config.shb.authelia.domain}";
     };
   };
+
+  backup = { config, ... }: {
+    imports = [
+      ../../modules/blocks/restic.nix
+    ];
+    shb.restic.instances."testinstance" = config.shb.vaultwarden.backup // {
+      enable = true;
+      passphraseFile = pkgs.writeText "passphrase" "PassPhrase";
+      repositories = [
+        {
+          path = "/opt/repos/A";
+          timerConfig = {
+            OnCalendar = "00:00:00";
+            RandomizedDelaySec = "5h";
+          };
+        }
+      ];
+    };
+  };
 in
 {
   basic = pkgs.testers.runNixOSTest {
@@ -165,6 +184,27 @@ in
               raise Exception(f"auth host should be auth.${domain} but is {response['auth_host']}")
           if response['auth_query'] != "rd=${proto_fqdn}/admin":
               raise Exception(f"auth query should be rd=${proto_fqdn}/admin but is {response['auth_query']}")
+      '';
+    };
+  };
+
+  backup = pkgs.testers.runNixOSTest {
+    name = "vaultwarden_backup";
+
+    nodes.server = { config, ... }: {
+      imports = [
+        base
+        basic
+        backup
+      ];
+    };
+
+    nodes.client = {};
+
+    testScript = commonTestScript.override {
+      extraScript = { proto_fqdn, ... }: ''
+      with subtest("backup"):
+          server.succeed("systemctl start restic-backups-testinstance_opt_repos_A")
       '';
     };
   };
