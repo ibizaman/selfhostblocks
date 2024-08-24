@@ -18,18 +18,18 @@ Integration tests are defined in [`/test/blocks/restic.nix`](@REPO@/test/blocks/
 
 The following snippet shows how to configure
 the backup of 1 folder to 1 repository.
-
-Assumptions:
-- 1 hard drive pool is used for backup and is mounted on `/srv/pool1`.
+We assume that the folder is used by the `myservice` service and is owned by a user of the same name.
 
 ```nix
-shb.restic.instances.myfolder = {
+shb.restic.instances.myservice = {
   enable = true;
+
+  user = "myservice";
 
   passphraseFile = "<path/to/passphrase>";
 
   repositories = [{
-    path = "/srv/pool1/backups/myfolder";
+    path = "/srv/backups/myservice";
     timerConfig = {
       OnCalendar = "00:00:00";
       RandomizedDelaySec = "3h";
@@ -47,16 +47,8 @@ shb.restic.instances.myfolder = {
     keep_weekly = 4;
     keep_monthly = 6;
   };
-
-  consistency = {
-    repository = "2 weeks";
-    archives = "1 month";
-  };
 };
 ```
-
-To be secure, the `passphraseFile` must contain a secret that is deployed out of band, otherwise it will be world-readable in the nix store.
-To achieve that, I recommend [sops](usage.html#usage-secrets) although other methods work great too.
 
 ### One folder backed up to S3 {#blocks-restic-usage-remote}
 
@@ -65,7 +57,7 @@ Here we will only highlight the differences with the previous configuration.
 This assumes you have access to such a remote S3 store, for example by using [Backblaze](https://www.backblaze.com/).
 
 ```diff
-  shb.backup.instances.myfolder = {
+  shb.backup.instances.myservice = {
 
     repositories = [{
 -     path = "/srv/pool1/backups/myfolder";
@@ -82,6 +74,48 @@ This assumes you have access to such a remote S3 store, for example by using [Ba
     }];
   }
 ```
+
+### Secrets {#blocks-restic-secrets}
+
+To be secure, the secrets should deployed out of band, otherwise they will be world-readable in the nix store.
+
+To achieve that, I recommend [sops](usage.html#usage-secrets) although other methods work great too.
+The code to backup to Backblaze with secrets stored in Sops would look like so:
+
+```nix
+shb.restic.instances.myfolder.passphraseFile = config.sops.secrets."myservice/backup/passphrase".path;
+shb.restic.instances.myfolder.repositories = [
+  {
+    path = "s3:s3.us-west-000.backblazeb2.com/<mybucket>";
+    secrets = {
+      AWS_ACCESS_KEY_ID.source = config.sops.secrets."backup/b2/access_key_id".path;
+      AWS_SECRET_ACCESS_KEY.source = config.sops.secrets."backup/b2/secret_access_key".path;
+    };
+  }
+];
+
+sops.secrets."myservice/backup/passphrase" = {
+  sopsFile = ./secrets.yaml;
+  mode = "0400";
+  owner = "myservice";
+  group = "myservice";
+};
+sops.secrets."backup/b2/access_key_id" = {
+  sopsFile = ./secrets.yaml;
+  mode = "0400";
+  owner = "myservice";
+  group = "myservice";
+};
+sops.secrets."backup/b2/secret_access_key" = {
+  sopsFile = ./secrets.yaml;
+  mode = "0400";
+  owner = "myservice";
+  group = "myservice";
+};
+```
+
+Pay attention that the owner must be the `myservice` user, the one owning the files to be backed up.
+A `secrets` contract is in progress that will allow one to not care about such details.
 
 ### Multiple directories to multiple destinations {#blocks-restic-usage-multiple}
 
@@ -149,11 +183,6 @@ backupcfg = repositories: name: sourceDirectories {
     keep_daily = 7;
     keep_weekly = 4;
     keep_monthly = 6;
-  };
-
-  consistency = {
-    repository = "2 weeks";
-    archives = "1 month";
   };
 
   environmentFile = true;
