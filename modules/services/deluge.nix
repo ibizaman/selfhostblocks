@@ -251,6 +251,7 @@ in
       '';
       readOnly = true;
       default = {
+        user = "deluge";
         sourceDirectories = [
           cfg.dataDir
         ];
@@ -373,17 +374,6 @@ in
         inherit (cfg) authEndpoint;
       }))
     ];
-
-    # We want deluge to create files in the media group and to make those files group readable.
-    users.users.deluge = {
-      extraGroups = [ "media" ];
-    };
-    systemd.services.deluged.serviceConfig.Group = lib.mkForce "media";
-    systemd.services.deluged.serviceConfig.UMask = lib.mkForce "0027";
-
-    # We backup the whole deluge directory and set permissions for the backup user accordingly.
-    users.groups.deluge.members = [ "backup" ];
-    users.groups.media.members = [ "backup" ];
   } {
     systemd.services.deluged.serviceConfig = cfg.extraServiceConfig;
   } (lib.mkIf (config.shb.deluge.prometheusScraperPasswordFile != null) {

@@ -138,6 +138,7 @@ in
       '';
       readOnly = true;
       default = {
+        user = "jellyfin";
         sourceDirectories = [
           "/var/lib/jellyfin"
         ];
@@ -151,16 +152,6 @@ in
     networking.firewall = {
       # from https://jellyfin.org/docs/general/networking/index.html, for auto-discovery
       allowedUDPPorts = [ 1900 7359 ];
-    };
-
-    users.groups = {
-      media = {
-        name = "media";
-        members = [ "jellyfin" ];
-      };
-      jellyfin = {
-        members = [ "backup" ];
-      };
     };
 
     services.nginx.enable = true;
@@ -432,13 +423,5 @@ in
         redirect_uris = [ "https://${cfg.subdomain}.${cfg.domain}/sso/OID/r/${cfg.sso.provider}" ];
       }
     ];
-
-    # For backup
-
-    systemd.services.jellyfin.serviceConfig = {
-      # Setup permissions needed for backups, as the backup user is member of the jellyfin group.
-      UMask = lib.mkForce "0027";
-      StateDirectoryMode = lib.mkForce "0750";
-    };
   };
 }

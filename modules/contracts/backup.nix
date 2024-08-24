@@ -6,13 +6,6 @@ lib.types.submodule {
     user = lib.mkOption {
       description = "Unix user doing the backups.";
       type = lib.types.str;
-      default = "backup";
-    };
-
-    group = lib.mkOption {
-      description = "Unix group doing the backups.";
-      type = lib.types.str;
-      default = "backup";
     };
 
     sourceDirectories = lib.mkOption {
@@ -24,18 +17,6 @@ lib.types.submodule {
       description = "Patterns to exclude.";
       type = lib.types.listOf lib.types.str;
       default = [];
-    };
-
-    retention = lib.mkOption {
-      description = "Backup files retention.";
-      type = lib.types.attrsOf (lib.types.oneOf [ lib.types.int lib.types.nonEmptyStr ]);
-      default = {
-        keep_within = "1d";
-        keep_hourly = 24;
-        keep_daily = 7;
-        keep_weekly = 4;
-        keep_monthly = 6;
-      };
     };
 
     hooks = lib.mkOption {

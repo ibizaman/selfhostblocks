@@ -56,15 +56,8 @@ in
 
   testRadarr = {
     expected = {
-      systemd.services.radarr = {
-        serviceConfig = {
-          StateDirectoryMode = "0750";
-          UMask = "0027";
-        };
-      };
-      systemd.tmpfiles.rules = [
-        "d '/var/lib/radarr' 0750 radarr radarr - -"
-      ];
+      users = {};
+      systemd.services.radarr = {};
       shb.nginx.vhosts = [
         {
           autheliaRules = [
@@ -90,7 +83,6 @@ in
           ssl = null;
         }
       ];
-      users.groups.radarr.members = [ "backup" ];
       services.nginx.enable = true;
       services.bazarr = {};
       services.jackett = {};
@@ -122,15 +114,8 @@ in
 
   testRadarrWithBackup = {
     expected = {
-      systemd.services.radarr = {
-        serviceConfig = {
-          StateDirectoryMode = "0750";
-          UMask = "0027";
-        };
-      };
-      systemd.tmpfiles.rules = [
-        "d '/var/lib/radarr' 0750 radarr radarr - -"
-      ];
+      users = {};
+      systemd.services.radarr = {};
       shb.nginx.vhosts = [
         {
           autheliaRules = [
@@ -156,7 +141,6 @@ in
           ssl = null;
         }
       ];
-      users.groups.radarr.members = [ "backup" ];
       services.nginx.enable = true;
       services.bazarr = {};
       services.jackett = {};

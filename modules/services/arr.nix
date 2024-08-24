@@ -277,20 +277,6 @@ let
     ];
   };
 
-  backup = name: {
-    systemd.tmpfiles.rules = [
-      "d '${config.shb.arr.${name}.dataDir}' 0750 ${config.services.${name}.user} ${config.services.${name}.group} - -"
-    ];
-    users.groups.${name} = {
-      members = [ "backup" ];
-    };
-    systemd.services.${name}.serviceConfig = {
-      # Setup permissions needed for backups, as the backup user is member of the jellyfin group.
-      UMask = lib.mkForce "0027";
-      StateDirectoryMode = lib.mkForce "0750";
-    };
-  };
-
   appOption = name: c: lib.nameValuePair name (lib.mkOption {
     description = "Configuration for ${name}";
     default = {};
@@ -347,6 +333,7 @@ let
           '';
           readOnly = true;
           default = {
+            user = name;
             sourceDirectories = [
               cfg.${name}.dataDir
             ];
@@ -386,7 +373,6 @@ in
 
       shb.nginx.vhosts = [ (vhosts {} cfg') ];
     }))
-    (lib.mkIf cfg.radarr.enable (backup "radarr"))
 
     (lib.mkIf cfg.sonarr.enable (
     let
@@ -416,7 +402,6 @@ in
 
       shb.nginx.vhosts = [ (vhosts {} cfg') ];
     }))
-    (lib.mkIf cfg.sonarr.enable (backup "sonarr"))
 
     (lib.mkIf cfg.bazarr.enable (
     let
@@ -443,7 +428,6 @@ in
 
       shb.nginx.vhosts = [ (vhosts {} cfg') ];
     }))
-    (lib.mkIf cfg.bazarr.enable (backup "bazarr"))
 
     (lib.mkIf cfg.readarr.enable (
     let
@@ -465,7 +449,6 @@ in
 
       shb.nginx.vhosts = [ (vhosts {} cfg') ];
     }))
-    (lib.mkIf cfg.readarr.enable (backup "readarr"))
 
     (lib.mkIf cfg.lidarr.enable (
     let
@@ -492,7 +475,6 @@ in
 
       shb.nginx.vhosts = [ (vhosts {} cfg') ];
     }))
-    (lib.mkIf cfg.lidarr.enable (backup "lidarr"))
 
     (lib.mkIf cfg.jackett.enable (
     let
@@ -503,6 +485,7 @@ in
         enable = true;
         dataDir = "/var/lib/jackett";
       };
+      # TODO: avoid implicitly relying on the media group
       users.users.jackett = {
         extraGroups = [ "media" ];
       };
@@ -516,6 +499,5 @@ in
         extraBypassResources = [ "^/dl.*" ];
       } cfg') ];
     }))
-    (lib.mkIf cfg.jackett.enable (backup "jackett"))
   ];
 }

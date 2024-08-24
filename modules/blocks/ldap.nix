@@ -106,6 +106,7 @@ in
       '';
       readOnly = true;
       default = {
+        user = "lldap";
         sourceDirectories = [
           "/var/lib/lldap"
         ];
@@ -139,10 +140,7 @@ in
       group = "lldap";
       isSystemUser = true;
     };
-
-    users.groups.lldap = {
-      members = [ "backup" ];
-    };
+    users.groups.lldap = {};
 
     services.lldap = {
       enable = true;

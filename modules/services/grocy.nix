@@ -80,6 +80,7 @@ in
       '';
       readOnly = true;
       default = {
+        user = "grocy";
         sourceDirectories = [
           cfg.dataDir
         ];
@@ -115,10 +116,6 @@ in
       sslCertificate = lib.mkIf (!(isNull cfg.ssl)) cfg.ssl.paths.cert;
       sslCertificateKey = lib.mkIf (!(isNull cfg.ssl)) cfg.ssl.paths.key;
     };
-
-    # We backup the whole grocy directory and set permissions for the backup user accordingly.
-    users.groups.grocy.members = [ "backup" ];
-    users.groups.media.members = [ "backup" ];
   } {
     systemd.services.grocyd.serviceConfig = cfg.extraServiceConfig;
   }]);

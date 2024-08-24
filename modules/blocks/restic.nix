@@ -15,22 +15,9 @@ let
 
     user = lib.mkOption {
       description = ''
-        Unix user doing the backups.
-
-        For Restic, the same user must be used for all instances.
+        Unix user doing the backups. Must be the user owning the files to be backed up.
       '';
       type = lib.types.str;
-      default = cfg.user;
-    };
-
-    group = lib.mkOption {
-      description = ''
-        Unix group doing the backups.
-
-        For Restic, the same group must be used for all instances.
-      '';
-      type = lib.types.str;
-      default = cfg.group;
     };
 
     sourceDirectories = lib.mkOption {
@@ -125,18 +112,6 @@ let
 in
 {
   options.shb.restic = {
-    user = lib.mkOption {
-      description = "Unix user doing the backups.";
-      type = lib.types.str;
-      default = "backup";
-    };
-
-    group = lib.mkOption {
-      description = "Unix group doing the backups.";
-      type = lib.types.str;
-      default = "backup";
-    };
-
     instances = lib.mkOption {
       description = "Each instance is a backup setting";
       default = {};
@@ -176,41 +151,24 @@ in
       enabledInstances = lib.attrsets.filterAttrs (k: i: i.enable) cfg.instances;
     in lib.mkMerge [
       {
-        assertions = [
-          {
-            assertion = lib.all (x: x.user == cfg.user) (lib.mapAttrsToList (n: v: v)cfg.instances);
-            message = "All Restic instances must have the same user as 'shb.restic.user'.";
-          }
-          {
-            assertion = lib.all (x: x.group == cfg.group) (lib.mapAttrsToList (n: v: v) cfg.instances);
-            message = "All Restic instances must have the same group as 'shb.restic.group'.";
-          }
-        ];
-
-        users.users = {
-          ${cfg.user} = {
-            name = cfg.user;
-            group = cfg.group;
-            home = lib.mkForce "/var/lib/${cfg.user}";
-            createHome = true;
-            isSystemUser = true;
-            extraGroups = [ "keys" ];
-          };
-        };
-        users.groups = {
-          ${cfg.group} = {
-            name = cfg.group;
-          };
-        };
-      }
-      {
         environment.systemPackages = lib.optionals (enabledInstances != {}) [ pkgs.restic ];
+
+        systemd.tmpfiles.rules =
+          let
+            mkRepositorySettings = name: instance: repository: lib.optionals (lib.hasPrefix "/" repository.path) [
+              "d '${repository.path}' 0750 ${instance.user} root - -"
+            ];
+
+            mkSettings = name: instance: builtins.map (mkRepositorySettings name instance) instance.repositories;
+          in
+            lib.flatten (lib.attrsets.mapAttrsToList mkSettings enabledInstances);
 
         services.restic.backups =
           let
             mkRepositorySettings = name: instance: repository: {
               "${name}_${repoSlugName repository.path}" = {
-                inherit (cfg) user;
+                inherit (instance) user;
+
                 repository = repository.path;
 
                 paths = instance.sourceDirectories;
@@ -250,12 +208,13 @@ in
                         Nice = cfg.performance.niceness;
                         IOSchedulingClass = cfg.performance.ioSchedulingClass;
                         IOSchedulingPriority = cfg.performance.ioPriority;
+                        BindReadOnlyPaths = instance.sourceDirectories;
                       };
                     }
                     (lib.attrsets.optionalAttrs (repository.secrets != {})
                       {
                         serviceConfig.EnvironmentFile = [
-                          "/run/secrets/restic/${serviceName}"
+                          "/run/secrets_restic/${serviceName}"
                         ];
                         after = [ "${serviceName}-pre.service" ];
                         requires = [ "${serviceName}-pre.service" ];
@@ -266,8 +225,9 @@ in
                     (let
                       script = shblib.genConfigOutOfBandSystemd {
                         config = repository.secrets;
-                        configLocation = "/run/secrets/restic/${serviceName}";
+                        configLocation = "/run/secrets_restic/${serviceName}";
                         generator = name: v: pkgs.writeText "template" (lib.generators.toINIWithGlobalSection {} { globalSection = v; });
+                        user = instance.user;
                       };
                     in
                       {
