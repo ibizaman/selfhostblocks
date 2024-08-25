@@ -6,7 +6,7 @@ let
   shblib = pkgs.callPackage ../../lib {};
 
   instanceOptions = {
-    enable = lib.mkEnableOption "shb restic";
+    enable = lib.mkEnableOption "shb restic. A disabled instance will not backup data anymore but still provides the helper tool to introspect and rollback snapshots";
 
     passphraseFile = lib.mkOption {
       description = "Encryption key for the backups.";
@@ -175,7 +175,7 @@ in
 
             mkSettings = name: instance: builtins.map (mkRepositorySettings name instance) instance.repositories;
           in
-            lib.flatten (lib.attrsets.mapAttrsToList mkSettings enabledInstances);
+            lib.flatten (lib.attrsets.mapAttrsToList mkSettings cfg.instances);
 
         services.restic.backups =
           let
@@ -271,7 +271,7 @@ in
           '';
           mkSettings = name: instance: builtins.map (mkResticBinary name instance) instance.repositories;
         in
-          lib.flatten (lib.attrsets.mapAttrsToList mkSettings enabledInstances);
+          lib.flatten (lib.attrsets.mapAttrsToList mkSettings cfg.instances);
       }
     ]);
 }
