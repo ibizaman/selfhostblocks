@@ -106,6 +106,20 @@ let
         };
       };
     };
+
+    limitUploadKiBs = lib.mkOption {
+      type = lib.types.nullOr lib.types.int;
+      description = "Limit upload bandwidth to the given KiB/s amount.";
+      default = null;
+      example = 8000;
+    };
+
+    limitDownloadKiBs = lib.mkOption {
+      type = lib.types.nullOr lib.types.int;
+      description = "Limit download bandwidth to the given KiB/s amount.";
+      default = null;
+      example = 8000;
+    };
   };
 
   repoSlugName = name: builtins.replaceStrings ["/" ":"] ["_" "_"] (lib.strings.removePrefix "/" name);
@@ -188,6 +202,14 @@ in
                 backupCleanupCommand = lib.strings.concatStringsSep "\n" instance.hooks.after_backup;
               } // lib.attrsets.optionalAttrs (builtins.length instance.excludePatterns > 0) {
                 exclude = instance.excludePatterns;
+
+                extraBackupArgs =
+                  (lib.optionals (instance.limitUploadKiBs != null) [
+                    "--limit-upload=${toString instance.limitUploadKiBs}"
+                  ])
+                  ++ (lib.optionals (instance.limitDownloadKiBs != null) [
+                    "--limit-download=${toString instance.limitDownloadKiBs}"
+                  ]);
               };
             };
 
