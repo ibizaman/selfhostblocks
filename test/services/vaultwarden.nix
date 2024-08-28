@@ -94,7 +94,7 @@ let
     ];
     shb.restic.instances."testinstance" = config.shb.vaultwarden.backup // {
       enable = true;
-      passphraseFile = pkgs.writeText "passphrase" "PassPhrase";
+      passphraseFile = toString (pkgs.writeText "passphrase" "PassPhrase");
       repositories = [
         {
           path = "/opt/repos/A";

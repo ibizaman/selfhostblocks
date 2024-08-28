@@ -20,7 +20,7 @@ let
       shb.restic.instances."testinstance" = {
         enable = true;
 
-        passphraseFile = pkgs.writeText "passphrase" "PassPhrase";
+        passphraseFile = toString (pkgs.writeText "passphrase" "PassPhrase");
 
         sourceDirectories = [
           "/opt/files/A"
