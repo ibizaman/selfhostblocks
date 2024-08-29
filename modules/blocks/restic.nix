@@ -123,6 +123,8 @@ let
   };
 
   repoSlugName = name: builtins.replaceStrings ["/" ":"] ["_" "_"] (lib.strings.removePrefix "/" name);
+  backupName = name: repository: "${name}_${repoSlugName repository.path}";
+  fullName = name: repository: "restic-backups-${name}_${repoSlugName repository.path}";
 in
 {
   options.shb.restic = {
@@ -221,7 +223,7 @@ in
           let
             mkRepositorySettings = name: instance: repository:
               let
-                serviceName = "restic-backups-${name}_${repoSlugName repository.path}";
+                serviceName = fullName name repository;
               in
                 {
                   ${serviceName} = lib.mkMerge [
@@ -263,12 +265,29 @@ in
             lib.mkMerge (lib.flatten (lib.attrsets.mapAttrsToList mkSettings enabledInstances));
       }
       {
+        system.activationScripts = let
+          mkEnv = name: instance: repository:
+            lib.nameValuePair "${fullName name repository}_gen"
+              (shblib.replaceSecrets {
+                userConfig = repository.secrets // {
+                  RESTIC_PASSWORD_FILE = instance.passphraseFile;
+                  RESTIC_REPOSITORY = repository.path;
+                };
+                resultPath = "/run/secrets_restic_env/${fullName name repository}";
+                generator = name: v: pkgs.writeText (fullName name repository) (lib.generators.toINIWithGlobalSection {} { globalSection = v; });
+                user = instance.user;
+              });
+          mkSettings = name: instance: builtins.map (mkEnv name instance) instance.repositories;
+        in
+          lib.listToAttrs (lib.flatten (lib.attrsets.mapAttrsToList mkSettings cfg.instances));
+
         environment.systemPackages = let
-          mkResticBinary = name: instance: repository: pkgs.writeShellScriptBin "restic-${name}_${repoSlugName repository.path}" ''
-            export RESTIC_PASSWORD_FILE=${instance.passphraseFile}
-            export RESTIC_REPOSITORY=${repository.path}
-            ${pkgs.restic}/bin/restic $@
-          '';
+          mkResticBinary = name: instance: repository:
+            pkgs.writeShellScriptBin (fullName name repository) ''
+              export $(grep -v '^#' "/run/secrets_restic_env/${fullName name repository}" \
+                       | xargs -d '\n')
+              ${pkgs.restic}/bin/restic $@
+              '';
           mkSettings = name: instance: builtins.map (mkResticBinary name instance) instance.repositories;
         in
           lib.flatten (lib.attrsets.mapAttrsToList mkSettings cfg.instances);
