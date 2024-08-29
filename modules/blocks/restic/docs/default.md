@@ -234,6 +234,10 @@ One can then restore a backup with:
 restic-myfolder1_srv_pool1_backups restore latest -t /
 ```
 
+### Troubleshooting {#blocks-restic-maintenance-troubleshooting}
+
+In case something bad happens with a backup, the [official documentation](https://restic.readthedocs.io/en/stable/077_troubleshooting.html) has a lot of tips.
+
 ## Options Reference {#blocks-restic-options}
 
 ```{=include=} options
