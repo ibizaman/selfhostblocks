@@ -174,6 +174,11 @@ in
     nodes.client = {};
 
     testScript = commonTestScript.override {
+      waitForPorts = { node, ... }: [
+        8222
+        5432
+        9091
+      ];
       extraScript = { proto_fqdn, ... }: ''
       with subtest("unauthenticated access is not granted to /admin"):
           response = curl(client, """{"code":%{response_code},"auth_host":"%{urle.host}","auth_query":"%{urle.query}","all":%{json}}""", "${proto_fqdn}/admin")
