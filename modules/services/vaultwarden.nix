@@ -8,7 +8,7 @@ let
 
   fqdn = "${cfg.subdomain}.${cfg.domain}";
 
-  dataFolder = "/var/lib/vaultwarden";
+  dataFolder = if lib.versionOlder (config.system.stateVersion or "24.11") "24.11" then "/var/lib/bitwarden_rs" else "/var/lib/vaultwarden";
 in
 {
   options.shb.vaultwarden = {
