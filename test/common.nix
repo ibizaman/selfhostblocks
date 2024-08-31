@@ -41,7 +41,8 @@ in
     )
     + lib.strings.concatMapStrings (p: ''server.wait_for_open_port(${toString p})'' + "\n") (
       waitForPorts args
-      ++ (lib.optionals redirectSSO [ nodes.server.services.authelia.instances."auth.${domain}".settings.server.port ] )
+      # TODO: when the SSO block exists, replace this hardcoded port.
+      ++ (lib.optionals redirectSSO [ 9091 /* nodes.server.services.authelia.instances."auth.${domain}".settings.server.port */ ] )
     )
     + lib.strings.concatMapStrings (u: ''server.wait_for_open_unix_socket("${u}")'' + "\n") (waitForUnixSocket args)
     + ''

@@ -415,9 +415,9 @@ in
 
     shb.authelia.oidcClients = lib.lists.optionals (!(isNull cfg.sso)) [
       {
-        id = cfg.sso.clientID;
-        description = "Jellyfin";
-        secret.source = cfg.sso.secretFile;
+        client_id = cfg.sso.clientID;
+        client_name = "Jellyfin";
+        client_secret.source = cfg.sso.secretFile;
         public = false;
         authorization_policy = "one_factor";
         redirect_uris = [ "https://${cfg.subdomain}.${cfg.domain}/sso/OID/r/${cfg.sso.provider}" ];
