@@ -103,8 +103,20 @@ in
             "multi3.example.com" = mkVirtualHost "multi3" config.shb.certs.certs.selfsigned.multi;
           };
       systemd.services.nginx = {
-        after = [ config.shb.certs.certs.selfsigned.top.systemdService config.shb.certs.certs.selfsigned.subdomain.systemdService ];
-        requires = [ config.shb.certs.certs.selfsigned.top.systemdService config.shb.certs.certs.selfsigned.subdomain.systemdService ];
+        after = [
+          config.shb.certs.certs.selfsigned.top.systemdService
+          config.shb.certs.certs.selfsigned.subdomain.systemdService
+          config.shb.certs.certs.selfsigned.multi.systemdService
+          config.shb.certs.certs.selfsigned.cert1.systemdService
+          config.shb.certs.certs.selfsigned.cert2.systemdService
+        ];
+        requires = [
+          config.shb.certs.certs.selfsigned.top.systemdService
+          config.shb.certs.certs.selfsigned.subdomain.systemdService
+          config.shb.certs.certs.selfsigned.multi.systemdService
+          config.shb.certs.certs.selfsigned.cert1.systemdService
+          config.shb.certs.certs.selfsigned.cert2.systemdService
+        ];
       };
     };
 
