@@ -152,9 +152,9 @@ in
 
     shb.authelia.oidcClients = [
       {
-        id = cfg.oidcClientID;
-        description = "Audiobookshelf";
-        secret.source = cfg.ssoSecretFile;
+        client_id = cfg.oidcClientID;
+        client_name = "Audiobookshelf";
+        client_secret.source = cfg.ssoSecretFile;
         public = false;
         authorization_policy = "one_factor";
         redirect_uris = [ 

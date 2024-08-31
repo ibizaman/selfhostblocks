@@ -31,7 +31,7 @@ let
             {"email": "me@example.com"}
         """))
         print(response)
-        if 'Kdf' not in response:
+        if 'kdf' not in response:
             raise Exception("Unrecognized response: {}".format(response))
 
     with subtest("get token"):
@@ -45,7 +45,7 @@ let
           &password=mypassword
         """))
         print(response)
-        if response["Message"] != "Username or password is incorrect. Try again":
+        if response["message"] != "Username or password is incorrect. Try again":
             raise Exception("Unrecognized response: {}".format(response))
     '';
   };
@@ -174,6 +174,11 @@ in
     nodes.client = {};
 
     testScript = commonTestScript.override {
+      waitForPorts = { node, ... }: [
+        8222
+        5432
+        9091
+      ];
       extraScript = { proto_fqdn, ... }: ''
       with subtest("unauthenticated access is not granted to /admin"):
           response = curl(client, """{"code":%{response_code},"auth_host":"%{urle.host}","auth_query":"%{urle.query}","all":%{json}}""", "${proto_fqdn}/admin")

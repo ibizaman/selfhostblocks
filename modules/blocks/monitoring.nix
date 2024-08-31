@@ -288,6 +288,14 @@ in
             hash = "sha256-79hK7axHf6soku5DvdXkE/0K4WKc4pnS9VMbVc1FS2I=";
           };
 
+          subPackages = [
+            "cmd/loki"
+            "cmd/loki-canary"
+            "clients/cmd/promtail"
+            "cmd/logcli"
+            # Removes "cmd/lokitool"
+          ];
+
           ldflags = let t = "github.com/grafana/loki/pkg/util/build"; in [
             "-s"
             "-w"

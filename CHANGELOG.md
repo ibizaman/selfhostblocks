@@ -9,6 +9,11 @@
 - Bump Nextcloud default version from 27 to 28. Add support for version 29.
 - Deluge config breaks the authFile into an attrset of user to password file. Also deluge has tests now.
 - Nextcloud now configures the LDAP app to use the `user_id` from LLDAP as the user ID used in Nextcloud. This makes all source of user - internal, LDAP and SSO - agree on the user ID.
+- Authelia options changed:
+  - `shb.authelia.oidcClients.id` -> `shb.authelia.oidcClients.client_id`
+  - `shb.authelia.oidcClients.description` -> `shb.authelia.oidcClients.client_name`
+  - `shb.authelia.oidcClients.secret` -> `shb.authelia.oidcClients.client_secret`
+- Vaultwarden data folder changed to `/var/lib/vaultwarden`.
 
 ## User Facing Backwards Compatible Changes
 

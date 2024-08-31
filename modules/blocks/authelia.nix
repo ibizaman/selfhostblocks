@@ -41,8 +41,8 @@ in
 
     ldapEndpoint = lib.mkOption {
       type = lib.types.str;
-      description = "Endpoint for LDAP authentication backend.";
-      example = "ldap.example.com";
+      description = "Endpoint of the LDAP authentication backend.";
+      example = "ldap://ldap.example.com:389";
     };
 
     dcdomain = lib.mkOption {
@@ -97,9 +97,9 @@ in
       description = "OIDC clients";
       default = [
         {
-          id = "dummy_client";
-          description = "Dummy Client so Authelia can start";
-          secret.source = pkgs.writeText "dummy.secret" "dummy_client_secret";
+          client_id = "dummy_client";
+          client_name = "Dummy Client so Authelia can start";
+          client_secret.source = pkgs.writeText "dummy.secret" "dummy_client_secret";
           public = false;
           authorization_policy = "one_factor";
           redirect_uris = [];
@@ -109,20 +109,33 @@ in
         freeformType = lib.types.attrsOf lib.types.anything;
 
         options = {
-          id = lib.mkOption {
+          client_id = lib.mkOption {
             type = lib.types.str;
             description = "Unique identifier of the OIDC client.";
           };
 
-          description = lib.mkOption {
+          client_name = lib.mkOption {
             type = lib.types.nullOr lib.types.str;
             description = "Human readable description of the OIDC client.";
             default = null;
           };
 
-          secret = lib.mkOption {
+          client_secret = lib.mkOption {
             type = shblib.secretFileType;
-            description = "File containing the shared secret with the OIDC client.";
+            description = ''
+            File containing the shared secret with the OIDC client.
+
+            Generate with:
+
+            ```
+            nix run nixpkgs#authelia -- \
+                crypto hash generate pbkdf2 \
+                --variant sha512 \
+                --random \
+                --random.length 72 \
+                --random.charset rfc3986
+            ```
+            '';
           };
 
           public = lib.mkOption {
@@ -278,8 +291,7 @@ in
         AUTHELIA_NOTIFIER_SMTP_PASSWORD_FILE = lib.mkIf (!(builtins.isString cfg.smtp)) (toString cfg.smtp.passwordFile);
       };
       settings = {
-        server.host = "127.0.0.1";
-        server.port = 9091;
+        server.address = "tcp://127.0.0.1:9091";
 
         # Inspired from https://github.com/lldap/lldap/blob/7d1f5abc137821c500de99c94f7579761fc949d8/example_configs/authelia_config.yml
         authentication_backend = {
@@ -289,20 +301,22 @@ in
           };
           ldap = {
             implementation = "custom";
-            url = cfg.ldapEndpoint;
+            address = cfg.ldapEndpoint;
             timeout = "5s";
             start_tls = "false";
             base_dn = cfg.dcdomain;
-            username_attribute = "uid";
             additional_users_dn = "ou=people";
             # Sign in with username or email.
             users_filter = "(&(|({username_attribute}={input})({mail_attribute}={input}))(objectClass=person))";
             additional_groups_dn = "ou=groups";
             groups_filter = "(member={dn})";
-            group_name_attribute = "cn";
-            mail_attribute = "mail";
-            display_name_attribute = "displayName";
             user = "uid=admin,ou=people,${cfg.dcdomain}";
+            attributes = {
+              username = "uid";
+              group_name = "cn";
+              mail = "mail";
+              display_name = "displayName";
+            };
           };
         };
         totp = {
@@ -317,11 +331,14 @@ in
         # Inspired from https://www.authelia.com/configuration/session/introduction/ and https://www.authelia.com/configuration/session/redis
         session = {
           name = "authelia_session";
-          domain = if isNull cfg.port then cfg.domain else "${cfg.domain}:${toString cfg.port}";
+          cookies = [{
+            domain = if isNull cfg.port then cfg.domain else "${cfg.domain}:${toString cfg.port}";
+            authelia_url = "https://${cfg.subdomain}.${cfg.domain}";
+          }];
           same_site = "lax";
           expiration = "1h";
           inactivity = "5m";
-          remember_me_duration = "1M";
+          remember_me = "1M";
           redis = {
             host = config.services.redis.servers.authelia.unixSocket;
             port = 0;
@@ -329,10 +346,9 @@ in
         };
         storage = {
           postgres = {
-            host = "/run/postgresql";
+            address = "unix:///run/postgresql";
             username = autheliaCfg.user;
             database = autheliaCfg.user;
-            port = config.services.postgresql.port;
             # Uses peer auth for local users, so we don't need a password.
             password = "test";
           };
@@ -416,7 +432,7 @@ in
         proxy_set_header Connection "upgrade";
         proxy_cache_bypass $http_upgrade;
 
-        proxy_pass http://127.0.0.1:${toString autheliaCfg.settings.server.port};
+        proxy_pass http://127.0.0.1:9091;
         proxy_intercept_errors on;
         if ($request_method !~ ^(POST)$){
             error_page 401 = /error/401;
@@ -435,7 +451,7 @@ in
         add_header X-Permitted-Cross-Domain-Policies none;
 
         proxy_set_header Host $http_x_forwarded_host;
-        proxy_pass http://127.0.0.1:${toString autheliaCfg.settings.server.port};
+        proxy_pass http://127.0.0.1:9091;
         '';
     };
 

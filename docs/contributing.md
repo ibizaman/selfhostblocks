@@ -21,8 +21,6 @@ gets updated. I intend to upstream to nixpkgs as much of those as makes sense.
 Run all tests:
 
 ```bash
-$ nix build .#checks.${system}.all
-# or
 $ nix flake check
 # or
 $ nix run github:Mic92/nix-fast-build -- --skip-cached --flake ".#checks.$(nix eval --raw --impure --expr builtins.currentSystem)"
