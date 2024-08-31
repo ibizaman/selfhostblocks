@@ -13,6 +13,7 @@
   - `shb.authelia.oidcClients.id` -> `shb.authelia.oidcClients.client_id`
   - `shb.authelia.oidcClients.description` -> `shb.authelia.oidcClients.client_name`
   - `shb.authelia.oidcClients.secret` -> `shb.authelia.oidcClients.client_secret`
+- Vaultwarden data folder changed to `/var/lib/vaultwarden`.
 
 ## User Facing Backwards Compatible Changes
 

@@ -31,7 +31,7 @@ let
             {"email": "me@example.com"}
         """))
         print(response)
-        if 'Kdf' not in response:
+        if 'kdf' not in response:
             raise Exception("Unrecognized response: {}".format(response))
 
     with subtest("get token"):
@@ -45,7 +45,7 @@ let
           &password=mypassword
         """))
         print(response)
-        if response["Message"] != "Username or password is incorrect. Try again":
+        if response["message"] != "Username or password is incorrect. Try again":
             raise Exception("Unrecognized response: {}".format(response))
     '';
   };

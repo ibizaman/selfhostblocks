@@ -8,7 +8,7 @@ let
 
   fqdn = "${cfg.subdomain}.${cfg.domain}";
 
-  dataFolder = "/var/lib/bitwarden_rs";
+  dataFolder = "/var/lib/vaultwarden";
 in
 {
   options.shb.vaultwarden = {
@@ -152,7 +152,6 @@ in
       enable = true;
       dbBackend = "postgresql";
       config = {
-        DATA_FOLDER = dataFolder;
         IP_HEADER = "X-Real-IP";
         SIGNUPS_ALLOWED = false;
         # Disabled because the /admin path is protected by SSO
@@ -182,6 +181,8 @@ in
       "d ${dataFolder} 0750 vaultwarden vaultwarden"
       "f ${dataFolder}/vaultwarden.env 0640 vaultwarden vaultwarden"
     ];
+    # Needed to be able to write template config.
+    systemd.services.vaultwarden.serviceConfig.ProtectHome = lib.mkForce false;
     systemd.services.vaultwarden.preStart =
       shblib.replaceSecrets {
         userConfig = {
