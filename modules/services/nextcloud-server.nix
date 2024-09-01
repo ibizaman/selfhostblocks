@@ -550,6 +550,16 @@ in
       default = null;
       example = "debug_me";
     };
+
+    autoDisableMaintenanceModeOnStart = lib.mkOption {
+      type = lib.types.bool;
+      default = true;
+      description = ''
+        Upon starting the service, disable maintenance mode if set.
+
+        This is useful if a deploy failed and you try to redeploy.
+      '';
+    };
   };
 
   config = lib.mkMerge [
@@ -987,6 +997,14 @@ in
           userinfo_signing_algorithm = "none";
         }
       ];
+    })
+    (lib.mkIf cfg.autoDisableMaintenanceModeOnStart {
+      systemd.services.nextcloud-setup.preStart =
+        lib.mkBefore ''
+        if [[ -e /var/lib/nextcloud/config/config.php ]]; then
+            ${occ} maintenance:mode --no-interaction --quiet --off
+        fi
+        '';
     })
   ];
 }
