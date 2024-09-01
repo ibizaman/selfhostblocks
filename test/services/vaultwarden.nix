@@ -78,7 +78,8 @@ let
   # Not yet supported
   # ldap = { config, ... }: {
   #   # shb.vaultwarden = {
-  #   #   ldapEndpoint = "http://127.0.0.1:${builtins.toString config.shb.ldap.webUIListenPort}";
+  #   #   ldapHostname = "127.0.0.1";
+  #   #   ldapPort = config.shb.ldap.webUIListenPort;
   #   # };
   # };
 

@@ -40,7 +40,8 @@ in
         enable = true;
         subdomain = "authelia";
         domain = "machine.com";
-        ldapEndpoint = "ldap://${config.shb.ldap.subdomain}.${config.shb.ldap.domain}:${toString config.shb.ldap.ldapPort}";
+        ldapHostname = "${config.shb.ldap.subdomain}.${config.shb.ldap.domain}";
+        ldapPort = config.shb.ldap.ldapPort;
         dcdomain = config.shb.ldap.dcdomain;
         secrets = {
           jwtSecretFile = pkgs.writeText "jwtSecretFile" "jwtSecretFile";

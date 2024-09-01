@@ -196,7 +196,8 @@ shb.authelia = {
   subdomain = "auth";
   ssl = config.shb.certs.certs.selfsigned.auth;
 
-  ldapEndpoint = "ldap://127.0.0.1:${builtins.toString config.shb.ldap.ldapPort}";
+  ldapHostname = "127.0.0.1";
+  ldapPort = config.shb.ldap.ldapPort;
   dcdomain = config.shb.ldap.dcdomain;
 
   secrets = {
