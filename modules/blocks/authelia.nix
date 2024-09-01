@@ -39,10 +39,16 @@ in
       default = null;
     };
 
-    ldapEndpoint = lib.mkOption {
+    ldapHostname = lib.mkOption {
       type = lib.types.str;
-      description = "Endpoint of the LDAP authentication backend.";
-      example = "ldap://ldap.example.com:389";
+      description = "Hostname of the LDAP authentication backend.";
+      example = "ldap.example.com";
+    };
+
+    ldapPort = lib.mkOption {
+      type = lib.types.port;
+      description = "Port of the LDAP authentication backend.";
+      example = "389";
     };
 
     dcdomain = lib.mkOption {
@@ -301,7 +307,7 @@ in
           };
           ldap = {
             implementation = "custom";
-            address = cfg.ldapEndpoint;
+            address = "ldap://${cfg.ldapHostname}:${toString cfg.ldapPort}";
             timeout = "5s";
             start_tls = "false";
             base_dn = cfg.dcdomain;
@@ -406,7 +412,9 @@ in
             generator = shblib.replaceSecretsGeneratorAdapter (lib.generators.toYAML {});
           };
       in
-        lib.mkBefore (mkCfg cfg.oidcClients);
+        lib.mkBefore (mkCfg cfg.oidcClients + ''
+        ${pkgs.bash}/bin/bash -c '(while ! ${pkgs.netcat-openbsd}/bin/nc -z -v -w1 ${cfg.ldapHostname} ${toString cfg.ldapPort}; do echo "Waiting for port ${cfg.ldapHostname}:${toString cfg.ldapPort} to open..."; sleep 2; done); sleep 2'
+          '');
 
     services.nginx.virtualHosts.${fqdn} = {
       forceSSL = !(isNull cfg.ssl);
