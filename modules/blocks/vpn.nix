@@ -207,7 +207,7 @@ in
         options = {
           enable = lib.mkEnableOption "OpenVPN config";
 
-          package = lib.mkPackageOptionMD pkgs "openvpn" {};
+          package = lib.mkPackageOption pkgs "openvpn" {};
 
           provider = lib.mkOption {
             description = "VPN provider, if given uses ready-made configuration.";
