@@ -729,7 +729,7 @@ in
       systemd.services.nextcloud-setup.after = cfg.mountPointServices;
     })
 
-    (lib.mkIf cfg.apps.onlyoffice.enable {
+    (lib.mkIf (cfg.enable && cfg.apps.onlyoffice.enable) {
       assertions = [
         {
           assertion = !(isNull cfg.apps.onlyoffice.jwtSecretFile);
@@ -764,7 +764,7 @@ in
       };
     })
 
-    (lib.mkIf cfg.apps.previewgenerator.enable {
+    (lib.mkIf (cfg.enable && cfg.apps.previewgenerator.enable) {
       services.nextcloud.extraApps = {
         inherit ((nextcloudApps cfg.version)) previewgenerator;
       };
@@ -803,7 +803,7 @@ in
       };
     })
 
-    (lib.mkIf cfg.apps.externalStorage.enable {
+    (lib.mkIf (cfg.enable && cfg.apps.externalStorage.enable) {
       systemd.services.nextcloud-setup.script = ''
         ${occ} app:install files_external || :
         ${occ} app:enable  files_external
@@ -825,7 +825,7 @@ in
           '');
     })
 
-    (lib.mkIf cfg.apps.ldap.enable {
+    (lib.mkIf (cfg.enable && cfg.apps.ldap.enable) {
       systemd.services.nextcloud-setup.path = [ pkgs.jq ];
       systemd.services.nextcloud-setup.script =
         let
@@ -905,7 +905,7 @@ in
           "email"
           "groups"
         ];
-    in lib.mkIf cfg.apps.sso.enable {
+    in lib.mkIf (cfg.enable && cfg.apps.sso.enable) {
       assertions = [
         {
           assertion = cfg.apps.sso.enable -> cfg.apps.ldap.enable;
@@ -998,6 +998,7 @@ in
         }
       ];
     })
+
     (lib.mkIf (cfg.enable && cfg.autoDisableMaintenanceModeOnStart) {
       systemd.services.nextcloud-setup.preStart =
         lib.mkBefore ''
