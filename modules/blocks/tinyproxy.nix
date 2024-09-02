@@ -35,7 +35,7 @@ in
         options = {
           enable = mkEnableOption "Tinyproxy daemon";
 
-          package = mkPackageOptionMD pkgs "tinyproxy" {};
+          package = mkPackageOption pkgs "tinyproxy" {};
 
           dynamicBindFile = mkOption {
             description = ''
