@@ -998,7 +998,7 @@ in
         }
       ];
     })
-    (lib.mkIf cfg.autoDisableMaintenanceModeOnStart {
+    (lib.mkIf (cfg.enable && cfg.autoDisableMaintenanceModeOnStart) {
       systemd.services.nextcloud-setup.preStart =
         lib.mkBefore ''
         if [[ -e /var/lib/nextcloud/config/config.php ]]; then
