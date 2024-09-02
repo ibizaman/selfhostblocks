@@ -416,6 +416,15 @@ in
         ${pkgs.bash}/bin/bash -c '(while ! ${pkgs.netcat-openbsd}/bin/nc -z -v -w1 ${cfg.ldapHostname} ${toString cfg.ldapPort}; do echo "Waiting for port ${cfg.ldapHostname}:${toString cfg.ldapPort} to open..."; sleep 2; done); sleep 2'
           '');
 
+
+    # Need to wait on auth endpoint to be available otherwise nginx can fail to start.
+    # For example when DNS server is restarting at the same time or Auth endpoint itself.
+    systemd.services.nginx =
+      {
+        wants = [ "authelia-${fqdn}.service" ];
+        after = [ "authelia-${fqdn}.service" ];
+      };
+
     services.nginx.virtualHosts.${fqdn} = {
       forceSSL = !(isNull cfg.ssl);
       sslCertificate = lib.mkIf (!(isNull cfg.ssl)) cfg.ssl.paths.cert;
