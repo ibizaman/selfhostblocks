@@ -87,7 +87,7 @@ in
           where = c.mountPoint;
           options = lib.concatStringsSep "," (
             (lib.optional (!(isNull c.uid)) "uid=${toString c.uid}")
-            ++ (lib.optional (!(isNull c.gid)) "gid=${toString c.uid}")
+            ++ (lib.optional (!(isNull c.gid)) "gid=${toString c.gid}")
             ++ (lib.optional (!(isNull c.fileMode)) "file_mode=${toString c.fileMode}")
             ++ (lib.optional (!(isNull c.directoryMode)) "dir_mode=${toString c.directoryMode}")
           );
