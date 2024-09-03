@@ -560,6 +560,17 @@ in
         This is useful if a deploy failed and you try to redeploy.
       '';
     };
+
+    alwaysApplyExpensiveMigrations = lib.mkOption {
+      type = lib.types.bool;
+      default = true;
+      description = ''
+        Run `occ maintenance:repair --include-expensive` on service start.
+
+        Larger instances should disable this and run the command at a convenient time
+        but Self Host Blocks assumes that it will not be the case for most users.
+      '';
+    };
   };
 
   config = lib.mkMerge [
@@ -1004,6 +1015,15 @@ in
         lib.mkBefore ''
         if [[ -e /var/lib/nextcloud/config/config.php ]]; then
             ${occ} maintenance:mode --no-interaction --quiet --off
+        fi
+        '';
+    })
+
+    (lib.mkIf (cfg.enable && cfg.alwaysApplyExpensiveMigrations) {
+      systemd.services.nextcloud-setup.script =
+        ''
+        if [[ -e /var/lib/nextcloud/config/config.php ]]; then
+            ${occ} maintenance:repair --include-expensive
         fi
         '';
     })
