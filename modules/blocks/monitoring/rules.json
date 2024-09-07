@@ -18,7 +18,7 @@
             "uid": "cd6cc53e-840c-484d-85f7-96fede324006"
           },
           "editorMode": "code",
-          "expr": "(sum by(server_name) (count_over_time({unit=\"nginx.service\"} | pattern \"<_> <_> <line>\" | line_format \"{{.line}}\" | json | __error__ != \"JSONParserErr\" | status =~ \"[1234]..\" | server_name =~ \".*\" [7d])) / sum by(server_name) (count_over_time({unit=\"nginx.service\"} | pattern \"<_> <_> <line>\" | line_format \"{{.line}}\" | json | __error__ != \"JSONParserErr\" | server_name =~ \".*\" [7d])))",
+          "expr": "(sum by(server_name) (count_over_time({unit=\"nginx.service\"} | pattern \"<_> <_> <line>\" | line_format \"{{.line}}\" | json | __error__ != \"JSONParserErr\" | status =~ \"[1234]..\" | server_name =~ \".*\" [1h])) / sum by(server_name) (count_over_time({unit=\"nginx.service\"} | pattern \"<_> <_> <line>\" | line_format \"{{.line}}\" | json | __error__ != \"JSONParserErr\" | server_name =~ \".*\" [1h])))",
           "intervalMs": 1000,
           "legendFormat": "{{server_name}}",
           "maxDataPoints": 43200,
@@ -120,7 +120,7 @@
       "__panelId__": "9",
       "description": "",
       "runbook_url": "",
-      "summary": "The error budget for a service for the last 7 days is under 99%"
+      "summary": "The error budget for a service for the last 1 hour is under 99%"
     },
     "labels": {
       "": "",
