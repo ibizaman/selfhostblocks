@@ -128,8 +128,8 @@
           domain = "example.com";
           subdomain = "auth";
           ssl = config.shb.certs.certs.selfsigned.n;
-
-          ldapEndpoint = "ldap://127.0.0.1:${builtins.toString config.shb.ldap.ldapPort}";
+          ldapPort = config.shb.ldap.ldapPort;
+          ldapHostname = "ldap://127.0.0.1";
           dcdomain = config.shb.ldap.dcdomain;
 
           secrets = {
