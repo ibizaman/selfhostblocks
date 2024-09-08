@@ -13,7 +13,8 @@ information is provided in the respective manual sections.
 | Service               | Backup | Reverse Proxy | SSO | LDAP  | Monitoring | Profiling |
 |-----------------------|--------|---------------|-----|-------|------------|-----------|
 | [Nextcloud Server][1] | P (1)  | Y             | Y   | Y     | Y          | P (2)     |
-| [Vaultwarden][2]      | N      | Y             | Y   | Y     | N          | N         |
+| [Vaultwarden][2]      | P (1)  | Y             | Y   | Y     | N          | N         |
+| [Forgejo][3]          | Y      | Y             | Y   | Y     | N          | N         |
 
 Legend: **N**: no but WIP; **P**: partial; **Y**: yes
 
@@ -22,6 +23,7 @@ Legend: **N**: no but WIP; **P**: partial; **Y**: yes
 
 [1]: services-nextcloud.html
 [2]: services-vaultwarden.html
+[3]: services-foregjo.html
 
 ```{=include=} chapters html:into-file=//services-vaultwarden.html
 modules/services/vaultwarden/docs/default.md
@@ -29,4 +31,8 @@ modules/services/vaultwarden/docs/default.md
 
 ```{=include=} chapters html:into-file=//services-nextcloud.html
 modules/services/nextcloud-server/docs/default.md
+```
+
+```{=include=} chapters html:into-file=//services-forgejo.html
+modules/services/forgejo/docs/default.md
 ```

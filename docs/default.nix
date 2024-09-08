@@ -24,7 +24,7 @@ let
 
   ghRoot = (gitHubDeclaration "ibizaman" "selfhostblocks" "").url;
 
-  buildOptionsDocs = args@{ modules, includeModuleSystemOptions ? true, ... }:
+  buildOptionsDocs = args@{ modules, ... }:
     let
       config = {
         _module.check = false;
@@ -45,9 +45,7 @@ let
         };
       };
 
-      options = if includeModuleSystemOptions
-                then eval.options
-                else builtins.removeAttrs eval.options [ "_module" ];
+      options = lib.filterAttrs (name: v: name == "shb") eval.options;
     in buildPackages.nixosOptionsDoc ({
       inherit options;
 
@@ -66,18 +64,14 @@ let
     _module.check = false;
   };
 
-  optionsDocs = buildOptionsDocs {
-    modules = allModules ++ [
-      scrubbedModule
-    ];
+  allOptionsDocs = paths: (buildOptionsDocs {
+    modules = paths ++ allModules ++ [ scrubbedModule ];
     variablelistId = "selfhostblocks-options";
-    includeModuleSystemOptions = false;
-  };
+  }).optionsJSON;
 
-  individualModuleOptionsDocs = path: (buildOptionsDocs {
-    modules = [ path scrubbedModule ];
+  individualModuleOptionsDocs = paths: (buildOptionsDocs {
+    modules = paths ++ [ scrubbedModule ];
     variablelistId = "selfhostblocks-options";
-    includeModuleSystemOptions = false;
   }).optionsJSON;
 
   nmd = import nmdsrc {
@@ -129,37 +123,47 @@ in stdenv.mkDerivation {
     substituteInPlace ./options.md \
       --replace \
         '@OPTIONS_JSON@' \
-        ${optionsDocs.optionsJSON}/share/doc/nixos/options.json
+        ${allOptionsDocs [
+          (pkgs.path + "/nixos/modules/services/misc/forgejo.nix")
+        ]}/share/doc/nixos/options.json
 
     substituteInPlace ./modules/blocks/ssl/docs/default.md \
       --replace \
         '@OPTIONS_JSON@' \
-        ${individualModuleOptionsDocs ../modules/blocks/ssl.nix}/share/doc/nixos/options.json
+        ${individualModuleOptionsDocs [ ../modules/blocks/ssl.nix ]}/share/doc/nixos/options.json
 
     substituteInPlace ./modules/blocks/restic/docs/default.md \
       --replace \
         '@OPTIONS_JSON@' \
-        ${individualModuleOptionsDocs ../modules/blocks/restic.nix}/share/doc/nixos/options.json
+        ${individualModuleOptionsDocs [ ../modules/blocks/restic.nix ]}/share/doc/nixos/options.json
 
     substituteInPlace ./modules/services/nextcloud-server/docs/default.md \
       --replace \
         '@OPTIONS_JSON@' \
-       ${individualModuleOptionsDocs ../modules/services/nextcloud-server.nix}/share/doc/nixos/options.json
+       ${individualModuleOptionsDocs [ ../modules/services/nextcloud-server.nix ]}/share/doc/nixos/options.json
 
     substituteInPlace ./modules/services/vaultwarden/docs/default.md \
       --replace \
         '@OPTIONS_JSON@' \
-       ${individualModuleOptionsDocs ../modules/services/vaultwarden.nix}/share/doc/nixos/options.json
+       ${individualModuleOptionsDocs [ ../modules/services/vaultwarden.nix ]}/share/doc/nixos/options.json
+
+    substituteInPlace ./modules/services/forgejo/docs/default.md \
+      --replace \
+        '@OPTIONS_JSON@' \
+       ${individualModuleOptionsDocs [
+         ../modules/services/forgejo.nix
+         (pkgs.path + "/nixos/modules/services/misc/forgejo.nix")
+       ]}/share/doc/nixos/options.json
 
     substituteInPlace ./modules/contracts/backup/docs/default.md \
       --replace \
         '@OPTIONS_JSON@' \
-       ${individualModuleOptionsDocs ../modules/contracts/backup/dummyModule.nix}/share/doc/nixos/options.json
+       ${individualModuleOptionsDocs [ ../modules/contracts/backup/dummyModule.nix ]}/share/doc/nixos/options.json
 
     substituteInPlace ./modules/contracts/ssl/docs/default.md \
       --replace \
         '@OPTIONS_JSON@' \
-       ${individualModuleOptionsDocs ../modules/contracts/ssl/dummyModule.nix}/share/doc/nixos/options.json
+       ${individualModuleOptionsDocs [ ../modules/contracts/ssl/dummyModule.nix ]}/share/doc/nixos/options.json
 
     find . -name "*.md" -print0 | \
       while IFS= read -r -d ''' f; do
