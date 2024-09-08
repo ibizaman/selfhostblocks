@@ -42,6 +42,7 @@ let
 
       autheliaRules = lib.mkOption {
         type = lib.types.listOf (lib.types.attrsOf lib.types.anything);
+        default = [];
         description = "Authelia rule configuration";
         example = lib.literalExpression ''[{
         policy = "two_factor";

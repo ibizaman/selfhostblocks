@@ -47,6 +47,7 @@
         modules/services/arr.nix
         modules/services/audiobookshelf.nix
         modules/services/deluge.nix
+        modules/services/forgejo.nix
         modules/services/grocy.nix
         modules/services/hledger.nix
         modules/services/home-assistant.nix
@@ -55,7 +56,7 @@
         modules/services/vaultwarden.nix
       ];
 
-      # Only used for documentation.
+      # The contract dummies are used to show options for contracts.
       contractDummyModules = [
         modules/contracts/backup/dummyModule.nix
         modules/contracts/ssl/dummyModule.nix
@@ -116,6 +117,7 @@
           // (vm_test "arr" ./test/services/arr.nix)
           // (vm_test "audiobookshelf" ./test/services/audiobookshelf.nix)
           // (vm_test "deluge" ./test/services/deluge.nix)
+          // (vm_test "forgejo" ./test/services/forgejo.nix)
           // (vm_test "grocy" ./test/services/grocy.nix)
           // (vm_test "home-assistant" ./test/services/home-assistant.nix)
           // (vm_test "jellyfin" ./test/services/jellyfin.nix)

@@ -112,6 +112,12 @@ in
             default = "jellyfin_user";
           };
 
+          authorization_policy = lib.mkOption {
+            type = lib.types.enum [ "one_factor" "two_factor" ];
+            description = "Require one factor (password) or two factor (device) authentication.";
+            default = "one_factor";
+          };
+
           secretFile = lib.mkOption {
             type = lib.types.path;
             description = "File containing the OIDC shared secret.";
@@ -419,7 +425,7 @@ in
         client_name = "Jellyfin";
         client_secret.source = cfg.sso.secretFile;
         public = false;
-        authorization_policy = "one_factor";
+        authorization_policy = cfg.sso.authorization_policy;
         redirect_uris = [ "https://${cfg.subdomain}.${cfg.domain}/sso/OID/r/${cfg.sso.provider}" ];
       }
     ];
