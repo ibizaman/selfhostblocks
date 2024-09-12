@@ -23,7 +23,7 @@ Legend: **N**: no but WIP; **P**: partial; **Y**: yes
 
 [1]: services-nextcloud.html
 [2]: services-vaultwarden.html
-[3]: services-foregjo.html
+[3]: services-forgejo.html
 
 ```{=include=} chapters html:into-file=//services-vaultwarden.html
 modules/services/vaultwarden/docs/default.md
