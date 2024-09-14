@@ -188,6 +188,37 @@ in
       '';
     };
 
+
+    hostPackages = lib.mkOption {
+      type = lib.types.listOf lib.types.package;
+      default = with pkgs; [
+        bash
+        coreutils
+        curl
+        gawk
+        gitMinimal
+        gnused
+        nodejs
+        wget
+      ];
+      defaultText = lib.literalExpression ''
+        with pkgs; [
+          bash
+          coreutils
+          curl
+          gawk
+          gitMinimal
+          gnused
+          nodejs
+          wget
+        ]
+      '';
+      description = ''
+        List of packages, that are available to actions, when the runner is configured
+        with a host execution label.
+      '';
+    };
+
     backup = lib.mkOption {
       type = contracts.backup;
       description = ''
@@ -494,6 +525,7 @@ in
             # "ubuntu-18.04:docker://node:16-buster"     
             "native:host"
           ];
+          inherit (cfg) hostPackages;
         };
       };
 
