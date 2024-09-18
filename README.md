@@ -6,25 +6,16 @@
 [![Tests](https://img.shields.io/endpoint.svg?url=https%3A%2F%2Fgarnix.io%2Fapi%2Fbadges%2Fibizaman%2Fselfhostblocks%3Fbranch%3Dmain)](https://garnix.io) (using Garnix)
 [![Demo](https://github.com/ibizaman/selfhostblocks/actions/workflows/demo.yml/badge.svg)](https://github.com/ibizaman/selfhostblocks/actions/workflows/demo.yml)
 
-SHB's (Self Host Blocks) is yet another server management tool whose goal is to provide better
-building blocks for self-hosting. Indeed, SHB provides opinionated [building
-blocks](#available-blocks) fitting together to self-host any service you'd want. Some [common
-services](#provided-services) are provided out of the box.
-
-SHB's goal is to make these building blocks plug-and-play. To achieve this, SHB pioneers
-[contracts](https://shb.skarabox.com/contracts.html) which allows you, the final user, to be more in
-control of which pieces go where. The promise here is to let you choose, for example, any reverse
-proxy you want or any database you want, without requiring work from maintainers of the services you
-want to self host.
-
-To achieve all this, SHB is using the full power of NixOS modules and NixOS VM tests. Indeed, each
-building block and each service is a NixOS module using modules defined in
-[Nixpkgs](https://github.com/NixOS/nixpkgs/) and they are tested using full VMs on every commit.
+SHB (Self Host Blocks) is yet another server management tool
+that is not like the other server management tools.
 
 ## TOC
 
 <!--toc:start-->
+- [Unified Interfaces](#unified-interfaces)
+- [Incremental Adoption](#incremental-adoption)
 - [Usage](#usage)
+- [More Benefits of SHB](#more-benefits-of-shb)
 - [Manual](#manual)
 - [Roadmap](#roadmap)
 - [Available Blocks](#available-blocks)
@@ -34,35 +25,117 @@ building block and each service is a NixOS module using modules defined in
 - [License](#license)
 <!--toc:end-->
 
+## Unified Interfaces
+
+SHB's first goal is to provide unified [building blocks](#available-blocks)
+and by extension configuration interface, for self-hosting.
+
+Compare the configuration for Nextcloud and Forgejo in Self Host Blocks.
+The following snippets focus on similitudes and assume the relevant blocks are configured off-screen.
+It also does not show specific options for each service.
+These are still complete snippets that configure HTTPS,
+subdomain serving the service, LDAP and SSO integration.
+
+```nix
+shb.nextcloud = {
+  enable = true;
+  subdomain = "nextcloud";
+  domain = "example.com";
+
+  ssl = config.shb.certs.certs.letsencrypt.${domain};
+
+  apps.ldap = {
+    enable = true;
+    host = "127.0.0.1";
+    port = config.shb.ldap.ldapPort;
+    dcdomain = config.shb.ldap.dcdomain;
+    adminPasswordFile = config.sops.secrets."nextcloud/ldap_admin_password".path;
+  };
+  apps.sso = {
+    enable = true;
+    endpoint = "https://${config.shb.authelia.subdomain}.${config.shb.authelia.domain}";
+
+    secretFile = config.sops.secrets."nextcloud/sso/secret".path;
+    secretFileForAuthelia = config.sops.secrets."authelia/nextcloud_sso_secret".path;
+  };
+};
+```
+
+```nix
+shb.forgejo = {
+  enable = true;
+  subdomain = "forgejo";
+  domain = "example.com";
+
+  ssl = config.shb.certs.certs.letsencrypt.${domain};
+
+  ldap = {
+    enable = true;
+    host = "127.0.0.1";
+    port = config.shb.ldap.ldapPort;
+    dcdomain = config.shb.ldap.dcdomain;
+    adminPasswordFile = config.sops.secrets."forgejo/ldap_admin_password".path;
+  };
+
+  sso = {
+    enable = true;
+    endpoint = "https://${config.shb.authelia.subdomain}.${config.shb.authelia.domain}";
+
+    secretFile = config.sops.secrets."forgejo/ssoSecret".path;
+    secretFileForAuthelia = config.sops.secrets."forgejo/authelia/ssoSecret".path;
+  };
+};
+```
+
+As you can see, they are pretty similar!
+
+SHB provides an ever growing list of [services](#provided-services)
+that are configured in the same way.
+
+## Incremental Adoption
+
+SHB's second goal is to facilitate testing NixOS
+and slowly switching an existing installation to NixOS.
+
+To achieve this, SHB pioneers [contracts][]
+which allows you, the final user, to be more in control of which piece go where.
+This lets you choose, for example,
+any reverse proxy you want or any database you want,
+without requiring work from maintainers of the services you want to self host.
+(See [manual][contracts] for a complete explanation)
+
+[contracts]: https://shb.skarabox.com/contracts.html
+
 ## Usage
 
 > **Caution:** You should know that although I am using everything in this repo for my personal
 > production server, this is really just a one person effort for now and there are most certainly
 > bugs that I didn't discover yet.
 
-Self Host Blocks is available as a flake. To use it in your project, add the following flake input:
+Self Host Blocks is available as a flake.
+To use it in your project, add the following flake input:
 
 ```nix
 inputs.selfhostblocks.url = "github:ibizaman/selfhostblocks";
 ```
 
-This is not quite enough though and more information is provided in [the
-manual](https://shb.skarabox.com/usage.html).
+More information is provided in [the manual](https://shb.skarabox.com/usage.html),
+like secrets management.
 
-- You are new to self hosting and want pre-configured services to deploy easily. Look at the
-  [services section](https://shb.skarabox.com/services.html).
-- You are a seasoned self-hoster but want to enhance some services you deploy already. Go to the
-  [blocks section](https://shb.skarabox.com/blocks.html).
-- You are a user of Self Host Blocks but would like to use your own implementation for a block. Go
-  to the [contracts section](https://shb.skarabox.com/contracts.html).
+- You are new to self hosting and want pre-configured services to deploy easily.
+  Look at the [services section](https://shb.skarabox.com/services.html).
+- You are a seasoned self-hoster but want to enhance some services you deploy already.
+  Go to the [blocks section](https://shb.skarabox.com/blocks.html).
+- You are a user of Self Host Blocks but would like to use your own implementation for a block.
+  Go to the [contracts section](https://shb.skarabox.com/contracts.html).
 
-Head over to the [matrix channel](https://matrix.to/#/#selfhostblocks:matrix.org) for any remaining
-question, or just to say hi :)
+Head over to the [matrix channel](https://matrix.to/#/#selfhostblocks:matrix.org)
+for any remaining question, or just to say hi :)
 
-## Why yet another self hosting tool?
+## More Benefits of SHB
 
-By using Self Host Blocks, you get all the benefits of NixOS which are, for self hosted applications
-specifically:
+By using Self Host Blocks, you get all the benefits of NixOS
+which are, for self hosted applications specifically:
 
 - declarative configuration;
 - atomic configuration rollbacks;
