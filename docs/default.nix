@@ -160,6 +160,11 @@ in stdenv.mkDerivation {
         '@OPTIONS_JSON@' \
        ${individualModuleOptionsDocs [ ../modules/contracts/backup/dummyModule.nix ]}/share/doc/nixos/options.json
 
+    substituteInPlace ./modules/contracts/secret/docs/default.md \
+      --replace \
+        '@OPTIONS_JSON@' \
+       ${individualModuleOptionsDocs [ ../modules/contracts/secret/dummyModule.nix ]}/share/doc/nixos/options.json
+
     substituteInPlace ./modules/contracts/ssl/docs/default.md \
       --replace \
         '@OPTIONS_JSON@' \
