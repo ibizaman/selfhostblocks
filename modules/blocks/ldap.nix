@@ -57,6 +57,34 @@ in
       description = "File containing the JWT secret.";
     };
 
+    secret = {
+      ldapUserPasswordFile = lib.mkOption {
+        type = contracts.secret;
+        description = ''
+          Secret configuration for the file containing the LDAP admin user password.
+        '';
+        default = {
+          mode = "0440";
+          owner = "lldap";
+          group = "lldap";
+          restartUnits = [ "lldap.service" ];
+        };
+      };
+
+      jwtSecretFile = lib.mkOption {
+        type = contracts.secret;
+        description = ''
+          Secret configuration for the file containing the JWT secret.
+        '';
+        default = {
+          mode = "0440";
+          owner = "lldap";
+          group = "lldap";
+          restartUnits = [ "lldap.service" ];
+        };
+      };
+    };
+
     restrictAccessIPRange = lib.mkOption {
       type = lib.types.nullOr lib.types.str;
       description = "Set a local network range to restrict access to the UI to only those IPs.";

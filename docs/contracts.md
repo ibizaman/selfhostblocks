@@ -23,6 +23,7 @@ Provided contracts are:
   Two implementations are provided: self-signed and Let's Encrypt.
 - [Backup contract](contracts-backup.html) to backup directories.
   This contract allows to backup multiple times the same directories for extra protection.
+- [Secret contract](contracts-secret.html) to provide secrets that are deployed outside of the Nix store.
 
 ```{=include=} chapters html:into-file=//contracts-ssl.html
 modules/contracts/ssl/docs/default.md
@@ -30,6 +31,10 @@ modules/contracts/ssl/docs/default.md
 
 ```{=include=} chapters html:into-file=//contracts-backup.html
 modules/contracts/backup/docs/default.md
+```
+
+```{=include=} chapters html:into-file=//contracts-secret.html
+modules/contracts/secret/docs/default.md
 ```
 
 ## Why do we need this new concept? {#contracts-why}
