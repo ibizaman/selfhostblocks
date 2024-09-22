@@ -195,6 +195,17 @@ in
             default = "shb-certs-cert-letsencrypt-${config._module.args.name}.service";
           };
 
+          afterAndWants = lib.mkOption {
+            description = ''
+              Systemd service(s) that must start successfully before attempting to reach acme.
+            '';
+            type = lib.types.listOf lib.types.str;
+            default = [];
+            example = lib.literalExpression ''
+            [ "dnsmasq.service" ]
+            '';
+          };
+
           reloadServices = lib.mkOption {
             description = ''
               The list of systemd services to call `systemctl try-reload-or-restart` on.
@@ -205,7 +216,13 @@ in
           };
 
           dnsProvider = lib.mkOption {
-            description = "DNS provider to use. See https://go-acme.github.io/lego/dns/ for the list of supported providers.";
+            description = ''
+              DNS provider to use.
+
+              See https://go-acme.github.io/lego/dns/ for the list of supported providers.
+
+              If null is given, use instead the reverse proxy to validate the domain.
+            '';
             type = lib.types.nullOr lib.types.str;
             default = null;
             example = "linode";
@@ -422,9 +439,17 @@ in
 
           security.acme.acceptTerms = lib.mkIf (cfg.certs.letsencrypt != {}) true;
 
-          security.acme.certs = lib.mkMerge (lib.mapAttrsToList (name: certCfg:
-            {
-              "${name}" = ({
+          security.acme.certs = let
+            extraDomainsCfg = certCfg: map (name: {
+              "${name}" = {
+                email = certCfg.adminEmail;
+                enableDebugLogs = certCfg.debug;
+                server = lib.mkIf certCfg.stagingServer "https://acme-staging-v02.api.letsencrypt.org/directory";
+              };
+            }) certCfg.extraDomains;
+          in lib.mkMerge (lib.flatten (lib.mapAttrsToList (name: certCfg:
+            [{
+              "${name}" = {
                 extraDomainNames = [ certCfg.domain ] ++ certCfg.extraDomains;
                 email = certCfg.adminEmail;
                 enableDebugLogs = certCfg.debug;
@@ -433,24 +458,53 @@ in
                 inherit (certCfg) dnsProvider dnsResolver;
                 inherit (certCfg) group reloadServices;
                 credentialsFile = certCfg.credentialsFile;
-              });
-            }) cfg.certs.letsencrypt);
-
-          services.nginx = lib.mkMerge (lib.mapAttrsToList (name: certCfg:
-            lib.optionalAttrs (certCfg.dnsProvider == null) {
-              virtualHosts."${name}" = {
-                addSSL = true;
-                enableACME = true;
-                # locations."/" = {
-                #   root = "/var/www";
-                # };
               };
-            }) cfg.certs.letsencrypt);
+            }]
+            ++ lib.optionals (certCfg.dnsProvider == null) (extraDomainsCfg certCfg)
+          ) cfg.certs.letsencrypt));
 
-          systemd.services = lib.mkMerge (lib.mapAttrsToList (name: certCfg:
-            lib.optionalAttrs (certCfg.additionalEnvironment != {}) {
+          services.nginx = let
+            extraDomainsCfg = extraDomains: map (name: {
+              virtualHosts."${name}" = {
+                # addSSL = true;
+                enableACME = true;
+              };
+            }) extraDomains;
+          in lib.mkMerge (lib.flatten (lib.mapAttrsToList (name: certCfg:
+            lib.optionals (certCfg.dnsProvider == null) (
+              [{
+                virtualHosts."${name}" = {
+                  # addSSL = true;
+                  enableACME = true;
+                };
+              }]
+              ++ extraDomainsCfg certCfg.extraDomains
+            )) cfg.certs.letsencrypt));
+
+          systemd.services = let
+            extraDomainsCfg = certCfg: lib.flatten (map (name:
+              lib.optionals (certCfg.additionalEnvironment != {} && certCfg.dnsProvider == null) [{
+                "acme-${name}".environment = certCfg.additionalEnvironment;
+              }]
+              ++ lib.optionals (certCfg.afterAndWants != [] && certCfg.dnsProvider == null) [{
+                "acme-${name}" = {
+                  after = certCfg.afterAndWants;
+                  wants = certCfg.afterAndWants;
+                };
+              }]
+            ) certCfg.extraDomains);
+          in lib.mkMerge (lib.flatten (lib.mapAttrsToList (name: certCfg:
+            lib.optionals (certCfg.additionalEnvironment != {} && certCfg.dnsProvider == null) [{
               "acme-${certCfg.domain}".environment = certCfg.additionalEnvironment;
-            }) cfg.certs.letsencrypt);
+            }]
+            ++ lib.optionals (certCfg.afterAndWants != [] && certCfg.dnsProvider == null) [{
+              "acme-${certCfg.domain}" = {
+                after = certCfg.afterAndWants;
+                wants = certCfg.afterAndWants;
+              };
+            }]
+            ++ lib.optionals (certCfg.dnsProvider == null) (extraDomainsCfg certCfg)
+          ) cfg.certs.letsencrypt));
         }
       ];
 }
