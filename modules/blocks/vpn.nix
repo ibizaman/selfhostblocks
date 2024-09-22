@@ -267,8 +267,6 @@ in
               inherit (c) dev remoteServerIP authFile;
               dependentServices = lib.optional (c.proxyPort != null) "tinyproxy-${name}.service";
             };
-
-            extraArgs = [];
           };
         };
       in
