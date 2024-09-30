@@ -32,8 +32,8 @@ in
         dcdomain = "dc=example,dc=com";
         subdomain = "ldap";
         domain = "machine.com";
-        ldapUserPasswordFile = pkgs.writeText "user_password" ldapAdminPassword;
-        jwtSecretFile = pkgs.writeText "jwt_secret" "securejwtsecret";
+        ldapUserPassword.result.path = pkgs.writeText "user_password" ldapAdminPassword;
+        jwtSecret.result.path = pkgs.writeText "jwt_secret" "securejwtsecret";
       };
 
       shb.authelia = {

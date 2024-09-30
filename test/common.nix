@@ -154,8 +154,8 @@ in
       ldapPort = 3890;
       webUIListenPort = 17170;
       dcdomain = "dc=example,dc=com";
-      ldapUserPasswordFile = pkgs.writeText "ldapUserPassword" "ldapUserPassword";
-      jwtSecretFile = pkgs.writeText "jwtSecret" "jwtSecret";
+      ldapUserPassword.result.path = pkgs.writeText "ldapUserPassword" "ldapUserPassword";
+      jwtSecret.result.path = pkgs.writeText "jwtSecret" "jwtSecret";
     };
   };
 
