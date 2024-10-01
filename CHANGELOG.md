@@ -15,6 +15,8 @@
   - `shb.authelia.oidcClients.secret` -> `shb.authelia.oidcClients.client_secret`
   - `shb.authelia.ldapEndpoint` -> `shb.authelia.ldapHostname` and `shb.authelia.ldapPort`
 - Make Nextcloud automatically disable maintenance mode upon service restart.
+- `shb.ldap.ldapUserPasswordFile` -> `shb.ldap.ldapUserPassword.result.path`
+- `shb.ldap.jwtSecretFile` -> `shb.ldap.jwtSecret.result.path`
 
 ## User Facing Backwards Compatible Changes
 

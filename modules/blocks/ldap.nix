@@ -47,42 +47,20 @@ in
       default = 17170;
     };
 
-    ldapUserPasswordFile = lib.mkOption {
-      type = lib.types.path;
-      description = "File containing the LDAP admin user password.";
+    ldapUserPassword = contracts.secret.mkOption {
+      description = "LDAP admin user secret.";
+      mode = "0440";
+      owner = "lldap";
+      group = "lldap";
+      restartUnits = [ "lldap.service" ];
     };
 
-    jwtSecretFile = lib.mkOption {
-      type = lib.types.path;
-      description = "File containing the JWT secret.";
-    };
-
-    secret = {
-      ldapUserPasswordFile = lib.mkOption {
-        type = contracts.secret;
-        description = ''
-          Secret configuration for the file containing the LDAP admin user password.
-        '';
-        default = {
-          mode = "0440";
-          owner = "lldap";
-          group = "lldap";
-          restartUnits = [ "lldap.service" ];
-        };
-      };
-
-      jwtSecretFile = lib.mkOption {
-        type = contracts.secret;
-        description = ''
-          Secret configuration for the file containing the JWT secret.
-        '';
-        default = {
-          mode = "0440";
-          owner = "lldap";
-          group = "lldap";
-          restartUnits = [ "lldap.service" ];
-        };
-      };
+    jwtSecret = contracts.secret.mkOption {
+      description = "JWT secret.";
+      mode = "0440";
+      owner = "lldap";
+      group = "lldap";
+      restartUnits = [ "lldap.service" ];
     };
 
     restrictAccessIPRange = lib.mkOption {
@@ -174,8 +152,8 @@ in
       enable = true;
 
       environment = {
-        LLDAP_JWT_SECRET_FILE = toString cfg.jwtSecretFile;
-        LLDAP_LDAP_USER_PASS_FILE = toString cfg.ldapUserPasswordFile;
+        LLDAP_JWT_SECRET_FILE = toString cfg.jwtSecret.result.path;
+        LLDAP_LDAP_USER_PASS_FILE = toString cfg.ldapUserPassword.result.path;
 
         RUST_LOG = lib.mkIf cfg.debug "debug";
       };

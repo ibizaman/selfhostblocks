@@ -57,7 +57,7 @@ let
         host = "127.0.0.1";
         port = config.shb.ldap.ldapPort;
         dcdomain = config.shb.ldap.dcdomain;
-        adminPasswordFile = config.shb.ldap.ldapUserPasswordFile;
+        adminPasswordFile = config.shb.ldap.ldapUserPassword.result.path;
       };
     };
   };

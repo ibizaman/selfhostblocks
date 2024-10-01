@@ -152,7 +152,7 @@ let
         port = config.shb.ldap.ldapPort;
         dcdomain = config.shb.ldap.dcdomain;
         adminName = "admin";
-        adminPasswordFile = config.shb.ldap.ldapUserPasswordFile;
+        adminPasswordFile = config.shb.ldap.ldapUserPassword.result.path;
         userGroup = "nextcloud_user";
       };
     };

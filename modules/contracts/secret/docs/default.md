@@ -1,100 +1,15 @@
 # Secret Contract {#secret-contract}
 
 This NixOS contract represents a secret file
-that must be created out of band, from outside the nix store,
+that must be created out of band - from outside the nix store -
 and that must be placed in an expected location with expected permission.
 
-It is a contract between a service that needs a secret
-and a service that will provide the secret.
-All options in this contract should be set by the former.
-The latter will then use the values of those options to know where to produce the file.
+More formally, this contract is made between a requester module - the one needing a secret -
+and a provider module - the one creating the secret and making it available.
 
-## Contract Reference {#secret-contract-options}
+## Problem Statement {#secret-contract-problem}
 
-These are all the options that are expected to exist for this contract to be respected.
-
-```{=include=} options
-id-prefix: contracts-secret-options-
-list-id: selfhostblocks-options
-source: @OPTIONS_JSON@
-```
-
-## Usage {#secret-contract-usage}
-
-A service that needs access to a secret will provide one or more `secret` option.
-
-Here is an example module defining two `secret` options:
-
-```nix
-{
-  options = {
-    myservice.secret = lib.mkOption {
-      type = lib.types.submodule {
-        options = {
-          adminPassword = lib.mkOption {
-            type = contracts.secret;
-            readOnly = true;
-            default = {
-              owner = "myservice";
-              group = "myservice";
-              mode = "0440";
-              restartUnits = [ "myservice.service" ];
-            };
-          };
-          databasePassword = lib.mkOption {
-            type = contracts.secret;
-            readOnly = true;
-            default = {
-              owner = "myservice";
-              restartUnits = [ "myservice.service" "mysql.service" ];
-            };
-          };
-        };
-      };
-    };
-  };
-};
-```
-
-As you can see, NixOS modules are a bit abused to make contracts work.
-Default values are set as well as the `readOnly` attribute to ensure those values stay as defined.
-
-Now, on the other side we have a service that uses these `secret` options and provides the secrets
-Let's assume such a module is available under the `secretservice` option
-and that one can create multiple instances under `secretservice.instances`.
-Then, to actually provide the secrets defined above, one would write:
-
-```nix
-secretservice.instances.adminPassword = myservice.secret.adminPassword // {
-  enable = true;
-
-  secretFile = ./secret.yaml;
-
-  # ... Other options specific to secretservice.
-};
-
-secretservice.instances.databasePassword = myservice.secret.databasePassword // {
-  enable = true;
-
-  secretFile = ./secret.yaml;
-
-  # ... Other options specific to secretservice.
-};
-```
-
-Assuming the `secretservice` module accepts default options,
-the above snippet could be reduced to:
-
-```nix
-secretservice.default.secretFile = ./secret.yaml;
-
-secretservice.instances.adminPassword = myservice.secret.adminPassword;
-secretservice.instances.databasePassword = myservice.secret.databasePassword;
-```
-
-### With sops-nix {#secret-contract-usage-sopsnix}
-
-For a concrete example, let's provide the [ldap SHB module][ldap-module] option `ldapUserPasswordFile`
+Let's provide the [ldap SHB module][ldap-module] option `ldapUserPasswordFile`
 with a secret managed by [sops-nix][].
 
 [ldap-module]: TODO
@@ -114,24 +29,26 @@ sops.secrets."ldap/user_password" = {
 shb.ldap.ldapUserPasswordFile = config.sops.secrets."ldap/user_password".path;
 ```
 
-We can already see the problem here.
-How does the end user know what values to give to the
+The problem this contract intends to fix is how to ensure
+the end user knows what values to give to the
 `mode`, `owner`, `group` and `restartUnits` options?
+
 If lucky, the documentation of the option would tell them
 or more likely, they will need to figure it out by looking
-at the module source code. Not a great user experience.
+at the module source code.
+Not a great user experience.
 
 Now, with this contract, the configuration becomes:
 
 ```nix
-sops.secrets."ldap/user_password" = config.shb.ldap.secret.ldapUserPasswordFile // {
+sops.secrets."ldap/user_password" = config.shb.ldap.secret.ldapUserPassword.request // {
   sopsFile = ./secrets.yaml;
 };
 
-shb.ldap.ldapUserPasswordFile = config.sops.secrets."ldap/user_password".path;
+shb.ldap.ldapUserPassword.result.path = config.sops.secrets."ldap/user_password".path;
 ```
 
-The issue is now gone.
+The issue is now gone at the expense of some plumbing.
 The module maintainer is now in charge of describing
 how the module expects the secret to be provided.
 
@@ -144,7 +61,148 @@ sops.defaultSopsFile = ./secrets.yaml;
 Then the snippet above is even more simplified:
 
 ```nix
-sops.secrets."ldap/user_password" = config.shb.ldap.secret.ldapUserPasswordFile;
+sops.secrets."ldap/user_password" = config.shb.ldap.secret.ldapUserPassword.request;
 
-shb.ldap.ldapUserPasswordFile = config.sops.secrets."ldap/user_password".path;
+shb.ldap.ldapUserPassword.result.path = config.sops.secrets."ldap/user_password".path;
+```
+
+## Contract Reference {#secret-contract-options}
+
+These are all the options that are expected to exist for this contract to be respected.
+
+```{=include=} options
+id-prefix: contracts-secret-options-
+list-id: selfhostblocks-options
+source: @OPTIONS_JSON@
+```
+
+## Usage {#secret-contract-usage}
+
+A contract involves 3 parties:
+
+- The implementer of a requester module.
+- The implementer of a provider module.
+- The end user which sets up the requester module and picks a provider implementation.
+
+The usage of this contract is similarly separated into 3 sections.
+
+### Requester Module {#secret-contract-usage-requester}
+
+Here is an example module requesting two secrets through the `secret` contract.
+
+```nix
+{ config, ... }:
+{
+  options = {
+    myservice = lib.mkOption {
+      type = lib.types.submodule {
+        options = {
+          adminPassword = contracts.secret.mkOption {
+            owner = "myservice";
+            group = "myservice";
+            mode = "0440";
+            restartUnits = [ "myservice.service" ];
+          };
+          databasePassword = contracts.secret.mkOption {
+            owner = "myservice";
+            # group defaults to "root"
+            # mode defaults to "0400"
+            restartUnits = [ "myservice.service" "mysql.service" ];
+          };
+        };
+      };
+    };
+  };
+
+  config = {
+    // Do something with the secrets, available at:
+    // config.myservice.adminPassword.result.path
+    // config.myservice.databasePassword.result.path
+  };
+};
+```
+
+### Provider Module {#secret-contract-usage-provider}
+
+Now, on the other side, we have a module that uses those options and provides a secret.
+Let's assume such a module is available under the `secretservice` option
+and that one can create multiple instances.
+
+```nix
+{ config, ... }:
+{
+  options = {
+    secretservice = lib.mkOption {
+      type = lib.types.attrsOf (lib.types.submodule {
+        options = {
+          mode = lib.mkOption {
+            description = "Mode of the secret file.";
+            type = lib.types.str;
+          };
+
+          owner = lib.mkOption {
+            description = "Linux user owning the secret file.";
+            type = lib.types.str;
+          };
+
+          group = lib.mkOption {
+            description = "Linux group owning the secret file.";
+            type = lib.types.str;
+          };
+
+          restartUnits = lib.mkOption {
+            description = "Systemd units to restart after the secret is updated.";
+            type = lib.types.listOf lib.types.str;
+          };
+
+          path = lib.mkOption {
+            description = "Path where the secret file will be located.";
+            type = lib.types.str;
+          };
+
+          // The contract allows more options to be defined to accomodate specific implementations.
+          secretFile = lib.mkOption {
+            description = "File containing the encrypted secret.";
+            type = lib.types.path;
+          };
+        };
+      });
+    };
+  };
+}
+```
+
+### End User {#secret-contract-usage-enduser}
+
+The end user's responsibility is now to do some plumbing.
+
+They will setup the provider module - here `secretservice` - with the options set by the requester module,
+while also setting other necessary options to satisfy the provider service.
+
+```nix
+secretservice.adminPassword = myservice.secret.adminPassword.request // {
+  secretFile = ./secret.yaml;
+};
+
+secretservice.databasePassword = myservice.secret.databasePassword.request // {
+  secretFile = ./secret.yaml;
+};
+```
+
+Assuming the `secretservice` module accepts default options,
+the above snippet could be reduced to:
+
+```nix
+secretservice.default.secretFile = ./secret.yaml;
+
+secretservice.adminPassword = myservice.secret.adminPassword.request;
+secretservice.databasePassword = myservice.secret.databasePassword.request;
+```
+
+Then they will setup the requester module - here `myservice` - with the result of the provider module.
+
+```nix
+myservice.secret.adminPassword.result.path = secretservice.adminPassword.result.path;
+
+myservice.secret.databasePassword.result.path = secretservice.adminPassword.result.path;
 ```

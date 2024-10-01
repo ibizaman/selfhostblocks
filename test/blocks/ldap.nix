@@ -23,8 +23,8 @@ in
         dcdomain = "dc=example,dc=com";
         subdomain = "ldap";
         domain = "example.com";
-        ldapUserPasswordFile = pkgs.writeText "user_password" "securepw";
-        jwtSecretFile = pkgs.writeText "jwt_secret" "securejwtsecret";
+        ldapUserPassword.result.path = pkgs.writeText "user_password" "securepw";
+        jwtSecret.result.path = pkgs.writeText "jwt_secret" "securejwtsecret";
         debug = true;
       };
       networking.firewall.allowedTCPPorts = [ 80 ]; # nginx port
