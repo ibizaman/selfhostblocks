@@ -1,6 +1,7 @@
 { config, lib, pkgs, ... }:
 let
   cfg = config.shb.postgresql;
+  contracts = pkgs.callPackage ../contracts {};
 
   upgrade-script = old: new:
     let
@@ -47,6 +48,48 @@ in
       type = lib.types.bool;
       description = "Enable TCP/IP connection on given port.";
       default = false;
+    };
+
+    backup = lib.mkOption {
+      type = contracts.backup;
+      description = ''
+        Backup configuration. This is an output option.
+
+        Use it to initialize a block implementing the "backup" contract.
+        For example, with the restic block:
+
+        ```
+        shb.restic.instances."postgresql" = {
+          enable = true;
+
+          # Options specific to Restic.
+        } // config.shb.nextcloud.backup;
+        ```
+      '';
+      readOnly = true;
+      default = {
+        user = "postgresql";
+        sourceDirectories = [
+          /tmp/postgresql_backup
+        ];
+        excludePatterns = [ ];
+
+        hooks.before_backup = [''
+          set -e -o pipefail
+
+          umask 077 # Ensure backup is only readable by postgres user
+
+          rm -rf /tmp/postgresql_backup # Clean up in case after_backup hook wasn't run.
+          mkdir /tmp/postgresql_backup
+
+          ${pkgs.psql}/bin/pg_dumpall | ${pkgs.gzip}/bin/gzip --rsyncable > /tmp/postgresql_backup/pg_dumpall.sql.gz
+        ''];
+
+        hooks.after_backup = [''
+          set -e -o pipefail
+          rm -rf /tmp/postgresql_backup
+        ''];
+      };
     };
 
     ensures = lib.mkOption {
