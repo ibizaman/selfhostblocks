@@ -43,8 +43,12 @@ let
         host = "127.0.0.1";
         port = config.shb.ldap.ldapPort;
         dcdomain = config.shb.ldap.dcdomain;
-        passwordFile = config.shb.ldap.ldapUserPassword.result.path;
+        passwordFile.result.path = config.shb.hardcodedsecret.jellyfinLdapUserPassword.path;
       };
+    };
+
+    shb.hardcodedsecret.jellyfinLdapUserPassword = config.shb.jellyfin.ldap.passwordFile.request // {
+      content = "ldapUserPassword";
     };
   };
 
@@ -53,8 +57,17 @@ let
       sso = {
         enable = true;
         endpoint = "https://${config.shb.authelia.subdomain}.${config.shb.authelia.domain}";
-        secretFile = pkgs.writeText "ssoSecretFile" "ssoSecretFile";
+        secretFile.result.path = config.shb.hardcodedsecret.jellyfinSSOPassword.path;
+        secretFileAuthelia.result.path = config.shb.hardcodedsecret.jellyfinSSOPasswordAuthelia.path;
       };
+    };
+
+    shb.hardcodedsecret.jellyfinSSOPassword = config.shb.jellyfin.sso.secretFile.request // {
+      content = "ssoPassword";
+    };
+
+    shb.hardcodedsecret.jellyfinSSOPasswordAuthelia = config.shb.jellyfin.sso.secretFileAuthelia.request // {
+      content = "ssoPassword";
     };
   };
 in
