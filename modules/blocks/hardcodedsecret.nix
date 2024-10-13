@@ -4,7 +4,7 @@ let
   opt = options.shb.hardcodedsecret;
 
   inherit (lib) mapAttrs' mkOption nameValuePair;
-  inherit (lib.types) attrsOf listOf path str submodule;
+  inherit (lib.types) attrsOf listOf path nullOr str submodule;
   inherit (pkgs) writeText;
 in
 {
@@ -56,12 +56,21 @@ in
         };
 
         content = mkOption {
-          type = str;
+          type = nullOr str;
           description = ''
             Content of the secret.
 
             This will be stored in the nix store and should only be used for testing or maybe in dev.
           '';
+          default = null;
+        };
+
+        source = mkOption {
+          type = nullOr str;
+          description = ''
+            Source of the content of the secret.
+          '';
+          default = null;
         };
       };
     }));
@@ -70,14 +79,16 @@ in
   config = {
     system.activationScripts = mapAttrs' (n: cfg':
       let
-        content' = writeText "hardcodedsecret_${n}_content" cfg'.content;
+        source = if cfg'.source != null
+                 then cfg'.source
+                 else writeText "hardcodedsecret_${n}_content" cfg'.content;
       in
         nameValuePair "hardcodedsecret_${n}" ''
           mkdir -p "$(dirname "${cfg'.path}")"
           touch "${cfg'.path}"
           chmod ${cfg'.mode} "${cfg'.path}"
           chown ${cfg'.owner}:${cfg'.group} "${cfg'.path}"
-          cp ${content'} "${cfg'.path}"
+          cp ${source} "${cfg'.path}"
         ''
     ) cfg;
   };
