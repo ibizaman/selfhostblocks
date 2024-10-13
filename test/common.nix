@@ -1,6 +1,4 @@
-{
-  lib,
-}:
+{ lib }:
 let
   baseImports = pkgs: [
     (pkgs.path + "/nixos/modules/profiles/headless.nix")
@@ -109,6 +107,7 @@ in
         ../modules/blocks/postgresql.nix
         ../modules/blocks/authelia.nix
         ../modules/blocks/nginx.nix
+        ../modules/blocks/hardcodedsecret.nix
       ]
       ++ additionalModules;
 
@@ -138,13 +137,20 @@ in
     systemd.services.nginx.requires = [ config.shb.certs.certs.selfsigned.n.systemdService ];
   };
 
-  ldap = domain: pkgs: {
+  ldap = domain: pkgs: { config, ... }: {
     imports = [
       ../modules/blocks/ldap.nix
     ];
 
     networking.hosts = {
       "127.0.0.1" = [ "ldap.${domain}" ];
+    };
+
+    shb.hardcodedsecret.ldapUserPassword = config.shb.ldap.ldapUserPassword.request // {
+      content = "ldapUserPassword";
+    };
+    shb.hardcodedsecret.jwtSecret = config.shb.ldap.ldapUserPassword.request // {
+      content = "jwtSecrets";
     };
 
     shb.ldap = {
@@ -154,8 +160,8 @@ in
       ldapPort = 3890;
       webUIListenPort = 17170;
       dcdomain = "dc=example,dc=com";
-      ldapUserPassword.result.path = pkgs.writeText "ldapUserPassword" "ldapUserPassword";
-      jwtSecret.result.path = pkgs.writeText "jwtSecret" "jwtSecret";
+      ldapUserPassword.result.path = config.shb.hardcodedsecret.ldapUserPassword.path;
+      jwtSecret.result.path = config.shb.hardcodedsecret.jwtSecret.path;
     };
   };
 

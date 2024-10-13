@@ -1,7 +1,7 @@
 { pkgs, lib }:
 let
   inherit (builtins) isAttrs hasAttr;
-  inherit (lib) concatStringsSep;
+  inherit (lib) concatMapStringsSep concatStringsSep mapAttrsToList;
 in
 rec {
   # Replace secrets in a file.
@@ -34,13 +34,29 @@ rec {
   replaceSecretsScript = { file, resultPath, replacements, user ? null, permissions ? "u=r,g=r,o=" }:
     let
       templatePath = resultPath + ".template";
-      sedPatterns = lib.strings.concatStringsSep " " (lib.attrsets.mapAttrsToList (from: to: "-e \"s|${from}|${to}|\"") replacements);
-      sedCmd = if replacements == {}
+
+      t = { transform ? null, ... }: if isNull transform then x: x else transform;
+
+      genReplacement = secret:
+        lib.attrsets.nameValuePair (secretName secret.name) ((t secret) "$(cat ${toString secret.source})");
+
+      # We check that the files containing the secrets have the
+      # correct permissions for us to read them in this separate
+      # step. Otherwise, the $(cat ...) commands inside the sed
+      # replacements could fail but not fail individually but
+      # not fail the whole script.
+      checkPermissions = concatMapStringsSep "\n" (pattern: "cat ${pattern.source} > /dev/null") replacements;
+
+      sedPatterns = concatMapStringsSep " " (pattern: "-e \"s|${pattern.name}|${pattern.value}|\"") (map genReplacement replacements);
+
+      sedCmd = if replacements == []
                then "cat"
                else "${pkgs.gnused}/bin/sed ${sedPatterns}";
     in
       ''
       set -euo pipefail
+
+      ${checkPermissions}
 
       mkdir -p $(dirname ${templatePath})
       ln -fs ${file} ${templatePath}
@@ -71,8 +87,8 @@ rec {
     };
   };
 
-  secretName = name:
-      "%SECRET${lib.strings.toUpper (lib.strings.concatMapStrings (s: "_" + s) name)}%";
+  secretName = names:
+    "%SECRET${lib.strings.toUpper (lib.strings.concatMapStrings (s: "_" + s) names)}%";
 
   withReplacements = attrs:
     let
@@ -91,15 +107,8 @@ rec {
         else value // { name = name; };
 
       secretsWithName = mapAttrsRecursiveCond (v: ! v ? "source") addNameField attrs;
-
-      allSecrets = collect (v: builtins.isAttrs v && v ? "source") secretsWithName;
-
-      t = { transform ? null, ... }: if isNull transform then x: x else transform;
-
-      genReplacement = secret:
-        lib.attrsets.nameValuePair (secretName secret.name) ((t secret) "$(cat ${toString secret.source})");
     in
-      lib.attrsets.listToAttrs (map genReplacement allSecrets);
+      collect (v: builtins.isAttrs v && v ? "source") secretsWithName;
       
   # Inspired lib.attrsets.mapAttrsRecursiveCond but also recurses on lists.
   mapAttrsRecursiveCond =
@@ -238,7 +247,7 @@ rec {
       results = pkgs.lib.runTests tests;
     in
     if results != [ ] then
-      builtins.throw (builtins.concatStringsSep "\n" (map resultToString (lib.traceValSeqN 3 results)))
+      builtins.throw (concatStringsSep "\n" (map resultToString (lib.traceValSeqN 3 results)))
     else
       pkgs.runCommand "nix-flake-tests-success" { } "echo > $out";
 
