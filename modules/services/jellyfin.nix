@@ -67,9 +67,12 @@ in
             default = "jellyfin_admin";
           };
 
-          passwordFile = lib.mkOption {
-            type = lib.types.path;
-            description = "File containing the LDAP admin password.";
+          adminPassword = contracts.secret.mkOption {
+            description = "LDAP admin password.";
+            mode = "0440";
+            owner = "jellyfin";
+            group = "jellyfin";
+            restartUnits = [ "jellyfin.service" ];
           };
         };
       };
@@ -118,9 +121,18 @@ in
             default = "one_factor";
           };
 
-          secretFile = lib.mkOption {
-            type = lib.types.path;
-            description = "File containing the OIDC shared secret.";
+          sharedSecret = contracts.secret.mkOption {
+            description = "OIDC shared secret for Jellyfin.";
+            mode = "0440";
+            owner = "jellyfin";
+            group = "jellyfin";
+            restartUnits = [ "jellyfin.service" ];
+          };
+
+          sharedSecretForAuthelia = contracts.secret.mkOption {
+            description = "OIDC shared secret for Authelia.";
+            mode = "0400";
+            owner = config.shb.authelia.autheliaUser;
           };
         };
       };
@@ -400,30 +412,35 @@ in
         lib.strings.optionalString cfg.ldap.enable (shblib.replaceSecretsScript {
           file = ldapConfig;
           resultPath = "/var/lib/jellyfin/plugins/configurations/LDAP-Auth.xml";
-          replacements = {
-            "%LDAP_PASSWORD%" = "$(cat ${cfg.ldap.passwordFile})";
-          };
+          replacements = [
+            {
+              name = [ "%LDAP_PASSWORD%" ];
+              source = cfg.ldap.adminPassword.result.path;
+            }
+          ];
         })
         + lib.strings.optionalString cfg.sso.enable (shblib.replaceSecretsScript {
           file = ssoConfig;
           resultPath = "/var/lib/jellyfin/plugins/configurations/SSO-Auth.xml";
-          replacements = {
-            "%SSO_SECRET%" = "$(cat ${cfg.sso.secretFile})";
-          };
+          replacements = [
+            {
+              name = [ "%SSO_SECRET%" ];
+              source = cfg.sso.sharedSecret.result.path;
+            }
+          ];
         })
         + lib.strings.optionalString cfg.sso.enable (shblib.replaceSecretsScript {
           file = brandingConfig;
           resultPath = "/var/lib/jellyfin/config/branding.xml";
-          replacements = {
-            "%a%" = "%a%";
-          };
+          replacements = [
+          ];
         });
 
     shb.authelia.oidcClients = lib.lists.optionals (!(isNull cfg.sso)) [
       {
         client_id = cfg.sso.clientID;
         client_name = "Jellyfin";
-        client_secret.source = cfg.sso.secretFile;
+        client_secret.source = cfg.sso.sharedSecretForAuthelia.result.path;
         public = false;
         authorization_policy = cfg.sso.authorization_policy;
         redirect_uris = [ "https://${cfg.subdomain}.${cfg.domain}/sso/OID/r/${cfg.sso.provider}" ];

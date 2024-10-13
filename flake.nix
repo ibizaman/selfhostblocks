@@ -33,6 +33,7 @@
       allModules = [
         modules/blocks/authelia.nix
         modules/blocks/davfs.nix
+        modules/blocks/hardcodedsecret.nix
         modules/blocks/ldap.nix
         modules/blocks/monitoring.nix
         modules/blocks/nginx.nix
