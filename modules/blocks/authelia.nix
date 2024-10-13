@@ -1,7 +1,8 @@
-{ config, pkgs, lib, ... }:
+{ config, options, pkgs, lib, ... }:
 
 let
   cfg = config.shb.authelia;
+  opt = options.shb.authelia;
 
   contracts = pkgs.callPackage ../contracts {};
   shblib = pkgs.callPackage ../../lib {};
@@ -67,33 +68,45 @@ in
       description = "Secrets needed by Authelia";
       type = lib.types.submodule {
         options = {
-          jwtSecretFile = lib.mkOption {
-            type = lib.types.path;
-            description = "File containing the JWT secret.";
+          jwtSecret = contracts.secret.mkOption {
+            description = "JWT secret.";
+            mode = "0400";
+            owner = cfg.autheliaUser;
+            restartUnits = [ "authelia-${opt.subdomain}.${opt.domain}" ];
           };
-          ldapAdminPasswordFile = lib.mkOption {
-            type = lib.types.path;
-            description = "File containing the LDAP admin user password.";
+          ldapAdminPassword = contracts.secret.mkOption {
+            description = "LDAP admin user password.";
+            mode = "0400";
+            owner = cfg.autheliaUser;
+            restartUnits = [ "authelia-${opt.subdomain}.${opt.domain}" ];
           };
-          sessionSecretFile = lib.mkOption {
-            type = lib.types.path;
-            description = "File containing the session secret.";
+          sessionSecret = contracts.secret.mkOption {
+            description = "Session secret.";
+            mode = "0400";
+            owner = cfg.autheliaUser;
+            restartUnits = [ "authelia-${opt.subdomain}.${opt.domain}" ];
           };
-          storageEncryptionKeyFile = lib.mkOption {
-            type = lib.types.path;
-            description = "File containing the storage encryption key.";
+          storageEncryptionKey = contracts.secret.mkOption {
+            description = "Storage encryption key.";
+            mode = "0400";
+            owner = cfg.autheliaUser;
+            restartUnits = [ "authelia-${opt.subdomain}.${opt.domain}" ];
           };
-          identityProvidersOIDCHMACSecretFile = lib.mkOption {
-            type = lib.types.path;
-            description = "File containing the identity provider OIDC HMAC secret.";
+          identityProvidersOIDCHMACSecret = contracts.secret.mkOption {
+            description = "Identity provider OIDC HMAC secret.";
+            mode = "0400";
+            owner = cfg.autheliaUser;
+            restartUnits = [ "authelia-${opt.subdomain}.${opt.domain}" ];
           };
-          identityProvidersOIDCIssuerPrivateKeyFile = lib.mkOption {
-            type = lib.types.path;
+          identityProvidersOIDCIssuerPrivateKey = contracts.secret.mkOption {
             description = ''
-              File containing the identity provider OIDC issuer private key.
+              Identity provider OIDC issuer private key.
 
               Generate one with `nix run nixpkgs#openssl -- genrsa -out keypair.pem 2048`
             '';
+            mode = "0400";
+            owner = cfg.autheliaUser;
+            restartUnits = [ "authelia-${opt.subdomain}.${opt.domain}" ];
           };
         };
       };
@@ -207,9 +220,11 @@ in
               type = lib.types.str;
               description = "Username to connect to the SMTP host.";
             };
-            passwordFile = lib.mkOption {
-              type = lib.types.str;
+            password = contracts.secret.mkOption {
               description = "File containing the password to connect to the SMTP host.";
+              mode = "0400";
+              owner = cfg.autheliaUser;
+              restartUnits = [ "authelia-${fqdn}" ];
             };
           };
         }))
@@ -282,19 +297,20 @@ in
       user = cfg.autheliaUser;
 
       secrets = {
-        inherit (cfg.secrets) jwtSecretFile storageEncryptionKeyFile;
+        jwtSecretFile = cfg.secrets.jwtSecret.result.path;
+        storageEncryptionKeyFile = cfg.secrets.storageEncryptionKey.result.path;
       };
       # See https://www.authelia.com/configuration/methods/secrets/
       environmentVariables = {
-        AUTHELIA_AUTHENTICATION_BACKEND_LDAP_PASSWORD_FILE = toString cfg.secrets.ldapAdminPasswordFile;
-        AUTHELIA_SESSION_SECRET_FILE = toString cfg.secrets.sessionSecretFile;
+        AUTHELIA_AUTHENTICATION_BACKEND_LDAP_PASSWORD_FILE = toString cfg.secrets.ldapAdminPassword.result.path;
+        AUTHELIA_SESSION_SECRET_FILE = toString cfg.secrets.sessionSecret.result.path;
         # Not needed since we use peer auth.
         # AUTHELIA_STORAGE_POSTGRES_PASSWORD_FILE = "/run/secrets/authelia/postgres_password";
-        AUTHELIA_STORAGE_ENCRYPTION_KEY_FILE = toString cfg.secrets.storageEncryptionKeyFile;
-        AUTHELIA_IDENTITY_PROVIDERS_OIDC_HMAC_SECRET_FILE = toString cfg.secrets.identityProvidersOIDCHMACSecretFile;
-        AUTHELIA_IDENTITY_PROVIDERS_OIDC_ISSUER_PRIVATE_KEY_FILE = toString cfg.secrets.identityProvidersOIDCIssuerPrivateKeyFile;
+        AUTHELIA_STORAGE_ENCRYPTION_KEY_FILE = toString cfg.secrets.storageEncryptionKey.result.path;
+        AUTHELIA_IDENTITY_PROVIDERS_OIDC_HMAC_SECRET_FILE = toString cfg.secrets.identityProvidersOIDCHMACSecret.result.path;
+        AUTHELIA_IDENTITY_PROVIDERS_OIDC_ISSUER_PRIVATE_KEY_FILE = toString cfg.secrets.identityProvidersOIDCIssuerPrivateKey.result.path;
 
-        AUTHELIA_NOTIFIER_SMTP_PASSWORD_FILE = lib.mkIf (!(builtins.isString cfg.smtp)) (toString cfg.smtp.passwordFile);
+        AUTHELIA_NOTIFIER_SMTP_PASSWORD_FILE = lib.mkIf (!(builtins.isString cfg.smtp)) (toString cfg.smtp.password.result.path);
       };
       settings = {
         server.address = "tcp://127.0.0.1:9091";
