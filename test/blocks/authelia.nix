@@ -13,6 +13,7 @@ in
         (pkgs'.path + "/nixos/modules/profiles/headless.nix")
         (pkgs'.path + "/nixos/modules/profiles/qemu-guest.nix")
         ../../modules/blocks/authelia.nix
+        ../../modules/blocks/hardcodedsecret.nix
         ../../modules/blocks/ldap.nix
         ../../modules/blocks/postgresql.nix
       ];
@@ -44,14 +45,12 @@ in
         ldapPort = config.shb.ldap.ldapPort;
         dcdomain = config.shb.ldap.dcdomain;
         secrets = {
-          jwtSecretFile = pkgs.writeText "jwtSecretFile" "jwtSecretFile";
-          ldapAdminPasswordFile = pkgs.writeText "ldapAdminPasswordFile" ldapAdminPassword;
-          sessionSecretFile = pkgs.writeText "sessionSecretFile" "sessionSecretFile";
-          storageEncryptionKeyFile = pkgs.writeText "storageEncryptionKeyFile" "storageEncryptionKeyFile";
-          identityProvidersOIDCHMACSecretFile = pkgs.writeText "identityProvidersOIDCHMACSecretFile" "identityProvidersOIDCHMACSecretFile";
-          # This needs to be of the correct shape and at least 2048 bits. Generated with:
-          #   nix run nixpkgs#openssl -- genrsa -out keypair.pem 2048
-          identityProvidersOIDCIssuerPrivateKeyFile = pkgs.writeText "identityProvidersOIDCIssuerPrivateKeyFile" (builtins.readFile ./keypair.pem);
+          jwtSecret.result.path = config.shb.hardcodedsecret.autheliaJwtSecret.path;
+          ldapAdminPassword.result.path = config.shb.hardcodedsecret.ldapAdminPassword.path;
+          sessionSecret.result.path = config.shb.hardcodedsecret.sessionSecret.path;
+          storageEncryptionKey.result.path = config.shb.hardcodedsecret.storageEncryptionKey.path;
+          identityProvidersOIDCHMACSecret.result.path = config.shb.hardcodedsecret.identityProvidersOIDCHMACSecret.path;
+          identityProvidersOIDCIssuerPrivateKey.result.path = config.shb.hardcodedsecret.identityProvidersOIDCIssuerPrivateKey.path;
         };
 
         oidcClients = [
@@ -72,6 +71,28 @@ in
             redirect_uris = [ "http://client2.machine.com/redirect" ];
           }
         ];
+      };
+
+      shb.hardcodedsecret.autheliaJwtSecret = config.shb.authelia.secrets.jwtSecret.request // {
+        content = "jwtSecret";
+      };
+      shb.hardcodedsecret.ldapAdminPassword = config.shb.authelia.secrets.ldapAdminPassword.request // {
+        content = ldapAdminPassword;
+      };
+      shb.hardcodedsecret.sessionSecret = config.shb.authelia.secrets.sessionSecret.request // {
+        content = "sessionSecret";
+      };
+      shb.hardcodedsecret.storageEncryptionKey = config.shb.authelia.secrets.storageEncryptionKey.request // {
+        content = "storageEncryptionKey";
+      };
+      shb.hardcodedsecret.identityProvidersOIDCHMACSecret = config.shb.authelia.secrets.identityProvidersOIDCHMACSecret.request // {
+        content = "identityProvidersOIDCHMACSecret";
+      };
+      shb.hardcodedsecret.identityProvidersOIDCIssuerPrivateKey = config.shb.authelia.secrets.identityProvidersOIDCIssuerPrivateKey.request // {
+        source = (pkgs.runCommand "gen-private-key" {} ''
+          mkdir $out
+          ${pkgs.openssl}/bin/openssl genrsa -out $out/private.pem 4096
+        '') + "/private.pem";
       };
     };
 
