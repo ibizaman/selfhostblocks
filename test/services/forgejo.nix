@@ -29,18 +29,26 @@ let
     ../../modules/services/forgejo.nix
   ];
 
-  basic = {
+  basic = { config, ... }: {
     shb.forgejo = {
       enable = true;
       inherit domain subdomain;
 
-      adminPasswordFile = pkgs.writeText "adminPasswordFile" adminPassword;
-      databasePasswordFile = pkgs.writeText "databasePassword" "databasePassword";
+      adminPassword.result.path = config.shb.hardcodedsecret.forgejoAdminPassword.path;
+      databasePassword.result.path = config.shb.hardcodedsecret.forgejoDatabasePassword.path;
     };
 
     # Needed for gitea-runner-local to be able to ping forgejo.
     networking.hosts = {
       "127.0.0.1" = [ "${subdomain}.${domain}" ];
+    };
+
+    shb.hardcodedsecret.forgejoAdminPassword = config.shb.forgejo.adminPassword.request // {
+      content = adminPassword;
+    };
+
+    shb.hardcodedsecret.forgejoDatabasePassword = config.shb.forgejo.databasePassword.request // {
+      content = "databasePassword";
     };
   };
 
@@ -57,8 +65,12 @@ let
         host = "127.0.0.1";
         port = config.shb.ldap.ldapPort;
         dcdomain = config.shb.ldap.dcdomain;
-        adminPasswordFile = config.shb.ldap.ldapUserPassword.result.path;
+        adminPassword.result.path = config.shb.hardcodedsecret.forgejoLdapUserPassword.path;
       };
+    };
+
+    shb.hardcodedsecret.forgejoLdapUserPassword = config.shb.forgejo.ldap.adminPassword.request // {
+      content = "ldapUserPassword";
     };
   };
 
@@ -67,9 +79,17 @@ let
       sso = {
         enable = true;
         endpoint = "https://${config.shb.authelia.subdomain}.${config.shb.authelia.domain}";
-        secretFile = pkgs.writeText "ssoSecretFile" "ssoSecretFile";
-        secretFileForAuthelia = pkgs.writeText "ssoSecretFile" "ssoSecretFile";
+        sharedSecret.result.path = config.shb.hardcodedsecret.forgejoSSOPassword.path;
+        sharedSecretForAuthelia.result.path = config.shb.hardcodedsecret.forgejoSSOPasswordAuthelia.path;
       };
+    };
+
+    shb.hardcodedsecret.forgejoSSOPassword = config.shb.forgejo.sso.sharedSecret.request // {
+      content = "ssoPassword";
+    };
+
+    shb.hardcodedsecret.forgejoSSOPasswordAuthelia = config.shb.forgejo.sso.sharedSecretForAuthelia.request // {
+      content = "ssoPassword";
     };
   };
 in
