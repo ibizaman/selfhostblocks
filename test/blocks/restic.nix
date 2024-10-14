@@ -12,10 +12,24 @@ let
   commonTest = user: pkgs.testers.runNixOSTest {
     name = "restic_backupAndRestore_${user}";
 
-    nodes.machine = {
+    nodes.machine = { config, ... }: {
       imports = ( testLib.baseImports pkgs' ) ++ [
+        ../../modules/blocks/hardcodedsecret.nix
         ../../modules/blocks/restic.nix
       ];
+
+      shb.hardcodedsecret.A = {
+        owner = "root";
+        group = "keys";
+        mode = "0440";
+        content = "secretA";
+      };
+      shb.hardcodedsecret.B = {
+        owner = "root";
+        group = "keys";
+        mode = "0440";
+        content = "secretB";
+      };
 
       shb.restic.instances."testinstance" = {
         enable = true;
@@ -39,8 +53,8 @@ let
             # Those are not needed by the repository but are still included
             # so we can test them in the hooks section.
             secrets = {
-              A.source = "/run/secrets/A";
-              B.source = "/run/secrets/B";
+              A.source = config.shb.hardcodedsecret.A.path;
+              B.source = config.shb.hardcodedsecret.B.path;
             };
           }
           {
@@ -96,19 +110,6 @@ let
           result = list(diff(list_files(dir), files))
           if len(result) > 0:
               raise Exception("Unexpected files:", result)
-
-      with subtest("Create secrets"):
-          print(machine.succeed("""
-          mkdir -p /run/secrets/
-
-          echo secretA > /run/secrets/A
-          echo secretB > /run/secrets/B
-
-          chown root:keys -R /run/secrets
-          find /run/secrets -type d -exec chmod u=rwx,g=rx,o=x '{}' ';'
-          find /run/secrets -type f -exec chmod u=r,g=r,o= '{}' ';'
-          ls -l /run/secrets
-          """))
 
       with subtest("Create initial content"):
           machine.succeed("""
