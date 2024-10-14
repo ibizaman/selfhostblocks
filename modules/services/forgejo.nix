@@ -82,14 +82,12 @@ in
             default = "admin";
           };
 
-          adminPasswordFile = lib.mkOption {
-            type = lib.types.path;
-            description = ''
-              File containing the admin password of the LDAP server.
-
-              Must be readable by the forgejo system user.
-            '';
-            default = "";
+          adminPassword = contracts.secret.mkOption {
+            description = "LDAP admin password.";
+            mode = "0440";
+            owner = "forgejo";
+            group = "forgejo";
+            restartUnits = [ "forgejo.service" ];
           };
 
           userGroup = lib.mkOption {
@@ -140,37 +138,37 @@ in
             default = "one_factor";
           };
 
-          secretFile = lib.mkOption {
-            type = lib.types.path;
-            description = ''
-              File containing the secret for the OIDC endpoint.
-
-              Must be readable by the forgejo system user.
-            '';
+          sharedSecret = contracts.secret.mkOption {
+            description = "OIDC shared secret for Forgejo.";
+            mode = "0440";
+            owner = "forgejo";
+            group = "forgejo";
+            restartUnits = [ "forgejo.service" ];
           };
 
-          secretFileForAuthelia = lib.mkOption {
-            type = lib.types.path;
-            description = ''
-              File containing the secret for the OIDC endpoint, must be readable by the Authelia user.
-
-              Must be readable by the authelia system user.
-            '';
+          sharedSecretForAuthelia = contracts.secret.mkOption {
+            description = "OIDC shared secret for Authelia.";
+            mode = "0400";
+            owner = "authelia";
           };
         };
       };
     };
 
-    adminPasswordFile = lib.mkOption {
-      type = lib.types.path;
+    adminPassword = contracts.secret.mkOption {
       description = "File containing the Forgejo admin user password.";
-      example = "/run/secrets/forgejo/adminPassword";
+      mode = "0440";
+      owner = "forgejo";
+      group = "forgejo";
+      restartUnits = [ "forgejo.service" ];
     };
 
-    databasePasswordFile = lib.mkOption {
-      type = lib.types.path;
+    databasePassword = contracts.secret.mkOption {
       description = "File containing the Forgejo database password.";
-      example = "/run/secrets/forgejo/databasePassword";
+      mode = "0440";
+      owner = "forgejo";
+      group = "forgejo";
+      restartUnits = [ "forgejo.service" ];
     };
 
     repositoryRoot = lib.mkOption {
@@ -344,7 +342,7 @@ in
       services.forgejo.database = {
         type = "postgres";
 
-        passwordFile = cfg.databasePasswordFile;
+        passwordFile = cfg.databasePassword.result.path;
       };
     })
 
@@ -380,7 +378,7 @@ in
             --host                ${cfg.ldap.host} \
             --port                ${toString cfg.ldap.port} \
             --bind-dn             uid=${cfg.ldap.adminName},ou=people,${cfg.ldap.dcdomain} \
-            --bind-password       $(tr -d '\n' < ${cfg.ldap.adminPasswordFile}) \
+            --bind-password       $(tr -d '\n' < ${cfg.ldap.adminPassword.result.path}) \
             --security-protocol   Unencrypted \
             --user-search-base    ou=people,${cfg.ldap.dcdomain} \
             --user-filter         '(&(memberof=cn=${cfg.ldap.userGroup},ou=groups,${cfg.ldap.dcdomain})(|(uid=%[1]s)(mail=%[1]s)))' \
@@ -399,7 +397,7 @@ in
             --host                ${cfg.ldap.host} \
             --port                ${toString cfg.ldap.port} \
             --bind-dn             uid=${cfg.ldap.adminName},ou=people,${cfg.ldap.dcdomain} \
-            --bind-password       $(tr -d '\n' < ${cfg.ldap.adminPasswordFile}) \
+            --bind-password       $(tr -d '\n' < ${cfg.ldap.adminPassword.result.path}) \
             --security-protocol   Unencrypted \
             --user-search-base    ou=people,${cfg.ldap.dcdomain} \
             --user-filter         '(&(memberof=cn=${cfg.ldap.userGroup},ou=groups,${cfg.ldap.dcdomain})(|(uid=%[1]s)(mail=%[1]s)))' \
@@ -456,7 +454,7 @@ in
             --name     ${provider} \
             --provider openidConnect \
             --key      forgejo \
-            --secret   $(tr -d '\n' < ${cfg.sso.secretFile}) \
+            --secret   $(tr -d '\n' < ${cfg.sso.sharedSecret.result.path}) \
             --auto-discover-url ${cfg.sso.endpoint}/.well-known/openid-configuration
         else
           echo Did not find any sso configuration, creating one with name ${provider}.
@@ -464,7 +462,7 @@ in
             --name     ${provider} \
             --provider openidConnect \
             --key      forgejo \
-            --secret   $(tr -d '\n' < ${cfg.sso.secretFile}) \
+            --secret   $(tr -d '\n' < ${cfg.sso.sharedSecret.result.path}) \
             --auto-discover-url ${cfg.sso.endpoint}/.well-known/openid-configuration
         fi
       '';
@@ -475,7 +473,7 @@ in
         in {
           client_id = cfg.sso.clientID;
           client_name = "Forgejo";
-          client_secret.source = cfg.sso.secretFileForAuthelia;
+          client_secret.source = cfg.sso.sharedSecretForAuthelia.result.path;
           public = false;
           authorization_policy = cfg.sso.authorization_policy;
           redirect_uris = [ "https://${cfg.subdomain}.${cfg.domain}/user/oauth2/${provider}/callback" ];
@@ -486,8 +484,8 @@ in
     (lib.mkIf cfg.enable {
       systemd.services.forgejo.preStart = ''
         admin="${lib.getExe config.services.forgejo.package} admin user"
-        $admin create --admin --email "root@localhost" --username meadmin --password "$(tr -d '\n' < ${cfg.adminPasswordFile})" || true
-        $admin change-password --username meadmin --password "$(tr -d '\n' < ${cfg.adminPasswordFile})" || true
+        $admin create --admin --email "root@localhost" --username meadmin --password "$(tr -d '\n' < ${cfg.adminPassword.result.path})" || true
+        $admin change-password --username meadmin --password "$(tr -d '\n' < ${cfg.adminPassword.result.path})" || true
 '';
     })
 
