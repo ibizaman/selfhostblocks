@@ -135,6 +135,8 @@
           // (vm_test "postgresql" ./test/blocks/postgresql.nix)
           // (vm_test "restic" ./test/blocks/restic.nix)
           // (vm_test "ssl" ./test/blocks/ssl.nix)
+
+          // (vm_test "contracts-secret" ./test/contracts/secret.nix)
           ));
       }
   ) // {
