@@ -31,14 +31,15 @@ rec {
     resultPath = newPath;
   };
 
+  genReplacement = secret:
+    let
+      t = { transform ? null, ... }: if isNull transform then x: x else transform;
+    in
+      lib.attrsets.nameValuePair (secretName secret.name) ((t secret) "$(cat ${toString secret.source})");
+
   replaceSecretsScript = { file, resultPath, replacements, user ? null, permissions ? "u=r,g=r,o=" }:
     let
       templatePath = resultPath + ".template";
-
-      t = { transform ? null, ... }: if isNull transform then x: x else transform;
-
-      genReplacement = secret:
-        lib.attrsets.nameValuePair (secretName secret.name) ((t secret) "$(cat ${toString secret.source})");
 
       # We check that the files containing the secrets have the
       # correct permissions for us to read them in this separate

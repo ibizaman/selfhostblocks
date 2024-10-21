@@ -1,6 +1,8 @@
 { pkgs, lib, ... }:
 let
   shblib = pkgs.callPackage ../../lib {};
+
+  inherit (lib) nameValuePair;
 in
 {
   # Tests that withReplacements can:
@@ -79,15 +81,15 @@ in
   testLibGetReplacements = {
     expected =
       let
-        secrets = root: {
-          "%SECRET_${root}B%" = "$(cat /path/B)";
-          "%SECRET_${root}C%" = "prefix-$(cat /path/C)-suffix";
-        };
+        secrets = root: [
+          (nameValuePair "%SECRET_${root}B%" "$(cat /path/B)")
+          (nameValuePair "%SECRET_${root}C%" "prefix-$(cat /path/C)-suffix")
+        ];
       in
-        (secrets "") //
-        (secrets "NESTEDATTR_") //
-        (secrets "NESTEDLIST_0_") //
-        (secrets "DOUBLENESTEDLIST_0_N_");
+        (secrets "") ++
+        (secrets "DOUBLENESTEDLIST_0_N_") ++
+        (secrets "NESTEDATTR_") ++
+        (secrets "NESTEDLIST_0_");
     expr =
       let
         item = {
@@ -99,13 +101,13 @@ in
           c.other = "other";
         };
       in
-        shblib.getReplacements (
+        map shblib.genReplacement (shblib.getReplacements (
           item // {
             nestedAttr = item;
             nestedList = [ item ];
             doubleNestedList = [ { n = item; } ];
           }
-        );
+        ));
   };
 
   testParseXML = {
