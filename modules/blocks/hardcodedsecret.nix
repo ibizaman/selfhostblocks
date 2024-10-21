@@ -10,6 +10,19 @@ in
 {
   options.shb.hardcodedsecret = mkOption {
     default = {};
+    description = ''
+      Hardcoded secrets. These should only be used in tests.
+    '';
+    example = lib.literalExpression ''
+    {
+      mySecret = {
+        user = "me";
+        mode = "0400";
+        restartUnits = [ "myservice.service" ];
+        content = "My Secrets";
+      };
+    }
+    '';
     type = attrsOf (submodule ({ name, ... }: {
       options = {
         mode = mkOption {
