@@ -133,5 +133,7 @@
           // (vm_test "ssl" ./test/blocks/ssl.nix)
           );
       }
-  );
+  ) // {
+    herculesCI.ciSystems = [ "x86_64-linux" ];
+  };
 }
