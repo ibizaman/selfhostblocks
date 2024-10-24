@@ -42,14 +42,14 @@ jobs:
 
           echo dynamic_list="$(cat .output)" >> "$GITHUB_OUTPUT"
     outputs:
-      matrix: ${{ steps.generate-matrix.outputs.dynamic_list }}
+      check: ${{ steps.generate-matrix.outputs.dynamic_list }}
 
   tests:
     runs-on: ubuntu-latest
     needs: [ "build-matrix" ]
     strategy:
       matrix:
-        test: ${{ fromJson(needs.build-matrix.outputs.matrix) }}
+        check: ${{ fromJson(needs.build-matrix.outputs.check) }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -65,7 +65,7 @@ jobs:
           authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'
       - name: Build
         run: |
-          nix build .#checks.x86_64-linux.${{ matrix.job }}
+          nix build .#checks.x86_64-linux.${{ matrix.check }}
 
 #          nix run github:Mic92/nix-fast-build -- \
 #            --skip-cached --no-nom \
