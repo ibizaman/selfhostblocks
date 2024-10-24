@@ -32,11 +32,15 @@ jobs:
         with:
           name: selfhostblocks
           authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'
-      - name: Run tests
+      - name: Generate
         id: generate-checks
         run: |
+          echo dynamic_list= >> "$GITHUB_OUTPUT"
           nix flake show --allow-import-from-derivation --json \
-              | jq '.["checks"]["x86_64-linux"] | keys'
+              | jq -c '.["checks"]["x86_64-linux"] | keys' \
+              >> "$GITHUB_OUTPUT"
+
+          echo "$GITHUB_OUTPUT"
     outputs:
       matrix: ${{ steps.generate-matrix.outputs.dynamic_list }}
 
