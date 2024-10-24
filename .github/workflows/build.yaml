@@ -67,7 +67,16 @@ jobs:
         run: |
           nix build .#checks.x86_64-linux.${{ matrix.check }}
 
-#          nix run github:Mic92/nix-fast-build -- \
-#            --skip-cached --no-nom \
-#            --max-jobs 1 \
-#            --flake ".#checks.$(nix eval --raw --impure --expr builtins.currentSystem)"
+  results:
+    if: ${{ always() }}
+    runs-on: ubuntu-latest
+    name: Final Results
+    needs: [ tests ]
+    steps:
+      - run: |
+          result="${{ needs.tests.result }}"
+          if [[ $result == "success" || $result == "skipped" ]]; then
+            exit 0
+          else
+            exit 1
+          fi
