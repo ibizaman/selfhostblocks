@@ -26,7 +26,6 @@
         src = nixpkgs;
         inherit patches;
       };
-
       pkgs = import patchedNixpkgs {
         inherit system;
       };
@@ -79,12 +78,14 @@
 
         checks =
           let
+            inherit (pkgs.lib) foldl foldlAttrs mergeAttrs optionalAttrs;
+
             importFiles = files:
               map (m: pkgs.callPackage m {}) files;
 
-            mergeTests = pkgs.lib.lists.foldl pkgs.lib.trivial.mergeAttrs {};
+            mergeTests = foldl mergeAttrs {};
 
-            flattenAttrs = root: attrset: pkgs.lib.attrsets.foldlAttrs (acc: name: value: acc // {
+            flattenAttrs = root: attrset: foldlAttrs (acc: name: value: acc // {
               "${root}_${name}" = value;
             }) {} attrset;
 
@@ -96,19 +97,21 @@
             );
 
             shblib = pkgs.callPackage ./lib {};
-          in (rec {
+          in (optionalAttrs (system == "x86_64-linux") ({
             modules = shblib.check {
               inherit pkgs;
               tests =
                 mergeTests (importFiles [
                   ./test/modules/arr.nix
                   ./test/modules/davfs.nix
+                  # TODO: Make this not use IFD
                   ./test/modules/lib.nix
                   ./test/modules/nginx.nix
                   ./test/modules/postgresql.nix
                 ]);
             };
 
+            # TODO: Make this not use IFD
             lib = nix-flake-tests.lib.check {
               inherit pkgs;
               tests = pkgs.callPackage ./test/modules/lib.nix {};
@@ -119,7 +122,7 @@
           // (vm_test "deluge" ./test/services/deluge.nix)
           // (vm_test "forgejo" ./test/services/forgejo.nix)
           // (vm_test "grocy" ./test/services/grocy.nix)
-          // (vm_test "home-assistant" ./test/services/home-assistant.nix)
+          // (vm_test "homeassistant" ./test/services/home-assistant.nix)
           // (vm_test "jellyfin" ./test/services/jellyfin.nix)
           // (vm_test "monitoring" ./test/services/monitoring.nix)
           // (vm_test "nextcloud" ./test/services/nextcloud.nix)
@@ -131,7 +134,9 @@
           // (vm_test "postgresql" ./test/blocks/postgresql.nix)
           // (vm_test "restic" ./test/blocks/restic.nix)
           // (vm_test "ssl" ./test/blocks/ssl.nix)
-          );
+          ));
       }
-  );
+  ) // {
+    herculesCI.ciSystems = [ "x86_64-linux" ];
+  };
 }
