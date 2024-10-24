@@ -1,0 +1,7 @@
+name: build
+on: push
+jobs:
+  checks:
+    uses: nixbuild/nixbuild-action/.github/workflows/ci-workflow.yml@v19
+    secrets:
+      nixbuild_token: ${{ secrets.nixbuild_token }}
