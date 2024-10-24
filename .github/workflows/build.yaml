@@ -32,8 +32,8 @@ jobs:
         with:
           name: selfhostblocks
           authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'
-      - name: Generate
-        id: generate-checks
+      - name: Generate Matrix
+        id: generate-matrix
         run: |
           nix flake show --allow-import-from-derivation --json \
               | jq -c '.["checks"]["x86_64-linux"] | keys' > .output
