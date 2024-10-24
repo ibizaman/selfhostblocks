@@ -35,11 +35,12 @@ jobs:
       - name: Generate
         id: generate-checks
         run: |
-          echo dynamic_list="$(nix flake show --allow-import-from-derivation --json \
-              | jq -c '.["checks"]["x86_64-linux"] | keys')" \
-              >> "$GITHUB_OUTPUT"
+          nix flake show --allow-import-from-derivation --json \
+              | jq -c '.["checks"]["x86_64-linux"] | keys' > .output
 
-          echo "$GITHUB_OUTPUT"
+          cat .output
+
+          echo dynamic_list="$(cat .output)" >> "$GITHUB_OUTPUT"
     outputs:
       matrix: ${{ steps.generate-matrix.outputs.dynamic_list }}
 
