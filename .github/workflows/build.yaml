@@ -35,9 +35,8 @@ jobs:
       - name: Generate
         id: generate-checks
         run: |
-          echo dynamic_list= >> "$GITHUB_OUTPUT"
-          nix flake show --allow-import-from-derivation --json \
-              | jq -c '.["checks"]["x86_64-linux"] | keys' \
+          echo dynamic_list="$(nix flake show --allow-import-from-derivation --json \
+              | jq -c '.["checks"]["x86_64-linux"] | keys')" \
               >> "$GITHUB_OUTPUT"
 
           echo "$GITHUB_OUTPUT"
