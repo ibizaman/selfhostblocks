@@ -112,9 +112,12 @@ in
       '';
       readOnly = true;
       default = {
-        user = "lldap";
+        # TODO: is there a workaround that avoid needing to use root?
+        # root because otherwise we cannot access the private StateDiretory
+        user = "root";
+        # /private because the systemd service uses DynamicUser=true
         sourceDirectories = [
-          "/var/lib/lldap"
+          "/var/lib/private/lldap"
         ];
       };
     };
