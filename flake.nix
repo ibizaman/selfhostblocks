@@ -103,17 +103,17 @@
                   ./test/modules/arr.nix
                   ./test/modules/davfs.nix
                   # TODO: Make this not use IFD
-                  # ./test/modules/lib.nix
+                  ./test/modules/lib.nix
                   ./test/modules/nginx.nix
                   ./test/modules/postgresql.nix
                 ]);
             };
 
             # TODO: Make this not use IFD
-            # lib = nix-flake-tests.lib.check {
-            #   inherit pkgs;
-            #   tests = pkgs.callPackage ./test/modules/lib.nix {};
-            # };
+            lib = nix-flake-tests.lib.check {
+              inherit pkgs;
+              tests = pkgs.callPackage ./test/modules/lib.nix {};
+            };
           }
           // (vm_test "arr" ./test/services/arr.nix)
           // (vm_test "audiobookshelf" ./test/services/audiobookshelf.nix)
