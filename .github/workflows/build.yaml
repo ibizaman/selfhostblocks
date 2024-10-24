@@ -33,7 +33,11 @@ jobs:
           authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'
       - name: Run tests
         run: |
-          nix run github:Mic92/nix-fast-build -- \
-            --skip-cached --no-nom \
-            --max-jobs 1 \
-            --flake ".#checks.$(nix eval --raw --impure --expr builtins.currentSystem)"
+          nix flake show --allow-import-from-derivation --json \
+              | jq '.["checks"]["x86_64-linux"] | keys[]' \
+              | xargs -n1 -IO nix build .#checks.x86_64-linux.O
+
+#          nix run github:Mic92/nix-fast-build -- \
+#            --skip-cached --no-nom \
+#            --max-jobs 1 \
+#            --flake ".#checks.$(nix eval --raw --impure --expr builtins.currentSystem)"
