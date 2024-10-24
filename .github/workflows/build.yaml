@@ -1,10 +1,39 @@
-name: build
-on: push
+# name: build
+# on: push
+# jobs:
+#   checks:
+#     uses: nixbuild/nixbuild-action/.github/workflows/ci-workflow.yml@v19
+#     with:
+#       nix_conf: |
+#         allow-import-from-derivation = true
+#     secrets:
+#       nixbuild_token: ${{ secrets.nixbuild_token }}
+
+
+name: "build"
+on:
+  pull_request:
+  push:
+    branches: [ "main" ]
 jobs:
-  checks:
-    uses: nixbuild/nixbuild-action/.github/workflows/ci-workflow.yml@v19
-    with:
-      nix_conf: |
-        allow-import-from-derivation = true
-    secrets:
-      nixbuild_token: ${{ secrets.nixbuild_token }}
+  tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Install Nix
+        uses: DeterminateSystems/nix-installer-action@main
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          extra-conf: "system-features = nixos-test benchmark big-parallel kvm"
+      - name: Setup Caching
+        uses: cachix/cachix-action@v14
+        with:
+          name: selfhostblocks
+          authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'
+      - name: Run tests
+        run: |
+          nix run github:Mic92/nix-fast-build -- \
+            --skip-cached --no-nom \
+            --max-jobs 1 \
+            --flake ".#checks.$(nix eval --raw --impure --expr builtins.currentSystem)"
