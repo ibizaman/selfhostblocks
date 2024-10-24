@@ -88,7 +88,7 @@ jobs:
           authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'
       - name: Build
         run: |
-          nix build .#checks.x86_64-linux.${{ matrix.check }}
+          nix build --print-build-logs --show-trace .#checks.x86_64-linux.${{ matrix.check }}
 
   results:
     if: ${{ always() }}
