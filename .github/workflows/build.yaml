@@ -15,8 +15,9 @@ on:
   pull_request:
   push:
     branches: [ "main" ]
+
 jobs:
-  tests:
+  build-matrix:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -32,10 +33,35 @@ jobs:
           name: selfhostblocks
           authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'
       - name: Run tests
+        id: generate-checks
         run: |
           nix flake show --allow-import-from-derivation --json \
-              | jq '.["checks"]["x86_64-linux"] | keys[]' \
-              | xargs -n1 -IO nix build .#checks.x86_64-linux.O
+              | jq '.["checks"]["x86_64-linux"] | keys'
+    outputs:
+      matrix: ${{ steps.generate-matrix.outputs.dynamic_list }}
+
+  tests:
+    runs-on: ubuntu-latest
+    needs: [ "build-matrix" ]
+    strategy:
+      matrix:
+        test: ${{ fromJson(needs.build-matrix.outputs.matrix) }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Install Nix
+        uses: DeterminateSystems/nix-installer-action@main
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          extra-conf: "system-features = nixos-test benchmark big-parallel kvm"
+      - name: Setup Caching
+        uses: cachix/cachix-action@v14
+        with:
+          name: selfhostblocks
+          authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'
+      - name: Build
+        run: |
+          nix build .#checks.x86_64-linux.${{ matrix.job }}
 
 #          nix run github:Mic92/nix-fast-build -- \
 #            --skip-cached --no-nom \
