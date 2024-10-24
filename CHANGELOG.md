@@ -14,9 +14,26 @@
   - `shb.authelia.oidcClients.description` -> `shb.authelia.oidcClients.client_name`
   - `shb.authelia.oidcClients.secret` -> `shb.authelia.oidcClients.client_secret`
   - `shb.authelia.ldapEndpoint` -> `shb.authelia.ldapHostname` and `shb.authelia.ldapPort`
+  - `shb.authelia.jwtSecretFile` -> `shb.authelia.jwtSecret.result.path`
+  - `shb.authelia.ldapAdminPasswordFile` -> `shb.authelia.ldapAdminPassword.result.path`
+  - `shb.authelia.sessionSecretFile` -> `shb.authelia.sessionSecret.result.path`
+  - `shb.authelia.storageEncryptionKeyFile` -> `shb.authelia.storageEncryptionKey.result.path`
+  - `shb.authelia.identityProvidersOIDCIssuerPrivateKeyFile` -> `shb.authelia.identityProvidersOIDCIssuerPrivateKey.result.path`
+  - `shb.authelia.smtp.passwordFile` -> `shb.authelia.smtp.password.result.path`
 - Make Nextcloud automatically disable maintenance mode upon service restart.
 - `shb.ldap.ldapUserPasswordFile` -> `shb.ldap.ldapUserPassword.result.path`
 - `shb.ldap.jwtSecretFile` -> `shb.ldap.jwtSecret.result.path`
+- Jellyfin changes:
+  - `shb.jellyfin.ldap.passwordFile` -> `shb.jellyfin.ldap.adminPassword.result.path`.
+  - `shb.jellyfin.sso.secretFile` -> `shb.jellyfin.ldap.sharedSecret.result.path`.
+  - + `shb.jellyfin.ldap.sharedSecretForAuthelia`.
+- Forgejo changes:
+  - `shb.forgejo.ldap.adminPasswordFile` -> `shb.forgejo.ldap.adminPassword.result.path`.
+  - `shb.forgejo.sso.secretFile` -> `shb.forgejo.ldap.sharedSecret.result.path`.
+  - `shb.forgejo.sso.secretFileForAuthelia` -> `shb.forgejo.ldap.sharedSecretForAuthelia.result.path`.
+  - `shb.forgejo.adminPasswordFile` -> `shb.forgejo.adminPassword.result.path`.
+  - `shb.forgejo.databasePasswordFile` -> `shb.forgejo.databasePassword.result.path`.
+
 
 ## User Facing Backwards Compatible Changes
 
