@@ -78,12 +78,14 @@
 
         checks =
           let
+            inherit (pkgs.lib) foldl foldlAttrs mergeAttrs optionalAttrs;
+
             importFiles = files:
               map (m: pkgs.callPackage m {}) files;
 
-            mergeTests = pkgs.lib.lists.foldl pkgs.lib.trivial.mergeAttrs {};
+            mergeTests = foldl mergeAttrs {};
 
-            flattenAttrs = root: attrset: pkgs.lib.attrsets.foldlAttrs (acc: name: value: acc // {
+            flattenAttrs = root: attrset: foldlAttrs (acc: name: value: acc // {
               "${root}_${name}" = value;
             }) {} attrset;
 
@@ -95,7 +97,7 @@
             );
 
             shblib = pkgs.callPackage ./lib {};
-          in (rec {
+          in (optionalAttrs (system == "x86_64-linux") ({
             modules = shblib.check {
               inherit pkgs;
               tests =
@@ -132,7 +134,7 @@
           // (vm_test "postgresql" ./test/blocks/postgresql.nix)
           // (vm_test "restic" ./test/blocks/restic.nix)
           // (vm_test "ssl" ./test/blocks/ssl.nix)
-          );
+          ));
       }
   ) // {
     herculesCI.ciSystems = [ "x86_64-linux" ];
