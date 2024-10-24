@@ -44,6 +44,29 @@ jobs:
     outputs:
       check: ${{ steps.generate-matrix.outputs.dynamic_list }}
 
+  manual:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Install Nix
+        uses: DeterminateSystems/nix-installer-action@main
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          extra-conf: "system-features = nixos-test benchmark big-parallel kvm"
+      - name: Setup Caching
+        uses: cachix/cachix-action@v14
+        with:
+          name: selfhostblocks
+          authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'
+      - name: Build
+        run: |
+          nix \
+            --print-build-logs \
+            --option keep-going true \
+            --show-trace \
+            build .#manualHtml
+
   tests:
     runs-on: ubuntu-latest
     needs: [ "build-matrix" ]
@@ -71,7 +94,7 @@ jobs:
     if: ${{ always() }}
     runs-on: ubuntu-latest
     name: Final Results
-    needs: [ tests ]
+    needs: [ manual, tests ]
     steps:
       - run: |
           result="${{ needs.tests.result }}"

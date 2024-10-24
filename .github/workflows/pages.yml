@@ -2,7 +2,6 @@
 name: Deploy docs
 
 on:
-  pull_request:
   push:
     branches: ["main"]
   workflow_dispatch:
@@ -58,15 +57,12 @@ jobs:
 
       - name: Setup Pages
         uses: actions/configure-pages@v3
-        if: success() && github.ref == 'refs/heads/main'
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v1
-        if: success() && github.ref == 'refs/heads/main'
         with:
           path: ./public
 
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v2
-        if: success() && github.ref == 'refs/heads/main'
