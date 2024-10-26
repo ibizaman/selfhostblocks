@@ -34,9 +34,10 @@ jobs:
       - name: Install nix
         uses: cachix/install-nix-action@v20
 
-      - uses: cachix/cachix-action@v14
+      - name: Setup Caching
+        uses: cachix/cachix-action@v14
         with:
-          name: mycache
+          name: selfhostblocks
           authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'
 
       - name: Build docs
