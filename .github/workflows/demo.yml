@@ -4,11 +4,13 @@ on:
   workflow_dispatch:
   pull_request:
     paths:
+      - '.github/workflows/demo.yml'
       - 'demo/**'
   push:
     branches:
       - main
     paths:
+      - '.github/workflows/demo.yml'
       - 'demo/**'
 
 jobs:
