@@ -1,38 +1,42 @@
 { lib, ... }:
-lib.types.submodule {
-  freeformType = lib.types.anything;
+let
+  inherit (lib) mkOption;
+  inherit (lib.types) anything listOf nonEmptyListOf nullOr submodule str;
+in
+submodule {
+  freeformType = anything;
 
   options = {
-    user = lib.mkOption {
+    user = mkOption {
       description = "Unix user doing the backups.";
-      type = lib.types.str;
+      type = str;
     };
 
-    sourceDirectories = lib.mkOption {
+    sourceDirectories = mkOption {
       description = "Directories to backup.";
-      type = lib.types.nonEmptyListOf lib.types.str;
+      type = nonEmptyListOf str;
     };
 
-    excludePatterns = lib.mkOption {
+    excludePatterns = mkOption {
       description = "Patterns to exclude.";
-      type = lib.types.listOf lib.types.str;
+      type = listOf str;
       default = [];
     };
 
-    hooks = lib.mkOption {
+    hooks = mkOption {
       description = "Hooks to run around the backup.";
       default = {};
-      type = lib.types.submodule {
+      type = submodule {
         options = {
-          before_backup = lib.mkOption {
+          before_backup = mkOption {
             description = "Hooks to run before backup";
-            type = lib.types.listOf lib.types.str;
+            type = listOf str;
             default = [];
           };
 
-          after_backup = lib.mkOption {
+          after_backup = mkOption {
             description = "Hooks to run after backup";
-            type = lib.types.listOf lib.types.str;
+            type = listOf str;
             default = [];
           };
         };
