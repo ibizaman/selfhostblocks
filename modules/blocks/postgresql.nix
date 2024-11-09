@@ -51,7 +51,7 @@ in
     };
 
     backup = lib.mkOption {
-      type = contracts.backup;
+      type = contracts.databasebackup.request;
       description = ''
         Backup configuration. This is an output option.
 
@@ -63,32 +63,22 @@ in
           enable = true;
 
           # Options specific to Restic.
-        } // config.shb.nextcloud.backup;
+        } // config.shb.postgresl.backup;
         ```
       '';
       readOnly = true;
       default = {
-        user = "postgresql";
-        sourceDirectories = [
-          /tmp/postgresql_backup
-        ];
-        excludePatterns = [ ];
+        user = "postgres";
 
-        hooks.before_backup = [''
-          set -e -o pipefail
+        backupFile = "postgres.sql";
 
-          umask 077 # Ensure backup is only readable by postgres user
+        backupCmd = ''
+            ${pkgs.postgresql}/bin/pg_dumpall | ${pkgs.gzip}/bin/gzip --rsyncable
+          '';
 
-          rm -rf /tmp/postgresql_backup # Clean up in case after_backup hook wasn't run.
-          mkdir /tmp/postgresql_backup
-
-          ${pkgs.psql}/bin/pg_dumpall | ${pkgs.gzip}/bin/gzip --rsyncable > /tmp/postgresql_backup/pg_dumpall.sql.gz
-        ''];
-
-        hooks.after_backup = [''
-          set -e -o pipefail
-          rm -rf /tmp/postgresql_backup
-        ''];
+        restoreCmd = ''
+            ${pkgs.gzip}/bin/gunzip | ${pkgs.postgresql}/bin/psql postgres
+          '';
       };
     };
 
