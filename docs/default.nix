@@ -135,7 +135,10 @@ in stdenv.mkDerivation {
     substituteInPlace ./modules/blocks/restic/docs/default.md \
       --replace \
         '@OPTIONS_JSON@' \
-        ${individualModuleOptionsDocs [ ../modules/blocks/restic.nix ]}/share/doc/nixos/options.json
+        ${individualModuleOptionsDocs [
+          ../modules/blocks/restic.nix
+          ../modules/blocks/restic/dummyModule.nix
+        ]}/share/doc/nixos/options.json
 
     substituteInPlace ./modules/services/nextcloud-server/docs/default.md \
       --replace \

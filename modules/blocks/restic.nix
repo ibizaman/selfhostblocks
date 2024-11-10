@@ -100,7 +100,7 @@ in
     instances = mkOption {
       description = "Each instance is backing up some directories to one repository.";
       default = {};
-      type = attrsOf (submodule ({ name, config, ... }: {
+      type = attrsOf (submodule ({ name, options, ... }: {
         options = {
           request = mkOption {
             type = contracts.backup.request;
@@ -113,8 +113,8 @@ in
           result = mkOption {
             type = contracts.databasebackup.result;
             default = {
-              restoreScript = fullName name config.settings.repository;
-              backupService = "${fullName name config.settings.repository}.service";
+              restoreScript = fullName name options.settings.value.repository;
+              backupService = "${fullName name options.settings.value.repository}.service";
             };
           };
         };
@@ -124,7 +124,7 @@ in
     databases = mkOption {
       description = "Each item is backing up some database to one repository.";
       default = {};
-      type = attrsOf (submodule ({ name, config, ... }: {
+      type = attrsOf (submodule ({ name, options, ... }: {
         options = {
           request = mkOption {
             type = contracts.databasebackup.request;
@@ -137,8 +137,8 @@ in
           result = mkOption {
             type = contracts.databasebackup.result;
             default = {
-              restoreScript = fullName name config.settings.repository;
-              backupService = "${fullName name config.settings.repository}.service";
+              restoreScript = fullName name options.settings.value.repository;
+              backupService = "${fullName name (lib.debug.traceValSeqN 2 (lib.debug.traceValSeqN 2 (lib.debug.traceValSeqN 2 options).settings).value).repository}.service";
             };
           };
         };
