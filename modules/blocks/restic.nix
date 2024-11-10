@@ -333,9 +333,17 @@ in
         environment.systemPackages = let
           mkResticBinary = name: instance:
             pkgs.writeShellScriptBin (fullName name instance.settings.repository) ''
+              set -euo pipefail
+
               export $(grep -v '^#' "/run/secrets_restic_env/${fullName name instance.settings.repository}" \
                        | xargs -d '\n')
-              ${pkgs.restic}/bin/restic $@
+
+              if ! [ "$1" = "restore" ]; then
+                sudo --preserve-env -u ${instance.request.user} ${pkgs.restic}/bin/restic $@
+              else
+                shift
+                sudo --preserve-env -u ${instance.request.user} sh -c "${pkgs.restic}/bin/restic restore $@ --target /"
+              fi
               '';
         in
           flatten (mapAttrsToList mkResticBinary cfg.instances);
@@ -346,15 +354,11 @@ in
             pkgs.writeShellScriptBin (fullName name instance.settings.repository) ''
               set -euo pipefail
 
-              ls /run/secrets_restic_env/${fullName name instance.settings.repository}
-
               export $(grep -v '^#' "/run/secrets_restic_env/${fullName name instance.settings.repository}" \
                        | xargs -d '\n')
 
-              set -x
-
               if ! [ "$1" = "restore" ]; then
-                sudo -u ${instance.request.user} ${pkgs.restic}/bin/restic $@
+                sudo --preserve-env -u ${instance.request.user} ${pkgs.restic}/bin/restic $@
               else
                 shift
                 sudo --preserve-env -u ${instance.request.user} sh -c "${pkgs.restic}/bin/restic dump $@ ${instance.request.backupFile} | ${instance.request.restoreCmd}"

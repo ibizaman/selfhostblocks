@@ -8,5 +8,6 @@
   test = {
     secret = import ./secret/test.nix { inherit pkgs lib; };
     databasebackup = import ./databasebackup/test.nix { inherit pkgs lib; };
+    backup = import ./backup/test.nix { inherit pkgs lib; };
   };
 }

@@ -6,6 +6,7 @@ in
 {
   request = submodule {
     freeformType = anything;
+
     options = {
       user = mkOption {
         description = "Unix user doing the backups.";
