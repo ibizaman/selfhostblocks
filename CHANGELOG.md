@@ -1,5 +1,10 @@
 # Upcoming Release
 
+## New Features
+
+- Backup:
+  - Add feature to backup databases with the database backup contract, implemented with `shb.restic.databases`.
+
 ## Breaking Changes
 
 - Remove dependency on `sops-nix`.
@@ -33,6 +38,8 @@
   - `shb.forgejo.sso.secretFileForAuthelia` -> `shb.forgejo.ldap.sharedSecretForAuthelia.result.path`.
   - `shb.forgejo.adminPasswordFile` -> `shb.forgejo.adminPassword.result.path`.
   - `shb.forgejo.databasePasswordFile` -> `shb.forgejo.databasePassword.result.path`.
+- Backup:
+  - `shb.restic.instances` options has been split between `shb.restic.instances.request` and `shb.restic.instances.settings`, matching better with contracts.
 
 
 ## User Facing Backwards Compatible Changes
