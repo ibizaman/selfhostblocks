@@ -7,5 +7,6 @@
   ssl = import ./ssl.nix { inherit lib; };
   test = {
     secret = import ./secret/test.nix { inherit pkgs lib; };
+    databasebackup = import ./databasebackup/test.nix { inherit pkgs lib; };
   };
 }

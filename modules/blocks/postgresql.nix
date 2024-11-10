@@ -73,12 +73,12 @@ in
         backupFile = "postgres.sql";
 
         backupCmd = ''
-            ${pkgs.postgresql}/bin/pg_dumpall | ${pkgs.gzip}/bin/gzip --rsyncable
-          '';
+          ${pkgs.postgresql}/bin/pg_dumpall | ${pkgs.gzip}/bin/gzip --rsyncable
+        '';
 
         restoreCmd = ''
-            ${pkgs.gzip}/bin/gunzip | ${pkgs.postgresql}/bin/psql postgres
-          '';
+          ${pkgs.gzip}/bin/gunzip | ${pkgs.postgresql}/bin/psql postgres
+        '';
       };
     };
 

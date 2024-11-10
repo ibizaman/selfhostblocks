@@ -19,9 +19,9 @@ let
         type = path;
       };
 
-      repositories = mkOption {
+      repository = mkOption {
         description = "Repositories to back this instance to.";
-        type = nonEmptyListOf (submodule {
+        type = submodule {
           options = {
             path = mkOption {
               type = str;
@@ -60,7 +60,7 @@ let
               };
             };
           };
-        });
+        };
       };
 
       retention = mkOption {
@@ -98,9 +98,9 @@ in
 {
   options.shb.restic = {
     instances = mkOption {
-      description = "Each instance is backing up some directories to one or more repositories.";
+      description = "Each instance is backing up some directories to one repository.";
       default = {};
-      type = attrsOf (submodule {
+      type = attrsOf (submodule ({ name, config, ... }: {
         options = {
           request = mkOption {
             type = contracts.backup.request;
@@ -109,14 +109,22 @@ in
           settings = mkOption {
             type = commonOptions;
           };
+
+          result = mkOption {
+            type = contracts.databasebackup.result;
+            default = {
+              restoreScript = fullName name config.settings.repository;
+              backupService = "${fullName name config.settings.repository}.service";
+            };
+          };
         };
-      });
+      }));
     };
 
     databases = mkOption {
-      description = "Each item is backing up some database to one or more repositories.";
+      description = "Each item is backing up some database to one repository.";
       default = {};
-      type = attrsOf (submodule ({ options, ... }: {
+      type = attrsOf (submodule ({ name, config, ... }: {
         options = {
           request = mkOption {
             type = contracts.databasebackup.request;
@@ -129,8 +137,8 @@ in
           result = mkOption {
             type = contracts.databasebackup.result;
             default = {
-              restoreScript = fullName options.name options.repository;
-              backupService = "${fullName options.name options.repository}.service";
+              restoreScript = fullName name config.settings.repository;
+              backupService = "${fullName name config.settings.repository}.service";
             };
           };
         };
@@ -175,22 +183,20 @@ in
         # Create repository if it is a local path.
         systemd.tmpfiles.rules =
           let
-            mkRepositorySettings = name: instance: repository: optionals (hasPrefix "/" repository.path) [
-              "d '${repository.path}' 0750 ${instance.request.user} root - -"
+            mkSettings = name: instance: optionals (hasPrefix "/" instance.settings.repository.path) [
+              "d '${instance.settings.repository.path}' 0750 ${instance.request.user} root - -"
             ];
-
-            mkSettings = name: instance: builtins.map (mkRepositorySettings name instance) instance.settings.repositories;
           in
             flatten (mapAttrsToList mkSettings (cfg.instances // cfg.databases));
       }
       {
         services.restic.backups =
           let
-            mkRepositorySettings = name: instance: repository: {
-              "${name}_${repoSlugName repository.path}" = {
+            mkSettings = name: instance: {
+              "${name}_${repoSlugName instance.settings.repository.path}" = {
                 inherit (instance.request) user;
 
-                repository = repository.path;
+                repository = instance.settings.repository.path;
 
                 paths = instance.request.sourceDirectories;
 
@@ -198,7 +204,7 @@ in
 
                 initialize = true;
 
-                inherit (repository) timerConfig;
+                inherit (instance.settings.repository) timerConfig;
 
                 pruneOpts = mapAttrsToList (name: value:
                   "--${builtins.replaceStrings ["_"] ["-"] name} ${builtins.toString value}"
@@ -219,19 +225,17 @@ in
                 exclude = instance.request.excludePatterns;
               };
             };
-
-            mkSettings = name: instance: builtins.map (mkRepositorySettings name instance) instance.settings.repositories;
           in
             mkMerge (flatten (mapAttrsToList mkSettings enabledInstances));
       }
       {
         services.restic.backups =
           let
-            mkRepositorySettings = name: instance: repository: {
-              "${name}_${repoSlugName repository.path}" = {
+            mkSettings = name: instance: {
+              "${name}_${repoSlugName instance.settings.repository.path}" = {
                 inherit (instance.request) user;
 
-                repository = repository.path;
+                repository = instance.settings.repository.path;
 
                 dynamicFilesFrom = "echo";
 
@@ -239,7 +243,7 @@ in
 
                 initialize = true;
 
-                inherit (repository) timerConfig;
+                inherit (instance.settings.repository) timerConfig;
 
                 pruneOpts = mapAttrsToList (name: value:
                   "--${builtins.replaceStrings ["_"] ["-"] name} ${builtins.toString value}"
@@ -261,17 +265,15 @@ in
                     ]);
               };
             };
-
-            mkSettings = name: instance: builtins.map (mkRepositorySettings name instance) instance.settings.repositories;
           in
             mkMerge (flatten (mapAttrsToList mkSettings enabledDatabases));
       }
       {
         systemd.services =
           let
-            mkRepositorySettings = name: instance: repository:
+            mkSettings = name: instance:
               let
-                serviceName = fullName name repository;
+                serviceName = fullName name instance.settings.repository;
               in
                 {
                   ${serviceName} = mkMerge [
@@ -283,7 +285,7 @@ in
                         # BindReadOnlyPaths = instance.sourceDirectories;
                       };
                     }
-                    (optionalAttrs (repository.secrets != {})
+                    (optionalAttrs (instance.settings.repository.secrets != {})
                       {
                         serviceConfig.EnvironmentFile = [
                           "/run/secrets_restic/${serviceName}"
@@ -293,10 +295,10 @@ in
                       })
                   ];
 
-                  "${serviceName}-pre" = mkIf (repository.secrets != {})
+                  "${serviceName}-pre" = mkIf (instance.settings.repository.secrets != {})
                     (let
                       script = shblib.genConfigOutOfBandSystemd {
-                        config = repository.secrets;
+                        config = instance.settings.repository.secrets;
                         configLocation = "/run/secrets_restic/${serviceName}";
                         generator = name: v: pkgs.writeText "template" (generators.toINIWithGlobalSection {} { globalSection = v; });
                         user = instance.request.user;
@@ -308,48 +310,45 @@ in
                         serviceConfig.LoadCredential = script.loadCredentials;
                       });
             };
-            mkSettings = name: instance: builtins.map (mkRepositorySettings name instance) instance.settings.repositories;
           in
             mkMerge (flatten (mapAttrsToList mkSettings (enabledInstances // enabledDatabases)));
       }
       {
         system.activationScripts = let
-          mkEnv = name: instance: repository:
-            nameValuePair "${fullName name repository}_gen"
+          mkEnv = name: instance:
+            nameValuePair "${fullName name instance.settings.repository}_gen"
               (shblib.replaceSecrets {
-                userConfig = repository.secrets // {
+                userConfig = instance.settings.repository.secrets // {
                   RESTIC_PASSWORD_FILE = instance.settings.passphraseFile;
-                  RESTIC_REPOSITORY = repository.path;
+                  RESTIC_REPOSITORY = instance.settings.repository.path;
                 };
-                resultPath = "/run/secrets_restic_env/${fullName name repository}";
-                generator = name: v: pkgs.writeText (fullName name repository) (generators.toINIWithGlobalSection {} { globalSection = v; });
+                resultPath = "/run/secrets_restic_env/${fullName name instance.settings.repository}";
+                generator = name: v: pkgs.writeText (fullName name instance.settings.repository) (generators.toINIWithGlobalSection {} { globalSection = v; });
                 user = instance.request.user;
               });
-          mkSettings = name: instance: builtins.map (mkEnv name instance) instance.settings.repositories;
         in
-          listToAttrs (flatten (mapAttrsToList mkSettings (cfg.instances // cfg.databases)));
+          listToAttrs (flatten (mapAttrsToList mkEnv (cfg.instances // cfg.databases)));
       }
       {
         environment.systemPackages = let
-          mkResticBinary = name: instance: repository:
-            pkgs.writeShellScriptBin (fullName name repository) ''
-              export $(grep -v '^#' "/run/secrets_restic_env/${fullName name repository}" \
+          mkResticBinary = name: instance:
+            pkgs.writeShellScriptBin (fullName name instance.settings.repository) ''
+              export $(grep -v '^#' "/run/secrets_restic_env/${fullName name instance.settings.repository}" \
                        | xargs -d '\n')
               ${pkgs.restic}/bin/restic $@
               '';
-          mkSettings = name: instance: builtins.map (mkResticBinary name instance) instance.settings.repositories;
         in
-          flatten (mapAttrsToList mkSettings cfg.instances);
+          flatten (mapAttrsToList mkResticBinary cfg.instances);
       }
       {
         environment.systemPackages = let
-          mkResticBinary = name: instance: repository:
-            pkgs.writeShellScriptBin (fullName name repository) ''
+          mkResticBinary = name: instance:
+            pkgs.writeShellScriptBin (fullName name instance.settings.repository) ''
               set -euo pipefail
 
-              ls /run/secrets_restic_env/${fullName name repository}
+              ls /run/secrets_restic_env/${fullName name instance.settings.repository}
 
-              export $(grep -v '^#' "/run/secrets_restic_env/${fullName name repository}" \
+              export $(grep -v '^#' "/run/secrets_restic_env/${fullName name instance.settings.repository}" \
                        | xargs -d '\n')
 
               set -x
@@ -361,9 +360,8 @@ in
                 sudo --preserve-env -u ${instance.request.user} sh -c "${pkgs.restic}/bin/restic dump $@ ${instance.request.backupFile} | ${instance.request.restoreCmd}"
               fi
               '';
-          mkSettings = name: instance: builtins.map (mkResticBinary name instance) instance.settings.repositories;
         in
-          flatten (mapAttrsToList mkSettings cfg.databases);
+          flatten (mapAttrsToList mkResticBinary cfg.databases);
       }
     ]);
 }
