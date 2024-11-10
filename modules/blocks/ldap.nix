@@ -95,7 +95,7 @@ in
     };
 
     backup = lib.mkOption {
-      type = contracts.backup;
+      type = contracts.backup.request;
       description = ''
         Backup configuration. This is an output option.
 
@@ -104,10 +104,11 @@ in
 
         ```
         shb.restic.instances."lldap" = {
-          enable = true;
-
-          # Options specific to Restic.
-        } // config.shb.lldap.backup;
+          request = config.shb.lldap.backup;
+          settings = {
+            enable = true;
+          };
+        };
         ```
       '';
       readOnly = true;

@@ -22,30 +22,34 @@ We assume that the folder is used by the `myservice` service and is owned by a u
 
 ```nix
 shb.restic.instances.myservice = {
-  enable = true;
+  request = {
+    user = "myservice";
 
-  user = "myservice";
+    sourceDirectories = [
+      "/var/lib/myfolder"
+    ];
+  };
 
-  passphraseFile = "<path/to/passphrase>";
+  settings = {
+    enable = true;
 
-  repositories = [{
-    path = "/srv/backups/myservice";
-    timerConfig = {
-      OnCalendar = "00:00:00";
-      RandomizedDelaySec = "3h";
+    passphraseFile = "<path/to/passphrase>";
+
+    repository = {
+      path = "/srv/backups/myservice";
+      timerConfig = {
+        OnCalendar = "00:00:00";
+        RandomizedDelaySec = "3h";
+      };
     };
-  }];
 
-  sourceDirectories = [
-    "/var/lib/myfolder"
-  ];
-
-  retention = {
-    keep_within = "1d";
-    keep_hourly = 24;
-    keep_daily = 7;
-    keep_weekly = 4;
-    keep_monthly = 6;
+    retention = {
+      keep_within = "1d";
+      keep_hourly = 24;
+      keep_daily = 7;
+      keep_weekly = 4;
+      keep_monthly = 6;
+    };
   };
 };
 ```
@@ -59,7 +63,7 @@ This assumes you have access to such a remote S3 store, for example by using [Ba
 ```diff
   shb.backup.instances.myservice = {
 
-    repositories = [{
+    repository = {
 -     path = "/srv/pool1/backups/myfolder";
 +     path = "s3:s3.us-west-000.backblazeb2.com/backups/myfolder";
       timerConfig = {
@@ -71,7 +75,7 @@ This assumes you have access to such a remote S3 store, for example by using [Ba
 +       AWS_ACCESS_KEY_ID.source="<path/to/access_key_id>";
 +       AWS_SECRET_ACCESS_KEY.source="<path/to/secret_access_key>";
 +     };
-    }];
+    };
   }
 ```
 
@@ -84,15 +88,13 @@ The code to backup to Backblaze with secrets stored in Sops would look like so:
 
 ```nix
 shb.restic.instances.myfolder.passphraseFile = config.sops.secrets."myservice/backup/passphrase".path;
-shb.restic.instances.myfolder.repositories = [
-  {
-    path = "s3:s3.us-west-000.backblazeb2.com/<mybucket>";
-    secrets = {
-      AWS_ACCESS_KEY_ID.source = config.sops.secrets."backup/b2/access_key_id".path;
-      AWS_SECRET_ACCESS_KEY.source = config.sops.secrets."backup/b2/secret_access_key".path;
-    };
-  }
-];
+shb.restic.instances.myfolder.repository = {
+  path = "s3:s3.us-west-000.backblazeb2.com/<mybucket>";
+  secrets = {
+    AWS_ACCESS_KEY_ID.source = config.sops.secrets."backup/b2/access_key_id".path;
+    AWS_SECRET_ACCESS_KEY.source = config.sops.secrets."backup/b2/secret_access_key".path;
+  };
+};
 
 sops.secrets."myservice/backup/passphrase" = {
   sopsFile = ./secrets.yaml;
@@ -231,7 +233,7 @@ Discovering those is easy thanks to tab-completion.
 One can then restore a backup with:
 
 ```bash
-restic-myfolder1_srv_pool1_backups restore latest -t /
+restic-myfolder1_srv_pool1_backups restore latest
 ```
 
 ### Troubleshooting {#blocks-restic-maintenance-troubleshooting}

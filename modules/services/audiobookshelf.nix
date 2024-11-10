@@ -83,7 +83,7 @@ in
     };
 
     backup = lib.mkOption {
-      type = contracts.backup;
+      type = contracts.backup.request;
       description = ''
         Backup configuration. This is an output option.
 
@@ -92,10 +92,11 @@ in
 
         ```
         shb.restic.instances."audiobookshelf" = {
-          enable = true;
-
-          # Options specific to Restic.
-        } // config.shb.audiobookshelf.backup;
+          request = config.shb.audiobookshelf.backup;
+          settings = {
+            enable = true;
+          };
+        };
         ```
       '';
       readOnly = true;

@@ -6,8 +6,6 @@ at a regular schedule.
 
 It is a contract between a service that has files to be backed up
 and a service that backs up files.
-All options in this contract should be set by the former.
-The latter will then use the values of those options to know what to backup.
 
 ## Contract Reference {#backup-contract-options}
 
@@ -33,7 +31,7 @@ Here is an example module defining such a `backup` option:
 {
   options = {
     myservice.backup = lib.mkOption {
-      type = contracts.backup;
+      type = contracts.backup.request;
       readOnly = true;
       default = {
         user = "myservice";

@@ -93,18 +93,19 @@ let
     imports = [
       ../../modules/blocks/restic.nix
     ];
-    shb.restic.instances."testinstance" = config.shb.vaultwarden.backup // {
-      enable = true;
-      passphraseFile = toString (pkgs.writeText "passphrase" "PassPhrase");
-      repositories = [
-        {
+    shb.restic.instances."testinstance" = {
+      request = config.shb.vaultwarden.backup;
+      settings = {
+        enable = true;
+        passphraseFile = toString (pkgs.writeText "passphrase" "PassPhrase");
+        repository = {
           path = "/opt/repos/A";
           timerConfig = {
             OnCalendar = "00:00:00";
             RandomizedDelaySec = "5h";
           };
-        }
-      ];
+        };
+      };
     };
   };
 in

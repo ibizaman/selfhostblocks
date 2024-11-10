@@ -213,8 +213,11 @@ twice with a future secrets SHB block.
 Backing up Forgejo using the [Restic block](blocks-restic.html) is done like so:
 
 ```nix
-shb.restic.instances."forgejo" = config.shb.forgejo.backup // {
-  enable = true;
+shb.restic.instances."forgejo" = {
+  request = config.shb.forgejo.backup;
+  settings = {
+    enable = true;
+  };
 };
 ```
 

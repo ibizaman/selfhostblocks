@@ -316,7 +316,7 @@ let
         };
 
         backup = lib.mkOption {
-          type = contracts.backup;
+          type = contracts.backup.request;
           description = ''
             Backup configuration. This is an output option.
 
@@ -325,10 +325,11 @@ let
 
             ```
             shb.restic.instances."${name}" = {
-              enable = true;
-
-              # Options specific to Restic.
-            } // config.shb.${name}.backup;
+              request = config.shb.${name}.backup;
+              settings = {
+                enable = true;
+              };
+            }
             ```
           '';
           readOnly = true;

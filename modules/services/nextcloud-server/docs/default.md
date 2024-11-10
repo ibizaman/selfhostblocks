@@ -281,8 +281,11 @@ shb.nextcloud.postgresSettings = {
 Backing up Nextcloud using the [Restic block](blocks-restic.html) is done like so:
 
 ```nix
-shb.restic.instances."nextcloud" = config.shb.nextcloud.backup // {
-  enable = true;
+shb.restic.instances."nextcloud" = {
+  request = config.shb.nextcloud.backup;
+  settings = {
+    enable = true;
+  };
 };
 ```
 

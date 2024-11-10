@@ -97,8 +97,11 @@ shb.zfs.datasets."postgresql".path = "/var/lib/postgresql";
 Backing up Vaultwarden using the [Restic block](blocks-restic.html) is done like so:
 
 ```nix
-shb.restic.instances."vaultwarden" = config.shb.vaultwarden.backup // {
-  enable = true;
+shb.restic.instances."vaultwarden" = {
+  request = config.shb.vaultwarden.backup;
+  settings = {
+    enable = true;
+  };
 };
 ```
 

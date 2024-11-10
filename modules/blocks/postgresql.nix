@@ -60,10 +60,11 @@ in
 
         ```
         shb.restic.instances."postgresql" = {
-          enable = true;
-
-          # Options specific to Restic.
-        } // config.shb.postgresl.backup;
+          request = config.shb.postgresl.backup;
+          settings = {
+            enable = true;
+          };
+        };
         ```
       '';
       readOnly = true;

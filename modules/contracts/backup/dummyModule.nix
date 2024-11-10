@@ -5,6 +5,6 @@ in
 {
   options.shb.contracts.backup = lib.mkOption {
     description = "Contract for backups.";
-    type = contracts.backup;
+    type = contracts.backup.request;
   };
 }
