@@ -10,84 +10,87 @@ let
   inherit (lib) generators hasPrefix mkIf nameValuePair optionalAttrs removePrefix;
   inherit (lib.types) attrsOf enum int ints listOf oneOf nonEmptyListOf nonEmptyStr nullOr path str submodule;
 
-  commonOptions = submodule {
-    options = {
-      enable = mkEnableOption "shb restic. A disabled instance will not backup data anymore but still provides the helper tool to introspect and rollback snapshots";
+  commonOptions = {
+    enable = mkEnableOption ''
+      this backup intance.
 
-      passphraseFile = mkOption {
-        description = "Encryption key for the backups.";
-        type = path;
-      };
+      A disabled instance will not backup data anymore
+      but still provides the helper tool to restore snapshots
+    '';
 
-      repository = mkOption {
-        description = "Repositories to back this instance to.";
-        type = submodule {
-          options = {
-            path = mkOption {
-              type = str;
-              description = "Repository location";
+    passphraseFile = mkOption {
+      description = "Encryption key for the backups.";
+      type = path;
+    };
+
+    repository = mkOption {
+      description = "Repositories to back this instance to.";
+      type = submodule {
+        options = {
+          path = mkOption {
+            type = str;
+            description = "Repository location";
+          };
+
+          secrets = mkOption {
+            type = attrsOf shblib.secretFileType;
+            default = {};
+            description = ''
+              Secrets needed to access the repository where the backups will be stored.
+
+              See [s3 config](https://restic.readthedocs.io/en/latest/030_preparing_a_new_repo.html#amazon-s3) for an example
+              and [list](https://restic.readthedocs.io/en/latest/040_backup.html#environment-variables) for the list of all secrets.
+
+            '';
+            example = literalExpression ''
+              {
+                AWS_ACCESS_KEY_ID.source = <path/to/secret>;
+                AWS_SECRET_ACCESS_KEY.source = <path/to/secret>;
+              }
+            '';
+          };
+
+          timerConfig = mkOption {
+            type = attrsOf utils.systemdUtils.unitOptions.unitOption;
+            default = {
+              OnCalendar = "daily";
+              Persistent = true;
             };
-
-            secrets = mkOption {
-              type = attrsOf shblib.secretFileType;
-              default = {};
-              description = ''
-                Secrets needed to access the repository where the backups will be stored.
-
-                See [s3 config](https://restic.readthedocs.io/en/latest/030_preparing_a_new_repo.html#amazon-s3) for an example
-                and [list](https://restic.readthedocs.io/en/latest/040_backup.html#environment-variables) for the list of all secrets.
-
-              '';
-              example = literalExpression ''
-                {
-                  AWS_ACCESS_KEY_ID = <path/to/secret>;
-                  AWS_SECRET_ACCESS_KEY = <path/to/secret>;
-                }
-              '';
-            };
-
-            timerConfig = mkOption {
-              type = attrsOf utils.systemdUtils.unitOptions.unitOption;
-              default = {
-                OnCalendar = "daily";
-                Persistent = true;
-              };
-              description = ''When to run the backup. See {manpage}`systemd.timer(5)` for details.'';
-              example = {
-                OnCalendar = "00:05";
-                RandomizedDelaySec = "5h";
-                Persistent = true;
-              };
+            description = ''When to run the backup. See {manpage}`systemd.timer(5)` for details.'';
+            example = {
+              OnCalendar = "00:05";
+              RandomizedDelaySec = "5h";
+              Persistent = true;
             };
           };
         };
       };
+    };
 
-      retention = mkOption {
-        description = "For how long to keep backup files.";
-        type = attrsOf (oneOf [ int nonEmptyStr ]);
-        default = {
-          keep_within = "1d";
-          keep_hourly = 24;
-          keep_daily = 7;
-          keep_weekly = 4;
-          keep_monthly = 6;
-        };
+    retention = mkOption {
+      description = "For how long to keep backup files.";
+      type = attrsOf (oneOf [ int nonEmptyStr ]);
+      default = {
+        keep_within = "1d";
+        keep_hourly = 24;
+        keep_daily = 7;
+        keep_weekly = 4;
+        keep_monthly = 6;
       };
+    };
 
-      limitUploadKiBs = mkOption {
-        type = nullOr int;
-        description = "Limit upload bandwidth to the given KiB/s amount.";
-        default = null;
-        example = 8000;
-      };
+    limitUploadKiBs = mkOption {
+      type = nullOr int;
+      description = "Limit upload bandwidth to the given KiB/s amount.";
+      default = null;
+      example = 8000;
+    };
 
-      limitDownloadKiBs = mkOption {
-        type = nullOr int;
-        description = "Limit download bandwidth to the given KiB/s amount.";
-        default = null;
-        example = 8000;
-      };
+    limitDownloadKiBs = mkOption {
+      type = nullOr int;
+      description = "Limit download bandwidth to the given KiB/s amount.";
+      default = null;
+      example = 8000;
     };
   };
 
@@ -103,43 +106,89 @@ in
       type = attrsOf (submodule ({ name, options, ... }: {
         options = {
           request = mkOption {
+            description = ''
+              Request part of the backup contract.
+
+              Accepts values from a requester.
+            '';
+
             type = contracts.backup.request;
           };
 
           settings = mkOption {
-            type = commonOptions;
+            description = ''
+              Settings specific to the Restic provider.
+            '';
+
+            type = submodule {
+              options = commonOptions;
+            };
           };
 
           result = mkOption {
-            type = contracts.databasebackup.result;
+            description = ''
+              Result part of the backup contract.
+
+              Contains the output of the Restic provider.
+            '';
+            type = lib.types.anything; # contracts.databasebackup.result;
             default = {
               restoreScript = fullName name options.settings.value.repository;
               backupService = "${fullName name options.settings.value.repository}.service";
             };
+            defaultText = literalExpression ''
+            {
+              restoreScript = "${fullName "<name>" { path = "path/to/repository"; }}";
+              backupService = "${fullName "<name>" { path = "path/to/repository"; }}.service";
+            }
+            '';
           };
         };
       }));
     };
 
     databases = mkOption {
-      description = "Each item is backing up some database to one repository.";
+      description = "Databases to backup following the database backup contract.";
       default = {};
       type = attrsOf (submodule ({ name, options, ... }: {
         options = {
           request = mkOption {
-            type = contracts.databasebackup.request;
+            description = ''
+              Request part of the backup contract.
+
+              Accepts values from a requester.
+            '';
+
+            type = contracts.databasebackup.requestType;
           };
 
           settings = mkOption {
-            type = commonOptions;
+            description = ''
+              Settings specific to the Restic provider.
+            '';
+
+            type = submodule {
+              options = commonOptions;
+            };
           };
 
           result = mkOption {
-            type = contracts.databasebackup.result;
+            description = ''
+              Result part of the backup contract.
+
+              Contains the output of the Restic provider.
+            '';
+            type = contracts.databasebackup.resultType;
             default = {
               restoreScript = fullName name options.settings.value.repository;
-              backupService = "${fullName name (lib.debug.traceValSeqN 2 (lib.debug.traceValSeqN 2 (lib.debug.traceValSeqN 2 options).settings).value).repository}.service";
+              backupService = "${fullName name options.settings.value.repository}.service";
             };
+            defaultText = literalExpression ''
+            {
+              restoreScript = "${fullName "<name>" { path = "path/to/repository"; }}";
+              backupService = "${fullName "<name>" { path = "path/to/repository"; }}.service";
+            }
+            '';
           };
         };
       }));

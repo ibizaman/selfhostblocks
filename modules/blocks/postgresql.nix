@@ -50,8 +50,7 @@ in
       default = false;
     };
 
-    backup = lib.mkOption {
-      type = contracts.databasebackup.request;
+    databasebackup = lib.mkOption {
       description = ''
         Backup configuration. This is an output option.
 
@@ -67,7 +66,9 @@ in
         };
         ```
       '';
-      readOnly = true;
+
+      type = contracts.databasebackup.requestType;
+
       default = {
         user = "postgres";
 

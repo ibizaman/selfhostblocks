@@ -6,15 +6,17 @@ This block sets up a backup job using [Restic][restic].
 
 [restic]: https://restic.net/
 
-## Contract {#blocks-restic-features}
+## Tests {#blocks-restic-tests}
 
-This block implements the [backup](contracts-backup.html) contract.
+Specific integration tests are defined in [`/test/blocks/restic.nix`](@REPO@/test/blocks/restic.nix).
 
-Integration tests are defined in [`/test/blocks/restic.nix`](@REPO@/test/blocks/restic.nix).
+## Provider Contracts {#blocks-restic-contract-provider}
 
-## Usage {#blocks-backup-usage}
+This block implements the [backup](contracts-backup.html) and [database backup](contracts-databasebackup.html) contracts.
 
-### One folder backed up to mounted hard drives {#blocks-backup-usage-one}
+Contract integration tests are defined in [`/test/contracts/backup.nix`](@REPO@/test/contracts/backup.nix).
+
+### One folder backed up to mounted hard drives {#blocks-restic-contract-provider-one}
 
 The following snippet shows how to configure
 the backup of 1 folder to 1 repository.
@@ -54,7 +56,7 @@ shb.restic.instances.myservice = {
 };
 ```
 
-### One folder backed up to S3 {#blocks-restic-usage-remote}
+### One folder backed up to S3 {#blocks-restic-contract-provider-remote}
 
 Here we will only highlight the differences with the previous configuration.
 
@@ -79,7 +81,7 @@ This assumes you have access to such a remote S3 store, for example by using [Ba
   }
 ```
 
-### Secrets {#blocks-restic-secrets}
+## Secrets {#blocks-restic-secrets}
 
 To be secure, the secrets should deployed out of band, otherwise they will be world-readable in the nix store.
 
@@ -119,7 +121,7 @@ sops.secrets."backup/b2/secret_access_key" = {
 Pay attention that the owner must be the `myservice` user, the one owning the files to be backed up.
 A `secrets` contract is in progress that will allow one to not care about such details.
 
-### Multiple directories to multiple destinations {#blocks-restic-usage-multiple}
+## Multiple directories to multiple destinations {#blocks-restic-usage-multiple}
 
 The following snippet shows how to configure backup of any number of folders to 3 repositories,
 each happening at different times to avoid I/O contention.
@@ -230,7 +232,7 @@ restic-myfolder2_s3_s3.us-west-000.backblazeb2.com_backups
 
 Discovering those is easy thanks to tab-completion.
 
-One can then restore a backup with:
+One can then restore a backup from a given repository with:
 
 ```bash
 restic-myfolder1_srv_pool1_backups restore latest
@@ -243,7 +245,7 @@ In case something bad happens with a backup, the [official documentation](https:
 ## Options Reference {#blocks-restic-options}
 
 ```{=include=} options
-id-prefix: blocks-backup-options-
-list-id: selfhostblocks-block-backup-options
+id-prefix: blocks-restic-options-
+list-id: selfhostblocks-block-restic-options
 source: @OPTIONS_JSON@
 ```

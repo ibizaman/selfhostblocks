@@ -132,13 +132,15 @@ in stdenv.mkDerivation {
         '@OPTIONS_JSON@' \
         ${individualModuleOptionsDocs [ ../modules/blocks/ssl.nix ]}/share/doc/nixos/options.json
 
+    substituteInPlace ./modules/blocks/postgresql/docs/default.md \
+      --replace \
+        '@OPTIONS_JSON@' \
+        ${individualModuleOptionsDocs [ ../modules/blocks/postgresql.nix ]}/share/doc/nixos/options.json
+
     substituteInPlace ./modules/blocks/restic/docs/default.md \
       --replace \
         '@OPTIONS_JSON@' \
-        ${individualModuleOptionsDocs [
-          ../modules/blocks/restic.nix
-          ../modules/blocks/restic/dummyModule.nix
-        ]}/share/doc/nixos/options.json
+        ${individualModuleOptionsDocs [ ../modules/blocks/restic.nix ]}/share/doc/nixos/options.json
 
     substituteInPlace ./modules/services/nextcloud-server/docs/default.md \
       --replace \
@@ -162,6 +164,11 @@ in stdenv.mkDerivation {
       --replace \
         '@OPTIONS_JSON@' \
        ${individualModuleOptionsDocs [ ../modules/contracts/backup/dummyModule.nix ]}/share/doc/nixos/options.json
+
+    substituteInPlace ./modules/contracts/databasebackup/docs/default.md \
+      --replace \
+        '@OPTIONS_JSON@' \
+       ${individualModuleOptionsDocs [ ../modules/contracts/databasebackup/dummyModule.nix ]}/share/doc/nixos/options.json
 
     substituteInPlace ./modules/contracts/secret/docs/default.md \
       --replace \

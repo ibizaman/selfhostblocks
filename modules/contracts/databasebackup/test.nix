@@ -21,7 +21,7 @@ in
     imports = ( testLib.baseImports pkgs' ) ++ modules;
     config = lib.mkMerge [
       (setAttrByPath providerRoot {
-        request = (getAttrFromPath requesterRoot config).backup;
+        request = (getAttrFromPath requesterRoot config).databasebackup;
         settings = settings "/opt/repos/database";
       })
       (mkIf (username != "root") {
