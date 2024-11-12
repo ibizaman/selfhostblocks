@@ -12,20 +12,58 @@ that is not like the other server management tools.
 ## TOC
 
 <!--toc:start-->
-- [Unified Interfaces](#unified-interfaces)
-- [Incremental Adoption](#incremental-adoption)
 - [Usage](#usage)
-- [More Benefits of SHB](#more-benefits-of-shb)
-- [Manual](#manual)
+- [Server Management](#server-management)
+  - [Unified Interfaces](#unified-interfaces)
+  - [Incremental Adoption](#incremental-adoption)
+  - [More Benefits of SHB](#more-benefits-of-shb)
 - [Roadmap](#roadmap)
-- [Available Blocks](#available-blocks)
-- [Provided Services](#provided-services)
 - [Demos](#demos)
 - [Community](#community)
 - [License](#license)
 <!--toc:end-->
 
-## Unified Interfaces
+## Usage
+
+> **Caution:** You should know that although I am using everything in this repo for my personal
+> production server, this is really just a one person effort for now and there are most certainly
+> bugs that I didn't discover yet.
+
+Self Host Blocks is available as a flake.
+To use it in your project, add the following flake input:
+
+```nix
+inputs.selfhostblocks.url = "github:ibizaman/selfhostblocks";
+```
+
+To get started using Self Host Blocks,
+follow [the usage section](https://shb.skarabox.com/usage.html) of the manual.
+It goes over how to deploy with [Colmena][], [nixos-rebuild][]
+and also goes over secrets management with [SOPS][].
+
+[Colmena]: https://colmena.cli.rs/
+[nixos-rebuild]: https://nixos.org/manual/nixos/stable/#sec-changing-config
+[SOPS]: https://github.com/Mic92/sops-nix
+
+Then, to actually configure services, you can choose which one interests you in
+[the services section](https://shb.skarabox.com/services.html) of the manual.
+
+Head over to the [matrix channel](https://matrix.to/#/#selfhostblocks:matrix.org)
+for any remaining question, or just to say hi :)
+
+## Server Management
+
+Self Host Blocks provides a standardized configuration for [some services](https://shb.skarabox.com/services.html) provided by nixpkgs.
+The goal is to help spread adoption of self-hosting by providing an opinionated configuration with best practices by default.
+
+Self Host Blocks takes care of common self-hosting needs:
+- Backup for all services.
+- LDAP and SSO integration for most services.
+- Monitoring with Grafana and Prometheus stack with provided dashboards.
+- Automatic reverse proxy and certificate management for HTTPS.
+- VPN and proxy tunneling services.
+
+### Unified Interfaces
 
 SHB's first goal is to provide unified [building blocks](#available-blocks)
 and by extension configuration interface, for self-hosting.
@@ -92,7 +130,7 @@ As you can see, they are pretty similar!
 SHB provides an ever growing list of [services](#provided-services)
 that are configured in the same way.
 
-## Incremental Adoption
+### Incremental Adoption
 
 SHB's second goal is to facilitate testing NixOS
 and slowly switching an existing installation to NixOS.
@@ -106,33 +144,7 @@ without requiring work from maintainers of the services you want to self host.
 
 [contracts]: https://shb.skarabox.com/contracts.html
 
-## Usage
-
-> **Caution:** You should know that although I am using everything in this repo for my personal
-> production server, this is really just a one person effort for now and there are most certainly
-> bugs that I didn't discover yet.
-
-Self Host Blocks is available as a flake.
-To use it in your project, add the following flake input:
-
-```nix
-inputs.selfhostblocks.url = "github:ibizaman/selfhostblocks";
-```
-
-More information is provided in [the manual](https://shb.skarabox.com/usage.html),
-like secrets management.
-
-- You are new to self hosting and want pre-configured services to deploy easily.
-  Look at the [services section](https://shb.skarabox.com/services.html).
-- You are a seasoned self-hoster but want to enhance some services you deploy already.
-  Go to the [blocks section](https://shb.skarabox.com/blocks.html).
-- You are a user of Self Host Blocks but would like to use your own implementation for a block.
-  Go to the [contracts section](https://shb.skarabox.com/contracts.html).
-
-Head over to the [matrix channel](https://matrix.to/#/#selfhostblocks:matrix.org)
-for any remaining question, or just to say hi :)
-
-## More Benefits of SHB
+### More Benefits of SHB
 
 By using Self Host Blocks, you get all the benefits of NixOS
 which are, for self hosted applications specifically:
@@ -163,51 +175,23 @@ from other server management projects:
   the `nixpkgs` input in the root `flakes.nix`, runs the tests and merges a PR with the new input if
   the tests pass.
 
-## Manual
-
-The manual can be found at [shb.skarabox.com](https://shb.skarabox.com/).
-
-Work is in progress to document everything in the manual but I'm not there yet. For what's not yet
-documented, unfortunately the source code is the best place to read about them.
-[Here](./modules/services) for services and [here](./modules/blocks) for blocks.
-
 ## Roadmap
 
-Currently, the Nextcloud service and SSL block are the most advanced and most documented.
+Currently, the Nextcloud, Vaultwarden services and the SSL and backup blocks are the most advanced and most documented.
 
 Documenting all services and blocks will be done as I make all blocks and services use the
 contracts.
 
 Upstreaming changes is also on the roadmap.
 
-Check [the issues](https://github.com/ibizaman/selfhostblocks/issues) to see planned works. Feel
-free to add more!
+Check the [issues][] and the [milestones]() to see planned work.
+Feel free to add more or to contribute!
 
-That being said, I am personally using all the blocks and services in this project, so they do work
-to some extent.
+[issues]: (https://github.com/ibizaman/selfhostblocks/issues)
+[milestones]: https://github.com/ibizaman/selfhostblocks/milestones
 
-## Available Blocks
-
-- [`authelia.nix`](./modules/blocks/authelia.nix) for Single Sign On.
-- [`backup.nix`](./modules/blocks/backup.nix).
-- [`ldap.nix`](./modules/blocks/ldap.nix) for user management.
-- [`monitoring.nix`](./modules/blocks/monitoring.nix) for dashboards, logs and alerts.
-- [`nginx.nix`](./modules/blocks/nginx.nix) for reverse proxy with SSL termination.
-- [`postgresql.nix`](./modules/blocks/postgresql.nix) for database setup.
-- [`ssl.nix`](./modules/blocks/ssl.nix) for maintaining self-signed SSL certificates or certificates provided by Let's Encrypt.
-- [`tinyproxy.nix`](./modules/blocks/tinyproxy.nix) to forward traffic to a VPN tunnel.
-- [`vpn.nix`](./modules/blocks/vpn.nix) to setup a VPN tunnel.
-
-## Provided Services
-
-- [`arr.nix`](./modules/services/arr.nix) for finding media https://wiki.servarr.com/.
-- [`deluge.nix`](./modules/services/deluge.nix) for downloading linux isos https://deluge-torrent.org/.
-- [`hledger.nix`](./modules/services/hledger.nix) for managing finances https://hledger.org/.
-- [`home-assistant.nix`](./modules/services/home-assistant.nix) for private IoT https://www.home-assistant.io/.
-- [`jellyfin.nix`](./modules/services/jellyfin.nix) for watching media https://jellyfin.org/.
-- [Nextcloud Server](https://shb.skarabox.com/services-nextcloud.html) for private documents, contacts, calendar, etc https://nextcloud.com.
-- [`vaultwarden.nix`](./modules/services/vaultwarden.nix) for passwords https://github.com/dani-garcia/vaultwarden.
-- [`audiobookshelf.nix`](./modules/services/audiobookshelf.nix) for hosting podcasts and audio books https://www.audiobookshelf.org/.
+All blocks and services have NixOS tests.
+Also, I am personally using all the blocks and services in this project, so they do work to some extent.
 
 ## Demos
 
@@ -228,6 +212,7 @@ when I'm satisfied with how things look, I'll upstream changes.
 
 ## License
 
-I'm following the [Nextcloud](https://github.com/nextcloud/server) license which is AGPLv3. See
-[this article](https://www.fsf.org/bulletin/2021/fall/the-fundamentals-of-the-agplv3) from the FSF that explains what this license adds to the GPL
-one.
+I'm following the [Nextcloud](https://github.com/nextcloud/server) license which is AGPLv3.
+See [this article][why agplv3] from the FSF that explains what this license adds to the GPL one.
+
+[why agplv3]: (https://www.fsf.org/bulletin/2021/fall/the-fundamentals-of-the-agplv3)
