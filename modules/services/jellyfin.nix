@@ -139,7 +139,7 @@ in
     };
 
     backup = lib.mkOption {
-      type = contracts.backup;
+      type = contracts.backup.request;
       description = ''
         Backup configuration. This is an output option.
 
@@ -148,10 +148,11 @@ in
 
         ```
         shb.restic.instances."jellyfin" = {
-          enable = true;
-
-          # Options specific to Restic.
-        } // config.shb.jellyfin.backup;
+          request = config.shb.jellyfin.backup;
+          settings = {
+            enable = true;
+          };
+        };
         ```
       '';
       readOnly = true;

@@ -1,6 +1,7 @@
 { config, lib, pkgs, ... }:
 let
   cfg = config.shb.postgresql;
+  contracts = pkgs.callPackage ../contracts {};
 
   upgrade-script = old: new:
     let
@@ -47,6 +48,40 @@ in
       type = lib.types.bool;
       description = "Enable TCP/IP connection on given port.";
       default = false;
+    };
+
+    databasebackup = lib.mkOption {
+      description = ''
+        Backup configuration. This is an output option.
+
+        Use it to initialize a block implementing the "backup" contract.
+        For example, with the restic block:
+
+        ```
+        shb.restic.instances."postgresql" = {
+          request = config.shb.postgresl.backup;
+          settings = {
+            enable = true;
+          };
+        };
+        ```
+      '';
+
+      type = contracts.databasebackup.requestType;
+
+      default = {
+        user = "postgres";
+
+        backupFile = "postgres.sql";
+
+        backupCmd = ''
+          ${pkgs.postgresql}/bin/pg_dumpall | ${pkgs.gzip}/bin/gzip --rsyncable
+        '';
+
+        restoreCmd = ''
+          ${pkgs.gzip}/bin/gunzip | ${pkgs.postgresql}/bin/psql postgres
+        '';
+      };
     };
 
     ensures = lib.mkOption {

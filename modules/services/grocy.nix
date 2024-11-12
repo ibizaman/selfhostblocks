@@ -63,7 +63,7 @@ in
     };
 
     backup = lib.mkOption {
-      type = contracts.backup;
+      type = contracts.backup.request;
       description = ''
         Backup configuration. This is an output option.
 
@@ -72,10 +72,11 @@ in
 
         ```
         shb.restic.instances."grocy" = {
-          enable = true;
-
-          # Options specific to Restic.
-        } // config.shb.grocy.backup;
+          request = config.shb.grocy.backup;
+          settings = {
+            enable = true;
+          };
+        };
         ```
       '';
       readOnly = true;

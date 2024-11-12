@@ -34,6 +34,10 @@ Not all blocks are yet documented. You can find all available blocks [in the rep
 modules/blocks/ssl/docs/default.md
 ```
 
+```{=include=} chapters html:into-file=//blocks-postgresql.html
+modules/blocks/postgresql/docs/default.md
+```
+
 ```{=include=} chapters html:into-file=//blocks-restic.html
 modules/blocks/restic/docs/default.md
 ```

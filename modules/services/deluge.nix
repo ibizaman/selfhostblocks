@@ -234,7 +234,7 @@ in
     };
 
     backup = lib.mkOption {
-      type = contracts.backup;
+      type = contracts.backup.request;
       description = ''
         Backup configuration. This is an output option.
 
@@ -243,10 +243,11 @@ in
 
         ```
         shb.restic.instances."vaultwarden" = {
-          enable = true;
-
-          # Options specific to Restic.
-        } // config.shb.vaultwarden.backup;
+          request = config.shb.vaultwarden.backup;
+          settings = {
+            enable = true;
+          };
+        };
         ```
       '';
       readOnly = true;

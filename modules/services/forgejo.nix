@@ -218,7 +218,7 @@ in
     };
 
     backup = lib.mkOption {
-      type = contracts.backup;
+      type = contracts.backup.request;
       description = ''
         Backup configuration. This is an output option.
 
@@ -227,10 +227,11 @@ in
 
         ```
         shb.restic.instances."forgejo" = {
-          enable = true;
-
-          # Options specific to Restic.
-        } // config.shb.forgejo.backup;
+          request = config.shb.forgejo.backup;
+          settings = {
+            enable = true;
+          };
+        };
         ```
       '';
       readOnly = true;

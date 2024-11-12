@@ -55,7 +55,7 @@ in
     };
 
     backup = lib.mkOption {
-      type = contracts.backup;
+      type = contracts.backup.request;
       description = ''
         Backup configuration. This is an output option.
 
@@ -64,10 +64,11 @@ in
 
         ```
         shb.restic.instances."hledger" = {
-          enable = true;
-
-          # Options specific to Restic.
-        } // config.shb.hledger.backup;
+          request = config.shb.hledger.backup;
+          settings = {
+            enable = true;
+          };
+        };
         ```
       '';
       readOnly = true;

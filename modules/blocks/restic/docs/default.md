@@ -6,15 +6,17 @@ This block sets up a backup job using [Restic][restic].
 
 [restic]: https://restic.net/
 
-## Contract {#blocks-restic-features}
+## Tests {#blocks-restic-tests}
 
-This block implements the [backup](contracts-backup.html) contract.
+Specific integration tests are defined in [`/test/blocks/restic.nix`](@REPO@/test/blocks/restic.nix).
 
-Integration tests are defined in [`/test/blocks/restic.nix`](@REPO@/test/blocks/restic.nix).
+## Provider Contracts {#blocks-restic-contract-provider}
 
-## Usage {#blocks-backup-usage}
+This block implements the [backup](contracts-backup.html) and [database backup](contracts-databasebackup.html) contracts.
 
-### One folder backed up to mounted hard drives {#blocks-backup-usage-one}
+Contract integration tests are defined in [`/test/contracts/backup.nix`](@REPO@/test/contracts/backup.nix).
+
+### One folder backed up to mounted hard drives {#blocks-restic-contract-provider-one}
 
 The following snippet shows how to configure
 the backup of 1 folder to 1 repository.
@@ -22,35 +24,39 @@ We assume that the folder is used by the `myservice` service and is owned by a u
 
 ```nix
 shb.restic.instances.myservice = {
-  enable = true;
+  request = {
+    user = "myservice";
 
-  user = "myservice";
+    sourceDirectories = [
+      "/var/lib/myfolder"
+    ];
+  };
 
-  passphraseFile = "<path/to/passphrase>";
+  settings = {
+    enable = true;
 
-  repositories = [{
-    path = "/srv/backups/myservice";
-    timerConfig = {
-      OnCalendar = "00:00:00";
-      RandomizedDelaySec = "3h";
+    passphraseFile = "<path/to/passphrase>";
+
+    repository = {
+      path = "/srv/backups/myservice";
+      timerConfig = {
+        OnCalendar = "00:00:00";
+        RandomizedDelaySec = "3h";
+      };
     };
-  }];
 
-  sourceDirectories = [
-    "/var/lib/myfolder"
-  ];
-
-  retention = {
-    keep_within = "1d";
-    keep_hourly = 24;
-    keep_daily = 7;
-    keep_weekly = 4;
-    keep_monthly = 6;
+    retention = {
+      keep_within = "1d";
+      keep_hourly = 24;
+      keep_daily = 7;
+      keep_weekly = 4;
+      keep_monthly = 6;
+    };
   };
 };
 ```
 
-### One folder backed up to S3 {#blocks-restic-usage-remote}
+### One folder backed up to S3 {#blocks-restic-contract-provider-remote}
 
 Here we will only highlight the differences with the previous configuration.
 
@@ -59,7 +65,7 @@ This assumes you have access to such a remote S3 store, for example by using [Ba
 ```diff
   shb.backup.instances.myservice = {
 
-    repositories = [{
+    repository = {
 -     path = "/srv/pool1/backups/myfolder";
 +     path = "s3:s3.us-west-000.backblazeb2.com/backups/myfolder";
       timerConfig = {
@@ -71,11 +77,11 @@ This assumes you have access to such a remote S3 store, for example by using [Ba
 +       AWS_ACCESS_KEY_ID.source="<path/to/access_key_id>";
 +       AWS_SECRET_ACCESS_KEY.source="<path/to/secret_access_key>";
 +     };
-    }];
+    };
   }
 ```
 
-### Secrets {#blocks-restic-secrets}
+## Secrets {#blocks-restic-secrets}
 
 To be secure, the secrets should deployed out of band, otherwise they will be world-readable in the nix store.
 
@@ -84,15 +90,13 @@ The code to backup to Backblaze with secrets stored in Sops would look like so:
 
 ```nix
 shb.restic.instances.myfolder.passphraseFile = config.sops.secrets."myservice/backup/passphrase".path;
-shb.restic.instances.myfolder.repositories = [
-  {
-    path = "s3:s3.us-west-000.backblazeb2.com/<mybucket>";
-    secrets = {
-      AWS_ACCESS_KEY_ID.source = config.sops.secrets."backup/b2/access_key_id".path;
-      AWS_SECRET_ACCESS_KEY.source = config.sops.secrets."backup/b2/secret_access_key".path;
-    };
-  }
-];
+shb.restic.instances.myfolder.repository = {
+  path = "s3:s3.us-west-000.backblazeb2.com/<mybucket>";
+  secrets = {
+    AWS_ACCESS_KEY_ID.source = config.sops.secrets."backup/b2/access_key_id".path;
+    AWS_SECRET_ACCESS_KEY.source = config.sops.secrets."backup/b2/secret_access_key".path;
+  };
+};
 
 sops.secrets."myservice/backup/passphrase" = {
   sopsFile = ./secrets.yaml;
@@ -117,7 +121,7 @@ sops.secrets."backup/b2/secret_access_key" = {
 Pay attention that the owner must be the `myservice` user, the one owning the files to be backed up.
 A `secrets` contract is in progress that will allow one to not care about such details.
 
-### Multiple directories to multiple destinations {#blocks-restic-usage-multiple}
+## Multiple directories to multiple destinations {#blocks-restic-usage-multiple}
 
 The following snippet shows how to configure backup of any number of folders to 3 repositories,
 each happening at different times to avoid I/O contention.
@@ -228,10 +232,10 @@ restic-myfolder2_s3_s3.us-west-000.backblazeb2.com_backups
 
 Discovering those is easy thanks to tab-completion.
 
-One can then restore a backup with:
+One can then restore a backup from a given repository with:
 
 ```bash
-restic-myfolder1_srv_pool1_backups restore latest -t /
+restic-myfolder1_srv_pool1_backups restore latest
 ```
 
 ### Troubleshooting {#blocks-restic-maintenance-troubleshooting}
@@ -241,7 +245,7 @@ In case something bad happens with a backup, the [official documentation](https:
 ## Options Reference {#blocks-restic-options}
 
 ```{=include=} options
-id-prefix: blocks-backup-options-
-list-id: selfhostblocks-block-backup-options
+id-prefix: blocks-restic-options-
+list-id: selfhostblocks-block-restic-options
 source: @OPTIONS_JSON@
 ```

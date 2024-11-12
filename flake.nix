@@ -136,6 +136,8 @@
           // (vm_test "restic" ./test/blocks/restic.nix)
           // (vm_test "ssl" ./test/blocks/ssl.nix)
 
+          // (vm_test "contracts-backup" ./test/contracts/backup.nix)
+          // (vm_test "contracts-databasebackup" ./test/contracts/databasebackup.nix)
           // (vm_test "contracts-secret" ./test/contracts/secret.nix)
           ));
       }

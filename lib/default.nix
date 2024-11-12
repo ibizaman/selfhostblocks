@@ -248,7 +248,7 @@ rec {
       results = pkgs.lib.runTests tests;
     in
     if results != [ ] then
-      builtins.throw (concatStringsSep "\n" (map resultToString (lib.traceValSeqN 3 results)))
+      builtins.throw (concatStringsSep "\n" (map resultToString (lib.traceValSeq results)))
     else
       pkgs.runCommand "nix-flake-tests-success" { } "echo > $out";
 
