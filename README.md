@@ -142,7 +142,13 @@ any reverse proxy you want or any database you want,
 without requiring work from maintainers of the services you want to self host.
 (See [manual][contracts] for a complete explanation)
 
+Two videos exist of me presenting the topic,
+the first at [NixCon North America in spring of 2024][NixConNA2024]
+and the second at [NixCon in Berlin in fall of 2024][NixConBerlin2024].
+
 [contracts]: https://shb.skarabox.com/contracts.html
+[NixConNA2024]: https://www.youtube.com/watch?v=lw7PgphB9qM
+[NixConBerlin2024]: https://www.youtube.com/watch?v=CP0hR6w1csc
 
 ### More Benefits of SHB
 

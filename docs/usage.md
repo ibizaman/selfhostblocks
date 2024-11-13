@@ -279,15 +279,15 @@ One way to setup secrets management using `sops-nix`:
        selfhostblocks.inputs.sops-nix.nixosModules.default
    ];
    ```
-6. Reference the secrets in nix:
-   ```nix
-   shb.nextcloud.adminPassFile = config.sops.secrets."nextcloud/adminpass".path;
-
-   sops.secrets."nextcloud/adminpass" = {
-     sopsFile = ./secrets.yaml;
-     mode = "0440";
-     owner = "nextcloud";
-     group = "nextcloud";
-     restartUnits = [ "phpfpm-nextcloud.service" ];
-   };
+6. Set default sops file:
+   ```bash
+   sops.defaultSopsFile = ./secrets.yaml;
    ```
+   Setting the default this way makes all sops instances use that same file.
+7. Reference the secrets in nix:
+   ```nix
+   shb.nextcloud.adminPass.result.path = config.sops.secrets."nextcloud/adminpass".path;
+
+   sops.secrets."nextcloud/adminpass" = config.shb.nextcloud.adminPass.request;
+   ```
+   The above snippet uses the [secrets contract](./contracts-secret.html) to ease configuration.

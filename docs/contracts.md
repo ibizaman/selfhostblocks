@@ -11,6 +11,15 @@ In practice, a contract is a set of options that any user of a contract expects 
 values of these options dictate the behavior of the implementation. This is enforced with NixOS VM
 tests.
 
+## Videos {#contracts-videos}
+
+Two videos exist of me presenting the topic,
+the first at [NixCon North America in spring of 2024][NixConNA2024]
+and the second at [NixCon in Berlin in fall of 2024][NixConBerlin2024].
+
+[NixConNA2024]: https://www.youtube.com/watch?v=lw7PgphB9qM
+[NixConBerlin2024]: https://www.youtube.com/watch?v=CP0hR6w1csc
+
 ## Provided contracts {#contracts-provided}
 
 Self Host Blocks is a proving ground of contracts. This repository adds a layer on top of services
