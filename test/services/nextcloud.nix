@@ -3,6 +3,7 @@ let
   pkgs' = pkgs;
   adminUser = "root";
   adminPass = "rootpw";
+  oidcSecret = "oidcSecret";
 
   subdomain = "n";
   domain = "example.com";
@@ -131,8 +132,12 @@ let
       externalFqdn = "${fqdn}:8080";
 
       adminUser = adminUser;
-      adminPassFile = pkgs.writeText "adminPassFile" adminPass;
+      adminPass.result.path = config.shb.hardcodedsecret.adminPass.path;
       debug = true;
+    };
+
+    shb.hardcodedsecret.adminPass = config.shb.nextcloud.adminPass.request // {
+      content = adminPass;
     };
   };
 
@@ -152,30 +157,34 @@ let
         port = config.shb.ldap.ldapPort;
         dcdomain = config.shb.ldap.dcdomain;
         adminName = "admin";
-        adminPasswordFile = config.shb.ldap.ldapUserPassword.result.path;
+        adminPassword.result.path = config.shb.ldap.ldapUserPassword.result.path;
         userGroup = "nextcloud_user";
       };
     };
   };
 
   sso = { config, ... }:
-    let
-      authSecret = pkgs.writeText "authSecret" "authSecret";
-    in
-      {
-        shb.nextcloud = {
-          apps.sso = {
-            enable = true;
-            endpoint = "https://${config.shb.authelia.subdomain}.${config.shb.authelia.domain}";
-            clientID = "nextcloud";
-            # adminUserGroup = "nextcloud_admin";
+    {
+      shb.nextcloud = {
+        apps.sso = {
+          enable = true;
+          endpoint = "https://${config.shb.authelia.subdomain}.${config.shb.authelia.domain}";
+          clientID = "nextcloud";
+          # adminUserGroup = "nextcloud_admin";
 
-            secretFile = authSecret;
-            secretFileForAuthelia = authSecret;
+          secret.result.path = config.shb.hardcodedsecret.oidcSecret.path;
+          secretForAuthelia.result.path = config.shb.hardcodedsecret.oidcAutheliaSecret.path;
 
-            fallbackDefaultAuth = false;
-          };
+          fallbackDefaultAuth = false;
         };
+      };
+
+      shb.hardcodedsecret.oidcSecret = config.shb.nextcloud.apps.sso.secret.request // {
+        content = oidcSecret;
+      };
+      shb.hardcodedsecret.oidcAutheliaSecret = config.shb.nextcloud.apps.sso.secretForAuthelia.request // {
+        content = oidcSecret;
+      };
   };
 
   previewgenerator = { config, ...}: {
