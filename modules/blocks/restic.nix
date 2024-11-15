@@ -363,10 +363,13 @@ in
             mkMerge (flatten (mapAttrsToList mkSettings (enabledInstances // enabledDatabases)));
       }
       {
-        system.activationScripts = let
+        systemd.services = let
           mkEnv = name: instance:
-            nameValuePair "${fullName name instance.settings.repository}_gen"
-              (shblib.replaceSecrets {
+            nameValuePair "${fullName name instance.settings.repository}_restore_gen" {
+              enable = true;
+              wantedBy = [ "multi-user.target" ];
+              serviceConfig.Type = "oneshot";
+              script = (shblib.replaceSecrets {
                 userConfig = instance.settings.repository.secrets // {
                   RESTIC_PASSWORD_FILE = instance.settings.passphraseFile;
                   RESTIC_REPOSITORY = instance.settings.repository.path;
@@ -375,6 +378,7 @@ in
                 generator = name: v: pkgs.writeText (fullName name instance.settings.repository) (generators.toINIWithGlobalSection {} { globalSection = v; });
                 user = instance.request.user;
               });
+            };
         in
           listToAttrs (flatten (mapAttrsToList mkEnv (cfg.instances // cfg.databases)));
       }
