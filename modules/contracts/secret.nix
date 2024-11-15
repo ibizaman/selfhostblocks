@@ -4,8 +4,10 @@
     { description,
       mode ? "0400",
       owner ? "root",
+      ownerText ? null,
       group ? "root",
       restartUnits ? [],
+      restartUnitsText ? null,
     }: lib.mkOption {
       inherit description;
 
@@ -15,6 +17,15 @@
             default = {
               inherit mode owner group restartUnits;
             };
+
+            defaultText = lib.optionalString (ownerText != null || restartUnitsText != null) (lib.literalMD ''
+            {
+              mode = ${mode};
+              owner = ${if ownerText != null then ownerText else owner};
+              group = ${group};
+              restartUnits = ${if restartUnitsText != null then restartUnitsText else "[ " + lib.concatStringsSep " " restartUnits + " ]"};
+            }
+            '');
 
             readOnly = true;
 
@@ -56,6 +67,7 @@
                   '';
                   type = lib.types.str;
                   default = owner;
+                  defaultText = if ownerText != null then lib.literalMD ownerText else null;
                 };
 
                 group = lib.mkOption {
@@ -72,6 +84,7 @@
                   '';
                   type = lib.types.listOf lib.types.str;
                   default = restartUnits;
+                  defaultText = if restartUnitsText != null then lib.literalMD restartUnitsText else null;
                 };
               };
             };

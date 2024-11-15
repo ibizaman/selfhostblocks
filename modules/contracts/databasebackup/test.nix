@@ -9,7 +9,7 @@ in
 { name,
   requesterRoot,
   providerRoot,
-  providerExtraConfig ? null, # { username, database } -> attrset
+  extraConfig ? null, # { username, database } -> attrset
   modules ? [],
   username ? "me",
   database ? "me",
@@ -31,7 +31,7 @@ in
           group = "root";
         };
       })
-      (optionalAttrs (providerExtraConfig != null) (providerExtraConfig { inherit username database; }))
+      (optionalAttrs (extraConfig != null) (extraConfig { inherit username database; }))
     ];
   };
 
@@ -72,6 +72,7 @@ in
 
     with subtest("drop database"):
         machine.succeed(peer_cmd("DROP DATABASE me", db="postgres"))
+        machine.fail(peer_cmd("SELECT * FROM test"))
 
     with subtest("restore"):
         print(machine.succeed("readlink -f $(type ${provider.restoreScript})"))

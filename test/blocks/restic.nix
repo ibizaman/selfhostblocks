@@ -35,7 +35,7 @@ let
         settings = {
           enable = true;
 
-          passphraseFile = toString (pkgs.writeText "passphrase" "PassPhrase");
+          passphrase.result.path = pkgs.writeText "passphrase" "PassPhrase";
 
           repository = {
             path = "/opt/repos/A";

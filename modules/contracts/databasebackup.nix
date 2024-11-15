@@ -4,16 +4,20 @@ let
   inherit (lib.types) anything submodule str;
 in
 {
-  requestType = submodule {
+  request = submodule {
     options = {
       user = mkOption {
-        description = "Unix user doing the backups.";
+        description = ''
+          Unix user doing the backups.
+
+          This should be an admin user having access to all databases.
+        '';
         type = str;
         example = "postgres";
       };
 
-      backupFile = mkOption {
-        description = "Filename of the backup.";
+      backupName = mkOption {
+        description = "Name of the backup in the repository.";
         type = str;
         default = "dump";
         example = "postgresql.sql";
@@ -38,7 +42,12 @@ in
   };
 
 
-  resultType = submodule {
+  result = {
+    restoreScript,
+    restoreScriptText ? null,
+    backupService,
+    backupServiceText ? null,
+  }: submodule {
     options = {
       restoreScript = mkOption {
         description = ''
@@ -46,17 +55,18 @@ in
           One can then list snapshots with:
 
           ```bash
-          $ my_restore_script snapshots
+          $ ${if restoreScriptText != null then restoreScriptText else restoreScript} snapshots
           ```
 
           And restore the database with:
 
           ```bash
-          $ my_restore_script restore latest
+          $ ${if restoreScriptText != null then restoreScriptText else restoreScript} restore latest
           ```
         '';
         type = str;
-        example = "my_restore_script";
+        default = restoreScript;
+        defaultText = restoreScriptText;
       };
 
       backupService = mkOption {
@@ -66,11 +76,12 @@ in
           This script can be ran manually to backup the database:
 
           ```bash
-          $ systemctl start my_backup_service
+          $ systemctl start ${if backupServiceText != null then backupServiceText else backupService}
           ```
         '';
         type = str;
-        example = "my_backup_service.service";
+        default = backupService;
+        defaultText = backupServiceText;
       };
     };
   };

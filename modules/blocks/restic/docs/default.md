@@ -2,7 +2,7 @@
 
 Defined in [`/modules/blocks/restic.nix`](@REPO@/modules/blocks/restic.nix).
 
-This block sets up a backup job using [Restic][restic].
+This block sets up a backup job using [Restic][].
 
 [restic]: https://restic.net/
 
@@ -12,18 +12,38 @@ Specific integration tests are defined in [`/test/blocks/restic.nix`](@REPO@/tes
 
 ## Provider Contracts {#blocks-restic-contract-provider}
 
-This block implements the [backup](contracts-backup.html) and [database backup](contracts-databasebackup.html) contracts.
+This block provides:
 
-Contract integration tests are defined in [`/test/contracts/backup.nix`](@REPO@/test/contracts/backup.nix).
+- [backup contract](contracts-backup.html) under the [`shb.restic.instances`][instances] option.
+  It is tested with [contract tests][backup contract tests].
+- [database backup contract](contracts-databasebackup.html) under the [`shb.restic.databases`][databases] option.
+  It is tested with [contract tests][database backup contract tests].
 
-### One folder backed up to mounted hard drives {#blocks-restic-contract-provider-one}
+[instances]: #blocks-restic-options-shb.restic.instances
+[databases]: #blocks-restic-options-shb.restic.databases
+[backup contract tests]: @REPO@/test/contracts/backup.nix
+[database backup contract tests]: @REPO@/test/contracts/databasebackup.nix
+
+As requested by those two contracts, when setting up a backup with Restic,
+a backup Systemd service and restore script are provided.
+The restore script has all the secrets needed to access the repo,
+the only requirement to run it is to be able to `sudo` in the expected user.
+
+## Usage {#blocks-restic-usage}
+
+The following examples assume usage of SOPS to provide secrets
+although any blocks providing the [secrets contract][] works too.
+The [secrets setup section](usage.html#usage-secrets) explains
+how to setup SOPS.
+
+### One folder backed up manually {#blocks-restic-usage-provider-manual}
 
 The following snippet shows how to configure
 the backup of 1 folder to 1 repository.
-We assume that the folder is used by the `myservice` service and is owned by a user of the same name.
+We assume that the folder `/var/lib/myfolder` of the service `myservice` must be backed up.
 
 ```nix
-shb.restic.instances.myservice = {
+shb.restic.instances."myservice" = {
   request = {
     user = "myservice";
 
@@ -56,7 +76,41 @@ shb.restic.instances.myservice = {
 };
 ```
 
-### One folder backed up to S3 {#blocks-restic-contract-provider-remote}
+### One folder backed up with contract {#blocks-restic-usage-provider-contract}
+
+With the same example as before but assuming the `myservice` service
+has a `myservice.backup` option that is a requester for the backup contract,
+the snippet above becomes:
+
+```nix
+shb.restic.instances."myservice" = {
+  request = config.myservice.backup;
+
+  settings = {
+    enable = true;
+
+    passphraseFile = "<path/to/passphrase>";
+
+    repository = {
+      path = "/srv/backups/myservice";
+      timerConfig = {
+        OnCalendar = "00:00:00";
+        RandomizedDelaySec = "3h";
+      };
+    };
+
+    retention = {
+      keep_within = "1d";
+      keep_hourly = 24;
+      keep_daily = 7;
+      keep_weekly = 4;
+      keep_monthly = 6;
+    };
+  };
+};
+```
+
+### One folder backed up to S3 {#blocks-restic-usage-provider-remote}
 
 Here we will only highlight the differences with the previous configuration.
 
@@ -80,46 +134,6 @@ This assumes you have access to such a remote S3 store, for example by using [Ba
     };
   }
 ```
-
-## Secrets {#blocks-restic-secrets}
-
-To be secure, the secrets should deployed out of band, otherwise they will be world-readable in the nix store.
-
-To achieve that, I recommend [sops](usage.html#usage-secrets) although other methods work great too.
-The code to backup to Backblaze with secrets stored in Sops would look like so:
-
-```nix
-shb.restic.instances.myfolder.passphraseFile = config.sops.secrets."myservice/backup/passphrase".path;
-shb.restic.instances.myfolder.repository = {
-  path = "s3:s3.us-west-000.backblazeb2.com/<mybucket>";
-  secrets = {
-    AWS_ACCESS_KEY_ID.source = config.sops.secrets."backup/b2/access_key_id".path;
-    AWS_SECRET_ACCESS_KEY.source = config.sops.secrets."backup/b2/secret_access_key".path;
-  };
-};
-
-sops.secrets."myservice/backup/passphrase" = {
-  sopsFile = ./secrets.yaml;
-  mode = "0400";
-  owner = "myservice";
-  group = "myservice";
-};
-sops.secrets."backup/b2/access_key_id" = {
-  sopsFile = ./secrets.yaml;
-  mode = "0400";
-  owner = "myservice";
-  group = "myservice";
-};
-sops.secrets."backup/b2/secret_access_key" = {
-  sopsFile = ./secrets.yaml;
-  mode = "0400";
-  owner = "myservice";
-  group = "myservice";
-};
-```
-
-Pay attention that the owner must be the `myservice` user, the one owning the files to be backed up.
-A `secrets` contract is in progress that will allow one to not care about such details.
 
 ## Multiple directories to multiple destinations {#blocks-restic-usage-multiple}
 

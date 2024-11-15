@@ -26,16 +26,19 @@ in
       options = {
         request = mkOption {
           description = ''
-          Options set by a requester module of the database contract.
+          Options set by a requester module of the database backup contract.
           '';
-          type = contracts.databasebackup.requestType;
+          type = contracts.databasebackup.request;
         };
 
         result = mkOption {
           description = ''
-          Options set by a provider module of the database contract.
+          Options set by a provider module of the database backup contract.
           '';
-          type = contracts.databasebackup.resultType;
+          type = contracts.databasebackup.result {
+            restoreScript = "my_restore_script";
+            backupService = "my_backup_service.service";
+          };
         };
       };
     };
