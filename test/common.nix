@@ -149,7 +149,7 @@ in
     shb.hardcodedsecret.ldapUserPassword = config.shb.ldap.ldapUserPassword.request // {
       content = "ldapUserPassword";
     };
-    shb.hardcodedsecret.jwtSecret = config.shb.ldap.ldapUserPassword.request // {
+    shb.hardcodedsecret.jwtSecret = config.shb.ldap.jwtSecret.request // {
       content = "jwtSecrets";
     };
 

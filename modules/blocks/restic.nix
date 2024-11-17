@@ -10,7 +10,7 @@ let
   inherit (lib) generators hasPrefix mkIf nameValuePair optionalAttrs removePrefix;
   inherit (lib.types) attrsOf enum int ints listOf oneOf nonEmptyListOf nonEmptyStr nullOr path str submodule;
 
-  commonOptions = {
+  commonOptions = { name, options, prefix, ... }: {
     enable = mkEnableOption ''
       this backup intance.
 
@@ -18,9 +18,13 @@ let
       but still provides the helper tool to restore snapshots
     '';
 
-    passphraseFile = mkOption {
-      description = "Encryption key for the backups.";
-      type = path;
+    passphrase = contracts.secret.mkOption {
+      description = "Encryption key for the backup repository.";
+      mode = "0400";
+      owner = options.request.value.user;
+      ownerText = "[shb.restic.${prefix}.<name>.request.user](#blocks-restic-options-shb.restic.${prefix}._name_.request.user)";
+      restartUnits = [ (fullName name options.settings.value.repository) ];
+      restartUnitsText = "[ [shb.restic.${prefix}.<name>.settings.repository](#blocks-restic-options-shb.restic.${prefix}._name_.settings.repository) ]";
     };
 
     repository = mkOption {
@@ -101,7 +105,7 @@ in
 {
   options.shb.restic = {
     instances = mkOption {
-      description = "Each instance is backing up some directories to one repository.";
+      description = "Files to backup following the [backup contract](./contracts-backup.html).";
       default = {};
       type = attrsOf (submodule ({ name, options, ... }: {
         options = {
@@ -121,7 +125,7 @@ in
             '';
 
             type = submodule {
-              options = commonOptions;
+              options = commonOptions { inherit name options; prefix = "instances"; };
             };
           };
 
@@ -131,24 +135,27 @@ in
 
               Contains the output of the Restic provider.
             '';
-            type = lib.types.anything; # contracts.databasebackup.result;
             default = {
               restoreScript = fullName name options.settings.value.repository;
               backupService = "${fullName name options.settings.value.repository}.service";
             };
-            defaultText = literalExpression ''
-            {
-              restoreScript = "${fullName "<name>" { path = "path/to/repository"; }}";
-              backupService = "${fullName "<name>" { path = "path/to/repository"; }}.service";
-            }
-            '';
+            defaultText = {
+              restoreScriptText = "${fullName "<name>" { path = "path/to/repository"; }}";
+              backupServiceText = "${fullName "<name>" { path = "path/to/repository"; }}.service";
+            };
+            type = contracts.backup.result {
+              restoreScript = fullName name options.settings.value.repository;
+              backupService = "${fullName name options.settings.value.repository}.service";
+              restoreScriptText = "${fullName "<name>" { path = "path/to/repository"; }}";
+              backupServiceText = "${fullName "<name>" { path = "path/to/repository"; }}.service";
+            };
           };
         };
       }));
     };
 
     databases = mkOption {
-      description = "Databases to backup following the database backup contract.";
+      description = "Databases to backup following the [database backup contract](./contracts-databasebackup.html).";
       default = {};
       type = attrsOf (submodule ({ name, options, ... }: {
         options = {
@@ -159,7 +166,7 @@ in
               Accepts values from a requester.
             '';
 
-            type = contracts.databasebackup.requestType;
+            type = contracts.databasebackup.request;
           };
 
           settings = mkOption {
@@ -168,7 +175,7 @@ in
             '';
 
             type = submodule {
-              options = commonOptions;
+              options = commonOptions { inherit name options; prefix = "databases"; };
             };
           };
 
@@ -178,17 +185,20 @@ in
 
               Contains the output of the Restic provider.
             '';
-            type = contracts.databasebackup.resultType;
             default = {
               restoreScript = fullName name options.settings.value.repository;
               backupService = "${fullName name options.settings.value.repository}.service";
             };
-            defaultText = literalExpression ''
-            {
-              restoreScript = "${fullName "<name>" { path = "path/to/repository"; }}";
-              backupService = "${fullName "<name>" { path = "path/to/repository"; }}.service";
-            }
-            '';
+            defaultText = {
+              restoreScriptText = "${fullName "<name>" { path = "path/to/repository"; }}";
+              backupServiceText = "${fullName "<name>" { path = "path/to/repository"; }}.service";
+            };
+            type = contracts.databasebackup.result {
+              restoreScript = fullName name options.settings.value.repository;
+              backupService = "${fullName name options.settings.value.repository}.service";
+              restoreScriptText = "${fullName "<name>" { path = "path/to/repository"; }}";
+              backupServiceText = "${fullName "<name>" { path = "path/to/repository"; }}.service";
+            };
           };
         };
       }));
@@ -249,7 +259,7 @@ in
 
                 paths = instance.request.sourceDirectories;
 
-                passwordFile = toString instance.settings.passphraseFile;
+                passwordFile = toString instance.settings.passphrase.result.path;
 
                 initialize = true;
 
@@ -288,7 +298,7 @@ in
 
                 dynamicFilesFrom = "echo";
 
-                passwordFile = toString instance.settings.passphraseFile;
+                passwordFile = toString instance.settings.passphrase.result.path;
 
                 initialize = true;
 
@@ -310,7 +320,7 @@ in
                     cmd = pkgs.writeShellScriptBin "dump.sh" instance.request.backupCmd;
                   in
                     [
-                      "--stdin-filename ${instance.request.backupFile} --stdin-from-command -- ${cmd}/bin/dump.sh"
+                      "--stdin-filename ${instance.request.backupName} --stdin-from-command -- ${cmd}/bin/dump.sh"
                     ]);
               };
             };
@@ -371,7 +381,7 @@ in
               serviceConfig.Type = "oneshot";
               script = (shblib.replaceSecrets {
                 userConfig = instance.settings.repository.secrets // {
-                  RESTIC_PASSWORD_FILE = instance.settings.passphraseFile;
+                  RESTIC_PASSWORD_FILE = toString instance.settings.passphrase.result.path;
                   RESTIC_REPOSITORY = instance.settings.repository.path;
                 };
                 resultPath = "/run/secrets_restic_env/${fullName name instance.settings.repository}";
@@ -414,7 +424,7 @@ in
                 sudo --preserve-env -u ${instance.request.user} ${pkgs.restic}/bin/restic $@
               else
                 shift
-                sudo --preserve-env -u ${instance.request.user} sh -c "${pkgs.restic}/bin/restic dump $@ ${instance.request.backupFile} | ${instance.request.restoreCmd}"
+                sudo --preserve-env -u ${instance.request.user} sh -c "${pkgs.restic}/bin/restic dump $@ ${instance.request.backupName} | ${instance.request.restoreCmd}"
               fi
               '';
         in

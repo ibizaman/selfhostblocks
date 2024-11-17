@@ -97,7 +97,7 @@ let
       request = config.shb.vaultwarden.backup;
       settings = {
         enable = true;
-        passphraseFile = toString (pkgs.writeText "passphrase" "PassPhrase");
+        passphrase.result.path = config.shb.hardcodedsecret.passphrase.path;
         repository = {
           path = "/opt/repos/A";
           timerConfig = {
@@ -106,6 +106,9 @@ let
           };
         };
       };
+    };
+    shb.hardcodedsecret.passphrase = config.shb.restic.instances."testinstance".settings.passphrase.request // {
+      content = "PassPhrase";
     };
   };
 in

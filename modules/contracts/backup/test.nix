@@ -15,7 +15,8 @@ in
     "/opt/files/A"
     "/opt/files/B"
   ],
-  settings, # repository -> attrset
+  settings, # { repository, config } -> attrset
+  extraConfig ? null, # { username } -> attrset
 }: pkgs.testers.runNixOSTest {
   inherit name;
 
@@ -28,7 +29,10 @@ in
           inherit sourceDirectories;
           user = username;
         };
-        settings = settings "/opt/repos/${name}";
+        settings = settings {
+          inherit config;
+          repository = "/opt/repos/${name}";
+        };
       })
       (mkIf (username != "root") {
         users.users.${username} = {
@@ -37,6 +41,7 @@ in
           group = "root";
         };
       })
+      (optionalAttrs (extraConfig != null) (extraConfig { inherit username; }))
     ];
   };
 
@@ -44,10 +49,7 @@ in
   skipTypeCheck = true;
 
   testScript = { nodes, ... }: let
-    provider = getAttrFromPath providerRoot nodes.machine;
-    backupService = provider.result.backupService;
-    restoreScript = provider.result.restoreScript;
-    onAllSourceDirectories = f: concatMapStringsSep "\n" (path: indent 4 (f path)) sourceDirectories;
+    provider = (getAttrFromPath providerRoot nodes.machine).result;
   in ''
     from dictdiffer import diff
 
@@ -88,8 +90,8 @@ in
             })
 
     with subtest("First backup in repo"):
-        print(machine.succeed("systemctl cat ${backupService}"))
-        machine.succeed("systemctl start ${backupService}")
+        print(machine.succeed("systemctl cat ${provider.backupService}"))
+        machine.succeed("systemctl start ${provider.backupService}")
 
     with subtest("New content"):
         for path in sourceDirectories:
@@ -110,7 +112,7 @@ in
             assert_files(path, {})
 
     with subtest("Restore initial content from repo"):
-        machine.succeed("""${restoreScript} restore latest""")
+        machine.succeed("""${provider.restoreScript} restore latest""")
 
         for path in sourceDirectories:
             assert_files(path, {

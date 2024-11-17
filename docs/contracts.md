@@ -4,12 +4,76 @@ A contract decouples modules that use a functionality from modules that provide 
 intuition for contracts is they are generally related to accessing a shared resource.
 
 A few examples of contracts are generating SSL certificates, creating a user or knowing which files
-and folders to backup. Indeed, when generating certificates, the service using those do not care how
-they were created. They just need to know where the certificate files are located.
+and folders to backup.
+Indeed, when generating certificates, the service using those do not care how they were created.
+They just need to know where the certificate files are located.
 
-In practice, a contract is a set of options that any user of a contract expects to exist. Also, the
-values of these options dictate the behavior of the implementation. This is enforced with NixOS VM
-tests.
+A contract is made between a requester module and a provider module.
+For example, a backup contract can be made between the Nextcloud service and the Restic service.
+The former is the requester - the one wanted to be backed up -
+and the latter is the provider of the contract - the one backing up files.
+
+## Schema {#contracts-schema}
+
+In practice, a contract is an attrset of options with a defined behavior.
+Currently, the schema for a requester is:
+
+```nix
+let
+  inherit (lib) mkOption;
+  inherit (lib.types) submodule;
+in
+config.${requester}.${contractname} = submodule {
+  request = mkOption {
+    type = contracts.${contractname}.request;
+    default = {
+      # Values set by the requester
+    };
+  };
+
+  result = mkOption {
+    type = contracts.${contractname}.result;
+  };
+};
+```
+
+For a provider, it is:
+
+```nix
+let
+  inherit (lib) mkOption;
+  inherit (lib.types) anything submodule;
+in
+config.${provider}.${contractname} = submodule ({ options, ... }: {
+  request = mkOption {
+    type = contracts.${contractname}.request;
+  };
+
+  result = mkOption {
+    type = contracts.${contractname}.result;
+    default = {
+      # Values set by the provider
+      # Can depend on values set by the requester through the `options` variable.
+    };
+  };
+
+  settings = mkOption {
+    type = anything;
+  };
+});
+```
+
+## Contract Tests {#contracts-test}
+
+To make sure all providers module of a contract have the same behavior,
+generic NixOS VM tests exist per contract.
+They are generic because they work on any module,
+as long as the module implements the contract of course.
+
+For example, the [generic test][generic] for backup contract is instantiated for Restic [here][restic test].
+
+[generic]: @REPO@/modules/contracts/backup/test.nix
+[restic test]: @REPO@/test/contracts/backup.nix
 
 ## Videos {#contracts-videos}
 
@@ -19,6 +83,59 @@ and the second at [NixCon in Berlin in fall of 2024][NixConBerlin2024].
 
 [NixConNA2024]: https://www.youtube.com/watch?v=lw7PgphB9qM
 [NixConBerlin2024]: https://www.youtube.com/watch?v=CP0hR6w1csc
+
+## Why do we need this new concept? {#contracts-why}
+
+Currently in nixpkgs, every module needing access to a shared resource must implement the logic
+needed to setup that resource themselves. Similarly, if the module is mature enough to let the user
+select a particular implementation, the code lives inside that module.
+
+![](./assets/contracts_before.png "A module composed of a core logic and a lot of peripheral logic.")
+
+This has a few disadvantages:
+
+- This leads to a lot of **duplicated code**. If a module wants to support a new implementation of a
+contract, the maintainers of that module must write code to make that happen.
+- This also leads to **tight coupling**. The code written by the maintainers cannot be reused in
+  other modules, apart from copy pasting.
+- There is also a **lack of separation of concerns**. The maintainers of a service must be experts
+  in all implementations they let the users choose from.
+- Finally, this is **not extensible**. If you, the user of the module, want to use another
+  implementation that is not supported, you are out of luck. You can always dive into the module's
+  code and extend it, but that is not an optimal experience.
+
+We do believe that the decoupling contracts provides helps alleviate all the issues outlined above
+which makes it an essential step towards more adoption of Nix, if only in the self hosting scene.
+
+![](./assets/contracts_after.png "A module containing only logic using peripheral logic through contracts.")
+
+Indeed, contracts allow:
+
+- **Reuse of code**.
+  Since the implementation of a contract lives outside of modules using it,
+  using that implementation elsewhere is trivial.
+- **Loose coupling**.
+  Modules that use a contract do not care how they are implemented,
+  as long as the implementation follows the behavior outlined by the contract.
+- Full **separation of concerns** (see diagram below).
+  Now, each party's concern is separated with a clear boundary.
+  The maintainer of a module using a contract can be different from the maintainers
+  of the implementation, allowing them to be experts in their own respective fields.
+  But more importantly, the contracts themselves can be created and maintained by the community.
+- Full **extensibility**.
+  The final user themselves can choose an implementation,
+  even new custom implementations not available in nixpkgs, without changing existing code.
+- **Incremental adoption**.
+  Contracts can help bridge a NixOS system with any non-NixOS one.
+  For that, one can hardcode a requester or provider module to match
+  how the non-NixOS system is configured.
+  The responsability falls of course on the user to make sure both system agree on the configuration.
+- Last but not least, **Testability**.
+  Thanks to NixOS VM test, we can even go one step further
+  by ensuring each implementation of a contract, even custom ones,
+  provides required options and behaves as the contract requires.
+
+![](./assets/contracts_separationofconcerns.png "Separation of concerns thanks to contracts.")
 
 ## Provided contracts {#contracts-provided}
 
@@ -52,49 +169,6 @@ modules/contracts/databasebackup/docs/default.md
 ```{=include=} chapters html:into-file=//contracts-secret.html
 modules/contracts/secret/docs/default.md
 ```
-
-## Why do we need this new concept? {#contracts-why}
-
-Currently in nixpkgs, every module needing access to a shared resource must implement the logic
-needed to setup that resource themselves. Similarly, if the module is mature enough to let the user
-select a particular implementation, the code lives inside that module.
-
-![](./assets/contracts_before.png "A module composed of a core logic and a lot of peripheral logic.")
-
-This has a few disadvantages:
-
-- This leads to a lot of **duplicated code**. If a module wants to support a new implementation of a
-contract, the maintainers of that module must write code to make that happen.
-- This also leads to **tight coupling**. The code written by the maintainers cannot be reused in
-  other modules, apart from copy pasting.
-- There is also a **lack of separation of concerns**. The maintainers of a service must be experts
-  in all implementations they let the users choose from.
-- Finally, this is **not extensible**. If you, the user of the module, want to use another
-  implementation that is not supported, you are out of luck. You can always dive into the module's
-  code and extend it, but that is not an optimal experience.
-
-We do believe that the decoupling contracts provides helps alleviate all the issues outlined above
-which makes it an essential step towards more adoption of Nix, if only in the self hosting scene.
-
-![](./assets/contracts_after.png "A module containing only logic using peripheral logic through contracts.")
-
-Indeed, contracts allow:
-
-- **Reuse of code**. Since the implementation of a contract lives outside of modules using it, using
-  that implementation elsewhere is trivial.
-- **Loose coupling**. Modules that use a contract do not care how they are implemented, as long as
-  the implementation follows the behavior outlined by the contract.
-- Full **separation of concerns** (see diagram below). Now, each party's concern is separated with a
-  clear boundary. The maintainer of a module using a contract can be different from the maintainers
-  of the implementation, allowing them to be experts in their own respective fields. But more
-  importantly, the contracts themselves can be created and maintained by the community.
-- Full **extensibility**. The final user themselves can choose an implementation, even new custom
-  implementations not available in nixpkgs, without changing existing code.
-- Last but not least, **Testability**. Thanks to NixOS VM test, we can even go one step further by
-  ensuring each implementation of a contract, even custom ones, provides required options and
-  behaves as the contract requires.
-
-![](./assets/contracts_separationofconcerns.png "Separation of concerns thanks to contracts.")
 
 ## Are there contracts in nixpkgs already? {#contracts-nixpkgs}
 

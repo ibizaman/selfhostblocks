@@ -9,15 +9,22 @@ in
     providerRoot = [ "shb" "restic" "instances" "mytest" ];
     modules = [
       ../../modules/blocks/restic.nix
+      ../../modules/blocks/hardcodedsecret.nix
     ];
-    settings = repository: {
+    settings = { repository, config, ... }: {
       enable = true;
-      passphraseFile = toString (pkgs.writeText "passphrase" "PassPhrase");
+      passphrase.result.path = config.shb.hardcodedsecret.passphrase.path;
       repository = {
         path = repository;
         timerConfig = {
           OnCalendar = "00:00:00";
         };
+      };
+    };
+    extraConfig = { username, ... }: {
+      shb.hardcodedsecret.passphrase = {
+        owner = username;
+        content = "passphrase";
       };
     };
   };
@@ -28,15 +35,22 @@ in
     providerRoot = [ "shb" "restic" "instances" "mytest" ];
     modules = [
       ../../modules/blocks/restic.nix
+      ../../modules/blocks/hardcodedsecret.nix
     ];
-    settings = repository: {
+    settings = { repository, config, ... }: {
       enable = true;
-      passphraseFile = toString (pkgs.writeText "passphrase" "PassPhrase");
+      passphrase.result.path = config.shb.hardcodedsecret.passphrase.path;
       repository = {
         path = repository;
         timerConfig = {
           OnCalendar = "00:00:00";
         };
+      };
+    };
+    extraConfig = { username, ... }: {
+      shb.hardcodedsecret.passphrase = {
+        owner = username;
+        content = "passphrase";
       };
     };
   };

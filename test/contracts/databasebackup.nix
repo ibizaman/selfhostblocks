@@ -13,7 +13,7 @@ in
     ];
     settings = repository: {
       enable = true;
-      passphraseFile = toString (pkgs.writeText "passphrase" "PassPhrase");
+      passphrase.result.path = pkgs.writeText "passphrase" "PassPhrase";
       repository = {
         path = repository;
         timerConfig = {
@@ -21,7 +21,7 @@ in
         };
       };
     };
-    providerExtraConfig = { username, database, ... }: {
+    extraConfig = { username, database, ... }: {
       shb.postgresql.ensures = [
         {
           inherit username database;

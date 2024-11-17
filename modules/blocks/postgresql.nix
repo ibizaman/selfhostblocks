@@ -67,12 +67,12 @@ in
         ```
       '';
 
-      type = contracts.databasebackup.requestType;
+      type = contracts.databasebackup.request;
 
       default = {
         user = "postgres";
 
-        backupFile = "postgres.sql";
+        backupName = "postgres.sql";
 
         backupCmd = ''
           ${pkgs.postgresql}/bin/pg_dumpall | ${pkgs.gzip}/bin/gzip --rsyncable

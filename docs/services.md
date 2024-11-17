@@ -12,25 +12,26 @@ information is provided in the respective manual sections.
 
 | Service               | Backup | Reverse Proxy | SSO | LDAP  | Monitoring | Profiling |
 |-----------------------|--------|---------------|-----|-------|------------|-----------|
-| [Nextcloud Server][1] | P (1)  | Y             | Y   | Y     | Y          | P (2)     |
-| [Vaultwarden][2]      | P (1)  | Y             | Y   | Y     | N          | N         |
-| [Forgejo][3]          | Y      | Y             | Y   | Y     | N          | N         |
+| [Nextcloud Server][1] | Y (1)  | Y             | Y   | Y     | Y (2)      | P (3)     |
+| [Vaultwarden][2]      | Y (1)  | Y             | Y   | Y     | Y (2)      | N         |
+| [Forgejo][3]          | Y (1)  | Y             | Y   | Y     | Y (2)      | N         |
 
 Legend: **N**: no but WIP; **P**: partial; **Y**: yes
 
-1. Does not backup the database yet.
-2. Works but the traces are not exported to Grafana yet.
+1. Database and data files are backed up separately.
+2. Dashboard is common to all services.
+3. Works but the traces are not exported to Grafana yet.
 
 [1]: services-nextcloud.html
 [2]: services-vaultwarden.html
 [3]: services-forgejo.html
 
-```{=include=} chapters html:into-file=//services-vaultwarden.html
-modules/services/vaultwarden/docs/default.md
-```
-
 ```{=include=} chapters html:into-file=//services-nextcloud.html
 modules/services/nextcloud-server/docs/default.md
+```
+
+```{=include=} chapters html:into-file=//services-vaultwarden.html
+modules/services/vaultwarden/docs/default.md
 ```
 
 ```{=include=} chapters html:into-file=//services-forgejo.html
