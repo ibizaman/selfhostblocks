@@ -1,10 +1,11 @@
-{ config, options, lib, pkgs, ... }:
+{ config, lib, pkgs, ... }:
 let
   cfg = config.shb.hardcodedsecret;
-  opt = options.shb.hardcodedsecret;
+
+  contracts = pkgs.callPackage ../contracts {};
 
   inherit (lib) mapAttrs' mkOption nameValuePair;
-  inherit (lib.types) attrsOf listOf path nullOr str submodule;
+  inherit (lib.types) attrsOf nullOr str submodule;
   inherit (pkgs) writeText;
 in
 {
@@ -16,74 +17,49 @@ in
     example = lib.literalExpression ''
     {
       mySecret = {
-        user = "me";
-        mode = "0400";
-        restartUnits = [ "myservice.service" ];
-        content = "My Secrets";
+        request = {
+          user = "me";
+          mode = "0400";
+          restartUnits = [ "myservice.service" ];
+        };
+        settings.content = "My Secret";
       };
     }
     '';
     type = attrsOf (submodule ({ name, ... }: {
-      options = {
-        mode = mkOption {
+      options = contracts.secret.mkProvider {
+        settings = mkOption {
           description = ''
-            Mode of the secret file.
+            Settings specific to the hardcoded secret module.
+
+            Give either `content` or `source`.
           '';
-          type = str;
-          default = "0400";
+
+          type = submodule {
+            options = {
+              content = mkOption {
+                type = nullOr str;
+                description = ''
+                  Content of the secret as a string.
+
+                  This will be stored in the nix store and should only be used for testing or maybe in dev.
+                '';
+                default = null;
+              };
+
+              source = mkOption {
+                type = nullOr str;
+                description = ''
+                  Source of the content of the secret as a path in the nix store.
+                '';
+                default = null;
+              };
+            };
+          };
         };
 
-        owner = mkOption {
-          description = ''
-            Linux user owning the secret file.
-          '';
-          type = str;
-          default = "root";
-        };
-
-        group = mkOption {
-          description = ''
-            Linux group owning the secret file.
-          '';
-          type = str;
-          default = "root";
-        };
-
-        restartUnits = mkOption {
-          description = ''
-            Systemd units to restart after the secret is updated.
-          '';
-          type = listOf str;
-          default = [];
-        };
-
-        path = mkOption {
-          type = path;
-          description = ''
-            Path to the file containing the secret generated out of band.
-
-            This path will exist after deploying to a target host,
-            it is not available through the nix store.
-          '';
-          default = "/run/hardcodedsecrets/hardcodedsecret_${name}";
-        };
-
-        content = mkOption {
-          type = nullOr str;
-          description = ''
-            Content of the secret.
-
-            This will be stored in the nix store and should only be used for testing or maybe in dev.
-          '';
-          default = null;
-        };
-
-        source = mkOption {
-          type = nullOr str;
-          description = ''
-            Source of the content of the secret.
-          '';
-          default = null;
+        resultCfg = {
+          path = "/run/hardcodedsecrets/hardcodedsecret_${name}";
         };
       };
     }));
@@ -92,16 +68,16 @@ in
   config = {
     system.activationScripts = mapAttrs' (n: cfg':
       let
-        source = if cfg'.source != null
-                 then cfg'.source
-                 else writeText "hardcodedsecret_${n}_content" cfg'.content;
+        source = if cfg'.settings.source != null
+                 then cfg'.settings.source
+                 else writeText "hardcodedsecret_${n}_content" cfg'.settings.content;
       in
         nameValuePair "hardcodedsecret_${n}" ''
-          mkdir -p "$(dirname "${cfg'.path}")"
-          touch "${cfg'.path}"
-          chmod ${cfg'.mode} "${cfg'.path}"
-          chown ${cfg'.owner}:${cfg'.group} "${cfg'.path}"
-          cp ${source} "${cfg'.path}"
+          mkdir -p "$(dirname "${cfg'.result.path}")"
+          touch "${cfg'.result.path}"
+          chmod ${cfg'.request.mode} "${cfg'.result.path}"
+          chown ${cfg'.request.owner}:${cfg'.request.group} "${cfg'.result.path}"
+          cp ${source} "${cfg'.result.path}"
         ''
     ) cfg;
   };

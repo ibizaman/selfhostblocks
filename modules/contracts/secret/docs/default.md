@@ -7,7 +7,7 @@ and that must be placed in an expected location with expected permission.
 More formally, this contract is made between a requester module - the one needing a secret -
 and a provider module - the one creating the secret and making it available.
 
-## Problem Statement {#secret-contract-problem}
+## Motivation {#secret-contract-motivation}
 
 Let's provide the [ldap SHB module][ldap-module] option `ldapUserPasswordFile`
 with a secret managed by [sops-nix][].
@@ -19,14 +19,14 @@ Without the secret contract, configuring the option would look like so:
 
 ```nix
 sops.secrets."ldap/user_password" = {
-  sopsFile = ./secrets.yaml;
   mode = "0440";
   owner = "lldap";
   group = "lldap";
   restartUnits = [ "lldap.service" ];
+  sopsFile = ./secrets.yaml;
 };
 
-shb.ldap.ldapUserPasswordFile = config.sops.secrets."ldap/user_password".path;
+shb.ldap.userPassword.result = config.sops.secrets."ldap/user_password".result;
 ```
 
 The problem this contract intends to fix is how to ensure
@@ -38,19 +38,21 @@ or more likely, they will need to figure it out by looking
 at the module source code.
 Not a great user experience.
 
-Now, with this contract, the configuration becomes:
+Now, with this contract, a layer on top of `sops` is added which is found under `shb.sops`.
+The configuration then becomes:
 
 ```nix
-sops.secrets."ldap/user_password" = config.shb.ldap.secret.ldapUserPassword.request // {
-  sopsFile = ./secrets.yaml;
+shb.sops.secrets."ldap/user_password" = {
+  request = config.shb.ldap.userPassword.request;
+  settings.sopsFile = ./secrets.yaml;
 };
 
-shb.ldap.ldapUserPassword.result.path = config.sops.secrets."ldap/user_password".path;
+shb.ldap.userPassword.result = config.shb.sops.secrets."ldap/user_password".result;
 ```
 
-The issue is now gone at the expense of some plumbing.
-The module maintainer is now in charge of describing
-how the module expects the secret to be provided.
+The issue is now gone as the responsibility falls
+on the module maintainer
+for describing how the secret should be provided.
 
 If taking advantage of the `sops.defaultSopsFile` option like so:
 
@@ -61,9 +63,9 @@ sops.defaultSopsFile = ./secrets.yaml;
 Then the snippet above is even more simplified:
 
 ```nix
-sops.secrets."ldap/user_password" = config.shb.ldap.secret.ldapUserPassword.request;
+shb.sops.secrets."ldap/user_password".request = config.shb.ldap.userPassword.request;
 
-shb.ldap.ldapUserPassword.result.path = config.sops.secrets."ldap/user_password".path;
+shb.ldap.userPassword.result = config.shb.sops.secrets."ldap/user_password".result;
 ```
 
 ## Contract Reference {#secret-contract-options}
@@ -92,18 +94,22 @@ Here is an example module requesting two secrets through the `secret` contract.
 
 ```nix
 { config, ... }:
+let
+  inherit (lib) mkOption;
+  inherit (lib.types) submodule;
+in
 {
   options = {
-    myservice = lib.mkOption {
-      type = lib.types.submodule {
+    myservice = mkOption {
+      type = submodule {
         options = {
-          adminPassword = contracts.secret.mkOption {
+          adminPassword = contracts.secret.mkRequester {
             owner = "myservice";
             group = "myservice";
             mode = "0440";
             restartUnits = [ "myservice.service" ];
           };
-          databasePassword = contracts.secret.mkOption {
+          databasePassword = contracts.secret.mkRequester {
             owner = "myservice";
             # group defaults to "root"
             # mode defaults to "0400"
@@ -130,44 +136,43 @@ and that one can create multiple instances.
 
 ```nix
 { config, ... }:
+let
+  inherit (lib) mkOption;
+  inherit (lib.types) attrsOf submodule;
+
+  contracts = pkgs.callPackage ./contracts {};
+in
 {
-  options = {
-    secretservice = lib.mkOption {
-      type = lib.types.attrsOf (lib.types.submodule {
-        options = {
-          mode = lib.mkOption {
-            description = "Mode of the secret file.";
-            type = lib.types.str;
-          };
+  options.secretservice.secret = mkOption {
+    description = "Secret following the secret contract.";
+    default = {};
+    type = attrsOf (submodule ({ name, options, ... }: {
+      options = contracts.secret.mkProvider {
+        settings = mkOption {
+          description = ''
+            Settings specific to the secrets provider.
+          '';
 
-          owner = lib.mkOption {
-            description = "Linux user owning the secret file.";
-            type = lib.types.str;
-          };
-
-          group = lib.mkOption {
-            description = "Linux group owning the secret file.";
-            type = lib.types.str;
-          };
-
-          restartUnits = lib.mkOption {
-            description = "Systemd units to restart after the secret is updated.";
-            type = lib.types.listOf lib.types.str;
-          };
-
-          path = lib.mkOption {
-            description = "Path where the secret file will be located.";
-            type = lib.types.str;
-          };
-
-          // The contract allows more options to be defined to accomodate specific implementations.
-          secretFile = lib.mkOption {
-            description = "File containing the encrypted secret.";
-            type = lib.types.path;
+          type = submodule {
+            options = {
+              secretFile = lib.mkOption {
+                description = "File containing the encrypted secret.";
+                type = lib.types.path;
+              };
+            };
           };
         };
-      });
-    };
+
+        resultCfg = {
+          path = "/run/secrets/${name}";
+          pathText = "/run/secrets/<name>";
+        };
+      };
+    }));
+  };
+
+  config = {
+    // ...
   };
 }
 ```
@@ -178,15 +183,20 @@ The end user's responsibility is now to do some plumbing.
 
 They will setup the provider module - here `secretservice` - with the options set by the requester module,
 while also setting other necessary options to satisfy the provider service.
+And then they will give back the result to the requester module `myservice`.
 
 ```nix
-secretservice.adminPassword = myservice.secret.adminPassword.request // {
-  secretFile = ./secret.yaml;
+secretservice.secret."adminPassword" = {
+  request = myservice.adminPasswor".request;
+  settings.secretFile = ./secret.yaml;
 };
+myservice.adminPassword.result = secretservice.secret."adminPassword".result;
 
-secretservice.databasePassword = myservice.secret.databasePassword.request // {
-  secretFile = ./secret.yaml;
+secretservice.secret."databasePassword" = {
+  request = myservice.databasePassword.request;
+  settings.secretFile = ./secret.yaml;
 };
+myservice.databasePassword.result = secretservice.service."databasePassword".result;
 ```
 
 Assuming the `secretservice` module accepts default options,
@@ -195,14 +205,13 @@ the above snippet could be reduced to:
 ```nix
 secretservice.default.secretFile = ./secret.yaml;
 
-secretservice.adminPassword = myservice.secret.adminPassword.request;
-secretservice.databasePassword = myservice.secret.databasePassword.request;
+secretservice.secret."adminPassword".request = myservice.adminPasswor".request;
+myservice.adminPassword.result = secretservice.secret."adminPassword".result;
+
+secretservice.secret."databasePassword".request = myservice.databasePassword.request;
+myservice.databasePassword.result = secretservice.service."databasePassword".result;
 ```
 
-Then they will setup the requester module - here `myservice` - with the result of the provider module.
-
-```nix
-myservice.secret.adminPassword.result.path = secretservice.adminPassword.result.path;
-
-myservice.secret.databasePassword.result.path = secretservice.adminPassword.result.path;
-```
+The plumbing of request from the requester to the provider
+and then the result from the provider back to the requester
+is quite explicit in this snippet.

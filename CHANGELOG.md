@@ -40,6 +40,7 @@
   - `shb.forgejo.databasePasswordFile` -> `shb.forgejo.databasePassword.result.path`.
 - Backup:
   - `shb.restic.instances` options has been split between `shb.restic.instances.request` and `shb.restic.instances.settings`, matching better with contracts.
+- Use of secret contract everywhere.
 
 
 ## User Facing Backwards Compatible Changes

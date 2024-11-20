@@ -11,8 +11,8 @@ It is based on the nixpkgs Nextcloud server and provides opinionated defaults.
   to configure those with the UI.
   - [LDAP](#services-nextcloud-server-usage-ldap) app:
     enables app and sets up integration with an existing LDAP server, in this case LLDAP.
-  - [OIDC](#services-nextcloud-server-usage-oidc) app:
-    enables app and sets up integration with an existing OIDC server, in this case Authelia.
+  - [SSO](#services-nextcloud-server-usage-oidc) app:
+    enables app and sets up integration with an existing SSO server, in this case Authelia.
   - [Preview Generator](#services-nextcloud-server-usage-previewgenerator) app:
     enables app and sets up required cron job.
   - [External Storage](#services-nextcloud-server-usage-externalstorage) app:
@@ -66,10 +66,10 @@ shb.nextcloud = {
   domain = "example.com";
   subdomain = "n";
   defaultPhoneRegion = "US";
-  adminPass.result.path = config.sops.secrets."nextcloud/adminpass".path;
+  adminPass.result = config.shb.sops.secrets."nextcloud/adminpass".result;
 };
 
-sops.secrets."nextcloud/adminpass" = config.shb.nextcloud.adminPass.request;
+shb.sops.secrets."nextcloud/adminpass".request = config.shb.nextcloud.adminPass.request;
 ```
 
 This assumes secrets are setup with SOPS as mentioned in [the secrets setup section](usage.html#usage-secrets) of the manual.
@@ -154,15 +154,18 @@ shb.ldap = {
   enable = true;
   domain = "example.com";
   subdomain = "ldap";
+  ssl = config.shb.certs.certs.letsencrypt."example.com";
   ldapPort = 3890;
   webUIListenPort = 17170;
   dcdomain = "dc=example,dc=com";
-  ldapUserPassword.result.path = config.sops.secrets."ldap/userPassword".path;
-  jwtSecret.result.path = config.sops.secrets."ldap/jwtSecret".path;
+  ldapUserPassword.result = config.shb.sops.secrets."ldap/userPassword".result;
+  jwtSecret.result = config.shb.sops.secrets."ldap/jwtSecret".result;
 };
 
-sops.secrets."ldap/userPassword" = config.shb.ldap.userPassword.request;
-sops.secrets."ldap/jwtSecret" = config.shb.ldap.jwtSecret.request;
+shb.certs.certs.letsencrypt."example.com".extraDomains = [ "ldap.example.com" ];
+
+shb.sops.secrets."ldap/userPassword".request = config.shb.ldap.userPassword.request;
+shb.sops.secrets."ldap/jwtSecret".request = config.shb.ldap.jwtSecret.request;
 ```
 
 On the `nextcloud` module side, we need to configure it to talk to the LDAP server we
@@ -175,12 +178,13 @@ shb.nextcloud.apps.ldap = {
   port = config.shb.ldap.ldapPort;
   dcdomain = config.shb.ldap.dcdomain;
   adminName = "admin";
-  adminPassword.result.path = config.sops.secrets."nextcloud/ldapUserPassword".path
+  adminPassword.result = config.shb.sops.secrets."nextcloud/ldap/adminPassword".result
   userGroup = "nextcloud_user";
 };
 
-sops.secrets."nextcloud/ldapUserPassword" = config.shb.nextcloud.adminPasswordFile.request // {
-  key = "ldap/userPassword";
+shb.sops.secrets."nextcloud/ldap/adminPassword" = {
+  request = config.shb.nextcloud.apps.ldap.adminPassword.request;
+  settings.key = "ldap/userPassword";
 };
 ```
 
@@ -202,7 +206,7 @@ so you need to create a normal user like above,
 login with it once so it is known to Nextcloud, then logout,
 login with the admin Nextcloud user and promote that new user to admin level.
 
-### With OIDC Support {#services-nextcloud-server-usage-oidc}
+### With SSO Support {#services-nextcloud-server-usage-oidc}
 
 :::: {.note}
 This section corresponds to the `sso` section of the [Nextcloud
@@ -230,26 +234,28 @@ shb.authelia = {
     port = 587;
     username = "postmaster@mg.example.com";
     from_address = "authelia@example.com";
-    password.result.path = config.sops.secrets."authelia/smtp_password".path;
+    password.result = config.shb.sops.secrets."authelia/smtp_password".result;
   };
 
   secrets = {
-    jwtSecret.result.path = config.sops.secrets."authelia/jwt_secret".path;
-    ldapAdminPassword.result.path = config.sops.secrets."authelia/ldap_admin_password".path;
-    sessionSecret.result.path = config.sops.secrets."authelia/session_secret".path;
-    storageEncryptionKey.result.path = config.sops.secrets."authelia/storage_encryption_key".path;
-    identityProvidersOIDCHMACSecret.result.path = config.sops.secrets."authelia/hmac_secret".path;
-    identityProvidersOIDCIssuerPrivateKey.result.path = config.sops.secrets."authelia/private_key".path;
+    jwtSecret.result = config.shb.sops.secrets."authelia/jwt_secret".result;
+    ldapAdminPassword.result = config.shb.sops.secrets."authelia/ldap_admin_password".result;
+    sessionSecret.result = config.shb.sops.secrets."authelia/session_secret".result;
+    storageEncryptionKey.result = config.shb.sops.secrets."authelia/storage_encryption_key".result;
+    identityProvidersOIDCHMACSecret.result = config.shb.sops.secrets."authelia/hmac_secret".result;
+    identityProvidersOIDCIssuerPrivateKey.result = config.shb.sops.secrets."authelia/private_key".result;
   };
 };
 
-sops.secrets."authelia/jwt_secret" = config.shb.authelia.secrets.jwtSecret.request;
-sops.secrets."authelia/ldap_admin_password" = config.shb.authelia.secrets.ldapAdminPassword.request;
-sops.secrets."authelia/session_secret" = config.shb.authelia.secrets.sessionSecret.request;
-sops.secrets."authelia/storage_encryption_key" = config.shb.authelia.secrets.storageEncryptionKey.request;
-sops.secrets."authelia/hmac_secret" = config.shb.authelia.secrets.identityProvidersOIDCHMACSecret.request;
-sops.secrets."authelia/private_key" = config.shb.authelia.secrets.identityProvidersOIDCIssuerPrivateKey.request;
-sops.secrets."authelia/smtp_password" = config.shb.authelia.smtp.password.request;
+shb.certs.certs.letsencrypt."example.com".extraDomains = [ "auth.example.com" ];
+
+shb.sops.secrets."authelia/jwt_secret".request = config.shb.authelia.secrets.jwtSecret.request;
+shb.sops.secrets."authelia/ldap_admin_password".request = config.shb.authelia.secrets.ldapAdminPassword.request;
+shb.sops.secrets."authelia/session_secret".request = config.shb.authelia.secrets.sessionSecret.request;
+shb.sops.secrets."authelia/storage_encryption_key".request = config.shb.authelia.secrets.storageEncryptionKey.request;
+shb.sops.secrets."authelia/hmac_secret".request = config.shb.authelia.secrets.identityProvidersOIDCHMACSecret.request;
+shb.sops.secrets."authelia/private_key".request = config.shb.authelia.secrets.identityProvidersOIDCIssuerPrivateKey.request;
+shb.sops.secrets."authelia/smtp_password".request = config.shb.authelia.smtp.password.request;
 ```
 
 The secrets can be randomly generated with `nix run nixpkgs#openssl -- rand -hex 64`.
@@ -263,13 +269,14 @@ shb.nextcloud.apps.sso = {
   clientID = "nextcloud";
   fallbackDefaultAuth = false;
 
-  secret.result.path = config.sops.secrets."nextcloud/sso/secret".path;
-  secretForAuthelia.result.path = config.sops.secrets."nextcloud/sso/secretForAuthelia".path;
+  secret.result = config.shb.sops.secrets."nextcloud/sso/secret".result;
+  secretForAuthelia.result = config.shb.sops.secrets."nextcloud/sso/secretForAuthelia".result;
 };
 
-sops.secret."nextcloud/sso/secret" = config.shb.nextcloud.apps.sso.secret.request;
-sops.secret."nextcloud/sso/secretForAuthelia" = config.shb.nextcloud.apps.sso.secretForAuthelia.request // {
-  key = "nextcloud/sso/secret";
+shb.sops.secret."nextcloud/sso/secret".request = config.shb.nextcloud.apps.sso.secret.request;
+shb.sops.secret."nextcloud/sso/secretForAuthelia" = {
+  request = config.shb.nextcloud.apps.sso.secretForAuthelia.request;
+  settings.key = "nextcloud/sso/secret";
 };
 ```
 

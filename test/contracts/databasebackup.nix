@@ -10,10 +10,11 @@ in
     modules = [
       ../../modules/blocks/postgresql.nix
       ../../modules/blocks/restic.nix
+      ../../modules/blocks/hardcodedsecret.nix
     ];
-    settings = repository: {
+    settings = { repository, config, ... }: {
       enable = true;
-      passphrase.result.path = pkgs.writeText "passphrase" "PassPhrase";
+      passphrase.result = config.shb.hardcodedsecret.passphrase.result;
       repository = {
         path = repository;
         timerConfig = {
@@ -21,12 +22,17 @@ in
         };
       };
     };
-    extraConfig = { username, database, ... }: {
+    extraConfig = { config, database, ... }: {
       shb.postgresql.ensures = [
         {
-          inherit username database;
+          inherit database;
+          username = database;
         }
       ];
+      shb.hardcodedsecret.passphrase = {
+        request = config.shb.restic.databases.postgresql.settings.passphrase.request;
+        settings.content = "passphrase";
+      };
     };
   };
 }

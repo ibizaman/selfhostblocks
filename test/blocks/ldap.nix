@@ -1,6 +1,8 @@
 { pkgs, lib, ... }:
 let
   pkgs' = pkgs;
+
+  password = "securepassword";
 in
 {
   auth = pkgs.testers.runNixOSTest {
@@ -15,6 +17,7 @@ in
             shb.ssl.enable = lib.mkEnableOption "ssl";
           };
         }
+        ../../modules/blocks/hardcodedsecret.nix
         ../../modules/blocks/ldap.nix
       ];
 
@@ -23,10 +26,19 @@ in
         dcdomain = "dc=example,dc=com";
         subdomain = "ldap";
         domain = "example.com";
-        ldapUserPassword.result.path = pkgs.writeText "user_password" "securepw";
-        jwtSecret.result.path = pkgs.writeText "jwt_secret" "securejwtsecret";
+        ldapUserPassword.result = config.shb.hardcodedsecret.ldapUserPassword.result;
+        jwtSecret.result = config.shb.hardcodedsecret.jwtSecret.result;
         debug = true;
       };
+      shb.hardcodedsecret.ldapUserPassword = {
+        request = config.shb.ldap.ldapUserPassword.request;
+        settings.content = password;
+      };
+      shb.hardcodedsecret.jwtSecret = {
+        request = config.shb.ldap.jwtSecret.request;
+        settings.content = "jwtSecret";
+      };
+
       networking.firewall.allowedTCPPorts = [ 80 ]; # nginx port
     };
 
@@ -63,7 +75,7 @@ in
             + """ -H "Content-type: application/json" """
             + """ -H "Host: ldap.example.com" """
             + " http://server/auth/simple/login "
-            + """ -d '{"username": "admin", "password": "securepw"}' """
+            + """ -d '{"username": "admin", "password": "${password}"}' """
         ))['token']
 
         data = json.loads(client.succeed(

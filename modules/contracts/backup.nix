@@ -1,7 +1,7 @@
 { lib, ... }:
 let
   inherit (lib) mkOption;
-  inherit (lib.types) anything listOf nonEmptyListOf submodule str;
+  inherit (lib.types) listOf nonEmptyListOf submodule str;
 in
 {
   request = submodule {
@@ -9,8 +9,6 @@ in
       user = mkOption {
         description = ''
           Unix user doing the backups.
-
-          Most of the time, this should be the user owning the files.
         '';
         type = str;
       };

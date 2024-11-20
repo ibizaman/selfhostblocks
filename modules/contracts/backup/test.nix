@@ -16,7 +16,7 @@ in
     "/opt/files/B"
   ],
   settings, # { repository, config } -> attrset
-  extraConfig ? null, # { username } -> attrset
+  extraConfig ? null, # { username, config } -> attrset
 }: pkgs.testers.runNixOSTest {
   inherit name;
 
@@ -41,7 +41,7 @@ in
           group = "root";
         };
       })
-      (optionalAttrs (extraConfig != null) (extraConfig { inherit username; }))
+      (optionalAttrs (extraConfig != null) (extraConfig { inherit username config; }))
     ];
   };
 

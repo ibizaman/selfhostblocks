@@ -148,11 +148,14 @@ Provided contracts are:
 - [SSL generator contract](contracts-ssl.html) to generate SSL certificates.
   Two providers are implemented: self-signed and Let's Encrypt.
 - [Backup contract](contracts-backup.html) to backup directories.
-  One provider is implemented: Restic.
+  One provider is implemented: [Restic][].
 - [Database Backup contract](contracts-databasebackup.html) to backup database dumps.
-  One provider is implemented: Restic.
+  One provider is implemented: [Restic][].
 - [Secret contract](contracts-secret.html) to provide secrets that are deployed outside of the Nix store.
-  One provider is implemented: SOPS.
+  One provider is implemented: [SOPS][].
+
+[restic]: blocks-restic.html
+[sops]: blocks-sops.html
 
 ```{=include=} chapters html:into-file=//contracts-ssl.html
 modules/contracts/ssl/docs/default.md

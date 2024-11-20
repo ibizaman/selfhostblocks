@@ -30,6 +30,10 @@ services you already have deployed.
 Not all blocks are yet documented. You can find all available blocks [in the repository](@REPO@/modules/blocks).
 :::
 
+```{=include=} chapters html:into-file=//blocks-sops.html
+modules/blocks/sops/docs/default.md
+```
+
 ```{=include=} chapters html:into-file=//blocks-ssl.html
 modules/blocks/ssl/docs/default.md
 ```

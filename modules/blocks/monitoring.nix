@@ -82,14 +82,28 @@ in
       default = [];
     };
 
-    adminPasswordFile = lib.mkOption {
-      type = lib.types.path;
-      description = "File containing the initial admin password.";
+    adminPassword = lib.mkOption {
+      description = "Initial admin password.";
+      type = lib.types.submodule {
+        options = contracts.secret.mkRequester {
+          mode = "0400";
+          owner = "grafana";
+          group = "grafana";
+          restartUnits = [ "grafana.service" ];
+        };
+      };
     };
 
-    secretKeyFile = lib.mkOption {
-      type = lib.types.path;
-      description = "File containing the secret key used for signing.";
+    secretKey = lib.mkOption {
+      description = "Secret key used for signing.";
+      type = lib.types.submodule {
+        options = contracts.secret.mkRequester {
+          mode = "0400";
+          owner = "grafana";
+          group = "grafana";
+          restartUnits = [ "grafana.service" ];
+        };
+      };
     };
 
     smtp = lib.mkOption {
@@ -159,9 +173,9 @@ in
         };
 
         security = {
-          secret_key = "$__file{${cfg.secretKeyFile}}";
+          secret_key = "$__file{${cfg.secretKey.result.path}}";
           disable_initial_admin_creation = false; # Enable when LDAP support is configured.
-          admin_password = "$__file{${cfg.adminPasswordFile}}"; # Remove when LDAP support is configured.
+          admin_password = "$__file{${cfg.adminPassword.result.path}}"; # Remove when LDAP support is configured.
         };
 
         server = {

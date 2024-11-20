@@ -12,7 +12,7 @@ Specific integration tests are defined in [`/test/blocks/restic.nix`](@REPO@/tes
 
 ## Provider Contracts {#blocks-restic-contract-provider}
 
-This block provides:
+This block provides the following contracts:
 
 - [backup contract](contracts-backup.html) under the [`shb.restic.instances`][instances] option.
   It is tested with [contract tests][backup contract tests].
@@ -31,10 +31,11 @@ the only requirement to run it is to be able to `sudo` in the expected user.
 
 ## Usage {#blocks-restic-usage}
 
-The following examples assume usage of SOPS to provide secrets
+The following examples assume usage of the [sops block][] to provide secrets
 although any blocks providing the [secrets contract][] works too.
-The [secrets setup section](usage.html#usage-secrets) explains
-how to setup SOPS.
+
+[sops block]: ./blocks-sops.html
+[secrets contract]: ./contracts-secrets.html
 
 ### One folder backed up manually {#blocks-restic-usage-provider-manual}
 
@@ -55,7 +56,7 @@ shb.restic.instances."myservice" = {
   settings = {
     enable = true;
 
-    passphraseFile = "<path/to/passphrase>";
+    passphrase.result = shb.sops.secret."passphrase".result;
 
     repository = {
       path = "/srv/backups/myservice";
@@ -74,6 +75,9 @@ shb.restic.instances."myservice" = {
     };
   };
 };
+
+shb.sops.secret."passphrase".request =
+  shb.restic.instances."myservice".settings.passphrase.request;
 ```
 
 ### One folder backed up with contract {#blocks-restic-usage-provider-contract}
@@ -89,7 +93,7 @@ shb.restic.instances."myservice" = {
   settings = {
     enable = true;
 
-    passphraseFile = "<path/to/passphrase>";
+    passphrase.result = shb.sops.secret."passphrase".result;
 
     repository = {
       path = "/srv/backups/myservice";
@@ -108,6 +112,9 @@ shb.restic.instances."myservice" = {
     };
   };
 };
+
+shb.sops.secret."passphrase".request =
+  shb.restic.instances."myservice".settings.passphrase.request;
 ```
 
 ### One folder backed up to S3 {#blocks-restic-usage-provider-remote}

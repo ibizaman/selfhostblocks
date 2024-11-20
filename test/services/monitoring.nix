@@ -30,8 +30,17 @@ let
       inherit subdomain domain;
 
       grafanaPort = 3000;
-      adminPasswordFile = pkgs.writeText "admin_password" password;
-      secretKeyFile = pkgs.writeText "secret_key" "secret_key";
+      adminPassword.result = config.shb.hardcodedsecret."admin_password".result;
+      secretKey.result = config.shb.hardcodedsecret."secret_key".result;
+    };
+
+    shb.hardcodedsecret."admin_password" = {
+      request = config.shb.monitoring.adminPassword.request;
+      settings.content = password;
+    };
+    shb.hardcodedsecret."secret_key" = {
+      request = config.shb.monitoring.secretKey.request;
+      settings.content = "secret_key_pw";
     };
   };
 

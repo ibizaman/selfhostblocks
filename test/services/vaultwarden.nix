@@ -51,6 +51,7 @@ let
   };
 
   base = testLib.base pkgs' [
+    ../../modules/blocks/hardcodedsecret.nix
     ../../modules/services/vaultwarden.nix
   ];
 
@@ -61,7 +62,11 @@ let
       inherit subdomain domain;
 
       port = 8222;
-      databasePasswordFile = pkgs.writeText "pwfile" "DBPASSWORDFILE";
+      databasePassword.result = config.shb.hardcodedsecret.passphrase.result;
+    };
+    shb.hardcodedsecret.passphrase = {
+      request = config.shb.vaultwarden.databasePassword.request;
+      settings.content = "PassPhrase";
     };
 
     # networking.hosts = {
@@ -97,7 +102,7 @@ let
       request = config.shb.vaultwarden.backup;
       settings = {
         enable = true;
-        passphrase.result.path = config.shb.hardcodedsecret.passphrase.path;
+        passphrase.result = config.shb.hardcodedsecret.backupPassphrase.result;
         repository = {
           path = "/opt/repos/A";
           timerConfig = {
@@ -107,8 +112,9 @@ let
         };
       };
     };
-    shb.hardcodedsecret.passphrase = config.shb.restic.instances."testinstance".settings.passphrase.request // {
-      content = "PassPhrase";
+    shb.hardcodedsecret.backupPassphrase = {
+      request = config.shb.restic.instances."testinstance".settings.passphrase.request;
+      settings.content = "PassPhrase";
     };
   };
 in

@@ -9,11 +9,10 @@ in
 { name,
   requesterRoot,
   providerRoot,
-  extraConfig ? null, # { username, database } -> attrset
+  extraConfig ? null, # { config, database } -> attrset
   modules ? [],
-  username ? "me",
   database ? "me",
-  settings, # repository -> attrset
+  settings, # { repository, config } -> attrset
 }: pkgs.testers.runNixOSTest {
   inherit name;
 
@@ -22,16 +21,19 @@ in
     config = lib.mkMerge [
       (setAttrByPath providerRoot {
         request = (getAttrFromPath requesterRoot config).databasebackup;
-        settings = settings "/opt/repos/database";
+        settings = settings {
+          inherit config;
+          repository = "/opt/repos/database";
+        };
       })
-      (mkIf (username != "root") {
-        users.users.${username} = {
+      (mkIf (database != "root") {
+        users.users.${database} = {
           isSystemUser = true;
           extraGroups = [ "sudoers" ];
           group = "root";
         };
       })
-      (optionalAttrs (extraConfig != null) (extraConfig { inherit username database; }))
+      (optionalAttrs (extraConfig != null) (extraConfig { inherit config database; }))
     ];
   };
 
@@ -45,7 +47,7 @@ in
     machine.wait_for_open_port(5432)
 
     def peer_cmd(cmd, db="me"):
-        return "sudo -u me psql -U me {db} --csv --command \"{cmd}\"".format(cmd=cmd, db=db)
+        return "sudo -u ${database} psql -U ${database} {db} --csv --command \"{cmd}\"".format(cmd=cmd, db=db)
 
     def query(query):
         res = machine.succeed(peer_cmd(query))
@@ -68,10 +70,11 @@ in
 
     with subtest("backup"):
         print(machine.succeed("systemctl cat ${provider.backupService}"))
+        print(machine.succeed("ls -l /run/hardcodedsecrets/hardcodedsecret_passphrase"))
         machine.succeed("systemctl start ${provider.backupService}")
 
     with subtest("drop database"):
-        machine.succeed(peer_cmd("DROP DATABASE me", db="postgres"))
+        machine.succeed(peer_cmd("DROP DATABASE ${database}", db="postgres"))
         machine.fail(peer_cmd("SELECT * FROM test"))
 
     with subtest("restore"):

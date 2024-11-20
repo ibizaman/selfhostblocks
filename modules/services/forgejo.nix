@@ -4,13 +4,16 @@ let
   cfg = config.shb.forgejo;
 
   contracts = pkgs.callPackage ../contracts {};
+
+  inherit (lib) getExe lists literalExpression mkBefore mkEnableOption mkForce mkIf mkMerge mkOption mkOverride optionals;
+  inherit (lib.types) bool enum listOf nullOr package port submodule str;
 in
 {
   options.shb.forgejo = {
-    enable = lib.mkEnableOption "selfhostblocks.forgejo";
+    enable = mkEnableOption "selfhostblocks.forgejo";
 
-    subdomain = lib.mkOption {
-      type = lib.types.str;
+    subdomain = mkOption {
+      type = str;
       description = ''
         Subdomain under which Forgejo will be served.
 
@@ -21,7 +24,7 @@ in
       example = "forgejo";
     };
 
-    domain = lib.mkOption {
+    domain = mkOption {
       description = ''
         Domain under which Forgejo is served.
 
@@ -29,75 +32,79 @@ in
         <subdomain>.<domain>[:<port>]
         ```
       '';
-      type = lib.types.str;
+      type = str;
       example = "domain.com";
     };
 
-    ssl = lib.mkOption {
+    ssl = mkOption {
       description = "Path to SSL files";
-      type = lib.types.nullOr contracts.ssl.certs;
+      type = nullOr contracts.ssl.certs;
       default = null;
     };
 
-    ldap = lib.mkOption {
+    ldap = mkOption {
       description = ''
         LDAP Integration.
       '';
       default = {};
-      type = lib.types.nullOr (lib.types.submodule {
+      type = nullOr (submodule {
         options = {
-          enable = lib.mkEnableOption "LDAP integration.";
+          enable = mkEnableOption "LDAP integration.";
 
-          provider = lib.mkOption {
-            type = lib.types.enum [ "LLDAP" ];
+          provider = mkOption {
+            type = enum [ "LLDAP" ];
             description = "LDAP provider name, used for display.";
             default = "LLDAP";
           };
 
-          host = lib.mkOption {
-            type = lib.types.str;
+          host = mkOption {
+            type = str;
             description = ''
               Host serving the LDAP server.
             '';
             default = "127.0.0.1";
           };
 
-          port = lib.mkOption {
-            type = lib.types.port;
+          port = mkOption {
+            type = port;
             description = ''
               Port of the service serving the LDAP server.
             '';
             default = 389;
           };
 
-          dcdomain = lib.mkOption {
-            type = lib.types.str;
+          dcdomain = mkOption {
+            type = str;
             description = "dc domain for ldap.";
             example = "dc=mydomain,dc=com";
           };
 
-          adminName = lib.mkOption {
-            type = lib.types.str;
+          adminName = mkOption {
+            type = str;
             description = "Admin user of the LDAP server.";
             default = "admin";
           };
 
-          adminPassword = contracts.secret.mkOption {
+          adminPassword = mkOption {
             description = "LDAP admin password.";
-            mode = "0440";
-            owner = "forgejo";
-            group = "forgejo";
-            restartUnits = [ "forgejo.service" ];
+            type = submodule {
+              options = contracts.secret.mkRequester {
+                mode = "0440";
+                owner = "forgejo";
+                group = "forgejo";
+                restartUnits = [ "forgejo.service" ];
+              };
+            };
           };
 
-          userGroup = lib.mkOption {
-            type = lib.types.str;
+          userGroup = mkOption {
+            type = str;
             description = "Group users must belong to be able to login.";
             default = "forgejo_user";
           };
 
-          adminGroup = lib.mkOption {
-            type = lib.types.str;
+          adminGroup = mkOption {
+            type = str;
             description = "Group users must belong to be admins.";
             default = "forgejo_admin";
           };
@@ -105,81 +112,97 @@ in
       });
     };
 
-    sso = lib.mkOption {
+    sso = mkOption {
       description = ''
         Setup SSO integration.
       '';
       default = {};
-      type = lib.types.submodule {
+      type = submodule {
         options = {
-          enable = lib.mkEnableOption "SSO integration.";
+          enable = mkEnableOption "SSO integration.";
 
-          provider = lib.mkOption {
-            type = lib.types.enum [ "Authelia" ];
+          provider = mkOption {
+            type = enum [ "Authelia" ];
             description = "OIDC provider name, used for display.";
             default = "Authelia";
           };
 
-          endpoint = lib.mkOption {
-            type = lib.types.str;
+          endpoint = mkOption {
+            type = str;
             description = "OIDC endpoint for SSO.";
             example = "https://authelia.example.com";
           };
 
-          clientID = lib.mkOption {
-            type = lib.types.str;
+          clientID = mkOption {
+            type = str;
             description = "Client ID for the OIDC endpoint.";
             default = "forgejo";
           };
 
-          authorization_policy = lib.mkOption {
-            type = lib.types.enum [ "one_factor" "two_factor" ];
+          authorization_policy = mkOption {
+            type = enum [ "one_factor" "two_factor" ];
             description = "Require one factor (password) or two factor (device) authentication.";
             default = "one_factor";
           };
 
-          sharedSecret = contracts.secret.mkOption {
+          sharedSecret = mkOption {
             description = "OIDC shared secret for Forgejo.";
-            mode = "0440";
-            owner = "forgejo";
-            group = "forgejo";
-            restartUnits = [ "forgejo.service" ];
+            type = submodule {
+              options = contracts.secret.mkRequester {
+                mode = "0440";
+                owner = "forgejo";
+                group = "forgejo";
+                restartUnits = [ "forgejo.service" ];
+              };
+            };
           };
 
-          sharedSecretForAuthelia = contracts.secret.mkOption {
+          sharedSecretForAuthelia = mkOption {
             description = "OIDC shared secret for Authelia.";
-            mode = "0400";
-            owner = "authelia";
+            type = submodule {
+              options = contracts.secret.mkRequester {
+                mode = "0400";
+                owner = "authelia";
+              };
+            };
           };
         };
       };
     };
 
-    adminPassword = contracts.secret.mkOption {
+    adminPassword = mkOption {
       description = "File containing the Forgejo admin user password.";
-      mode = "0440";
-      owner = "forgejo";
-      group = "forgejo";
-      restartUnits = [ "forgejo.service" ];
+      type = submodule {
+        options = contracts.secret.mkRequester {
+          mode = "0440";
+          owner = "forgejo";
+          group = "forgejo";
+          restartUnits = [ "forgejo.service" ];
+        };
+      };
     };
 
-    databasePassword = contracts.secret.mkOption {
+    databasePassword = mkOption {
       description = "File containing the Forgejo database password.";
-      mode = "0440";
-      owner = "forgejo";
-      group = "forgejo";
-      restartUnits = [ "forgejo.service" ];
+      type = submodule {
+        options = contracts.secret.mkRequester {
+          mode = "0440";
+          owner = "forgejo";
+          group = "forgejo";
+          restartUnits = [ "forgejo.service" ];
+        };
+      };
     };
 
-    repositoryRoot = lib.mkOption {
-      type = lib.types.nullOr lib.types.str;
+    repositoryRoot = mkOption {
+      type = nullOr str;
       description = "Path where to store the repositories. If null, uses the default under the Forgejo StateDir.";
       default = null;
       example = "/srv/forgejo";
     };
 
-    localActionRunner = lib.mkOption {
-      type = lib.types.bool;
+    localActionRunner = mkOption {
+      type = bool;
       default = true;
       description = ''
         Enable local action runner that runs for all labels.
@@ -187,8 +210,8 @@ in
     };
 
 
-    hostPackages = lib.mkOption {
-      type = lib.types.listOf lib.types.package;
+    hostPackages = mkOption {
+      type = listOf package;
       default = with pkgs; [
         bash
         coreutils
@@ -199,7 +222,7 @@ in
         nodejs
         wget
       ];
-      defaultText = lib.literalExpression ''
+      defaultText = literalExpression ''
         with pkgs; [
           bash
           coreutils
@@ -217,7 +240,7 @@ in
       '';
     };
 
-    backup = lib.mkOption {
+    backup = mkOption {
       type = contracts.backup.request;
       description = ''
         Backup configuration. This is an output option.
@@ -239,13 +262,13 @@ in
         user = options.services.forgejo.user.value;
         sourceDirectories = [
           options.services.forgejo.dump.backupDir.value
-        ] ++ lib.optionals (cfg.repositoryRoot != null) [
+        ] ++ optionals (cfg.repositoryRoot != null) [
           cfg.repositoryRoot
         ];
       };
     };
 
-    mount = lib.mkOption {
+    mount = mkOption {
       type = contracts.mount;
       description = ''
         Mount configuration. This is an output option.
@@ -263,51 +286,51 @@ in
       default = { path = config.services.forgejo.stateDir; };
     };
 
-    smtp = lib.mkOption {
+    smtp = mkOption {
       description = ''
         Send notifications by smtp.
       '';
       default = null;
-      type = lib.types.nullOr (lib.types.submodule {
+      type = nullOr (submodule {
         options = {
-          from_address = lib.mkOption {
-            type = lib.types.str;
+          from_address = mkOption {
+            type = str;
             description = "SMTP address from which the emails originate.";
             example = "authelia@mydomain.com";
           };
-          host = lib.mkOption {
-            type = lib.types.str;
+          host = mkOption {
+            type = str;
             description = "SMTP host to send the emails to.";
           };
-          port = lib.mkOption {
-            type = lib.types.port;
+          port = mkOption {
+            type = port;
             description = "SMTP port to send the emails to.";
             default = 25;
           };
-          username = lib.mkOption {
-            type = lib.types.str;
+          username = mkOption {
+            type = str;
             description = "Username to connect to the SMTP host.";
           };
-          passwordFile = lib.mkOption {
-            type = lib.types.str;
+          passwordFile = mkOption {
+            type = str;
             description = "File containing the password to connect to the SMTP host.";
           };
         };
       });
     };
 
-    debug = lib.mkOption {
+    debug = mkOption {
       description = "Enable debug logging.";
-      type = lib.types.bool;
+      type = bool;
       default = false;
     };
   };
 
-  config = lib.mkMerge [
-    (lib.mkIf cfg.enable {
+  config = mkMerge [
+    (mkIf cfg.enable {
       services.forgejo = {
         enable = true;
-        repositoryRoot = lib.mkIf (cfg.repositoryRoot != null) cfg.repositoryRoot;
+        repositoryRoot = mkIf (cfg.repositoryRoot != null) cfg.repositoryRoot;
         settings = {
           server = {
             DOMAIN = cfg.domain;
@@ -328,10 +351,10 @@ in
       };
 
       # 1 lower than default, to solve conflict between shb.postgresql and nixpkgs' forgejo module.
-      services.postgresql.enable = lib.mkOverride 999 true;
+      services.postgresql.enable = mkOverride 999 true;
 
       # https://github.com/NixOS/nixpkgs/issues/258371#issuecomment-2271967113
-      systemd.services.forgejo.serviceConfig.Type = lib.mkForce "exec";
+      systemd.services.forgejo.serviceConfig.Type = mkForce "exec";
 
       shb.nginx.vhosts = [{
         inherit (cfg) domain subdomain ssl;
@@ -339,7 +362,7 @@ in
       }];
     })
 
-    (lib.mkIf cfg.enable {
+    (mkIf cfg.enable {
       services.forgejo.database = {
         type = "postgres";
 
@@ -347,7 +370,7 @@ in
       };
     })
 
-    (lib.mkIf cfg.enable {
+    (mkIf cfg.enable {
       services.forgejo.dump = {
         enable = true;
         type = "tar.gz";
@@ -358,12 +381,12 @@ in
     # For Forgejo setup: https://github.com/lldap/lldap/blob/main/example_configs/gitea.md
     # For cli info: https://docs.gitea.com/usage/command-line
     # Security protocols in: https://codeberg.org/forgejo/forgejo/src/branch/forgejo/services/auth/source/ldap/security_protocol.go#L27-L31
-    (lib.mkIf (cfg.enable && cfg.ldap.enable != false) {
+    (mkIf (cfg.enable && cfg.ldap.enable != false) {
       # The delimiter in the `cut` command is a TAB!
       systemd.services.forgejo.preStart = let
         provider = "SHB-${cfg.ldap.provider}";
       in ''
-        auth="${lib.getExe config.services.forgejo.package} admin auth"
+        auth="${getExe config.services.forgejo.package} admin auth"
 
         echo "Trying to find existing ldap configuration for ${provider}"...
         set +e -o pipefail
@@ -417,7 +440,7 @@ in
     # For Authelia to Forgejo integration: https://www.authelia.com/integration/openid-connect/gitea/
     # For Forgejo config: https://forgejo.org/docs/latest/admin/config-cheat-sheet
     # For cli info: https://docs.gitea.com/usage/command-line
-    (lib.mkIf (cfg.enable && cfg.sso.enable != false) {
+    (mkIf (cfg.enable && cfg.sso.enable != false) {
       services.forgejo.settings = {
         oauth2 = {
           ENABLED = true;
@@ -430,7 +453,7 @@ in
         };
         
         service = {
-          # DISABLE_REGISTRATION = lib.mkForce false;
+          # DISABLE_REGISTRATION = mkForce false;
           # ALLOW_ONLY_EXTERNAL_REGISTRATION = false;
           SHOW_REGISTRATION_BUTTON = false;
         };
@@ -440,7 +463,7 @@ in
       systemd.services.forgejo.preStart = let
         provider = "SHB-${cfg.sso.provider}";
       in ''
-        auth="${lib.getExe config.services.forgejo.package} admin auth"
+        auth="${getExe config.services.forgejo.package} admin auth"
 
         echo "Trying to find existing sso configuration for ${provider}"...
         set +e -o pipefail
@@ -468,7 +491,7 @@ in
         fi
       '';
 
-      shb.authelia.oidcClients = lib.lists.optionals (!(isNull cfg.sso)) [
+      shb.authelia.oidcClients = lists.optionals (!(isNull cfg.sso)) [
         (let
           provider = "SHB-${cfg.sso.provider}";
         in {
@@ -482,15 +505,15 @@ in
       ];
     })
 
-    (lib.mkIf cfg.enable {
+    (mkIf cfg.enable {
       systemd.services.forgejo.preStart = ''
-        admin="${lib.getExe config.services.forgejo.package} admin user"
+        admin="${getExe config.services.forgejo.package} admin user"
         $admin create --admin --email "root@localhost" --username meadmin --password "$(tr -d '\n' < ${cfg.adminPassword.result.path})" || true
         $admin change-password --username meadmin --password "$(tr -d '\n' < ${cfg.adminPassword.result.path})" || true
 '';
     })
 
-    (lib.mkIf (cfg.enable && cfg.smtp != null) {
+    (mkIf (cfg.enable && cfg.smtp != null) {
       services.forgejo.settings.mailer = {
         ENABLED = true;
         SMTP_ADDR = "${cfg.smtp.host}:${toString cfg.smtp.port}";
@@ -502,13 +525,13 @@ in
     })
 
     # https://wiki.nixos.org/wiki/Forgejo#Runner
-    (lib.mkIf cfg.enable {
+    (mkIf cfg.enable {
       services.forgejo.settings.actions = {
         ENABLED = true;
         DEFAULT_ACTIONS_URL = "github";
       };
 
-      services.gitea-actions-runner = lib.mkIf cfg.localActionRunner {
+      services.gitea-actions-runner = mkIf cfg.localActionRunner {
         package = pkgs.forgejo-actions-runner;
         instances.local = {
           enable = true;
@@ -530,9 +553,9 @@ in
 
       # This combined with the next statement takes care of
       # automatically registering a forgejo runner.
-      systemd.services.forgejo.postStart = lib.mkIf cfg.localActionRunner (lib.mkBefore ''
+      systemd.services.forgejo.postStart = mkIf cfg.localActionRunner (mkBefore ''
         ${pkgs.bash}/bin/bash -c '(while ! ${pkgs.netcat-openbsd}/bin/nc -z -U ${config.services.forgejo.settings.server.HTTP_ADDR}; do echo "Waiting for unix ${config.services.forgejo.settings.server.HTTP_ADDR} to open..."; sleep 2; done); sleep 2'
-        actions="${lib.getExe config.services.forgejo.package} actions"
+        actions="${getExe config.services.forgejo.package} actions"
         echo -n TOKEN= > /run/forgejo/forgejo-runner-token
         $actions generate-runner-token >> /run/forgejo/forgejo-runner-token
       '');

@@ -34,8 +34,8 @@ let
       enable = true;
       inherit domain subdomain;
 
-      adminPassword.result.path = config.shb.hardcodedsecret.forgejoAdminPassword.path;
-      databasePassword.result.path = config.shb.hardcodedsecret.forgejoDatabasePassword.path;
+      adminPassword.result = config.shb.hardcodedsecret.forgejoAdminPassword.result;
+      databasePassword.result = config.shb.hardcodedsecret.forgejoDatabasePassword.result;
     };
 
     # Needed for gitea-runner-local to be able to ping forgejo.
@@ -43,12 +43,14 @@ let
       "127.0.0.1" = [ "${subdomain}.${domain}" ];
     };
 
-    shb.hardcodedsecret.forgejoAdminPassword = config.shb.forgejo.adminPassword.request // {
-      content = adminPassword;
+    shb.hardcodedsecret.forgejoAdminPassword = {
+      request = config.shb.forgejo.adminPassword.request;
+      settings.content = adminPassword;
     };
 
-    shb.hardcodedsecret.forgejoDatabasePassword = config.shb.forgejo.databasePassword.request // {
-      content = "databasePassword";
+    shb.hardcodedsecret.forgejoDatabasePassword = {
+      request = config.shb.forgejo.databasePassword.request;
+      settings.content = "databasePassword";
     };
   };
 
@@ -65,12 +67,13 @@ let
         host = "127.0.0.1";
         port = config.shb.ldap.ldapPort;
         dcdomain = config.shb.ldap.dcdomain;
-        adminPassword.result.path = config.shb.hardcodedsecret.forgejoLdapUserPassword.path;
+        adminPassword.result = config.shb.hardcodedsecret.forgejoLdapUserPassword.result;
       };
     };
 
-    shb.hardcodedsecret.forgejoLdapUserPassword = config.shb.forgejo.ldap.adminPassword.request // {
-      content = "ldapUserPassword";
+    shb.hardcodedsecret.forgejoLdapUserPassword = {
+      request = config.shb.forgejo.ldap.adminPassword.request;
+      settings.content = "ldapUserPassword";
     };
   };
 
@@ -79,17 +82,19 @@ let
       sso = {
         enable = true;
         endpoint = "https://${config.shb.authelia.subdomain}.${config.shb.authelia.domain}";
-        sharedSecret.result.path = config.shb.hardcodedsecret.forgejoSSOPassword.path;
-        sharedSecretForAuthelia.result.path = config.shb.hardcodedsecret.forgejoSSOPasswordAuthelia.path;
+        sharedSecret.result = config.shb.hardcodedsecret.forgejoSSOPassword.result;
+        sharedSecretForAuthelia.result = config.shb.hardcodedsecret.forgejoSSOPasswordAuthelia.result;
       };
     };
 
-    shb.hardcodedsecret.forgejoSSOPassword = config.shb.forgejo.sso.sharedSecret.request // {
-      content = "ssoPassword";
+    shb.hardcodedsecret.forgejoSSOPassword = {
+      request = config.shb.forgejo.sso.sharedSecret.request;
+      settings.content = "ssoPassword";
     };
 
-    shb.hardcodedsecret.forgejoSSOPasswordAuthelia = config.shb.forgejo.sso.sharedSecretForAuthelia.request // {
-      content = "ssoPassword";
+    shb.hardcodedsecret.forgejoSSOPasswordAuthelia = {
+      request = config.shb.forgejo.sso.sharedSecretForAuthelia.request;
+      settings.content = "ssoPassword";
     };
   };
 in

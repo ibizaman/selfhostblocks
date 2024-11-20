@@ -7,8 +7,8 @@ in
     name = "hardcoded";
     modules = [ ../../modules/blocks/hardcodedsecret.nix ];
     configRoot = [ "shb" "hardcodedsecret" ];
-    createContent = {
-      content = "secretA";
+    settingsCfg = secret: {
+      content = secret;
     };
   };
 
@@ -16,8 +16,8 @@ in
     name = "hardcoded";
     modules = [ ../../modules/blocks/hardcodedsecret.nix ];
     configRoot = [ "shb" "hardcodedsecret" ];
-    createContent = {
-      content = "secretA";
+    settingsCfg = secret: {
+      content = secret;
     };
     owner = "user";
     group = "group";
