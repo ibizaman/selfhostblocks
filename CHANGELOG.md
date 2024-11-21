@@ -2,6 +2,16 @@
 
 ## New Features
 
+## Breaking Changes
+
+## User Facing Backwards Compatible Changes
+
+## Other Changes
+
+# v0.2.0
+
+## New Features
+
 - Backup:
   - Add feature to backup databases with the database backup contract, implemented with `shb.restic.databases`.
 
@@ -41,7 +51,6 @@
 - Backup:
   - `shb.restic.instances` options has been split between `shb.restic.instances.request` and `shb.restic.instances.settings`, matching better with contracts.
 - Use of secret contract everywhere.
-
 
 ## User Facing Backwards Compatible Changes
 
