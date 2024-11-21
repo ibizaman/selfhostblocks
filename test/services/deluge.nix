@@ -74,6 +74,7 @@ let
     '';
 
   base = testLib.base pkgs' [
+    ../../modules/blocks/hardcodedsecret.nix
     ../../modules/services/deluge.nix
   ];
 
@@ -90,13 +91,21 @@ let
         user.password.source = pkgs.writeText "userpw" "userpw";
       };
 
-      localclientPasswordFile = pkgs.writeText "localclientpw" "localclientpw";
+      localclientPassword.result = config.shb.hardcodedsecret."localclientpassword".result;
+    };
+    shb.hardcodedsecret."localclientpassword" = {
+      request = config.shb.deluge.localclientPassword.request;
+      settings.content = "localpw";
     };
   };
 
-  prometheus = {
+  prometheus = { config, ... }: {
     shb.deluge = {
-      prometheusScraperPasswordFile = pkgs.writeText "prompw" "prompw";
+      prometheusScraperPassword.result = config.shb.hardcodedsecret."scraper".result;
+    };
+    shb.hardcodedsecret."scraper" = {
+      request = config.shb.deluge.prometheusScraperPassword.request;
+      settings.content = "scraperpw";
     };
   };
 

@@ -77,9 +77,14 @@ in
       default = "audiobookshelf_user";
     };
 
-    ssoSecretFile = lib.mkOption {
-      type = lib.types.path;
-      description = "File containing the SSO shared secret.";
+    ssoSecret = lib.mkOption {
+      description = "SSO shared secret.";
+      type = lib.types.submodule {
+        options = contracts.secret.mkRequester {
+          owner = "audiobookshelf";
+          restartUnits = [ "audiobookshelfd.service" ];
+        };
+      };
     };
 
     backup = lib.mkOption {
@@ -155,7 +160,7 @@ in
       {
         client_id = cfg.oidcClientID;
         client_name = "Audiobookshelf";
-        client_secret.source = cfg.ssoSecretFile;
+        client_secret.source = cfg.ssoSecret.result.path;
         public = false;
         authorization_policy = "one_factor";
         redirect_uris = [ 

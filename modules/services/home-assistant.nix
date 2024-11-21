@@ -92,6 +92,9 @@ in
 
         Enabling this app will create a new LDAP configuration or update one that exists with
         the given host.
+
+        Also, enabling LDAP will skip onboarding
+        otherwise Home Assistant gets into a cyclic lock.
       '';
       default = {};
       type = lib.types.submodule {
