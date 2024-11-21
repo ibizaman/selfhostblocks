@@ -47,20 +47,28 @@ in
       default = 17170;
     };
 
-    ldapUserPassword = contracts.secret.mkOption {
+    ldapUserPassword = lib.mkOption {
       description = "LDAP admin user secret.";
-      mode = "0440";
-      owner = "lldap";
-      group = "lldap";
-      restartUnits = [ "lldap.service" ];
+      type = lib.types.submodule {
+        options = contracts.secret.mkRequester {
+          mode = "0440";
+          owner = "lldap";
+          group = "lldap";
+          restartUnits = [ "lldap.service" ];
+        };
+      };
     };
 
-    jwtSecret = contracts.secret.mkOption {
+    jwtSecret = lib.mkOption {
       description = "JWT secret.";
-      mode = "0440";
-      owner = "lldap";
-      group = "lldap";
-      restartUnits = [ "lldap.service" ];
+      type = lib.types.submodule {
+        options = contracts.secret.mkRequester {
+          mode = "0440";
+          owner = "lldap";
+          group = "lldap";
+          restartUnits = [ "lldap.service" ];
+        };
+      };
     };
 
     restrictAccessIPRange = lib.mkOption {

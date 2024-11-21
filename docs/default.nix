@@ -142,6 +142,11 @@ in stdenv.mkDerivation {
         '@OPTIONS_JSON@' \
         ${individualModuleOptionsDocs [ ../modules/blocks/restic.nix ]}/share/doc/nixos/options.json
 
+    substituteInPlace ./modules/blocks/sops/docs/default.md \
+      --replace \
+        '@OPTIONS_JSON@' \
+        ${individualModuleOptionsDocs [ ../modules/blocks/sops.nix ]}/share/doc/nixos/options.json
+
     substituteInPlace ./modules/services/nextcloud-server/docs/default.md \
       --replace \
         '@OPTIONS_JSON@' \
@@ -190,6 +195,7 @@ in stdenv.mkDerivation {
 
     nixos-render-docs manual html \
       --manpage-urls ${manpage-urls} \
+      --redirects ./redirects.json \
       --media-dir media \
       --revision ${lib.trivial.revisionWithDefault release} \
       --stylesheet static/style.css \

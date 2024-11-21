@@ -1,10 +1,10 @@
-# SSL Generator Contract {#ssl-contract}
+# SSL Generator Contract {#contract-ssl}
 
 This NixOS contract represents an SSL certificate generator. This contract is used to decouple
 generating an SSL certificate from using it. In practice, you can swap generators without updating
 modules depending on it.
 
-## Contract Reference {#ssl-contract-options}
+## Contract Reference {#contract-ssl-options}
 
 These are all the options that are expected to exist for this contract to be respected.
 
@@ -14,7 +14,7 @@ list-id: selfhostblocks-options
 source: @OPTIONS_JSON@
 ```
 
-## Usage {#ssl-contract-usage}
+## Usage {#contract-ssl-usage}
 
 Let's assume a module implementing this contract is available under the `ssl` variable:
 
@@ -56,11 +56,11 @@ systemd.services.nginx = {
 };
 ```
 
-## Provided Implementations {#ssl-contract-impl-shb}
+## Provided Implementations {#contract-ssl-impl-shb}
 
 Multiple implementation are provided out of the box at [SSL block](blocks-ssl.html).
 
-## Custom Implementation {#ssl-contract-impl-custom}
+## Custom Implementation {#contract-ssl-impl-custom}
 
 To implement this contract, you must create a module that respects this contract. The following
 snippet shows an example.

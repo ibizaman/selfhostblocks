@@ -95,12 +95,17 @@ in
       default = "root";
     };
 
-    adminPass = contracts.secret.mkOption {
+    adminPass = lib.mkOption {
       description = "Nextcloud admin password.";
-      mode = "0400";
-      owner = "nextcloud";
-      restartUnits = [ "phpfpm-nextcloud.service" ];
+      type = lib.types.submodule {
+        options = contracts.secret.mkRequester {
+          mode = "0400";
+          owner = "nextcloud";
+          restartUnits = [ "phpfpm-nextcloud.service" ];
+        };
+      };
     };
+
 
     maxUploadSize = lib.mkOption {
       default = "4G";
@@ -374,12 +379,17 @@ in
                   default = "admin";
                 };
 
-                adminPassword = contracts.secret.mkOption {
+                adminPassword = lib.mkOption {
                   description = "LDAP server admin password.";
-                  mode = "0400";
-                  owner = "nextcloud";
-                  restartUnits = [ "phpfpm-nextcloud.service" ];
+                  type = lib.types.submodule {
+                    options = contracts.secret.mkRequester {
+                      mode = "0400";
+                      owner = "nextcloud";
+                      restartUnits = [ "phpfpm-nextcloud.service" ];
+                    };
+                  };
                 };
+
 
                 userGroup = lib.mkOption {
                   type = lib.types.str;
@@ -441,18 +451,28 @@ in
                   default = "one_factor";
                 };
 
-                secret = contracts.secret.mkOption {
+                secret = lib.mkOption {
                   description = "OIDC shared secret.";
-                  mode = "0400";
-                  owner = "nextcloud";
-                  restartUnits = [ "phpfpm-nextcloud.service" ];
+                  type = lib.types.submodule {
+                    options = contracts.secret.mkRequester {
+                      mode = "0400";
+                      owner = "nextcloud";
+                      restartUnits = [ "phpfpm-nextcloud.service" ];
+                    };
+                  };
                 };
 
-                secretForAuthelia = contracts.secret.mkOption {
+
+                secretForAuthelia = lib.mkOption {
                   description = "OIDC shared secret. Content must be the same as `secretFile` option.";
-                  mode = "0400";
-                  owner = "authelia";
+                  type = lib.types.submodule {
+                    options = contracts.secret.mkRequester {
+                      mode = "0400";
+                      owner = "authelia";
+                    };
+                  };
                 };
+
 
                 fallbackDefaultAuth = lib.mkOption {
                   type = lib.types.bool;

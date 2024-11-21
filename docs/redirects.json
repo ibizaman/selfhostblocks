@@ -1,0 +1,1625 @@
+{
+  "all-options": [
+    "options.html#all-options"
+  ],
+  "blocks": [
+    "blocks.html#blocks"
+  ],
+  "blocks-monitoring": [
+    "blocks-monitoring.html#blocks-monitoring"
+  ],
+  "blocks-monitoring-budget-alerts": [
+    "blocks-monitoring.html#blocks-monitoring-budget-alerts"
+  ],
+  "blocks-monitoring-configuration": [
+    "blocks-monitoring.html#blocks-monitoring-configuration"
+  ],
+  "blocks-monitoring-error-dashboard": [
+    "blocks-monitoring.html#blocks-monitoring-error-dashboard"
+  ],
+  "blocks-monitoring-performance-dashboard": [
+    "blocks-monitoring.html#blocks-monitoring-performance-dashboard"
+  ],
+  "blocks-monitoring-provisioning": [
+    "blocks-monitoring.html#blocks-monitoring-provisioning"
+  ],
+  "blocks-postgresql": [
+    "blocks-postgresql.html#blocks-postgresql"
+  ],
+  "blocks-postgresql-contract-databasebackup": [
+    "blocks-postgresql.html#blocks-postgresql-contract-databasebackup"
+  ],
+  "blocks-postgresql-contract-databasebackup-all": [
+    "blocks-postgresql.html#blocks-postgresql-contract-databasebackup-all"
+  ],
+  "blocks-postgresql-options": [
+    "blocks-postgresql.html#blocks-postgresql-options"
+  ],
+  "blocks-postgresql-options-shb.postgresql.databasebackup": [
+    "blocks-postgresql.html#blocks-postgresql-options-shb.postgresql.databasebackup"
+  ],
+  "blocks-postgresql-options-shb.postgresql.databasebackup.backupCmd": [
+    "blocks-postgresql.html#blocks-postgresql-options-shb.postgresql.databasebackup.backupCmd"
+  ],
+  "blocks-postgresql-options-shb.postgresql.databasebackup.backupName": [
+    "blocks-postgresql.html#blocks-postgresql-options-shb.postgresql.databasebackup.backupName"
+  ],
+  "blocks-postgresql-options-shb.postgresql.databasebackup.restoreCmd": [
+    "blocks-postgresql.html#blocks-postgresql-options-shb.postgresql.databasebackup.restoreCmd"
+  ],
+  "blocks-postgresql-options-shb.postgresql.databasebackup.user": [
+    "blocks-postgresql.html#blocks-postgresql-options-shb.postgresql.databasebackup.user"
+  ],
+  "blocks-postgresql-options-shb.postgresql.debug": [
+    "blocks-postgresql.html#blocks-postgresql-options-shb.postgresql.debug"
+  ],
+  "blocks-postgresql-options-shb.postgresql.enableTCPIP": [
+    "blocks-postgresql.html#blocks-postgresql-options-shb.postgresql.enableTCPIP"
+  ],
+  "blocks-postgresql-options-shb.postgresql.ensures": [
+    "blocks-postgresql.html#blocks-postgresql-options-shb.postgresql.ensures"
+  ],
+  "blocks-postgresql-options-shb.postgresql.ensures._.database": [
+    "blocks-postgresql.html#blocks-postgresql-options-shb.postgresql.ensures._.database"
+  ],
+  "blocks-postgresql-options-shb.postgresql.ensures._.passwordFile": [
+    "blocks-postgresql.html#blocks-postgresql-options-shb.postgresql.ensures._.passwordFile"
+  ],
+  "blocks-postgresql-options-shb.postgresql.ensures._.username": [
+    "blocks-postgresql.html#blocks-postgresql-options-shb.postgresql.ensures._.username"
+  ],
+  "blocks-postgresql-tests": [
+    "blocks-postgresql.html#blocks-postgresql-tests"
+  ],
+  "blocks-restic": [
+    "blocks-restic.html#blocks-restic"
+  ],
+  "blocks-restic-contract-provider": [
+    "blocks-restic.html#blocks-restic-contract-provider"
+  ],
+  "blocks-restic-demo": [
+    "blocks-restic.html#blocks-restic-demo"
+  ],
+  "blocks-restic-maintenance": [
+    "blocks-restic.html#blocks-restic-maintenance"
+  ],
+  "blocks-restic-maintenance-troubleshooting": [
+    "blocks-restic.html#blocks-restic-maintenance-troubleshooting"
+  ],
+  "blocks-restic-monitoring": [
+    "blocks-restic.html#blocks-restic-monitoring"
+  ],
+  "blocks-restic-options": [
+    "blocks-restic.html#blocks-restic-options"
+  ],
+  "blocks-restic-options-shb.restic.databases": [
+    "blocks-restic.html#blocks-restic-options-shb.restic.databases"
+  ],
+  "blocks-restic-options-shb.restic.databases._name_.request": [
+    "blocks-restic.html#blocks-restic-options-shb.restic.databases._name_.request"
+  ],
+  "blocks-restic-options-shb.restic.databases._name_.request.backupCmd": [
+    "blocks-restic.html#blocks-restic-options-shb.restic.databases._name_.request.backupCmd"
+  ],
+  "blocks-restic-options-shb.restic.databases._name_.request.backupName": [
+    "blocks-restic.html#blocks-restic-options-shb.restic.databases._name_.request.backupName"
+  ],
+  "blocks-restic-options-shb.restic.databases._name_.request.restoreCmd": [
+    "blocks-restic.html#blocks-restic-options-shb.restic.databases._name_.request.restoreCmd"
+  ],
+  "blocks-restic-options-shb.restic.databases._name_.request.user": [
+    "blocks-restic.html#blocks-restic-options-shb.restic.databases._name_.request.user"
+  ],
+  "blocks-restic-options-shb.restic.databases._name_.result": [
+    "blocks-restic.html#blocks-restic-options-shb.restic.databases._name_.result"
+  ],
+  "blocks-restic-options-shb.restic.databases._name_.result.backupService": [
+    "blocks-restic.html#blocks-restic-options-shb.restic.databases._name_.result.backupService"
+  ],
+  "blocks-restic-options-shb.restic.databases._name_.result.restoreScript": [
+    "blocks-restic.html#blocks-restic-options-shb.restic.databases._name_.result.restoreScript"
+  ],
+  "blocks-restic-options-shb.restic.databases._name_.settings": [
+    "blocks-restic.html#blocks-restic-options-shb.restic.databases._name_.settings"
+  ],
+  "blocks-restic-options-shb.restic.databases._name_.settings.enable": [
+    "blocks-restic.html#blocks-restic-options-shb.restic.databases._name_.settings.enable"
+  ],
+  "blocks-restic-options-shb.restic.databases._name_.settings.limitDownloadKiBs": [
+    "blocks-restic.html#blocks-restic-options-shb.restic.databases._name_.settings.limitDownloadKiBs"
+  ],
+  "blocks-restic-options-shb.restic.databases._name_.settings.limitUploadKiBs": [
+    "blocks-restic.html#blocks-restic-options-shb.restic.databases._name_.settings.limitUploadKiBs"
+  ],
+  "blocks-restic-options-shb.restic.databases._name_.settings.passphrase": [
+    "blocks-restic.html#blocks-restic-options-shb.restic.databases._name_.settings.passphrase"
+  ],
+  "blocks-restic-options-shb.restic.databases._name_.settings.passphrase.request": [
+    "blocks-restic.html#blocks-restic-options-shb.restic.databases._name_.settings.passphrase.request"
+  ],
+  "blocks-restic-options-shb.restic.databases._name_.settings.passphrase.request.group": [
+    "blocks-restic.html#blocks-restic-options-shb.restic.databases._name_.settings.passphrase.request.group"
+  ],
+  "blocks-restic-options-shb.restic.databases._name_.settings.passphrase.request.mode": [
+    "blocks-restic.html#blocks-restic-options-shb.restic.databases._name_.settings.passphrase.request.mode"
+  ],
+  "blocks-restic-options-shb.restic.databases._name_.settings.passphrase.request.owner": [
+    "blocks-restic.html#blocks-restic-options-shb.restic.databases._name_.settings.passphrase.request.owner"
+  ],
+  "blocks-restic-options-shb.restic.databases._name_.settings.passphrase.request.restartUnits": [
+    "blocks-restic.html#blocks-restic-options-shb.restic.databases._name_.settings.passphrase.request.restartUnits"
+  ],
+  "blocks-restic-options-shb.restic.databases._name_.settings.passphrase.result": [
+    "blocks-restic.html#blocks-restic-options-shb.restic.databases._name_.settings.passphrase.result"
+  ],
+  "blocks-restic-options-shb.restic.databases._name_.settings.passphrase.result.path": [
+    "blocks-restic.html#blocks-restic-options-shb.restic.databases._name_.settings.passphrase.result.path"
+  ],
+  "blocks-restic-options-shb.restic.databases._name_.settings.repository": [
+    "blocks-restic.html#blocks-restic-options-shb.restic.databases._name_.settings.repository"
+  ],
+  "blocks-restic-options-shb.restic.databases._name_.settings.repository.path": [
+    "blocks-restic.html#blocks-restic-options-shb.restic.databases._name_.settings.repository.path"
+  ],
+  "blocks-restic-options-shb.restic.databases._name_.settings.repository.secrets": [
+    "blocks-restic.html#blocks-restic-options-shb.restic.databases._name_.settings.repository.secrets"
+  ],
+  "blocks-restic-options-shb.restic.databases._name_.settings.repository.secrets._name_.source": [
+    "blocks-restic.html#blocks-restic-options-shb.restic.databases._name_.settings.repository.secrets._name_.source"
+  ],
+  "blocks-restic-options-shb.restic.databases._name_.settings.repository.secrets._name_.transform": [
+    "blocks-restic.html#blocks-restic-options-shb.restic.databases._name_.settings.repository.secrets._name_.transform"
+  ],
+  "blocks-restic-options-shb.restic.databases._name_.settings.repository.timerConfig": [
+    "blocks-restic.html#blocks-restic-options-shb.restic.databases._name_.settings.repository.timerConfig"
+  ],
+  "blocks-restic-options-shb.restic.databases._name_.settings.retention": [
+    "blocks-restic.html#blocks-restic-options-shb.restic.databases._name_.settings.retention"
+  ],
+  "blocks-restic-options-shb.restic.instances": [
+    "blocks-restic.html#blocks-restic-options-shb.restic.instances"
+  ],
+  "blocks-restic-options-shb.restic.instances._name_.request": [
+    "blocks-restic.html#blocks-restic-options-shb.restic.instances._name_.request"
+  ],
+  "blocks-restic-options-shb.restic.instances._name_.request.excludePatterns": [
+    "blocks-restic.html#blocks-restic-options-shb.restic.instances._name_.request.excludePatterns"
+  ],
+  "blocks-restic-options-shb.restic.instances._name_.request.hooks": [
+    "blocks-restic.html#blocks-restic-options-shb.restic.instances._name_.request.hooks"
+  ],
+  "blocks-restic-options-shb.restic.instances._name_.request.hooks.after_backup": [
+    "blocks-restic.html#blocks-restic-options-shb.restic.instances._name_.request.hooks.after_backup"
+  ],
+  "blocks-restic-options-shb.restic.instances._name_.request.hooks.before_backup": [
+    "blocks-restic.html#blocks-restic-options-shb.restic.instances._name_.request.hooks.before_backup"
+  ],
+  "blocks-restic-options-shb.restic.instances._name_.request.sourceDirectories": [
+    "blocks-restic.html#blocks-restic-options-shb.restic.instances._name_.request.sourceDirectories"
+  ],
+  "blocks-restic-options-shb.restic.instances._name_.request.user": [
+    "blocks-restic.html#blocks-restic-options-shb.restic.instances._name_.request.user"
+  ],
+  "blocks-restic-options-shb.restic.instances._name_.result": [
+    "blocks-restic.html#blocks-restic-options-shb.restic.instances._name_.result"
+  ],
+  "blocks-restic-options-shb.restic.instances._name_.result.backupService": [
+    "blocks-restic.html#blocks-restic-options-shb.restic.instances._name_.result.backupService"
+  ],
+  "blocks-restic-options-shb.restic.instances._name_.result.restoreScript": [
+    "blocks-restic.html#blocks-restic-options-shb.restic.instances._name_.result.restoreScript"
+  ],
+  "blocks-restic-options-shb.restic.instances._name_.settings": [
+    "blocks-restic.html#blocks-restic-options-shb.restic.instances._name_.settings"
+  ],
+  "blocks-restic-options-shb.restic.instances._name_.settings.enable": [
+    "blocks-restic.html#blocks-restic-options-shb.restic.instances._name_.settings.enable"
+  ],
+  "blocks-restic-options-shb.restic.instances._name_.settings.limitDownloadKiBs": [
+    "blocks-restic.html#blocks-restic-options-shb.restic.instances._name_.settings.limitDownloadKiBs"
+  ],
+  "blocks-restic-options-shb.restic.instances._name_.settings.limitUploadKiBs": [
+    "blocks-restic.html#blocks-restic-options-shb.restic.instances._name_.settings.limitUploadKiBs"
+  ],
+  "blocks-restic-options-shb.restic.instances._name_.settings.passphrase": [
+    "blocks-restic.html#blocks-restic-options-shb.restic.instances._name_.settings.passphrase"
+  ],
+  "blocks-restic-options-shb.restic.instances._name_.settings.passphrase.request": [
+    "blocks-restic.html#blocks-restic-options-shb.restic.instances._name_.settings.passphrase.request"
+  ],
+  "blocks-restic-options-shb.restic.instances._name_.settings.passphrase.request.group": [
+    "blocks-restic.html#blocks-restic-options-shb.restic.instances._name_.settings.passphrase.request.group"
+  ],
+  "blocks-restic-options-shb.restic.instances._name_.settings.passphrase.request.mode": [
+    "blocks-restic.html#blocks-restic-options-shb.restic.instances._name_.settings.passphrase.request.mode"
+  ],
+  "blocks-restic-options-shb.restic.instances._name_.settings.passphrase.request.owner": [
+    "blocks-restic.html#blocks-restic-options-shb.restic.instances._name_.settings.passphrase.request.owner"
+  ],
+  "blocks-restic-options-shb.restic.instances._name_.settings.passphrase.request.restartUnits": [
+    "blocks-restic.html#blocks-restic-options-shb.restic.instances._name_.settings.passphrase.request.restartUnits"
+  ],
+  "blocks-restic-options-shb.restic.instances._name_.settings.passphrase.result": [
+    "blocks-restic.html#blocks-restic-options-shb.restic.instances._name_.settings.passphrase.result"
+  ],
+  "blocks-restic-options-shb.restic.instances._name_.settings.passphrase.result.path": [
+    "blocks-restic.html#blocks-restic-options-shb.restic.instances._name_.settings.passphrase.result.path"
+  ],
+  "blocks-restic-options-shb.restic.instances._name_.settings.repository": [
+    "blocks-restic.html#blocks-restic-options-shb.restic.instances._name_.settings.repository"
+  ],
+  "blocks-restic-options-shb.restic.instances._name_.settings.repository.path": [
+    "blocks-restic.html#blocks-restic-options-shb.restic.instances._name_.settings.repository.path"
+  ],
+  "blocks-restic-options-shb.restic.instances._name_.settings.repository.secrets": [
+    "blocks-restic.html#blocks-restic-options-shb.restic.instances._name_.settings.repository.secrets"
+  ],
+  "blocks-restic-options-shb.restic.instances._name_.settings.repository.secrets._name_.source": [
+    "blocks-restic.html#blocks-restic-options-shb.restic.instances._name_.settings.repository.secrets._name_.source"
+  ],
+  "blocks-restic-options-shb.restic.instances._name_.settings.repository.secrets._name_.transform": [
+    "blocks-restic.html#blocks-restic-options-shb.restic.instances._name_.settings.repository.secrets._name_.transform"
+  ],
+  "blocks-restic-options-shb.restic.instances._name_.settings.repository.timerConfig": [
+    "blocks-restic.html#blocks-restic-options-shb.restic.instances._name_.settings.repository.timerConfig"
+  ],
+  "blocks-restic-options-shb.restic.instances._name_.settings.retention": [
+    "blocks-restic.html#blocks-restic-options-shb.restic.instances._name_.settings.retention"
+  ],
+  "blocks-restic-options-shb.restic.performance": [
+    "blocks-restic.html#blocks-restic-options-shb.restic.performance"
+  ],
+  "blocks-restic-options-shb.restic.performance.ioPriority": [
+    "blocks-restic.html#blocks-restic-options-shb.restic.performance.ioPriority"
+  ],
+  "blocks-restic-options-shb.restic.performance.ioSchedulingClass": [
+    "blocks-restic.html#blocks-restic-options-shb.restic.performance.ioSchedulingClass"
+  ],
+  "blocks-restic-options-shb.restic.performance.niceness": [
+    "blocks-restic.html#blocks-restic-options-shb.restic.performance.niceness"
+  ],
+  "blocks-restic-tests": [
+    "blocks-restic.html#blocks-restic-tests"
+  ],
+  "blocks-restic-usage": [
+    "blocks-restic.html#blocks-restic-usage"
+  ],
+  "blocks-restic-usage-multiple": [
+    "blocks-restic.html#blocks-restic-usage-multiple"
+  ],
+  "blocks-restic-usage-provider-contract": [
+    "blocks-restic.html#blocks-restic-usage-provider-contract"
+  ],
+  "blocks-restic-usage-provider-manual": [
+    "blocks-restic.html#blocks-restic-usage-provider-manual"
+  ],
+  "blocks-restic-usage-provider-remote": [
+    "blocks-restic.html#blocks-restic-usage-provider-remote"
+  ],
+  "blocks-sops": [
+    "blocks-sops.html#blocks-sops"
+  ],
+  "blocks-sops-contract-provider": [
+    "blocks-sops.html#blocks-sops-contract-provider"
+  ],
+  "blocks-sops-options": [
+    "blocks-sops.html#blocks-sops-options"
+  ],
+  "blocks-sops-options-shb.sops.secret": [
+    "blocks-sops.html#blocks-sops-options-shb.sops.secret"
+  ],
+  "blocks-sops-options-shb.sops.secret._name_.request": [
+    "blocks-sops.html#blocks-sops-options-shb.sops.secret._name_.request"
+  ],
+  "blocks-sops-options-shb.sops.secret._name_.request.group": [
+    "blocks-sops.html#blocks-sops-options-shb.sops.secret._name_.request.group"
+  ],
+  "blocks-sops-options-shb.sops.secret._name_.request.mode": [
+    "blocks-sops.html#blocks-sops-options-shb.sops.secret._name_.request.mode"
+  ],
+  "blocks-sops-options-shb.sops.secret._name_.request.owner": [
+    "blocks-sops.html#blocks-sops-options-shb.sops.secret._name_.request.owner"
+  ],
+  "blocks-sops-options-shb.sops.secret._name_.request.restartUnits": [
+    "blocks-sops.html#blocks-sops-options-shb.sops.secret._name_.request.restartUnits"
+  ],
+  "blocks-sops-options-shb.sops.secret._name_.result": [
+    "blocks-sops.html#blocks-sops-options-shb.sops.secret._name_.result"
+  ],
+  "blocks-sops-options-shb.sops.secret._name_.result.path": [
+    "blocks-sops.html#blocks-sops-options-shb.sops.secret._name_.result.path"
+  ],
+  "blocks-sops-options-shb.sops.secret._name_.settings": [
+    "blocks-sops.html#blocks-sops-options-shb.sops.secret._name_.settings"
+  ],
+  "blocks-sops-usage": [
+    "blocks-sops.html#blocks-sops-usage"
+  ],
+  "blocks-sops-usage-requester": [
+    "blocks-sops.html#blocks-sops-usage-requester"
+  ],
+  "block-ssl": [
+    "blocks-ssl.html#block-ssl"
+  ],
+  "block-ssl-debug": [
+    "blocks-ssl.html#block-ssl-debug"
+  ],
+  "block-ssl-impl-lets-encrypt": [
+    "blocks-ssl.html#block-ssl-impl-lets-encrypt"
+  ],
+  "block-ssl-impl-self-signed": [
+    "blocks-ssl.html#block-ssl-impl-self-signed"
+  ],
+  "block-ssl-options": [
+    "blocks-ssl.html#block-ssl-options"
+  ],
+  "block-ssl-tests": [
+    "blocks-ssl.html#block-ssl-tests"
+  ],
+  "block-ssl-usage": [
+    "blocks-ssl.html#block-ssl-usage"
+  ],
+  "blocks-ssl-options-shb.certs.cas.selfsigned": [
+    "blocks-ssl.html#blocks-ssl-options-shb.certs.cas.selfsigned"
+  ],
+  "blocks-ssl-options-shb.certs.cas.selfsigned._name_.name": [
+    "blocks-ssl.html#blocks-ssl-options-shb.certs.cas.selfsigned._name_.name"
+  ],
+  "blocks-ssl-options-shb.certs.cas.selfsigned._name_.paths": [
+    "blocks-ssl.html#blocks-ssl-options-shb.certs.cas.selfsigned._name_.paths"
+  ],
+  "blocks-ssl-options-shb.certs.cas.selfsigned._name_.paths.cert": [
+    "blocks-ssl.html#blocks-ssl-options-shb.certs.cas.selfsigned._name_.paths.cert"
+  ],
+  "blocks-ssl-options-shb.certs.cas.selfsigned._name_.paths.key": [
+    "blocks-ssl.html#blocks-ssl-options-shb.certs.cas.selfsigned._name_.paths.key"
+  ],
+  "blocks-ssl-options-shb.certs.cas.selfsigned._name_.systemdService": [
+    "blocks-ssl.html#blocks-ssl-options-shb.certs.cas.selfsigned._name_.systemdService"
+  ],
+  "blocks-ssl-options-shb.certs.certs.letsencrypt": [
+    "blocks-ssl.html#blocks-ssl-options-shb.certs.certs.letsencrypt"
+  ],
+  "blocks-ssl-options-shb.certs.certs.letsencrypt._name_.additionalEnvironment": [
+    "blocks-ssl.html#blocks-ssl-options-shb.certs.certs.letsencrypt._name_.additionalEnvironment"
+  ],
+  "blocks-ssl-options-shb.certs.certs.letsencrypt._name_.adminEmail": [
+    "blocks-ssl.html#blocks-ssl-options-shb.certs.certs.letsencrypt._name_.adminEmail"
+  ],
+  "blocks-ssl-options-shb.certs.certs.letsencrypt._name_.afterAndWants": [
+    "blocks-ssl.html#blocks-ssl-options-shb.certs.certs.letsencrypt._name_.afterAndWants"
+  ],
+  "blocks-ssl-options-shb.certs.certs.letsencrypt._name_.credentialsFile": [
+    "blocks-ssl.html#blocks-ssl-options-shb.certs.certs.letsencrypt._name_.credentialsFile"
+  ],
+  "blocks-ssl-options-shb.certs.certs.letsencrypt._name_.debug": [
+    "blocks-ssl.html#blocks-ssl-options-shb.certs.certs.letsencrypt._name_.debug"
+  ],
+  "blocks-ssl-options-shb.certs.certs.letsencrypt._name_.dnsProvider": [
+    "blocks-ssl.html#blocks-ssl-options-shb.certs.certs.letsencrypt._name_.dnsProvider"
+  ],
+  "blocks-ssl-options-shb.certs.certs.letsencrypt._name_.dnsResolver": [
+    "blocks-ssl.html#blocks-ssl-options-shb.certs.certs.letsencrypt._name_.dnsResolver"
+  ],
+  "blocks-ssl-options-shb.certs.certs.letsencrypt._name_.domain": [
+    "blocks-ssl.html#blocks-ssl-options-shb.certs.certs.letsencrypt._name_.domain"
+  ],
+  "blocks-ssl-options-shb.certs.certs.letsencrypt._name_.extraDomains": [
+    "blocks-ssl.html#blocks-ssl-options-shb.certs.certs.letsencrypt._name_.extraDomains"
+  ],
+  "blocks-ssl-options-shb.certs.certs.letsencrypt._name_.group": [
+    "blocks-ssl.html#blocks-ssl-options-shb.certs.certs.letsencrypt._name_.group"
+  ],
+  "blocks-ssl-options-shb.certs.certs.letsencrypt._name_.makeAvailableToUser": [
+    "blocks-ssl.html#blocks-ssl-options-shb.certs.certs.letsencrypt._name_.makeAvailableToUser"
+  ],
+  "blocks-ssl-options-shb.certs.certs.letsencrypt._name_.paths": [
+    "blocks-ssl.html#blocks-ssl-options-shb.certs.certs.letsencrypt._name_.paths"
+  ],
+  "blocks-ssl-options-shb.certs.certs.letsencrypt._name_.paths.cert": [
+    "blocks-ssl.html#blocks-ssl-options-shb.certs.certs.letsencrypt._name_.paths.cert"
+  ],
+  "blocks-ssl-options-shb.certs.certs.letsencrypt._name_.paths.key": [
+    "blocks-ssl.html#blocks-ssl-options-shb.certs.certs.letsencrypt._name_.paths.key"
+  ],
+  "blocks-ssl-options-shb.certs.certs.letsencrypt._name_.reloadServices": [
+    "blocks-ssl.html#blocks-ssl-options-shb.certs.certs.letsencrypt._name_.reloadServices"
+  ],
+  "blocks-ssl-options-shb.certs.certs.letsencrypt._name_.stagingServer": [
+    "blocks-ssl.html#blocks-ssl-options-shb.certs.certs.letsencrypt._name_.stagingServer"
+  ],
+  "blocks-ssl-options-shb.certs.certs.letsencrypt._name_.systemdService": [
+    "blocks-ssl.html#blocks-ssl-options-shb.certs.certs.letsencrypt._name_.systemdService"
+  ],
+  "blocks-ssl-options-shb.certs.certs.selfsigned": [
+    "blocks-ssl.html#blocks-ssl-options-shb.certs.certs.selfsigned"
+  ],
+  "blocks-ssl-options-shb.certs.certs.selfsigned._name_.ca": [
+    "blocks-ssl.html#blocks-ssl-options-shb.certs.certs.selfsigned._name_.ca"
+  ],
+  "blocks-ssl-options-shb.certs.certs.selfsigned._name_.ca.paths": [
+    "blocks-ssl.html#blocks-ssl-options-shb.certs.certs.selfsigned._name_.ca.paths"
+  ],
+  "blocks-ssl-options-shb.certs.certs.selfsigned._name_.ca.paths.cert": [
+    "blocks-ssl.html#blocks-ssl-options-shb.certs.certs.selfsigned._name_.ca.paths.cert"
+  ],
+  "blocks-ssl-options-shb.certs.certs.selfsigned._name_.ca.paths.key": [
+    "blocks-ssl.html#blocks-ssl-options-shb.certs.certs.selfsigned._name_.ca.paths.key"
+  ],
+  "blocks-ssl-options-shb.certs.certs.selfsigned._name_.ca.systemdService": [
+    "blocks-ssl.html#blocks-ssl-options-shb.certs.certs.selfsigned._name_.ca.systemdService"
+  ],
+  "blocks-ssl-options-shb.certs.certs.selfsigned._name_.domain": [
+    "blocks-ssl.html#blocks-ssl-options-shb.certs.certs.selfsigned._name_.domain"
+  ],
+  "blocks-ssl-options-shb.certs.certs.selfsigned._name_.extraDomains": [
+    "blocks-ssl.html#blocks-ssl-options-shb.certs.certs.selfsigned._name_.extraDomains"
+  ],
+  "blocks-ssl-options-shb.certs.certs.selfsigned._name_.group": [
+    "blocks-ssl.html#blocks-ssl-options-shb.certs.certs.selfsigned._name_.group"
+  ],
+  "blocks-ssl-options-shb.certs.certs.selfsigned._name_.paths": [
+    "blocks-ssl.html#blocks-ssl-options-shb.certs.certs.selfsigned._name_.paths"
+  ],
+  "blocks-ssl-options-shb.certs.certs.selfsigned._name_.paths.cert": [
+    "blocks-ssl.html#blocks-ssl-options-shb.certs.certs.selfsigned._name_.paths.cert"
+  ],
+  "blocks-ssl-options-shb.certs.certs.selfsigned._name_.paths.key": [
+    "blocks-ssl.html#blocks-ssl-options-shb.certs.certs.selfsigned._name_.paths.key"
+  ],
+  "blocks-ssl-options-shb.certs.certs.selfsigned._name_.reloadServices": [
+    "blocks-ssl.html#blocks-ssl-options-shb.certs.certs.selfsigned._name_.reloadServices"
+  ],
+  "blocks-ssl-options-shb.certs.certs.selfsigned._name_.systemdService": [
+    "blocks-ssl.html#blocks-ssl-options-shb.certs.certs.selfsigned._name_.systemdService"
+  ],
+  "blocks-ssl-options-shb.certs.systemdService": [
+    "blocks-ssl.html#blocks-ssl-options-shb.certs.systemdService"
+  ],
+  "contract-backup": [
+    "contracts-backup.html#contract-backup"
+  ],
+  "contract-backup-options": [
+    "contracts-backup.html#contract-backup-options"
+  ],
+  "contract-backup-providers": [
+    "contracts-backup.html#contract-backup-providers"
+  ],
+  "contract-backup-requesters": [
+    "contracts-backup.html#contract-backup-requesters"
+  ],
+  "contract-backup-usage": [
+    "contracts-backup.html#contract-backup-usage"
+  ],
+  "contract-databasebackup": [
+    "contracts-databasebackup.html#contract-databasebackup"
+  ],
+  "contract-databasebackup-options": [
+    "contracts-databasebackup.html#contract-databasebackup-options"
+  ],
+  "contract-databasebackup-providers": [
+    "contracts-databasebackup.html#contract-databasebackup-providers"
+  ],
+  "contract-databasebackup-requesters": [
+    "contracts-databasebackup.html#contract-databasebackup-requesters"
+  ],
+  "contract-databasebackup-usage": [
+    "contracts-databasebackup.html#contract-databasebackup-usage"
+  ],
+  "contract-secret": [
+    "contracts-secret.html#contract-secret"
+  ],
+  "contract-secret-motivation": [
+    "contracts-secret.html#contract-secret-motivation"
+  ],
+  "contract-secret-options": [
+    "contracts-secret.html#contract-secret-options"
+  ],
+  "contract-secret-usage": [
+    "contracts-secret.html#contract-secret-usage"
+  ],
+  "contract-secret-usage-enduser": [
+    "contracts-secret.html#contract-secret-usage-enduser"
+  ],
+  "contract-secret-usage-provider": [
+    "contracts-secret.html#contract-secret-usage-provider"
+  ],
+  "contract-secret-usage-requester": [
+    "contracts-secret.html#contract-secret-usage-requester"
+  ],
+  "contract-ssl": [
+    "contracts-ssl.html#contract-ssl"
+  ],
+  "contract-ssl-impl-custom": [
+    "contracts-ssl.html#contract-ssl-impl-custom"
+  ],
+  "contract-ssl-impl-shb": [
+    "contracts-ssl.html#contract-ssl-impl-shb"
+  ],
+  "contract-ssl-options": [
+    "contracts-ssl.html#contract-ssl-options"
+  ],
+  "contract-ssl-usage": [
+    "contracts-ssl.html#contract-ssl-usage"
+  ],
+  "contracts": [
+    "contracts.html#contracts"
+  ],
+  "contracts-nixpkgs": [
+    "contracts.html#contracts-nixpkgs"
+  ],
+  "contracts-provided": [
+    "contracts.html#contracts-provided"
+  ],
+  "contracts-schema": [
+    "contracts.html#contracts-schema"
+  ],
+  "contracts-test": [
+    "contracts.html#contracts-test"
+  ],
+  "contracts-videos": [
+    "contracts.html#contracts-videos"
+  ],
+  "contracts-why": [
+    "contracts.html#contracts-why"
+  ],
+  "contracts-backup-options-shb.contracts.backup": [
+    "contracts-backup.html#contracts-backup-options-shb.contracts.backup"
+  ],
+  "contracts-backup-options-shb.contracts.backup.request": [
+    "contracts-backup.html#contracts-backup-options-shb.contracts.backup.request"
+  ],
+  "contracts-backup-options-shb.contracts.backup.request.excludePatterns": [
+    "contracts-backup.html#contracts-backup-options-shb.contracts.backup.request.excludePatterns"
+  ],
+  "contracts-backup-options-shb.contracts.backup.request.hooks": [
+    "contracts-backup.html#contracts-backup-options-shb.contracts.backup.request.hooks"
+  ],
+  "contracts-backup-options-shb.contracts.backup.request.hooks.after_backup": [
+    "contracts-backup.html#contracts-backup-options-shb.contracts.backup.request.hooks.after_backup"
+  ],
+  "contracts-backup-options-shb.contracts.backup.request.hooks.before_backup": [
+    "contracts-backup.html#contracts-backup-options-shb.contracts.backup.request.hooks.before_backup"
+  ],
+  "contracts-backup-options-shb.contracts.backup.request.sourceDirectories": [
+    "contracts-backup.html#contracts-backup-options-shb.contracts.backup.request.sourceDirectories"
+  ],
+  "contracts-backup-options-shb.contracts.backup.request.user": [
+    "contracts-backup.html#contracts-backup-options-shb.contracts.backup.request.user"
+  ],
+  "contracts-backup-options-shb.contracts.backup.result": [
+    "contracts-backup.html#contracts-backup-options-shb.contracts.backup.result"
+  ],
+  "contracts-backup-options-shb.contracts.backup.result.backupService": [
+    "contracts-backup.html#contracts-backup-options-shb.contracts.backup.result.backupService"
+  ],
+  "contracts-backup-options-shb.contracts.backup.result.restoreScript": [
+    "contracts-backup.html#contracts-backup-options-shb.contracts.backup.result.restoreScript"
+  ],
+  "contracts-databasebackup-options-shb.contracts.databasebackup": [
+    "contracts-databasebackup.html#contracts-databasebackup-options-shb.contracts.databasebackup"
+  ],
+  "contracts-databasebackup-options-shb.contracts.databasebackup.request": [
+    "contracts-databasebackup.html#contracts-databasebackup-options-shb.contracts.databasebackup.request"
+  ],
+  "contracts-databasebackup-options-shb.contracts.databasebackup.request.backupCmd": [
+    "contracts-databasebackup.html#contracts-databasebackup-options-shb.contracts.databasebackup.request.backupCmd"
+  ],
+  "contracts-databasebackup-options-shb.contracts.databasebackup.request.backupName": [
+    "contracts-databasebackup.html#contracts-databasebackup-options-shb.contracts.databasebackup.request.backupName"
+  ],
+  "contracts-databasebackup-options-shb.contracts.databasebackup.request.restoreCmd": [
+    "contracts-databasebackup.html#contracts-databasebackup-options-shb.contracts.databasebackup.request.restoreCmd"
+  ],
+  "contracts-databasebackup-options-shb.contracts.databasebackup.request.user": [
+    "contracts-databasebackup.html#contracts-databasebackup-options-shb.contracts.databasebackup.request.user"
+  ],
+  "contracts-databasebackup-options-shb.contracts.databasebackup.result": [
+    "contracts-databasebackup.html#contracts-databasebackup-options-shb.contracts.databasebackup.result"
+  ],
+  "contracts-databasebackup-options-shb.contracts.databasebackup.result.backupService": [
+    "contracts-databasebackup.html#contracts-databasebackup-options-shb.contracts.databasebackup.result.backupService"
+  ],
+  "contracts-databasebackup-options-shb.contracts.databasebackup.result.restoreScript": [
+    "contracts-databasebackup.html#contracts-databasebackup-options-shb.contracts.databasebackup.result.restoreScript"
+  ],
+  "contracts-secret-options-shb.contracts.secret": [
+    "contracts-secret.html#contracts-secret-options-shb.contracts.secret"
+  ],
+  "contracts-secret-options-shb.contracts.secret.request": [
+    "contracts-secret.html#contracts-secret-options-shb.contracts.secret.request"
+  ],
+  "contracts-secret-options-shb.contracts.secret.request.group": [
+    "contracts-secret.html#contracts-secret-options-shb.contracts.secret.request.group"
+  ],
+  "contracts-secret-options-shb.contracts.secret.request.mode": [
+    "contracts-secret.html#contracts-secret-options-shb.contracts.secret.request.mode"
+  ],
+  "contracts-secret-options-shb.contracts.secret.request.owner": [
+    "contracts-secret.html#contracts-secret-options-shb.contracts.secret.request.owner"
+  ],
+  "contracts-secret-options-shb.contracts.secret.request.restartUnits": [
+    "contracts-secret.html#contracts-secret-options-shb.contracts.secret.request.restartUnits"
+  ],
+  "contracts-secret-options-shb.contracts.secret.result": [
+    "contracts-secret.html#contracts-secret-options-shb.contracts.secret.result"
+  ],
+  "contracts-secret-options-shb.contracts.secret.result.path": [
+    "contracts-secret.html#contracts-secret-options-shb.contracts.secret.result.path"
+  ],
+  "contracts-secret-options-shb.contracts.secret.settings": [
+    "contracts-secret.html#contracts-secret-options-shb.contracts.secret.settings"
+  ],
+  "contracts-ssl-options-shb.contracts.ssl": [
+    "contracts-ssl.html#contracts-ssl-options-shb.contracts.ssl"
+  ],
+  "contracts-ssl-options-shb.contracts.ssl.paths": [
+    "contracts-ssl.html#contracts-ssl-options-shb.contracts.ssl.paths"
+  ],
+  "contracts-ssl-options-shb.contracts.ssl.paths.cert": [
+    "contracts-ssl.html#contracts-ssl-options-shb.contracts.ssl.paths.cert"
+  ],
+  "contracts-ssl-options-shb.contracts.ssl.paths.key": [
+    "contracts-ssl.html#contracts-ssl-options-shb.contracts.ssl.paths.key"
+  ],
+  "contracts-ssl-options-shb.contracts.ssl.systemdService": [
+    "contracts-ssl.html#contracts-ssl-options-shb.contracts.ssl.systemdService"
+  ],
+  "contributing": [
+    "contributing.html#contributing"
+  ],
+  "contributing-chat": [
+    "contributing.html#contributing-chat"
+  ],
+  "contributing-deploy-colmena": [
+    "contributing.html#contributing-deploy-colmena"
+  ],
+  "contributing-diff": [
+    "contributing.html#contributing-diff"
+  ],
+  "contributing-diff-deployed": [
+    "contributing.html#contributing-diff-deployed"
+  ],
+  "contributing-diff-full": [
+    "contributing.html#contributing-diff-full"
+  ],
+  "contributing-diff-todeploy": [
+    "contributing.html#contributing-diff-todeploy"
+  ],
+  "contributing-diff-version": [
+    "contributing.html#contributing-diff-version"
+  ],
+  "contributing-gensecret": [
+    "contributing.html#contributing-gensecret"
+  ],
+  "contributing-links": [
+    "contributing.html#contributing-links"
+  ],
+  "contributing-localversion": [
+    "contributing.html#contributing-localversion"
+  ],
+  "contributing-runtests": [
+    "contributing.html#contributing-runtests"
+  ],
+  "contributing-upload": [
+    "contributing.html#contributing-upload"
+  ],
+  "contributing-upstream": [
+    "contributing.html#contributing-upstream"
+  ],
+  "demo-homeassistant": [
+    "demo-homeassistant.html#demo-homeassistant"
+  ],
+  "demo-homeassistant-deploy": [
+    "demo-homeassistant.html#demo-homeassistant-deploy"
+  ],
+  "demo-homeassistant-deploy-basic": [
+    "demo-homeassistant.html#demo-homeassistant-deploy-basic"
+  ],
+  "demo-homeassistant-deploy-ldap": [
+    "demo-homeassistant.html#demo-homeassistant-deploy-ldap"
+  ],
+  "demo-homeassistant-deploy-nixosrebuild": [
+    "demo-homeassistant.html#demo-homeassistant-deploy-nixosrebuild"
+  ],
+  "demo-homeassistant-files": [
+    "demo-homeassistant.html#demo-homeassistant-files"
+  ],
+  "demo-homeassistant-in-more-details": [
+    "demo-homeassistant.html#demo-homeassistant-in-more-details"
+  ],
+  "demo-homeassistant-secrets": [
+    "demo-homeassistant.html#demo-homeassistant-secrets"
+  ],
+  "demo-homeassistant-tips-deploy": [
+    "demo-homeassistant.html#demo-homeassistant-tips-deploy"
+  ],
+  "demo-homeassistant-tips-public-key-necessity": [
+    "demo-homeassistant.html#demo-homeassistant-tips-public-key-necessity"
+  ],
+  "demo-homeassistant-tips-ssh": [
+    "demo-homeassistant.html#demo-homeassistant-tips-ssh"
+  ],
+  "demo-homeassistant-tips-update-demo": [
+    "demo-homeassistant.html#demo-homeassistant-tips-update-demo"
+  ],
+  "demo-homeassistant-virtual-machine": [
+    "demo-homeassistant.html#demo-homeassistant-virtual-machine"
+  ],
+  "demo-homeassistant-deploy-colmena": [
+    "demo-homeassistant.html#demo-homeassistant-deploy-colmena"
+  ],
+  "demo-nextcloud": [
+    "demo-nextcloud.html#demo-nextcloud"
+  ],
+  "demo-nextcloud-deploy": [
+    "demo-nextcloud.html#demo-nextcloud-deploy"
+  ],
+  "demo-nextcloud-deploy-basic": [
+    "demo-nextcloud.html#demo-nextcloud-deploy-basic"
+  ],
+  "demo-nextcloud-deploy-colmena": [
+    "demo-nextcloud.html#demo-nextcloud-deploy-colmena"
+  ],
+  "demo-nextcloud-deploy-ldap": [
+    "demo-nextcloud.html#demo-nextcloud-deploy-ldap"
+  ],
+  "demo-nextcloud-deploy-nixosrebuild": [
+    "demo-nextcloud.html#demo-nextcloud-deploy-nixosrebuild"
+  ],
+  "demo-nextcloud-deploy-sso": [
+    "demo-nextcloud.html#demo-nextcloud-deploy-sso"
+  ],
+  "demo-nextcloud-tips": [
+    "demo-nextcloud.html#demo-nextcloud-tips"
+  ],
+  "demo-nextcloud-tips-deploy": [
+    "demo-nextcloud.html#demo-nextcloud-tips-deploy"
+  ],
+  "demo-nextcloud-tips-files": [
+    "demo-nextcloud.html#demo-nextcloud-tips-files"
+  ],
+  "demo-nextcloud-tips-public-key-necessity": [
+    "demo-nextcloud.html#demo-nextcloud-tips-public-key-necessity"
+  ],
+  "demo-nextcloud-tips-secrets": [
+    "demo-nextcloud.html#demo-nextcloud-tips-secrets"
+  ],
+  "demo-nextcloud-tips-ssh": [
+    "demo-nextcloud.html#demo-nextcloud-tips-ssh"
+  ],
+  "demo-nextcloud-tips-update-demo": [
+    "demo-nextcloud.html#demo-nextcloud-tips-update-demo"
+  ],
+  "demo-nextcloud-tips-virtual-machine": [
+    "demo-nextcloud.html#demo-nextcloud-tips-virtual-machine"
+  ],
+  "demos": [
+    "demos.html#demos"
+  ],
+  "preface": [
+    "index.html#preface"
+  ],
+  "self-host-blocks-manual": [
+    "index.html#self-host-blocks-manual"
+  ],
+  "services": [
+    "services.html#services"
+  ],
+  "services-forgejo": [
+    "services-forgejo.html#services-forgejo"
+  ],
+  "services-forgejo-debug": [
+    "services-forgejo.html#services-forgejo-debug"
+  ],
+  "services-forgejo-features": [
+    "services-forgejo.html#services-forgejo-features"
+  ],
+  "services-forgejo-options": [
+    "services-forgejo.html#services-forgejo-options"
+  ],
+  "services-forgejo-options-shb.forgejo.adminPassword": [
+    "services-forgejo.html#services-forgejo-options-shb.forgejo.adminPassword"
+  ],
+  "services-forgejo-options-shb.forgejo.adminPassword.request": [
+    "services-forgejo.html#services-forgejo-options-shb.forgejo.adminPassword.request"
+  ],
+  "services-forgejo-options-shb.forgejo.adminPassword.request.group": [
+    "services-forgejo.html#services-forgejo-options-shb.forgejo.adminPassword.request.group"
+  ],
+  "services-forgejo-options-shb.forgejo.adminPassword.request.mode": [
+    "services-forgejo.html#services-forgejo-options-shb.forgejo.adminPassword.request.mode"
+  ],
+  "services-forgejo-options-shb.forgejo.adminPassword.request.owner": [
+    "services-forgejo.html#services-forgejo-options-shb.forgejo.adminPassword.request.owner"
+  ],
+  "services-forgejo-options-shb.forgejo.adminPassword.request.restartUnits": [
+    "services-forgejo.html#services-forgejo-options-shb.forgejo.adminPassword.request.restartUnits"
+  ],
+  "services-forgejo-options-shb.forgejo.adminPassword.result": [
+    "services-forgejo.html#services-forgejo-options-shb.forgejo.adminPassword.result"
+  ],
+  "services-forgejo-options-shb.forgejo.adminPassword.result.path": [
+    "services-forgejo.html#services-forgejo-options-shb.forgejo.adminPassword.result.path"
+  ],
+  "services-forgejo-options-shb.forgejo.backup": [
+    "services-forgejo.html#services-forgejo-options-shb.forgejo.backup"
+  ],
+  "services-forgejo-options-shb.forgejo.backup.excludePatterns": [
+    "services-forgejo.html#services-forgejo-options-shb.forgejo.backup.excludePatterns"
+  ],
+  "services-forgejo-options-shb.forgejo.backup.hooks": [
+    "services-forgejo.html#services-forgejo-options-shb.forgejo.backup.hooks"
+  ],
+  "services-forgejo-options-shb.forgejo.backup.hooks.after_backup": [
+    "services-forgejo.html#services-forgejo-options-shb.forgejo.backup.hooks.after_backup"
+  ],
+  "services-forgejo-options-shb.forgejo.backup.hooks.before_backup": [
+    "services-forgejo.html#services-forgejo-options-shb.forgejo.backup.hooks.before_backup"
+  ],
+  "services-forgejo-options-shb.forgejo.backup.sourceDirectories": [
+    "services-forgejo.html#services-forgejo-options-shb.forgejo.backup.sourceDirectories"
+  ],
+  "services-forgejo-options-shb.forgejo.backup.user": [
+    "services-forgejo.html#services-forgejo-options-shb.forgejo.backup.user"
+  ],
+  "services-forgejo-options-shb.forgejo.databasePassword": [
+    "services-forgejo.html#services-forgejo-options-shb.forgejo.databasePassword"
+  ],
+  "services-forgejo-options-shb.forgejo.databasePassword.request": [
+    "services-forgejo.html#services-forgejo-options-shb.forgejo.databasePassword.request"
+  ],
+  "services-forgejo-options-shb.forgejo.databasePassword.request.group": [
+    "services-forgejo.html#services-forgejo-options-shb.forgejo.databasePassword.request.group"
+  ],
+  "services-forgejo-options-shb.forgejo.databasePassword.request.mode": [
+    "services-forgejo.html#services-forgejo-options-shb.forgejo.databasePassword.request.mode"
+  ],
+  "services-forgejo-options-shb.forgejo.databasePassword.request.owner": [
+    "services-forgejo.html#services-forgejo-options-shb.forgejo.databasePassword.request.owner"
+  ],
+  "services-forgejo-options-shb.forgejo.databasePassword.request.restartUnits": [
+    "services-forgejo.html#services-forgejo-options-shb.forgejo.databasePassword.request.restartUnits"
+  ],
+  "services-forgejo-options-shb.forgejo.databasePassword.result": [
+    "services-forgejo.html#services-forgejo-options-shb.forgejo.databasePassword.result"
+  ],
+  "services-forgejo-options-shb.forgejo.databasePassword.result.path": [
+    "services-forgejo.html#services-forgejo-options-shb.forgejo.databasePassword.result.path"
+  ],
+  "services-forgejo-options-shb.forgejo.debug": [
+    "services-forgejo.html#services-forgejo-options-shb.forgejo.debug"
+  ],
+  "services-forgejo-options-shb.forgejo.domain": [
+    "services-forgejo.html#services-forgejo-options-shb.forgejo.domain"
+  ],
+  "services-forgejo-options-shb.forgejo.enable": [
+    "services-forgejo.html#services-forgejo-options-shb.forgejo.enable"
+  ],
+  "services-forgejo-options-shb.forgejo.hostPackages": [
+    "services-forgejo.html#services-forgejo-options-shb.forgejo.hostPackages"
+  ],
+  "services-forgejo-options-shb.forgejo.ldap": [
+    "services-forgejo.html#services-forgejo-options-shb.forgejo.ldap"
+  ],
+  "services-forgejo-options-shb.forgejo.ldap.adminGroup": [
+    "services-forgejo.html#services-forgejo-options-shb.forgejo.ldap.adminGroup"
+  ],
+  "services-forgejo-options-shb.forgejo.ldap.adminName": [
+    "services-forgejo.html#services-forgejo-options-shb.forgejo.ldap.adminName"
+  ],
+  "services-forgejo-options-shb.forgejo.ldap.adminPassword": [
+    "services-forgejo.html#services-forgejo-options-shb.forgejo.ldap.adminPassword"
+  ],
+  "services-forgejo-options-shb.forgejo.ldap.adminPassword.request": [
+    "services-forgejo.html#services-forgejo-options-shb.forgejo.ldap.adminPassword.request"
+  ],
+  "services-forgejo-options-shb.forgejo.ldap.adminPassword.request.group": [
+    "services-forgejo.html#services-forgejo-options-shb.forgejo.ldap.adminPassword.request.group"
+  ],
+  "services-forgejo-options-shb.forgejo.ldap.adminPassword.request.mode": [
+    "services-forgejo.html#services-forgejo-options-shb.forgejo.ldap.adminPassword.request.mode"
+  ],
+  "services-forgejo-options-shb.forgejo.ldap.adminPassword.request.owner": [
+    "services-forgejo.html#services-forgejo-options-shb.forgejo.ldap.adminPassword.request.owner"
+  ],
+  "services-forgejo-options-shb.forgejo.ldap.adminPassword.request.restartUnits": [
+    "services-forgejo.html#services-forgejo-options-shb.forgejo.ldap.adminPassword.request.restartUnits"
+  ],
+  "services-forgejo-options-shb.forgejo.ldap.adminPassword.result": [
+    "services-forgejo.html#services-forgejo-options-shb.forgejo.ldap.adminPassword.result"
+  ],
+  "services-forgejo-options-shb.forgejo.ldap.adminPassword.result.path": [
+    "services-forgejo.html#services-forgejo-options-shb.forgejo.ldap.adminPassword.result.path"
+  ],
+  "services-forgejo-options-shb.forgejo.ldap.dcdomain": [
+    "services-forgejo.html#services-forgejo-options-shb.forgejo.ldap.dcdomain"
+  ],
+  "services-forgejo-options-shb.forgejo.ldap.enable": [
+    "services-forgejo.html#services-forgejo-options-shb.forgejo.ldap.enable"
+  ],
+  "services-forgejo-options-shb.forgejo.ldap.host": [
+    "services-forgejo.html#services-forgejo-options-shb.forgejo.ldap.host"
+  ],
+  "services-forgejo-options-shb.forgejo.ldap.port": [
+    "services-forgejo.html#services-forgejo-options-shb.forgejo.ldap.port"
+  ],
+  "services-forgejo-options-shb.forgejo.ldap.provider": [
+    "services-forgejo.html#services-forgejo-options-shb.forgejo.ldap.provider"
+  ],
+  "services-forgejo-options-shb.forgejo.ldap.userGroup": [
+    "services-forgejo.html#services-forgejo-options-shb.forgejo.ldap.userGroup"
+  ],
+  "services-forgejo-options-shb.forgejo.localActionRunner": [
+    "services-forgejo.html#services-forgejo-options-shb.forgejo.localActionRunner"
+  ],
+  "services-forgejo-options-shb.forgejo.mount": [
+    "services-forgejo.html#services-forgejo-options-shb.forgejo.mount"
+  ],
+  "services-forgejo-options-shb.forgejo.mount.path": [
+    "services-forgejo.html#services-forgejo-options-shb.forgejo.mount.path"
+  ],
+  "services-forgejo-options-shb.forgejo.repositoryRoot": [
+    "services-forgejo.html#services-forgejo-options-shb.forgejo.repositoryRoot"
+  ],
+  "services-forgejo-options-shb.forgejo.smtp": [
+    "services-forgejo.html#services-forgejo-options-shb.forgejo.smtp"
+  ],
+  "services-forgejo-options-shb.forgejo.smtp.from_address": [
+    "services-forgejo.html#services-forgejo-options-shb.forgejo.smtp.from_address"
+  ],
+  "services-forgejo-options-shb.forgejo.smtp.host": [
+    "services-forgejo.html#services-forgejo-options-shb.forgejo.smtp.host"
+  ],
+  "services-forgejo-options-shb.forgejo.smtp.passwordFile": [
+    "services-forgejo.html#services-forgejo-options-shb.forgejo.smtp.passwordFile"
+  ],
+  "services-forgejo-options-shb.forgejo.smtp.port": [
+    "services-forgejo.html#services-forgejo-options-shb.forgejo.smtp.port"
+  ],
+  "services-forgejo-options-shb.forgejo.smtp.username": [
+    "services-forgejo.html#services-forgejo-options-shb.forgejo.smtp.username"
+  ],
+  "services-forgejo-options-shb.forgejo.ssl": [
+    "services-forgejo.html#services-forgejo-options-shb.forgejo.ssl"
+  ],
+  "services-forgejo-options-shb.forgejo.ssl.paths": [
+    "services-forgejo.html#services-forgejo-options-shb.forgejo.ssl.paths"
+  ],
+  "services-forgejo-options-shb.forgejo.ssl.paths.cert": [
+    "services-forgejo.html#services-forgejo-options-shb.forgejo.ssl.paths.cert"
+  ],
+  "services-forgejo-options-shb.forgejo.ssl.paths.key": [
+    "services-forgejo.html#services-forgejo-options-shb.forgejo.ssl.paths.key"
+  ],
+  "services-forgejo-options-shb.forgejo.ssl.systemdService": [
+    "services-forgejo.html#services-forgejo-options-shb.forgejo.ssl.systemdService"
+  ],
+  "services-forgejo-options-shb.forgejo.sso": [
+    "services-forgejo.html#services-forgejo-options-shb.forgejo.sso"
+  ],
+  "services-forgejo-options-shb.forgejo.sso.authorization_policy": [
+    "services-forgejo.html#services-forgejo-options-shb.forgejo.sso.authorization_policy"
+  ],
+  "services-forgejo-options-shb.forgejo.sso.clientID": [
+    "services-forgejo.html#services-forgejo-options-shb.forgejo.sso.clientID"
+  ],
+  "services-forgejo-options-shb.forgejo.sso.enable": [
+    "services-forgejo.html#services-forgejo-options-shb.forgejo.sso.enable"
+  ],
+  "services-forgejo-options-shb.forgejo.sso.endpoint": [
+    "services-forgejo.html#services-forgejo-options-shb.forgejo.sso.endpoint"
+  ],
+  "services-forgejo-options-shb.forgejo.sso.provider": [
+    "services-forgejo.html#services-forgejo-options-shb.forgejo.sso.provider"
+  ],
+  "services-forgejo-options-shb.forgejo.sso.sharedSecret": [
+    "services-forgejo.html#services-forgejo-options-shb.forgejo.sso.sharedSecret"
+  ],
+  "services-forgejo-options-shb.forgejo.sso.sharedSecretForAuthelia": [
+    "services-forgejo.html#services-forgejo-options-shb.forgejo.sso.sharedSecretForAuthelia"
+  ],
+  "services-forgejo-options-shb.forgejo.sso.sharedSecretForAuthelia.request": [
+    "services-forgejo.html#services-forgejo-options-shb.forgejo.sso.sharedSecretForAuthelia.request"
+  ],
+  "services-forgejo-options-shb.forgejo.sso.sharedSecretForAuthelia.request.group": [
+    "services-forgejo.html#services-forgejo-options-shb.forgejo.sso.sharedSecretForAuthelia.request.group"
+  ],
+  "services-forgejo-options-shb.forgejo.sso.sharedSecretForAuthelia.request.mode": [
+    "services-forgejo.html#services-forgejo-options-shb.forgejo.sso.sharedSecretForAuthelia.request.mode"
+  ],
+  "services-forgejo-options-shb.forgejo.sso.sharedSecretForAuthelia.request.owner": [
+    "services-forgejo.html#services-forgejo-options-shb.forgejo.sso.sharedSecretForAuthelia.request.owner"
+  ],
+  "services-forgejo-options-shb.forgejo.sso.sharedSecretForAuthelia.request.restartUnits": [
+    "services-forgejo.html#services-forgejo-options-shb.forgejo.sso.sharedSecretForAuthelia.request.restartUnits"
+  ],
+  "services-forgejo-options-shb.forgejo.sso.sharedSecretForAuthelia.result": [
+    "services-forgejo.html#services-forgejo-options-shb.forgejo.sso.sharedSecretForAuthelia.result"
+  ],
+  "services-forgejo-options-shb.forgejo.sso.sharedSecretForAuthelia.result.path": [
+    "services-forgejo.html#services-forgejo-options-shb.forgejo.sso.sharedSecretForAuthelia.result.path"
+  ],
+  "services-forgejo-options-shb.forgejo.sso.sharedSecret.request": [
+    "services-forgejo.html#services-forgejo-options-shb.forgejo.sso.sharedSecret.request"
+  ],
+  "services-forgejo-options-shb.forgejo.sso.sharedSecret.request.group": [
+    "services-forgejo.html#services-forgejo-options-shb.forgejo.sso.sharedSecret.request.group"
+  ],
+  "services-forgejo-options-shb.forgejo.sso.sharedSecret.request.mode": [
+    "services-forgejo.html#services-forgejo-options-shb.forgejo.sso.sharedSecret.request.mode"
+  ],
+  "services-forgejo-options-shb.forgejo.sso.sharedSecret.request.owner": [
+    "services-forgejo.html#services-forgejo-options-shb.forgejo.sso.sharedSecret.request.owner"
+  ],
+  "services-forgejo-options-shb.forgejo.sso.sharedSecret.request.restartUnits": [
+    "services-forgejo.html#services-forgejo-options-shb.forgejo.sso.sharedSecret.request.restartUnits"
+  ],
+  "services-forgejo-options-shb.forgejo.sso.sharedSecret.result": [
+    "services-forgejo.html#services-forgejo-options-shb.forgejo.sso.sharedSecret.result"
+  ],
+  "services-forgejo-options-shb.forgejo.sso.sharedSecret.result.path": [
+    "services-forgejo.html#services-forgejo-options-shb.forgejo.sso.sharedSecret.result.path"
+  ],
+  "services-forgejo-options-shb.forgejo.subdomain": [
+    "services-forgejo.html#services-forgejo-options-shb.forgejo.subdomain"
+  ],
+  "services-forgejo-secrets": [
+    "services-forgejo.html#services-forgejo-secrets"
+  ],
+  "services-forgejo-usage": [
+    "services-forgejo.html#services-forgejo-usage"
+  ],
+  "services-forgejo-usage-backup": [
+    "services-forgejo.html#services-forgejo-usage-backup"
+  ],
+  "services-forgejo-usage-basic": [
+    "services-forgejo.html#services-forgejo-usage-basic"
+  ],
+  "services-forgejo-usage-extra-settings": [
+    "services-forgejo.html#services-forgejo-usage-extra-settings"
+  ],
+  "services-forgejo-usage-ldap": [
+    "services-forgejo.html#services-forgejo-usage-ldap"
+  ],
+  "services-forgejo-usage-sso": [
+    "services-forgejo.html#services-forgejo-usage-sso"
+  ],
+  "services-nextcloudserver": [
+    "services-nextcloud.html#services-nextcloudserver"
+  ],
+  "services-nextcloudserver-debug": [
+    "services-nextcloud.html#services-nextcloudserver-debug"
+  ],
+  "services-nextcloudserver-demo": [
+    "services-nextcloud.html#services-nextcloudserver-demo"
+  ],
+  "services-nextcloudserver-features": [
+    "services-nextcloud.html#services-nextcloudserver-features"
+  ],
+  "services-nextcloudserver-maintenance": [
+    "services-nextcloud.html#services-nextcloudserver-maintenance"
+  ],
+  "services-nextcloudserver-options": [
+    "services-nextcloud.html#services-nextcloudserver-options"
+  ],
+  "services-nextcloudserver-options-shb.nextcloud.adminPass": [
+    "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.adminPass"
+  ],
+  "services-nextcloudserver-options-shb.nextcloud.adminPass.request": [
+    "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.adminPass.request"
+  ],
+  "services-nextcloudserver-options-shb.nextcloud.adminPass.request.group": [
+    "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.adminPass.request.group"
+  ],
+  "services-nextcloudserver-options-shb.nextcloud.adminPass.request.mode": [
+    "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.adminPass.request.mode"
+  ],
+  "services-nextcloudserver-options-shb.nextcloud.adminPass.request.owner": [
+    "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.adminPass.request.owner"
+  ],
+  "services-nextcloudserver-options-shb.nextcloud.adminPass.request.restartUnits": [
+    "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.adminPass.request.restartUnits"
+  ],
+  "services-nextcloudserver-options-shb.nextcloud.adminPass.result": [
+    "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.adminPass.result"
+  ],
+  "services-nextcloudserver-options-shb.nextcloud.adminPass.result.path": [
+    "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.adminPass.result.path"
+  ],
+  "services-nextcloudserver-options-shb.nextcloud.adminUser": [
+    "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.adminUser"
+  ],
+  "services-nextcloudserver-options-shb.nextcloud.alwaysApplyExpensiveMigrations": [
+    "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.alwaysApplyExpensiveMigrations"
+  ],
+  "services-nextcloudserver-options-shb.nextcloud.apps": [
+    "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.apps"
+  ],
+  "services-nextcloudserver-options-shb.nextcloud.apps.externalStorage": [
+    "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.apps.externalStorage"
+  ],
+  "services-nextcloudserver-options-shb.nextcloud.apps.externalStorage.enable": [
+    "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.apps.externalStorage.enable"
+  ],
+  "services-nextcloudserver-options-shb.nextcloud.apps.externalStorage.userLocalMount": [
+    "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.apps.externalStorage.userLocalMount"
+  ],
+  "services-nextcloudserver-options-shb.nextcloud.apps.externalStorage.userLocalMount.directory": [
+    "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.apps.externalStorage.userLocalMount.directory"
+  ],
+  "services-nextcloudserver-options-shb.nextcloud.apps.externalStorage.userLocalMount.mountName": [
+    "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.apps.externalStorage.userLocalMount.mountName"
+  ],
+  "services-nextcloudserver-options-shb.nextcloud.apps.ldap": [
+    "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.apps.ldap"
+  ],
+  "services-nextcloudserver-options-shb.nextcloud.apps.ldap.adminName": [
+    "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.apps.ldap.adminName"
+  ],
+  "services-nextcloudserver-options-shb.nextcloud.apps.ldap.adminPassword": [
+    "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.apps.ldap.adminPassword"
+  ],
+  "services-nextcloudserver-options-shb.nextcloud.apps.ldap.adminPassword.request": [
+    "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.apps.ldap.adminPassword.request"
+  ],
+  "services-nextcloudserver-options-shb.nextcloud.apps.ldap.adminPassword.request.group": [
+    "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.apps.ldap.adminPassword.request.group"
+  ],
+  "services-nextcloudserver-options-shb.nextcloud.apps.ldap.adminPassword.request.mode": [
+    "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.apps.ldap.adminPassword.request.mode"
+  ],
+  "services-nextcloudserver-options-shb.nextcloud.apps.ldap.adminPassword.request.owner": [
+    "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.apps.ldap.adminPassword.request.owner"
+  ],
+  "services-nextcloudserver-options-shb.nextcloud.apps.ldap.adminPassword.request.restartUnits": [
+    "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.apps.ldap.adminPassword.request.restartUnits"
+  ],
+  "services-nextcloudserver-options-shb.nextcloud.apps.ldap.adminPassword.result": [
+    "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.apps.ldap.adminPassword.result"
+  ],
+  "services-nextcloudserver-options-shb.nextcloud.apps.ldap.adminPassword.result.path": [
+    "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.apps.ldap.adminPassword.result.path"
+  ],
+  "services-nextcloudserver-options-shb.nextcloud.apps.ldap.configID": [
+    "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.apps.ldap.configID"
+  ],
+  "services-nextcloudserver-options-shb.nextcloud.apps.ldap.dcdomain": [
+    "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.apps.ldap.dcdomain"
+  ],
+  "services-nextcloudserver-options-shb.nextcloud.apps.ldap.enable": [
+    "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.apps.ldap.enable"
+  ],
+  "services-nextcloudserver-options-shb.nextcloud.apps.ldap.host": [
+    "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.apps.ldap.host"
+  ],
+  "services-nextcloudserver-options-shb.nextcloud.apps.ldap.port": [
+    "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.apps.ldap.port"
+  ],
+  "services-nextcloudserver-options-shb.nextcloud.apps.ldap.userGroup": [
+    "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.apps.ldap.userGroup"
+  ],
+  "services-nextcloudserver-options-shb.nextcloud.apps.onlyoffice": [
+    "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.apps.onlyoffice"
+  ],
+  "services-nextcloudserver-options-shb.nextcloud.apps.onlyoffice.enable": [
+    "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.apps.onlyoffice.enable"
+  ],
+  "services-nextcloudserver-options-shb.nextcloud.apps.onlyoffice.jwtSecretFile": [
+    "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.apps.onlyoffice.jwtSecretFile"
+  ],
+  "services-nextcloudserver-options-shb.nextcloud.apps.onlyoffice.localNetworkIPRange": [
+    "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.apps.onlyoffice.localNetworkIPRange"
+  ],
+  "services-nextcloudserver-options-shb.nextcloud.apps.onlyoffice.ssl": [
+    "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.apps.onlyoffice.ssl"
+  ],
+  "services-nextcloudserver-options-shb.nextcloud.apps.onlyoffice.ssl.paths": [
+    "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.apps.onlyoffice.ssl.paths"
+  ],
+  "services-nextcloudserver-options-shb.nextcloud.apps.onlyoffice.ssl.paths.cert": [
+    "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.apps.onlyoffice.ssl.paths.cert"
+  ],
+  "services-nextcloudserver-options-shb.nextcloud.apps.onlyoffice.ssl.paths.key": [
+    "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.apps.onlyoffice.ssl.paths.key"
+  ],
+  "services-nextcloudserver-options-shb.nextcloud.apps.onlyoffice.ssl.systemdService": [
+    "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.apps.onlyoffice.ssl.systemdService"
+  ],
+  "services-nextcloudserver-options-shb.nextcloud.apps.onlyoffice.subdomain": [
+    "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.apps.onlyoffice.subdomain"
+  ],
+  "services-nextcloudserver-options-shb.nextcloud.apps.previewgenerator": [
+    "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.apps.previewgenerator"
+  ],
+  "services-nextcloudserver-options-shb.nextcloud.apps.previewgenerator.debug": [
+    "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.apps.previewgenerator.debug"
+  ],
+  "services-nextcloudserver-options-shb.nextcloud.apps.previewgenerator.enable": [
+    "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.apps.previewgenerator.enable"
+  ],
+  "services-nextcloudserver-options-shb.nextcloud.apps.previewgenerator.recommendedSettings": [
+    "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.apps.previewgenerator.recommendedSettings"
+  ],
+  "services-nextcloudserver-options-shb.nextcloud.apps.sso": [
+    "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.apps.sso"
+  ],
+  "services-nextcloudserver-options-shb.nextcloud.apps.sso.authorization_policy": [
+    "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.apps.sso.authorization_policy"
+  ],
+  "services-nextcloudserver-options-shb.nextcloud.apps.sso.clientID": [
+    "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.apps.sso.clientID"
+  ],
+  "services-nextcloudserver-options-shb.nextcloud.apps.sso.enable": [
+    "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.apps.sso.enable"
+  ],
+  "services-nextcloudserver-options-shb.nextcloud.apps.sso.endpoint": [
+    "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.apps.sso.endpoint"
+  ],
+  "services-nextcloudserver-options-shb.nextcloud.apps.sso.fallbackDefaultAuth": [
+    "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.apps.sso.fallbackDefaultAuth"
+  ],
+  "services-nextcloudserver-options-shb.nextcloud.apps.sso.port": [
+    "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.apps.sso.port"
+  ],
+  "services-nextcloudserver-options-shb.nextcloud.apps.sso.provider": [
+    "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.apps.sso.provider"
+  ],
+  "services-nextcloudserver-options-shb.nextcloud.apps.sso.secret": [
+    "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.apps.sso.secret"
+  ],
+  "services-nextcloudserver-options-shb.nextcloud.apps.sso.secretForAuthelia": [
+    "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.apps.sso.secretForAuthelia"
+  ],
+  "services-nextcloudserver-options-shb.nextcloud.apps.sso.secretForAuthelia.request": [
+    "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.apps.sso.secretForAuthelia.request"
+  ],
+  "services-nextcloudserver-options-shb.nextcloud.apps.sso.secretForAuthelia.request.group": [
+    "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.apps.sso.secretForAuthelia.request.group"
+  ],
+  "services-nextcloudserver-options-shb.nextcloud.apps.sso.secretForAuthelia.request.mode": [
+    "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.apps.sso.secretForAuthelia.request.mode"
+  ],
+  "services-nextcloudserver-options-shb.nextcloud.apps.sso.secretForAuthelia.request.owner": [
+    "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.apps.sso.secretForAuthelia.request.owner"
+  ],
+  "services-nextcloudserver-options-shb.nextcloud.apps.sso.secretForAuthelia.request.restartUnits": [
+    "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.apps.sso.secretForAuthelia.request.restartUnits"
+  ],
+  "services-nextcloudserver-options-shb.nextcloud.apps.sso.secretForAuthelia.result": [
+    "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.apps.sso.secretForAuthelia.result"
+  ],
+  "services-nextcloudserver-options-shb.nextcloud.apps.sso.secretForAuthelia.result.path": [
+    "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.apps.sso.secretForAuthelia.result.path"
+  ],
+  "services-nextcloudserver-options-shb.nextcloud.apps.sso.secret.request": [
+    "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.apps.sso.secret.request"
+  ],
+  "services-nextcloudserver-options-shb.nextcloud.apps.sso.secret.request.group": [
+    "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.apps.sso.secret.request.group"
+  ],
+  "services-nextcloudserver-options-shb.nextcloud.apps.sso.secret.request.mode": [
+    "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.apps.sso.secret.request.mode"
+  ],
+  "services-nextcloudserver-options-shb.nextcloud.apps.sso.secret.request.owner": [
+    "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.apps.sso.secret.request.owner"
+  ],
+  "services-nextcloudserver-options-shb.nextcloud.apps.sso.secret.request.restartUnits": [
+    "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.apps.sso.secret.request.restartUnits"
+  ],
+  "services-nextcloudserver-options-shb.nextcloud.apps.sso.secret.result": [
+    "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.apps.sso.secret.result"
+  ],
+  "services-nextcloudserver-options-shb.nextcloud.apps.sso.secret.result.path": [
+    "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.apps.sso.secret.result.path"
+  ],
+  "services-nextcloudserver-options-shb.nextcloud.autoDisableMaintenanceModeOnStart": [
+    "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.autoDisableMaintenanceModeOnStart"
+  ],
+  "services-nextcloudserver-options-shb.nextcloud.backup": [
+    "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.backup"
+  ],
+  "services-nextcloudserver-options-shb.nextcloud.backup.excludePatterns": [
+    "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.backup.excludePatterns"
+  ],
+  "services-nextcloudserver-options-shb.nextcloud.backup.hooks": [
+    "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.backup.hooks"
+  ],
+  "services-nextcloudserver-options-shb.nextcloud.backup.hooks.after_backup": [
+    "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.backup.hooks.after_backup"
+  ],
+  "services-nextcloudserver-options-shb.nextcloud.backup.hooks.before_backup": [
+    "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.backup.hooks.before_backup"
+  ],
+  "services-nextcloudserver-options-shb.nextcloud.backup.sourceDirectories": [
+    "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.backup.sourceDirectories"
+  ],
+  "services-nextcloudserver-options-shb.nextcloud.backup.user": [
+    "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.backup.user"
+  ],
+  "services-nextcloudserver-options-shb.nextcloud.dataDir": [
+    "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.dataDir"
+  ],
+  "services-nextcloudserver-options-shb.nextcloud.debug": [
+    "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.debug"
+  ],
+  "services-nextcloudserver-options-shb.nextcloud.defaultPhoneRegion": [
+    "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.defaultPhoneRegion"
+  ],
+  "services-nextcloudserver-options-shb.nextcloud.domain": [
+    "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.domain"
+  ],
+  "services-nextcloudserver-options-shb.nextcloud.enable": [
+    "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.enable"
+  ],
+  "services-nextcloudserver-options-shb.nextcloud.externalFqdn": [
+    "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.externalFqdn"
+  ],
+  "services-nextcloudserver-options-shb.nextcloud.extraApps": [
+    "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.extraApps"
+  ],
+  "services-nextcloudserver-options-shb.nextcloud.maxUploadSize": [
+    "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.maxUploadSize"
+  ],
+  "services-nextcloudserver-options-shb.nextcloud.mountPointServices": [
+    "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.mountPointServices"
+  ],
+  "services-nextcloudserver-options-shb.nextcloud.phpFpmPoolSettings": [
+    "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.phpFpmPoolSettings"
+  ],
+  "services-nextcloudserver-options-shb.nextcloud.port": [
+    "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.port"
+  ],
+  "services-nextcloudserver-options-shb.nextcloud.postgresSettings": [
+    "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.postgresSettings"
+  ],
+  "services-nextcloudserver-options-shb.nextcloud.ssl": [
+    "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.ssl"
+  ],
+  "services-nextcloudserver-options-shb.nextcloud.ssl.paths": [
+    "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.ssl.paths"
+  ],
+  "services-nextcloudserver-options-shb.nextcloud.ssl.paths.cert": [
+    "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.ssl.paths.cert"
+  ],
+  "services-nextcloudserver-options-shb.nextcloud.ssl.paths.key": [
+    "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.ssl.paths.key"
+  ],
+  "services-nextcloudserver-options-shb.nextcloud.ssl.systemdService": [
+    "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.ssl.systemdService"
+  ],
+  "services-nextcloudserver-options-shb.nextcloud.subdomain": [
+    "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.subdomain"
+  ],
+  "services-nextcloudserver-options-shb.nextcloud.tracing": [
+    "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.tracing"
+  ],
+  "services-nextcloudserver-options-shb.nextcloud.version": [
+    "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.version"
+  ],
+  "services-nextcloudserver-server-usage-appdata": [
+    "services-nextcloud.html#services-nextcloudserver-server-usage-appdata"
+  ],
+  "services-nextcloudserver-server-usage-monitoring": [
+    "services-nextcloud.html#services-nextcloudserver-server-usage-monitoring"
+  ],
+  "services-nextcloudserver-server-usage-tracing": [
+    "services-nextcloud.html#services-nextcloudserver-server-usage-tracing"
+  ],
+  "services-nextcloudserver-usage": [
+    "services-nextcloud.html#services-nextcloudserver-usage"
+  ],
+  "services-nextcloudserver-usage-backup": [
+    "services-nextcloud.html#services-nextcloudserver-usage-backup"
+  ],
+  "services-nextcloudserver-usage-basic": [
+    "services-nextcloud.html#services-nextcloudserver-usage-basic"
+  ],
+  "services-nextcloudserver-usage-externalstorage": [
+    "services-nextcloud.html#services-nextcloudserver-usage-externalstorage"
+  ],
+  "services-nextcloudserver-usage-https": [
+    "services-nextcloud.html#services-nextcloudserver-usage-https"
+  ],
+  "services-nextcloudserver-usage-ldap": [
+    "services-nextcloud.html#services-nextcloudserver-usage-ldap"
+  ],
+  "services-nextcloudserver-usage-mount-point": [
+    "services-nextcloud.html#services-nextcloudserver-usage-mount-point"
+  ],
+  "services-nextcloudserver-usage-oidc": [
+    "services-nextcloud.html#services-nextcloudserver-usage-oidc"
+  ],
+  "services-nextcloudserver-usage-onlyoffice": [
+    "services-nextcloud.html#services-nextcloudserver-usage-onlyoffice"
+  ],
+  "services-nextcloudserver-usage-phpfpm": [
+    "services-nextcloud.html#services-nextcloudserver-usage-phpfpm"
+  ],
+  "services-nextcloudserver-usage-postgres": [
+    "services-nextcloud.html#services-nextcloudserver-usage-postgres"
+  ],
+  "services-nextcloudserver-usage-previewgenerator": [
+    "services-nextcloud.html#services-nextcloudserver-usage-previewgenerator"
+  ],
+  "services-nextcloudserver-usage-version": [
+    "services-nextcloud.html#services-nextcloudserver-usage-version"
+  ],
+  "services-vaultwarden": [
+    "services-vaultwarden.html#services-vaultwarden"
+  ],
+  "services-vaultwarden-backup": [
+    "services-vaultwarden.html#services-vaultwarden-backup"
+  ],
+  "services-vaultwarden-debug": [
+    "services-vaultwarden.html#services-vaultwarden-debug"
+  ],
+  "services-vaultwarden-features": [
+    "services-vaultwarden.html#services-vaultwarden-features"
+  ],
+  "services-vaultwarden-maintenance": [
+    "services-vaultwarden.html#services-vaultwarden-maintenance"
+  ],
+  "services-vaultwarden-options": [
+    "services-vaultwarden.html#services-vaultwarden-options"
+  ],
+  "services-vaultwarden-options-shb.vaultwarden.authEndpoint": [
+    "services-vaultwarden.html#services-vaultwarden-options-shb.vaultwarden.authEndpoint"
+  ],
+  "services-vaultwarden-options-shb.vaultwarden.backup": [
+    "services-vaultwarden.html#services-vaultwarden-options-shb.vaultwarden.backup"
+  ],
+  "services-vaultwarden-options-shb.vaultwarden.backup.excludePatterns": [
+    "services-vaultwarden.html#services-vaultwarden-options-shb.vaultwarden.backup.excludePatterns"
+  ],
+  "services-vaultwarden-options-shb.vaultwarden.backup.hooks": [
+    "services-vaultwarden.html#services-vaultwarden-options-shb.vaultwarden.backup.hooks"
+  ],
+  "services-vaultwarden-options-shb.vaultwarden.backup.hooks.after_backup": [
+    "services-vaultwarden.html#services-vaultwarden-options-shb.vaultwarden.backup.hooks.after_backup"
+  ],
+  "services-vaultwarden-options-shb.vaultwarden.backup.hooks.before_backup": [
+    "services-vaultwarden.html#services-vaultwarden-options-shb.vaultwarden.backup.hooks.before_backup"
+  ],
+  "services-vaultwarden-options-shb.vaultwarden.backup.sourceDirectories": [
+    "services-vaultwarden.html#services-vaultwarden-options-shb.vaultwarden.backup.sourceDirectories"
+  ],
+  "services-vaultwarden-options-shb.vaultwarden.backup.user": [
+    "services-vaultwarden.html#services-vaultwarden-options-shb.vaultwarden.backup.user"
+  ],
+  "services-vaultwarden-options-shb.vaultwarden.databasePassword": [
+    "services-vaultwarden.html#services-vaultwarden-options-shb.vaultwarden.databasePassword"
+  ],
+  "services-vaultwarden-options-shb.vaultwarden.databasePassword.request": [
+    "services-vaultwarden.html#services-vaultwarden-options-shb.vaultwarden.databasePassword.request"
+  ],
+  "services-vaultwarden-options-shb.vaultwarden.databasePassword.request.group": [
+    "services-vaultwarden.html#services-vaultwarden-options-shb.vaultwarden.databasePassword.request.group"
+  ],
+  "services-vaultwarden-options-shb.vaultwarden.databasePassword.request.mode": [
+    "services-vaultwarden.html#services-vaultwarden-options-shb.vaultwarden.databasePassword.request.mode"
+  ],
+  "services-vaultwarden-options-shb.vaultwarden.databasePassword.request.owner": [
+    "services-vaultwarden.html#services-vaultwarden-options-shb.vaultwarden.databasePassword.request.owner"
+  ],
+  "services-vaultwarden-options-shb.vaultwarden.databasePassword.request.restartUnits": [
+    "services-vaultwarden.html#services-vaultwarden-options-shb.vaultwarden.databasePassword.request.restartUnits"
+  ],
+  "services-vaultwarden-options-shb.vaultwarden.databasePassword.result": [
+    "services-vaultwarden.html#services-vaultwarden-options-shb.vaultwarden.databasePassword.result"
+  ],
+  "services-vaultwarden-options-shb.vaultwarden.databasePassword.result.path": [
+    "services-vaultwarden.html#services-vaultwarden-options-shb.vaultwarden.databasePassword.result.path"
+  ],
+  "services-vaultwarden-options-shb.vaultwarden.debug": [
+    "services-vaultwarden.html#services-vaultwarden-options-shb.vaultwarden.debug"
+  ],
+  "services-vaultwarden-options-shb.vaultwarden.domain": [
+    "services-vaultwarden.html#services-vaultwarden-options-shb.vaultwarden.domain"
+  ],
+  "services-vaultwarden-options-shb.vaultwarden.enable": [
+    "services-vaultwarden.html#services-vaultwarden-options-shb.vaultwarden.enable"
+  ],
+  "services-vaultwarden-options-shb.vaultwarden.mount": [
+    "services-vaultwarden.html#services-vaultwarden-options-shb.vaultwarden.mount"
+  ],
+  "services-vaultwarden-options-shb.vaultwarden.mount.path": [
+    "services-vaultwarden.html#services-vaultwarden-options-shb.vaultwarden.mount.path"
+  ],
+  "services-vaultwarden-options-shb.vaultwarden.port": [
+    "services-vaultwarden.html#services-vaultwarden-options-shb.vaultwarden.port"
+  ],
+  "services-vaultwarden-options-shb.vaultwarden.smtp": [
+    "services-vaultwarden.html#services-vaultwarden-options-shb.vaultwarden.smtp"
+  ],
+  "services-vaultwarden-options-shb.vaultwarden.smtp.auth_mechanism": [
+    "services-vaultwarden.html#services-vaultwarden-options-shb.vaultwarden.smtp.auth_mechanism"
+  ],
+  "services-vaultwarden-options-shb.vaultwarden.smtp.from_address": [
+    "services-vaultwarden.html#services-vaultwarden-options-shb.vaultwarden.smtp.from_address"
+  ],
+  "services-vaultwarden-options-shb.vaultwarden.smtp.from_name": [
+    "services-vaultwarden.html#services-vaultwarden-options-shb.vaultwarden.smtp.from_name"
+  ],
+  "services-vaultwarden-options-shb.vaultwarden.smtp.host": [
+    "services-vaultwarden.html#services-vaultwarden-options-shb.vaultwarden.smtp.host"
+  ],
+  "services-vaultwarden-options-shb.vaultwarden.smtp.password": [
+    "services-vaultwarden.html#services-vaultwarden-options-shb.vaultwarden.smtp.password"
+  ],
+  "services-vaultwarden-options-shb.vaultwarden.smtp.password.request": [
+    "services-vaultwarden.html#services-vaultwarden-options-shb.vaultwarden.smtp.password.request"
+  ],
+  "services-vaultwarden-options-shb.vaultwarden.smtp.password.request.group": [
+    "services-vaultwarden.html#services-vaultwarden-options-shb.vaultwarden.smtp.password.request.group"
+  ],
+  "services-vaultwarden-options-shb.vaultwarden.smtp.password.request.mode": [
+    "services-vaultwarden.html#services-vaultwarden-options-shb.vaultwarden.smtp.password.request.mode"
+  ],
+  "services-vaultwarden-options-shb.vaultwarden.smtp.password.request.owner": [
+    "services-vaultwarden.html#services-vaultwarden-options-shb.vaultwarden.smtp.password.request.owner"
+  ],
+  "services-vaultwarden-options-shb.vaultwarden.smtp.password.request.restartUnits": [
+    "services-vaultwarden.html#services-vaultwarden-options-shb.vaultwarden.smtp.password.request.restartUnits"
+  ],
+  "services-vaultwarden-options-shb.vaultwarden.smtp.password.result": [
+    "services-vaultwarden.html#services-vaultwarden-options-shb.vaultwarden.smtp.password.result"
+  ],
+  "services-vaultwarden-options-shb.vaultwarden.smtp.password.result.path": [
+    "services-vaultwarden.html#services-vaultwarden-options-shb.vaultwarden.smtp.password.result.path"
+  ],
+  "services-vaultwarden-options-shb.vaultwarden.smtp.port": [
+    "services-vaultwarden.html#services-vaultwarden-options-shb.vaultwarden.smtp.port"
+  ],
+  "services-vaultwarden-options-shb.vaultwarden.smtp.security": [
+    "services-vaultwarden.html#services-vaultwarden-options-shb.vaultwarden.smtp.security"
+  ],
+  "services-vaultwarden-options-shb.vaultwarden.smtp.username": [
+    "services-vaultwarden.html#services-vaultwarden-options-shb.vaultwarden.smtp.username"
+  ],
+  "services-vaultwarden-options-shb.vaultwarden.ssl": [
+    "services-vaultwarden.html#services-vaultwarden-options-shb.vaultwarden.ssl"
+  ],
+  "services-vaultwarden-options-shb.vaultwarden.ssl.paths": [
+    "services-vaultwarden.html#services-vaultwarden-options-shb.vaultwarden.ssl.paths"
+  ],
+  "services-vaultwarden-options-shb.vaultwarden.ssl.paths.cert": [
+    "services-vaultwarden.html#services-vaultwarden-options-shb.vaultwarden.ssl.paths.cert"
+  ],
+  "services-vaultwarden-options-shb.vaultwarden.ssl.paths.key": [
+    "services-vaultwarden.html#services-vaultwarden-options-shb.vaultwarden.ssl.paths.key"
+  ],
+  "services-vaultwarden-options-shb.vaultwarden.ssl.systemdService": [
+    "services-vaultwarden.html#services-vaultwarden-options-shb.vaultwarden.ssl.systemdService"
+  ],
+  "services-vaultwarden-options-shb.vaultwarden.subdomain": [
+    "services-vaultwarden.html#services-vaultwarden-options-shb.vaultwarden.subdomain"
+  ],
+  "services-vaultwarden-secrets": [
+    "services-vaultwarden.html#services-vaultwarden-secrets"
+  ],
+  "services-vaultwarden-sso": [
+    "services-vaultwarden.html#services-vaultwarden-sso"
+  ],
+  "services-vaultwarden-usage": [
+    "services-vaultwarden.html#services-vaultwarden-usage"
+  ],
+  "services-vaultwarden-zfs": [
+    "services-vaultwarden.html#services-vaultwarden-zfs"
+  ],
+  "usage": [
+    "usage.html#usage"
+  ],
+  "usage-example-colmena": [
+    "usage.html#usage-example-colmena"
+  ],
+  "usage-example-nixosrebuild": [
+    "usage.html#usage-example-nixosrebuild"
+  ],
+  "usage-flake": [
+    "usage.html#usage-flake"
+  ],
+  "usage-secrets": [
+    "usage.html#usage-secrets"
+  ]
+}

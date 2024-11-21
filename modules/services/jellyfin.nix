@@ -67,12 +67,16 @@ in
             default = "jellyfin_admin";
           };
 
-          adminPassword = contracts.secret.mkOption {
+          adminPassword = lib.mkOption {
             description = "LDAP admin password.";
-            mode = "0440";
-            owner = "jellyfin";
-            group = "jellyfin";
-            restartUnits = [ "jellyfin.service" ];
+            type = lib.types.submodule {
+              options = contracts.secret.mkRequester {
+                mode = "0440";
+                owner = "jellyfin";
+                group = "jellyfin";
+                restartUnits = [ "jellyfin.service" ];
+              };
+            };
           };
         };
       };
@@ -121,18 +125,26 @@ in
             default = "one_factor";
           };
 
-          sharedSecret = contracts.secret.mkOption {
+          sharedSecret = lib.mkOption {
             description = "OIDC shared secret for Jellyfin.";
-            mode = "0440";
-            owner = "jellyfin";
-            group = "jellyfin";
-            restartUnits = [ "jellyfin.service" ];
+            type = lib.types.submodule {
+              options = contracts.secret.mkRequester {
+                mode = "0440";
+                owner = "jellyfin";
+                group = "jellyfin";
+                restartUnits = [ "jellyfin.service" ];
+              };
+            };
           };
 
-          sharedSecretForAuthelia = contracts.secret.mkOption {
+          sharedSecretForAuthelia = lib.mkOption {
             description = "OIDC shared secret for Authelia.";
-            mode = "0400";
-            owner = config.shb.authelia.autheliaUser;
+            type = lib.types.submodule {
+              options = contracts.secret.mkRequester {
+                mode = "0400";
+                owner = config.shb.authelia.autheliaUser;
+              };
+            };
           };
         };
       };

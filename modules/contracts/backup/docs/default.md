@@ -101,6 +101,6 @@ Or with another module `backupservice_2`!
 - <!-- [ -->Home Assistant<!--](services-home-assistant.html). --> (no manual yet)
 - <!-- [ -->Jellyfin<!--](services-jellyfin.html). --> (no manual yet)
 - <!-- [ -->LLDAP<!--](blocks-ldap.html). --> (no manual yet)
-- [Nextcloud](services-nextcloud.html#services-nextcloud-server-usage-backup).
+- [Nextcloud](services-nextcloud.html#services-nextcloudserver-usage-backup).
 - [Vaultwarden](services-vaultwarden.html#services-vaultwarden-backup).
 - <!-- [ -->*arr<!--](services-arr.html). --> (no manual yet)

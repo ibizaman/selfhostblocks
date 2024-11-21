@@ -16,8 +16,8 @@ shb.monitoring = {
   subdomain = "grafana";
   inherit domain;
   contactPoints = [ "me@example.com" ];
-  adminPasswordFile = config.sops.secrets."monitoring/admin_password".path;
-  secretKeyFile = config.sops.secrets."monitoring/secret_key".path;
+  adminPassword.result = config.sops.secrets."monitoring/admin_password".reuslt;
+  secretKey.result = config.sops.secrets."monitoring/secret_key".result;
 };
 
 sops.secrets."monitoring/admin_password" = {

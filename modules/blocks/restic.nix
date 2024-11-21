@@ -6,11 +6,11 @@ let
   shblib = pkgs.callPackage ../../lib {};
   contracts = pkgs.callPackage ../contracts {};
 
-  inherit (lib) concatStringsSep filterAttrs flatten literalExpression optionals optionalString listToAttrs mapAttrsToList mkEnableOption mkOption mkMerge;
+  inherit (lib) concatStringsSep filterAttrs flatten literalExpression optionals listToAttrs mapAttrsToList mkEnableOption mkOption mkMerge;
   inherit (lib) generators hasPrefix mkIf nameValuePair optionalAttrs removePrefix;
-  inherit (lib.types) attrsOf enum int ints listOf oneOf nonEmptyListOf nonEmptyStr nullOr path str submodule;
+  inherit (lib.types) attrsOf enum int ints oneOf nonEmptyStr nullOr str submodule;
 
-  commonOptions = { name, options, prefix, ... }: {
+  commonOptions = { name, prefix, config, ... }: {
     enable = mkEnableOption ''
       this backup intance.
 
@@ -18,13 +18,17 @@ let
       but still provides the helper tool to restore snapshots
     '';
 
-    passphrase = contracts.secret.mkOption {
+    passphrase = lib.mkOption {
       description = "Encryption key for the backup repository.";
-      mode = "0400";
-      owner = options.request.value.user;
-      ownerText = "[shb.restic.${prefix}.<name>.request.user](#blocks-restic-options-shb.restic.${prefix}._name_.request.user)";
-      restartUnits = [ (fullName name options.settings.value.repository) ];
-      restartUnitsText = "[ [shb.restic.${prefix}.<name>.settings.repository](#blocks-restic-options-shb.restic.${prefix}._name_.settings.repository) ]";
+      type = lib.types.submodule {
+        options = contracts.secret.mkRequester {
+          mode = "0400";
+          owner = config.request.user;
+          ownerText = "[shb.restic.${prefix}.<name>.request.user](#blocks-restic-options-shb.restic.${prefix}._name_.request.user)";
+          restartUnits = [ (fullName name config.settings.repository) ];
+          restartUnitsText = "[ [shb.restic.${prefix}.<name>.settings.repository](#blocks-restic-options-shb.restic.${prefix}._name_.settings.repository) ]";
+        };
+      };
     };
 
     repository = mkOption {
@@ -99,7 +103,6 @@ let
   };
 
   repoSlugName = name: builtins.replaceStrings ["/" ":"] ["_" "_"] (removePrefix "/" name);
-  backupName = name: repository: "${name}_${repoSlugName repository.path}";
   fullName = name: repository: "restic-backups-${name}_${repoSlugName repository.path}";
 in
 {
@@ -107,7 +110,7 @@ in
     instances = mkOption {
       description = "Files to backup following the [backup contract](./contracts-backup.html).";
       default = {};
-      type = attrsOf (submodule ({ name, options, ... }: {
+      type = attrsOf (submodule ({ name, config, ... }: {
         options = {
           request = mkOption {
             description = ''
@@ -125,7 +128,7 @@ in
             '';
 
             type = submodule {
-              options = commonOptions { inherit name options; prefix = "instances"; };
+              options = commonOptions { inherit name config; prefix = "instances"; };
             };
           };
 
@@ -136,16 +139,16 @@ in
               Contains the output of the Restic provider.
             '';
             default = {
-              restoreScript = fullName name options.settings.value.repository;
-              backupService = "${fullName name options.settings.value.repository}.service";
+              restoreScript = fullName name config.settings.repository;
+              backupService = "${fullName name config.settings.repository}.service";
             };
             defaultText = {
               restoreScriptText = "${fullName "<name>" { path = "path/to/repository"; }}";
               backupServiceText = "${fullName "<name>" { path = "path/to/repository"; }}.service";
             };
             type = contracts.backup.result {
-              restoreScript = fullName name options.settings.value.repository;
-              backupService = "${fullName name options.settings.value.repository}.service";
+              restoreScript = fullName name config.settings.repository;
+              backupService = "${fullName name config.settings.repository}.service";
               restoreScriptText = "${fullName "<name>" { path = "path/to/repository"; }}";
               backupServiceText = "${fullName "<name>" { path = "path/to/repository"; }}.service";
             };
@@ -157,7 +160,7 @@ in
     databases = mkOption {
       description = "Databases to backup following the [database backup contract](./contracts-databasebackup.html).";
       default = {};
-      type = attrsOf (submodule ({ name, options, ... }: {
+      type = attrsOf (submodule ({ name, config, ... }: {
         options = {
           request = mkOption {
             description = ''
@@ -175,7 +178,7 @@ in
             '';
 
             type = submodule {
-              options = commonOptions { inherit name options; prefix = "databases"; };
+              options = commonOptions { inherit name config; prefix = "databases"; };
             };
           };
 
@@ -186,16 +189,16 @@ in
               Contains the output of the Restic provider.
             '';
             default = {
-              restoreScript = fullName name options.settings.value.repository;
-              backupService = "${fullName name options.settings.value.repository}.service";
+              restoreScript = fullName name config.settings.repository;
+              backupService = "${fullName name config.settings.repository}.service";
             };
             defaultText = {
               restoreScriptText = "${fullName "<name>" { path = "path/to/repository"; }}";
               backupServiceText = "${fullName "<name>" { path = "path/to/repository"; }}.service";
             };
             type = contracts.databasebackup.result {
-              restoreScript = fullName name options.settings.value.repository;
-              backupService = "${fullName name options.settings.value.repository}.service";
+              restoreScript = fullName name config.settings.repository;
+              backupService = "${fullName name config.settings.repository}.service";
               restoreScriptText = "${fullName "<name>" { path = "path/to/repository"; }}";
               backupServiceText = "${fullName "<name>" { path = "path/to/repository"; }}.service";
             };

@@ -9,7 +9,7 @@ let
 in
   { name,
     configRoot,
-    createContent, # config to create a secret with value "secretA".
+    settingsCfg, # str -> attrset
     modules ? [],
     owner ? "root",
     group ? "root",
@@ -23,8 +23,11 @@ in
       config = lib.mkMerge [
         (setAttrByPath configRoot {
           A = {
-            inherit owner group mode restartUnits;
-          } // createContent;
+            request = {
+              inherit owner group mode restartUnits;
+            };
+            settings = settingsCfg "secretA";
+          };
         })
         (mkIf (owner != "root") {
           users.users.${owner}.isNormalUser = true;
@@ -37,26 +40,26 @@ in
 
     testScript = { nodes, ... }:
       let
-        cfg = (getAttrFromPath configRoot nodes.machine)."A";
+        result = (getAttrFromPath configRoot nodes.machine)."A".result;
       in
         ''
-          owner = machine.succeed("stat -c '%U' ${cfg.path}").strip()
+          owner = machine.succeed("stat -c '%U' ${result.path}").strip()
           print(f"Got owner {owner}")
           if owner != "${owner}":
               raise Exception(f"Owner should be '${owner}' but got '{owner}'")
 
-          group = machine.succeed("stat -c '%G' ${cfg.path}").strip()
+          group = machine.succeed("stat -c '%G' ${result.path}").strip()
           print(f"Got group {group}")
           if group != "${group}":
               raise Exception(f"Group should be '${group}' but got '{group}'")
 
-          mode = str(int(machine.succeed("stat -c '%a' ${cfg.path}").strip()))
+          mode = str(int(machine.succeed("stat -c '%a' ${result.path}").strip()))
           print(f"Got mode {mode}")
           wantedMode = str(int("${mode}"))
           if mode != wantedMode:
               raise Exception(f"Mode should be '{wantedMode}' but got '{mode}'")
 
-          content = machine.succeed("cat ${cfg.path}").strip()
+          content = machine.succeed("cat ${result.path}").strip()
           print(f"Got content {content}")
           if content != "secretA":
               raise Exception(f"Content should be 'secretA' but got '{content}'")

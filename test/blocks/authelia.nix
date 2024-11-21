@@ -33,8 +33,17 @@ in
         dcdomain = "dc=example,dc=com";
         subdomain = "ldap";
         domain = "machine.com";
-        ldapUserPassword.result.path = pkgs.writeText "user_password" ldapAdminPassword;
-        jwtSecret.result.path = pkgs.writeText "jwt_secret" "securejwtsecret";
+        ldapUserPassword.result = config.shb.hardcodedsecret.ldapUserPassword.result;
+        jwtSecret.result = config.shb.hardcodedsecret.jwtSecret.result;
+      };
+
+      shb.hardcodedsecret.ldapUserPassword = {
+        request = config.shb.ldap.ldapUserPassword.request;
+        settings.content = ldapAdminPassword;
+      };
+      shb.hardcodedsecret.jwtSecret = {
+        request = config.shb.ldap.jwtSecret.request;
+        settings.content = "jwtsecret";
       };
 
       shb.authelia = {
@@ -45,12 +54,12 @@ in
         ldapPort = config.shb.ldap.ldapPort;
         dcdomain = config.shb.ldap.dcdomain;
         secrets = {
-          jwtSecret.result.path = config.shb.hardcodedsecret.autheliaJwtSecret.path;
-          ldapAdminPassword.result.path = config.shb.hardcodedsecret.ldapAdminPassword.path;
-          sessionSecret.result.path = config.shb.hardcodedsecret.sessionSecret.path;
-          storageEncryptionKey.result.path = config.shb.hardcodedsecret.storageEncryptionKey.path;
-          identityProvidersOIDCHMACSecret.result.path = config.shb.hardcodedsecret.identityProvidersOIDCHMACSecret.path;
-          identityProvidersOIDCIssuerPrivateKey.result.path = config.shb.hardcodedsecret.identityProvidersOIDCIssuerPrivateKey.path;
+          jwtSecret.result = config.shb.hardcodedsecret.autheliaJwtSecret.result;
+          ldapAdminPassword.result = config.shb.hardcodedsecret.ldapAdminPassword.result;
+          sessionSecret.result = config.shb.hardcodedsecret.sessionSecret.result;
+          storageEncryptionKey.result = config.shb.hardcodedsecret.storageEncryptionKey.result;
+          identityProvidersOIDCHMACSecret.result = config.shb.hardcodedsecret.identityProvidersOIDCHMACSecret.result;
+          identityProvidersOIDCIssuerPrivateKey.result = config.shb.hardcodedsecret.identityProvidersOIDCIssuerPrivateKey.result;
         };
 
         oidcClients = [
@@ -73,23 +82,29 @@ in
         ];
       };
 
-      shb.hardcodedsecret.autheliaJwtSecret = config.shb.authelia.secrets.jwtSecret.request // {
-        content = "jwtSecret";
+      shb.hardcodedsecret.autheliaJwtSecret = {
+        request = config.shb.authelia.secrets.jwtSecret.request;
+        settings.content = "jwtSecret";
       };
-      shb.hardcodedsecret.ldapAdminPassword = config.shb.authelia.secrets.ldapAdminPassword.request // {
-        content = ldapAdminPassword;
+      shb.hardcodedsecret.ldapAdminPassword = {
+        request = config.shb.authelia.secrets.ldapAdminPassword.request;
+        settings.content = ldapAdminPassword;
       };
-      shb.hardcodedsecret.sessionSecret = config.shb.authelia.secrets.sessionSecret.request // {
-        content = "sessionSecret";
+      shb.hardcodedsecret.sessionSecret = {
+        request = config.shb.authelia.secrets.sessionSecret.request;
+        settings.content = "sessionSecret";
       };
-      shb.hardcodedsecret.storageEncryptionKey = config.shb.authelia.secrets.storageEncryptionKey.request // {
-        content = "storageEncryptionKey";
+      shb.hardcodedsecret.storageEncryptionKey = {
+        request = config.shb.authelia.secrets.storageEncryptionKey.request;
+        settings.content = "storageEncryptionKey";
       };
-      shb.hardcodedsecret.identityProvidersOIDCHMACSecret = config.shb.authelia.secrets.identityProvidersOIDCHMACSecret.request // {
-        content = "identityProvidersOIDCHMACSecret";
+      shb.hardcodedsecret.identityProvidersOIDCHMACSecret = {
+        request = config.shb.authelia.secrets.identityProvidersOIDCHMACSecret.request;
+        settings.content = "identityProvidersOIDCHMACSecret";
       };
-      shb.hardcodedsecret.identityProvidersOIDCIssuerPrivateKey = config.shb.authelia.secrets.identityProvidersOIDCIssuerPrivateKey.request // {
-        source = (pkgs.runCommand "gen-private-key" {} ''
+      shb.hardcodedsecret.identityProvidersOIDCIssuerPrivateKey = {
+        request = config.shb.authelia.secrets.identityProvidersOIDCIssuerPrivateKey.request;
+        settings.source = (pkgs.runCommand "gen-private-key" {} ''
           mkdir $out
           ${pkgs.openssl}/bin/openssl genrsa -out $out/private.pem 4096
         '') + "/private.pem";

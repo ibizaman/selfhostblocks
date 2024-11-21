@@ -69,7 +69,7 @@ SHB's first goal is to provide unified [building blocks](#available-blocks)
 and by extension configuration interface, for self-hosting.
 
 Compare the configuration for Nextcloud and Forgejo in Self Host Blocks.
-The following snippets focus on similitudes and assume the relevant blocks are configured off-screen.
+The following snippets focus on similitudes and assume the relevant blocks - like secrets - are configured off-screen.
 It also does not show specific options for each service.
 These are still complete snippets that configure HTTPS,
 subdomain serving the service, LDAP and SSO integration.
@@ -87,14 +87,14 @@ shb.nextcloud = {
     host = "127.0.0.1";
     port = config.shb.ldap.ldapPort;
     dcdomain = config.shb.ldap.dcdomain;
-    adminPasswordFile = config.sops.secrets."nextcloud/ldap_admin_password".path;
+    adminPassword.result = config.shb.sops.secrets."nextcloud/ldap/admin_password".result;
   };
   apps.sso = {
     enable = true;
     endpoint = "https://${config.shb.authelia.subdomain}.${config.shb.authelia.domain}";
 
-    secretFile = config.sops.secrets."nextcloud/sso/secret".path;
-    secretFileForAuthelia = config.sops.secrets."authelia/nextcloud_sso_secret".path;
+    secret.result = config.shb.sops.secrets."nextcloud/sso/secret".result;
+    secretForAuthelia.result = config.shb.sops.secrets."nextcloud/sso/secretForAuthelia".result;
   };
 };
 ```
@@ -112,15 +112,15 @@ shb.forgejo = {
     host = "127.0.0.1";
     port = config.shb.ldap.ldapPort;
     dcdomain = config.shb.ldap.dcdomain;
-    adminPasswordFile = config.sops.secrets."forgejo/ldap_admin_password".path;
+    adminPassword.result = config.shb.sops.secrets."nextcloud/ldap/admin_password".result;
   };
 
   sso = {
     enable = true;
     endpoint = "https://${config.shb.authelia.subdomain}.${config.shb.authelia.domain}";
 
-    secretFile = config.sops.secrets."forgejo/ssoSecret".path;
-    secretFileForAuthelia = config.sops.secrets."forgejo/authelia/ssoSecret".path;
+    secret.result = config.shb.sops.secrets."forgejo/sso/secret".result;
+    secretForAuthelia.result = config.shb.sops.secrets."forgejo/sso/secretForAuthelia".result;
   };
 };
 ```

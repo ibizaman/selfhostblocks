@@ -19,23 +19,32 @@ let
       ];
 
       shb.hardcodedsecret.A = {
-        owner = "root";
-        group = "keys";
-        mode = "0440";
-        content = "secretA";
+        request = {
+          owner = "root";
+          group = "keys";
+          mode = "0440";
+        };
+        settings.content = "secretA";
       };
       shb.hardcodedsecret.B = {
-        owner = "root";
-        group = "keys";
-        mode = "0440";
-        content = "secretB";
+        request = {
+          owner = "root";
+          group = "keys";
+          mode = "0440";
+        };
+        settings.content = "secretB";
+      };
+
+      shb.hardcodedsecret.passphrase = {
+        request = config.shb.restic.instances."testinstance".settings.passphrase.request;
+        settings.content = "secretB";
       };
 
       shb.restic.instances."testinstance" = {
         settings = {
           enable = true;
 
-          passphrase.result.path = pkgs.writeText "passphrase" "PassPhrase";
+          passphrase.result = config.shb.hardcodedsecret.passphrase.result;
 
           repository = {
             path = "/opt/repos/A";
@@ -46,8 +55,8 @@ let
             # Those are not needed by the repository but are still included
             # so we can test them in the hooks section.
             secrets = {
-              A.source = config.shb.hardcodedsecret.A.path;
-              B.source = config.shb.hardcodedsecret.B.path;
+              A.source = config.shb.hardcodedsecret.A.result.path;
+              B.source = config.shb.hardcodedsecret.B.result.path;
             };
           };
         };

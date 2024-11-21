@@ -7,6 +7,6 @@ your local machine with minimal manual steps.
 demo/homeassistant/README.md
 ```
 
-```{=include=} chapters html:into-file=//demo-nextcloud-server.html
+```{=include=} chapters html:into-file=//demo-nextcloud.html
 demo/nextcloud/README.md
 ```

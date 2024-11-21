@@ -132,12 +132,13 @@ let
       externalFqdn = "${fqdn}:8080";
 
       adminUser = adminUser;
-      adminPass.result.path = config.shb.hardcodedsecret.adminPass.path;
+      adminPass.result = config.shb.hardcodedsecret.adminPass.result;
       debug = true;
     };
 
-    shb.hardcodedsecret.adminPass = config.shb.nextcloud.adminPass.request // {
-      content = adminPass;
+    shb.hardcodedsecret.adminPass = {
+      request = config.shb.nextcloud.adminPass.request;
+      settings.content = adminPass;
     };
   };
 
@@ -157,7 +158,7 @@ let
         port = config.shb.ldap.ldapPort;
         dcdomain = config.shb.ldap.dcdomain;
         adminName = "admin";
-        adminPassword.result.path = config.shb.ldap.ldapUserPassword.result.path;
+        adminPassword.result = config.shb.ldap.ldapUserPassword.result;
         userGroup = "nextcloud_user";
       };
     };
@@ -172,18 +173,20 @@ let
           clientID = "nextcloud";
           # adminUserGroup = "nextcloud_admin";
 
-          secret.result.path = config.shb.hardcodedsecret.oidcSecret.path;
-          secretForAuthelia.result.path = config.shb.hardcodedsecret.oidcAutheliaSecret.path;
+          secret.result = config.shb.hardcodedsecret.oidcSecret.result;
+          secretForAuthelia.result = config.shb.hardcodedsecret.oidcAutheliaSecret.result;
 
           fallbackDefaultAuth = false;
         };
       };
 
-      shb.hardcodedsecret.oidcSecret = config.shb.nextcloud.apps.sso.secret.request // {
-        content = oidcSecret;
+      shb.hardcodedsecret.oidcSecret = {
+        request = config.shb.nextcloud.apps.sso.secret.request;
+        settings.content = oidcSecret;
       };
-      shb.hardcodedsecret.oidcAutheliaSecret = config.shb.nextcloud.apps.sso.secretForAuthelia.request // {
-        content = oidcSecret;
+      shb.hardcodedsecret.oidcAutheliaSecret = {
+        request = config.shb.nextcloud.apps.sso.secretForAuthelia.request;
+        settings.content = oidcSecret;
       };
   };
 

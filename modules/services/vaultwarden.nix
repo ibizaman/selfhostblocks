@@ -45,9 +45,16 @@ in
       example = "https://authelia.example.com";
     };
 
-    databasePasswordFile = lib.mkOption {
-      type = lib.types.path;
-      description = "File containing the password to connect to the postgresql database.";
+    databasePassword = lib.mkOption {
+      description = "File containing the Vaultwarden database password.";
+      type = lib.types.submodule {
+        options = contracts.secret.mkRequester {
+          mode = "0440";
+          owner = "vaultwarden";
+          group = "postgres";
+          restartUnits = [ "vaultwarden.service" "postgresql.service" ];
+        };
+      };
     };
 
     smtp = lib.mkOption {
@@ -88,9 +95,15 @@ in
             description = "Auth mechanism.";
             default = "Login";
           };
-          passwordFile = lib.mkOption {
-            type = lib.types.str;
+          password = lib.mkOption {
             description = "File containing the password to connect to the SMTP host.";
+            type = lib.types.submodule {
+              options = contracts.secret.mkRequester {
+                mode = "0400";
+                owner = "vaultwarden";
+                restartUnits = [ "vaultwarden.service" ];
+              };
+            };
           };
         };
       });
@@ -187,10 +200,10 @@ in
     systemd.services.vaultwarden.preStart =
       shblib.replaceSecrets {
         userConfig = {
-          DATABASE_URL.source = cfg.databasePasswordFile;
+          DATABASE_URL.source = cfg.databasePassword.result.path;
           DATABASE_URL.transform = v: "postgresql://vaultwarden:${v}@127.0.0.1:5432/vaultwarden";
         } // lib.optionalAttrs (cfg.smtp != null) {
-          SMTP_PASSWORD.source = cfg.smtp.passwordFile;
+          SMTP_PASSWORD.source = cfg.smtp.password.result.path;
         };
         resultPath = "${dataFolder}/vaultwarden.env";
         generator = name: v: pkgs.writeText "template" (lib.generators.toINIWithGlobalSection {} { globalSection = v; });
@@ -224,7 +237,7 @@ in
       {
         username = "vaultwarden";
         database = "vaultwarden";
-        passwordFile = builtins.toString cfg.databasePasswordFile;
+        passwordFile = cfg.databasePassword.result.path;
       }
     ];
     # TODO: make this work.

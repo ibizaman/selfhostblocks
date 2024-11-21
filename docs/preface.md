@@ -39,14 +39,14 @@ shb.nextcloud = {
     host = "127.0.0.1";
     port = config.shb.ldap.ldapPort;
     dcdomain = config.shb.ldap.dcdomain;
-    adminPasswordFile = config.sops.secrets."nextcloud/ldap_admin_password".path;
+    adminPassword.result = config.shb.sops.secrets."nextcloud/ldap/admin_password".result;
   };
   apps.sso = {
     enable = true;
     endpoint = "https://${config.shb.authelia.subdomain}.${config.shb.authelia.domain}";
 
-    secretFile = config.sops.secrets."nextcloud/sso/secret".path;
-    secretFileForAuthelia = config.sops.secrets."authelia/nextcloud_sso_secret".path;
+    secret.result = config.shb.sops.secrets."nextcloud/sso/secret".result;
+    secretForAuthelia.result = config.shb.sops.secrets."nextcloud/sso/secretForAuthelia".result;
   };
 };
 ```
@@ -64,15 +64,15 @@ shb.forgejo = {
     host = "127.0.0.1";
     port = config.shb.ldap.ldapPort;
     dcdomain = config.shb.ldap.dcdomain;
-    adminPasswordFile = config.sops.secrets."forgejo/ldap_admin_password".path;
+    adminPassword.result = config.shb.sops.secrets."nextcloud/ldap/admin_password".result;
   };
 
   sso = {
     enable = true;
     endpoint = "https://${config.shb.authelia.subdomain}.${config.shb.authelia.domain}";
 
-    secretFile = config.sops.secrets."forgejo/ssoSecret".path;
-    secretFileForAuthelia = config.sops.secrets."forgejo/authelia/ssoSecret".path;
+    secret.result = config.shb.sops.secrets."forgejo/sso/secret".result;
+    secretForAuthelia.result = config.shb.sops.secrets."forgejo/sso/secretForAuthelia".result;
   };
 };
 ```

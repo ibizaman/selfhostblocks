@@ -15,7 +15,7 @@ LDAP and SSO integration as well as one local runner.
 - Declarative [local runner](#services-forgejo-options-shb.forgejo.localActionRunner) Configuration.
 - Access through [subdomain](#services-forgejo-options-shb.forgejo.subdomain) using reverse proxy. [Manual](#services-forgejo-usage-basic).
 - Access through [HTTPS](#services-forgejo-options-shb.forgejo.ssl) using reverse proxy. [Manual](#services-forgejo-usage-basic).
-- [Backup](#services-forgejo-options-shb.forgejo.sso) through the [backup block](./blocks-backup.html) with the . [Manual](#services-forgejo-usage-backup).
+- [Backup](#services-forgejo-options-shb.forgejo.sso) through the [backup block](./blocks-backup.html). [Manual](#services-forgejo-usage-backup).
 
 ## Usage {#services-forgejo-usage}
 
@@ -44,7 +44,7 @@ Then you can use that secret:
 shb.forgejo.adminPasswordFile = config.sops.secrets."forgejo/adminPasswordFile".path;
 ```
 
-### Forgejo through HTTP(S) {#services-forgejo-usage-basic}
+### Forgejo through HTTPS {#services-forgejo-usage-basic}
 
 This will set up a Forgejo service that runs on the NixOS target machine,
 reachable at `http://forgejo.example.com`.
@@ -60,25 +60,22 @@ shb.forgejo = {
 If the `shb.ssl` block is used (see [manual](blocks-ssl.html#usage) on how to set it up),
 the instance will be reachable at `https://fogejo.example.com`.
 
-Here is an example with self-signed certificates:
+Here is an example with Let's Encrypt certificates, validated using the HTTP method:
 
 ```nix
-shb.certs = {
-  cas.selfsigned.myca = {
-    name = "My CA";
-  };
-  certs.selfsigned = {
-    foregejo = {
-      ca = config.shb.certs.cas.selfsigned.myca;
-      domain = "forgejo.example.com";
-    };
-  };
+shb.certs.certs.letsencrypt."example.com" = {
+  domain = "example.com";
+  group = "nginx";
+  reloadServices = [ "nginx.service" ];
+  adminEmail = "myemail@mydomain.com";
 };
 ```
 
 Then you can tell Forgejo to use those certificates.
 
 ```nix
+shb.certs.certs.letsencrypt."example.com".extraDomains = [ "forgejo.example.com" ];
+
 shb.forgejo = {
   ssl = config.shb.certs.certs.selfsigned.forgejo;
 };
@@ -87,7 +84,7 @@ shb.forgejo = {
 ### With LDAP Support {#services-forgejo-usage-ldap}
 
 :::: {.note}
-We will build upon the [Forgejo through HTTP(S)](#services-forgejo-usage-basic) section,
+We will build upon the [HTTPS](#services-forgejo-usage-basic) section,
 so please follow that first.
 ::::
 
@@ -99,12 +96,18 @@ shb.ldap = {
   enable = true;
   domain = "example.com";
   subdomain = "ldap";
+  ssl = config.shb.certs.certs.letsencrypt."example.com";
   ldapPort = 3890;
   webUIListenPort = 17170;
   dcdomain = "dc=example,dc=com";
-  ldapUserPasswordFile = <path/to/ldapUserPasswordSecret>;
-  jwtSecretFile = <path/to/ldapJwtSecret>;
+  ldapUserPassword.result = config.shb.sops.secrets."ldap/userPassword".result;
+  jwtSecret.result = config.shb.sops.secrets."ldap/jwtSecret".result;
 };
+
+shb.certs.certs.letsencrypt."example.com".extraDomains = [ "ldap.example.com" ];
+
+shb.sops.secrets."ldap/userPassword".request = config.shb.ldap.userPassword.request;
+shb.sops.secrets."ldap/jwtSecret".request = config.shb.ldap.jwtSecret.request;
 ```
 
 We also need to configure the `forgejo` service
@@ -116,7 +119,12 @@ shb.forgejo.ldap
   host = "127.0.0.1";
   port = config.shb.ldap.ldapPort;
   dcdomain = config.shb.ldap.dcdomain;
-  adminPasswordFile = <path/to/ldapUserPasswordSecret>;
+  adminPassword.result = config.shb.sops.secrets."forgejo/ldap/adminPassword".result
+};
+
+shb.sops.secrets."forgejo/ldap/adminPassword" = {
+  request = config.shb.forgejo.ldap.adminPassword.request;
+  settings.key = "ldap/userPassword";
 };
 ```
 
@@ -135,28 +143,9 @@ When that's done, go back to the Forgejo server at
 ### With SSO Support {#services-forgejo-usage-sso}
 
 :::: {.note}
-We will build upon the [With LDAP Support](#services-forgejo-usage-ldap) section,
+We will build upon the [LDAP](#services-forgejo-usage-ldap) section,
 so please follow that first.
 ::::
-
-Here though, we must setup SSL certificates
-because the SSO provider only works with the https protocol.
-Let's add self-signed certificates for Authelia and LLDAP:
-
-```nix
-shb.certs = {
-  certs.selfsigned = {
-    auth = {
-      ca = config.shb.certs.cas.selfsigned.myca;
-      domain = "auth.example.com";
-    };
-    ldap = {
-      ca = config.shb.certs.cas.selfsigned.myca;
-      domain = "ldap.example.com";
-    };
-  };
-};
-```
 
 We then need to setup the SSO provider,
 here Authelia thanks to the corresponding SHB block:
@@ -166,21 +155,31 @@ shb.authelia = {
   enable = true;
   domain = "example.com";
   subdomain = "auth";
-  ssl = config.shb.certs.certs.selfsigned.auth;
+  ssl = config.shb.certs.certs.letsencrypt."example.com";
 
   ldapHostname = "127.0.0.1";
   ldapPort = config.shb.ldap.ldapPort;
   dcdomain = config.shb.ldap.dcdomain;
 
   secrets = {
-    jwtSecretFile = <path/to/autheliaJwtSecret>;
-    ldapAdminPasswordFile = <path/to/ldapUserPasswordSecret>;
-    sessionSecretFile = <path/to/autheliaSessionSecret>;
-    storageEncryptionKeyFile = <path/to/autheliaStorageEncryptionKeySecret>;
-    identityProvidersOIDCHMACSecretFile = <path/to/providersOIDCHMACSecret>;
-    identityProvidersOIDCIssuerPrivateKeyFile = <path/to/providersOIDCIssuerSecret>;
+    jwtSecret.result = config.shb.sops.secrets."authelia/jwt_secret".result;
+    ldapAdminPassword.result = config.shb.sops.secrets."authelia/ldap_admin_password".result;
+    sessionSecret.result = config.shb.sops.secrets."authelia/session_secret".result;
+    storageEncryptionKey.result = config.shb.sops.secrets."authelia/storage_encryption_key".result;
+    identityProvidersOIDCHMACSecret.result = config.shb.sops.secrets."authelia/hmac_secret".result;
+    identityProvidersOIDCIssuerPrivateKey.result = config.shb.sops.secrets."authelia/private_key".result;
   };
 };
+
+shb.certs.certs.letsencrypt."example.com".extraDomains = [ "auth.example.com" ];
+
+shb.sops.secrets."authelia/jwt_secret".request = config.shb.authelia.secrets.jwtSecret.request;
+shb.sops.secrets."authelia/ldap_admin_password".request = config.shb.authelia.secrets.ldapAdminPassword.request;
+shb.sops.secrets."authelia/session_secret".request = config.shb.authelia.secrets.sessionSecret.request;
+shb.sops.secrets."authelia/storage_encryption_key".request = config.shb.authelia.secrets.storageEncryptionKey.request;
+shb.sops.secrets."authelia/hmac_secret".request = config.shb.authelia.secrets.identityProvidersOIDCHMACSecret.request;
+shb.sops.secrets."authelia/private_key".request = config.shb.authelia.secrets.identityProvidersOIDCIssuerPrivateKey.request;
+shb.sops.secrets."authelia/smtp_password".request = config.shb.authelia.smtp.password.request;
 ```
 
 The `shb.authelia.secrets.ldapAdminPasswordFile` must be the same

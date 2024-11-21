@@ -112,7 +112,7 @@ ssh -F ssh_config example
 
 :::: {.note}
 This section corresponds to the `basic` section of the [Nextcloud
-manual](services-nextcloud.html#services-nextcloud-server-usage-basic).
+manual](services-nextcloud.html#services-nextcloudserver-usage-basic).
 ::::
 
 Assuming you already deployed the `basic` demo, now you must add the following entry to the
@@ -143,7 +143,7 @@ This is the admin user of Nextcloud and that's the end of the `basic` demo.
 
 :::: {.note}
 This section corresponds to the `ldap` section of the [Nextcloud
-manual](services-nextcloud.html#services-nextcloud-server-usage-ldap).
+manual](services-nextcloud.html#services-nextcloudserver-usage-ldap).
 ::::
 
 Assuming you already deployed the `ldap` demo, now you must add the following entry to the
@@ -182,7 +182,7 @@ This is the end of the `ldap` demo.
 
 :::: {.note}
 This section corresponds to the `sso` section of the [Nextcloud
-manual](services-nextcloud.html#services-nextcloud-server-usage-oidc).
+manual](services-nextcloud.html#services-nextcloudserver-usage-oidc).
 ::::
 
 At this point, it is assumed you already deployed the `sso` demo. There is no host to add to

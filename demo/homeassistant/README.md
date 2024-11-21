@@ -60,7 +60,7 @@ chmod 600 sshkey
 
 This is only needed because git mangles with the permissions. You will not even see this change in
 `git status`.
-### Deploy with Colmena {#demo-homeassitant-deploy-colmena}
+### Deploy with Colmena {#demo-homeassistant-deploy-colmena}
 
 If you deploy with Colmena, you must first build the VM and start it:
 

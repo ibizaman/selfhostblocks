@@ -1,4 +1,4 @@
-{ pkgs, ... }:
+{ pkgs, lib, ... }:
 let
   contracts = pkgs.callPackage ../../modules/contracts {};
 in
@@ -13,7 +13,7 @@ in
     ];
     settings = { repository, config, ... }: {
       enable = true;
-      passphrase.result.path = config.shb.hardcodedsecret.passphrase.path;
+      passphrase.result = config.shb.hardcodedsecret.passphrase.result;
       repository = {
         path = repository;
         timerConfig = {
@@ -21,16 +21,16 @@ in
         };
       };
     };
-    extraConfig = { username, ... }: {
+    extraConfig = { username, config, ... }: {
       shb.hardcodedsecret.passphrase = {
-        owner = username;
-        content = "passphrase";
+        request = config.shb.restic.instances."mytest".settings.passphrase.request;
+        settings.content = "passphrase";
       };
     };
   };
 
-  restic_me = contracts.test.backup {
-    name = "restic_me";
+  restic_nonroot = contracts.test.backup {
+    name = "restic_nonroot";
     username = "me";
     providerRoot = [ "shb" "restic" "instances" "mytest" ];
     modules = [
@@ -39,7 +39,7 @@ in
     ];
     settings = { repository, config, ... }: {
       enable = true;
-      passphrase.result.path = config.shb.hardcodedsecret.passphrase.path;
+      passphrase.result = config.shb.hardcodedsecret.passphrase.result;
       repository = {
         path = repository;
         timerConfig = {
@@ -47,10 +47,10 @@ in
         };
       };
     };
-    extraConfig = { username, ... }: {
+    extraConfig = { username, config, ... }: {
       shb.hardcodedsecret.passphrase = {
-        owner = username;
-        content = "passphrase";
+        request = config.shb.restic.instances."mytest".settings.passphrase.request;
+        settings.content = "passphrase";
       };
     };
   };

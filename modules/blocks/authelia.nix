@@ -68,45 +68,69 @@ in
       description = "Secrets needed by Authelia";
       type = lib.types.submodule {
         options = {
-          jwtSecret = contracts.secret.mkOption {
+          jwtSecret = lib.mkOption {
             description = "JWT secret.";
-            mode = "0400";
-            owner = cfg.autheliaUser;
-            restartUnits = [ "authelia-${opt.subdomain}.${opt.domain}" ];
+            type = lib.types.submodule {
+              options = contracts.secret.mkRequester {
+                mode = "0400";
+                owner = cfg.autheliaUser;
+                restartUnits = [ "authelia-${opt.subdomain}.${opt.domain}" ];
+              };
+            };
           };
-          ldapAdminPassword = contracts.secret.mkOption {
+          ldapAdminPassword = lib.mkOption {
             description = "LDAP admin user password.";
-            mode = "0400";
-            owner = cfg.autheliaUser;
-            restartUnits = [ "authelia-${opt.subdomain}.${opt.domain}" ];
+            type = lib.types.submodule {
+              options = contracts.secret.mkRequester {
+                mode = "0400";
+                owner = cfg.autheliaUser;
+                restartUnits = [ "authelia-${opt.subdomain}.${opt.domain}" ];
+              };
+            };
           };
-          sessionSecret = contracts.secret.mkOption {
+          sessionSecret = lib.mkOption {
             description = "Session secret.";
-            mode = "0400";
-            owner = cfg.autheliaUser;
-            restartUnits = [ "authelia-${opt.subdomain}.${opt.domain}" ];
+            type = lib.types.submodule {
+              options = contracts.secret.mkRequester {
+                mode = "0400";
+                owner = cfg.autheliaUser;
+                restartUnits = [ "authelia-${opt.subdomain}.${opt.domain}" ];
+              };
+            };
           };
-          storageEncryptionKey = contracts.secret.mkOption {
+          storageEncryptionKey = lib.mkOption {
             description = "Storage encryption key.";
-            mode = "0400";
-            owner = cfg.autheliaUser;
-            restartUnits = [ "authelia-${opt.subdomain}.${opt.domain}" ];
+            type = lib.types.submodule {
+              options = contracts.secret.mkRequester {
+                mode = "0400";
+                owner = cfg.autheliaUser;
+                restartUnits = [ "authelia-${opt.subdomain}.${opt.domain}" ];
+              };
+            };
           };
-          identityProvidersOIDCHMACSecret = contracts.secret.mkOption {
+          identityProvidersOIDCHMACSecret = lib.mkOption {
             description = "Identity provider OIDC HMAC secret.";
-            mode = "0400";
-            owner = cfg.autheliaUser;
-            restartUnits = [ "authelia-${opt.subdomain}.${opt.domain}" ];
+            type = lib.types.submodule {
+              options = contracts.secret.mkRequester {
+                mode = "0400";
+                owner = cfg.autheliaUser;
+                restartUnits = [ "authelia-${opt.subdomain}.${opt.domain}" ];
+              };
+            };
           };
-          identityProvidersOIDCIssuerPrivateKey = contracts.secret.mkOption {
+          identityProvidersOIDCIssuerPrivateKey = lib.mkOption {
             description = ''
               Identity provider OIDC issuer private key.
 
               Generate one with `nix run nixpkgs#openssl -- genrsa -out keypair.pem 2048`
             '';
-            mode = "0400";
-            owner = cfg.autheliaUser;
-            restartUnits = [ "authelia-${opt.subdomain}.${opt.domain}" ];
+            type = lib.types.submodule {
+              options = contracts.secret.mkRequester {
+                mode = "0400";
+                owner = cfg.autheliaUser;
+                restartUnits = [ "authelia-${opt.subdomain}.${opt.domain}" ];
+              };
+            };
           };
         };
       };
@@ -220,11 +244,15 @@ in
               type = lib.types.str;
               description = "Username to connect to the SMTP host.";
             };
-            password = contracts.secret.mkOption {
+            password = lib.mkOption {
               description = "File containing the password to connect to the SMTP host.";
-              mode = "0400";
-              owner = cfg.autheliaUser;
-              restartUnits = [ "authelia-${fqdn}" ];
+              type = lib.types.submodule {
+                options = contracts.secret.mkRequester {
+                  mode = "0400";
+                  owner = cfg.autheliaUser;
+                  restartUnits = [ "authelia-${fqdn}" ];
+                };
+              };
             };
           };
         }))

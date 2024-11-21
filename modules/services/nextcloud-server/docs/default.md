@@ -1,27 +1,27 @@
-# Nextcloud Server Service {#services-nextcloud-server}
+# Nextcloud Server Service {#services-nextcloudserver}
 
 Defined in [`/modules/services/nextcloud-server.nix`](@REPO@/modules/services/nextcloud-server.nix).
 
 This NixOS module is a service that sets up a [Nextcloud Server](https://nextcloud.com/).
 It is based on the nixpkgs Nextcloud server and provides opinionated defaults.
 
-## Features {#services-nextcloud-server-features}
+## Features {#services-nextcloudserver-features}
 
-- Declarative [Apps](#services-nextcloud-server-options-shb.nextcloud.apps) Configuration - no need
+- Declarative [Apps](#services-nextcloudserver-options-shb.nextcloud.apps) Configuration - no need
   to configure those with the UI.
-  - [LDAP](#services-nextcloud-server-usage-ldap) app:
+  - [LDAP](#services-nextcloudserver-usage-ldap) app:
     enables app and sets up integration with an existing LDAP server, in this case LLDAP.
-  - [OIDC](#services-nextcloud-server-usage-oidc) app:
-    enables app and sets up integration with an existing OIDC server, in this case Authelia.
-  - [Preview Generator](#services-nextcloud-server-usage-previewgenerator) app:
+  - [SSO](#services-nextcloudserver-usage-oidc) app:
+    enables app and sets up integration with an existing SSO server, in this case Authelia.
+  - [Preview Generator](#services-nextcloudserver-usage-previewgenerator) app:
     enables app and sets up required cron job.
-  - [External Storage](#services-nextcloud-server-usage-externalstorage) app:
+  - [External Storage](#services-nextcloudserver-usage-externalstorage) app:
     enables app and optionally configures one local mount.
     This enables having data living on separate hard drives.
-  - [Only Office](#services-nextcloud-server-usage-onlyoffice) app:
+  - [Only Office](#services-nextcloudserver-usage-onlyoffice) app:
     enables app and sets up Only Office service.
   - Any other app through the
-    [shb.nextcloud.extraApps](#services-nextcloud-server-options-shb.nextcloud.extraApps) option.
+    [shb.nextcloud.extraApps](#services-nextcloudserver-options-shb.nextcloud.extraApps) option.
 - Access through subdomain using reverse proxy.
 - Forces Nginx as the reverse proxy. (This is hardcoded in the upstream nixpkgs module).
 - Sets good defaults for trusted proxies settings, chunk size, opcache php options.
@@ -40,15 +40,15 @@ It is based on the nixpkgs Nextcloud server and provides opinionated defaults.
 - By default automatically disables maintenance mode on start.
 - By default automatically launches repair mode with expensive migrations on start.
 - Access to advanced options not exposed here thanks to how NixOS modules work.
-- Has a [demo](#services-nextcloud-server-demo).
+- Has a [demo](#services-nextcloudserver-demo).
 
-[dataDir]: ./services-nextcloud.html#services-nextcloud-server-options-shb.nextcloud.dataDir
+[dataDir]: ./services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.dataDir
 
-## Usage {#services-nextcloud-server-usage}
+## Usage {#services-nextcloudserver-usage}
 
-### Nextcloud through HTTP {#services-nextcloud-server-usage-basic}
+### Nextcloud through HTTP {#services-nextcloudserver-usage-basic}
 
-[HTTP]: #services-nextcloud-server-usage-basic
+[HTTP]: #services-nextcloudserver-usage-basic
 
 :::: {.note}
 This section corresponds to the `basic` section of the [Nextcloud
@@ -66,10 +66,10 @@ shb.nextcloud = {
   domain = "example.com";
   subdomain = "n";
   defaultPhoneRegion = "US";
-  adminPass.result.path = config.sops.secrets."nextcloud/adminpass".path;
+  adminPass.result = config.shb.sops.secrets."nextcloud/adminpass".result;
 };
 
-sops.secrets."nextcloud/adminpass" = config.shb.nextcloud.adminPass.request;
+shb.sops.secrets."nextcloud/adminpass".request = config.shb.nextcloud.adminPass.request;
 ```
 
 This assumes secrets are setup with SOPS as mentioned in [the secrets setup section](usage.html#usage-secrets) of the manual.
@@ -82,9 +82,9 @@ We will set that up in the next section.
 You can now login as the admin user using the username `admin`
 and the password defined in `sops.secrets."nextcloud/adminpass"`.
 
-### Nextcloud through HTTPS {#services-nextcloud-server-usage-https}
+### Nextcloud through HTTPS {#services-nextcloudserver-usage-https}
 
-[HTTPS]: #services-nextcloud-server-usage-https
+[HTTPS]: #services-nextcloudserver-usage-https
 
 To setup HTTPS, we will get our certificates from Let's Encrypt using the HTTP method.
 This is the easiest way to get started and does not require you to programmatically 
@@ -94,7 +94,7 @@ Under the hood, we use the Self Host Block [SSL contract](./contracts-ssl.html).
 It allows the end user to choose how to generate the certificates.
 If you want other options to generate the certificate, follow the SSL contract link.
 
-Building upon the [Basic Configuration](#services-nextcloud-server-usage-basic) above, we add:
+Building upon the [Basic Configuration](#services-nextcloudserver-usage-basic) above, we add:
 
 ```nix
 shb.certs.certs.letsencrypt."example.com" = {
@@ -111,17 +111,17 @@ shb.nextcloud = {
 };
 ```
 
-### Choose Nextcloud Version {#services-nextcloud-server-usage-version}
+### Choose Nextcloud Version {#services-nextcloudserver-usage-version}
 
 Self Host Blocks is conservative in the version of Nextcloud it's using.
 To choose the version and upgrade at the time of your liking,
-just use the [version](#services-nextcloud-server-options-shb.nextcloud.version) option:
+just use the [version](#services-nextcloudserver-options-shb.nextcloud.version) option:
 
 ```nix
 shb.nextcloud.version = 29;
 ```
 
-### Mount Point {#services-nextcloud-server-usage-mount-point}
+### Mount Point {#services-nextcloudserver-usage-mount-point}
 
 If the `dataDir` exists in a mount point,
 it is highly recommended to make the various Nextcloud services wait on the mount point before starting.
@@ -134,9 +134,9 @@ fileSystems."/var".device = "...";
 shb.nextcloud.mountPointServices = [ "var.mount" ];
 ```
 
-### With LDAP Support {#services-nextcloud-server-usage-ldap}
+### With LDAP Support {#services-nextcloudserver-usage-ldap}
 
-[LDAP]: #services-nextcloud-server-usage-ldap
+[LDAP]: #services-nextcloudserver-usage-ldap
 
 :::: {.note}
 This section corresponds to the `ldap` section of the [Nextcloud
@@ -154,15 +154,18 @@ shb.ldap = {
   enable = true;
   domain = "example.com";
   subdomain = "ldap";
+  ssl = config.shb.certs.certs.letsencrypt."example.com";
   ldapPort = 3890;
   webUIListenPort = 17170;
   dcdomain = "dc=example,dc=com";
-  ldapUserPassword.result.path = config.sops.secrets."ldap/userPassword".path;
-  jwtSecret.result.path = config.sops.secrets."ldap/jwtSecret".path;
+  ldapUserPassword.result = config.shb.sops.secrets."ldap/userPassword".result;
+  jwtSecret.result = config.shb.sops.secrets."ldap/jwtSecret".result;
 };
 
-sops.secrets."ldap/userPassword" = config.shb.ldap.userPassword.request;
-sops.secrets."ldap/jwtSecret" = config.shb.ldap.jwtSecret.request;
+shb.certs.certs.letsencrypt."example.com".extraDomains = [ "ldap.example.com" ];
+
+shb.sops.secrets."ldap/userPassword".request = config.shb.ldap.userPassword.request;
+shb.sops.secrets."ldap/jwtSecret".request = config.shb.ldap.jwtSecret.request;
 ```
 
 On the `nextcloud` module side, we need to configure it to talk to the LDAP server we
@@ -175,12 +178,13 @@ shb.nextcloud.apps.ldap = {
   port = config.shb.ldap.ldapPort;
   dcdomain = config.shb.ldap.dcdomain;
   adminName = "admin";
-  adminPassword.result.path = config.sops.secrets."nextcloud/ldapUserPassword".path
+  adminPassword.result = config.shb.sops.secrets."nextcloud/ldap/adminPassword".result
   userGroup = "nextcloud_user";
 };
 
-sops.secrets."nextcloud/ldapUserPassword" = config.shb.nextcloud.adminPasswordFile.request // {
-  key = "ldap/userPassword";
+shb.sops.secrets."nextcloud/ldap/adminPassword" = {
+  request = config.shb.nextcloud.apps.ldap.adminPassword.request;
+  settings.key = "ldap/userPassword";
 };
 ```
 
@@ -202,7 +206,7 @@ so you need to create a normal user like above,
 login with it once so it is known to Nextcloud, then logout,
 login with the admin Nextcloud user and promote that new user to admin level.
 
-### With OIDC Support {#services-nextcloud-server-usage-oidc}
+### With SSO Support {#services-nextcloudserver-usage-oidc}
 
 :::: {.note}
 This section corresponds to the `sso` section of the [Nextcloud
@@ -230,26 +234,28 @@ shb.authelia = {
     port = 587;
     username = "postmaster@mg.example.com";
     from_address = "authelia@example.com";
-    password.result.path = config.sops.secrets."authelia/smtp_password".path;
+    password.result = config.shb.sops.secrets."authelia/smtp_password".result;
   };
 
   secrets = {
-    jwtSecret.result.path = config.sops.secrets."authelia/jwt_secret".path;
-    ldapAdminPassword.result.path = config.sops.secrets."authelia/ldap_admin_password".path;
-    sessionSecret.result.path = config.sops.secrets."authelia/session_secret".path;
-    storageEncryptionKey.result.path = config.sops.secrets."authelia/storage_encryption_key".path;
-    identityProvidersOIDCHMACSecret.result.path = config.sops.secrets."authelia/hmac_secret".path;
-    identityProvidersOIDCIssuerPrivateKey.result.path = config.sops.secrets."authelia/private_key".path;
+    jwtSecret.result = config.shb.sops.secrets."authelia/jwt_secret".result;
+    ldapAdminPassword.result = config.shb.sops.secrets."authelia/ldap_admin_password".result;
+    sessionSecret.result = config.shb.sops.secrets."authelia/session_secret".result;
+    storageEncryptionKey.result = config.shb.sops.secrets."authelia/storage_encryption_key".result;
+    identityProvidersOIDCHMACSecret.result = config.shb.sops.secrets."authelia/hmac_secret".result;
+    identityProvidersOIDCIssuerPrivateKey.result = config.shb.sops.secrets."authelia/private_key".result;
   };
 };
 
-sops.secrets."authelia/jwt_secret" = config.shb.authelia.secrets.jwtSecret.request;
-sops.secrets."authelia/ldap_admin_password" = config.shb.authelia.secrets.ldapAdminPassword.request;
-sops.secrets."authelia/session_secret" = config.shb.authelia.secrets.sessionSecret.request;
-sops.secrets."authelia/storage_encryption_key" = config.shb.authelia.secrets.storageEncryptionKey.request;
-sops.secrets."authelia/hmac_secret" = config.shb.authelia.secrets.identityProvidersOIDCHMACSecret.request;
-sops.secrets."authelia/private_key" = config.shb.authelia.secrets.identityProvidersOIDCIssuerPrivateKey.request;
-sops.secrets."authelia/smtp_password" = config.shb.authelia.smtp.password.request;
+shb.certs.certs.letsencrypt."example.com".extraDomains = [ "auth.example.com" ];
+
+shb.sops.secrets."authelia/jwt_secret".request = config.shb.authelia.secrets.jwtSecret.request;
+shb.sops.secrets."authelia/ldap_admin_password".request = config.shb.authelia.secrets.ldapAdminPassword.request;
+shb.sops.secrets."authelia/session_secret".request = config.shb.authelia.secrets.sessionSecret.request;
+shb.sops.secrets."authelia/storage_encryption_key".request = config.shb.authelia.secrets.storageEncryptionKey.request;
+shb.sops.secrets."authelia/hmac_secret".request = config.shb.authelia.secrets.identityProvidersOIDCHMACSecret.request;
+shb.sops.secrets."authelia/private_key".request = config.shb.authelia.secrets.identityProvidersOIDCIssuerPrivateKey.request;
+shb.sops.secrets."authelia/smtp_password".request = config.shb.authelia.smtp.password.request;
 ```
 
 The secrets can be randomly generated with `nix run nixpkgs#openssl -- rand -hex 64`.
@@ -263,13 +269,14 @@ shb.nextcloud.apps.sso = {
   clientID = "nextcloud";
   fallbackDefaultAuth = false;
 
-  secret.result.path = config.sops.secrets."nextcloud/sso/secret".path;
-  secretForAuthelia.result.path = config.sops.secrets."nextcloud/sso/secretForAuthelia".path;
+  secret.result = config.shb.sops.secrets."nextcloud/sso/secret".result;
+  secretForAuthelia.result = config.shb.sops.secrets."nextcloud/sso/secretForAuthelia".result;
 };
 
-sops.secret."nextcloud/sso/secret" = config.shb.nextcloud.apps.sso.secret.request;
-sops.secret."nextcloud/sso/secretForAuthelia" = config.shb.nextcloud.apps.sso.secretForAuthelia.request // {
-  key = "nextcloud/sso/secret";
+shb.sops.secret."nextcloud/sso/secret".request = config.shb.nextcloud.apps.sso.secret.request;
+shb.sops.secret."nextcloud/sso/secretForAuthelia" = {
+  request = config.shb.nextcloud.apps.sso.secretForAuthelia.request;
+  settings.key = "nextcloud/sso/secret";
 };
 ```
 
@@ -282,7 +289,7 @@ secrets have the same content.
 Setting the `fallbackDefaultAuth` to `false` means the only way to login is through Authelia.
 If this does not work for any reason, you can let users login through Nextcloud directly by setting this option to `true`.
 
-### Tweak PHPFpm Config {#services-nextcloud-server-usage-phpfpm}
+### Tweak PHPFpm Config {#services-nextcloudserver-usage-phpfpm}
 
 For instances with more users, or if you feel the pages are loading slowly,
 you can tweak the `php-fpm` pool settings.
@@ -304,7 +311,7 @@ I don't have a good heuristic for what are good values here but what I found
 is that you don't want too high of a `max_children` value
 to avoid I/O strain on the hard drives, especially if you use spinning drives.
 
-### Tweak PostgreSQL Settings {#services-nextcloud-server-usage-postgres}
+### Tweak PostgreSQL Settings {#services-nextcloudserver-usage-postgres}
 
 These settings will impact all databases since the NixOS Postgres module
 configures only one Postgres instance.
@@ -346,7 +353,7 @@ shb.nextcloud.postgresSettings = {
 };
 ```
 
-### Backup {#services-nextcloud-server-usage-backup}
+### Backup {#services-nextcloudserver-usage-backup}
 
 Backing up Nextcloud data files using the [Restic block](blocks-restic.html) is done like so:
 
@@ -378,7 +385,7 @@ Note that this will backup the whole PostgreSQL instance,
 not just the Nextcloud database.
 This limitation will be lifted in the future.
 
-### Enable Preview Generator App {#services-nextcloud-server-usage-previewgenerator}
+### Enable Preview Generator App {#services-nextcloudserver-usage-previewgenerator}
 
 The following snippet installs and enables the [Preview
 Generator](https://apps.nextcloud.com/apps/previewgenerator) application as well as creates the
@@ -403,7 +410,7 @@ You can opt-out with:
 shb.nextcloud.apps.previewgenerator.recommendedSettings = false;
 ```
 
-### Enable External Storage App {#services-nextcloud-server-usage-externalstorage}
+### Enable External Storage App {#services-nextcloudserver-usage-externalstorage}
 
 The following snippet installs and enables the [External
 Storage](https://docs.nextcloud.com/server/28/go.php?to=admin-external-storage) application.
@@ -440,7 +447,7 @@ which is well suited for randomly accessing small files like thumbnails.
 On the other side, a spinning hard drive can store more data
 which is well suited for storing user data.
 
-### Enable OnlyOffice App {#services-nextcloud-server-usage-onlyoffice}
+### Enable OnlyOffice App {#services-nextcloudserver-usage-onlyoffice}
 
 The following snippet installs and enables the [Only
 Office](https://apps.nextcloud.com/apps/onlyoffice) application as well as sets up an Only Office
@@ -462,7 +469,7 @@ nixpkgs.config.allowUnfreePredicate = pkg: builtins.elem (pkgs.lib.getName pkg) 
 ];
 ```
 
-### Enable Monitoring {#services-nextcloud-server-server-usage-monitoring}
+### Enable Monitoring {#services-nextcloudserver-server-usage-monitoring}
 
 Enable the [monitoring block](./blocks-monitoring.html).
 A [Grafana dashboard][] for overall server performance will be created
@@ -470,7 +477,7 @@ and the Nextcloud metrics will automatically appear there.
 
 [Grafana dashboard]: ./blocks-monitoring.html#blocks-monitoring-performance-dashboard
 
-### Enable Tracing {#services-nextcloud-server-server-usage-tracing}
+### Enable Tracing {#services-nextcloudserver-server-usage-tracing}
 
 You can enable tracing with:
 
@@ -485,7 +492,7 @@ but that's not the case yet.
 
 [my blog post]: http://blog.tiserbox.com/posts/2023-08-12-what%27s-up-with-nextcloud-webdav-slowness.html
 
-### Appdata Location {#services-nextcloud-server-server-usage-appdata}
+### Appdata Location {#services-nextcloudserver-server-usage-appdata}
 
 The appdata folder is a special folder located under the `shb.nextcloud.dataDir` directory.
 It is named `appdata_<instanceid>` with the Nextcloud's instance ID as a suffix.
@@ -496,7 +503,7 @@ For performance reasons, it is recommended to store this folder on a fast drive
 that is optimized for randomized read and write access.
 The best would be either an SSD or an NVMe drive.
 
-The best way to solve this is to use the [External Storage app](#services-nextcloud-server-usage-externalstorage).
+The best way to solve this is to use the [External Storage app](#services-nextcloudserver-usage-externalstorage).
 
 If you have an existing installation and put Nextcloud's `shb.nextcloud.dataDir` folder on a HDD with spinning disks,
 then the appdata folder is also located on spinning drives.
@@ -514,16 +521,16 @@ mount --bind /srv/sdd/appdata_nextcloud /var/lib/nextcloud/data/appdata_ocxvky2f
 Note that you can re-generate a new appdata folder
 by issuing the command `nextcloud-occ config:system:delete instanceid`.
 
-## Demo {#services-nextcloud-server-demo}
+## Demo {#services-nextcloudserver-demo}
 
 Head over to the [Nextcloud demo](demo-nextcloud-server.html) for a demo that installs Nextcloud with or
 without LDAP integration on a VM with minimal manual steps.
 
-## Maintenance {#services-nextcloud-server-maintenance}
+## Maintenance {#services-nextcloudserver-maintenance}
 
 On the command line, the `occ` tool is called `nextcloud-occ`.
 
-## Debug {#services-nextcloud-server-debug}
+## Debug {#services-nextcloudserver-debug}
 
 In case of an issue, check the logs for any systemd service mentioned in this section.
 
@@ -540,10 +547,10 @@ Access the database with `sudo -u nextcloud psql`.
 
 Access Redis with `sudo -u nextcloud redis-cli -s /run/redis-nextcloud/redis.sock`.
 
-## Options Reference {#services-nextcloud-server-options}
+## Options Reference {#services-nextcloudserver-options}
 
 ```{=include=} options
-id-prefix: services-nextcloud-server-options-
+id-prefix: services-nextcloudserver-options-
 list-id: selfhostblocks-service-nextcloud-options
 source: @OPTIONS_JSON@
 ```
