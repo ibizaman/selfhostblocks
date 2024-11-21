@@ -43,7 +43,12 @@ let
   sso = { config, ... }: {
     shb.audiobookshelf = {
       authEndpoint = "https://${config.shb.authelia.subdomain}.${config.shb.authelia.domain}";
-      ssoSecretFile = pkgs.writeText "ssoSecretFile" "ssoSecretFile";
+      ssoSecret.result = config.shb.hardcodedsecret.ssoSecret.result;
+    };
+
+    shb.hardcodedsecret.ssoSecret = {
+      request = config.shb.audiobookshelf.ssoSecret.request;
+      settings.content = "ssoSecret";
     };
   };
 in
