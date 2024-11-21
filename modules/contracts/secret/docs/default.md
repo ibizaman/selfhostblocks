@@ -1,4 +1,4 @@
-# Secret Contract {#secret-contract}
+# Secret Contract {#contract-secret}
 
 This NixOS contract represents a secret file
 that must be created out of band - from outside the nix store -
@@ -7,7 +7,7 @@ and that must be placed in an expected location with expected permission.
 More formally, this contract is made between a requester module - the one needing a secret -
 and a provider module - the one creating the secret and making it available.
 
-## Motivation {#secret-contract-motivation}
+## Motivation {#contract-secret-motivation}
 
 Let's provide the [ldap SHB module][ldap-module] option `ldapUserPasswordFile`
 with a secret managed by [sops-nix][].
@@ -68,7 +68,7 @@ shb.sops.secrets."ldap/user_password".request = config.shb.ldap.userPassword.req
 shb.ldap.userPassword.result = config.shb.sops.secrets."ldap/user_password".result;
 ```
 
-## Contract Reference {#secret-contract-options}
+## Contract Reference {#contract-secret-options}
 
 These are all the options that are expected to exist for this contract to be respected.
 
@@ -78,7 +78,7 @@ list-id: selfhostblocks-options
 source: @OPTIONS_JSON@
 ```
 
-## Usage {#secret-contract-usage}
+## Usage {#contract-secret-usage}
 
 A contract involves 3 parties:
 
@@ -88,7 +88,7 @@ A contract involves 3 parties:
 
 The usage of this contract is similarly separated into 3 sections.
 
-### Requester Module {#secret-contract-usage-requester}
+### Requester Module {#contract-secret-usage-requester}
 
 Here is an example module requesting two secrets through the `secret` contract.
 
@@ -128,7 +128,7 @@ in
 };
 ```
 
-### Provider Module {#secret-contract-usage-provider}
+### Provider Module {#contract-secret-usage-provider}
 
 Now, on the other side, we have a module that uses those options and provides a secret.
 Let's assume such a module is available under the `secretservice` option
@@ -177,7 +177,7 @@ in
 }
 ```
 
-### End User {#secret-contract-usage-enduser}
+### End User {#contract-secret-usage-enduser}
 
 The end user's responsibility is now to do some plumbing.
 

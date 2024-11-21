@@ -1,4 +1,4 @@
-# All Options {#ch-options}
+# All Options {#all-options}
 
 ```{=include=} options
 id-prefix: opt-

@@ -195,6 +195,7 @@ in stdenv.mkDerivation {
 
     nixos-render-docs manual html \
       --manpage-urls ${manpage-urls} \
+      --redirects ./redirects.json \
       --media-dir media \
       --revision ${lib.trivial.revisionWithDefault release} \
       --stylesheet static/style.css \
