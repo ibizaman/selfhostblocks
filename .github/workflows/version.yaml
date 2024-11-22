@@ -2,8 +2,8 @@ name: Version Bump
 
 on:
   push:
-    # branches:
-    #   - main
+    branches:
+      - main
     paths:
       - VERSION
 
@@ -14,6 +14,9 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 1
+      - name: Get version
+        id: vars
+        run: echo "version=v$(cat VERSION)" >> $GITHUB_OUTPUT
       - uses: rickstaa/action-create-tag@v1.7.2
         with:
-          tag: "$(cat VERSION)"
+          tag: ${{ steps.vars.outputs.version }}
