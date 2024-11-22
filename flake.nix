@@ -40,6 +40,7 @@
         modules/blocks/postgresql.nix
         modules/blocks/restic.nix
         modules/blocks/ssl.nix
+        modules/blocks/sops.nix
         modules/blocks/tinyproxy.nix
         modules/blocks/vpn.nix
         modules/blocks/zfs.nix
