@@ -12,7 +12,13 @@ Template:
 
 -->
 
-# v0.2.2 (unreleased)
+# Upcoming Release
+
+## Other Changes
+
+- Show how to pin Self Host Blocks flake input to a tag.
+
+# v0.2.2
 
 ## User Facing Backwards Compatible Changes
 
