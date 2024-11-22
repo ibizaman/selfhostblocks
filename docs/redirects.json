@@ -1619,6 +1619,18 @@
   "usage-flake": [
     "usage.html#usage-flake"
   ],
+  "usage-flake-autoupdate": [
+    "usage.html#usage-flake-autoupdate"
+  ],
+  "usage-flake-nixpkgs": [
+    "usage.html#usage-flake-nixpkgs"
+  ],
+  "usage-flake-substituter": [
+    "usage.html#usage-flake-substituter"
+  ],
+  "usage-flake-tag": [
+    "usage.html#usage-flake-tag"
+  ],
   "usage-secrets": [
     "usage.html#usage-secrets"
   ]

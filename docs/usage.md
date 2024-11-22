@@ -16,6 +16,8 @@ imports = [
 ];
 ```
 
+### Substituter {#usage-flake-substituter}
+
 You can also use the public cache as a substituter with:
 
 ```nix
@@ -27,6 +29,8 @@ nix.settings.substituters = [
   "https://selfhostblocks.cachix.org"
 ];
 ```
+
+### Follow Nixpkgs {#usage-flake-nixpkgs}
 
 Self Host Blocks provides its own `nixpkgs` input so both can be updated in lock step, ensuring
 maximum compatibility. It is recommended to use the following `nixpkgs` as input for your
@@ -51,6 +55,18 @@ in
 
 Advanced users can if they wish use a version of `nixpkgs` of their choosing but then we cannot
 guarantee Self Host Block won't use a non-existing option from `nixpkgs`.
+
+### Tag Updates {#usage-flake-tag}
+
+To pin Self Host Blocks to a release/tag, run the following snippet:
+
+```nix
+nix flake lock --override-input selfhostblocks github:ibizaman/selfhostblocks/v0.2.2
+```
+
+Updating Self Host Blocks to a new version can be done the same way.
+
+### Auto Updates {#usage-flake-autoupdate}
 
 To avoid manually updating the `nixpkgs` version, the [GitHub repository][1] for Self Host Blocks
 tries to update the `nixpkgs` input daily, verifying all tests pass before accepting this new

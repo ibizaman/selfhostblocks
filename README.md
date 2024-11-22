@@ -36,6 +36,13 @@ To use it in your project, add the following flake input:
 inputs.selfhostblocks.url = "github:ibizaman/selfhostblocks";
 ```
 
+Then, pin it to a release/tag with the following snippet.
+Updating Self Host Blocks to a new version can be done the same way.
+
+```nix
+nix flake lock --override-input selfhostblocks github:ibizaman/selfhostblocks/v0.2.2
+```
+
 To get started using Self Host Blocks,
 follow [the usage section](https://shb.skarabox.com/usage.html) of the manual.
 It goes over how to deploy with [Colmena][], [nixos-rebuild][]
