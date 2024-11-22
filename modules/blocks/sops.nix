@@ -1,9 +1,11 @@
-{ lib, pkgs, ... }:
+{ config, lib, pkgs, ... }:
 let
-  inherit (lib) mkOption;
+  inherit (lib) mapAttrs mkOption;
   inherit (lib.types) attrsOf anything submodule;
 
   contracts = pkgs.callPackage ../contracts {};
+
+  cfg = config.shb.sops;
 in
 {
   options.shb.sops = {
@@ -22,7 +24,8 @@ in
               are managed by the [shb.sops.secret.<name>.request](#blocks-sops-options-shb.sops.secret._name_.request) option.
             '';
 
-            type = anything;
+            type = attrsOf anything;
+            default = {};
           };
 
           resultCfg = {
@@ -32,5 +35,11 @@ in
         };
       }));
     };
+  };
+
+  config = {
+    sops.secrets = let
+      mkSecret = n: secretCfg: secretCfg.request // secretCfg.settings;
+    in mapAttrs mkSecret cfg.secret;
   };
 }

@@ -1,4 +1,6 @@
-# Upcoming Release
+<!---
+
+Template:
 
 ## New Features
 
@@ -7,6 +9,29 @@
 ## User Facing Backwards Compatible Changes
 
 ## Other Changes
+
+-->
+
+# v0.2.2 (unreleased)
+
+## User Facing Backwards Compatible Changes
+
+- Fix: add implementation for `sops.nix` module.
+
+## Other Changes
+
+- Use VERSION when rendering manual too.
+
+# v0.2.1
+
+## User Facing Backwards Compatible Changes
+
+- Add `sops.nix` module to `nixosModules.default`.
+
+## Other Changes
+
+- Auto-tagging of git repo when VERSION file gets updated.
+- Add VERSION file to track version.
 
 # v0.2.0
 
