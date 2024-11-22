@@ -120,6 +120,11 @@ in stdenv.mkDerivation {
       ${nmdsrc}/static/highlightjs/highlight.min.js \
       ${nmdsrc}/static/highlightjs/highlight.load.js
 
+    substituteInPlace ./manual.md \
+      --replace \
+        '@VERSION@' \
+        ${builtins.readFile ../VERSION}
+
     substituteInPlace ./options.md \
       --replace \
         '@OPTIONS_JSON@' \

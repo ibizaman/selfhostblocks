@@ -1,6 +1,6 @@
 # Self Host Blocks Manual {#self-host-blocks-manual}
 
-## Version 0.0.1
+## Version @VERSION@
 
 
 ```{=include=} preface
