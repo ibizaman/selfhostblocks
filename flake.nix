@@ -72,7 +72,7 @@
         packages.manualHtml = pkgs.callPackage ./docs {
           inherit nmdsrc;
           allModules = allModules ++ contractDummyModules;
-          release = "0.0.1";
+          release = builtins.readFile ./VERSION;
         };
 
         lib.contracts = pkgs.callPackage ./modules/contracts {};
