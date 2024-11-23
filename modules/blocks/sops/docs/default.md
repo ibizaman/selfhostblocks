@@ -35,7 +35,20 @@ This example shows how to use this sops block
 to fulfill the request of a module using the [secret contract][] under the option `services.mymodule.mysecret`.
 
 ```nix
+shb.sops.secret."mymodule/mysecret".request = config.services.mymodule.mysecret.request;
+services.mymodule.mysecret.result = config.shb.sops.secret."mymodule/mysecret".result;
+```
 
+### Manual Module {#blocks-sops-usage-manual}
+
+The provider module can be used on its own, without a requester module:
+
+```nix
+shb.sops.secret."mymodule/mysecret".request = {
+  mode = "0400";
+  owner = "owner";
+};
+services.mymodule.mysecret.path = config.sops.secret."mymodule/mysecret".result.path;
 ```
 
 ## Options Reference {#blocks-sops-options}
