@@ -1,10 +1,9 @@
-{ pkgs, lib, ... }:
+{ lib, ... }:
 let
   inherit (lib) concatStringsSep literalMD mkOption optionalAttrs optionalString;
-  inherit (lib.types) anything listOf submodule str;
-
-  contractsLib = import ./default.nix { inherit pkgs lib; };
-
+  inherit (lib.types) listOf submodule str;
+in
+{
   mkRequest =
     { mode ? "0400",
       owner ? "root",
@@ -109,7 +108,4 @@ let
         path = pathText;
       };
     });
-in
-contractsLib.mkContractFunctions {
-  inherit mkRequest mkResult;
 }

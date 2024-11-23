@@ -35,6 +35,14 @@ let
         };
       };
     };
+
+  importContract = module:
+    let
+      importedModule = pkgs.callPackage module {};
+    in
+      mkContractFunctions {
+        inherit (importedModule) mkRequest mkResult;
+      };
 in
 {
   inherit mkContractFunctions;
@@ -42,7 +50,7 @@ in
   databasebackup = import ./databasebackup.nix { inherit lib; };
   backup = import ./backup.nix { inherit lib; };
   mount = import ./mount.nix { inherit lib; };
-  secret = import ./secret.nix { inherit pkgs lib; };
+  secret = importContract ./secret.nix;
   ssl = import ./ssl.nix { inherit lib; };
   test = {
     secret = import ./secret/test.nix { inherit pkgs lib; };
