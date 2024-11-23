@@ -551,6 +551,9 @@
   "contracts-provided": [
     "contracts.html#contracts-provided"
   ],
+  "contracts-concept": [
+    "contracts.html#contracts-concept"
+  ],
   "contracts-schema": [
     "contracts.html#contracts-schema"
   ],
