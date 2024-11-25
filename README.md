@@ -1,10 +1,22 @@
-# Self Host Blocks
-
-*Modular server management based on NixOS modules and focused on best practices.*
+![GitHub Release](https://img.shields.io/github/v/release/ibizaman/selfhostblocks)
+![GitHub commits since latest release (branch)](https://img.shields.io/github/commits-since/ibizaman/selfhostblocks/latest/main)
+![GitHub commit activity (branch)](https://img.shields.io/github/commit-activity/w/ibizaman/selfhostblocks/main)
+![GitHub Issues or Pull Requests](https://img.shields.io/github/issues-pr-raw/ibizaman/selfhostblocks)
+![GitHub Issues or Pull Requests](https://img.shields.io/github/issues-pr-closed-raw/ibizaman/selfhostblocks?label=closed)
+![GitHub Issues or Pull Requests](https://img.shields.io/github/issues-raw/ibizaman/selfhostblocks)
+![GitHub Issues or Pull Requests](https://img.shields.io/github/issues-closed-raw/ibizaman/selfhostblocks?label=closed)
 
 [![Documentation](https://github.com/ibizaman/selfhostblocks/actions/workflows/pages.yml/badge.svg)](https://github.com/ibizaman/selfhostblocks/actions/workflows/pages.yml)
 [![Tests](https://github.com/ibizaman/selfhostblocks/actions/workflows/build.yaml/badge.svg)](https://github.com/ibizaman/selfhostblocks/actions/workflows/build.yaml)
 [![Demo](https://github.com/ibizaman/selfhostblocks/actions/workflows/demo.yml/badge.svg)](https://github.com/ibizaman/selfhostblocks/actions/workflows/demo.yml)
+![Matrix](https://img.shields.io/matrix/selfhostblocks%3Amatrix.org)
+
+<hr />
+
+# Self Host Blocks
+
+*Modular server management based on NixOS modules and focused on best practices.*
+
 
 SHB (Self Host Blocks) is yet another server management tool
 that is not like the other server management tools.
