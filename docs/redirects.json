@@ -338,6 +338,9 @@
   "blocks-sops-usage-requester": [
     "blocks-sops.html#blocks-sops-usage-requester"
   ],
+  "blocks-sops-usage-manual": [
+    "blocks-sops.html#blocks-sops-usage-manual"
+  ],
   "block-ssl": [
     "blocks-ssl.html#block-ssl"
   ],
