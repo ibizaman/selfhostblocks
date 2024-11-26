@@ -272,9 +272,9 @@ in
                   "--${builtins.replaceStrings ["_"] ["-"] name} ${builtins.toString value}"
                 ) instance.settings.retention;
 
-                backupPrepareCommand = concatStringsSep "\n" instance.request.hooks.before_backup;
+                backupPrepareCommand = concatStringsSep "\n" instance.request.hooks.beforeBackup;
 
-                backupCleanupCommand = concatStringsSep "\n" instance.request.hooks.after_backup;
+                backupCleanupCommand = concatStringsSep "\n" instance.request.hooks.afterBackup;
 
                 extraBackupArgs =
                   (optionals (instance.settings.limitUploadKiBs != null) [

@@ -69,7 +69,7 @@ let
             "/opt/files/B"
           ];
 
-          hooks.before_backup = [''
+          hooks.beforeBackup = [''
             echo $RUNTIME_DIRECTORY
             if [ "$RUNTIME_DIRECTORY" = /run/restic-backups-testinstance_opt_repos_A ]; then
               if ! [ -f /run/secrets_restic/restic-backups-testinstance_opt_repos_A ]; then

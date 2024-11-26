@@ -90,13 +90,13 @@ let
       default = {};
       type = lib.types.submodule {
         options = {
-          before_backup = lib.mkOption {
+          beforeBackup = lib.mkOption {
             description = "Hooks to run before backup";
             type = lib.types.listOf lib.types.str;
             default = [];
           };
 
-          after_backup = lib.mkOption {
+          afterBackup = lib.mkOption {
             description = "Hooks to run after backup";
             type = lib.types.listOf lib.types.str;
             default = [];
@@ -279,11 +279,11 @@ in
                     lib.attrsets.mapAttrsToList mkCheck instance.consistency;
 
                 # hooks = lib.mkMerge [
-                #   lib.optionalAttrs (builtins.length instance.hooks.before_backup > 0) {
-                #     inherit (instance.hooks) before_backup;
+                #   lib.optionalAttrs (builtins.length instance.hooks.beforeBackup > 0) {
+                #     inherit (instance.hooks) beforeBackup;
                 #   }
-                #   lib.optionalAttrs (builtins.length instance.hooks.after_backup > 0) {
-                #     inherit (instance.hooks) after_backup;
+                #   lib.optionalAttrs (builtins.length instance.hooks.afterBackup > 0) {
+                #     inherit (instance.hooks) afterBackup;
                 #   }
                 # ];
               };

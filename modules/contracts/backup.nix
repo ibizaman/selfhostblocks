@@ -29,13 +29,13 @@ in
         default = {};
         type = submodule {
           options = {
-            before_backup = mkOption {
+            beforeBackup = mkOption {
               description = "Hooks to run before backup.";
               type = listOf str;
               default = [];
             };
 
-            after_backup = mkOption {
+            afterBackup = mkOption {
               description = "Hooks to run after backup.";
               type = listOf str;
               default = [];
