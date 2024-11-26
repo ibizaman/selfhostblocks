@@ -119,9 +119,12 @@ jobs:
     if: '!cancelled()'
     steps:
       - run: |
-          result="${{ needs.tests.result }}"
-          if [[ $result == "success" || $result == "skipped" ]]; then
-            exit 0
-          else
+          result="${{ needs.manual.result }}"
+          if ! [[ $result == "success" || $result == "skipped" ]]; then
             exit 1
           fi
+          result="${{ needs.tests.result }}"
+          if ! [[ $result == "success" || $result == "skipped" ]]; then
+            exit 1
+          fi
+          exit 0
