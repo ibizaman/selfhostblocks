@@ -188,11 +188,11 @@
   "blocks-restic-options-shb.restic.instances._name_.request.hooks": [
     "blocks-restic.html#blocks-restic-options-shb.restic.instances._name_.request.hooks"
   ],
-  "blocks-restic-options-shb.restic.instances._name_.request.hooks.after_backup": [
-    "blocks-restic.html#blocks-restic-options-shb.restic.instances._name_.request.hooks.after_backup"
+  "blocks-restic-options-shb.restic.instances._name_.request.hooks.afterBackup": [
+    "blocks-restic.html#blocks-restic-options-shb.restic.instances._name_.request.hooks.afterBackup"
   ],
-  "blocks-restic-options-shb.restic.instances._name_.request.hooks.before_backup": [
-    "blocks-restic.html#blocks-restic-options-shb.restic.instances._name_.request.hooks.before_backup"
+  "blocks-restic-options-shb.restic.instances._name_.request.hooks.beforeBackup": [
+    "blocks-restic.html#blocks-restic-options-shb.restic.instances._name_.request.hooks.beforeBackup"
   ],
   "blocks-restic-options-shb.restic.instances._name_.request.sourceDirectories": [
     "blocks-restic.html#blocks-restic-options-shb.restic.instances._name_.request.sourceDirectories"
@@ -581,11 +581,11 @@
   "contracts-backup-options-shb.contracts.backup.request.hooks": [
     "contracts-backup.html#contracts-backup-options-shb.contracts.backup.request.hooks"
   ],
-  "contracts-backup-options-shb.contracts.backup.request.hooks.after_backup": [
-    "contracts-backup.html#contracts-backup-options-shb.contracts.backup.request.hooks.after_backup"
+  "contracts-backup-options-shb.contracts.backup.request.hooks.afterBackup": [
+    "contracts-backup.html#contracts-backup-options-shb.contracts.backup.request.hooks.afterBackup"
   ],
-  "contracts-backup-options-shb.contracts.backup.request.hooks.before_backup": [
-    "contracts-backup.html#contracts-backup-options-shb.contracts.backup.request.hooks.before_backup"
+  "contracts-backup-options-shb.contracts.backup.request.hooks.beforeBackup": [
+    "contracts-backup.html#contracts-backup-options-shb.contracts.backup.request.hooks.beforeBackup"
   ],
   "contracts-backup-options-shb.contracts.backup.request.sourceDirectories": [
     "contracts-backup.html#contracts-backup-options-shb.contracts.backup.request.sourceDirectories"
@@ -857,11 +857,11 @@
   "services-forgejo-options-shb.forgejo.backup.hooks": [
     "services-forgejo.html#services-forgejo-options-shb.forgejo.backup.hooks"
   ],
-  "services-forgejo-options-shb.forgejo.backup.hooks.after_backup": [
-    "services-forgejo.html#services-forgejo-options-shb.forgejo.backup.hooks.after_backup"
+  "services-forgejo-options-shb.forgejo.backup.hooks.afterBackup": [
+    "services-forgejo.html#services-forgejo-options-shb.forgejo.backup.hooks.afterBackup"
   ],
-  "services-forgejo-options-shb.forgejo.backup.hooks.before_backup": [
-    "services-forgejo.html#services-forgejo-options-shb.forgejo.backup.hooks.before_backup"
+  "services-forgejo-options-shb.forgejo.backup.hooks.beforeBackup": [
+    "services-forgejo.html#services-forgejo-options-shb.forgejo.backup.hooks.beforeBackup"
   ],
   "services-forgejo-options-shb.forgejo.backup.sourceDirectories": [
     "services-forgejo.html#services-forgejo-options-shb.forgejo.backup.sourceDirectories"
@@ -1331,11 +1331,11 @@
   "services-nextcloudserver-options-shb.nextcloud.backup.hooks": [
     "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.backup.hooks"
   ],
-  "services-nextcloudserver-options-shb.nextcloud.backup.hooks.after_backup": [
-    "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.backup.hooks.after_backup"
+  "services-nextcloudserver-options-shb.nextcloud.backup.hooks.afterBackup": [
+    "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.backup.hooks.afterBackup"
   ],
-  "services-nextcloudserver-options-shb.nextcloud.backup.hooks.before_backup": [
-    "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.backup.hooks.before_backup"
+  "services-nextcloudserver-options-shb.nextcloud.backup.hooks.beforeBackup": [
+    "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.backup.hooks.beforeBackup"
   ],
   "services-nextcloudserver-options-shb.nextcloud.backup.sourceDirectories": [
     "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.backup.sourceDirectories"
@@ -1481,11 +1481,11 @@
   "services-vaultwarden-options-shb.vaultwarden.backup.hooks": [
     "services-vaultwarden.html#services-vaultwarden-options-shb.vaultwarden.backup.hooks"
   ],
-  "services-vaultwarden-options-shb.vaultwarden.backup.hooks.after_backup": [
-    "services-vaultwarden.html#services-vaultwarden-options-shb.vaultwarden.backup.hooks.after_backup"
+  "services-vaultwarden-options-shb.vaultwarden.backup.hooks.afterBackup": [
+    "services-vaultwarden.html#services-vaultwarden-options-shb.vaultwarden.backup.hooks.afterBackup"
   ],
-  "services-vaultwarden-options-shb.vaultwarden.backup.hooks.before_backup": [
-    "services-vaultwarden.html#services-vaultwarden-options-shb.vaultwarden.backup.hooks.before_backup"
+  "services-vaultwarden-options-shb.vaultwarden.backup.hooks.beforeBackup": [
+    "services-vaultwarden.html#services-vaultwarden-options-shb.vaultwarden.backup.hooks.beforeBackup"
   ],
   "services-vaultwarden-options-shb.vaultwarden.backup.sourceDirectories": [
     "services-vaultwarden.html#services-vaultwarden-options-shb.vaultwarden.backup.sourceDirectories"

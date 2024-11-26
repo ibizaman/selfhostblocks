@@ -14,6 +14,11 @@ Template:
 
 # Upcoming Release
 
+## Breaking Changes
+
+- Options `before_backup` and `after_backup` for backup contract have been renamed to
+  `beforeBackup` and `afterBackup`.
+
 ## Other Changes
 
 - Show how to pin Self Host Blocks flake input to a tag.
