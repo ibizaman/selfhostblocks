@@ -38,17 +38,29 @@
   "blocks-postgresql-options-shb.postgresql.databasebackup": [
     "blocks-postgresql.html#blocks-postgresql-options-shb.postgresql.databasebackup"
   ],
-  "blocks-postgresql-options-shb.postgresql.databasebackup.backupCmd": [
-    "blocks-postgresql.html#blocks-postgresql-options-shb.postgresql.databasebackup.backupCmd"
+  "blocks-postgresql-options-shb.postgresql.databasebackup.request": [
+    "blocks-postgresql.html#blocks-postgresql-options-shb.postgresql.databasebackup.request"
   ],
-  "blocks-postgresql-options-shb.postgresql.databasebackup.backupName": [
-    "blocks-postgresql.html#blocks-postgresql-options-shb.postgresql.databasebackup.backupName"
+  "blocks-postgresql-options-shb.postgresql.databasebackup.request.backupCmd": [
+    "blocks-postgresql.html#blocks-postgresql-options-shb.postgresql.databasebackup.request.backupCmd"
   ],
-  "blocks-postgresql-options-shb.postgresql.databasebackup.restoreCmd": [
-    "blocks-postgresql.html#blocks-postgresql-options-shb.postgresql.databasebackup.restoreCmd"
+  "blocks-postgresql-options-shb.postgresql.databasebackup.request.backupName": [
+    "blocks-postgresql.html#blocks-postgresql-options-shb.postgresql.databasebackup.request.backupName"
   ],
-  "blocks-postgresql-options-shb.postgresql.databasebackup.user": [
-    "blocks-postgresql.html#blocks-postgresql-options-shb.postgresql.databasebackup.user"
+  "blocks-postgresql-options-shb.postgresql.databasebackup.request.restoreCmd": [
+    "blocks-postgresql.html#blocks-postgresql-options-shb.postgresql.databasebackup.request.restoreCmd"
+  ],
+  "blocks-postgresql-options-shb.postgresql.databasebackup.request.user": [
+    "blocks-postgresql.html#blocks-postgresql-options-shb.postgresql.databasebackup.request.user"
+  ],
+  "blocks-postgresql-options-shb.postgresql.databasebackup.result": [
+    "blocks-postgresql.html#blocks-postgresql-options-shb.postgresql.databasebackup.result"
+  ],
+  "blocks-postgresql-options-shb.postgresql.databasebackup.result.backupService": [
+    "blocks-postgresql.html#blocks-postgresql-options-shb.postgresql.databasebackup.result.backupService"
+  ],
+  "blocks-postgresql-options-shb.postgresql.databasebackup.result.restoreScript": [
+    "blocks-postgresql.html#blocks-postgresql-options-shb.postgresql.databasebackup.result.restoreScript"
   ],
   "blocks-postgresql-options-shb.postgresql.debug": [
     "blocks-postgresql.html#blocks-postgresql-options-shb.postgresql.debug"
@@ -631,6 +643,9 @@
   ],
   "contracts-databasebackup-options-shb.contracts.databasebackup.result.restoreScript": [
     "contracts-databasebackup.html#contracts-databasebackup-options-shb.contracts.databasebackup.result.restoreScript"
+  ],
+  "contracts-databasebackup-options-shb.contracts.databasebackup.settings": [
+    "contracts-databasebackup.html#contracts-databasebackup-options-shb.contracts.databasebackup.settings"
   ],
   "contracts-secret-options-shb.contracts.secret": [
     "contracts-secret.html#contracts-secret-options-shb.contracts.secret"
