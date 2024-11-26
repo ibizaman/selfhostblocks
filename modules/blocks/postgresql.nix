@@ -55,6 +55,7 @@ in
         Backup configuration.
       '';
 
+      default = {};
       type = lib.types.submodule {
         options = contracts.databasebackup.mkRequester {
           user = "postgres";
@@ -168,11 +169,6 @@ in
             (upgrade-script 14 15)
             (upgrade-script 15 16)
           ];
-        }
-        {
-          # Seems superfluous but otherwise we get:
-          # The option `shb.postgresql.databasebackup' was accessed but has no value defined.
-          shb.postgresql.databasebackup = {};
         }
       ]);
 }
