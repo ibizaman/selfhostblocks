@@ -99,7 +99,7 @@ let
       ../../modules/blocks/restic.nix
     ];
     shb.restic.instances."testinstance" = {
-      request = config.shb.vaultwarden.backup;
+      request = config.shb.vaultwarden.backup.request;
       settings = {
         enable = true;
         passphrase.result = config.shb.hardcodedsecret.backupPassphrase.result;

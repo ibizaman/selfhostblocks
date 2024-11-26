@@ -241,30 +241,18 @@ in
     };
 
     backup = mkOption {
-      type = contracts.backup.request;
       description = ''
-        Backup configuration. This is an output option.
-
-        Use it to initialize a block implementing the "backup" contract.
-        For example, with the restic block:
-
-        ```
-        shb.restic.instances."forgejo" = {
-          request = config.shb.forgejo.backup;
-          settings = {
-            enable = true;
-          };
-        };
-        ```
+        Backup configuration.
       '';
-      readOnly = true;
-      default = {
-        user = options.services.forgejo.user.value;
-        sourceDirectories = [
-          options.services.forgejo.dump.backupDir.value
-        ] ++ optionals (cfg.repositoryRoot != null) [
-          cfg.repositoryRoot
-        ];
+      type = lib.types.submodule {
+        options = contracts.backup.mkRequester {
+          user = options.services.forgejo.user.value;
+          sourceDirectories = [
+            options.services.forgejo.dump.backupDir.value
+          ] ++ optionals (cfg.repositoryRoot != null) [
+            cfg.repositoryRoot
+          ];
+        };
       };
     };
 

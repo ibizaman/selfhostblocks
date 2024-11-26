@@ -128,28 +128,16 @@ in
     };
 
     backup = lib.mkOption {
-      type = contracts.backup.request;
       description = ''
-        Backup configuration. This is an output option.
-
-        Use it to initialize a block implementing the "backup" contract.
-        For example, with the restic block:
-
-        ```
-        shb.restic.instances."vaultwarden" = {
-          request = config.shb.vaultwarden.backup;
-          settings = {
-            enable = true;
-          };
-        };
-        ```
+        Backup configuration.
       '';
-      readOnly = true;
-      default = {
-        user = "vaultwarden";
-        sourceDirectories = [
-          dataFolder
-        ];
+      type = lib.types.submodule {
+        options = contracts.backup.mkRequester {
+          user = "vaultwarden";
+          sourceDirectories = [
+            dataFolder
+          ];
+        };
       };
     };
 
@@ -162,6 +150,10 @@ in
   };
 
   config = lib.mkIf cfg.enable {
+    # Seems superfluous but otherwise we get:
+    # The option `shb.vaultwarden.backup' was accessed but has no value defined.
+    shb.vaultwarden.backup = {};
+
     services.vaultwarden = {
       enable = true;
       dbBackend = "postgresql";
