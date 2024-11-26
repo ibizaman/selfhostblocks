@@ -20,7 +20,7 @@ in
     imports = ( testLib.baseImports pkgs' ) ++ modules;
     config = lib.mkMerge [
       (setAttrByPath providerRoot {
-        request = (getAttrFromPath requesterRoot config).databasebackup;
+        request = (getAttrFromPath requesterRoot config).request;
         settings = settings {
           inherit config;
           repository = "/opt/repos/database";
@@ -38,7 +38,7 @@ in
   };
 
   testScript = { nodes, ... }: let
-    provider = (getAttrFromPath providerRoot nodes.machine).result;
+    provider = getAttrFromPath providerRoot nodes.machine;
   in ''
     import csv
 
@@ -69,17 +69,17 @@ in
         cmp_tables(res, table)
 
     with subtest("backup"):
-        print(machine.succeed("systemctl cat ${provider.backupService}"))
+        print(machine.succeed("systemctl cat ${provider.result.backupService}"))
         print(machine.succeed("ls -l /run/hardcodedsecrets/hardcodedsecret_passphrase"))
-        machine.succeed("systemctl start ${provider.backupService}")
+        machine.succeed("systemctl start ${provider.result.backupService}")
 
     with subtest("drop database"):
         machine.succeed(peer_cmd("DROP DATABASE ${database}", db="postgres"))
         machine.fail(peer_cmd("SELECT * FROM test"))
 
     with subtest("restore"):
-        print(machine.succeed("readlink -f $(type ${provider.restoreScript})"))
-        machine.succeed("${provider.restoreScript} restore latest ")
+        print(machine.succeed("readlink -f $(type ${provider.result.restoreScript})"))
+        machine.succeed("${provider.result.restoreScript} restore latest ")
 
     with subtest("check restoration"):
         res = query("SELECT * FROM test")

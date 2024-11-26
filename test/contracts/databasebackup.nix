@@ -5,7 +5,7 @@ in
 {
   restic_postgres = contracts.test.databasebackup {
     name = "restic_postgres";
-    requesterRoot = [ "shb" "postgresql" ];
+    requesterRoot = [ "shb" "postgresql" "databasebackup" ];
     providerRoot = [ "shb" "restic" "databases" "postgresql" ];
     modules = [
       ../../modules/blocks/postgresql.nix

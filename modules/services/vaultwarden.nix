@@ -150,10 +150,6 @@ in
   };
 
   config = lib.mkIf cfg.enable {
-    # Seems superfluous but otherwise we get:
-    # The option `shb.vaultwarden.backup' was accessed but has no value defined.
-    shb.vaultwarden.backup = {};
-
     services.vaultwarden = {
       enable = true;
       dbBackend = "postgresql";
@@ -235,5 +231,9 @@ in
     # TODO: make this work.
     # It does not work because it leads to infinite recursion.
     # ${cfg.mount}.path = dataFolder;
+
+    # Seems superfluous but otherwise we get:
+    # The option `shb.vaultwarden.backup' was accessed but has no value defined.
+    shb.vaultwarden.backup = {};
   };
 }
