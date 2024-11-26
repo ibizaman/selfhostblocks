@@ -137,17 +137,7 @@ in
       description = "Databases to backup following the [database backup contract](./contracts-databasebackup.html).";
       default = {};
       type = attrsOf (submodule ({ name, config, ... }: {
-        options = {
-          request = mkOption {
-            description = ''
-              Request part of the backup contract.
-
-              Accepts values from a requester.
-            '';
-
-            type = contracts.databasebackup.request;
-          };
-
+        options = contracts.databasebackup.mkProvider {
           settings = mkOption {
             description = ''
               Settings specific to the Restic provider.
@@ -158,26 +148,12 @@ in
             };
           };
 
-          result = mkOption {
-            description = ''
-              Result part of the backup contract.
+          resultCfg = {
+            restoreScript = fullName name config.settings.repository;
+            restoreScriptText = "${fullName "<name>" { path = "path/to/repository"; }}";
 
-              Contains the output of the Restic provider.
-            '';
-            default = {
-              restoreScript = fullName name config.settings.repository;
-              backupService = "${fullName name config.settings.repository}.service";
-            };
-            defaultText = {
-              restoreScriptText = "${fullName "<name>" { path = "path/to/repository"; }}";
-              backupServiceText = "${fullName "<name>" { path = "path/to/repository"; }}.service";
-            };
-            type = contracts.databasebackup.result {
-              restoreScript = fullName name config.settings.repository;
-              backupService = "${fullName name config.settings.repository}.service";
-              restoreScriptText = "${fullName "<name>" { path = "path/to/repository"; }}";
-              backupServiceText = "${fullName "<name>" { path = "path/to/repository"; }}.service";
-            };
+            backupService = "${fullName name config.settings.repository}.service";
+            backupServiceText = "${fullName "<name>" { path = "path/to/repository"; }}.service";
           };
         };
       }));

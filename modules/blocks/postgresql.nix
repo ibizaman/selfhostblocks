@@ -52,35 +52,23 @@ in
 
     databasebackup = lib.mkOption {
       description = ''
-        Backup configuration. This is an output option.
-
-        Use it to initialize a block implementing the "backup" contract.
-        For example, with the restic block:
-
-        ```
-        shb.restic.instances."postgresql" = {
-          request = config.shb.postgresl.backup;
-          settings = {
-            enable = true;
-          };
-        };
-        ```
+        Backup configuration.
       '';
 
-      type = contracts.databasebackup.request;
+      type = lib.types.submodule {
+        options = contracts.databasebackup.mkRequester {
+          user = "postgres";
 
-      default = {
-        user = "postgres";
+          backupName = "postgres.sql";
 
-        backupName = "postgres.sql";
+          backupCmd = ''
+            ${pkgs.postgresql}/bin/pg_dumpall | ${pkgs.gzip}/bin/gzip --rsyncable
+          '';
 
-        backupCmd = ''
-          ${pkgs.postgresql}/bin/pg_dumpall | ${pkgs.gzip}/bin/gzip --rsyncable
-        '';
-
-        restoreCmd = ''
-          ${pkgs.gzip}/bin/gunzip | ${pkgs.postgresql}/bin/psql postgres
-        '';
+          restoreCmd = ''
+            ${pkgs.gzip}/bin/gunzip | ${pkgs.postgresql}/bin/psql postgres
+          '';
+        };
       };
     };
 
@@ -180,6 +168,11 @@ in
             (upgrade-script 14 15)
             (upgrade-script 15 16)
           ];
+        }
+        {
+          # Seems superfluous but otherwise we get:
+          # The option `shb.postgresql.databasebackup' was accessed but has no value defined.
+          shb.postgresql.databasebackup = {};
         }
       ]);
 }

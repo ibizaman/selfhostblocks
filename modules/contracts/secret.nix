@@ -1,14 +1,19 @@
-{ lib, ... }:
+{ pkgs, lib, ... }:
 let
   inherit (lib) concatStringsSep literalMD mkOption optionalAttrs optionalString;
   inherit (lib.types) listOf submodule str;
+
+  shblib = pkgs.callPackage ../../lib {};
+  inherit (shblib) anyNotNull;
 in
 {
   mkRequest =
     { mode ? "0400",
+      modeText ? null,
       owner ? "root",
       ownerText ? null,
       group ? "root",
+      groupText ? null,
       restartUnits ? [],
       restartUnitsText ? null,
     }: mkOption {
@@ -23,11 +28,16 @@ in
         inherit mode owner group restartUnits;
       };
 
-      defaultText = optionalString (ownerText != null || restartUnitsText != null) (literalMD ''
+      defaultText = optionalString (anyNotNull [
+        modeText
+        ownerText
+        groupText
+        restartUnitsText
+      ]) (literalMD ''
       {
-        mode = ${mode};
+        mode = ${if modeText != null then modeText else mode};
         owner = ${if ownerText != null then ownerText else owner};
-        group = ${group};
+        group = ${if groupText != null then groupText else group};
         restartUnits = ${if restartUnitsText != null then restartUnitsText else "[ " + concatStringsSep " " restartUnits + " ]"};
       }
       '');
@@ -40,6 +50,8 @@ in
             '';
             type = str;
             default = mode;
+          } // optionalAttrs (modeText != null) {
+            defaultText = literalMD modeText;
           };
 
           owner = mkOption ({
@@ -58,6 +70,8 @@ in
             '';
             type = str;
             default = group;
+          } // optionalAttrs (groupText != null) {
+            defaultText = literalMD groupText;
           };
 
           restartUnits = mkOption ({
