@@ -602,6 +602,9 @@
   "contracts-backup-options-shb.contracts.backup.result.restoreScript": [
     "contracts-backup.html#contracts-backup-options-shb.contracts.backup.result.restoreScript"
   ],
+  "contracts-backup-options-shb.contracts.backup.settings": [
+    "contracts-backup.html#contracts-backup-options-shb.contracts.backup.settings"
+  ],
   "contracts-databasebackup-options-shb.contracts.databasebackup": [
     "contracts-databasebackup.html#contracts-databasebackup-options-shb.contracts.databasebackup"
   ],
@@ -851,23 +854,35 @@
   "services-forgejo-options-shb.forgejo.backup": [
     "services-forgejo.html#services-forgejo-options-shb.forgejo.backup"
   ],
-  "services-forgejo-options-shb.forgejo.backup.excludePatterns": [
-    "services-forgejo.html#services-forgejo-options-shb.forgejo.backup.excludePatterns"
+  "services-forgejo-options-shb.forgejo.backup.request": [
+    "services-forgejo.html#services-forgejo-options-shb.forgejo.backup.request"
   ],
-  "services-forgejo-options-shb.forgejo.backup.hooks": [
-    "services-forgejo.html#services-forgejo-options-shb.forgejo.backup.hooks"
+  "services-forgejo-options-shb.forgejo.backup.request.excludePatterns": [
+    "services-forgejo.html#services-forgejo-options-shb.forgejo.backup.request.excludePatterns"
   ],
-  "services-forgejo-options-shb.forgejo.backup.hooks.afterBackup": [
-    "services-forgejo.html#services-forgejo-options-shb.forgejo.backup.hooks.afterBackup"
+  "services-forgejo-options-shb.forgejo.backup.request.hooks": [
+    "services-forgejo.html#services-forgejo-options-shb.forgejo.backup.request.hooks"
   ],
-  "services-forgejo-options-shb.forgejo.backup.hooks.beforeBackup": [
-    "services-forgejo.html#services-forgejo-options-shb.forgejo.backup.hooks.beforeBackup"
+  "services-forgejo-options-shb.forgejo.backup.request.hooks.afterBackup": [
+    "services-forgejo.html#services-forgejo-options-shb.forgejo.backup.request.hooks.afterBackup"
   ],
-  "services-forgejo-options-shb.forgejo.backup.sourceDirectories": [
-    "services-forgejo.html#services-forgejo-options-shb.forgejo.backup.sourceDirectories"
+  "services-forgejo-options-shb.forgejo.backup.request.hooks.beforeBackup": [
+    "services-forgejo.html#services-forgejo-options-shb.forgejo.backup.request.hooks.beforeBackup"
   ],
-  "services-forgejo-options-shb.forgejo.backup.user": [
-    "services-forgejo.html#services-forgejo-options-shb.forgejo.backup.user"
+  "services-forgejo-options-shb.forgejo.backup.request.sourceDirectories": [
+    "services-forgejo.html#services-forgejo-options-shb.forgejo.backup.request.sourceDirectories"
+  ],
+  "services-forgejo-options-shb.forgejo.backup.request.user": [
+    "services-forgejo.html#services-forgejo-options-shb.forgejo.backup.request.user"
+  ],
+  "services-forgejo-options-shb.forgejo.backup.result": [
+    "services-forgejo.html#services-forgejo-options-shb.forgejo.backup.result"
+  ],
+  "services-forgejo-options-shb.forgejo.backup.result.backupService": [
+    "services-forgejo.html#services-forgejo-options-shb.forgejo.backup.result.backupService"
+  ],
+  "services-forgejo-options-shb.forgejo.backup.result.restoreScript": [
+    "services-forgejo.html#services-forgejo-options-shb.forgejo.backup.result.restoreScript"
   ],
   "services-forgejo-options-shb.forgejo.databasePassword": [
     "services-forgejo.html#services-forgejo-options-shb.forgejo.databasePassword"
@@ -1325,23 +1340,35 @@
   "services-nextcloudserver-options-shb.nextcloud.backup": [
     "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.backup"
   ],
-  "services-nextcloudserver-options-shb.nextcloud.backup.excludePatterns": [
-    "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.backup.excludePatterns"
+  "services-nextcloudserver-options-shb.nextcloud.backup.request": [
+    "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.backup.request"
   ],
-  "services-nextcloudserver-options-shb.nextcloud.backup.hooks": [
-    "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.backup.hooks"
+  "services-nextcloudserver-options-shb.nextcloud.backup.request.excludePatterns": [
+    "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.backup.request.excludePatterns"
   ],
-  "services-nextcloudserver-options-shb.nextcloud.backup.hooks.afterBackup": [
-    "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.backup.hooks.afterBackup"
+  "services-nextcloudserver-options-shb.nextcloud.backup.request.hooks": [
+    "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.backup.request.hooks"
   ],
-  "services-nextcloudserver-options-shb.nextcloud.backup.hooks.beforeBackup": [
-    "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.backup.hooks.beforeBackup"
+  "services-nextcloudserver-options-shb.nextcloud.backup.request.hooks.afterBackup": [
+    "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.backup.request.hooks.afterBackup"
   ],
-  "services-nextcloudserver-options-shb.nextcloud.backup.sourceDirectories": [
-    "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.backup.sourceDirectories"
+  "services-nextcloudserver-options-shb.nextcloud.backup.request.hooks.beforeBackup": [
+    "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.backup.request.hooks.beforeBackup"
   ],
-  "services-nextcloudserver-options-shb.nextcloud.backup.user": [
-    "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.backup.user"
+  "services-nextcloudserver-options-shb.nextcloud.backup.request.sourceDirectories": [
+    "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.backup.request.sourceDirectories"
+  ],
+  "services-nextcloudserver-options-shb.nextcloud.backup.request.user": [
+    "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.backup.request.user"
+  ],
+  "services-nextcloudserver-options-shb.nextcloud.backup.result": [
+    "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.backup.result"
+  ],
+  "services-nextcloudserver-options-shb.nextcloud.backup.result.backupService": [
+    "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.backup.result.backupService"
+  ],
+  "services-nextcloudserver-options-shb.nextcloud.backup.result.restoreScript": [
+    "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.backup.result.restoreScript"
   ],
   "services-nextcloudserver-options-shb.nextcloud.dataDir": [
     "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.dataDir"
@@ -1475,23 +1502,35 @@
   "services-vaultwarden-options-shb.vaultwarden.backup": [
     "services-vaultwarden.html#services-vaultwarden-options-shb.vaultwarden.backup"
   ],
-  "services-vaultwarden-options-shb.vaultwarden.backup.excludePatterns": [
-    "services-vaultwarden.html#services-vaultwarden-options-shb.vaultwarden.backup.excludePatterns"
+  "services-vaultwarden-options-shb.vaultwarden.backup.request": [
+    "services-vaultwarden.html#services-vaultwarden-options-shb.vaultwarden.backup.request"
   ],
-  "services-vaultwarden-options-shb.vaultwarden.backup.hooks": [
-    "services-vaultwarden.html#services-vaultwarden-options-shb.vaultwarden.backup.hooks"
+  "services-vaultwarden-options-shb.vaultwarden.backup.request.excludePatterns": [
+    "services-vaultwarden.html#services-vaultwarden-options-shb.vaultwarden.backup.request.excludePatterns"
   ],
-  "services-vaultwarden-options-shb.vaultwarden.backup.hooks.afterBackup": [
-    "services-vaultwarden.html#services-vaultwarden-options-shb.vaultwarden.backup.hooks.afterBackup"
+  "services-vaultwarden-options-shb.vaultwarden.backup.request.hooks": [
+    "services-vaultwarden.html#services-vaultwarden-options-shb.vaultwarden.backup.request.hooks"
   ],
-  "services-vaultwarden-options-shb.vaultwarden.backup.hooks.beforeBackup": [
-    "services-vaultwarden.html#services-vaultwarden-options-shb.vaultwarden.backup.hooks.beforeBackup"
+  "services-vaultwarden-options-shb.vaultwarden.backup.request.hooks.afterBackup": [
+    "services-vaultwarden.html#services-vaultwarden-options-shb.vaultwarden.backup.request.hooks.afterBackup"
   ],
-  "services-vaultwarden-options-shb.vaultwarden.backup.sourceDirectories": [
-    "services-vaultwarden.html#services-vaultwarden-options-shb.vaultwarden.backup.sourceDirectories"
+  "services-vaultwarden-options-shb.vaultwarden.backup.request.hooks.beforeBackup": [
+    "services-vaultwarden.html#services-vaultwarden-options-shb.vaultwarden.backup.request.hooks.beforeBackup"
   ],
-  "services-vaultwarden-options-shb.vaultwarden.backup.user": [
-    "services-vaultwarden.html#services-vaultwarden-options-shb.vaultwarden.backup.user"
+  "services-vaultwarden-options-shb.vaultwarden.backup.request.sourceDirectories": [
+    "services-vaultwarden.html#services-vaultwarden-options-shb.vaultwarden.backup.request.sourceDirectories"
+  ],
+  "services-vaultwarden-options-shb.vaultwarden.backup.request.user": [
+    "services-vaultwarden.html#services-vaultwarden-options-shb.vaultwarden.backup.request.user"
+  ],
+  "services-vaultwarden-options-shb.vaultwarden.backup.result": [
+    "services-vaultwarden.html#services-vaultwarden-options-shb.vaultwarden.backup.result"
+  ],
+  "services-vaultwarden-options-shb.vaultwarden.backup.result.backupService": [
+    "services-vaultwarden.html#services-vaultwarden-options-shb.vaultwarden.backup.result.backupService"
+  ],
+  "services-vaultwarden-options-shb.vaultwarden.backup.result.restoreScript": [
+    "services-vaultwarden.html#services-vaultwarden-options-shb.vaultwarden.backup.result.restoreScript"
   ],
   "services-vaultwarden-options-shb.vaultwarden.databasePassword": [
     "services-vaultwarden.html#services-vaultwarden-options-shb.vaultwarden.databasePassword"

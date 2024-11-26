@@ -1,7 +1,7 @@
 { pkgs, lib }:
 let
   inherit (builtins) isAttrs hasAttr;
-  inherit (lib) concatMapStringsSep concatStringsSep mapAttrsToList;
+  inherit (lib) any concatMapStringsSep concatStringsSep mapAttrsToList;
 in
 rec {
   # Replace secrets in a file.
@@ -292,4 +292,6 @@ rec {
         "${concatStringsSep "_" secret.path}:${secret.${sourceField}}";
     in
       map genLoadCredentials allSecrets;
+
+  anyNotNull = any (x: x != null);
 }

@@ -316,29 +316,17 @@ let
         };
 
         backup = lib.mkOption {
-          type = contracts.backup.request;
           description = ''
-            Backup configuration. This is an output option.
-
-            Use it to initialize a block implementing the "backup" contract.
-            For example, with the restic block:
-
-            ```
-            shb.restic.instances."${name}" = {
-              request = config.shb.${name}.backup;
-              settings = {
-                enable = true;
-              };
-            }
-            ```
+            Backup configuration.
           '';
-          readOnly = true;
-          default = {
-            user = name;
-            sourceDirectories = [
-              cfg.${name}.dataDir
-            ];
-            excludePatterns = [".db-shm" ".db-wal" ".mono"];
+          type = lib.types.submodule {
+            options = contracts.backup.mkRequester {
+              user = name;
+              sourceDirectories = [
+                cfg.${name}.dataDir
+              ];
+              excludePatterns = [".db-shm" ".db-wal" ".mono"];
+            };
           };
         };
       } // (c.moreOptions or {});

@@ -48,7 +48,7 @@ in
   inherit mkContractFunctions;
 
   databasebackup = import ./databasebackup.nix { inherit lib; };
-  backup = import ./backup.nix { inherit lib; };
+  backup = importContract ./backup.nix;
   mount = import ./mount.nix { inherit lib; };
   secret = importContract ./secret.nix;
   ssl = import ./ssl.nix { inherit lib; };

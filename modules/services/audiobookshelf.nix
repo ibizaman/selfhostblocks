@@ -88,28 +88,16 @@ in
     };
 
     backup = lib.mkOption {
-      type = contracts.backup.request;
       description = ''
-        Backup configuration. This is an output option.
-
-        Use it to initialize a block implementing the "backup" contract.
-        For example, with the restic block:
-
-        ```
-        shb.restic.instances."audiobookshelf" = {
-          request = config.shb.audiobookshelf.backup;
-          settings = {
-            enable = true;
-          };
-        };
-        ```
+        Backup configuration.
       '';
-      readOnly = true;
-      default = {
-        user = "audiobookshelf";
-        sourceDirectories = [
-          "/var/lib/audiobookshelf"
-        ];
+      type = lib.types.submodule {
+        options = contracts.backup.mkRequester {
+          user = "audiobookshelf";
+          sourceDirectories = [
+            "/var/lib/audiobookshelf"
+          ];
+        };
       };
     };
 

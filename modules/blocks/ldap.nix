@@ -103,31 +103,19 @@ in
     };
 
     backup = lib.mkOption {
-      type = contracts.backup.request;
       description = ''
-        Backup configuration. This is an output option.
-
-        Use it to initialize a block implementing the "backup" contract.
-        For example, with the restic block:
-
-        ```
-        shb.restic.instances."lldap" = {
-          request = config.shb.lldap.backup;
-          settings = {
-            enable = true;
-          };
-        };
-        ```
+        Backup configuration.
       '';
-      readOnly = true;
-      default = {
-        # TODO: is there a workaround that avoid needing to use root?
-        # root because otherwise we cannot access the private StateDiretory
-        user = "root";
-        # /private because the systemd service uses DynamicUser=true
-        sourceDirectories = [
-          "/var/lib/private/lldap"
-        ];
+      type = lib.types.submodule {
+        options = contracts.backup.mkRequester {
+          # TODO: is there a workaround that avoid needing to use root?
+          # root because otherwise we cannot access the private StateDiretory
+          user = "root";
+          # /private because the systemd service uses DynamicUser=true
+          sourceDirectories = [
+            "/var/lib/private/lldap"
+          ];
+        };
       };
     };
   };

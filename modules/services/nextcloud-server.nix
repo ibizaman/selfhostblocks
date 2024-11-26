@@ -519,29 +519,17 @@ in
 
 
     backup = lib.mkOption {
-      type = contracts.backup.request;
       description = ''
-        Backup configuration. This is an output option.
-
-        Use it to initialize a block implementing the "backup" contract.
-        For example, with the restic block:
-
-        ```
-        shb.restic.instances."nextcloud" = {
-          request = config.shb.nextcloud.backup;
-          settings = {
-            enable = true;
-          };
-        };
-        ```
+        Backup configuration.
       '';
-      readOnly = true;
-      default = {
-        user = "nextcloud";
-        sourceDirectories = [
-          cfg.dataDir
-        ];
-        excludePatterns = [".rnd"];
+      type = lib.types.submodule {
+        options = contracts.backup.mkRequester {
+          user = "nextcloud";
+          sourceDirectories = [
+            cfg.dataDir
+          ];
+          excludePatterns = [".rnd"];
+        };
       };
     };
 

@@ -3,7 +3,7 @@ let
   contracts = pkgs.callPackage ../. {};
 
   inherit (lib) mkOption;
-  inherit (lib.types) anything submodule;
+  inherit (lib.types) submodule;
 in
 {
   options.shb.contracts.backup = mkOption {
@@ -23,24 +23,7 @@ in
     '';
 
     type = submodule {
-      options = {
-        request = mkOption {
-          description = ''
-          Options set by a requester module of the backup contract.
-          '';
-          type = contracts.backup.request;
-        };
-
-        result = mkOption {
-          description = ''
-          Options set by a provider module of the backup contract.
-          '';
-          type = contracts.backup.result {
-            restoreScript = "my_restore_script";
-            backupService = "my_backup_service.service";
-          };
-        };
-      };
+      options = contracts.backup.contract;
     };
   };
 }
