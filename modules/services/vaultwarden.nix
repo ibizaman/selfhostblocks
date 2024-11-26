@@ -131,6 +131,7 @@ in
       description = ''
         Backup configuration.
       '';
+      default = {};
       type = lib.types.submodule {
         options = contracts.backup.mkRequester {
           user = "vaultwarden";
@@ -231,9 +232,5 @@ in
     # TODO: make this work.
     # It does not work because it leads to infinite recursion.
     # ${cfg.mount}.path = dataFolder;
-
-    # Seems superfluous but otherwise we get:
-    # The option `shb.vaultwarden.backup' was accessed but has no value defined.
-    shb.vaultwarden.backup = {};
   };
 }
