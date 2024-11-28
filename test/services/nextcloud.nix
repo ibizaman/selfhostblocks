@@ -11,7 +11,7 @@ let
 
   testLib = pkgs.callPackage ../common.nix {};
 
-  commonTestScript = lib.makeOverridable testLib.accessScript {
+  commonTestScript = testLib.mkScripts {
     inherit subdomain domain;
     hasSSL = { node, ... }: !(isNull node.config.shb.nextcloud.ssl);
     waitForServices = { ... }: [
@@ -227,7 +227,23 @@ in
 
     nodes.client = {};
 
-    testScript = commonTestScript;
+    testScript = commonTestScript.access;
+  };
+
+  backup = pkgs.testers.runNixOSTest {
+    name = "nextcloud_backup";
+
+    nodes.server = { config, ... }: {
+      imports = [
+        base
+        basic
+        (testLib.backup config.shb.nextcloud.backup)
+      ];
+    };
+
+    nodes.client = {};
+
+    testScript = commonTestScript.backup;
   };
 
   https = pkgs.testers.runNixOSTest {
@@ -245,7 +261,7 @@ in
     nodes.client = {};
 
     # TODO: Test login
-    testScript = commonTestScript;
+    testScript = commonTestScript.access;
   };
 
   previewGenerator = pkgs.testers.runNixOSTest {
@@ -263,7 +279,7 @@ in
 
     nodes.client = {};
 
-    testScript = commonTestScript;
+    testScript = commonTestScript.access;
   };
 
   externalStorage = pkgs.testers.runNixOSTest {
@@ -281,7 +297,7 @@ in
 
     nodes.client = {};
 
-    testScript = commonTestScript;
+    testScript = commonTestScript.access;
   };
 
   ldap = pkgs.testers.runNixOSTest {
@@ -300,7 +316,7 @@ in
   
     nodes.client = {};
   
-    testScript = commonTestScript;
+    testScript = commonTestScript.access;
   };
 
   sso = pkgs.testers.runNixOSTest {
@@ -321,6 +337,6 @@ in
   
     nodes.client = {};
   
-    testScript = commonTestScript;
+    testScript = commonTestScript.access;
   };
 }

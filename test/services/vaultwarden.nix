@@ -7,7 +7,7 @@ let
   subdomain = "v";
   domain = "example.com";
 
-  commonTestScript = lib.makeOverridable testLib.accessScript {
+  commonTestScript = testLib.mkScripts {
     inherit subdomain domain;
     hasSSL = { node, ... }: !(isNull node.config.shb.vaultwarden.ssl);
     waitForServices = { ... }: [
@@ -93,30 +93,6 @@ let
       authEndpoint = "https://${config.shb.authelia.subdomain}.${config.shb.authelia.domain}";
     };
   };
-
-  backup = { config, ... }: {
-    imports = [
-      ../../modules/blocks/restic.nix
-    ];
-    shb.restic.instances."testinstance" = {
-      request = config.shb.vaultwarden.backup.request;
-      settings = {
-        enable = true;
-        passphrase.result = config.shb.hardcodedsecret.backupPassphrase.result;
-        repository = {
-          path = "/opt/repos/A";
-          timerConfig = {
-            OnCalendar = "00:00:00";
-            RandomizedDelaySec = "5h";
-          };
-        };
-      };
-    };
-    shb.hardcodedsecret.backupPassphrase = {
-      request = config.shb.restic.instances."testinstance".settings.passphrase.request;
-      settings.content = "PassPhrase";
-    };
-  };
 in
 {
   basic = pkgs.testers.runNixOSTest {
@@ -131,7 +107,7 @@ in
 
     nodes.client = {};
 
-    testScript = commonTestScript;
+    testScript = commonTestScript.access;
   };
 
   https = pkgs.testers.runNixOSTest {
@@ -148,7 +124,7 @@ in
 
     nodes.client = {};
 
-    testScript = commonTestScript;
+    testScript = commonTestScript.access;
   };
 
   # Not yet supported
@@ -164,7 +140,7 @@ in
   #
   #   nodes.client = {};
   #
-  #   testScript = commonTestScript;
+  #   testScript = commonTestScript.access;
   # };
 
   sso = pkgs.testers.runNixOSTest {
@@ -184,7 +160,7 @@ in
 
     nodes.client = {};
 
-    testScript = commonTestScript.override {
+    testScript = commonTestScript.access.override {
       waitForPorts = { node, ... }: [
         8222
         5432
@@ -211,17 +187,12 @@ in
       imports = [
         base
         basic
-        backup
+        (testLib.backup config.shb.vaultwarden.backup)
       ];
     };
 
     nodes.client = {};
 
-    testScript = commonTestScript.override {
-      extraScript = { proto_fqdn, ... }: ''
-      with subtest("backup"):
-          server.succeed("systemctl start restic-backups-testinstance_opt_repos_A")
-      '';
-    };
+    testScript = commonTestScript.backup;
   };
 }

@@ -4,9 +4,8 @@ let
     (pkgs.path + "/nixos/modules/profiles/headless.nix")
     (pkgs.path + "/nixos/modules/profiles/qemu-guest.nix")
   ];
-in
-{
-  accessScript = {
+
+  accessScript = lib.makeOverridable ({
     subdomain
     , domain
     , hasSSL
@@ -95,9 +94,23 @@ in
       lib.optionalString (script != "") ''
         with subtest("extraScript"):
         ${indent 4 script}
-      '');
+      ''));
 
-  inherit baseImports;
+  backupScript = args: (accessScript args).override {
+      extraScript = { proto_fqdn, ... }: ''
+      with subtest("backup"):
+          server.succeed("systemctl start restic-backups-testinstance_opt_repos_A")
+      '';
+    };
+in
+{
+  inherit baseImports accessScript;
+
+  mkScripts = args:
+    {
+      access = accessScript args;
+      backup = backupScript args;
+    };
 
   base = pkgs: additionalModules: {
     imports =
@@ -113,6 +126,30 @@ in
 
     # Nginx port.
     networking.firewall.allowedTCPPorts = [ 80 443 ];
+  };
+
+  backup = backupOption: { config, ... }: {
+    imports = [
+      ../modules/blocks/restic.nix
+    ];
+    shb.restic.instances."testinstance" = {
+      request = backupOption.request;
+      settings = {
+        enable = true;
+        passphrase.result = config.shb.hardcodedsecret.backupPassphrase.result;
+        repository = {
+          path = "/opt/repos/A";
+          timerConfig = {
+            OnCalendar = "00:00:00";
+            RandomizedDelaySec = "5h";
+          };
+        };
+      };
+    };
+    shb.hardcodedsecret.backupPassphrase = {
+      request = config.shb.restic.instances."testinstance".settings.passphrase.request;
+      settings.content = "PassPhrase";
+    };
   };
 
   certs = domain: { config, ... }: {
