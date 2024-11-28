@@ -7,7 +7,7 @@ let
   subdomain = "j";
   domain = "example.com";
 
-  commonTestScript = testLib.accessScript {
+  commonTestScript = testLib.mkScripts {
     inherit subdomain domain;
     hasSSL = { node, ... }: !(isNull node.config.shb.jellyfin.ssl);
     waitForServices = { ... }: [
@@ -87,7 +87,23 @@ in
 
     nodes.client = {};
 
-    testScript = commonTestScript;
+    testScript = commonTestScript.access;
+  };
+
+  backup = pkgs.testers.runNixOSTest {
+    name = "jellyfin_backup";
+
+    nodes.server = { config, ... }: {
+      imports = [
+        base
+        basic
+        (testLib.backup config.shb.jellyfin.backup)
+      ];
+    };
+
+    nodes.client = {};
+
+    testScript = commonTestScript.backup;
   };
 
   https = pkgs.testers.runNixOSTest {
@@ -104,7 +120,7 @@ in
 
     nodes.client = {};
 
-    testScript = commonTestScript;
+    testScript = commonTestScript.access;
   };
 
   ldap = pkgs.testers.runNixOSTest {
@@ -121,7 +137,7 @@ in
   
     nodes.client = {};
   
-    testScript = commonTestScript;
+    testScript = commonTestScript.access;
   };
 
   sso = pkgs.testers.runNixOSTest {
@@ -141,6 +157,6 @@ in
 
     nodes.client = {};
 
-    testScript = commonTestScript;
+    testScript = commonTestScript.access;
   };
 }

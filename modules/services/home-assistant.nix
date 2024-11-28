@@ -315,6 +315,7 @@ in
       "f ${config.services.home-assistant.configDir}/automations.yaml 0755 hass hass"
       "f ${config.services.home-assistant.configDir}/scenes.yaml      0755 hass hass"
       "f ${config.services.home-assistant.configDir}/scripts.yaml     0755 hass hass"
+      "d /var/lib/hass/backups 0750 hass hass"
     ];
   };
 }

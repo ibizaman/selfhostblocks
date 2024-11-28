@@ -7,7 +7,7 @@ let
   subdomain = "ha";
   domain = "example.com";
 
-  commonTestScript = lib.makeOverridable testLib.accessScript {
+  commonTestScript = testLib.mkScripts {
     inherit subdomain domain;
     hasSSL = { node, ... }: !(isNull node.config.shb.home-assistant.ssl);
     waitForServices = { ... }: [
@@ -78,7 +78,23 @@ in
 
     nodes.client = {};
 
-    testScript = commonTestScript;
+    testScript = commonTestScript.access;
+  };
+
+  backup = pkgs.testers.runNixOSTest {
+    name = "homeassistant_backup";
+
+    nodes.server = { config, ... }: {
+      imports = [
+        base
+        basic
+        (testLib.backup config.shb.home-assistant.backup)
+      ];
+    };
+
+    nodes.client = {};
+
+    testScript = commonTestScript.backup;
   };
 
   https = pkgs.testers.runNixOSTest {
@@ -95,7 +111,7 @@ in
 
     nodes.client = {};
 
-    testScript = commonTestScript;
+    testScript = commonTestScript.access;
   };
 
   ldap = pkgs.testers.runNixOSTest {
@@ -112,7 +128,7 @@ in
   
     nodes.client = {};
   
-    testScript = commonTestScript;
+    testScript = commonTestScript.access;
   };
 
   # Not yet supported
@@ -133,6 +149,6 @@ in
   #
   #   nodes.client = {};
   #
-  #   testScript = commonTestScript;
+  #   testScript = commonTestScript.access;
   # };
 }
