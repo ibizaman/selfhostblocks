@@ -14,10 +14,19 @@ Template:
 
 # Upcoming Release
 
+# v0.2.4
+
+## Other Changes
+
+- Fix modules using backup contract.
+
+# v0.2.3
+
 ## Breaking Changes
 
 - Options `before_backup` and `after_backup` for backup contract have been renamed to
   `beforeBackup` and `afterBackup`.
+- All options using the backup and databasebackup contracts now use the new style.
 
 ## Other Changes
 
