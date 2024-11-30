@@ -66,6 +66,7 @@ in
               policy = "bypass";
               resources = [
                 "^/api.*"
+                "^/feed.*"
               ];
             }
             {
@@ -124,6 +125,7 @@ in
               policy = "bypass";
               resources = [
                 "^/api.*"
+                "^/feed.*"
               ];
             }
             {
