@@ -124,6 +124,7 @@
           // (vm_test "deluge" ./test/services/deluge.nix)
           // (vm_test "forgejo" ./test/services/forgejo.nix)
           // (vm_test "grocy" ./test/services/grocy.nix)
+          // (vm_test "hledger" ./test/services/hledger.nix)
           // (vm_test "homeassistant" ./test/services/home-assistant.nix)
           // (vm_test "jellyfin" ./test/services/jellyfin.nix)
           // (vm_test "monitoring" ./test/services/monitoring.nix)
