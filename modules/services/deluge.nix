@@ -247,6 +247,7 @@ in
       description = ''
         Backup configuration.
       '';
+      default = {};
       type = lib.types.submodule {
         options = contracts.backup.mkRequester {
           user = "deluge";

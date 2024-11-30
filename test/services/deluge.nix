@@ -7,7 +7,7 @@ let
 
   testLib = pkgs.callPackage ../common.nix {};
 
-  commonTestScript = lib.makeOverridable testLib.accessScript {
+  commonTestScript = testLib.mkScripts {
     inherit subdomain domain;
     hasSSL = { node, ... }: !(isNull node.config.shb.deluge.ssl);
     waitForServices = { ... }: [
@@ -134,7 +134,23 @@ in
 
     nodes.client = {};
 
-    testScript = commonTestScript;
+    testScript = commonTestScript.access;
+  };
+
+  backup = pkgs.testers.runNixOSTest {
+    name = "deluge_backup";
+
+    nodes.server = { config, ... }: {
+      imports = [
+        base
+        basic
+        (testLib.backup config.shb.deluge.backup)
+      ];
+    };
+
+    nodes.client = {};
+
+    testScript = commonTestScript.backup;
   };
 
   https = pkgs.testers.runNixOSTest {
@@ -151,7 +167,7 @@ in
 
     nodes.client = {};
 
-    testScript = commonTestScript;
+    testScript = commonTestScript.access;
   };
 
   sso = pkgs.testers.runNixOSTest {
@@ -171,7 +187,7 @@ in
   
     nodes.client = {};
   
-    testScript = commonTestScript.override {
+    testScript = commonTestScript.access.override {
       redirectSSO = true;
     };
   };
@@ -192,7 +208,7 @@ in
     nodes.client = {};
 
     testScript = inputs:
-      (commonTestScript inputs)
+      (commonTestScript.access inputs)
       + (prometheusTestScript inputs);
   };
 }

@@ -267,6 +267,7 @@ let
         policy = "bypass";
         resources = extraBypassResources ++ [
           "^/api.*"
+          "^/feed.*"
         ];
       }
       {
@@ -319,6 +320,7 @@ let
           description = ''
             Backup configuration.
           '';
+          default = {};
           type = lib.types.submodule {
             options = contracts.backup.mkRequester {
               user = name;

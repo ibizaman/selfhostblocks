@@ -49,15 +49,17 @@ in
     };
 
     authEndpoint = lib.mkOption {
-      type = lib.types.str;
+      type = lib.types.nullOr lib.types.str;
       description = "OIDC endpoint for SSO";
       example = "https://authelia.example.com";
+      default = null;
     };
 
     backup = lib.mkOption {
       description = ''
         Backup configuration.
       '';
+      default = {};
       type = lib.types.submodule {
         options = contracts.backup.mkRequester {
           user = "hledger";

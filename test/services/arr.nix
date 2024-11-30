@@ -13,7 +13,7 @@ let
     let
       subdomain = appname;
       fqdn = "${subdomain}.${domain}";
-    in lib.makeOverridable testLib.accessScript {
+    in testLib.mkScripts {
       inherit subdomain domain;
       hasSSL = { node, ... }: !(isNull node.config.shb.arr.${appname}.ssl);
       waitForServices = { ... }: [
@@ -76,7 +76,23 @@ let
 
     nodes.client = {};
 
-    testScript = commonTestScript appname cfgPathFn;
+    testScript = (commonTestScript appname cfgPathFn).access;
+  };
+
+  backupTest = appname: cfgPathFn: pkgs.testers.runNixOSTest {
+    name = "arr_${appname}_backup";
+
+    nodes.server = { config, ... }: {
+      imports = [
+        base
+        (basic appname)
+        (testLib.backup config.shb.arr.${appname}.backup)
+      ];
+    };
+
+    nodes.client = {};
+
+    testScript = (commonTestScript appname cfgPathFn).backup;
   };
 
   https = appname: { config, ...}: {
@@ -99,7 +115,7 @@ let
 
     nodes.client = {};
 
-    testScript = commonTestScript appname cfgPathFn;
+    testScript = (commonTestScript appname cfgPathFn).access;
   };
 
   sso = appname: { config, ...}: {
@@ -125,7 +141,7 @@ let
 
     nodes.client = {};
 
-    testScript = (commonTestScript appname cfgPathFn).override {
+    testScript = (commonTestScript appname cfgPathFn).access.override {
       redirectSSO = true;
     };
   };
@@ -138,27 +154,33 @@ let
   jackettCfgFn = cfg: "${cfg.dataDir}/ServerConfig.json";
 in
 {
-  radarr_basic = basicTest "radarr" radarrCfgFn;
-  radarr_https = httpsTest "radarr" radarrCfgFn;
-  radarr_sso   = ssoTest   "radarr" radarrCfgFn;
+  radarr_basic  = basicTest "radarr" radarrCfgFn;
+  radarr_backup = backupTest "radarr" radarrCfgFn;
+  radarr_https  = httpsTest "radarr" radarrCfgFn;
+  radarr_sso    = ssoTest   "radarr" radarrCfgFn;
 
-  sonarr_basic = basicTest "sonarr" sonarrCfgFn;
-  sonarr_https = httpsTest "sonarr" sonarrCfgFn;
-  sonarr_sso   = ssoTest   "sonarr" sonarrCfgFn;
+  sonarr_basic  = basicTest "sonarr" sonarrCfgFn;
+  sonarr_backup = backupTest "sonarr" sonarrCfgFn;
+  sonarr_https  = httpsTest "sonarr" sonarrCfgFn;
+  sonarr_sso    = ssoTest   "sonarr" sonarrCfgFn;
 
-  bazarr_basic = basicTest "bazarr" bazarrCfgFn;
-  bazarr_https = httpsTest "bazarr" bazarrCfgFn;
-  bazarr_sso   = ssoTest   "bazarr" bazarrCfgFn;
+  bazarr_basic  = basicTest "bazarr" bazarrCfgFn;
+  bazarr_backup = backupTest "bazarr" bazarrCfgFn;
+  bazarr_https  = httpsTest "bazarr" bazarrCfgFn;
+  bazarr_sso    = ssoTest   "bazarr" bazarrCfgFn;
 
-  readarr_basic = basicTest "readarr" readarrCfgFn;
-  readarr_https = httpsTest "readarr" readarrCfgFn;
-  readarr_sso   = ssoTest   "readarr" readarrCfgFn;
+  readarr_basic  = basicTest "readarr" readarrCfgFn;
+  readarr_backup = backupTest "readarr" readarrCfgFn;
+  readarr_https  = httpsTest "readarr" readarrCfgFn;
+  readarr_sso    = ssoTest   "readarr" readarrCfgFn;
 
-  lidarr_basic = basicTest "lidarr" lidarrCfgFn;
-  lidarr_https = httpsTest "lidarr" lidarrCfgFn;
-  lidarr_sso   = ssoTest   "lidarr" lidarrCfgFn;
+  lidarr_basic  = basicTest "lidarr" lidarrCfgFn;
+  lidarr_backup = backupTest "lidarr" lidarrCfgFn;
+  lidarr_https  = httpsTest "lidarr" lidarrCfgFn;
+  lidarr_sso    = ssoTest   "lidarr" lidarrCfgFn;
 
-  jackett_basic = basicTest "jackett" jackettCfgFn;
-  jackett_https = httpsTest "jackett" jackettCfgFn;
-  jackett_sso   = ssoTest   "jackett" jackettCfgFn;
+  jackett_basic  = basicTest "jackett" jackettCfgFn;
+  jackett_backup = backupTest "jackett" jackettCfgFn;
+  jackett_https  = httpsTest "jackett" jackettCfgFn;
+  jackett_sso    = ssoTest   "jackett" jackettCfgFn;
 }
