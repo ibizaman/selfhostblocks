@@ -14,6 +14,12 @@ Template:
 
 # Upcoming Release
 
+# v0.2.5
+
+## Other Changes
+
+- Fix more modules using backup contract.
+
 # v0.2.4
 
 ## Other Changes
