@@ -262,7 +262,7 @@ in
       type = lib.types.nullOr (lib.types.enum ["critical" "error" "warning" "info" "debug"]);
       description = "Enable logging.";
       default = null;
-      example = true;
+      example = "info";
     };
   };
 
