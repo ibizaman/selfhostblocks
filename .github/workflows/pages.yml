@@ -35,7 +35,7 @@ jobs:
         uses: cachix/install-nix-action@v30
 
       - name: Setup Caching
-        uses: cachix/cachix-action@v14
+        uses: cachix/cachix-action@v15
         with:
           name: selfhostblocks
           authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'
