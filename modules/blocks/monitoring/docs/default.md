@@ -112,6 +112,13 @@ This dashboard is meant to be the first stop to understand why a service is perf
 ![Performance Dashboard Middle Part](./assets/dashboards_Performance_2.png)
 ![Performance Dashboard Bottom Part](./assets/dashboards_Performance_3.png)
 
+## Deluge Dashboard {#blocks-monitoring-deluge-dashboard}
+
+This dashboard is used to monitor a [deluge](./services-deluge.html) instance.
+
+![Deluge Dashboard Top Part](./assets/dashboards_Deluge_1.png)
+![Deluge Dashboard Bottom Part](./assets/dashboards_Deluge_2.png)
+
 ## Requests Error Budget Alert {#blocks-monitoring-budget-alerts}
 
 This alert will fire when the ratio between number of requests getting a 5XX response from a service

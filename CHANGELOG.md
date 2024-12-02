@@ -14,6 +14,10 @@ Template:
 
 # Upcoming Release
 
+## Other Changes
+
+- Add dashboard for deluge.
+
 # v0.2.5
 
 ## Other Changes
