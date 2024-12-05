@@ -41,8 +41,10 @@ that is not like the other server management tools.
 > production server, this is really just a one person effort for now and there are most certainly
 > bugs that I didn't discover yet.
 
+### Flake Module
+
 Self Host Blocks is available as a flake.
-To use it in your project, add the following flake input:
+To use it in your existing project, add the following flake input:
 
 ```nix
 inputs.selfhostblocks.url = "github:ibizaman/selfhostblocks";
@@ -69,6 +71,19 @@ Then, to actually configure services, you can choose which one interests you in
 
 Head over to the [matrix channel](https://matrix.to/#/#selfhostblocks:matrix.org)
 for any remaining question, or just to say hi :)
+
+### Installation From Scratch
+
+I do recommend for this my sibling project [Skarabox][]
+which bootstraps a new server and sets up a few tools:
+
+- Creating a bootable ISO, installable on an USB key.
+- [nixos-anywhere](https://github.com/nix-community/nixos-anywhere) to install NixOS headlessly.
+- [disko](https://github.com/nix-community/disko) to format the drives using native ZFS encryption with remote unlocking through ssh.
+- [sops-nix](https://github.com/Mic92/sops-nix) to handle secrets.
+- [deploy-rs](https://github.com/serokell/deploy-rs) to deploy updates.
+
+[Skarabox]:  https://github.com/ibizaman/skarabox
 
 ## Server Management
 
