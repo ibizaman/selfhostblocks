@@ -47,10 +47,12 @@ let
     src = originPkgs;
     patches = selfhostblocks.patches.${system};
   };
-in
-  nixpkgs = import nixpkgs' {
+
+  shbNixpkgs = import nixpkgs' {
     inherit system;
   };
+in
+  # ... Use shbNixpkgs
 ```
 
 Advanced users can if they wish use a version of `nixpkgs` of their choosing but then we cannot
@@ -68,9 +70,10 @@ Updating Self Host Blocks to a new version can be done the same way.
 
 ### Auto Updates {#usage-flake-autoupdate}
 
-To avoid manually updating the `nixpkgs` version, the [GitHub repository][1] for Self Host Blocks
-tries to update the `nixpkgs` input daily, verifying all tests pass before accepting this new
-`nixpkgs` version. The setup is explained in [this blog post][2].
+To avoid burden on the maintainers to keep `nixpkgs` input updated with upstream,
+the [GitHub repository][1] for Self Host Blocks updates the `nixpkgs` input every couple days,
+and verifies all tests pass before automatically merging the new `nixpkgs` version.
+The setup is explained in [this blog post][2].
 
 [1]: https://github.com/ibizaman/selfhostblocks
 [2]: https://blog.tiserbox.com/posts/2023-12-25-automated-flake-lock-update-pull-requests-and-merging.html
@@ -86,53 +89,36 @@ The following snippets show how to deploy Self Host Blocks using the standard de
   };
 
   outputs = { self, selfhostblocks }: {
-    nixosConfigurations = {
-      machine = selfhostblocks.inputs.nixpkgs.lib.nixosSystem {
-        system = "x86_64-linux";
-        modules = [
-          selfhostblocks.nixosModules.${system}.default
-        ];
+    let
+      system = "x86_64-linux";
+      originPkgs = selfhostblocks.inputs.nixpkgs;
 
-        # Machine specific configuration goes here.
+      nixpkgs' = originPkgs.legacyPackages.${system}.applyPatches {
+        name = "nixpkgs-patched";
+        src = originPkgs;
+        patches = selfhostblocks.patches.${system};
       };
-    };
+
+      shbNixpkgs = import nixpkgs' {
+        inherit system;
+      };
+    in
+      nixosConfigurations = {
+        machine = shbNixpkgs.lib.nixosSystem {
+          inherit system;
+          modules = [
+            selfhostblocks.nixosModules.${system}.default
+          ];
+        };
+      };
   };
 }
 ```
 
-The above snippet is very minimal as it assumes you have only one machine to deploy to, so `nixpkgs`
-is defined exclusively by the `selfhostblocks.inputs.nixpkgs` input. If some machines are not using
-Self Host Blocks, you can do the following:
-
-```nix
-{
-  inputs = {
-    selfhostblocks.url = "github:ibizaman/selfhostblocks";
-  };
-
-  outputs = { self, selfhostblocks }: {
-    nixosConfigurations = {
-      machine1 = nixpkgs.lib.nixosSystem {
-      };
-
-      machine2 = selfhostblocks.inputs.nixpkgs.lib.nixosSystem {
-        system = "x86_64-linux";
-        modules = [
-          selfhostblocks.nixosModules.${system}.default
-        ];
-
-        # Machine specific configuration goes here.
-      };
-    };
-  };
-}
-```
-
-## Example Deployment With Colmena {#usage-example-colmena}
-
-The following snippets show how to deploy Self Host Blocks using the deployment system [Colmena][3].
-
-[3]: https://colmena.cli.rs
+The above snippet assumes one machine to deploy to,
+so `nixpkgs` is defined exclusively by the `selfhostblocks` input.
+It is more likely that you have multiple machines,
+some not using Self Host Blocks, then you can do the following:
 
 ```nix
 {
@@ -143,28 +129,84 @@ The following snippets show how to deploy Self Host Blocks using the deployment 
   };
 
   outputs = { self, selfhostblocks }: {
-    colmena =
-      let
-        system = "x86_64-linux";
-      in {
+    let
+      system = "x86_64-linux";
+      originPkgs = selfhostblocks.inputs.nixpkgs;
+    
+      nixpkgs' = originPkgs.legacyPackages.${system}.applyPatches {
+        name = "nixpkgs-patched";
+        src = originPkgs;
+        patches = selfhostblocks.patches.${system};
+      };
+
+      shbNixpkgs = import nixpkgs' {
+        inherit system;
+      };
+    in
+      nixosConfigurations = {
+        machine1 = nixpkgs.lib.nixosSystem {
+        };
+
+        machine2 = shbNixpkgs.lib.nixosSystem {
+          system = "x86_64-linux";
+          modules = [
+            selfhostblocks.nixosModules.${system}.default
+          ];
+        };
+      };
+  };
+}
+```
+In the above snippet, `machine1` will use the `nixpkgs` version from your inputs
+while `machine2` will use the `nixpkgs` version from `selfhostblocks`.
+
+## Example Deployment With Colmena {#usage-example-colmena}
+
+The following snippets show how to deploy Self Host Blocks using the deployment system [Colmena][].
+
+[colmena]: https://colmena.cli.rs
+
+```nix
+{
+  inputs = {
+    selfhostblocks.url = "github:ibizaman/selfhostblocks";
+  };
+
+  outputs = { self, selfhostblocks }: {
+    let
+      system = "x86_64-linux";
+      originPkgs = selfhostblocks.inputs.nixpkgs;
+    
+      nixpkgs' = originPkgs.legacyPackages.${system}.applyPatches {
+        name = "nixpkgs-patched";
+        src = originPkgs;
+        patches = selfhostblocks.patches.${system};
+      };
+
+      shbNixpkgs = import nixpkgs' {
+        inherit system;
+      };
+    in
+      colmena = {
         meta = {
-          nixpkgs = import selfhostblocks.inputs.nixpkgs { inherit system; };
+          nixpkgs = shbNixpkgs;
         };
 
         machine = { selfhostblocks, ... }: {
           imports = [
             selfhostblocks.nixosModules.${system}.default
           ];
-
-          # Machine specific configuration goes here.
         };
       };
   };
 }
 ```
 
-The above snippet is very minimal as it assumes you have only one machine to deploy to, so `nixpkgs`
-is defined exclusively by the `selfhostblocks` input. It is more likely that you have multiple machines, in this case you can use the `colmena.meta.nodeNixpkgs` option:
+The above snippet assumes one machine to deploy to,
+so `nixpkgs` is defined exclusively by the `selfhostblocks` input.
+It is more likely that you have multiple machines,
+some not using Self Host Blocks,
+in this case you can use the `colmena.meta.nodeNixpkgs` option:
 
 ```nix
 {
@@ -175,14 +217,26 @@ is defined exclusively by the `selfhostblocks` input. It is more likely that you
   };
 
   outputs = { self, selfhostblocks }: {
-    colmena = {
-      let
-        system = "x86_64-linux";
-      in {
-        meta =
+    let
+      system = "x86_64-linux";
+      originPkgs = selfhostblocks.inputs.nixpkgs;
+    
+      nixpkgs' = originPkgs.legacyPackages.${system}.applyPatches {
+        name = "nixpkgs-patched";
+        src = originPkgs;
+        patches = selfhostblocks.patches.${system};
+      };
+
+      shbNixpkgs = import nixpkgs' {
+        inherit system;
+      };
+    in
+      colmena = {
+        meta = {
           nixpkgs = import nixpkgs { inherit system; };
+
           nodeNixpkgs = {
-            machine2 = import selfhostblocks.inputs.nixpkgs { inherit system; };
+            machine2 = shbNixpkgs;
           };
         };
 
@@ -195,13 +249,170 @@ is defined exclusively by the `selfhostblocks` input. It is more likely that you
 
           # Machine specific configuration goes here.
         };
-    };
+      };
+  };
+}
+```
+
+In the above snippet, `machine1` will use the `nixpkgs` version from your inputs
+while `machine2` will use the `nixpkgs` version from `selfhostblocks`.
+
+## Example Deployment with deploy-rs {#usage-example-deployrs}
+
+The following snippets show how to deploy Self Host Blocks using the deployment system [deploy-rs][].
+
+[deploy-rs]: https://github.com/serokell/deploy-rs
+
+```nix
+{
+  inputs = {
+    selfhostblocks.url = "github:ibizaman/selfhostblocks";
+  };
+
+  outputs = { self, selfhostblocks }: {
+    let
+      system = "x86_64-linux";
+      originPkgs = selfhostblocks.inputs.nixpkgs;
+      
+      shbNixpkgs = originPkgs.legacyPackages.${system}.applyPatches {
+        name = "nixpkgs-patched";
+        src = originPkgs;
+        patches = selfhostblocks.patches.${system};
+      };
+
+      shbPkgs = import shbNixpkgs { inherit system; };
+
+      deployPkgs = import originPkgs {
+        inherit system;
+        overlays = [
+          deploy-rs.overlay
+          (self: super: {
+            deploy-rs = {
+              inherit (shbPkgs) deploy-rs;
+              lib = super.deploy-rs.lib;
+            };
+          })
+        ];
+      };
+    in
+      nixosModules.machine = {
+        imports = [
+          selfhostblocks.nixosModules.${system}.default
+        ];
+      };
+
+      nixosConfigurations.machine = shbNixpkgs.lib.nixosSystem {
+        inherit system;
+        modules = [
+          self.nixosModules.machine
+        ];
+      };
+
+      deploy.nodes.machine = {
+        hostname = ...;
+        sshUser = ...;
+        sshOpts = [ ... ];
+        profiles = {
+          system = {
+            user = "root";
+            path = deployPkgs.deploy-rs.lib.activate.nixos self.nixosConfigurations.machine;
+          };
+        };
+      };
+
+      # From https://github.com/serokell/deploy-rs?tab=readme-ov-file#overall-usage
+      checks = builtins.mapAttrs (system: deployLib: deployLib.deployChecks self.deploy) deploy-rs.lib;
+  };
+}
+```
+
+The above snippet assumes one machine to deploy to,
+so `nixpkgs` is defined exclusively by the `selfhostblocks` input.
+It is more likely that you have multiple machines,
+some not using Self Host Blocks,
+in this case you can do:
+
+```nix
+{
+  inputs = {
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
+
+    selfhostblocks.url = "github:ibizaman/selfhostblocks";
+  };
+
+  outputs = { self, selfhostblocks }: {
+    let
+      system = "x86_64-linux";
+      originPkgs = selfhostblocks.inputs.nixpkgs;
+      
+      shbNixpkgs = originPkgs.legacyPackages.${system}.applyPatches {
+        name = "nixpkgs-patched";
+        src = originPkgs;
+        patches = selfhostblocks.patches.${system};
+      };
+
+      shbPkgs = import shbNixpkgs { inherit system; };
+
+      deployPkgs = import originPkgs {
+        inherit system;
+        overlays = [
+          deploy-rs.overlay
+          (self: super: {
+            deploy-rs = {
+              inherit (shbPkgs) deploy-rs;
+              lib = super.deploy-rs.lib;
+            };
+          })
+        ];
+      };
+    in
+      nixosModules.machine1 = {
+        # ...
+      };
+
+      nixosModules.machine2 = {
+        imports = [
+          selfhostblocks.nixosModules.${system}.default
+        ];
+      };
+
+      nixosConfigurations.machine1 = nixpkgs.lib.nixosSystem {
+        inherit system;
+        modules = [
+          self.nixosModules.machine1
+        ];
+      };
+
+      nixosConfigurations.machine2 = shbNixpkgs.lib.nixosSystem {
+        inherit system;
+        modules = [
+          self.nixosModules.machine2
+        ];
+      };
+
+      deploy.nodes.machine1 = {
+        hostname = ...;
+        sshUser = ...;
+        sshOpts = [ ... ];
+        profiles = {
+          system = {
+            user = "root";
+            path = deployPkgs.deploy-rs.lib.activate.nixos self.nixosConfigurations.machine1;
+          };
+        };
+      };
+  
+      deploy.nodes.machine2 = # Similar here
+
+      # From https://github.com/serokell/deploy-rs?tab=readme-ov-file#overall-usage
+      checks = builtins.mapAttrs (system: deployLib: deployLib.deployChecks self.deploy) deploy-rs.lib;
   };
 }
 ```
 
 In the above snippet, `machine1` will use the `nixpkgs` version from your inputs while `machine2`
 will use the `nixpkgs` version from `selfhostblocks`.
+
 
 ## Secrets with sops-nix {#usage-secrets}
 

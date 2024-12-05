@@ -1676,6 +1676,9 @@
   "usage-example-colmena": [
     "usage.html#usage-example-colmena"
   ],
+  "usage-example-deployrs": [
+    "usage.html#usage-example-deployrs"
+  ],
   "usage-example-nixosrebuild": [
     "usage.html#usage-example-nixosrebuild"
   ],
