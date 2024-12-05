@@ -85,6 +85,12 @@ which bootstraps a new server and sets up a few tools:
 
 [Skarabox]:  https://github.com/ibizaman/skarabox
 
+### Full Example
+
+See [full example][] in the manual.
+
+[full example]: https://shb.skarabox.com/usage.html#usage-complete-example
+
 ## Server Management
 
 Self Host Blocks provides a standardized configuration for [some services](https://shb.skarabox.com/services.html) provided by nixpkgs.
