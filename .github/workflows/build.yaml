@@ -20,22 +20,28 @@ jobs:
   path-filter:
     runs-on: ubuntu-latest
     outputs:
-      changed: ${{ steps.filter.outputs.changed }}
+      changed: ${{ steps.filter.outputs.any_changed }}
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - uses: dorny/paths-filter@v3
+      - uses: tj-actions/changed-files@v45
         id: filter
         with:
-          filters: |
-            changed:
-              - 'lib/**'
-              - 'modules/**'
-              - '!modules/**/docs/**'
-              - 'test/**'
-              - '.github/workflows/build.yaml'
+          files: |
+            lib/**
+            modules/**
+            !modules/**/docs/**
+            test/**
+            .github/workflows/build.yaml
+          separator: "\n"
+
+      - env:
+          ALL_CHANGED_FILES: ${{ steps.filter.outputs.all_changed_files }}
+        run: |
+          echo $ALL_CHANGED_FILES
+
 
   build-matrix:
     needs: [ "path-filter" ]
