@@ -183,6 +183,27 @@ in
       '';
     };
 
+    phpFpmPrometheusExporter = lib.mkOption {
+      description = "Settings for exporting";
+      default = {};
+
+      type = lib.types.submodule {
+        options = {
+          enable = lib.mkOption {
+            description = "Enable export of php-fpm metrics to Prometheus.";
+            type = lib.types.bool;
+            default = true;
+          };
+
+          port = lib.mkOption {
+            description = "Port on which the exporter will listen.";
+            type = lib.types.port;
+            default = 8300;
+          };
+        };
+      };
+    };
+
     apps = lib.mkOption {
       description = ''
         Applications to enable in Nextcloud. Enabling an application here will also configure
@@ -747,6 +768,27 @@ in
 
       systemd.services.nextcloud-setup.requires = cfg.mountPointServices;
       systemd.services.nextcloud-setup.after = cfg.mountPointServices;
+    })
+
+    (lib.mkIf cfg.phpFpmPrometheusExporter.enable {
+      services.prometheus.exporters.php-fpm = {
+        enable = true;
+        user = "nginx";
+        port = cfg.phpFpmPrometheusExporter.port;
+        listenAddress = "127.0.0.1";
+        environmentFile = pkgs.writeText "phpFpmExporterEnvFiles" ''
+        PHP_FPM_SCRAPE_URI=unix://${config.services.phpfpm.pools.nextcloud.socket}
+        '';
+      };
+
+      services.prometheus.scrapeConfigs = [
+        {
+          job_name = "phpfpm-nextcloud";
+          static_configs = [{
+            targets = ["127.0.0.1:${toString cfg.phpFpmPrometheusExporter.port}"];
+          }];
+        }
+      ];
     })
 
     (lib.mkIf (cfg.enable && cfg.apps.onlyoffice.enable) {

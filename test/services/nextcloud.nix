@@ -217,6 +217,24 @@ let
       };
     };
   };
+
+  prometheus = { config, ... }: {
+    shb.nextcloud = {
+      phpFpmPrometheusExporter.enable = true;
+    };
+  };
+
+  prometheusTestScript = { nodes, ... }:
+    ''
+    server.wait_for_open_unix_socket("${nodes.server.services.phpfpm.pools.nextcloud.socket}")
+    server.wait_for_open_port(${toString nodes.server.services.prometheus.exporters.php-fpm.port})
+    with subtest("prometheus"):
+        response = server.succeed(
+            "curl -sSf "
+            + " http://localhost:${toString nodes.server.services.prometheus.exporters.php-fpm.port}/metrics"
+        )
+        print(response)
+    '';
 in
 {
   basic = pkgs.testers.runNixOSTest {
@@ -342,5 +360,21 @@ in
     nodes.client = {};
   
     testScript = commonTestScript.access;
+  };
+
+  prometheus = pkgs.testers.runNixOSTest {
+    name = "nextcloud_prometheus";
+
+    nodes.server = { config, ... }: {
+      imports = [
+        base
+        basic
+        prometheus
+      ];
+    };
+
+    nodes.client = {};
+
+    testScript = prometheusTestScript;
   };
 }

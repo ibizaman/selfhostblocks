@@ -1418,6 +1418,15 @@
   "services-nextcloudserver-options-shb.nextcloud.phpFpmPoolSettings": [
     "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.phpFpmPoolSettings"
   ],
+  "services-nextcloudserver-options-shb.nextcloud.phpFpmPrometheusExporter": [
+    "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.phpFpmPrometheusExporter"
+  ],
+  "services-nextcloudserver-options-shb.nextcloud.phpFpmPrometheusExporter.enable": [
+    "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.phpFpmPrometheusExporter.enable"
+  ],
+  "services-nextcloudserver-options-shb.nextcloud.phpFpmPrometheusExporter.port": [
+    "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.phpFpmPrometheusExporter.port"
+  ],
   "services-nextcloudserver-options-shb.nextcloud.port": [
     "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.port"
   ],
