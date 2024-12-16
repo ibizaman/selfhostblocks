@@ -28,6 +28,15 @@
       };
       pkgs = import patchedNixpkgs {
         inherit system;
+
+        config = {
+          permittedInsecurePackages = [
+            # https://github.com/NixOS/nixpkgs/issues/360592
+            "aspnetcore-runtime-6.0.36"
+            # TODO: https://github.com/NixOS/nixpkgs/issues/326335
+            "dotnet-sdk-6.0.428"
+          ];
+        };
       };
 
       allModules = [
