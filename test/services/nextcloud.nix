@@ -158,9 +158,13 @@ let
         port = config.shb.ldap.ldapPort;
         dcdomain = config.shb.ldap.dcdomain;
         adminName = "admin";
-        adminPassword.result = config.shb.ldap.ldapUserPassword.result;
+        adminPassword.result = config.shb.hardcodedsecret.nextcloudLdapUserPassword.result;
         userGroup = "nextcloud_user";
       };
+    };
+    shb.hardcodedsecret.nextcloudLdapUserPassword = {
+      request = config.shb.nextcloud.apps.ldap.adminPassword.request;
+      settings = config.shb.hardcodedsecret.ldapUserPassword.settings;
     };
   };
 

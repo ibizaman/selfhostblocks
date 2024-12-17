@@ -739,6 +739,11 @@ in
       ];
       systemd.timers.nextcloud-cron.requires = cfg.mountPointServices;
       systemd.timers.nextcloud-cron.after = cfg.mountPointServices;
+      # This is needed to be able to run the cron job before opening the app for the first time.
+      # Otherwise the cron job fails while searching for this directory.
+      systemd.services.nextcloud-setup.script = ''
+        mkdir -p ${cfg.dataDir}/data/appdata_$(${occ} config:system:get instanceid)/theming/global
+      '';
 
       systemd.services.nextcloud-setup.requires = cfg.mountPointServices;
       systemd.services.nextcloud-setup.after = cfg.mountPointServices;
