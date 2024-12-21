@@ -168,7 +168,11 @@ in
     phpFpmPoolSettings = lib.mkOption {
       type = lib.types.nullOr (lib.types.attrsOf lib.types.anything);
       description = "Settings for PHPFPM.";
-      default = null;
+      default = {
+        "pm" = "static";
+        "pm.max_children" = 5;
+        "pm.start_servers" = 5;
+      };
       example = lib.literalExpression ''
       {
         "pm" = "dynamic";

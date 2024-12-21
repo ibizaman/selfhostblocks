@@ -98,10 +98,66 @@ The goal is to help spread adoption of self-hosting by providing an opinionated 
 
 Self Host Blocks takes care of common self-hosting needs:
 - Backup for all services.
+- Automatic creation of ZFS datasets per service.
 - LDAP and SSO integration for most services.
 - Monitoring with Grafana and Prometheus stack with provided dashboards.
 - Automatic reverse proxy and certificate management for HTTPS.
 - VPN and proxy tunneling services.
+
+### Services
+
+[Provided services](https://shb.skarabox.com/services.html) are:
+
+- Nextcloud
+- Audiobookshelf
+- Deluge + *arr stack
+- Forgejo
+- Grocy
+- Hledger
+- Home-Assistant
+- Jellyfin
+- Nextcloud
+- Vaultwarden
+
+Like explained above, those services all benefit from
+out of the box backup,
+LDAP and SSO integration,
+monitoring with Grafana,
+reverse proxy and certificate management
+and VPN integration for the *arr suite.
+
+Some services do not have an entry yet in the manual.
+To know options for those, the only way for now
+is to go to the [All Options][] section of the manual.
+
+[All Options]: https://shb.skarabox.com/options.html
+
+### Blocks
+
+To provided out of the box common functionality,
+the services above use the following [common blocks][]:
+
+[common blocks]: https://shb.skarabox.com/blocks.html
+
+- Authelia
+- BorgBackup
+- Davfs
+- LDAP
+- Monitoring (Grafana - Prometheus - Loki stack)
+- Nginx
+- PostgreSQL
+- Restic
+- Sops
+- SSL
+- Tinyproxy
+- VPN
+- ZFS
+
+Those blocks can be used outside of Self Host Blocks too.
+
+Some blocks do not have an entry yet in the manual.
+To know options for those, the only way for now
+is to go to the [All Options][] section of the manual.
 
 ### Unified Interfaces
 

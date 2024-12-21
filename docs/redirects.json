@@ -14,6 +14,9 @@
   "blocks-monitoring-configuration": [
     "blocks-monitoring.html#blocks-monitoring-configuration"
   ],
+  "blocks-monitoring-nextcloud-dashboard": [
+    "blocks-monitoring.html#blocks-monitoring-nextcloud-dashboard"
+  ],
   "blocks-monitoring-deluge-dashboard": [
     "blocks-monitoring.html#blocks-monitoring-deluge-dashboard"
   ],
@@ -25,6 +28,126 @@
   ],
   "blocks-monitoring-provisioning": [
     "blocks-monitoring.html#blocks-monitoring-provisioning"
+  ],
+  "blocks-monitoring-options": [
+    "blocks-monitoring.html#blocks-monitoring-options"
+  ],
+  "blocks-monitoring-options-shb.monitoring.adminPassword": [
+    "blocks-monitoring.html#blocks-monitoring-options-shb.monitoring.adminPassword"
+  ],
+  "blocks-monitoring-options-shb.monitoring.adminPassword.request": [
+    "blocks-monitoring.html#blocks-monitoring-options-shb.monitoring.adminPassword.request"
+  ],
+  "blocks-monitoring-options-shb.monitoring.adminPassword.request.group": [
+    "blocks-monitoring.html#blocks-monitoring-options-shb.monitoring.adminPassword.request.group"
+  ],
+  "blocks-monitoring-options-shb.monitoring.adminPassword.request.mode": [
+    "blocks-monitoring.html#blocks-monitoring-options-shb.monitoring.adminPassword.request.mode"
+  ],
+  "blocks-monitoring-options-shb.monitoring.adminPassword.request.owner": [
+    "blocks-monitoring.html#blocks-monitoring-options-shb.monitoring.adminPassword.request.owner"
+  ],
+  "blocks-monitoring-options-shb.monitoring.adminPassword.request.restartUnits": [
+    "blocks-monitoring.html#blocks-monitoring-options-shb.monitoring.adminPassword.request.restartUnits"
+  ],
+  "blocks-monitoring-options-shb.monitoring.adminPassword.result": [
+    "blocks-monitoring.html#blocks-monitoring-options-shb.monitoring.adminPassword.result"
+  ],
+  "blocks-monitoring-options-shb.monitoring.adminPassword.result.path": [
+    "blocks-monitoring.html#blocks-monitoring-options-shb.monitoring.adminPassword.result.path"
+  ],
+  "blocks-monitoring-options-shb.monitoring.contactPoints": [
+    "blocks-monitoring.html#blocks-monitoring-options-shb.monitoring.contactPoints"
+  ],
+  "blocks-monitoring-options-shb.monitoring.debugLog": [
+    "blocks-monitoring.html#blocks-monitoring-options-shb.monitoring.debugLog"
+  ],
+  "blocks-monitoring-options-shb.monitoring.domain": [
+    "blocks-monitoring.html#blocks-monitoring-options-shb.monitoring.domain"
+  ],
+  "blocks-monitoring-options-shb.monitoring.enable": [
+    "blocks-monitoring.html#blocks-monitoring-options-shb.monitoring.enable"
+  ],
+  "blocks-monitoring-options-shb.monitoring.grafanaPort": [
+    "blocks-monitoring.html#blocks-monitoring-options-shb.monitoring.grafanaPort"
+  ],
+  "blocks-monitoring-options-shb.monitoring.lokiMajorVersion": [
+    "blocks-monitoring.html#blocks-monitoring-options-shb.monitoring.lokiMajorVersion"
+  ],
+  "blocks-monitoring-options-shb.monitoring.lokiPort": [
+    "blocks-monitoring.html#blocks-monitoring-options-shb.monitoring.lokiPort"
+  ],
+  "blocks-monitoring-options-shb.monitoring.orgId": [
+    "blocks-monitoring.html#blocks-monitoring-options-shb.monitoring.orgId"
+  ],
+  "blocks-monitoring-options-shb.monitoring.prometheusPort": [
+    "blocks-monitoring.html#blocks-monitoring-options-shb.monitoring.prometheusPort"
+  ],
+  "blocks-monitoring-options-shb.monitoring.provisionDashboards": [
+    "blocks-monitoring.html#blocks-monitoring-options-shb.monitoring.provisionDashboards"
+  ],
+  "blocks-monitoring-options-shb.monitoring.secretKey": [
+    "blocks-monitoring.html#blocks-monitoring-options-shb.monitoring.secretKey"
+  ],
+  "blocks-monitoring-options-shb.monitoring.secretKey.request": [
+    "blocks-monitoring.html#blocks-monitoring-options-shb.monitoring.secretKey.request"
+  ],
+  "blocks-monitoring-options-shb.monitoring.secretKey.request.group": [
+    "blocks-monitoring.html#blocks-monitoring-options-shb.monitoring.secretKey.request.group"
+  ],
+  "blocks-monitoring-options-shb.monitoring.secretKey.request.mode": [
+    "blocks-monitoring.html#blocks-monitoring-options-shb.monitoring.secretKey.request.mode"
+  ],
+  "blocks-monitoring-options-shb.monitoring.secretKey.request.owner": [
+    "blocks-monitoring.html#blocks-monitoring-options-shb.monitoring.secretKey.request.owner"
+  ],
+  "blocks-monitoring-options-shb.monitoring.secretKey.request.restartUnits": [
+    "blocks-monitoring.html#blocks-monitoring-options-shb.monitoring.secretKey.request.restartUnits"
+  ],
+  "blocks-monitoring-options-shb.monitoring.secretKey.result": [
+    "blocks-monitoring.html#blocks-monitoring-options-shb.monitoring.secretKey.result"
+  ],
+  "blocks-monitoring-options-shb.monitoring.secretKey.result.path": [
+    "blocks-monitoring.html#blocks-monitoring-options-shb.monitoring.secretKey.result.path"
+  ],
+  "blocks-monitoring-options-shb.monitoring.smtp": [
+    "blocks-monitoring.html#blocks-monitoring-options-shb.monitoring.smtp"
+  ],
+  "blocks-monitoring-options-shb.monitoring.smtp.from_address": [
+    "blocks-monitoring.html#blocks-monitoring-options-shb.monitoring.smtp.from_address"
+  ],
+  "blocks-monitoring-options-shb.monitoring.smtp.from_name": [
+    "blocks-monitoring.html#blocks-monitoring-options-shb.monitoring.smtp.from_name"
+  ],
+  "blocks-monitoring-options-shb.monitoring.smtp.host": [
+    "blocks-monitoring.html#blocks-monitoring-options-shb.monitoring.smtp.host"
+  ],
+  "blocks-monitoring-options-shb.monitoring.smtp.passwordFile": [
+    "blocks-monitoring.html#blocks-monitoring-options-shb.monitoring.smtp.passwordFile"
+  ],
+  "blocks-monitoring-options-shb.monitoring.smtp.port": [
+    "blocks-monitoring.html#blocks-monitoring-options-shb.monitoring.smtp.port"
+  ],
+  "blocks-monitoring-options-shb.monitoring.smtp.username": [
+    "blocks-monitoring.html#blocks-monitoring-options-shb.monitoring.smtp.username"
+  ],
+  "blocks-monitoring-options-shb.monitoring.ssl": [
+    "blocks-monitoring.html#blocks-monitoring-options-shb.monitoring.ssl"
+  ],
+  "blocks-monitoring-options-shb.monitoring.ssl.paths": [
+    "blocks-monitoring.html#blocks-monitoring-options-shb.monitoring.ssl.paths"
+  ],
+  "blocks-monitoring-options-shb.monitoring.ssl.paths.cert": [
+    "blocks-monitoring.html#blocks-monitoring-options-shb.monitoring.ssl.paths.cert"
+  ],
+  "blocks-monitoring-options-shb.monitoring.ssl.paths.key": [
+    "blocks-monitoring.html#blocks-monitoring-options-shb.monitoring.ssl.paths.key"
+  ],
+  "blocks-monitoring-options-shb.monitoring.ssl.systemdService": [
+    "blocks-monitoring.html#blocks-monitoring-options-shb.monitoring.ssl.systemdService"
+  ],
+  "blocks-monitoring-options-shb.monitoring.subdomain": [
+    "blocks-monitoring.html#blocks-monitoring-options-shb.monitoring.subdomain"
   ],
   "blocks-postgresql": [
     "blocks-postgresql.html#blocks-postgresql"
@@ -1136,8 +1259,8 @@
   "services-nextcloudserver-features": [
     "services-nextcloud.html#services-nextcloudserver-features"
   ],
-  "services-nextcloudserver-maintenance": [
-    "services-nextcloud.html#services-nextcloudserver-maintenance"
+  "services-nextcloudserver-dashboard": [
+    "services-nextcloud.html#services-nextcloudserver-dashboard"
   ],
   "services-nextcloudserver-options": [
     "services-nextcloud.html#services-nextcloudserver-options"

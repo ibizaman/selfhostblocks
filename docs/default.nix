@@ -137,6 +137,11 @@ in stdenv.mkDerivation {
         '@OPTIONS_JSON@' \
         ${individualModuleOptionsDocs [ ../modules/blocks/ssl.nix ]}/share/doc/nixos/options.json
 
+    substituteInPlace ./modules/blocks/monitoring/docs/default.md \
+      --replace \
+        '@OPTIONS_JSON@' \
+       ${individualModuleOptionsDocs [ ../modules/blocks/monitoring.nix ]}/share/doc/nixos/options.json
+
     substituteInPlace ./modules/blocks/postgresql/docs/default.md \
       --replace \
         '@OPTIONS_JSON@' \
