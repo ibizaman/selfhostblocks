@@ -6,6 +6,11 @@ let
   contracts = pkgs.callPackage ../contracts {};
 
   fqdn = "${cfg.subdomain}.${cfg.domain}";
+
+  commonLabels = {
+    hostname = config.networking.hostName;
+    domain = cfg.domain;
+  };
 in
 {
   options.shb.monitoring = {
@@ -406,6 +411,8 @@ in
               path = "/var/log/journal";
               # matches = "_TRANSPORT=kernel";
               labels = {
+                domain = cfg.domain;
+                hostname = config.networking.hostName;
                 job = "systemd-journal";
               };
             };
@@ -443,6 +450,7 @@ in
         job_name = "node";
         static_configs = [{
           targets = ["127.0.0.1:${toString config.services.prometheus.exporters.node.port}"];
+          labels = commonLabels;
         }];
       }
       {
@@ -452,24 +460,28 @@ in
         honor_labels = true;
         static_configs = [{
           targets = [ "127.0.0.1:19999" ];
+          labels = commonLabels;
         }];
       }
       {
         job_name = "smartctl";
         static_configs = [{
           targets = ["127.0.0.1:${toString config.services.prometheus.exporters.smartctl.port}"];
+          labels = commonLabels;
         }];
       }
       {
         job_name = "prometheus_internal";
         static_configs = [{
           targets = ["127.0.0.1:${toString config.services.prometheus.port}"];
+          labels = commonLabels;
         }];
       }
     ] ++ (lib.lists.optional config.services.nginx.enable {
         job_name = "nginx";
         static_configs = [{
           targets = ["127.0.0.1:${toString config.services.prometheus.exporters.nginx.port}"];
+          labels = commonLabels;
         }];
     # }) ++ (lib.optional (builtins.length (lib.attrNames config.services.redis.servers) > 0) {
     #     job_name = "redis";
@@ -489,6 +501,7 @@ in
         job_name = "dnsmasq";
         static_configs = [{
           targets = ["127.0.0.1:${toString config.services.prometheus.exporters.dnsmasq.port}"];
+          labels = commonLabels;
         }];
     });
     services.prometheus.exporters.nginx = lib.mkIf config.services.nginx.enable {

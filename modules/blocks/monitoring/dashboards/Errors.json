@@ -20,7 +20,6 @@
   "graphTooltip": 0,
   "id": 8,
   "links": [],
-  "liveNow": false,
   "panels": [
     {
       "datasource": {
@@ -39,6 +38,7 @@
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
+            "barWidthFactor": 0.6,
             "drawStyle": "line",
             "fillOpacity": 0,
             "gradientMode": "none",
@@ -110,7 +110,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "10.2.0",
+      "pluginVersion": "11.4.0",
       "targets": [
         {
           "datasource": {
@@ -182,6 +182,7 @@
             "axisPlacement": "auto",
             "axisSoftMin": 0.5,
             "barAlignment": 0,
+            "barWidthFactor": 0.6,
             "drawStyle": "line",
             "fillOpacity": 0,
             "gradientMode": "none",
@@ -254,7 +255,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "10.2.0",
+      "pluginVersion": "11.4.0",
       "targets": [
         {
           "datasource": {
@@ -325,6 +326,7 @@
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
+            "barWidthFactor": 0.6,
             "drawStyle": "line",
             "fillOpacity": 0,
             "gradientMode": "none",
@@ -398,7 +400,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "10.2.0",
+      "pluginVersion": "11.4.0",
       "targets": [
         {
           "datasource": {
@@ -457,6 +459,10 @@
         "type": "loki",
         "uid": "cd6cc53e-840c-484d-85f7-96fede324006"
       },
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
       "gridPos": {
         "h": 8,
         "w": 24,
@@ -474,6 +480,7 @@
         "sortOrder": "Descending",
         "wrapLogMessage": false
       },
+      "pluginVersion": "11.4.0",
       "targets": [
         {
           "datasource": {
@@ -512,8 +519,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -743,28 +749,23 @@
       "type": "table"
     }
   ],
+  "preload": false,
   "refresh": "",
-  "schemaVersion": 38,
+  "schemaVersion": 40,
   "tags": [],
   "templating": {
     "list": [
       {
         "allValue": ".+",
         "current": {
-          "selected": true,
-          "text": [
-            "All"
-          ],
-          "value": [
-            "$__all"
-          ]
+          "text": "All",
+          "value": "$__all"
         },
         "datasource": {
           "type": "prometheus",
           "uid": "df80f9f5-97d7-4112-91d8-72f523a02b09"
         },
         "definition": "query_result(max by (name) (node_systemd_unit_state))",
-        "hide": 0,
         "includeAll": true,
         "multi": true,
         "name": "service",
@@ -776,27 +777,23 @@
         },
         "refresh": 1,
         "regex": "/name=\"(?<value>.*)\\.service\"/",
-        "skipUrlSync": false,
         "sort": 1,
         "type": "query"
       },
       {
         "current": {
-          "selected": false,
-          "text": "",
-          "value": ""
+          "text": ".+",
+          "value": ".+"
         },
-        "hide": 0,
         "name": "server_name",
         "options": [
           {
             "selected": true,
-            "text": "",
-            "value": ""
+            "text": ".+",
+            "value": ".+"
           }
         ],
         "query": ".+",
-        "skipUrlSync": false,
         "type": "textbox"
       }
     ]
@@ -809,6 +806,6 @@
   "timezone": "",
   "title": "Errors",
   "uid": "d66242cf-71e8-417c-8ef7-51b0741545df",
-  "version": 29,
+  "version": 32,
   "weekStart": ""
 }

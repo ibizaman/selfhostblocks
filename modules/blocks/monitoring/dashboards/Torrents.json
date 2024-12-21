@@ -92,7 +92,7 @@
         "sizing": "auto",
         "text": {}
       },
-      "pluginVersion": "11.0.0",
+      "pluginVersion": "11.4.0",
       "repeat": "mountpoint",
       "repeatDirection": "v",
       "targets": [
@@ -102,7 +102,7 @@
             "uid": "df80f9f5-97d7-4112-91d8-72f523a02b09"
           },
           "editorMode": "code",
-          "expr": "node_filesystem_size_bytes{mountpoint=\"$mountpoint\"} - node_filesystem_free_bytes{mountpoint=\"$mountpoint\"}",
+          "expr": "node_filesystem_size_bytes{hostname=~\"$hostname\",mountpoint=\"$mountpoint\"} - node_filesystem_free_bytes{hostname=~\"$hostname\",mountpoint=\"$mountpoint\"}",
           "instant": false,
           "legendFormat": "__auto",
           "range": true,
@@ -114,7 +114,7 @@
             "uid": "df80f9f5-97d7-4112-91d8-72f523a02b09"
           },
           "editorMode": "code",
-          "expr": "node_filesystem_size_bytes{mountpoint=\"$mountpoint\"}",
+          "expr": "node_filesystem_size_bytes{hostname=~\"$hostname\",mountpoint=\"$mountpoint\"}",
           "hide": false,
           "instant": false,
           "legendFormat": "__auto",
@@ -277,15 +277,16 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.3.0+security-01",
+      "pluginVersion": "11.4.0",
       "targets": [
         {
           "datasource": {
             "type": "prometheus",
             "uid": "df80f9f5-97d7-4112-91d8-72f523a02b09"
           },
+          "editorMode": "code",
           "exemplar": true,
-          "expr": "deluge_torrents",
+          "expr": "deluge_torrents{hostname=~\"$hostname\"}",
           "instant": false,
           "interval": "",
           "legendFormat": "{{state}}",
@@ -381,7 +382,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "11.3.0+security-01",
+      "pluginVersion": "11.4.0",
       "targets": [
         {
           "datasource": {
@@ -389,7 +390,7 @@
             "uid": "df80f9f5-97d7-4112-91d8-72f523a02b09"
           },
           "editorMode": "code",
-          "expr": "deluge_torrent_done_total{state=\"downloading\"} / deluge_torrent_size_total{state=\"downloading\"}",
+          "expr": "deluge_torrent_done_total{hostname=~\"$hostname\",state=\"downloading\",name=~\"$torrent\"} / deluge_torrent_size_total{hostname=~\"$hostname\",state=\"downloading\",name=~\"$torrent\"}",
           "legendFormat": "{{name}}",
           "range": true,
           "refId": "A"
@@ -472,7 +473,7 @@
         "sizing": "auto",
         "valueMode": "color"
       },
-      "pluginVersion": "11.3.0+security-01",
+      "pluginVersion": "11.4.0",
       "targets": [
         {
           "datasource": {
@@ -481,7 +482,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "deluge_torrent_time_since_download{state=\"downloading\",name=~\"$torrent\"}",
+          "expr": "deluge_torrent_time_since_download{hostname=~\"$hostname\",state=\"downloading\",name=~\"$torrent\"}",
           "instant": true,
           "interval": "",
           "legendFormat": "{{name}}",
@@ -603,7 +604,7 @@
         "sizing": "auto",
         "valueMode": "color"
       },
-      "pluginVersion": "11.3.0+security-01",
+      "pluginVersion": "11.4.0",
       "targets": [
         {
           "datasource": {
@@ -612,7 +613,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "time()-deluge_torrent_last_seen_complete{state=\"downloading\",name=~\"$torrent\"}",
+          "expr": "time()-deluge_torrent_last_seen_complete{hostname=~\"$hostname\",state=\"downloading\",name=~\"$torrent\"}",
           "instant": true,
           "interval": "",
           "legendFormat": "{{name}}",
@@ -740,20 +741,25 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "11.3.0+security-01",
+      "pluginVersion": "11.4.0",
       "targets": [
         {
           "datasource": {
             "type": "prometheus",
             "uid": "df80f9f5-97d7-4112-91d8-72f523a02b09"
           },
+          "disableTextWrap": false,
           "editorMode": "code",
           "exemplar": true,
-          "expr": "rate(node_network_receive_bytes_total{device=\"tun1\"}[1m])",
+          "expr": "avg by(device) (rate(node_network_receive_bytes_total{hostname=~\"$hostname\",device=~\"tun.*\"}[5m]))",
+          "fullMetaSearch": false,
+          "hide": false,
+          "includeNullMetadata": true,
           "interval": "",
-          "legendFormat": "in",
+          "legendFormat": "in: {{ device }}",
           "range": true,
-          "refId": "A"
+          "refId": "A",
+          "useBackend": false
         },
         {
           "datasource": {
@@ -762,10 +768,10 @@
           },
           "editorMode": "code",
           "exemplar": true,
-          "expr": "rate(node_network_transmit_bytes_total{device=\"tun1\"}[1m])",
+          "expr": "-avg by(device) (rate(node_network_transmit_bytes_total{device=~\"tun.*\"}[5m]))",
           "hide": false,
           "interval": "",
-          "legendFormat": "out",
+          "legendFormat": "out: {{ device }}",
           "range": true,
           "refId": "B"
         }
@@ -866,7 +872,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "11.3.0+security-01",
+      "pluginVersion": "11.4.0",
       "targets": [
         {
           "datasource": {
@@ -875,7 +881,7 @@
           },
           "editorMode": "code",
           "exemplar": true,
-          "expr": "netdata_systemd_service_unit_state_state_average{unit_name=~\"deluged|delugeweb|openvpn.+\",dimension=\"active\"}",
+          "expr": "netdata_systemd_service_unit_state_state_average{hostname=~\"$hostname\",unit_name=~\"deluged|delugeweb|openvpn.+\",dimension=\"active\"}",
           "interval": "",
           "legendFormat": "{{unit_name}}",
           "range": true,
@@ -911,7 +917,7 @@
         "sortOrder": "Descending",
         "wrapLogMessage": false
       },
-      "pluginVersion": "11.3.0+security-01",
+      "pluginVersion": "11.4.0",
       "targets": [
         {
           "datasource": {
@@ -919,7 +925,7 @@
             "uid": "cd6cc53e-840c-484d-85f7-96fede324006"
           },
           "editorMode": "code",
-          "expr": "{unit=\"deluged.service\",level=~\"$level\"}",
+          "expr": "{hostname=~\"$hostname\",unit=\"deluged.service\",level=~\"$level\"}",
           "queryType": "range",
           "refId": "A"
         }
@@ -953,7 +959,7 @@
         "sortOrder": "Descending",
         "wrapLogMessage": false
       },
-      "pluginVersion": "11.3.0+security-01",
+      "pluginVersion": "11.4.0",
       "targets": [
         {
           "datasource": {
@@ -961,7 +967,7 @@
             "uid": "cd6cc53e-840c-484d-85f7-96fede324006"
           },
           "editorMode": "code",
-          "expr": "{unit=\"deluged.service\"} |= \"on_alert_external_ip\" | regexp \".+on_alert_external_ip: (?P<ip>.+)\" | line_format \"{{.ip}}\"",
+          "expr": "{hostname=~\"$hostname\",unit=\"deluged.service\"} |= \"on_alert_external_ip\" | regexp \".+on_alert_external_ip: (?P<ip>.+)\" | line_format \"{{.ip}}\"",
           "queryType": "range",
           "refId": "A"
         }
@@ -995,7 +1001,7 @@
         "sortOrder": "Descending",
         "wrapLogMessage": false
       },
-      "pluginVersion": "11.3.0+security-01",
+      "pluginVersion": "11.4.0",
       "targets": [
         {
           "datasource": {
@@ -1003,7 +1009,7 @@
             "uid": "cd6cc53e-840c-484d-85f7-96fede324006"
           },
           "editorMode": "code",
-          "expr": "{unit=~\"openvpn.+.service\"} |= \"config -s listen_interface\" | pattern \"<_> listen_interface <ip>'\" | line_format \"{{.ip}}\"",
+          "expr": "{hostname=~\"$hostname\",unit=~\"openvpn.+.service\"} |= \"config -s listen_interface\" | pattern \"<_> listen_interface <ip>'\" | line_format \"{{.ip}}\"",
           "queryType": "range",
           "refId": "A"
         }
@@ -1037,7 +1043,7 @@
         "sortOrder": "Descending",
         "wrapLogMessage": false
       },
-      "pluginVersion": "11.3.0+security-01",
+      "pluginVersion": "11.4.0",
       "targets": [
         {
           "datasource": {
@@ -1045,7 +1051,7 @@
             "uid": "cd6cc53e-840c-484d-85f7-96fede324006"
           },
           "editorMode": "code",
-          "expr": "{unit=~\"openvpn.+.service\",level=~\"$level\"}",
+          "expr": "{hostname=~\"$hostname\",unit=~\"openvpn.+.service\",level=~\"$level\"}",
           "legendFormat": "",
           "queryType": "range",
           "refId": "A"
@@ -1061,34 +1067,6 @@
   "tags": [],
   "templating": {
     "list": [
-      {
-        "allValue": ".*",
-        "current": {
-          "text": [
-            "$__all"
-          ],
-          "value": [
-            "$__all"
-          ]
-        },
-        "includeAll": true,
-        "multi": true,
-        "name": "level",
-        "options": [
-          {
-            "selected": false,
-            "text": "warning",
-            "value": "warning"
-          },
-          {
-            "selected": false,
-            "text": "error",
-            "value": "error"
-          }
-        ],
-        "query": "warning,error",
-        "type": "custom"
-      },
       {
         "current": {
           "text": [
@@ -1124,6 +1102,23 @@
       },
       {
         "current": {
+          "text": "baryum",
+          "value": "baryum"
+        },
+        "definition": "label_values(up,hostname)",
+        "name": "hostname",
+        "options": [],
+        "query": {
+          "qryType": 1,
+          "query": "label_values(up,hostname)",
+          "refId": "PrometheusVariableQueryEditor-VariableQuery"
+        },
+        "refresh": 1,
+        "regex": "",
+        "type": "query"
+      },
+      {
+        "current": {
           "text": "All",
           "value": "$__all"
         },
@@ -1155,6 +1150,6 @@
   "timezone": "",
   "title": "Torrents",
   "uid": "Bg5L6T17k",
-  "version": 16,
+  "version": 22,
   "weekStart": ""
 }

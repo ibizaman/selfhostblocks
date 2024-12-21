@@ -525,6 +525,10 @@ in
         static_configs = [
           {
             targets = ["127.0.0.1:9959"];
+            labels = {
+              "hostname" = config.networking.hostName;
+              "domain" = cfg.domain;
+            };
           }
         ];
       }

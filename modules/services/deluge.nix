@@ -392,6 +392,10 @@ in
         job_name = "deluge";
         static_configs = [{
           targets = ["127.0.0.1:${toString config.services.prometheus.exporters.deluge.port}"];
+          labels = {
+            "hostname" = config.networking.hostName;
+            "domain" = cfg.domain;
+          };
         }];
       }
     ];
