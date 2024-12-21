@@ -290,6 +290,10 @@ in
       static_configs = [
         {
           targets = ["127.0.0.1:8096"];
+          labels = {
+            "hostname" = config.networking.hostName;
+            "domain" = cfg.domain;
+          };
         }
       ];
     }];

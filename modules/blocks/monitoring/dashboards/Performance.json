@@ -20,9 +20,9 @@
   "graphTooltip": 0,
   "id": 6,
   "links": [],
-  "liveNow": false,
   "panels": [
     {
+      "collapsed": false,
       "gridPos": {
         "h": 1,
         "w": 24,
@@ -30,6 +30,7 @@
         "y": 0
       },
       "id": 12,
+      "panels": [],
       "title": "Node",
       "type": "row"
     },
@@ -51,6 +52,7 @@
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
+            "barWidthFactor": 0.6,
             "drawStyle": "line",
             "fillOpacity": 0,
             "gradientMode": "none",
@@ -204,6 +206,7 @@
           "sort": "none"
         }
       },
+      "pluginVersion": "11.4.0",
       "targets": [
         {
           "datasource": {
@@ -211,7 +214,7 @@
             "uid": "df80f9f5-97d7-4112-91d8-72f523a02b09"
           },
           "editorMode": "code",
-          "expr": "netdata_system_memory_full_pressure_stall_time_ms_average{instance=~\"$instance\"} * -1",
+          "expr": "netdata_system_memory_full_pressure_stall_time_ms_average{hostname=~\"$hostname\"} * -1",
           "hide": false,
           "instant": false,
           "legendFormat": "full stall time",
@@ -269,6 +272,7 @@
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
+            "barWidthFactor": 0.6,
             "drawStyle": "line",
             "fillOpacity": 0,
             "gradientMode": "none",
@@ -422,6 +426,7 @@
           "sort": "none"
         }
       },
+      "pluginVersion": "11.4.0",
       "targets": [
         {
           "datasource": {
@@ -429,7 +434,7 @@
             "uid": "df80f9f5-97d7-4112-91d8-72f523a02b09"
           },
           "editorMode": "code",
-          "expr": "netdata_system_memory_full_pressure_stall_time_ms_average{instance=~\"$instance\"} * -1",
+          "expr": "netdata_system_memory_full_pressure_stall_time_ms_average{hostname=~\"$hostname\"} * -1",
           "hide": false,
           "instant": false,
           "legendFormat": "full stall time",
@@ -456,7 +461,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "code",
-          "expr": "sum by(dimension, service_name) (netdata_systemd_service_memory_usage_MiB_average{instance=~\"$instance\", service_name=~\"$service\", dimension=\"swap\"})",
+          "expr": "sum by(dimension, service_name) (netdata_systemd_service_memory_usage_MiB_average{hostname=~\"$hostname\", service_name=~\"$service\", dimension=\"swap\"})",
           "fullMetaSearch": false,
           "hide": false,
           "includeNullMetadata": true,
@@ -487,6 +492,7 @@
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
+            "barWidthFactor": 0.6,
             "drawStyle": "line",
             "fillOpacity": 0,
             "gradientMode": "none",
@@ -597,6 +603,7 @@
           "sort": "none"
         }
       },
+      "pluginVersion": "11.4.0",
       "targets": [
         {
           "datasource": {
@@ -604,7 +611,7 @@
             "uid": "df80f9f5-97d7-4112-91d8-72f523a02b09"
           },
           "editorMode": "code",
-          "expr": "netdata_system_cpu_some_pressure_stall_time_ms_average{instance=~\"$instance\"} * -1",
+          "expr": "netdata_system_cpu_some_pressure_stall_time_ms_average{hostname=~\"$hostname\"} * -1",
           "hide": false,
           "instant": false,
           "legendFormat": "some stall time",
@@ -618,7 +625,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "code",
-          "expr": "sum by(dimension, service_name) (netdata_systemd_service_cpu_utilization_percentage_average{instance=~\"$instance\", service_name=~\"$service\"})",
+          "expr": "sum by(dimension, service_name) (netdata_systemd_service_cpu_utilization_percentage_average{hostname=~\"$hostname\", service_name=~\"$service\"})",
           "fullMetaSearch": false,
           "hide": false,
           "includeNullMetadata": true,
@@ -649,6 +656,7 @@
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
+            "barWidthFactor": 0.6,
             "drawStyle": "line",
             "fillOpacity": 0,
             "gradientMode": "none",
@@ -814,6 +822,7 @@
           "sort": "none"
         }
       },
+      "pluginVersion": "11.4.0",
       "targets": [
         {
           "datasource": {
@@ -821,7 +830,7 @@
             "uid": "df80f9f5-97d7-4112-91d8-72f523a02b09"
           },
           "editorMode": "code",
-          "expr": "netdata_system_io_full_pressure_stall_time_ms_average{instance=~\"$instance\"} * -1",
+          "expr": "netdata_system_io_full_pressure_stall_time_ms_average{hostname=~\"$hostname\"} * -1",
           "hide": false,
           "instant": false,
           "legendFormat": "full stall time",
@@ -878,6 +887,7 @@
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
+            "barWidthFactor": 0.6,
             "drawStyle": "line",
             "fillOpacity": 0,
             "gradientMode": "none",
@@ -943,6 +953,7 @@
           "sort": "none"
         }
       },
+      "pluginVersion": "11.4.0",
       "targets": [
         {
           "datasource": {
@@ -950,7 +961,7 @@
             "uid": "df80f9f5-97d7-4112-91d8-72f523a02b09"
           },
           "editorMode": "code",
-          "expr": "netdata_disk_io_KiB_persec_average{instance=~\"$instance\", chart=~\"disk.sd.+\"}",
+          "expr": "netdata_disk_io_KiB_persec_average{hostname=~\"$hostname\", chart=~\"disk.sd.+\"}",
           "instant": false,
           "legendFormat": "{{device}} / {{dimension}}",
           "range": true,
@@ -1031,7 +1042,8 @@
           "layout": "auto"
         },
         "tooltip": {
-          "show": true,
+          "mode": "single",
+          "showColorScale": false,
           "yHistogram": false
         },
         "yAxis": {
@@ -1041,7 +1053,7 @@
           "unit": "s"
         }
       },
-      "pluginVersion": "10.2.0",
+      "pluginVersion": "11.4.0",
       "targets": [
         {
           "datasource": {
@@ -1049,7 +1061,7 @@
             "uid": "cd6cc53e-840c-484d-85f7-96fede324006"
           },
           "editorMode": "code",
-          "expr": "{unit=\"nginx.service\"} | pattern \"<_> <_> <line>\" | line_format \"{{.line}}\" | json | __error__ != \"JSONParserErr\" | request_time > 100",
+          "expr": "{hostname=~\"$hostname\",unit=\"nginx.service\"} | pattern \"<_> <_> <line>\" | line_format \"{{.line}}\" | json | __error__ != \"JSONParserErr\" | request_time > 100",
           "legendFormat": "{{server_name}}",
           "queryType": "range",
           "refId": "A"
@@ -1145,6 +1157,7 @@
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
+            "barWidthFactor": 0.6,
             "drawStyle": "points",
             "fillOpacity": 0,
             "gradientMode": "none",
@@ -1175,7 +1188,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -1210,7 +1224,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "10.2.0",
+      "pluginVersion": "11.4.0",
       "targets": [
         {
           "datasource": {
@@ -1218,7 +1232,7 @@
             "uid": "cd6cc53e-840c-484d-85f7-96fede324006"
           },
           "editorMode": "code",
-          "expr": "{unit=\"nginx.service\"} | pattern \"<_> <_> <line>\" | line_format \"{{.line}}\" | json | __error__ != \"JSONParserErr\" | request_time > 100",
+          "expr": "{hostname=~\"$hostname\",unit=\"nginx.service\"} | pattern \"<_> <_> <line>\" | line_format \"{{.line}}\" | json | __error__ != \"JSONParserErr\" | request_time > 100",
           "legendFormat": "",
           "queryType": "range",
           "refId": "A"
@@ -1317,7 +1331,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -1354,7 +1369,7 @@
         },
         "showHeader": true
       },
-      "pluginVersion": "10.2.0",
+      "pluginVersion": "11.4.0",
       "targets": [
         {
           "datasource": {
@@ -1362,7 +1377,7 @@
             "uid": "cd6cc53e-840c-484d-85f7-96fede324006"
           },
           "editorMode": "code",
-          "expr": "{unit=\"nginx.service\"} | pattern \"<_> <_> <line>\" | line_format \"{{.line}}\" | json | __error__ != \"JSONParserErr\" | request_time > 1",
+          "expr": "{hostname=~\"$hostname\",unit=\"nginx.service\"} | pattern \"<_> <_> <line>\" | line_format \"{{.line}}\" | json | __error__ != \"JSONParserErr\" | request_time > 1",
           "queryType": "range",
           "refId": "A"
         }
@@ -1411,7 +1426,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -1472,7 +1488,7 @@
         },
         "showHeader": true
       },
-      "pluginVersion": "10.2.0",
+      "pluginVersion": "11.4.0",
       "targets": [
         {
           "datasource": {
@@ -1480,7 +1496,7 @@
             "uid": "cd6cc53e-840c-484d-85f7-96fede324006"
           },
           "editorMode": "code",
-          "expr": "{unit=\"postgresql.service\"} | regexp \".*duration: (?P<duration_ms>[0-9.]+) ms (?P<statement>.*)\" | duration_ms > 500 | __error__ != \"LabelFilterErr\"",
+          "expr": "{hostname=~\"$hostname\",unit=\"postgresql.service\"} | regexp \".*duration: (?P<duration_ms>[0-9.]+) ms (?P<statement>.*)\" | duration_ms > 500 | __error__ != \"LabelFilterErr\"",
           "queryType": "range",
           "refId": "A"
         }
@@ -1513,56 +1529,55 @@
       "type": "table"
     }
   ],
+  "preload": false,
   "refresh": "1m",
-  "schemaVersion": 38,
+  "schemaVersion": 40,
   "tags": [],
   "templating": {
     "list": [
       {
         "allValue": ".*",
         "current": {
-          "selected": true,
           "text": [
-            "127.0.0.1:19999"
+            "baryum"
           ],
           "value": [
-            "127.0.0.1:19999"
+            "baryum"
           ]
         },
         "datasource": {
           "type": "prometheus",
           "uid": "df80f9f5-97d7-4112-91d8-72f523a02b09"
         },
-        "definition": "label_values(netdata_systemd_service_unit_state_state_average,instance)",
-        "hide": 0,
+        "definition": "label_values(netdata_systemd_service_unit_state_state_average,hostname)",
         "includeAll": false,
         "multi": true,
-        "name": "instance",
+        "name": "hostname",
         "options": [],
         "query": {
           "qryType": 1,
-          "query": "label_values(netdata_systemd_service_unit_state_state_average,instance)",
+          "query": "label_values(netdata_systemd_service_unit_state_state_average,hostname)",
           "refId": "PrometheusVariableQueryEditor-VariableQuery"
         },
         "refresh": 1,
         "regex": "",
-        "skipUrlSync": false,
-        "sort": 0,
         "type": "query"
       },
       {
         "allValue": ".*",
         "current": {
-          "selected": false,
-          "text": "All",
-          "value": "$__all"
+          "text": [
+            "All"
+          ],
+          "value": [
+            "$__all"
+          ]
         },
         "datasource": {
           "type": "prometheus",
           "uid": "df80f9f5-97d7-4112-91d8-72f523a02b09"
         },
         "definition": "label_values(netdata_systemd_service_unit_state_state_average,unit_name)",
-        "hide": 0,
         "includeAll": true,
         "multi": true,
         "name": "service",
@@ -1574,8 +1589,6 @@
         },
         "refresh": 1,
         "regex": "",
-        "skipUrlSync": false,
-        "sort": 0,
         "type": "query"
       }
     ]
@@ -1588,6 +1601,6 @@
   "timezone": "",
   "title": "Performance",
   "uid": "e01156bf-cdba-42eb-9845-a401dd634d41",
-  "version": 54,
+  "version": 82,
   "weekStart": ""
 }
