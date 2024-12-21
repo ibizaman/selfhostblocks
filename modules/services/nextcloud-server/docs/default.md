@@ -29,7 +29,7 @@ It is based on the nixpkgs Nextcloud server and provides opinionated defaults.
 - Forces PostgreSQL as the database.
 - Forces Redis as the cache and sets good defaults.
 - Backup of the [`shb.nextcloud.dataDir`][dataDir] through the [backup block](./blocks-backup.html).
-- Monitoring of reverse proxy, PHP-FPM, and database backups through the [monitoring
+- [Dashboard](#services-nextcloudserver-dashboard) for monitoring of reverse proxy, PHP-FPM, and database backups through the [monitoring
   block](./blocks-monitoring.html).
 - [Integration Tests](@REPO@/test/services/nextcloud.nix)
   - Tests system cron job is setup correctly.
@@ -311,6 +311,9 @@ I don't have a good heuristic for what are good values here but what I found
 is that you don't want too high of a `max_children` value
 to avoid I/O strain on the hard drives, especially if you use spinning drives.
 
+To see the effect of your settings,
+go to the provided [Grafana dashboard](#services-nextcloudserver-dashboard).
+
 ### Tweak PostgreSQL Settings {#services-nextcloudserver-usage-postgres}
 
 These settings will impact all databases since the NixOS Postgres module
@@ -352,6 +355,9 @@ shb.nextcloud.postgresSettings = {
   max_parallel_maintenance_workers = "2";
 };
 ```
+
+To see the effect of your settings,
+go to the provided [Grafana dashboard](#services-nextcloudserver-dashboard).
 
 ### Backup {#services-nextcloudserver-usage-backup}
 
@@ -526,11 +532,79 @@ by issuing the command `nextcloud-occ config:system:delete instanceid`.
 Head over to the [Nextcloud demo](demo-nextcloud-server.html) for a demo that installs Nextcloud with or
 without LDAP integration on a VM with minimal manual steps.
 
-## Maintenance {#services-nextcloudserver-maintenance}
+## Dashboard {#services-nextcloudserver-dashboard}
 
-On the command line, the `occ` tool is called `nextcloud-occ`.
+The dashboard is added to Grafana automatically under "Self Host Blocks > Nextcloud"
+as long as the Nextcloud service is [enabled][]
+as well as the [monitoring block][].
+
+[enabled]: #services-nextcloudserver-options-shb.nextcloud.enable
+[monitoring block]: ./blocks-monitoring.html#blocks-monitoring-options-shb.monitoring.enable
+
+- The *General* section shows Nextcloud related services.
+  This includes cronjobs, Redis and backup jobs.
+- *CPU* shows stall time which means CPU is maxed out.
+  This graph is inverted so having a small area at the top means the stall time is low.
+- *Memory* shows stall time which means some job is waiting on memory to be allocated.
+  This graph is inverted so having a small area at the top means the stall time is low.
+  Some stall time will always be present. Under 10% is fine
+  but having constantly over 50% usually means available memory is low and SWAP is being used.
+  *Memory* also shows available memory which is the remaining allocatable memory.
+- Caveat: *Network I/O* shows the network input and output for
+  all services running, not only those related to Nextcloud.
+- *Disk I/O* shows "some" stall time which means some jobs were waiting on disk I/O.
+  Disk is usually the slowest bottleneck so having "some" stall time is not surprising.
+  Fixing this can be done by using disks allowing higher speeds or switching to SSDs.
+  If the "full" stall time is shown, this means _all_ jobs were waiting on disk i/o which
+  can be more worrying. This could indicate a failing disk if "full" stall time appeared recently.
+  These graphs are inverted so having a small area at the top means the stall time is low.
+  *Memory* also shows available memory which is the remaining allocatable memory.
+![Nextcloud Dashboard First Part](./assets/dashboards_Nextcloud_1.png)
+- *PHP-FPM Processes* shows how many processes are used by PHP-FPM.
+  The orange area goes from 80% to 90% of the maximum allowed processes.
+  The read area goes from 90% to 100% of the maximum allowed processes.
+  If the number of active processes reaches those areas once in a while, that's fine
+  but if it happens most of the time, the maximum allowed processes should be increased.
+- *PHP-FPM Request Duration* shows one dot per request and how long it took.
+  Request time is fine if it is under 400ms.
+  If most requests take longer than that, some [tracing](#services-nextcloudserver-server-usage-tracing)
+  is required to understand which subsystem is taking some time.
+  That being said, maybe another graph in this dashboard will show 
+  why the requests are slow - like disk
+  or other processes hoarding some resources running at the same time.
+- *PHP-FPM Requests Queue Length* shows how many requests are waiting
+  to be picked up by a PHP-FPM process. Usually, this graph won't show
+  anything as long as the *PHP-FPM Processes* graph is not in the red area.
+  Fixing this requires also increasing the maximum allowed processes.
+![Nextcloud Dashboard Second Part](./assets/dashboards_Nextcloud_2.png)
+- *Requests Details* shows all requests to the Nextcloud service and the related headers.
+- *5XX Requests Details* shows only the requests having a 500 to 599 http status.
+  Having any requests appearing here should be investigated as soon as possible.
+![Nextcloud Dashboard Third Part](./assets/dashboards_Nextcloud_3.png)
+- *Log: \<service name\>* shows all logs from related systemd `<service name>.service` job.
+  Having no line here most often means the job ran
+  at a time not currently included in the time range of the dashboard.
+![Nextcloud Dashboard Fourth Part](./assets/dashboards_Nextcloud_4.png)
+![Nextcloud Dashboard Fifth Part](./assets/dashboards_Nextcloud_5.png)
+- A lot of care has been taken to parse error messages correctly.
+  Nextcloud mixes json and non-json messages so extracting errors
+  from json messages was not that easy.
+  Also, the stacktrace is reduced.
+  The result though is IMO pretty nice as can be seen by the following screenshot.
+  The top line is the original json message and the bottom one is the parsed error.
+![Nextcloud Dashboard Error Parsing](./assets/dashboards_Nextcloud_error_parsing.png)
+- *Backup logs* show the output of the backup jobs.
+  Here, there are two backup jobs, one for the core files of Nextcloud
+  stored on an SSD which includes the appdata folder.
+  The other backup job is for the external data stored on HDDs which contain all user files.
+![Nextcloud Dashboard Sixth Part](./assets/dashboards_Nextcloud_6.png)
+- *Slow PostgreSQL queries* shows all database queries taking longer than 1s to run.
+- *Redis* shows all Redis log output.
+![Nextcloud Dashboard Seventh Part](./assets/dashboards_Nextcloud_7.png)
 
 ## Debug {#services-nextcloudserver-debug}
+
+On the command line, the `occ` tool is called `nextcloud-occ`.
 
 In case of an issue, check the logs for any systemd service mentioned in this section.
 

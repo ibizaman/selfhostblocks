@@ -101,8 +101,8 @@ This dashboard is meant to be the first stop to understand why a service is misb
 ![](./assets/dashboards_Errors_1.png)
 ![](./assets/dashboards_Errors_2.png)
 
-The yellow and red dashed vertical bars correspond to the [Requests Error Budget
-Alert](#blocks-monitoring-budget-alerts) firing.
+The yellow and red dashed vertical bars correspond to the
+[Requests Error Budget Alert](#blocks-monitoring-budget-alerts) firing.
 
 ## Performance Dashboard {#blocks-monitoring-performance-dashboard}
 
@@ -111,6 +111,10 @@ This dashboard is meant to be the first stop to understand why a service is perf
 ![Performance Dashboard Top Part](./assets/dashboards_Performance_1.png)
 ![Performance Dashboard Middle Part](./assets/dashboards_Performance_2.png)
 ![Performance Dashboard Bottom Part](./assets/dashboards_Performance_3.png)
+
+## Nextcloud Dashboard {#blocks-monitoring-nextcloud-dashboard}
+
+See [Nextcloud service](./services-nextcloud.html#services-nextcloudserver-dashboard) manual.
 
 ## Deluge Dashboard {#blocks-monitoring-deluge-dashboard}
 
@@ -126,3 +130,11 @@ and the total requests to that service exceeds 1%.
 
 ![Error Dashboard Top Part](./assets/alert_rules_5xx_1.png)
 ![Error Dashboard Bottom Part](./assets/alert_rules_5xx_2.png)
+
+## Options Reference {#blocks-monitoring-options}
+
+```{=include=} options
+id-prefix: blocks-monitoring-options-
+list-id: selfhostblocks-blocks-monitoring-options
+source: @OPTIONS_JSON@
+```
