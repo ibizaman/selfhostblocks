@@ -776,9 +776,21 @@ in
         user = "nginx";
         port = cfg.phpFpmPrometheusExporter.port;
         listenAddress = "127.0.0.1";
-        environmentFile = pkgs.writeText "phpFpmExporterEnvFiles" ''
-        PHP_FPM_SCRAPE_URI=unix://${config.services.phpfpm.pools.nextcloud.socket}
-        '';
+        extraFlags = [
+          "--phpfpm.scrape-uri=tcp://127.0.0.1:${toString (cfg.phpFpmPrometheusExporter.port -1)}/status?full"
+        ];
+      };
+
+      services.nextcloud = {
+        poolSettings = {
+          "pm.status_path" = "/status";
+          # Need to use TCP connection to get status.
+          # I couldn't get PHP-FPM exporter to work with a unix socket.
+          #
+          # I also tried to server the status page at /status.php
+          # but fcgi doesn't like the returned headers.
+          "pm.status_listen" = "127.0.0.1:${toString (cfg.phpFpmPrometheusExporter.port -1)}";
+        };
       };
 
       services.prometheus.scrapeConfigs = [
@@ -786,6 +798,10 @@ in
           job_name = "phpfpm-nextcloud";
           static_configs = [{
             targets = ["127.0.0.1:${toString cfg.phpFpmPrometheusExporter.port}"];
+            labels = {
+              "hostname" = config.networking.hostName;
+              "domain" = cfg.domain;
+            };
           }];
         }
       ];
