@@ -44,6 +44,7 @@ that is not like the other server management tools.
 ### Flake Module
 
 Self Host Blocks is available as a flake.
+Also on [flakehub](https://flakehub.com/flake/ibizaman/selfhostblocks?view=usage).
 To use it in your existing project, add the following flake input:
 
 ```nix
@@ -54,7 +55,7 @@ Then, pin it to a release/tag with the following snippet.
 Updating Self Host Blocks to a new version can be done the same way.
 
 ```nix
-nix flake lock --override-input selfhostblocks github:ibizaman/selfhostblocks/v0.2.2
+nix flake lock --override-input selfhostblocks github:ibizaman/selfhostblocks/v0.2.7
 ```
 
 To get started using Self Host Blocks,
