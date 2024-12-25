@@ -14,7 +14,20 @@ Template:
 
 # Upcoming Release
 
-## Other Changes
+# v0.2.7
+
+## New Features
+
+- Add dashboard for Nextcloud with PHP-FPM exporter.
+- Add voice option to Home-Assistant.
+
+## User Facing Backwards Compatible Changes
+
+- Add hostname and domain labels for scraped Prometheus metrics and Loki logs.
+
+# v0.2.6
+
+## New Features
 
 - Add dashboard for deluge.
 
