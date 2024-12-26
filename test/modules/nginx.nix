@@ -27,7 +27,7 @@ let
         ];
       }).config;
     in lib.attrsets.filterAttrsRecursive (n: v: n != "extraConfig") {
-      inherit (cfg) services;
+      services = { inherit (cfg.services) nginx; };
       shb = { inherit (cfg.shb) nginx; };
     };
 in

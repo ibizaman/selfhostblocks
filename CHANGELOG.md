@@ -14,6 +14,11 @@ Template:
 
 # Upcoming Release
 
+## New Features
+
+- Add dashboard for SSL certificates validity
+  and alert they did not renew on time.
+
 # v0.2.7
 
 ## New Features
