@@ -123,7 +123,134 @@
       "summary": "The error budget for a service for the last 1 hour is under 99%"
     },
     "labels": {
-      "": "",
+      "role": "sysadmin"
+    },
+    "isPaused": false
+  },
+  {
+    "uid": "ee817l3a88s1sd",
+    "title": "Certificate Did Not Renew",
+    "condition": "C",
+    "data": [
+      {
+        "refId": "A",
+        "relativeTimeRange": {
+          "from": 1800,
+          "to": 0
+        },
+        "datasourceUid": "df80f9f5-97d7-4112-91d8-72f523a02b09",
+        "model": {
+          "adhocFilters": [],
+          "datasource": {
+            "type": "prometheus",
+            "uid": "df80f9f5-97d7-4112-91d8-72f523a02b09"
+          },
+          "editorMode": "code",
+          "expr": "ssl_certificate_expiry_seconds",
+          "interval": "",
+          "intervalMs": 15000,
+          "legendFormat": "{{exported_hostname}}: {{subject}} {{path}}",
+          "maxDataPoints": 43200,
+          "range": true,
+          "refId": "A"
+        }
+      },
+      {
+        "refId": "B",
+        "relativeTimeRange": {
+          "from": 0,
+          "to": 0
+        },
+        "datasourceUid": "__expr__",
+        "model": {
+          "conditions": [
+            {
+              "evaluator": {
+                "params": [],
+                "type": "gt"
+              },
+              "operator": {
+                "type": "and"
+              },
+              "query": {
+                "params": [
+                  "B"
+                ]
+              },
+              "reducer": {
+                "params": [],
+                "type": "last"
+              },
+              "type": "query"
+            }
+          ],
+          "datasource": {
+            "type": "__expr__",
+            "uid": "__expr__"
+          },
+          "expression": "A",
+          "intervalMs": 1000,
+          "maxDataPoints": 43200,
+          "reducer": "last",
+          "refId": "B",
+          "type": "reduce"
+        }
+      },
+      {
+        "refId": "C",
+        "relativeTimeRange": {
+          "from": 0,
+          "to": 0
+        },
+        "datasourceUid": "__expr__",
+        "model": {
+          "conditions": [
+            {
+              "evaluator": {
+                "params": [
+                  604800
+                ],
+                "type": "lt"
+              },
+              "operator": {
+                "type": "and"
+              },
+              "query": {
+                "params": [
+                  "C"
+                ]
+              },
+              "reducer": {
+                "params": [],
+                "type": "last"
+              },
+              "type": "query"
+            }
+          ],
+          "datasource": {
+            "type": "__expr__",
+            "uid": "__expr__"
+          },
+          "expression": "B",
+          "intervalMs": 1000,
+          "maxDataPoints": 43200,
+          "refId": "C",
+          "type": "threshold"
+        }
+      }
+    ],
+    "dashboardUid": "ae818js0bvw8wb",
+    "panelId": 3,
+    "noDataState": "NoData",
+    "execErrState": "Error",
+    "for": "20m",
+    "annotations": {
+      "__dashboardUid__": "ae818js0bvw8wb",
+      "__panelId__": "3",
+      "description": "The expiry date of the certificate is 1 week from now.",
+      "summary": "Certificate did not renew on time."
+    },
+    "labels": {
       "role": "sysadmin"
     },
     "isPaused": false

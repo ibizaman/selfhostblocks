@@ -14,12 +14,16 @@
   outputs = { nixpkgs, nix-flake-tests, flake-utils, nmdsrc, ... }: flake-utils.lib.eachDefaultSystem (system:
     let
       originPkgs = nixpkgs.legacyPackages.${system};
-      patches = [
+      patches = originPkgs.lib.optionals (system == "x86_64-linux") [
         # Leaving commented out for an example.
         # (originPkgs.fetchpatch {
         #   url = "https://github.com/NixOS/nixpkgs/pull/317107.patch";
         #   hash = "sha256-hoLrqV7XtR1hP/m0rV9hjYUBtrSjay0qcPUYlKKuVWk=";
         # })
+
+        # Remove when this PR is merged:
+        # https://github.com/NixOS/nixpkgs/pull/368325
+        ./patches/prometheusnodecertexporter.nix
       ];
       patchedNixpkgs = originPkgs.applyPatches {
         name = "nixpkgs-patched";

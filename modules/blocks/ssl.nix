@@ -4,6 +4,9 @@ let
   cfg = config.shb.certs;
 
   contracts = pkgs.callPackage ../contracts {};
+
+  inherit (builtins) dirOf;
+  inherit (lib) flatten mapAttrsToList unique;
 in
 {
   options.shb.certs = {
@@ -362,7 +365,7 @@ in
 
             cat /etc/static/ssl/certs/ca-bundle.crt > /etc/ssl/certs/ca-bundle.crt
             cat /etc/static/ssl/certs/ca-bundle.crt > /etc/ssl/certs/ca-certificates.crt
-            for file in ${lib.concatStringsSep " " (lib.mapAttrsToList (_name: caCfg: caCfg.paths.cert) cfg.cas.selfsigned)}; do
+            for file in ${lib.concatStringsSep " " (mapAttrsToList (_name: caCfg: caCfg.paths.cert) cfg.cas.selfsigned)}; do
                 cat "$file" >> /etc/ssl/certs/ca-bundle.crt
                 cat "$file" >> /etc/ssl/certs/ca-certificates.crt
             done
@@ -431,7 +434,7 @@ in
         }
         # Config for Let's Encrypt cert.
         {
-          users.users = lib.mkMerge (lib.mapAttrsToList (name: certCfg: {
+          users.users = lib.mkMerge (mapAttrsToList (name: certCfg: {
             ${certCfg.makeAvailableToUser}.extraGroups = lib.mkIf (!(isNull certCfg.makeAvailableToUser)) [
               config.security.acme.defaults.group
             ];
@@ -447,7 +450,7 @@ in
                 server = lib.mkIf certCfg.stagingServer "https://acme-staging-v02.api.letsencrypt.org/directory";
               };
             }) certCfg.extraDomains;
-          in lib.mkMerge (lib.flatten (lib.mapAttrsToList (name: certCfg:
+          in lib.mkMerge (flatten (mapAttrsToList (name: certCfg:
             [{
               "${name}" = {
                 extraDomainNames = [ certCfg.domain ] ++ certCfg.extraDomains;
@@ -470,7 +473,7 @@ in
                 enableACME = true;
               };
             }) extraDomains;
-          in lib.mkMerge (lib.flatten (lib.mapAttrsToList (name: certCfg:
+          in lib.mkMerge (flatten (mapAttrsToList (name: certCfg:
             lib.optionals (certCfg.dnsProvider == null) (
               [{
                 virtualHosts."${name}" = {
@@ -482,7 +485,7 @@ in
             )) cfg.certs.letsencrypt));
 
           systemd.services = let
-            extraDomainsCfg = certCfg: lib.flatten (map (name:
+            extraDomainsCfg = certCfg: flatten (map (name:
               lib.optionals (certCfg.additionalEnvironment != {} && certCfg.dnsProvider == null) [{
                 "acme-${name}".environment = certCfg.additionalEnvironment;
               }]
@@ -493,7 +496,7 @@ in
                 };
               }]
             ) certCfg.extraDomains);
-          in lib.mkMerge (lib.flatten (lib.mapAttrsToList (name: certCfg:
+          in lib.mkMerge (flatten (mapAttrsToList (name: certCfg:
             lib.optionals (certCfg.additionalEnvironment != {} && certCfg.dnsProvider == null) [{
               "acme-${certCfg.domain}".environment = certCfg.additionalEnvironment;
             }]
@@ -505,6 +508,37 @@ in
             }]
             ++ lib.optionals (certCfg.dnsProvider == null) (extraDomainsCfg certCfg)
           ) cfg.certs.letsencrypt));
+
+          services.prometheus.exporters.node-cert = {
+            enable = true;
+            listenAddress = "127.0.0.1";
+            user = "acme";
+            paths = let
+              pathCfg = name: certCfg:
+                let
+                  mainDomainPaths = map dirOf [ certCfg.paths.cert certCfg.paths.key ];
+                  # Not sure this will work for all cases.
+                  mainPath = dirOf (dirOf certCfg.paths.cert);
+                  extraDomainsPath = map (x: "${mainPath}/${x}") certCfg.extraDomains;
+                in
+                  mainDomainPaths ++ extraDomainsPath;
+            in
+              unique (flatten (mapAttrsToList pathCfg cfg.certs.letsencrypt));
+          };
+
+          services.prometheus.scrapeConfigs = let
+            scrapeCfg = name: certCfg: [{
+              job_name = "node-cert-${name}";
+              static_configs = [{
+                targets = ["127.0.0.1:${toString config.services.prometheus.exporters.node-cert.port}"];
+                labels = {
+                  "hostname" = config.networking.hostName;
+                  "domain" = certCfg.domain;
+                };
+              }];
+            }];
+          in
+            flatten (mapAttrsToList scrapeCfg cfg.certs.letsencrypt);
         }
       ];
 }
