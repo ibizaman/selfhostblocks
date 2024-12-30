@@ -6,7 +6,7 @@ let
   contracts = pkgs.callPackage ../contracts {};
 
   inherit (builtins) dirOf;
-  inherit (lib) flatten mapAttrsToList unique;
+  inherit (lib) flatten mapAttrsToList optionalAttrs optionals unique;
 in
 {
   options.shb.certs = {
@@ -509,7 +509,7 @@ in
             ++ lib.optionals (certCfg.dnsProvider == null) (extraDomainsCfg certCfg)
           ) cfg.certs.letsencrypt));
 
-          services.prometheus.exporters.node-cert = {
+          services.prometheus.exporters.node-cert = optionalAttrs (cfg.certs.letsencrypt != {}) {
             enable = true;
             listenAddress = "127.0.0.1";
             user = "acme";
@@ -538,7 +538,7 @@ in
               }];
             }];
           in
-            flatten (mapAttrsToList scrapeCfg cfg.certs.letsencrypt);
+            optionals (cfg.certs.letsencrypt != {}) (flatten (mapAttrsToList scrapeCfg cfg.certs.letsencrypt));
         }
       ];
 }
