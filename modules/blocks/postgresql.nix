@@ -165,9 +165,8 @@ in
         (debugConfig cfg.debug)
         {
           environment.systemPackages = lib.mkIf config.services.postgresql.enable [
-            (upgrade-script 13 14)
-            (upgrade-script 14 15)
             (upgrade-script 15 16)
+            (upgrade-script 16 17)
           ];
         }
       ]);
