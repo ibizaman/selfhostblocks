@@ -8,6 +8,8 @@ Template:
 
 ## User Facing Backwards Compatible Changes
 
+## Fixes
+
 ## Other Changes
 
 -->
@@ -18,6 +20,14 @@ Template:
 
 - Add dashboard for SSL certificates validity
   and alert they did not renew on time.
+
+## Fixes
+
+- Only enable php-fpm exporter when php-fpm is enabled.
+
+## Breaking Changes
+
+- Remove upgrade script from postgres 13 to 14 and 14 to 15.
 
 # v0.2.7
 
