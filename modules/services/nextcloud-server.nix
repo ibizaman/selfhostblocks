@@ -11,9 +11,8 @@ let
 
   contracts = pkgs.callPackage ../contracts {};
 
-  # Make sure to bump both nextcloudPkg and nextcloudApps at the same time.
-  nextcloudPkg = version: builtins.getAttr ("nextcloud" + builtins.toString version) pkgs;
-  nextcloudApps = version: (builtins.getAttr ("nextcloud" + builtins.toString version + "Packages") pkgs).apps;
+  nextcloudPkg = builtins.getAttr ("nextcloud" + builtins.toString cfg.version) pkgs;
+  nextcloudApps = (builtins.getAttr ("nextcloud" + builtins.toString cfg.version + "Packages") pkgs).apps;
 
   occ = "${config.services.nextcloud.occ}/bin/nextcloud-occ";
 in
@@ -292,10 +291,10 @@ in
                     nextcloud-occ config:app:set previewgenerator squareSizes --value="32 256"
                     nextcloud-occ config:app:set previewgenerator widthSizes  --value="256 384"
                     nextcloud-occ config:app:set previewgenerator heightSizes --value="256"
-                    nextcloud-occ config:system:set preview_max_x --value 2048
-                    nextcloud-occ config:system:set preview_max_y --value 2048
+                    nextcloud-occ config:system:set preview_max_x --type integer --value 2048
+                    nextcloud-occ config:system:set preview_max_y --type integer --value 2048
                     nextcloud-occ config:system:set jpeg_quality --value 60
-                    nextcloud-occ config:app:set preview jpeg_quality --value="60"
+                    nextcloud-occ config:app:set preview jpeg_quality --value=60
                     ```
                   '';
                   default = true;
@@ -511,6 +510,45 @@ in
               };
             };
           };
+
+          memories = lib.mkOption {
+            description = ''
+              Memories App. [Nextcloud App Store](https://apps.nextcloud.com/apps/memories)
+
+              Enabling this app will set up the Memories app and configure all its dependencies.
+
+              On first install, you can either let the cron job index all images or you can run it manually with:
+
+              ```nix
+              nextcloud-occ memories:index
+              ```
+            '';
+            default = {};
+            type = lib.types.submodule {
+              options = {
+                enable = lib.mkEnableOption "Memories app.";
+
+                vaapi = lib.mkOption {
+                  type = lib.types.bool;
+                  description = ''
+                    Enable VAAPI transcoding.
+
+                    Will make `nextcloud` user part of the `render` group to be able to access
+                    `/dev/dri/renderD128`.
+                  '';
+                  default = false;
+                };
+
+                photosPath = lib.mkOption {
+                  type = lib.types.str;
+                  description = ''
+                    Path where photos are stored in Nextcloud.
+                  '';
+                  default = "/Photos";
+                };
+              };
+            };
+          };
         };
       };
     };
@@ -633,7 +671,7 @@ in
       # not loading to realize those scripts are inserted by extensions. Doh.
       services.nextcloud = {
         enable = true;
-        package = nextcloudPkg cfg.version;
+        package = nextcloudPkg;
 
         datadir = cfg.dataDir;
 
@@ -661,7 +699,7 @@ in
         # Very important for a bunch of scripts to load correctly. Otherwise you get Content-Security-Policy errors. See https://docs.nextcloud.com/server/13/admin_manual/configuration_server/harden_server.html#enable-http-strict-transport-security
         https = !(isNull cfg.ssl);
 
-        extraApps = if isNull cfg.extraApps then {} else cfg.extraApps (nextcloudApps cfg.version);
+        extraApps = if isNull cfg.extraApps then {} else cfg.extraApps nextcloudApps;
         extraAppsEnable = true;
         appstoreEnable = true;
 
@@ -680,6 +718,7 @@ in
           "overwriteprotocol" = protocol; # Needed if behind a reverse_proxy
           "overwritecondaddr" = ""; # We need to set it to empty otherwise overwriteprotocol does not work.
           "debug" = cfg.debug;
+          "loglevel" = if !cfg.debug then 2 else 0;
           "filelocking.debug" = cfg.debug;
 
           # Use persistent SQL connections.
@@ -759,9 +798,6 @@ in
       systemd.services.phpfpm-nextcloud.requires = cfg.mountPointServices;
       systemd.services.phpfpm-nextcloud.after = cfg.mountPointServices;
 
-      systemd.services.nextcloud-cron.path = [
-        pkgs.perl
-      ];
       systemd.timers.nextcloud-cron.requires = cfg.mountPointServices;
       systemd.timers.nextcloud-cron.after = cfg.mountPointServices;
       # This is needed to be able to run the cron job before opening the app for the first time.
@@ -820,7 +856,7 @@ in
       ];
 
       services.nextcloud.extraApps = {
-        inherit ((nextcloudApps cfg.version)) onlyoffice;
+        inherit (nextcloudApps) onlyoffice;
       };
 
       services.onlyoffice = {
@@ -848,7 +884,27 @@ in
 
     (lib.mkIf (cfg.enable && cfg.apps.previewgenerator.enable) {
       services.nextcloud.extraApps = {
-        inherit ((nextcloudApps cfg.version)) previewgenerator;
+        inherit (nextcloudApps) previewgenerator;
+      };
+
+      services.nextcloud.settings = {
+        # List obtained from the admin panel of Memories app.
+        enabledPreviewProviders = [
+          "OC\\Preview\\BMP"
+          "OC\\Preview\\GIF"
+          "OC\\Preview\\HEIC"
+          "OC\\Preview\\Image"
+          "OC\\Preview\\JPEG"
+          "OC\\Preview\\Krita"
+          "OC\\Preview\\MarkDown"
+          "OC\\Preview\\Movie"
+          "OC\\Preview\\MP3"
+          "OC\\Preview\\OpenDocument"
+          "OC\\Preview\\PNG"
+          "OC\\Preview\\TXT"
+          "OC\\Preview\\XBitmap"
+        ];
+
       };
 
       # Values taken from
@@ -857,10 +913,10 @@ in
         ${occ} config:app:set previewgenerator squareSizes --value="32 256"
         ${occ} config:app:set previewgenerator widthSizes  --value="256 384"
         ${occ} config:app:set previewgenerator heightSizes --value="256"
-        ${occ} config:system:set preview_max_x --value 2048
-        ${occ} config:system:set preview_max_y --value 2048
+        ${occ} config:system:set preview_max_x --type integer --value 2048
+        ${occ} config:system:set preview_max_y --type integer --value 2048
         ${occ} config:system:set jpeg_quality --value 60
-        ${occ} config:app:set preview jpeg_quality --value="60"
+        ${occ} config:app:set preview jpeg_quality --value=60
       '';
 
       # Configured as defined in https://github.com/nextcloud/previewgenerator
@@ -1098,5 +1154,62 @@ in
         fi
         '';
     })
+
+    # Great source of inspiration:
+    # https://github.com/Shawn8901/nix-configuration/blob/538c18d9ecbf7c7e649b1540c0d40881bada6690/modules/nixos/private/nextcloud/memories.nix#L226
+    (lib.mkIf cfg.apps.memories.enable
+      (let
+        cfg' = cfg.apps.memories;
+      in
+        {
+          services.nextcloud.extraApps = {
+            inherit (nextcloudApps) memories;
+          };
+
+          systemd.services.nextcloud-cron = {
+            # required for memories
+            # see https://github.com/pulsejet/memories/blob/master/docs/troubleshooting.md#issues-with-nixos
+            path = [ pkgs.perl ];
+          };
+
+          nixpkgs.overlays = [
+            (final: prev: {
+              exiftool = prev.exiftool.overrideAttrs (f: p: {
+                version = "12.70";
+                src = pkgs.fetchurl {
+                  url = "https://exiftool.org/Image-ExifTool-12.70.tar.gz";
+                  hash = "sha256-TLJSJEXMPj870TkExq6uraX8Wl4kmNerrSlX3LQsr/4=";
+                };
+              });
+            })
+          ];
+
+          services.nextcloud = {
+            # See all options at https://memories.gallery/system-config/
+            settings = {
+              "memories.exiftool" = "${pkgs.exiftool}/bin/exiftool";
+              "memories.exiftool_no_local" = false;
+              "memories.index.mode" = "3";
+              "memories.index.path" = cfg'.photosPath;
+              "memories.timeline.default_path" = cfg'.photosPath;
+
+              "memories.vod.disable" = !cfg'.vaapi;
+              "memories.vod.vaapi" = cfg'.vaapi;
+              "memories.vod.ffmpeg" = "${pkgs.ffmpeg-headless}/bin/ffmpeg";
+              "memories.vod.ffprobe" = "${pkgs.ffmpeg-headless}/bin/ffprobe";
+              "memories.vod.use_transpose" = true;
+              "memories.vod.use_transpose.force_sw" = cfg'.vaapi; # AMD and old Intel can't use hardware here.
+
+              "memories.db.triggers.fcu" = true;
+              "memories.readonly" = true;
+              "preview_ffmpeg_path" = "${pkgs.ffmpeg-headless}/bin/ffmpeg";
+            };
+          };
+
+          systemd.services.phpfpm-nextcloud.serviceConfig = lib.mkIf cfg'.vaapi {
+            DeviceAllow = [ "/dev/dri/renderD128 rwm" ];
+            PrivateDevices = lib.mkForce false;
+          };
+        }))
   ];
 }
