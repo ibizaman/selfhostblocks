@@ -1361,6 +1361,24 @@
   "services-nextcloudserver-options-shb.nextcloud.apps.ldap.userGroup": [
     "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.apps.ldap.userGroup"
   ],
+  "services-nextcloudserver-options-shb.nextcloud.apps.memories": [
+    "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.apps.memories"
+  ],
+  "services-nextcloudserver-options-shb.nextcloud.apps.memories.vaapi": [
+    "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.apps.memories.vaapi"
+  ],
+  "services-nextcloudserver-options-shb.nextcloud.apps.memories.enable": [
+    "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.apps.memories.enable"
+  ],
+  "services-nextcloudserver-options-shb.nextcloud.apps.memories.photosPath": [
+    "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.apps.memories.photosPath"
+  ],
+  "services-nextcloudserver-options-shb.nextcloud.apps.recognize": [
+    "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.apps.recognize"
+  ],
+  "services-nextcloudserver-options-shb.nextcloud.apps.recognize.enable": [
+    "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.apps.recognize.enable"
+  ],
   "services-nextcloudserver-options-shb.nextcloud.apps.onlyoffice": [
     "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.apps.onlyoffice"
   ],
