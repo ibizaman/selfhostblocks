@@ -549,6 +549,20 @@ in
               };
             };
           };
+
+          recognize = lib.mkOption {
+            description = ''
+              Recognize App. [Nextcloud App Store](https://apps.nextcloud.com/apps/recognize)
+
+              Enabling this app will set up the Recognize app and configure all its dependencies.
+            '';
+            default = {};
+            type = lib.types.submodule {
+              options = {
+                enable = lib.mkEnableOption "Recognize app.";
+              };
+            };
+          };
         };
       };
     };
@@ -785,9 +799,6 @@ in
       environment.systemPackages = [
         # Needed for a few apps. Would be nice to avoid having to put that in the environment and instead override https://github.com/NixOS/nixpkgs/blob/261abe8a44a7e8392598d038d2e01f7b33cf26d0/nixos/modules/services/web-apps/nextcloud.nix#L1035
         pkgs.ffmpeg-headless
-
-        # Needed for the recognize app.
-        pkgs.nodejs
       ];
 
       services.postgresql.settings = lib.mkIf (! (isNull cfg.postgresSettings)) cfg.postgresSettings;
@@ -1210,6 +1221,33 @@ in
             DeviceAllow = [ "/dev/dri/renderD128 rwm" ];
             PrivateDevices = lib.mkForce false;
           };
+        }))
+
+    (lib.mkIf cfg.apps.recognize.enable
+      (let
+        cfg' = cfg.apps.recognize;
+      in
+        {
+          services.nextcloud.extraApps = {
+            inherit (nextcloudApps) recognize;
+          };
+
+          systemd.services.nextcloud-setup.script =
+            ''
+            ${occ} config:app:set recognize nice_binary --value ${pkgs.coreutils}/bin/nice
+            ${occ} config:app:set recognize node_binary --value ${pkgs.nodejs}/bin/node
+            ${occ} config:app:set recognize faces.enabled --value true
+            ${occ} config:app:set recognize faces.batchSize --value 50
+            ${occ} config:app:set recognize imagenet.enabled --value true
+            ${occ} config:app:set recognize imagenet.batchSize --value 100
+            ${occ} config:app:set recognize landmarks.batchSize --value 100
+            ${occ} config:app:set recognize landmarks.enabled --value true
+            ${occ} config:app:set recognize tensorflow.cores --value 1
+            ${occ} config:app:set recognize tensorflow.gpu --value false
+            ${occ} config:app:set recognize tensorflow.purejs --value false
+            ${occ} config:app:set recognize musicnn.enabled --value true
+            ${occ} config:app:set recognize musicnn.batchSize --value 100
+            '';
         }))
   ];
 }
