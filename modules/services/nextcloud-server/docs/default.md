@@ -20,6 +20,10 @@ It is based on the nixpkgs Nextcloud server and provides opinionated defaults.
     This enables having data living on separate hard drives.
   - [Only Office](#services-nextcloudserver-usage-onlyoffice) app:
     enables app and sets up Only Office service.
+  - [Memories](#services-nextcloudserver-usage-memories) app:
+    enables app and sets up all required dependencies and optional hardware acceleration with VAAPI.
+  - [Recognize](#services-nextcloudserver-usage-recognize) app:
+    enables app and sets up all required dependencies and optional hardware acceleration with VAAPI.
   - Any other app through the
     [shb.nextcloud.extraApps](#services-nextcloudserver-options-shb.nextcloud.extraApps) option.
 - Access through subdomain using reverse proxy.
@@ -474,6 +478,52 @@ nixpkgs.config.allowUnfreePredicate = pkg: builtins.elem (pkgs.lib.getName pkg) 
   "corefonts"
 ];
 ```
+
+### Enable Memories App {#services-nextcloudserver-usage-memories}
+
+The following snippet installs and enables the
+[Memories](https://apps.nextcloud.com/apps/memories) application.
+
+```nix
+shb.nextcloud.apps.memories = {
+  enable = true;
+  vaapi = true;  # If hardware acceleration is supported.
+  photosPath = "/Photos";  # This is the default.
+};
+```
+
+All the following dependencies are installed correctly
+and fully declaratively, the config page is "all green":
+
+- Exiftool with the correct version
+- Indexing path is set to `/Photos` by default.
+- Images, HEIC, videos preview generation.
+- Performance is all green with database triggers.
+- Recommended apps are
+   - Albums: this is installed by default.
+   - Recognize can be installed [here](#services-nextcloudserver-usage-recognize)
+   - Preview Generator can be installed [here](#services-nextcloudserver-usage-previewgenerator)
+- Reverse Geocoding must be triggered manually with `nextcloud-occ memories:places-setup `.
+- Video streaming is setup by installed ffmpeg headless.
+- Transcoder is setup natively (not with slow WASM) wit `go-vod` binary.
+- Hardware Acceleration is optionally setup by setting `vaapi` to `true`.
+
+It is not required but you can for the first indexing with `nextcloud-occ memories:index`.
+
+Note that the app is not configurable through the UI since the config file is read-only.
+
+### Enable Recognize App {#services-nextcloudserver-usage-recognize}
+
+The following snippet installs and enables the
+[Recognize](https://apps.nextcloud.com/apps/recognize) application.
+
+```nix
+shb.nextcloud.apps.recognize = {
+  enable = true;
+};
+```
+
+The required dependencies are installed: `nodejs` and `nice`.
 
 ### Enable Monitoring {#services-nextcloudserver-server-usage-monitoring}
 
