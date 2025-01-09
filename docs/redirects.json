@@ -1625,6 +1625,9 @@
   "services-nextcloudserver-usage-ldap": [
     "services-nextcloud.html#services-nextcloudserver-usage-ldap"
   ],
+  "services-nextcloudserver-usage-memories": [
+    "services-nextcloud.html#services-nextcloudserver-usage-memories"
+  ],
   "services-nextcloudserver-usage-mount-point": [
     "services-nextcloud.html#services-nextcloudserver-usage-mount-point"
   ],
@@ -1642,6 +1645,9 @@
   ],
   "services-nextcloudserver-usage-previewgenerator": [
     "services-nextcloud.html#services-nextcloudserver-usage-previewgenerator"
+  ],
+  "services-nextcloudserver-usage-recognize": [
+    "services-nextcloud.html#services-nextcloudserver-usage-recognize"
   ],
   "services-nextcloudserver-usage-version": [
     "services-nextcloud.html#services-nextcloudserver-usage-version"
