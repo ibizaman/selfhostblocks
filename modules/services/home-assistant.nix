@@ -230,6 +230,7 @@ in
         logger.default = "info";
         homeassistant = configWithSecretsIncludes // {
           external_url = "https://${cfg.subdomain}.${cfg.domain}";
+          internal_url = "https://${cfg.subdomain}.${cfg.domain}";
           auth_providers =
             (lib.optionals (!cfg.ldap.enable || cfg.ldap.keepDefaultAuth) [
               {
