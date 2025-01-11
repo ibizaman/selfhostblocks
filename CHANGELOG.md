@@ -16,6 +16,14 @@ Template:
 
 # Upcoming Release
 
+# v0.2.9
+
+## New Features
+
+- Add apps to Nextcloud: memories, recognize and mediadc.
+
+# v0.2.8
+
 ## New Features
 
 - Add dashboard for SSL certificates validity
@@ -24,6 +32,8 @@ Template:
 ## Fixes
 
 - Only enable php-fpm exporter when php-fpm is enabled.
+- Revert nixpkgs to working version for home-assistant voice.
+  Also fix CI build that did not catch that.
 
 ## Breaking Changes
 
