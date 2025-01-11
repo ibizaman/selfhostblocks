@@ -16,6 +16,8 @@ Template:
 
 # Upcoming Release
 
+# v0.2.9
+
 ## New Features
 
 - Add dashboard for SSL certificates validity
