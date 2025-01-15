@@ -685,7 +685,11 @@ in
       # not loading to realize those scripts are inserted by extensions. Doh.
       services.nextcloud = {
         enable = true;
-        package = nextcloudPkg;
+        package = nextcloudPkg.overrideAttrs (old: {
+          patches = [
+            ../../patches/nextcloudexternalstorage.patch
+          ];
+        });
 
         datadir = cfg.dataDir;
 
