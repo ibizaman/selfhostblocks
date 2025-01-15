@@ -457,6 +457,12 @@ which is well suited for randomly accessing small files like thumbnails.
 On the other side, a spinning hard drive can store more data
 which is well suited for storing user data.
 
+This Nextcloud module includes a patch that allows the external storage
+to actually create the local path. Normally, when login in for the first time,
+the user will be greeted with an error saying the external storage path does
+not exist. One must then create it manually. With this patch, Nextcloud
+creates the path.
+
 ### Enable OnlyOffice App {#services-nextcloudserver-usage-onlyoffice}
 
 The following snippet installs and enables the [Only
