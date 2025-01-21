@@ -414,11 +414,9 @@ in
                   };
                 };
 
-
                 userGroup = lib.mkOption {
-                  type = lib.types.str;
+                  type = contracts.ldapgroup.request;
                   description = "Group users must belong to to be able to login to Nextcloud.";
-                  default = "nextcloud_user";
                 };
 
                 configID = lib.mkOption {
@@ -1010,21 +1008,21 @@ in
         ${occ} ldap:set-config "${cID}" 'ldapEmailAttribute' \
                   'mail'
         ${occ} ldap:set-config "${cID}" 'ldapGroupFilter' \
-                  '(&(|(objectclass=groupOfUniqueNames))(|(cn=${cfg'.userGroup})))'
+                  '(&(|(objectclass=groupOfUniqueNames))(|(cn=${cfg'.userGroup.result.name})))'
         ${occ} ldap:set-config "${cID}" 'ldapGroupFilterGroups' \
-                  '${cfg'.userGroup}'
+                  '${cfg'.userGroup.result.name}'
         ${occ} ldap:set-config "${cID}" 'ldapGroupFilterObjectclass' \
                   'groupOfUniqueNames'
         ${occ} ldap:set-config "${cID}" 'ldapGroupMemberAssocAttr' \
                   'uniqueMember'
         ${occ} ldap:set-config "${cID}" 'ldapLoginFilter' \
-                  '(&(&(objectclass=person)(memberOf=cn=${cfg'.userGroup},ou=groups,${cfg'.dcdomain}))(|(uid=%uid)(|(mail=%uid)(objectclass=%uid))))'
+                  '(&(&(objectclass=person)(memberOf=cn=${cfg'.userGroup.result.name},ou=groups,${cfg'.dcdomain}))(|(uid=%uid)(|(mail=%uid)(objectclass=%uid))))'
         ${occ} ldap:set-config "${cID}" 'ldapLoginFilterAttributes' \
                   'mail;objectclass'
         ${occ} ldap:set-config "${cID}" 'ldapUserDisplayName' \
                   'displayname'
         ${occ} ldap:set-config "${cID}" 'ldapUserFilter' \
-                  '(&(objectclass=person)(memberOf=cn=${cfg'.userGroup},ou=groups,${cfg'.dcdomain}))'
+                  '(&(objectclass=person)(memberOf=cn=${cfg'.userGroup.result.name},ou=groups,${cfg'.dcdomain}))'
         ${occ} ldap:set-config "${cID}" 'ldapUserFilterMode' \
                   '1'
         ${occ} ldap:set-config "${cID}" 'ldapUserFilterObjectclass' \

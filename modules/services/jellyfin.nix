@@ -56,15 +56,23 @@ in
           };
 
           userGroup = lib.mkOption {
-            type = lib.types.str;
             description = "LDAP user group";
-            default = "jellyfin_user";
+            default = {};
+            type = lib.types.submodule {
+              options = contracts.ldapgroup.mkRequester {
+                name = "jellyfin_user";
+              };
+            };
           };
 
           adminGroup = lib.mkOption {
-            type = lib.types.str;
             description = "LDAP admin group";
-            default = "jellyfin_admin";
+            default = {};
+            type = lib.types.submodule {
+              options = contracts.ldapgroup.mkRequester {
+                name = "jellyfin_admin";
+              };
+            };
           };
 
           adminPassword = lib.mkOption {
@@ -313,9 +321,9 @@ in
             <LdapBindUser>uid=admin,ou=people,${cfg.ldap.dcdomain}</LdapBindUser>
             <LdapBindPassword>%LDAP_PASSWORD%</LdapBindPassword>
             <LdapBaseDn>ou=people,${cfg.ldap.dcdomain}</LdapBaseDn>
-            <LdapSearchFilter>(memberof=cn=${cfg.ldap.userGroup},ou=groups,${cfg.ldap.dcdomain})</LdapSearchFilter>
+            <LdapSearchFilter>(memberof=cn=${cfg.ldap.userGroup.result.name},ou=groups,${cfg.ldap.dcdomain})</LdapSearchFilter>
             <LdapAdminBaseDn>ou=people,${cfg.ldap.dcdomain}</LdapAdminBaseDn>
-            <LdapAdminFilter>(memberof=cn=${cfg.ldap.adminGroup},ou=groups,${cfg.ldap.dcdomain})</LdapAdminFilter>
+            <LdapAdminFilter>(memberof=cn=${cfg.ldap.adminGroup.result.name},ou=groups,${cfg.ldap.dcdomain})</LdapAdminFilter>
             <EnableLdapAdminFilterMemberUid>false</EnableLdapAdminFilterMemberUid>
             <LdapSearchAttributes>uid, cn, mail, displayName</LdapSearchAttributes>
             <LdapClientCertPath />

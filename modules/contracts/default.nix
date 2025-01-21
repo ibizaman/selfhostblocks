@@ -47,6 +47,7 @@ in
 {
   databasebackup = importContract ./databasebackup.nix;
   backup = importContract ./backup.nix;
+  ldapgroup = importContract ./ldapgroup.nix;
   mount = import ./mount.nix { inherit lib; };
   secret = importContract ./secret.nix;
   ssl = import ./ssl.nix { inherit lib; };

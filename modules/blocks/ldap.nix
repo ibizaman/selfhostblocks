@@ -1,6 +1,9 @@
 { config, pkgs, lib, ... }:
 
 let
+  inherit (lib) mkOption;
+  inherit (lib.types) attrsOf str submodule;
+
   cfg = config.shb.ldap;
 
   contracts = pkgs.callPackage ../contracts {};
@@ -149,16 +152,42 @@ in
     };
 
     groups = lib.mkOption {
-      description = "LDAP Groups to manage declaratively.";
+      description = "LDAP Groups to manage declaratively following the [ldap group contract](./contracts-ldap-group.html).";
       default = {};
       example = lib.literalExpression ''
       {
         family = {};
       }
       '';
-      type = lib.types.attrsOf (lib.types.submodule {
-        options = {};
-      });
+      type = attrsOf (submodule ({ name, config, ... }: {
+        options = contracts.ldapgroup.mkProvider {
+          settings = mkOption {
+            description = ''
+              Settings specific to the LLDAP provider.
+
+              By default it is the same as the field name.
+            '';
+            default = {
+              inherit name;
+            };
+
+            type = submodule {
+              options = {
+                name = mkOption {
+                  description = "Name of the LDAP group";
+                  type = str;
+                  default = name;
+                };
+              };
+            };
+          };
+
+          resultCfg = {
+            name = config.settings.name;
+            nameText = name;
+          };
+        };
+      }));
     };
 
     deleteUnmanagedUsers = lib.mkOption {
@@ -372,8 +401,6 @@ in
 
     systemd.services.lldap.postStart =
       let
-        configFile = (pkgs.formats.toml {}).generate "lldap_config.toml" config.services.lldap.settings;
-
         login = [''
           set -euo pipefail
 
@@ -388,7 +415,7 @@ in
 
         deleteGroups = [''
           allUids=(${lib.concatStringsSep " " (
-            (lib.mapAttrsToList (id: g: id) cfg.groups)
+            (lib.mapAttrsToList (id: g: g.settings.name) cfg.groups)
               ++ [ "lldap_admin" "lldap_password_manager" "lldap_strict_readonly" ])
           })
           echo All managed groups are: ''${allUids[*]}
@@ -405,7 +432,7 @@ in
         createGroups = [''
           existingUids=$(${lldap-cli}/bin/lldap-cli group list | ${pkgs.jq}/bin/jq -r 'map(.displayName)[]')
           managedUids=(${lib.concatStringsSep " " (
-            (lib.mapAttrsToList (id: g: id) cfg.groups)
+            (lib.mapAttrsToList (id: g: g.settings.name) cfg.groups)
               ++ [ "lldap_admin" "lldap_password_manager" "lldap_strict_readonly" ])
           })
           echo All managed groups are: ''${managedUids[*]}

@@ -98,15 +98,13 @@ in
           };
 
           userGroup = mkOption {
-            type = str;
+            type = contracts.ldapgroup.request;
             description = "Group users must belong to be able to login.";
-            default = "forgejo_user";
           };
 
           adminGroup = mkOption {
-            type = str;
+            type = contracts.ldapgroup.request;
             description = "Group users must belong to be admins.";
-            default = "forgejo_admin";
           };
         };
       });
@@ -394,8 +392,8 @@ in
             --bind-password       $(tr -d '\n' < ${cfg.ldap.adminPassword.result.path}) \
             --security-protocol   Unencrypted \
             --user-search-base    ou=people,${cfg.ldap.dcdomain} \
-            --user-filter         '(&(memberof=cn=${cfg.ldap.userGroup},ou=groups,${cfg.ldap.dcdomain})(|(uid=%[1]s)(mail=%[1]s)))' \
-            --admin-filter        '(memberof=cn=${cfg.ldap.adminGroup},ou=groups,${cfg.ldap.dcdomain})' \
+            --user-filter         '(&(memberof=cn=${cfg.ldap.userGroup.result.name},ou=groups,${cfg.ldap.dcdomain})(|(uid=%[1]s)(mail=%[1]s)))' \
+            --admin-filter        '(memberof=cn=${cfg.ldap.adminGroup.result.name},ou=groups,${cfg.ldap.dcdomain})' \
             --username-attribute  uid \
             --firstname-attribute givenName \
             --surname-attribute   sn \
@@ -413,8 +411,8 @@ in
             --bind-password       $(tr -d '\n' < ${cfg.ldap.adminPassword.result.path}) \
             --security-protocol   Unencrypted \
             --user-search-base    ou=people,${cfg.ldap.dcdomain} \
-            --user-filter         '(&(memberof=cn=${cfg.ldap.userGroup},ou=groups,${cfg.ldap.dcdomain})(|(uid=%[1]s)(mail=%[1]s)))' \
-            --admin-filter        '(memberof=cn=${cfg.ldap.adminGroup},ou=groups,${cfg.ldap.dcdomain})' \
+            --user-filter         '(&(memberof=cn=${cfg.ldap.userGroup.result.name},ou=groups,${cfg.ldap.dcdomain})(|(uid=%[1]s)(mail=%[1]s)))' \
+            --admin-filter        '(memberof=cn=${cfg.ldap.adminGroup.result.name},ou=groups,${cfg.ldap.dcdomain})' \
             --username-attribute  uid \
             --firstname-attribute givenName \
             --surname-attribute   sn \
