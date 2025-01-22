@@ -1,5 +1,8 @@
 { lib }:
 let
+  inherit (lib) listOf mkOption submodule;
+  inherit (lib.types) str;
+
   baseImports = pkgs: [
     (pkgs.path + "/nixos/modules/profiles/headless.nix")
     (pkgs.path + "/nixos/modules/profiles/qemu-guest.nix")
@@ -85,6 +88,11 @@ let
             raise Exception(f"auth host should be auth.${domain} but is {response['auth_host']}")
         if response['auth_query'] != "rd=${proto_fqdn}/":
             raise Exception(f"auth query should be rd=${proto_fqdn}/ but is {response['auth_query']}")
+
+    with subtest("Login"):
+        print(client.execute("cat /etc/hosts"))
+        print(client.execute("curl https://${subdomain}.${domain}"))
+        client.succeed("login_playwright firefox")
     ''
     )
     + (let
@@ -102,6 +110,100 @@ let
           server.succeed("systemctl start restic-backups-testinstance_opt_repos_A")
       '';
     };
+
+  clientLoginModule = { config, pkgs, ... }: let
+    cfg = config.test.login;
+  in {
+    options.test.login = {
+      domain = mkOption {
+        type = str;
+        default = "example.com";
+      };
+      subdomain = mkOption {
+        type = str;
+      };
+      usernameFieldLabel = mkOption {
+        type = str;
+        default = "username";
+      };
+      passwordFieldLabel = mkOption {
+        type = str;
+        default = "password";
+      };
+      loginButtonName = mkOption {
+        type = str;
+        default = "login";
+      };
+      testLoginWith = mkOption {
+        type = listOf (submodule {
+          options = {
+            username = mkOption {
+              type = str;
+            };
+            password = mkOption {
+              type = str;
+            };
+          };
+        });
+      };
+      startUrl = mkOption {
+        type = str;
+      };
+    };
+    config = {
+      networking.hosts = {
+        "192.168.1.2" = [ "${cfg.subdomain}.${cfg.domain}" ];
+      };
+
+      environment.variables = {
+        PLAYWRIGHT_BROWSERS_PATH = pkgs.playwright-driver.browsers;
+      };
+
+      environment.systemPackages = [
+        (pkgs.writers.writePython3Bin "login_playwright"
+          {
+            libraries = [ pkgs.python3Packages.playwright ];
+          }
+          ''
+            import re
+            import sys
+            from playwright.sync_api import sync_playwright
+            from playwright.sync_api import expect
+
+            browsers = {
+              "chromium": ["--headless", "--disable-gpu"],
+              "firefox": [],
+              "webkit": []
+            }
+            if len(sys.argv) != 2 or sys.argv[1] not in browsers.keys():
+                print(f"usage: {sys.argv[0]} [{'|'.join(browsers.keys())}] <url>")
+                sys.exit(1)
+            browser_name = sys.argv[1]
+            browser_args = browsers.get(browser_name)
+            print(f"Running test on {browser_name} {' '.join(browser_args)}")
+            with sync_playwright() as p:
+                browser = getattr(p, browser_name).launch(args=browser_args)
+                context = browser.new_context(ignore_https_errors=True)
+                context.tracing.start(screenshots=True, snapshots=True, sources=True)
+
+                page = context.new_page()
+                page.goto(${cfg.startUrl})
+                try:
+                    expect(page).to_have_title(re.compile("Login - Authelia"))
+                    expect(page.get_by_text("Powered by Authelia")).to_be_visible()
+                except Exception:
+                    page.screenshot(path="example.png")
+
+                page.get_by_label("${cfg.username}").fill("")
+                page.get_by_label("${cfg.password}").fill("")
+
+                context.tracing.stop(path = "trace.zip")
+                browser.close()
+          ''
+        )
+      ];
+    };
+  };
 in
 {
   inherit baseImports accessScript;
@@ -116,7 +218,6 @@ in
     imports =
       ( baseImports pkgs )
       ++ [
-        # TODO: replace postgresql.nix and authelia.nix by the sso contract
         ../modules/blocks/postgresql.nix
         ../modules/blocks/authelia.nix
         ../modules/blocks/nginx.nix
@@ -124,9 +225,11 @@ in
       ]
       ++ additionalModules;
 
-    # Nginx port.
+    # HTTP(s) server ports.
     networking.firewall.allowedTCPPorts = [ 80 443 ];
   };
+
+  inherit clientLoginModule;
 
   backup = backupOption: { config, ... }: {
     imports = [

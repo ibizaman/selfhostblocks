@@ -85,7 +85,24 @@ in
       ];
     };
 
-    nodes.client = {};
+    nodes.client = {
+      imports = [
+        testLib.clientLoginModule
+      ];
+
+      test.login = {
+        inherit domain subdomain;
+        usernameFieldLabel = "Username";
+        passwordFieldLabel = "Password";
+        loginButtonName = "Login";
+        testLoginWith = [
+          {
+            username = "admin";
+            password = "adminpw";
+          }
+        ];
+      };
+    };
 
     testScript = commonTestScript.access;
   };
