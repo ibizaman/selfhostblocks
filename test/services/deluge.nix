@@ -73,11 +73,6 @@ let
         print(response)
     '';
 
-  base = testLib.base pkgs' [
-    ../../modules/blocks/hardcodedsecret.nix
-    ../../modules/services/deluge.nix
-  ];
-
   basic = { config, ... }: {
     shb.deluge = {
       enable = true;
@@ -127,7 +122,9 @@ in
 
     nodes.server = {
       imports = [
-        base
+        testLib.baseModule
+        ../../modules/blocks/hardcodedsecret.nix
+        ../../modules/services/deluge.nix
         basic
       ];
     };
@@ -142,7 +139,9 @@ in
 
     nodes.server = { config, ... }: {
       imports = [
-        base
+        testLib.baseModule
+        ../../modules/blocks/hardcodedsecret.nix
+        ../../modules/services/deluge.nix
         basic
         (testLib.backup config.shb.deluge.backup)
       ];
@@ -158,7 +157,9 @@ in
 
     nodes.server = {
       imports = [
-        base
+        testLib.baseModule
+        ../../modules/blocks/hardcodedsecret.nix
+        ../../modules/services/deluge.nix
         (testLib.certs domain)
         basic
         https
@@ -175,7 +176,9 @@ in
   
     nodes.server = { config, ... }: {
       imports = [
-        base
+        testLib.baseModule
+        ../../modules/blocks/hardcodedsecret.nix
+        ../../modules/services/deluge.nix
         (testLib.certs domain)
         basic
         https
@@ -197,7 +200,9 @@ in
 
     nodes.server = {
       imports = [
-        base
+        testLib.baseModule
+        ../../modules/blocks/hardcodedsecret.nix
+        ../../modules/services/deluge.nix
         (testLib.certs domain)
         basic
         https

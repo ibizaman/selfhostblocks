@@ -1,19 +1,13 @@
-{ pkgs, lib, ... }:
+{ pkgs, ... }:
 let
-  pkgs' = pkgs;
-
   testLib = pkgs.callPackage ../common.nix {};
-  shblib = pkgs.callPackage ../../lib {};
-
-  base = testLib.base [
-    ../../modules/blocks/restic.nix
-  ];
 
   commonTest = user: pkgs.testers.runNixOSTest {
     name = "restic_backupAndRestore_${user}";
 
     nodes.machine = { config, ... }: {
-      imports = ( testLib.baseImports pkgs' ) ++ [
+      imports = [
+        testLib.baseImports
         ../../modules/blocks/hardcodedsecret.nix
         ../../modules/blocks/restic.nix
       ];

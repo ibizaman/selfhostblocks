@@ -23,10 +23,6 @@ let
     # '';
   };
 
-  base = testLib.base pkgs' [
-    ../../modules/services/audiobookshelf.nix
-  ];
-
   basic = {
     shb.audiobookshelf = {
       enable = true;
@@ -58,7 +54,8 @@ in
 
     nodes.server = {
       imports = [
-        base
+        testLib.baseModule
+        ../../modules/services/audiobookshelf.nix
         basic
       ];
     };
@@ -71,12 +68,15 @@ in
   https = pkgs.testers.runNixOSTest {
     name = "audiobookshelf-https";
 
-    nodes.server = lib.mkMerge [
-      base
-      (testLib.certs domain)
-      basic
-      https
-    ];
+    nodes.server = {
+      imports = [
+        testLib.baseModule
+        ../../modules/services/audiobookshelf.nix
+        (testLib.certs domain)
+        basic
+        https
+      ];
+    };
 
     nodes.client = {};
 
@@ -88,7 +88,8 @@ in
 
     nodes.server = { config, ... }: {
       imports = [
-        base
+        testLib.baseModule
+        ../../modules/services/audiobookshelf.nix
         (testLib.certs domain)
         basic
         https

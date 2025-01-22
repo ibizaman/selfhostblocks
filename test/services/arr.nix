@@ -50,10 +50,6 @@ let
       '';
     };
 
-  base = testLib.base pkgs' [
-    ../../modules/services/arr.nix
-  ];
-
   basic = appname: { ... }: {
     shb.arr.${appname} = {
       enable = true;
@@ -69,7 +65,8 @@ let
 
     nodes.server = { config, pkgs, ... }: {
       imports = [
-        base
+        testLib.baseModule
+        ../../modules/services/arr.nix
         (basic appname)
       ];
     };
@@ -84,7 +81,8 @@ let
 
     nodes.server = { config, ... }: {
       imports = [
-        base
+        testLib.baseModule
+        ../../modules/services/arr.nix
         (basic appname)
         (testLib.backup config.shb.arr.${appname}.backup)
       ];
@@ -106,7 +104,8 @@ let
 
     nodes.server = { config, pkgs, ... }: {
       imports = [
-        base
+        testLib.baseModule
+        ../../modules/services/arr.nix
         (testLib.certs domain)
         (basic appname)
         (https appname)
@@ -129,7 +128,8 @@ let
 
     nodes.server = { config, pkgs, ... }: {
       imports = [
-        base
+        testLib.baseModule
+        ../../modules/services/arr.nix
         (testLib.certs domain)
         (basic appname)
         (https appname)

@@ -18,10 +18,6 @@ let
     ];
   };
 
-  base = testLib.base pkgs' [
-    ../../modules/services/hledger.nix
-  ];
-
   basic = { config, ... }: {
     shb.hledger = {
       enable = true;
@@ -47,7 +43,8 @@ in
 
     nodes.server = {
       imports = [
-        base
+        testLib.baseModule
+        ../../modules/services/hledger.nix
         basic
       ];
     };
@@ -62,7 +59,8 @@ in
 
     nodes.server = { config, ... }: {
       imports = [
-        base
+        testLib.baseModule
+        ../../modules/services/hledger.nix
         basic
         (testLib.backup config.shb.hledger.backup)
       ];
@@ -78,7 +76,8 @@ in
 
     nodes.server = {
       imports = [
-        base
+        testLib.baseModule
+        ../../modules/services/hledger.nix
         (testLib.certs domain)
         basic
         https
@@ -95,7 +94,8 @@ in
 
     nodes.server = { config, pkgs, ... }: {
       imports = [
-        base
+        testLib.baseModule
+        ../../modules/services/hledger.nix
         (testLib.certs domain)
         basic
         https
