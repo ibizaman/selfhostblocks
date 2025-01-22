@@ -23,10 +23,6 @@ let
     # '';
   };
 
-  base = testLib.base pkgs' [
-    ../../modules/services/grocy.nix
-  ];
-
   basic = { config, ... }: {
     shb.grocy = {
       enable = true;
@@ -46,7 +42,8 @@ in
 
     nodes.server = {
       imports = [
-        base
+        testLib.baseModule
+        ../../modules/services/grocy.nix
         basic
       ];
     };
@@ -61,7 +58,8 @@ in
 
     nodes.server = {
       imports = [
-        base
+        testLib.baseModule
+        ../../modules/services/grocy.nix
         (testLib.certs domain)
         basic
         https

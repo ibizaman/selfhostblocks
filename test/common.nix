@@ -1,9 +1,11 @@
-{ lib }:
+{ pkgs, lib }:
 let
-  baseImports = pkgs: [
-    (pkgs.path + "/nixos/modules/profiles/headless.nix")
-    (pkgs.path + "/nixos/modules/profiles/qemu-guest.nix")
-  ];
+  baseImports = {
+    imports = [
+      (pkgs.path + "/nixos/modules/profiles/headless.nix")
+      (pkgs.path + "/nixos/modules/profiles/qemu-guest.nix")
+    ];
+  };
 
   accessScript = lib.makeOverridable ({
     subdomain
@@ -112,19 +114,17 @@ in
       backup = backupScript args;
     };
 
-  base = pkgs: additionalModules: {
+  baseModule = {
     imports =
-      ( baseImports pkgs )
-      ++ [
-        # TODO: replace postgresql.nix and authelia.nix by the sso contract
+      [
+        baseImports
         ../modules/blocks/postgresql.nix
         ../modules/blocks/authelia.nix
         ../modules/blocks/nginx.nix
         ../modules/blocks/hardcodedsecret.nix
-      ]
-      ++ additionalModules;
+      ];
 
-    # Nginx port.
+    # HTTP(s) server port.
     networking.firewall.allowedTCPPorts = [ 80 443 ];
   };
 

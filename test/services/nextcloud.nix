@@ -115,10 +115,6 @@ let
     '';
   };
 
-  base = testLib.base pkgs' [
-    ../../modules/services/nextcloud-server.nix
-  ];
-
   basic = { config, ... }: {
     shb.nextcloud = {
       enable = true;
@@ -242,7 +238,8 @@ in
 
     nodes.server = {
       imports = [
-        base
+        testLib.baseModule
+        ../../modules/services/nextcloud-server.nix
         basic
       ];
     };
@@ -257,7 +254,8 @@ in
 
     nodes.server = { config, ... }: {
       imports = [
-        base
+        testLib.baseModule
+        ../../modules/services/nextcloud-server.nix
         basic
         (testLib.backup config.shb.nextcloud.backup)
       ];
@@ -273,7 +271,8 @@ in
 
     nodes.server = {
       imports = [
-        base
+        testLib.baseModule
+        ../../modules/services/nextcloud-server.nix
         (testLib.certs domain)
         basic
         https
@@ -291,7 +290,8 @@ in
 
     nodes.server = {
       imports = [
-        base
+        testLib.baseModule
+        ../../modules/services/nextcloud-server.nix
         (testLib.certs domain)
         basic
         https
@@ -309,7 +309,8 @@ in
 
     nodes.server = {
       imports = [
-        base
+        testLib.baseModule
+        ../../modules/services/nextcloud-server.nix
         (testLib.certs domain)
         basic
         https
@@ -327,7 +328,8 @@ in
   
     nodes.server = { config, ... }: {
       imports = [
-        base
+        testLib.baseModule
+        ../../modules/services/nextcloud-server.nix
         (testLib.certs domain)
         basic
         https
@@ -346,7 +348,8 @@ in
   
     nodes.server = { config, ... }: {
       imports = [
-        base
+        testLib.baseModule
+        ../../modules/services/nextcloud-server.nix
         (testLib.certs domain)
         basic
         https
@@ -367,7 +370,8 @@ in
 
     nodes.server = { config, ... }: {
       imports = [
-        base
+        testLib.baseModule
+        ../../modules/services/nextcloud-server.nix
         basic
         prometheus
       ];

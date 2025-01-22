@@ -1,7 +1,5 @@
 { pkgs, lib, ... }:
 let
-  pkgs' = pkgs;
-
   testLib = pkgs.callPackage ../../../test/common.nix {};
 
   inherit (lib) getAttrFromPath setAttrByPath;
@@ -19,7 +17,7 @@ in
     name = "secret_${name}_${owner}_${group}_${mode}";
 
     nodes.machine = { config, ... }: {
-      imports = ( testLib.baseImports pkgs' ) ++ modules;
+      imports = [ testLib.baseImports ] ++ modules;
       config = lib.mkMerge [
         (setAttrByPath configRoot {
           A = {

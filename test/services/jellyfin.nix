@@ -19,10 +19,6 @@ let
     ];
   };
 
-  base = testLib.base pkgs' [
-    ../../modules/services/jellyfin.nix
-  ];
-
   basic = {
     shb.jellyfin = {
       enable = true;
@@ -80,7 +76,8 @@ in
 
     nodes.server = {
       imports = [
-        base
+        testLib.baseModule
+        ../../modules/services/jellyfin.nix
         basic
       ];
     };
@@ -95,7 +92,8 @@ in
 
     nodes.server = { config, ... }: {
       imports = [
-        base
+        testLib.baseModule
+        ../../modules/services/jellyfin.nix
         basic
         (testLib.backup config.shb.jellyfin.backup)
       ];
@@ -111,7 +109,8 @@ in
 
     nodes.server = {
       imports = [
-        base
+        testLib.baseModule
+        ../../modules/services/jellyfin.nix
         (testLib.certs domain)
         basic
         https
@@ -128,7 +127,8 @@ in
 
     nodes.server = {
       imports = [
-        base
+        testLib.baseModule
+        ../../modules/services/jellyfin.nix
         basic
         (testLib.ldap domain pkgs')
         ldap
@@ -145,7 +145,8 @@ in
 
     nodes.server = { config, pkgs, ... }: {
       imports = [
-        base
+        testLib.baseModule
+        ../../modules/services/jellyfin.nix
         (testLib.certs domain)
         basic
         https

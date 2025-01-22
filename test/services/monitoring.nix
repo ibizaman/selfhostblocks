@@ -20,10 +20,6 @@ let
     ];
   };
 
-  base = testLib.base pkgs' [
-    ../../modules/blocks/monitoring.nix
-  ];
-
   basic = { config, ... }: {
     shb.monitoring = {
       enable = true;
@@ -56,7 +52,8 @@ in
 
     nodes.server = {
       imports = [
-        base
+        testLib.baseModule
+        ../../modules/blocks/monitoring.nix
         basic
       ];
     };
@@ -71,7 +68,8 @@ in
 
     nodes.server = {
       imports = [
-        base
+        testLib.baseModule
+        ../../modules/blocks/monitoring.nix
         (testLib.certs domain)
         basic
         https

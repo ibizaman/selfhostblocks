@@ -50,11 +50,6 @@ let
     '';
   };
 
-  base = testLib.base pkgs' [
-    ../../modules/blocks/hardcodedsecret.nix
-    ../../modules/services/vaultwarden.nix
-  ];
-
   basic = { config, ... }: {
     shb.nginx.accessLog = true;
     shb.vaultwarden = {
@@ -100,7 +95,9 @@ in
 
     nodes.server = {
       imports = [
-        base
+        testLib.baseModule
+        ../../modules/blocks/hardcodedsecret.nix
+        ../../modules/services/vaultwarden.nix
         basic
       ];
     };
@@ -115,7 +112,9 @@ in
 
     nodes.server = {
       imports = [
-        base
+        testLib.baseModule
+        ../../modules/blocks/hardcodedsecret.nix
+        ../../modules/services/vaultwarden.nix
         (testLib.certs domain)
         basic
         https
@@ -133,7 +132,9 @@ in
   #   name = "vaultwarden_ldap";
   #
   #   nodes.server = lib.mkMerge [ 
-  #     base
+  #     testLib.baseModule
+  #     ../../modules/blocks/hardcodedsecret.nix
+  #     ../../modules/services/vaultwarden.nix
   #     basic
   #     ldap
   #   ];
@@ -148,7 +149,9 @@ in
 
     nodes.server = { config, ... }: {
       imports = [
-        base
+        testLib.baseModule
+        ../../modules/blocks/hardcodedsecret.nix
+        ../../modules/services/vaultwarden.nix
         (testLib.certs domain)
         basic
         https
@@ -185,7 +188,9 @@ in
 
     nodes.server = { config, ... }: {
       imports = [
-        base
+        testLib.baseModule
+        ../../modules/blocks/hardcodedsecret.nix
+        ../../modules/services/vaultwarden.nix
         basic
         (testLib.backup config.shb.vaultwarden.backup)
       ];
