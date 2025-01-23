@@ -1,6 +1,5 @@
 { pkgs, lib, ... }:
 let
-  pkgs' = pkgs;
   adminUser = "root";
   adminPass = "rootpw";
   oidcSecret = "oidcSecret";
@@ -332,7 +331,7 @@ in
         testLib.certs
         basic
         https
-        (testLib.ldap pkgs')
+        testLib.ldap
         ldap
       ];
     };
@@ -352,9 +351,9 @@ in
         testLib.certs
         basic
         https
-        (testLib.ldap pkgs')
+        testLib.ldap
         ldap
-        (testLib.sso pkgs' config.shb.certs.certs.selfsigned.n)
+        (testLib.sso config.shb.certs.certs.selfsigned.n)
         sso
       ];
     };

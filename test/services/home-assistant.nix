@@ -1,7 +1,5 @@
 { pkgs, ... }:
 let
-  pkgs' = pkgs;
-
   testLib = pkgs.callPackage ../common.nix {};
 
   commonTestScript = testLib.mkScripts {
@@ -165,7 +163,7 @@ in
         testLib.baseModule
         ../../modules/services/home-assistant.nix
         basic
-        (testLib.ldap pkgs')
+        testLib.ldap
         ldap
       ];
     };

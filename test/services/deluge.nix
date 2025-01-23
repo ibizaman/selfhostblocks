@@ -1,7 +1,5 @@
 { pkgs, ... }:
 let
-  pkgs' = pkgs;
-
   testLib = pkgs.callPackage ../common.nix {};
 
   commonTestScript = testLib.mkScripts {
@@ -182,8 +180,8 @@ in
         testLib.certs
         basic
         https
-        (testLib.ldap pkgs')
-        (testLib.sso pkgs' config.shb.certs.certs.selfsigned.n)
+        testLib.ldap
+        (testLib.sso config.shb.certs.certs.selfsigned.n)
         sso
       ];
     };
