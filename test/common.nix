@@ -1,5 +1,8 @@
 { pkgs, lib }:
 let
+  inherit (lib) mkOption;
+  inherit (lib.types) str;
+
   baseImports = {
     imports = [
       (pkgs.path + "/nixos/modules/profiles/headless.nix")
@@ -8,9 +11,7 @@ let
   };
 
   accessScript = lib.makeOverridable ({
-    subdomain
-    , domain
-    , hasSSL
+    hasSSL
     , waitForServices ? s: []
     , waitForPorts ? p: []
     , waitForUnixSocket ? u: []
@@ -18,13 +19,15 @@ let
     , redirectSSO ? false
   }: { nodes, ... }:
     let
-      fqdn = "${subdomain}.${domain}";
+      cfg = nodes.server.test;
+
+      fqdn = "${cfg.subdomain}.${cfg.domain}";
       proto_fqdn = if hasSSL args then "https://${fqdn}" else "http://${fqdn}";
 
       args = {
         node.name = "server";
         node.config = nodes.server;
-        inherit proto_fqdn;
+        inherit fqdn proto_fqdn;
       };
     in
     ''
@@ -36,7 +39,7 @@ let
     ''
     + lib.strings.concatMapStrings (s: ''server.wait_for_unit("${s}")'' + "\n") (
       waitForServices args
-      ++ (lib.optionals redirectSSO [ "authelia-auth.${domain}.service" ])
+      ++ (lib.optionals redirectSSO [ "authelia-auth.${cfg.domain}.service" ])
     )
     + lib.strings.concatMapStrings (p: ''server.wait_for_open_port(${toString p})'' + "\n") (
       waitForPorts args
@@ -57,7 +60,7 @@ let
               + " --connect-to ${fqdn}:443:server:443"
               + " --connect-to ${fqdn}:80:server:80"
               # Client must be able to resolve talking to auth server
-              + " --connect-to auth.${domain}:443:server:443"
+              + " --connect-to auth.${cfg.domain}:443:server:443"
               + (f" --data '{data}'" if data != "" else "")
               + (f" --silent --output /dev/null --write-out '{format}'" if format != "" else "")
               + (f" {extra}" if extra != "" else "")
@@ -83,8 +86,8 @@ let
 
         if response['code'] != 200:
             raise Exception(f"Code is {response['code']}")
-        if response['auth_host'] != "auth.${domain}":
-            raise Exception(f"auth host should be auth.${domain} but is {response['auth_host']}")
+        if response['auth_host'] != "auth.${cfg.domain}":
+            raise Exception(f"auth host should be auth.${cfg.domain} but is {response['auth_host']}")
         if response['auth_query'] != "rd=${proto_fqdn}/":
             raise Exception(f"auth query should be rd=${proto_fqdn}/ but is {response['auth_query']}")
     ''
@@ -114,18 +117,32 @@ in
       backup = backupScript args;
     };
 
-  baseModule = {
-    imports =
-      [
-        baseImports
-        ../modules/blocks/postgresql.nix
-        ../modules/blocks/authelia.nix
-        ../modules/blocks/nginx.nix
-        ../modules/blocks/hardcodedsecret.nix
-      ];
-
-    # HTTP(s) server port.
-    networking.firewall.allowedTCPPorts = [ 80 443 ];
+  baseModule = { config, ... }: {
+    options.test = {
+      domain = mkOption {
+        type = str;
+        default = "example.com";
+      };
+      subdomain = mkOption {
+        type = str;
+      };
+      fqdn = mkOption {
+        type = str;
+        readOnly = true;
+        default = "${config.test.subdomain}.${config.test.domain}";
+      };
+    };
+    imports = [
+      baseImports
+      ../modules/blocks/postgresql.nix
+      ../modules/blocks/authelia.nix
+      ../modules/blocks/nginx.nix
+      ../modules/blocks/hardcodedsecret.nix
+    ];
+    config = {
+      # HTTP(s) server port.
+      networking.firewall.allowedTCPPorts = [ 80 443 ];
+    };
   };
 
   backup = backupOption: { config, ... }: {
@@ -152,7 +169,7 @@ in
     };
   };
 
-  certs = domain: { config, ... }: {
+  certs = { config, ... }: {
     imports = [
       ../modules/blocks/ssl.nix
     ];
@@ -164,7 +181,7 @@ in
       certs.selfsigned = {
         n = {
           ca = config.shb.certs.cas.selfsigned.myca;
-          domain = "*.${domain}";
+          domain = "*.${config.test.domain}";
           group = "nginx";
         };
       };
@@ -174,13 +191,13 @@ in
     systemd.services.nginx.requires = [ config.shb.certs.certs.selfsigned.n.systemdService ];
   };
 
-  ldap = domain: pkgs: { config, ... }: {
+  ldap = pkgs: { config, ... }: {
     imports = [
       ../modules/blocks/ldap.nix
     ];
 
     networking.hosts = {
-      "127.0.0.1" = [ "ldap.${domain}" ];
+      "127.0.0.1" = [ "ldap.${config.test.domain}" ];
     };
 
     shb.hardcodedsecret.ldapUserPassword = {
@@ -194,7 +211,7 @@ in
 
     shb.ldap = {
       enable = true;
-      inherit domain;
+      inherit (config.test) domain;
       subdomain = "ldap";
       ldapPort = 3890;
       webUIListenPort = 17170;
@@ -204,18 +221,18 @@ in
     };
   };
 
-  sso = domain: pkgs: ssl: { config, ... }: {
+  sso = pkgs: ssl: { config, ... }: {
     imports = [
       ../modules/blocks/authelia.nix
     ];
 
     networking.hosts = {
-      "127.0.0.1" = [ "auth.${domain}" ];
+      "127.0.0.1" = [ "auth.${config.test.domain}" ];
     };
 
     shb.authelia = {
       enable = true;
-      inherit domain;
+      inherit (config.test) domain;
       subdomain = "auth";
       ssl = config.shb.certs.certs.selfsigned.n;
 

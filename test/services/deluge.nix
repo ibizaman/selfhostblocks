@@ -1,14 +1,10 @@
-{ pkgs, lib, ... }:
+{ pkgs, ... }:
 let
   pkgs' = pkgs;
-
-  subdomain = "d";
-  domain = "example.com";
 
   testLib = pkgs.callPackage ../common.nix {};
 
   commonTestScript = testLib.mkScripts {
-    inherit subdomain domain;
     hasSSL = { node, ... }: !(isNull node.config.shb.deluge.ssl);
     waitForServices = { ... }: [
       "nginx.service"
@@ -74,9 +70,13 @@ let
     '';
 
   basic = { config, ... }: {
+    test = {
+      subdomain = "d";
+    };
+
     shb.deluge = {
       enable = true;
-      inherit domain subdomain;
+      inherit (config.test) domain subdomain;
 
       settings = {
         downloadLocation = "/var/lib/deluge";
@@ -160,7 +160,7 @@ in
         testLib.baseModule
         ../../modules/blocks/hardcodedsecret.nix
         ../../modules/services/deluge.nix
-        (testLib.certs domain)
+        testLib.certs
         basic
         https
       ];
@@ -179,11 +179,11 @@ in
         testLib.baseModule
         ../../modules/blocks/hardcodedsecret.nix
         ../../modules/services/deluge.nix
-        (testLib.certs domain)
+        testLib.certs
         basic
         https
-        (testLib.ldap domain pkgs')
-        (testLib.sso domain pkgs' config.shb.certs.certs.selfsigned.n)
+        (testLib.ldap pkgs')
+        (testLib.sso pkgs' config.shb.certs.certs.selfsigned.n)
         sso
       ];
     };
@@ -203,7 +203,7 @@ in
         testLib.baseModule
         ../../modules/blocks/hardcodedsecret.nix
         ../../modules/services/deluge.nix
-        (testLib.certs domain)
+        testLib.certs
         basic
         https
         prometheus

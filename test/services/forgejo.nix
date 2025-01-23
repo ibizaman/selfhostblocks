@@ -4,13 +4,9 @@ let
 
   testLib = pkgs.callPackage ../common.nix {};
 
-  subdomain = "f";
-  domain = "example.com";
-
   adminPassword = "AdminPassword";
 
   commonTestScript = testLib.mkScripts {
-    inherit subdomain domain;
     hasSSL = { node, ... }: !(isNull node.config.shb.forgejo.ssl);
     waitForServices = { ... }: [
       "forgejo.service"
@@ -26,9 +22,13 @@ let
   };
 
   basic = { config, ... }: {
+    test = {
+      subdomain = "f";
+    };
+
     shb.forgejo = {
       enable = true;
-      inherit domain subdomain;
+      inherit (config.test) subdomain domain;
 
       adminPassword.result = config.shb.hardcodedsecret.forgejoAdminPassword.result;
       databasePassword.result = config.shb.hardcodedsecret.forgejoDatabasePassword.result;
@@ -36,7 +36,7 @@ let
 
     # Needed for gitea-runner-local to be able to ping forgejo.
     networking.hosts = {
-      "127.0.0.1" = [ "${subdomain}.${domain}" ];
+      "127.0.0.1" = [ "${config.test.subdomain}.${config.test.domain}" ];
     };
 
     shb.hardcodedsecret.forgejoAdminPassword = {
@@ -135,7 +135,7 @@ in
       imports = [
         testLib.baseModule
         ../../modules/services/forgejo.nix
-        (testLib.certs domain)
+        testLib.certs
         basic
         https
       ];
@@ -154,7 +154,7 @@ in
         testLib.baseModule
         ../../modules/services/forgejo.nix
         basic
-        (testLib.ldap domain pkgs')
+        (testLib.ldap pkgs')
         ldap
       ];
     };
@@ -171,11 +171,11 @@ in
       imports = [
         testLib.baseModule
         ../../modules/services/forgejo.nix
-        (testLib.certs domain)
+        testLib.certs
         basic
         https
-        (testLib.ldap domain pkgs')
-        (testLib.sso domain pkgs' config.shb.certs.certs.selfsigned.n)
+        (testLib.ldap pkgs')
+        (testLib.sso pkgs' config.shb.certs.certs.selfsigned.n)
         sso
       ];
     };

@@ -4,11 +4,7 @@ let
 
   testLib = pkgs.callPackage ../common.nix {};
 
-  subdomain = "j";
-  domain = "example.com";
-
   commonTestScript = testLib.mkScripts {
-    inherit subdomain domain;
     hasSSL = { node, ... }: !(isNull node.config.shb.jellyfin.ssl);
     waitForServices = { ... }: [
       "jellyfin.service"
@@ -19,10 +15,14 @@ let
     ];
   };
 
-  basic = {
+  basic = { config, ... }: {
+    test = {
+      subdomain = "v";
+    };
+
     shb.jellyfin = {
       enable = true;
-      inherit domain subdomain;
+      inherit (config.test) subdomain domain;
     };
   };
 
@@ -111,7 +111,7 @@ in
       imports = [
         testLib.baseModule
         ../../modules/services/jellyfin.nix
-        (testLib.certs domain)
+        testLib.certs
         basic
         https
       ];
@@ -130,7 +130,7 @@ in
         testLib.baseModule
         ../../modules/services/jellyfin.nix
         basic
-        (testLib.ldap domain pkgs')
+        (testLib.ldap pkgs')
         ldap
       ];
     };
@@ -147,11 +147,11 @@ in
       imports = [
         testLib.baseModule
         ../../modules/services/jellyfin.nix
-        (testLib.certs domain)
+        testLib.certs
         basic
         https
-        (testLib.ldap domain pkgs')
-        (testLib.sso domain pkgs' config.shb.certs.certs.selfsigned.n)
+        (testLib.ldap pkgs')
+        (testLib.sso pkgs' config.shb.certs.certs.selfsigned.n)
         sso
       ];
     };

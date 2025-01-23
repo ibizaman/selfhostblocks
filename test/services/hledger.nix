@@ -4,13 +4,9 @@ let
 
   testLib = pkgs.callPackage ../common.nix {};
 
-  subdomain = "h";
-  domain = "example.com";
-
   adminPassword = "AdminPassword";
 
   commonTestScript = testLib.mkScripts {
-    inherit subdomain domain;
     hasSSL = { node, ... }: !(isNull node.config.shb.hledger.ssl);
     waitForServices = { ... }: [
       "hledger-web.service"
@@ -19,9 +15,13 @@ let
   };
 
   basic = { config, ... }: {
+    test = {
+      subdomain = "h";
+    };
+
     shb.hledger = {
       enable = true;
-      inherit domain subdomain;
+      inherit (config.test) subdomain domain;
     };
   };
 
@@ -78,7 +78,7 @@ in
       imports = [
         testLib.baseModule
         ../../modules/services/hledger.nix
-        (testLib.certs domain)
+        testLib.certs
         basic
         https
       ];
@@ -96,11 +96,11 @@ in
       imports = [
         testLib.baseModule
         ../../modules/services/hledger.nix
-        (testLib.certs domain)
+        testLib.certs
         basic
         https
-        (testLib.ldap domain pkgs')
-        (testLib.sso domain pkgs' config.shb.certs.certs.selfsigned.n)
+        (testLib.ldap pkgs')
+        (testLib.sso pkgs' config.shb.certs.certs.selfsigned.n)
         sso
       ];
     };

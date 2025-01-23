@@ -1,15 +1,8 @@
 { pkgs, lib, ... }:
 let
-  pkgs' = pkgs;
-
   testLib = pkgs.callPackage ../common.nix {};
 
-  subdomain = "g";
-  domain = "example.com";
-  fqdn = "${subdomain}.${domain}";
-
   commonTestScript = lib.makeOverridable testLib.accessScript {
-    inherit subdomain domain;
     hasSSL = { node, ... }: !(isNull node.config.shb.grocy.ssl);
     waitForServices = { ... }: [
       "phpfpm-grocy.service"
@@ -24,9 +17,13 @@ let
   };
 
   basic = { config, ... }: {
+    test = {
+      subdomain = "g";
+    };
+
     shb.grocy = {
       enable = true;
-      inherit domain subdomain;
+      inherit (config.test) subdomain domain;
     };
   };
 
@@ -60,7 +57,7 @@ in
       imports = [
         testLib.baseModule
         ../../modules/services/grocy.nix
-        (testLib.certs domain)
+        testLib.certs
         basic
         https
       ];

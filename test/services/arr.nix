@@ -2,59 +2,56 @@
 let
   pkgs' = pkgs;
 
-  domain = "example.com";
   healthUrl = "/health";
   loginUrl = "/UI/Login";
 
   testLib = pkgs.callPackage ../common.nix {};
 
   # TODO: Test login
-  commonTestScript = appname: cfgPathFn:
-    let
+  commonTestScript = appname: cfgPathFn: testLib.mkScripts {
+    hasSSL = { node, ... }: !(isNull node.config.shb.arr.${appname}.ssl);
+    waitForServices = { ... }: [
+      "${appname}.service"
+      "nginx.service"
+    ];
+    waitForPorts = { node, ... }: [
+      node.config.shb.arr.${appname}.settings.Port
+    ];
+    extraScript = { node, fqdn, proto_fqdn, ... }: let
+      shbapp = node.config.shb.arr.${appname};
+      cfgPath = cfgPathFn shbapp;
+      apiKey = if (shbapp.settings ? ApiKey) then "01234567890123456789" else null;
+    in ''
+      # These curl requests still return a 200 even with sso redirect.
+      with subtest("health"):
+          response = curl(client, """{"code":%{response_code}}""", "${fqdn}${healthUrl}")
+          print("response =", response)
+
+          if response['code'] != 200:
+              raise Exception(f"Code is {response['code']}")
+
+      with subtest("login"):
+          response = curl(client, """{"code":%{response_code}}""", "${fqdn}${loginUrl}")
+
+          if response['code'] != 200:
+              raise Exception(f"Code is {response['code']}")
+    '' + lib.optionalString (apiKey != null) ''
+
+      with subtest("apikey"):
+          config = server.succeed("cat ${cfgPath}")
+          if "${apiKey}" not in config:
+              raise Exception(f"Unexpected API Key. Want '${apiKey}', got '{config}'")
+    '';
+  };
+
+  basic = appname: { config, ... }: {
+    test = {
       subdomain = appname;
-      fqdn = "${subdomain}.${domain}";
-    in testLib.mkScripts {
-      inherit subdomain domain;
-      hasSSL = { node, ... }: !(isNull node.config.shb.arr.${appname}.ssl);
-      waitForServices = { ... }: [
-        "${appname}.service"
-        "nginx.service"
-      ];
-      waitForPorts = { node, ... }: [
-        node.config.shb.arr.${appname}.settings.Port
-      ];
-      extraScript = { node, proto_fqdn, ... }: let
-        shbapp = node.config.shb.arr.${appname};
-        cfgPath = cfgPathFn shbapp;
-        apiKey = if (shbapp.settings ? ApiKey) then "01234567890123456789" else null;
-      in ''
-        # These curl requests still return a 200 even with sso redirect.
-        with subtest("health"):
-            response = curl(client, """{"code":%{response_code}}""", "${fqdn}${healthUrl}")
-            print("response =", response)
-
-            if response['code'] != 200:
-                raise Exception(f"Code is {response['code']}")
-
-        with subtest("login"):
-            response = curl(client, """{"code":%{response_code}}""", "${fqdn}${loginUrl}")
-
-            if response['code'] != 200:
-                raise Exception(f"Code is {response['code']}")
-      '' + lib.optionalString (apiKey != null) ''
-
-        with subtest("apikey"):
-            config = server.succeed("cat ${cfgPath}")
-            if "${apiKey}" not in config:
-                raise Exception(f"Unexpected API Key. Want '${apiKey}', got '{config}'")
-      '';
     };
 
-  basic = appname: { ... }: {
     shb.arr.${appname} = {
       enable = true;
-      inherit domain;
-      subdomain = appname;
+      inherit (config.test) subdomain domain;
 
       settings.ApiKey.source = pkgs.writeText "APIKey" "01234567890123456789"; # Needs to be >=20 characters.
     };
@@ -106,7 +103,7 @@ let
       imports = [
         testLib.baseModule
         ../../modules/services/arr.nix
-        (testLib.certs domain)
+        testLib.certs
         (basic appname)
         (https appname)
       ];
@@ -130,11 +127,11 @@ let
       imports = [
         testLib.baseModule
         ../../modules/services/arr.nix
-        (testLib.certs domain)
+        testLib.certs
         (basic appname)
         (https appname)
-        (testLib.ldap domain pkgs')
-        (testLib.sso domain pkgs' config.shb.certs.certs.selfsigned.n)
+        (testLib.ldap pkgs')
+        (testLib.sso pkgs' config.shb.certs.certs.selfsigned.n)
         (sso appname)
       ];
     };
