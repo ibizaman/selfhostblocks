@@ -1,7 +1,5 @@
 { pkgs, ... }:
 let
-  pkgs' = pkgs;
-
   testLib = pkgs.callPackage ../common.nix {};
 
   password = "securepw";

@@ -191,7 +191,7 @@ in
     systemd.services.nginx.requires = [ config.shb.certs.certs.selfsigned.n.systemdService ];
   };
 
-  ldap = pkgs: { config, ... }: {
+  ldap = { config, pkgs, ... }: {
     imports = [
       ../modules/blocks/ldap.nix
     ];
@@ -221,7 +221,7 @@ in
     };
   };
 
-  sso = pkgs: ssl: { config, ... }: {
+  sso = ssl: { config, pkgs, ... }: {
     imports = [
       ../modules/blocks/authelia.nix
     ];

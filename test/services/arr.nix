@@ -1,7 +1,5 @@
 { pkgs, lib, ... }:
 let
-  pkgs' = pkgs;
-
   healthUrl = "/health";
   loginUrl = "/UI/Login";
 
@@ -130,8 +128,8 @@ let
         testLib.certs
         (basic appname)
         (https appname)
-        (testLib.ldap pkgs')
-        (testLib.sso pkgs' config.shb.certs.certs.selfsigned.n)
+        testLib.ldap
+        (testLib.sso config.shb.certs.certs.selfsigned.n)
         (sso appname)
       ];
     };
