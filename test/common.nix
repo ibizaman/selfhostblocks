@@ -96,17 +96,15 @@ let
       script = extraScript args;
       indent = i: str: lib.concatMapStringsSep "\n" (x: (lib.strings.replicate i " ") + x) (lib.splitString "\n" script);
     in
-      lib.optionalString (script != "") ''
-        with subtest("extraScript"):
-        ${indent 4 script}
-      ''));
+      lib.optionalString (script != "") script)
+  );
 
   backupScript = args: (accessScript args).override {
-      extraScript = { proto_fqdn, ... }: ''
-      with subtest("backup"):
-          server.succeed("systemctl start restic-backups-testinstance_opt_repos_A")
-      '';
-    };
+    extraScript = { proto_fqdn, ... }: ''
+    with subtest("backup"):
+        server.succeed("systemctl start restic-backups-testinstance_opt_repos_A")
+    '';
+  };
 in
 {
   inherit baseImports accessScript;
