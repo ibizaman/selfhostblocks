@@ -1,15 +1,10 @@
-{ pkgs, lib, ... }:
+{ pkgs, ... }:
 let
   pkgs' = pkgs;
 
   testLib = pkgs.callPackage ../common.nix {};
 
-  subdomain = "a";
-  domain = "example.com";
-  fqdn = "${subdomain}.${domain}";
-
   commonTestScript = testLib.accessScript {
-    inherit subdomain domain;
     hasSSL = { node, ... }: !(isNull node.config.shb.audiobookshelf.ssl);
     waitForServices = { ... }: [
       "audiobookshelf.service"
@@ -23,10 +18,13 @@ let
     # '';
   };
 
-  basic = {
+  basic = { config, ... }: {
+    test = {
+      subdomain = "a";
+    };
     shb.audiobookshelf = {
       enable = true;
-      inherit subdomain domain;
+      inherit (config.test) subdomain domain;
     };
   };
 
@@ -72,7 +70,7 @@ in
       imports = [
         testLib.baseModule
         ../../modules/services/audiobookshelf.nix
-        (testLib.certs domain)
+        testLib.certs
         basic
         https
       ];
@@ -90,11 +88,11 @@ in
       imports = [
         testLib.baseModule
         ../../modules/services/audiobookshelf.nix
-        (testLib.certs domain)
+        testLib.certs
         basic
         https
-        (testLib.ldap domain pkgs')
-        (testLib.sso domain pkgs' config.shb.certs.certs.selfsigned.n)
+        (testLib.ldap pkgs')
+        (testLib.sso pkgs' config.shb.certs.certs.selfsigned.n)
         sso
       ];
     };

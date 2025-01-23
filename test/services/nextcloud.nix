@@ -5,14 +5,9 @@ let
   adminPass = "rootpw";
   oidcSecret = "oidcSecret";
 
-  subdomain = "n";
-  domain = "example.com";
-  fqdn = "${subdomain}.${domain}";
-
   testLib = pkgs.callPackage ../common.nix {};
 
   commonTestScript = testLib.mkScripts {
-    inherit subdomain domain;
     hasSSL = { node, ... }: !(isNull node.config.shb.nextcloud.ssl);
     waitForServices = { ... }: [
       "phpfpm-nextcloud.service"
@@ -21,7 +16,7 @@ let
     waitForUnixSocket = { node, ... }: [
       node.config.services.phpfpm.pools.nextcloud.socket
     ];
-    extraScript = { node, proto_fqdn, ... }: ''
+    extraScript = { node, fqdn, proto_fqdn, ... }: ''
     import time
 
     def find_in_logs(unit, text):
@@ -116,16 +111,20 @@ let
   };
 
   basic = { config, ... }: {
+    test = {
+      subdomain = "n";
+    };
+
     shb.nextcloud = {
       enable = true;
-      inherit domain subdomain;
+      inherit (config.test) subdomain domain;
 
       dataDir = "/var/lib/nextcloud";
       tracing = null;
       defaultPhoneRegion = "US";
 
       # This option is only needed because we do not access Nextcloud at the default port in the VM.
-      externalFqdn = "${fqdn}:8080";
+      externalFqdn = "${config.test.fqdn}:8080";
 
       adminUser = adminUser;
       adminPass.result = config.shb.hardcodedsecret.adminPass.result;
@@ -273,7 +272,7 @@ in
       imports = [
         testLib.baseModule
         ../../modules/services/nextcloud-server.nix
-        (testLib.certs domain)
+        testLib.certs
         basic
         https
       ];
@@ -292,7 +291,7 @@ in
       imports = [
         testLib.baseModule
         ../../modules/services/nextcloud-server.nix
-        (testLib.certs domain)
+        testLib.certs
         basic
         https
         previewgenerator
@@ -311,7 +310,7 @@ in
       imports = [
         testLib.baseModule
         ../../modules/services/nextcloud-server.nix
-        (testLib.certs domain)
+        testLib.certs
         basic
         https
         externalstorage
@@ -330,10 +329,10 @@ in
       imports = [
         testLib.baseModule
         ../../modules/services/nextcloud-server.nix
-        (testLib.certs domain)
+        testLib.certs
         basic
         https
-        (testLib.ldap domain pkgs')
+        (testLib.ldap pkgs')
         ldap
       ];
     };
@@ -350,12 +349,12 @@ in
       imports = [
         testLib.baseModule
         ../../modules/services/nextcloud-server.nix
-        (testLib.certs domain)
+        testLib.certs
         basic
         https
-        (testLib.ldap domain pkgs')
+        (testLib.ldap pkgs')
         ldap
-        (testLib.sso domain pkgs' config.shb.certs.certs.selfsigned.n)
+        (testLib.sso pkgs' config.shb.certs.certs.selfsigned.n)
         sso
       ];
     };

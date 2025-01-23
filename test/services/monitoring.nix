@@ -4,13 +4,9 @@ let
 
   testLib = pkgs.callPackage ../common.nix {};
 
-  subdomain = "grafana";
-  domain = "example.com";
-
   password = "securepw";
 
   commonTestScript = testLib.accessScript {
-    inherit subdomain domain;
     hasSSL = { node, ... }: !(isNull node.config.shb.monitoring.ssl);
     waitForServices = { ... }: [
       "grafana.service"
@@ -21,9 +17,13 @@ let
   };
 
   basic = { config, ... }: {
+    test = {
+      subdomain = "g";
+    };
+
     shb.monitoring = {
       enable = true;
-      inherit subdomain domain;
+      inherit (config.test) subdomain domain;
 
       grafanaPort = 3000;
       adminPassword.result = config.shb.hardcodedsecret."admin_password".result;
@@ -70,7 +70,7 @@ in
       imports = [
         testLib.baseModule
         ../../modules/blocks/monitoring.nix
-        (testLib.certs domain)
+        testLib.certs
         basic
         https
       ];

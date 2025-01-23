@@ -4,11 +4,7 @@ let
 
   testLib = pkgs.callPackage ../common.nix {};
 
-  subdomain = "v";
-  domain = "example.com";
-
   commonTestScript = testLib.mkScripts {
-    inherit subdomain domain;
     hasSSL = { node, ... }: !(isNull node.config.shb.vaultwarden.ssl);
     waitForServices = { ... }: [
       "vaultwarden.service"
@@ -51,10 +47,14 @@ let
   };
 
   basic = { config, ... }: {
+    test = {
+      subdomain = "v";
+    };
+
     shb.nginx.accessLog = true;
     shb.vaultwarden = {
       enable = true;
-      inherit subdomain domain;
+      inherit (config.test) subdomain domain;
 
       port = 8222;
       databasePassword.result = config.shb.hardcodedsecret.passphrase.result;
@@ -115,7 +115,7 @@ in
         testLib.baseModule
         ../../modules/blocks/hardcodedsecret.nix
         ../../modules/services/vaultwarden.nix
-        (testLib.certs domain)
+        testLib.certs
         basic
         https
       ];
@@ -152,11 +152,11 @@ in
         testLib.baseModule
         ../../modules/blocks/hardcodedsecret.nix
         ../../modules/services/vaultwarden.nix
-        (testLib.certs domain)
+        testLib.certs
         basic
         https
-        (testLib.ldap domain pkgs')
-        (testLib.sso domain pkgs' config.shb.certs.certs.selfsigned.n)
+        (testLib.ldap pkgs')
+        (testLib.sso pkgs' config.shb.certs.certs.selfsigned.n)
         sso
       ];
     };
@@ -169,14 +169,14 @@ in
         5432
         9091
       ];
-      extraScript = { proto_fqdn, ... }: ''
+      extraScript = { node, proto_fqdn, ... }: ''
       with subtest("unauthenticated access is not granted to /admin"):
           response = curl(client, """{"code":%{response_code},"auth_host":"%{urle.host}","auth_query":"%{urle.query}","all":%{json}}""", "${proto_fqdn}/admin")
 
           if response['code'] != 200:
               raise Exception(f"Code is {response['code']}")
-          if response['auth_host'] != "auth.${domain}":
-              raise Exception(f"auth host should be auth.${domain} but is {response['auth_host']}")
+          if response['auth_host'] != "auth.${node.config.test.domain}":
+              raise Exception(f"auth host should be auth.${node.config.test.domain} but is {response['auth_host']}")
           if response['auth_query'] != "rd=${proto_fqdn}/admin":
               raise Exception(f"auth query should be rd=${proto_fqdn}/admin but is {response['auth_query']}")
       '';

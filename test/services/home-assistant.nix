@@ -1,14 +1,10 @@
-{ pkgs, lib, ... }:
+{ pkgs, ... }:
 let
   pkgs' = pkgs;
 
   testLib = pkgs.callPackage ../common.nix {};
 
-  subdomain = "ha";
-  domain = "example.com";
-
   commonTestScript = testLib.mkScripts {
-    inherit subdomain domain;
     hasSSL = { node, ... }: !(isNull node.config.shb.home-assistant.ssl);
     waitForServices = { ... }: [
       "home-assistant.service"
@@ -20,9 +16,13 @@ let
   };
 
   basic = { config, ... }: {
+    test = {
+      subdomain = "ha";
+    };
+
     shb.home-assistant = {
       enable = true;
-      inherit subdomain domain;
+      inherit (config.test) subdomain domain;
 
       config = {
         name = "Tiserbox";
@@ -146,7 +146,7 @@ in
       imports = [
         testLib.baseModule
         ../../modules/services/home-assistant.nix
-        (testLib.certs domain)
+        testLib.certs
         basic
         https
       ];
@@ -165,7 +165,7 @@ in
         testLib.baseModule
         ../../modules/services/home-assistant.nix
         basic
-        (testLib.ldap domain pkgs')
+        (testLib.ldap pkgs')
         ldap
       ];
     };
