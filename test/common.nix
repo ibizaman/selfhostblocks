@@ -94,7 +94,6 @@ let
     )
     + (let
       script = extraScript args;
-      indent = i: str: lib.concatMapStringsSep "\n" (x: (lib.strings.replicate i " ") + x) (lib.splitString "\n" script);
     in
       lib.optionalString (script != "") script)
   );
