@@ -143,6 +143,8 @@ rec {
     else
       [];
 
+  indent = i: str: lib.concatMapStringsSep "\n" (x: (lib.strings.replicate i " ") + x) (lib.splitString "\n" str);
+
   # Generator for XML
   formatXML = {
     enclosingRoot ? null
