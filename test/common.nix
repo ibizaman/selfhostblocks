@@ -1,7 +1,7 @@
 { pkgs, lib }:
 let
-  inherit (lib) mkOption;
-  inherit (lib.types) str;
+  inherit (lib) hasAttr mkOption optionalString;
+  inherit (lib.types) bool listOf nullOr submodule str;
 
   baseImports = {
     imports = [
@@ -90,8 +90,11 @@ let
             raise Exception(f"auth host should be auth.${cfg.domain} but is {response['auth_host']}")
         if response['auth_query'] != "rd=${proto_fqdn}/":
             raise Exception(f"auth query should be rd=${proto_fqdn}/ but is {response['auth_query']}")
-    ''
-    )
+    '')
+    + (optionalString (hasAttr "test" nodes.client && hasAttr "login" nodes.client.test) ''
+    with subtest("Login"):
+        print(client.succeed("login_playwright firefox"))
+    '')
     + (let
       script = extraScript args;
     in
@@ -139,6 +142,113 @@ in
     config = {
       # HTTP(s) server port.
       networking.firewall.allowedTCPPorts = [ 80 443 ];
+    };
+  };
+
+  clientLoginModule = { config, pkgs, ... }: let
+    cfg = config.test.login;
+  in {
+    options.test.login = {
+      usernameFieldLabel = mkOption {
+        type = str;
+        default = "username";
+      };
+      passwordFieldLabel = mkOption {
+        type = str;
+        default = "password";
+      };
+      loginButtonName = mkOption {
+        type = str;
+        default = "login";
+      };
+      testLoginWith = mkOption {
+        type = listOf (submodule {
+          options = {
+            username = mkOption {
+              type = nullOr str;
+              default = null;
+            };
+            password = mkOption {
+              type = nullOr str;
+              default = null;
+            };
+            nextPageExpect = mkOption {
+              type = listOf str;
+            };
+          };
+        });
+      };
+      startUrl = mkOption {
+        type = str;
+        default = "http://${config.test.fqdn}";
+      };
+    };
+    config = {
+      networking.hosts = {
+        "192.168.1.2" = [ config.test.fqdn ];
+      };
+
+      environment.variables = {
+        PLAYWRIGHT_BROWSERS_PATH = pkgs.playwright-driver.browsers;
+      };
+
+      environment.systemPackages = [
+        (pkgs.writers.writePython3Bin "login_playwright"
+          {
+            libraries = [ pkgs.python3Packages.playwright ];
+            flakeIgnore = [ "F401" "E501" ];
+          }
+          (let
+            testCfg = pkgs.writeText "users.json" (builtins.toJSON cfg);
+          in ''
+            # import re
+            import json
+            import sys
+            from playwright.sync_api import expect
+            from playwright.sync_api import sync_playwright
+
+
+            browsers = {
+                "chromium": ["--headless", "--disable-gpu"],
+                "firefox": [],
+                "webkit": []
+            }
+            if len(sys.argv) != 2 or sys.argv[1] not in browsers.keys():
+                print(f"usage: {sys.argv[0]} [{'|'.join(browsers.keys())}]")
+                sys.exit(1)
+            browser_name = sys.argv[1]
+            browser_args = browsers.get(browser_name)
+            print(f"Running test on {browser_name} {' '.join(browser_args)}")
+
+            with open("${testCfg}") as f:
+                testCfg = json.load(f)
+
+            with sync_playwright() as p:
+                browser = getattr(p, browser_name).launch(args=browser_args)
+
+                for u in testCfg["testLoginWith"]:
+                    print(f"Testing for user {u['username']} and password {u['password']}")
+
+                    context = browser.new_context(ignore_https_errors=True)
+                    context.tracing.start(screenshots=True, snapshots=True, sources=True)
+                    page = context.new_page()
+                    page.goto(testCfg['startUrl'])
+      
+                    page.screenshot(path="example.png")
+                    if u['username'] is not None:
+                        page.get_by_label(testCfg['usernameFieldLabel']).fill(u['username'])
+                    if u['password'] is not None:
+                        page.get_by_label(testCfg['passwordFieldLabel']).fill(u['password'])
+                    page.get_by_role("button", name=testCfg['loginButtonName']).click()
+                    for line in u['nextPageExpect']:
+                        eval(line)
+
+                    context.tracing.stop(path="trace.zip")
+
+                browser.close()
+          '')
+        )
+      ];
     };
   };
 

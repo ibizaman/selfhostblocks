@@ -68,6 +68,12 @@ let
     '';
 
   basic = { config, ... }: {
+    imports = [
+      testLib.baseModule
+      ../../modules/blocks/hardcodedsecret.nix
+      ../../modules/services/deluge.nix
+    ];
+
     test = {
       subdomain = "d";
     };
@@ -89,6 +95,31 @@ let
     shb.hardcodedsecret."localclientpassword" = {
       request = config.shb.deluge.localclientPassword.request;
       settings.content = "localpw";
+    };
+  };
+
+  clientLogin = { config, ... }: {
+    imports = [
+      testLib.baseModule
+      testLib.clientLoginModule
+    ];
+    test = {
+      subdomain = "d";
+    };
+
+    test.login = {
+      passwordFieldLabel = "Password";
+      loginButtonName = "Login";
+      testLoginWith = [
+        { password = "deluge"; nextPageExpect = [
+            "expect(page.get_by_role('button', name='Login')).not_to_be_visible()"
+            "expect(page.get_by_text('Login Failed')).not_to_be_visible()"
+          ]; }
+        { password = "other"; nextPageExpect = [
+            "expect(page.get_by_role('button', name='Login')).to_be_visible()"
+            "expect(page.get_by_text('Login Failed')).to_be_visible()"
+          ]; }
+      ];
     };
   };
 
@@ -118,11 +149,13 @@ in
   basic = pkgs.testers.runNixOSTest {
     name = "deluge_basic";
 
+    nodes.client = {
+      imports = [
+        clientLogin
+      ];
+    };
     nodes.server = {
       imports = [
-        testLib.baseModule
-        ../../modules/blocks/hardcodedsecret.nix
-        ../../modules/services/deluge.nix
         basic
       ];
     };
@@ -137,9 +170,6 @@ in
 
     nodes.server = { config, ... }: {
       imports = [
-        testLib.baseModule
-        ../../modules/blocks/hardcodedsecret.nix
-        ../../modules/services/deluge.nix
         basic
         (testLib.backup config.shb.deluge.backup)
       ];
@@ -155,11 +185,8 @@ in
 
     nodes.server = {
       imports = [
-        testLib.baseModule
-        ../../modules/blocks/hardcodedsecret.nix
-        ../../modules/services/deluge.nix
-        testLib.certs
         basic
+        testLib.certs
         https
       ];
     };
@@ -174,11 +201,8 @@ in
   
     nodes.server = { config, ... }: {
       imports = [
-        testLib.baseModule
-        ../../modules/blocks/hardcodedsecret.nix
-        ../../modules/services/deluge.nix
-        testLib.certs
         basic
+        testLib.certs
         https
         testLib.ldap
         (testLib.sso config.shb.certs.certs.selfsigned.n)
@@ -198,11 +222,8 @@ in
 
     nodes.server = {
       imports = [
-        testLib.baseModule
-        ../../modules/blocks/hardcodedsecret.nix
-        ../../modules/services/deluge.nix
-        testLib.certs
         basic
+        testLib.certs
         https
         prometheus
       ];
