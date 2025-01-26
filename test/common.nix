@@ -1,7 +1,7 @@
 { pkgs, lib }:
 let
   inherit (lib) hasAttr mkOption optionalString;
-  inherit (lib.types) bool listOf nullOr submodule str;
+  inherit (lib.types) listOf nullOr submodule str;
 
   baseImports = {
     imports = [
@@ -93,7 +93,11 @@ let
     '')
     + (optionalString (hasAttr "test" nodes.client && hasAttr "login" nodes.client.test) ''
     with subtest("Login"):
-        print(client.succeed("login_playwright firefox"))
+        code, logs = client.execute("login_playwright firefox")
+        client.copy_from_vm("trace")
+        print(logs)
+        if code != 0:
+            raise Exception("login_playwright did not succeed")
     '')
     + (let
       script = extraScript args;
@@ -201,8 +205,8 @@ in
           (let
             testCfg = pkgs.writeText "users.json" (builtins.toJSON cfg);
           in ''
-            # import re
             import json
+            import re
             import sys
             from playwright.sync_api import expect
             from playwright.sync_api import sync_playwright
@@ -226,24 +230,33 @@ in
             with sync_playwright() as p:
                 browser = getattr(p, browser_name).launch(args=browser_args)
 
-                for u in testCfg["testLoginWith"]:
+                for i, u in enumerate(testCfg["testLoginWith"]):
                     print(f"Testing for user {u['username']} and password {u['password']}")
 
                     context = browser.new_context(ignore_https_errors=True)
                     context.tracing.start(screenshots=True, snapshots=True, sources=True)
-                    page = context.new_page()
-                    page.goto(testCfg['startUrl'])
+                    try:
+                        page = context.new_page()
+                        print(f"Going to {testCfg['startUrl']}")
+                        page.goto(testCfg['startUrl'])
       
-                    page.screenshot(path="example.png")
-                    if u['username'] is not None:
-                        page.get_by_label(testCfg['usernameFieldLabel']).fill(u['username'])
-                    if u['password'] is not None:
-                        page.get_by_label(testCfg['passwordFieldLabel']).fill(u['password'])
-                    page.get_by_role("button", name=testCfg['loginButtonName']).click()
-                    for line in u['nextPageExpect']:
-                        eval(line)
+                        if u['username'] is not None:
+                            print(f"Filling field {testCfg['usernameFieldLabel']} with {u['username']}")
+                            page.get_by_label(testCfg['usernameFieldLabel']).fill(u['username'])
+                        if u['password'] is not None:
+                            print(f"Filling field {testCfg['passwordFieldLabel']} with {u['password']}")
+                            page.get_by_label(testCfg['passwordFieldLabel']).fill(u['password'])
 
-                    context.tracing.stop(path="trace.zip")
+                        print(f"Clicking button {testCfg['loginButtonName']}")
+                        page.get_by_role("button", name=testCfg['loginButtonName']).click()
+
+                        for line in u['nextPageExpect']:
+                            print(f"Running: {line}")
+                            print(f"Page has title: {page.title()}")
+                            eval(line)
+                    finally:
+                        page.screenshot(path=f"trace/{i}/final.png")
+                        context.tracing.stop(path=f"trace/{i}.zip")
 
                 browser.close()
           '')
