@@ -16,7 +16,39 @@ Template:
 
 # Upcoming Release
 
+## New Features
+
+- Add option to select name of admin user for Forgejo.
+
+## Fixes
+
+- Make Nextcloud create the external storage if it's a local storage
+  and the directory does not exist yet.
+- Disable flow to change password on first login for admin Forgejo user.
+  This is not necessary since the password comes from some secret store.
+
+## Breaking Changes
+
+- Fix internal link for Home Assistant
+  which now points to the fqdn. This fixes Voice Assistant
+  onboarding. This is a breaking change if one relies on
+  reaching Home Assistant through the IP address but I
+  don't recommend that. It's much better to have a DNS
+  server running locally which redirects the fqdn to the
+  server running Home Assistant.
+
+## Other Changes
+
+- Refactor tests and add playwright tests for services.
+
 # v0.2.9
+
+## New Features
+
+- Add Memories Nextcloud app declaratively configured.
+- Add Recognize Nextcloud app declaratively configured.
+
+# v0.2.8
 
 ## New Features
 
