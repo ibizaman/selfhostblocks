@@ -20,6 +20,12 @@ let
   };
 
   basic = { config, ... }: {
+    imports = [
+      testLib.baseModule
+      ../../modules/blocks/hardcodedsecret.nix
+      ../../modules/services/forgejo.nix
+    ];
+
     test = {
       subdomain = "f";
     };
@@ -28,6 +34,7 @@ let
       enable = true;
       inherit (config.test) subdomain domain;
 
+      adminUsername = "theadmin";
       adminPassword.result = config.shb.hardcodedsecret.forgejoAdminPassword.result;
       databasePassword.result = config.shb.hardcodedsecret.forgejoDatabasePassword.result;
     };
@@ -45,6 +52,33 @@ let
     shb.hardcodedsecret.forgejoDatabasePassword = {
       request = config.shb.forgejo.databasePassword.request;
       settings.content = "databasePassword";
+    };
+  };
+
+  clientLogin = { config, ... }: {
+    imports = [
+      testLib.baseModule
+      testLib.clientLoginModule
+    ];
+    test = {
+      subdomain = "f";
+    };
+
+    test.login = {
+      startUrl = "http://${config.test.fqdn}/user/login";
+      usernameFieldLabel = "Username or email address";
+      passwordFieldLabel = "Password";
+      loginButtonName = "Sign In";
+      testLoginWith = [
+        { username = "theadmin"; password = adminPassword + "oops"; nextPageExpect = [
+            "expect(page.get_by_text('Username or password is incorrect.')).to_be_visible()"
+          ]; }
+        { username = "theadmin"; password = adminPassword; nextPageExpect = [
+            "expect(page.get_by_text('Username or password is incorrect.')).not_to_be_visible()"
+            "expect(page.get_by_role('button', name=re.compile('Sign In'))).not_to_be_visible()"
+            "expect(page).to_have_title(re.compile('Dashboard'))"
+          ]; }
+      ];
     };
   };
 
@@ -96,15 +130,16 @@ in
   basic = pkgs.testers.runNixOSTest {
     name = "forgejo_basic";
 
+    nodes.client = {
+      imports = [
+        clientLogin
+      ];
+    };
     nodes.server = {
       imports = [
-        testLib.baseModule
-        ../../modules/services/forgejo.nix
         basic
       ];
     };
-
-    nodes.client = {};
 
     testScript = commonTestScript.access;
   };
@@ -114,8 +149,6 @@ in
 
     nodes.server = { config, ... }: {
       imports = [
-        testLib.baseModule
-        ../../modules/services/forgejo.nix
         basic
         (testLib.backup config.shb.forgejo.backup)
       ];
@@ -131,10 +164,8 @@ in
 
     nodes.server = {
       imports = [
-        testLib.baseModule
-        ../../modules/services/forgejo.nix
-        testLib.certs
         basic
+        testLib.certs
         https
       ];
     };
@@ -149,8 +180,6 @@ in
 
     nodes.server = {
       imports = [
-        testLib.baseModule
-        ../../modules/services/forgejo.nix
         basic
         testLib.ldap
         ldap
@@ -167,10 +196,8 @@ in
 
     nodes.server = { config, pkgs, ... }: {
       imports = [
-        testLib.baseModule
-        ../../modules/services/forgejo.nix
-        testLib.certs
         basic
+        testLib.certs
         https
         testLib.ldap
         (testLib.sso config.shb.certs.certs.selfsigned.n)

@@ -43,6 +43,12 @@ When you get to the shell, run either `start_all()` or `test_script()`. The form
 the VMs and service, then you can introspect. The latter also starts the VMs if they are not yet and
 then will run the test script.
 
+If the test includes playwright tests, you can see the playwright trace with:
+
+```bash
+$ nix run .#playwright -- show-trace path/to/trace.zip
+```
+
 ## Upload test results to CI {#contributing-upload}
 
 Github actions do now have hardware acceleration, so running them there is not slow anymore. If

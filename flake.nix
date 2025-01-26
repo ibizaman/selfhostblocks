@@ -155,6 +155,25 @@
           // (vm_test "contracts-databasebackup" ./test/contracts/databasebackup.nix)
           // (vm_test "contracts-secret" ./test/contracts/secret.nix)
           ));
+
+        # Run nix .#playwright -- show-trace path/to/trace.zip
+        packages.playwright =
+          pkgs.callPackage ({ stdenvNoCC, makeWrapper, playwright }: stdenvNoCC.mkDerivation {
+            name = "playwright";
+
+            src = playwright;
+
+            nativeBuildInputs = [
+              makeWrapper
+            ];
+
+            # No quotes around the value for LLDAP_PASSWORD because we want the value to not be enclosed in quotes.
+            installPhase = ''
+              makeWrapper ${pkgs.python3Packages.playwright}/bin/playwright $out/bin/playwright \
+                --set PLAYWRIGHT_BROWSERS_PATH ${pkgs.playwright-driver.browsers} \
+                --set PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS true
+            '';
+          }) {};
       }
   ) // {
     herculesCI.ciSystems = [ "x86_64-linux" ];

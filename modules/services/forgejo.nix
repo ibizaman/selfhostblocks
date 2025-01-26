@@ -81,7 +81,7 @@ in
 
           adminName = mkOption {
             type = str;
-            description = "Admin user of the LDAP server.";
+            description = "Admin user of the LDAP server. Cannot be reserved word 'admin'.";
             default = "admin";
           };
 
@@ -170,8 +170,14 @@ in
       };
     };
 
+    adminUsername = mkOption {
+      type = str;
+      description = "Forgejo admin user name.";
+      default = "admin";
+    };
+
     adminPassword = mkOption {
-      description = "File containing the Forgejo admin user password.";
+      description = "Forgejo admin user password.";
       type = submodule {
         options = contracts.secret.mkRequester {
           mode = "0440";
@@ -495,10 +501,17 @@ in
     })
 
     (mkIf cfg.enable {
+      assertions = [
+        {
+          assertion = cfg.adminUsername != "admin";
+          message = "Admin username cannot be 'admin'.";
+        }
+      ];
+
       systemd.services.forgejo.preStart = ''
         admin="${getExe config.services.forgejo.package} admin user"
-        $admin create --admin --email "root@localhost" --username meadmin --password "$(tr -d '\n' < ${cfg.adminPassword.result.path})" || true
-        $admin change-password --username meadmin --password "$(tr -d '\n' < ${cfg.adminPassword.result.path})" || true
+        $admin create --admin --must-change-password=false --email "root@localhost" --username "${cfg.adminUsername}" --password "$(tr -d '\n' < ${cfg.adminPassword.result.path})" || true
+        $admin change-password --must-change-password=false --username "${cfg.adminUsername}" --password "$(tr -d '\n' < ${cfg.adminPassword.result.path})" || true
 '';
     })
 

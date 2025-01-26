@@ -105,6 +105,10 @@ Self Host Blocks takes care of common self-hosting needs:
 - Automatic reverse proxy and certificate management for HTTPS.
 - VPN and proxy tunneling services.
 
+Great care is taken to make the proposed stack robust.
+This translates into a test suite comprised of automated NixOS VM tests
+including playwright tests.
+
 ### Services
 
 [Provided services](https://shb.skarabox.com/services.html) are:
@@ -305,7 +309,8 @@ the services on your own server.
 ## Community
 
 All issues and PRs are welcome. For PRs, if they are substantial changes, please open an issue to
-discuss the details first. More details in [here](https://shb.skarabox.com/contributing.html).
+discuss the details first. More details in [the contributing section](https://shb.skarabox.com/contributing.html)
+of the manual.
 
 Come hang out in the [Matrix channel](https://matrix.to/#/%23selfhostblocks%3Amatrix.org). :)
 

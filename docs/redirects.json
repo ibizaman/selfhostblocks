@@ -968,6 +968,9 @@
   "services-forgejo-options": [
     "services-forgejo.html#services-forgejo-options"
   ],
+  "services-forgejo-options-shb.forgejo.adminUsername": [
+    "services-forgejo.html#services-forgejo-options-shb.forgejo.adminUsername"
+  ],
   "services-forgejo-options-shb.forgejo.adminPassword": [
     "services-forgejo.html#services-forgejo-options-shb.forgejo.adminPassword"
   ],
