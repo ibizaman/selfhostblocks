@@ -16,6 +16,8 @@ Template:
 
 # Upcoming Release
 
+# v0.2.10
+
 ## New Features
 
 - Add `shb.forgejo.users` option to create users declaratively.

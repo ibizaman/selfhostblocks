@@ -1235,17 +1235,17 @@
   "services-forgejo-options-shb.forgejo.subdomain": [
     "services-forgejo.html#services-forgejo-options-shb.forgejo.subdomain"
   ],
-  "services-forgejo-secrets": [
-    "services-forgejo.html#services-forgejo-secrets"
-  ],
   "services-forgejo-usage": [
     "services-forgejo.html#services-forgejo-usage"
   ],
   "services-forgejo-usage-backup": [
     "services-forgejo.html#services-forgejo-usage-backup"
   ],
-  "services-forgejo-usage-basic": [
-    "services-forgejo.html#services-forgejo-usage-basic"
+  "services-forgejo-usage-configuration": [
+    "services-forgejo.html#services-forgejo-usage-configuration"
+  ],
+  "services-forgejo-usage-https": [
+    "services-forgejo.html#services-forgejo-usage-https"
   ],
   "services-forgejo-usage-extra-settings": [
     "services-forgejo.html#services-forgejo-usage-extra-settings"
