@@ -125,6 +125,11 @@ in stdenv.mkDerivation {
         '@VERSION@' \
         ${builtins.readFile ../VERSION}
 
+    substituteInPlace ./usage.md \
+      --replace \
+        '@VERSION@' \
+        ${builtins.readFile ../VERSION}
+
     substituteInPlace ./options.md \
       --replace \
         '@OPTIONS_JSON@' \
