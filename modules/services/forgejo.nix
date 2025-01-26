@@ -5,8 +5,8 @@ let
 
   contracts = pkgs.callPackage ../contracts {};
 
-  inherit (lib) getExe lists literalExpression mkBefore mkEnableOption mkForce mkIf mkMerge mkOption mkOverride optionals;
-  inherit (lib.types) bool enum listOf nullOr package port submodule str;
+  inherit (lib) all attrNames concatMapStringsSep getExe lists literalExpression mapAttrsToList mkBefore mkEnableOption mkForce mkIf mkMerge mkOption mkOverride nameValuePair optionalString optionals;
+  inherit (lib.types) attrsOf bool enum listOf nullOr package port submodule str;
 in
 {
   options.shb.forgejo = {
@@ -170,22 +170,37 @@ in
       };
     };
 
-    adminUsername = mkOption {
-      type = str;
-      description = "Forgejo admin user name.";
-      default = "admin";
-    };
+    users = mkOption {
+      description = "Users managed declaratively.";
+      type = attrsOf (submodule {
+        options = {
+          isAdmin = mkOption {
+            description = "Set user as admin or not.";
+            type = bool;
+            default = false;
+          };
 
-    adminPassword = mkOption {
-      description = "Forgejo admin user password.";
-      type = submodule {
-        options = contracts.secret.mkRequester {
-          mode = "0440";
-          owner = "forgejo";
-          group = "forgejo";
-          restartUnits = [ "forgejo.service" ];
+          email = mkOption {
+            description = ''Email of user.
+
+            This is only set when the user is created, changing this later on will have no effect.
+            '';
+            type = str;
+          };
+
+          password = mkOption {
+            description = "Forgejo admin user password.";
+            type = submodule {
+              options = contracts.secret.mkRequester {
+                mode = "0440";
+                owner = "forgejo";
+                group = "forgejo";
+                restartUnits = [ "forgejo.service" ];
+              };
+            };
+          };
         };
-      };
+      });
     };
 
     databasePassword = mkOption {
@@ -503,16 +518,20 @@ in
     (mkIf cfg.enable {
       assertions = [
         {
-          assertion = cfg.adminUsername != "admin";
-          message = "Admin username cannot be 'admin'.";
+          assertion = all (u: u != "admin") (attrNames cfg.users);
+          message = "Username cannot be 'admin'.";
         }
       ];
 
       systemd.services.forgejo.preStart = ''
         admin="${getExe config.services.forgejo.package} admin user"
-        $admin create --admin --must-change-password=false --email "root@localhost" --username "${cfg.adminUsername}" --password "$(tr -d '\n' < ${cfg.adminPassword.result.path})" || true
-        $admin change-password --must-change-password=false --username "${cfg.adminUsername}" --password "$(tr -d '\n' < ${cfg.adminPassword.result.path})" || true
-'';
+      '' + concatMapStringsSep "\n" (u: ''
+        if ! $admin list | grep "${u.name}"; then
+          $admin create ${optionalString u.value.isAdmin "--admin"} --email "${u.value.email}" --must-change-password=false --username "${u.name}" --password "$(tr -d '\n' < ${u.value.password.result.path})"
+        else
+          $admin change-password --must-change-password=false --username "${u.name}" --password "$(tr -d '\n' < ${u.value.password.result.path})"
+        fi
+'') (mapAttrsToList nameValuePair cfg.users);
     })
 
     (mkIf (cfg.enable && cfg.smtp != null) {

@@ -968,32 +968,38 @@
   "services-forgejo-options": [
     "services-forgejo.html#services-forgejo-options"
   ],
-  "services-forgejo-options-shb.forgejo.adminUsername": [
-    "services-forgejo.html#services-forgejo-options-shb.forgejo.adminUsername"
+  "services-forgejo-options-shb.forgejo.users": [
+    "services-forgejo.html#services-forgejo-options-shb.forgejo.users"
   ],
-  "services-forgejo-options-shb.forgejo.adminPassword": [
-    "services-forgejo.html#services-forgejo-options-shb.forgejo.adminPassword"
+  "services-forgejo-options-shb.forgejo.users._name_.email": [
+    "services-forgejo.html#services-forgejo-options-shb.forgejo.users._name_.email"
   ],
-  "services-forgejo-options-shb.forgejo.adminPassword.request": [
-    "services-forgejo.html#services-forgejo-options-shb.forgejo.adminPassword.request"
+  "services-forgejo-options-shb.forgejo.users._name_.isAdmin": [
+    "services-forgejo.html#services-forgejo-options-shb.forgejo.users._name_.isAdmin"
   ],
-  "services-forgejo-options-shb.forgejo.adminPassword.request.group": [
-    "services-forgejo.html#services-forgejo-options-shb.forgejo.adminPassword.request.group"
+  "services-forgejo-options-shb.forgejo.users._name_.password": [
+    "services-forgejo.html#services-forgejo-options-shb.forgejo.users._name_.password"
   ],
-  "services-forgejo-options-shb.forgejo.adminPassword.request.mode": [
-    "services-forgejo.html#services-forgejo-options-shb.forgejo.adminPassword.request.mode"
+  "services-forgejo-options-shb.forgejo.users._name_.password.request": [
+    "services-forgejo.html#services-forgejo-options-shb.forgejo.users._name_.password.request"
   ],
-  "services-forgejo-options-shb.forgejo.adminPassword.request.owner": [
-    "services-forgejo.html#services-forgejo-options-shb.forgejo.adminPassword.request.owner"
+  "services-forgejo-options-shb.forgejo.users._name_.password.request.group": [
+    "services-forgejo.html#services-forgejo-options-shb.forgejo.users._name_.password.request.group"
   ],
-  "services-forgejo-options-shb.forgejo.adminPassword.request.restartUnits": [
-    "services-forgejo.html#services-forgejo-options-shb.forgejo.adminPassword.request.restartUnits"
+  "services-forgejo-options-shb.forgejo.users._name_.password.request.mode": [
+    "services-forgejo.html#services-forgejo-options-shb.forgejo.users._name_.password.request.mode"
   ],
-  "services-forgejo-options-shb.forgejo.adminPassword.result": [
-    "services-forgejo.html#services-forgejo-options-shb.forgejo.adminPassword.result"
+  "services-forgejo-options-shb.forgejo.users._name_.password.request.owner": [
+    "services-forgejo.html#services-forgejo-options-shb.forgejo.users._name_.password.request.owner"
   ],
-  "services-forgejo-options-shb.forgejo.adminPassword.result.path": [
-    "services-forgejo.html#services-forgejo-options-shb.forgejo.adminPassword.result.path"
+  "services-forgejo-options-shb.forgejo.users._name_.password.request.restartUnits": [
+    "services-forgejo.html#services-forgejo-options-shb.forgejo.users._name_.password.request.restartUnits"
+  ],
+  "services-forgejo-options-shb.forgejo.users._name_.password.result": [
+    "services-forgejo.html#services-forgejo-options-shb.forgejo.users._name_.password.result"
+  ],
+  "services-forgejo-options-shb.forgejo.users._name_.password.result.path": [
+    "services-forgejo.html#services-forgejo-options-shb.forgejo.users._name_.password.result.path"
   ],
   "services-forgejo-options-shb.forgejo.backup": [
     "services-forgejo.html#services-forgejo-options-shb.forgejo.backup"
