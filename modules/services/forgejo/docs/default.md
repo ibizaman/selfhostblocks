@@ -10,52 +10,62 @@ LDAP and SSO integration as well as one local runner.
 
 ## Features {#services-forgejo-features}
 
-- Declarative [LDAP](#services-forgejo-options-shb.forgejo.ldap) Configuration. [Manual](#services-forgejo-usage-ldap).
+- Declarative creation of users, admin or not.
+- Also declarative [LDAP](#services-forgejo-options-shb.forgejo.ldap) Configuration. [Manual](#services-forgejo-usage-ldap).
 - Declarative [SSO](#services-forgejo-options-shb.forgejo.sso) Configuration. [Manual](#services-forgejo-usage-sso).
 - Declarative [local runner](#services-forgejo-options-shb.forgejo.localActionRunner) Configuration.
-- Access through [subdomain](#services-forgejo-options-shb.forgejo.subdomain) using reverse proxy. [Manual](#services-forgejo-usage-basic).
-- Access through [HTTPS](#services-forgejo-options-shb.forgejo.ssl) using reverse proxy. [Manual](#services-forgejo-usage-basic).
+- Access through [subdomain](#services-forgejo-options-shb.forgejo.subdomain) using reverse proxy. [Manual](#services-forgejo-usage-configuration).
+- Access through [HTTPS](#services-forgejo-options-shb.forgejo.ssl) using reverse proxy. [Manual](#services-forgejo-usage-configuration).
 - [Backup](#services-forgejo-options-shb.forgejo.sso) through the [backup block](./blocks-backup.html). [Manual](#services-forgejo-usage-backup).
 
 ## Usage {#services-forgejo-usage}
 
-### Secrets {#services-forgejo-secrets}
+### Initial Configuration {#services-forgejo-usage-configuration}
 
-All the secrets should be readable by the forgejo user.
-
-Secrets should not be stored in the nix store.
-If you're using [sops-nix](https://github.com/Mic92/sops-nix)
-and assuming your secrets file is located at `./secrets.yaml`,
-you can define a secret with:
-
-```nix
-sops.secrets."forgejo/adminPasswordFile" = {
-  sopsFile = ./secrets.yaml;
-  mode = "0400";
-  owner = "forgejo";
-  group = "forgejo";
-  restartUnits = [ "forgejo.service" ];
-};
-```
-
-Then you can use that secret:
-
-```nix
-shb.forgejo.adminPasswordFile = config.sops.secrets."forgejo/adminPasswordFile".path;
-```
-
-### Forgejo through HTTPS {#services-forgejo-usage-basic}
-
-This will set up a Forgejo service that runs on the NixOS target machine,
-reachable at `http://forgejo.example.com`.
+The following snippet enables Forgejo and makes it available under the `forgejo.example.com` endpoint.
 
 ```nix
 shb.forgejo = {
   enable = true;
-  domain = "example.com";
   subdomain = "forgejo";
+  enable = "example.com";
+
+  users = {
+    "theadmin" = {
+      isAdmin = true;
+      email = "theadmin@example.com";
+      password.result = config.shb.hardcodedsecret.forgejoAdminPassword.result;
+    };
+    "theuser" = {
+      email = "theuser@example.com";
+      password.result = config.shb.hardcodedsecret.forgejoUserPassword.result;
+    };
+  };
+};
+
+shb.hardcodedsecret."forgejo/admin/password" = {
+  request = config.shb.forgejo.users."theadmin".password.request;
+};
+
+shb.hardcodedsecret."forgejo/user/password" = {
+  request = config.shb.forgejo.users."theuser".password.request;
 };
 ```
+
+Two users are created, `theadmin` and `theuser`,
+respectively with the passwords `foregejo/admin/password`
+and `foregejo/user/password` from a SOPS file.
+
+This assumes secrets are setup with SOPS
+as mentioned in [the secrets setup section](usage.html#usage-secrets) of the manual.
+Secrets can be randomly generated with `nix run nixpkgs#openssl -- rand -hex 64`.
+
+### Forgejo through HTTPS {#services-forgejo-usage-https}
+
+:::: {.note}
+We will build upon the [Initial Configuration](#services-forgejo-usage-configuration) section,
+so please follow that first.
+::::
 
 If the `shb.ssl` block is used (see [manual](blocks-ssl.html#usage) on how to set it up),
 the instance will be reachable at `https://fogejo.example.com`.
@@ -77,14 +87,14 @@ Then you can tell Forgejo to use those certificates.
 shb.certs.certs.letsencrypt."example.com".extraDomains = [ "forgejo.example.com" ];
 
 shb.forgejo = {
-  ssl = config.shb.certs.certs.selfsigned.forgejo;
+  ssl = config.shb.certs.certs.letsencrypt."example.com";
 };
 ```
 
 ### With LDAP Support {#services-forgejo-usage-ldap}
 
 :::: {.note}
-We will build upon the [HTTPS](#services-forgejo-usage-basic) section,
+We will build upon the [HTTPS](#services-forgejo-usage-https) section,
 so please follow that first.
 ::::
 
