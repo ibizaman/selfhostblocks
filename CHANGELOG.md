@@ -18,7 +18,7 @@ Template:
 
 ## New Features
 
-- Add option to select name of admin user for Forgejo.
+- Add `shb.forgejo.users` option to create users declaratively.
 
 ## Fixes
 

@@ -34,8 +34,17 @@ let
       enable = true;
       inherit (config.test) subdomain domain;
 
-      adminUsername = "theadmin";
-      adminPassword.result = config.shb.hardcodedsecret.forgejoAdminPassword.result;
+      users = {
+        "theadmin" = {
+          isAdmin = true;
+          email = "theadmin@example.com";
+          password.result = config.shb.hardcodedsecret.forgejoAdminPassword.result;
+        };
+        "theuser" = {
+          email = "theuser@example.com";
+          password.result = config.shb.hardcodedsecret.forgejoUserPassword.result;
+        };
+      };
       databasePassword.result = config.shb.hardcodedsecret.forgejoDatabasePassword.result;
     };
 
@@ -45,8 +54,13 @@ let
     };
 
     shb.hardcodedsecret.forgejoAdminPassword = {
-      request = config.shb.forgejo.adminPassword.request;
+      request = config.shb.forgejo.users."theadmin".password.request;
       settings.content = adminPassword;
+    };
+
+    shb.hardcodedsecret.forgejoUserPassword = {
+      request = config.shb.forgejo.users."theuser".password.request;
+      settings.content = "userPassword";
     };
 
     shb.hardcodedsecret.forgejoDatabasePassword = {
@@ -74,6 +88,14 @@ let
             "expect(page.get_by_text('Username or password is incorrect.')).to_be_visible()"
           ]; }
         { username = "theadmin"; password = adminPassword; nextPageExpect = [
+            "expect(page.get_by_text('Username or password is incorrect.')).not_to_be_visible()"
+            "expect(page.get_by_role('button', name=re.compile('Sign In'))).not_to_be_visible()"
+            "expect(page).to_have_title(re.compile('Dashboard'))"
+          ]; }
+        { username = "theuser"; password = "userPasswordOops"; nextPageExpect = [
+            "expect(page.get_by_text('Username or password is incorrect.')).to_be_visible()"
+          ]; }
+        { username = "theuser"; password = "userPassword"; nextPageExpect = [
             "expect(page.get_by_text('Username or password is incorrect.')).not_to_be_visible()"
             "expect(page.get_by_role('button', name=re.compile('Sign In'))).not_to_be_visible()"
             "expect(page).to_have_title(re.compile('Dashboard'))"
