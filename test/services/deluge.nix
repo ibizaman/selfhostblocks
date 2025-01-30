@@ -108,8 +108,8 @@ let
     };
 
     test.login = {
-      passwordFieldLabel = "Password";
-      loginButtonName = "Login";
+      passwordFieldLabelRegex = "Password";
+      loginButtonNameRegex = "Login";
       testLoginWith = [
         { password = "deluge"; nextPageExpect = [
             "expect(page.get_by_role('button', name='Login')).not_to_be_visible()"

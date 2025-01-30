@@ -91,6 +91,10 @@ let
         if response['auth_query'] != "rd=${proto_fqdn}/":
             raise Exception(f"auth query should be rd=${proto_fqdn}/ but is {response['auth_query']}")
     '')
+    + (let
+      script = extraScript args;
+    in
+      lib.optionalString (script != "") script)
     + (optionalString (hasAttr "test" nodes.client && hasAttr "login" nodes.client.test) ''
     with subtest("Login"):
         code, logs = client.execute("login_playwright firefox")
@@ -99,10 +103,6 @@ let
         if code != 0:
             raise Exception("login_playwright did not succeed")
     '')
-    + (let
-      script = extraScript args;
-    in
-      lib.optionalString (script != "") script)
   );
 
   backupScript = args: (accessScript args).override {
@@ -153,15 +153,15 @@ in
     cfg = config.test.login;
   in {
     options.test.login = {
-      usernameFieldLabel = mkOption {
+      usernameFieldLabelRegex = mkOption {
         type = str;
         default = "username";
       };
-      passwordFieldLabel = mkOption {
+      passwordFieldLabelRegex = mkOption {
         type = str;
         default = "password";
       };
-      loginButtonName = mkOption {
+      loginButtonNameRegex = mkOption {
         type = str;
         default = "login";
       };
@@ -234,6 +234,7 @@ in
                     print(f"Testing for user {u['username']} and password {u['password']}")
 
                     context = browser.new_context(ignore_https_errors=True)
+                    context.set_default_navigation_timeout(2 * 60 * 1000)
                     context.tracing.start(screenshots=True, snapshots=True, sources=True)
                     try:
                         page = context.new_page()
@@ -241,14 +242,14 @@ in
                         page.goto(testCfg['startUrl'])
       
                         if u['username'] is not None:
-                            print(f"Filling field {testCfg['usernameFieldLabel']} with {u['username']}")
-                            page.get_by_label(testCfg['usernameFieldLabel']).fill(u['username'])
+                            print(f"Filling field {testCfg['usernameFieldLabelRegex']} with {u['username']}")
+                            page.get_by_label(re.compile(testCfg['usernameFieldLabelRegex'])).fill(u['username'])
                         if u['password'] is not None:
-                            print(f"Filling field {testCfg['passwordFieldLabel']} with {u['password']}")
-                            page.get_by_label(testCfg['passwordFieldLabel']).fill(u['password'])
+                            print(f"Filling field {testCfg['passwordFieldLabelRegex']} with {u['password']}")
+                            page.get_by_label(re.compile(testCfg['passwordFieldLabelRegex'])).fill(u['password'])
 
-                        print(f"Clicking button {testCfg['loginButtonName']}")
-                        page.get_by_role("button", name=testCfg['loginButtonName']).click()
+                        print(f"Clicking button {testCfg['loginButtonNameRegex']}")
+                        page.get_by_role("button", name=re.compile(testCfg['loginButtonNameRegex'])).click()
 
                         for line in u['nextPageExpect']:
                             print(f"Running: {line}")

@@ -21,20 +21,9 @@ let
     def find_in_logs(unit, text):
         return server.systemctl("status {}".format(unit))[1].find(text) != -1
 
-    with subtest("cron job succeeds"):
-        # This calls blocks until the service is done.
-        server.systemctl("start nextcloud-cron.service")
-
-        # If the service failed, then we're not happy.
-        status = "active"
-        while status == "active":
-            status = server.get_unit_info("nextcloud-cron")["ActiveState"]
-            time.sleep(5)
-        if status != "inactive":
-            raise Exception("Cron job did not finish correctly")
-
-        if not find_in_logs("nextcloud-cron", "nextcloud-cron.service: Deactivated successfully."):
-            raise Exception("Nextcloud cron job did not finish successfully.")
+    with subtest("cron job starts"):
+        # This call does not block until the service is done.
+        server.succeed("systemctl start nextcloud-cron.service&")
 
     with subtest("fails with incorrect authentication"):
         client.fail(
@@ -106,10 +95,27 @@ let
         )
         if content != "hello\n":
             raise Exception("Got incorrect content for file, expected 'hello\n' but got:\n{}".format(content))
+
+    with subtest("cron job succeeds"):
+        # If the service failed, then we're not happy.
+        status = "active"
+        while status == "active":
+            status = server.get_unit_info("nextcloud-cron")["ActiveState"]
+            time.sleep(5)
+        if status != "inactive":
+            raise Exception("Cron job did not finish correctly")
+
+        if not find_in_logs("nextcloud-cron", "nextcloud-cron.service: Deactivated successfully."):
+            raise Exception("Nextcloud cron job did not finish successfully.")
     '';
   };
 
   basic = { config, ... }: {
+    imports = [
+      testLib.baseModule
+      ../../modules/services/nextcloud-server.nix
+    ];
+
     test = {
       subdomain = "n";
     };
@@ -133,6 +139,36 @@ let
     shb.hardcodedsecret.adminPass = {
       request = config.shb.nextcloud.adminPass.request;
       settings.content = adminPass;
+    };
+  };
+
+  clientLogin = { config, ... }: {
+    imports = [
+      testLib.baseModule
+      testLib.clientLoginModule
+    ];
+    virtualisation.memorySize = 4096;
+
+    test = {
+      subdomain = "n";
+    };
+
+    test.login = {
+      startUrl = "http://${config.test.fqdn}";
+      usernameFieldLabelRegex = "[Uu]sername";
+      passwordFieldLabelRegex = "^ *[Pp]assword";
+      loginButtonNameRegex = "[Ll]og [Ii]n";
+      testLoginWith = [
+        { username = adminUser; password = adminPass; nextPageExpect = [
+            "expect(page.get_by_text('Wrong username or password')).not_to_be_visible()"
+            "expect(page.get_by_role('button', name=re.compile('[Ll]og [Ii]n'))).not_to_be_visible()"
+            "expect(page).to_have_title(re.compile('Dashboard'))"
+          ]; }
+        # Failure is after so we're not throttled too much.
+        { username = adminUser; password = adminPass + "oops"; nextPageExpect = [
+            "expect(page.get_by_text('Wrong username or password')).to_be_visible()"
+          ]; }
+      ];
     };
   };
 
@@ -234,10 +270,13 @@ in
   basic = pkgs.testers.runNixOSTest {
     name = "nextcloud_basic";
 
+    nodes.client = {
+      imports = [
+        clientLogin
+      ];
+    };
     nodes.server = {
       imports = [
-        testLib.baseModule
-        ../../modules/services/nextcloud-server.nix
         basic
       ];
     };
@@ -252,8 +291,6 @@ in
 
     nodes.server = { config, ... }: {
       imports = [
-        testLib.baseModule
-        ../../modules/services/nextcloud-server.nix
         basic
         (testLib.backup config.shb.nextcloud.backup)
       ];
@@ -269,10 +306,8 @@ in
 
     nodes.server = {
       imports = [
-        testLib.baseModule
-        ../../modules/services/nextcloud-server.nix
-        testLib.certs
         basic
+        testLib.certs
         https
       ];
     };
@@ -288,10 +323,8 @@ in
 
     nodes.server = {
       imports = [
-        testLib.baseModule
-        ../../modules/services/nextcloud-server.nix
-        testLib.certs
         basic
+        testLib.certs
         https
         previewgenerator
       ];
@@ -307,10 +340,8 @@ in
 
     nodes.server = {
       imports = [
-        testLib.baseModule
-        ../../modules/services/nextcloud-server.nix
-        testLib.certs
         basic
+        testLib.certs
         https
         externalstorage
       ];
@@ -326,10 +357,8 @@ in
   
     nodes.server = { config, ... }: {
       imports = [
-        testLib.baseModule
-        ../../modules/services/nextcloud-server.nix
-        testLib.certs
         basic
+        testLib.certs
         https
         testLib.ldap
         ldap
@@ -346,10 +375,8 @@ in
   
     nodes.server = { config, ... }: {
       imports = [
-        testLib.baseModule
-        ../../modules/services/nextcloud-server.nix
-        testLib.certs
         basic
+        testLib.certs
         https
         testLib.ldap
         ldap
@@ -368,8 +395,6 @@ in
 
     nodes.server = { config, ... }: {
       imports = [
-        testLib.baseModule
-        ../../modules/services/nextcloud-server.nix
         basic
         prometheus
       ];
