@@ -248,8 +248,10 @@ in
                             print(f"Filling field {testCfg['passwordFieldLabelRegex']} with {u['password']}")
                             page.get_by_label(re.compile(testCfg['passwordFieldLabelRegex'])).fill(u['password'])
 
-                        print(f"Clicking button {testCfg['loginButtonNameRegex']}")
-                        page.get_by_role("button", name=re.compile(testCfg['loginButtonNameRegex'])).click()
+                        # Assumes we don't need to login, so skip this.
+                        if u['username'] is not None or u['password'] is not None:
+                            print(f"Clicking button {testCfg['loginButtonNameRegex']}")
+                            page.get_by_role("button", name=re.compile(testCfg['loginButtonNameRegex'])).click()
 
                         for line in u['nextPageExpect']:
                             print(f"Running: {line}")
