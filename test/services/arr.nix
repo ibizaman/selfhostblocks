@@ -43,6 +43,11 @@ let
   };
 
   basic = appname: { config, ... }: {
+    imports = [
+      testLib.baseModule
+      ../../modules/services/arr.nix
+    ];
+
     test = {
       subdomain = appname;
     };
@@ -55,13 +60,39 @@ let
     };
   };
 
+  clientLogin = appname: { config, ... }: {
+    imports = [
+      testLib.baseModule
+      testLib.clientLoginModule
+    ];
+
+    test = {
+      subdomain = appname;
+    };
+
+    test.login = {
+      startUrl = "http://${config.test.fqdn}";
+      usernameFieldLabelRegex = "[Uu]sername";
+      passwordFieldLabelRegex = "^ *[Pp]assword";
+      loginButtonNameRegex = "[Ll]og [Ii]n";
+      testLoginWith = [
+        { nextPageExpect = [
+            "expect(page).to_have_title(re.compile('${appname}', re.IGNORECASE))"
+          ]; }
+      ];
+    };
+  };
+
   basicTest = appname: cfgPathFn: pkgs.testers.runNixOSTest {
     name = "arr_${appname}_basic";
 
-    nodes.server = { config, pkgs, ... }: {
+    nodes.client = {
       imports = [
-        testLib.baseModule
-        ../../modules/services/arr.nix
+        (clientLogin appname)
+      ];
+    };
+    nodes.server = {
+      imports = [
         (basic appname)
       ];
     };
@@ -76,8 +107,6 @@ let
 
     nodes.server = { config, ... }: {
       imports = [
-        testLib.baseModule
-        ../../modules/services/arr.nix
         (basic appname)
         (testLib.backup config.shb.arr.${appname}.backup)
       ];
@@ -99,10 +128,8 @@ let
 
     nodes.server = { config, pkgs, ... }: {
       imports = [
-        testLib.baseModule
-        ../../modules/services/arr.nix
-        testLib.certs
         (basic appname)
+        testLib.certs
         (https appname)
       ];
     };
@@ -123,10 +150,8 @@ let
 
     nodes.server = { config, pkgs, ... }: {
       imports = [
-        testLib.baseModule
-        ../../modules/services/arr.nix
-        testLib.certs
         (basic appname)
+        testLib.certs
         (https appname)
         testLib.ldap
         (testLib.sso config.shb.certs.certs.selfsigned.n)
