@@ -258,7 +258,6 @@ in
                             print(f"Page has title: {page.title()}")
                             eval(line)
                     finally:
-                        page.screenshot(path=f"trace/{i}/final.png")
                         context.tracing.stop(path=f"trace/{i}.zip")
 
                 browser.close()
