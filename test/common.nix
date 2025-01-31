@@ -155,15 +155,15 @@ in
     options.test.login = {
       usernameFieldLabelRegex = mkOption {
         type = str;
-        default = "username";
+        default = "[Uu]sername";
       };
       passwordFieldLabelRegex = mkOption {
         type = str;
-        default = "password";
+        default = "[Pp]assword";
       };
       loginButtonNameRegex = mkOption {
         type = str;
-        default = "login";
+        default = "[Ll]ogin";
       };
       testLoginWith = mkOption {
         type = listOf (submodule {
