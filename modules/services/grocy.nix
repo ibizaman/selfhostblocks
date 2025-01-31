@@ -86,7 +86,6 @@ in
   };
 
   config = lib.mkIf cfg.enable (lib.mkMerge [{
-
     services.grocy = {
       enable = true;
       hostName = fqdn;

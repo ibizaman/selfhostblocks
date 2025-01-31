@@ -41,6 +41,25 @@
             "dotnet-sdk-6.0.428"
           ];
         };
+
+        overlays = [
+          (final: prev: {
+            exiftool = prev.exiftool.overrideAttrs (f: p: {
+              version = "12.70";
+              src = pkgs.fetchurl {
+                url = "https://exiftool.org/Image-ExifTool-12.70.tar.gz";
+                hash = "sha256-TLJSJEXMPj870TkExq6uraX8Wl4kmNerrSlX3LQsr/4=";
+              };
+            });
+          })
+          (final: prev: {
+            grocy = prev.grocy.overrideAttrs (f: p: {
+              patches = p.patches ++ [
+                ./patches/grocy.patch
+              ];
+            });
+          })
+        ];
       };
 
       allModules = [
