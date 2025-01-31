@@ -17,12 +17,47 @@ let
   };
 
   basic = { config, ... }: {
+    imports = [
+      testLib.baseModule
+      ../../modules/services/audiobookshelf.nix
+    ];
+
     test = {
       subdomain = "a";
     };
     shb.audiobookshelf = {
       enable = true;
       inherit (config.test) subdomain domain;
+    };
+  };
+
+  clientLogin = { config, ... }: {
+    imports = [
+      testLib.baseModule
+      testLib.clientLoginModule
+    ];
+    virtualisation.memorySize = 4096;
+
+    test = {
+      subdomain = "a";
+    };
+
+    test.login = {
+      startUrl = "http://${config.test.fqdn}";
+      usernameFieldLabelRegex = "[Uu]sername";
+      passwordFieldLabelRegex = "[Pp]assword";
+      loginButtonNameRegex = "[Ll]og [Ii]n";
+      testLoginWith = [
+        # Failure is after so we're not throttled too much.
+        { username = "root"; password = "rootpw"; nextPageExpect = [
+            "expect(page.get_by_text('Wrong username or password')).to_be_visible()"
+          ]; }
+        # { username = adminUser; password = adminPass; nextPageExpect = [
+        #     "expect(page.get_by_text('Wrong username or password')).not_to_be_visible()"
+        #     "expect(page.get_by_role('button', name=re.compile('[Ll]og [Ii]n'))).not_to_be_visible()"
+        #     "expect(page).to_have_title(re.compile('Dashboard'))"
+        #   ]; }
+      ];
     };
   };
 
@@ -48,10 +83,14 @@ in
   basic = pkgs.testers.runNixOSTest {
     name = "audiobookshelf-basic";
 
+    nodes.client = {
+      imports = [
+        # TODO: enable this when declarative user management is possible.
+        # clientLogin
+      ];
+    };
     nodes.server = {
       imports = [
-        testLib.baseModule
-        ../../modules/services/audiobookshelf.nix
         basic
       ];
     };
@@ -66,10 +105,8 @@ in
 
     nodes.server = {
       imports = [
-        testLib.baseModule
-        ../../modules/services/audiobookshelf.nix
-        testLib.certs
         basic
+        testLib.certs
         https
       ];
     };
@@ -84,10 +121,8 @@ in
 
     nodes.server = { config, ... }: {
       imports = [
-        testLib.baseModule
-        ../../modules/services/audiobookshelf.nix
-        testLib.certs
         basic
+        testLib.certs
         https
         testLib.ldap
         (testLib.sso config.shb.certs.certs.selfsigned.n)
