@@ -156,7 +156,7 @@
           // (vm_test "contracts-secret" ./test/contracts/secret.nix)
           ));
 
-        # Run nix .#playwright -- show-trace path/to/trace.zip
+        # Run nix .#playwright -- show-trace $(nix eval .#checks.x86_64-linux.vm_grocy_basic --raw)/trace/0.zip
         packages.playwright =
           pkgs.callPackage ({ stdenvNoCC, makeWrapper, playwright }: stdenvNoCC.mkDerivation {
             name = "playwright";
