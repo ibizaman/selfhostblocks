@@ -69,6 +69,12 @@ in
         };
       };
     };
+
+    extraArguments = lib.mkOption {
+      description = "Extra arguments append to the hledger command.";
+      default = ["--forecast"];
+      type = lib.types.listOf lib.types.str;
+    };
   };
 
   config = lib.mkIf cfg.enable {
@@ -84,11 +90,7 @@ in
       port = cfg.port;
 
       allow = "edit";
-      extraOptions = [
-        # https://hledger.org/1.30/hledger-web.html
-        # "--capabilities-header=HLEDGER-CAP"
-        "--forecast"
-      ];
+      extraOptions = cfg.extraArguments;
     };
 
     systemd.services.hledger-web = {

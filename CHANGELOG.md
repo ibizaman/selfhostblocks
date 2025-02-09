@@ -16,6 +16,10 @@ Template:
 
 # Upcoming Release
 
+## New Features
+
+- Add option to add extra args to hledger command.
+
 # v0.2.10
 
 ## New Features
