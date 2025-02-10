@@ -13,6 +13,11 @@ let
   };
 
   basic = { config, ... }: {
+    imports = [
+      testLib.baseModule
+      ../../modules/services/hledger.nix
+    ];
+
     test = {
       subdomain = "h";
     };
@@ -20,6 +25,26 @@ let
     shb.hledger = {
       enable = true;
       inherit (config.test) subdomain domain;
+    };
+  };
+
+  clientLogin = { config, ... }: {
+    imports = [
+      testLib.baseModule
+      testLib.clientLoginModule
+    ];
+
+    test = {
+      subdomain = "h";
+    };
+
+    test.login = {
+      startUrl = "http://${config.test.fqdn}";
+      testLoginWith = [
+        { nextPageExpect = [
+            "expect(page).to_have_title('journal - hledger-web')"
+          ]; }
+      ];
     };
   };
 
@@ -39,10 +64,14 @@ in
   basic = pkgs.testers.runNixOSTest {
     name = "hledger_basic";
 
+    nodes.client = {
+      imports = [
+        clientLogin
+      ];
+    };
+
     nodes.server = {
       imports = [
-        testLib.baseModule
-        ../../modules/services/hledger.nix
         basic
       ];
     };
@@ -57,8 +86,6 @@ in
 
     nodes.server = { config, ... }: {
       imports = [
-        testLib.baseModule
-        ../../modules/services/hledger.nix
         basic
         (testLib.backup config.shb.hledger.backup)
       ];
@@ -74,10 +101,8 @@ in
 
     nodes.server = {
       imports = [
-        testLib.baseModule
-        ../../modules/services/hledger.nix
-        testLib.certs
         basic
+        testLib.certs
         https
       ];
     };
@@ -92,10 +117,8 @@ in
 
     nodes.server = { config, pkgs, ... }: {
       imports = [
-        testLib.baseModule
-        ../../modules/services/hledger.nix
-        testLib.certs
         basic
+        testLib.certs
         https
         testLib.ldap
         (testLib.sso config.shb.certs.certs.selfsigned.n)

@@ -2,7 +2,7 @@
 let
   testLib = pkgs.callPackage ../common.nix {};
 
-  commonTestScript = lib.makeOverridable testLib.accessScript {
+  commonTestScript = testLib.mkScripts {
     hasSSL = { node, ... }: !(isNull node.config.shb.grocy.ssl);
     waitForServices = { ... }: [
       "phpfpm-grocy.service"
@@ -81,7 +81,7 @@ in
 
     nodes.client = {};
 
-    testScript = commonTestScript;
+    testScript = commonTestScript.access;
   };
 
   https = pkgs.testers.runNixOSTest {
@@ -97,6 +97,6 @@ in
 
     nodes.client = {};
 
-    testScript = commonTestScript;
+    testScript = commonTestScript.access;
   };
 }
