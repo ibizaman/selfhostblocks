@@ -97,8 +97,6 @@ let
       ];
     };
 
-    nodes.client = {};
-
     testScript = (commonTestScript appname cfgPathFn).access;
   };
 

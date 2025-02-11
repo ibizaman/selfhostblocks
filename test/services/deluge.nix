@@ -160,8 +160,6 @@ in
       ];
     };
 
-    nodes.client = {};
-
     testScript = commonTestScript.access;
   };
 

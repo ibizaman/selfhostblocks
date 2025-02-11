@@ -95,8 +95,6 @@ in
       ];
     };
 
-    nodes.client = {};
-
     testScript = commonTestScript;
   };
 
