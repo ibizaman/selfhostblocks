@@ -324,8 +324,8 @@ in
       };
     };
 
-    systemd.services.home-assistant.preStart = lib.mkIf cfg.ldap.enable (
-      let
+    systemd.services.home-assistant.preStart =
+      (let
         onboarding = pkgs.writeText "onboarding" ''
           {
             "version": 4,
@@ -333,24 +333,25 @@ in
             "key": "onboarding",
             "data": {
               "done": [
-                "user",
-                "core_config"
+                ${lib.optionalString cfg.ldap.enable ''"user",''}
+                "core_config",
+                "analytics"
               ]
             }
           }
         '';
         storage = "${config.services.home-assistant.configDir}";
         file = "${storage}/.storage/onboarding";
-      in
-        ''
-          if ! -f ${file}; then
-            mkdir -p ''$(dirname ${file}) && cp ${onboarding} ${file}
-          fi
-        '' + shblib.replaceSecrets {
-          userConfig = cfg.config;
-          resultPath = "${config.services.home-assistant.configDir}/secrets.yaml";
-          generator = shblib.replaceSecretsGeneratorAdapter (lib.generators.toYAML {});
-        });
+      in ''
+        if [ ! -f ${file} ]; then
+          mkdir -p ''$(dirname ${file}) && cp ${onboarding} ${file}
+        fi
+      '')
+      + (lib.optionalString cfg.ldap.enable (shblib.replaceSecrets {
+        userConfig = cfg.config;
+        resultPath = "${config.services.home-assistant.configDir}/secrets.yaml";
+        generator = shblib.replaceSecretsGeneratorAdapter (lib.generators.toYAML {});
+      }));
 
     systemd.tmpfiles.rules = [
       "f ${config.services.home-assistant.configDir}/automations.yaml 0755 hass hass"
