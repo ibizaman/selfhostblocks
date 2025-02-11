@@ -14,6 +14,11 @@ let
   };
 
   basic = { config, ... }: {
+    imports = [
+      testLib.baseModule
+      ../../modules/services/home-assistant.nix
+    ];
+
     test = {
       subdomain = "ha";
     };
@@ -30,6 +35,39 @@ let
         time_zone = "America/Los_Angeles";
         unit_system = "metric";
       };
+    };
+  };
+
+  clientLogin = { config, ... }: {
+    imports = [
+      testLib.baseModule
+      testLib.clientLoginModule
+    ];
+    virtualisation.memorySize = 4096;
+
+    test = {
+      subdomain = "ha";
+    };
+
+    test.login = {
+      startUrl = "http://${config.test.fqdn}";
+      testLoginWith = [
+        { nextPageExpect = [
+            "page.get_by_role('button', name=re.compile('Create my smart home')).click()"
+
+            "expect(page.get_by_text('Create user')).to_be_visible()"
+            "page.get_by_label(re.compile('Name')).fill('Admin')"
+            "page.get_by_label(re.compile('Username')).fill('admin')"
+            "page.get_by_label(re.compile('Password')).fill('adminpassword')"
+            "page.get_by_label(re.compile('Confirm password')).fill('adminpassword')"
+            "page.get_by_role('button', name=re.compile('Create account')).click()"
+
+            "expect(page.get_by_text('All set')).to_be_visible()"
+            "page.get_by_role('button', name=re.compile('Finish')).click()"
+
+            "expect(page.get_by_text('Overview')).to_be_visible()"
+          ]; }
+      ];
     };
   };
 
@@ -107,10 +145,13 @@ in
   basic = pkgs.testers.runNixOSTest {
     name = "homeassistant_basic";
 
+    nodes.client = {
+      imports = [
+        clientLogin
+      ];
+    };
     nodes.server = {
       imports = [
-        testLib.baseModule
-        ../../modules/services/home-assistant.nix
         basic
       ];
     };
@@ -125,8 +166,6 @@ in
 
     nodes.server = { config, ... }: {
       imports = [
-        testLib.baseModule
-        ../../modules/services/home-assistant.nix
         basic
         (testLib.backup config.shb.home-assistant.backup)
       ];
@@ -142,10 +181,8 @@ in
 
     nodes.server = {
       imports = [
-        testLib.baseModule
-        ../../modules/services/home-assistant.nix
-        testLib.certs
         basic
+        testLib.certs
         https
       ];
     };
@@ -160,8 +197,6 @@ in
   
     nodes.server = {
       imports = [ 
-        testLib.baseModule
-        ../../modules/services/home-assistant.nix
         basic
         testLib.ldap
         ldap
@@ -179,10 +214,8 @@ in
   #   name = "vaultwarden_sso";
   #
   #   nodes.server = lib.mkMerge [ 
-  #     testLib.baseModule
-  #     ../../modules/services/home-assistant.nix
-  #     (testLib.certs domain)
   #     basic
+  #     (testLib.certs domain)
   #     https
   #     ldap
   #     (testLib.ldap domain pkgs')
@@ -200,8 +233,6 @@ in
   
     nodes.server = {
       imports = [ 
-        testLib.baseModule
-        ../../modules/services/home-assistant.nix
         basic
         voice
       ];
