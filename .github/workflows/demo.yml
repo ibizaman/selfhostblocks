@@ -11,19 +11,30 @@ jobs:
   path-filter:
     runs-on: ubuntu-latest
     outputs:
-      changed: ${{ steps.filter.outputs.changed }}
+      changed: ${{ steps.filter.outputs.any_changed }}
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - uses: dorny/paths-filter@v3
+      - uses: tj-actions/changed-files@v45
         id: filter
         with:
-          filters: |
-            changed:
-              - '.github/workflows/demo.yml'
-              - 'demo/**'
+          files: |
+            demo/**
+            lib/**
+            modules/**
+            !modules/**/docs/**
+            test/**
+            flake.lock
+            flake.nix
+            .github/workflows/demo.yml
+          separator: "\n"
+
+      - env:
+          ALL_CHANGED_FILES: ${{ steps.filter.outputs.all_changed_files }}
+        run: |
+          echo $ALL_CHANGED_FILES
 
   build:
     needs: [ "path-filter" ]
@@ -60,6 +71,7 @@ jobs:
       - name: Build ${{ matrix.demo.name }} .#${{ matrix.demo.flake }}
         run: |
           cd demo/${{ matrix.demo.name }}
+          nix flake update --override-input selfhostblocks ../.. selfhostblocks
           nix \
             --print-build-logs \
             --option keep-going true \
