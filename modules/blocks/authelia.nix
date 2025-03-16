@@ -11,6 +11,8 @@ let
   fqdnWithPort = if isNull cfg.port then fqdn else "${fqdn}:${toString cfg.port}";
 
   autheliaCfg = config.services.authelia.instances.${fqdn};
+
+  inherit (lib) hasPrefix;
 in
 {
   options.shb.authelia = {
@@ -308,6 +310,10 @@ in
       {
         assertion = builtins.length cfg.oidcClients > 0;
         message = "Must have at least one oidc client otherwise Authelia refuses to start.";
+      }
+      {
+        assertion = !(hasPrefix "ldap://" cfg.ldapHostname);
+        message = "LDAP hostname should be the bare host name and not start with ldap://";
       }
     ];
 

@@ -115,7 +115,7 @@
           subdomain = "auth";
           ssl = config.shb.certs.certs.selfsigned.n;
           ldapPort = config.shb.ldap.ldapPort;
-          ldapHostname = "ldap://127.0.0.1";
+          ldapHostname = "127.0.0.1";
           dcdomain = config.shb.ldap.dcdomain;
 
           secrets = {
