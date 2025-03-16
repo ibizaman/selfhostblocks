@@ -25,42 +25,40 @@
           sops-nix.nixosModules.default
         ];
 
+        sops.defaultSopsFile = ./secrets.yaml;
+
         shb.home-assistant = {
           enable = true;
           domain = "example.com";
           subdomain = "ha";
           config = {
             name = "SHB Home Assistant";
-            country.source = config.sops.secrets."home-assistant/country".path;
-            latitude.source = config.sops.secrets."home-assistant/latitude".path;
-            longitude.source = config.sops.secrets."home-assistant/longitude".path;
-            time_zone.source = config.sops.secrets."home-assistant/time_zone".path;
+            country.source = config.shb.sops.secret."home-assistant/country".result.path;
+            latitude.source = config.shb.sops.secret."home-assistant/latitude".result.path;
+            longitude.source = config.shb.sops.secret."home-assistant/longitude".result.path;
+            time_zone.source = config.shb.sops.secret."home-assistant/time_zone".result.path;
             unit_system = "metric";
           };
         };
-        sops.secrets."home-assistant/country" = {
-          sopsFile = ./secrets.yaml;
+        shb.sops.secret."home-assistant/country".request = {
           mode = "0440";
           owner = "hass";
           group = "hass";
           restartUnits = [ "home-assistant.service" ];
         };
-        sops.secrets."home-assistant/latitude" = {
-          sopsFile = ./secrets.yaml;
+        shb.sops.secret."home-assistant/latitude".request = {
           mode = "0440";
           owner = "hass";
           group = "hass";
           restartUnits = [ "home-assistant.service" ];
         };
-        sops.secrets."home-assistant/longitude" = {
-          sopsFile = ./secrets.yaml;
+        shb.sops.secret."home-assistant/longitude".request = {
           mode = "0440";
           owner = "hass";
           group = "hass";
           restartUnits = [ "home-assistant.service" ];
         };
-        sops.secrets."home-assistant/time_zone" = {
-          sopsFile = ./secrets.yaml;
+        shb.sops.secret."home-assistant/time_zone".request = {
           mode = "0440";
           owner = "hass";
           group = "hass";
@@ -80,23 +78,11 @@
           ldapPort = 3890;
           webUIListenPort = 17170;
           dcdomain = "dc=example,dc=com";
-          ldapUserPasswordFile = config.sops.secrets."lldap/user_password".path;
-          jwtSecretFile = config.sops.secrets."lldap/jwt_secret".path;
+          ldapUserPassword.result = config.shb.sops.secret."lldap/user_password".result;
+          jwtSecret.result = config.shb.sops.secret."lldap/jwt_secret".result;
         };
-        sops.secrets."lldap/user_password" = {
-          sopsFile = ./secrets.yaml;
-          mode = "0440";
-          owner = "lldap";
-          group = "lldap";
-          restartUnits = [ "lldap.service" ];
-        };
-        sops.secrets."lldap/jwt_secret" = {
-          sopsFile = ./secrets.yaml;
-          mode = "0440";
-          owner = "lldap";
-          group = "lldap";
-          restartUnits = [ "lldap.service" ];
-        };
+        shb.sops.secret."lldap/user_password".request = config.shb.ldap.ldapUserPassword.request;
+        shb.sops.secret."lldap/jwt_secret".request = config.shb.ldap.jwtSecret.request;
 
         shb.home-assistant.ldap = {
           enable = true;
