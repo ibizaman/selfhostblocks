@@ -99,12 +99,10 @@ The following snippets show how to deploy Self Host Blocks using the standard de
         patches = selfhostblocks.patches.${system};
       };
 
-      shbNixpkgs = import nixpkgs' {
-        inherit system;
-      };
+      nixosSystem' = import "${nixpkgs'}/nixos/lib/eval-config.nix";
     in
       nixosConfigurations = {
-        machine = shbNixpkgs.lib.nixosSystem {
+        machine = nixosSystem' {
           inherit system;
           modules = [
             selfhostblocks.nixosModules.${system}.default

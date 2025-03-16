@@ -8,6 +8,16 @@
 
   outputs = inputs@{ self, selfhostblocks, sops-nix }:
     let
+      system = "x86_64-linux";
+      originPkgs = selfhostblocks.inputs.nixpkgs;
+
+      nixpkgs' = originPkgs.legacyPackages.${system}.applyPatches {
+        name = "nixpkgs-patched";
+        src = originPkgs;
+        patches = selfhostblocks.patches.${system};
+      };
+      nixosSystem' = import "${nixpkgs'}/nixos/lib/eval-config.nix";
+
       basic = { config, ...  }: {
         imports = [
           ./configuration.nix
@@ -103,7 +113,7 @@
     in
       {
         nixosConfigurations = {
-          basic = selfhostblocks.inputs.nixpkgs.lib.nixosSystem {
+          basic = nixosSystem' {
             system = "x86_64-linux";
             modules = [
               basic
@@ -111,7 +121,7 @@
             ];
           };
 
-          ldap = selfhostblocks.inputs.nixpkgs.lib.nixosSystem {
+          ldap = nixosSystem' {
             system = "x86_64-linux";
             modules = [
               basic
@@ -123,7 +133,7 @@
 
         colmena = {
           meta = {
-            nixpkgs = import selfhostblocks.inputs.nixpkgs {
+            nixpkgs = import nixpkgs' {
               system = "x86_64-linux";
             };
             specialArgs = inputs;
