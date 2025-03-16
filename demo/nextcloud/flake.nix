@@ -25,6 +25,8 @@
           sops-nix.nixosModules.default
         ];
 
+        sops.defaultSopsFile = ./secrets.yaml;
+
         shb.nextcloud = {
           enable = true;
           domain = "example.com";
@@ -36,21 +38,13 @@
           # This option is only needed because we do not access Nextcloud at the default port in the VM.
           port = 8080;
 
-          adminPassFile = config.sops.secrets."nextcloud/adminpass".path;
+          adminPass.result = config.shb.sops.secret."nextcloud/adminpass".result;
 
           apps = {
             previewgenerator.enable = true;
           };
         };
-
-        # Secret needed for services.nextcloud.config.adminpassFile.
-        sops.secrets."nextcloud/adminpass" = {
-          sopsFile = ./secrets.yaml;
-          mode = "0440";
-          owner = "nextcloud";
-          group = "nextcloud";
-          restartUnits = [ "phpfpm-nextcloud.service" ];
-        };
+        shb.sops.secret."nextcloud/adminpass".request = config.shb.nextcloud.adminPass.request;
 
         # Set to true for more debug info with `journalctl -f -u nginx`.
         shb.nginx.accessLog = true;
@@ -65,23 +59,11 @@
           ldapPort = 3890;
           webUIListenPort = 17170;
           dcdomain = "dc=example,dc=com";
-          ldapUserPasswordFile = config.sops.secrets."lldap/user_password".path;
-          jwtSecretFile = config.sops.secrets."lldap/jwt_secret".path;
+          ldapUserPassword.result = config.shb.sops.secret."lldap/user_password".result;
+          jwtSecret.result = config.shb.sops.secret."lldap/jwt_secret".result;
         };
-        sops.secrets."lldap/user_password" = {
-          sopsFile = ./secrets.yaml;
-          mode = "0440";
-          owner = "lldap";
-          group = "lldap";
-          restartUnits = [ "lldap.service" ];
-        };
-        sops.secrets."lldap/jwt_secret" = {
-          sopsFile = ./secrets.yaml;
-          mode = "0440";
-          owner = "lldap";
-          group = "lldap";
-          restartUnits = [ "lldap.service" ];
-        };
+        shb.sops.secret."lldap/user_password".request = config.shb.ldap.ldapUserPassword.request;
+        shb.sops.secret."lldap/jwt_secret".request = config.shb.ldap.jwtSecret.request;
 
         shb.nextcloud.apps.ldap = {
           enable = true;
@@ -89,18 +71,12 @@
           port = config.shb.ldap.ldapPort;
           dcdomain = config.shb.ldap.dcdomain;
           adminName = "admin";
-          adminPasswordFile = config.sops.secrets."nextcloud/ldap_admin_password".path;
+          adminPassword.result = config.shb.sops.secret."nextcloud/ldap_admin_password".result;
           userGroup = "nextcloud_user";
         };
-
-        # Secret needed for LDAP app.
-        sops.secrets."nextcloud/ldap_admin_password" = {
-          sopsFile = ./secrets.yaml;
-          key = "lldap/user_password";
-          mode = "0400";
-          owner = "nextcloud";
-          group = "nextcloud";
-          restartUnits = [ "nextcloud-setup.service" ];
+        shb.sops.secret."nextcloud/ldap_admin_password" = {
+          request = config.shb.nextcloud.apps.ldap.adminPassword.request;
+          settings.key = "lldap/user_password";
         };
       };
 
@@ -143,53 +119,20 @@
           dcdomain = config.shb.ldap.dcdomain;
 
           secrets = {
-            jwtSecretFile = config.sops.secrets."authelia/jwt_secret".path;
-            ldapAdminPasswordFile = config.sops.secrets."authelia/ldap_admin_password".path;
-            sessionSecretFile = config.sops.secrets."authelia/session_secret".path;
-            storageEncryptionKeyFile = config.sops.secrets."authelia/storage_encryption_key".path;
-            identityProvidersOIDCHMACSecretFile = config.sops.secrets."authelia/hmac_secret".path;
-            identityProvidersOIDCIssuerPrivateKeyFile = config.sops.secrets."authelia/private_key".path;
+            jwtSecret.result = config.shb.sops.secret."authelia/jwt_secret".result;
+            ldapAdminPassword.result = config.shb.sops.secret."authelia/ldap_admin_password".result;
+            sessionSecret.result = config.shb.sops.secret."authelia/session_secret".result;
+            storageEncryptionKey.result = config.shb.sops.secret."authelia/storage_encryption_key".result;
+            identityProvidersOIDCHMACSecret.result = config.shb.sops.secret."authelia/hmac_secret".result;
+            identityProvidersOIDCIssuerPrivateKey.result = config.shb.sops.secret."authelia/private_key".result;
           };
         };
-        sops.secrets."authelia/jwt_secret" = {
-          sopsFile = ./secrets.yaml;
-          mode = "0400";
-          owner = config.shb.authelia.autheliaUser;
-          restartUnits = [ "authelia.service" ];
-        };
-        # Here we use the password defined in the lldap/user_password field in the secrets.yaml file
-        # and sops-nix will write it to "/run/secrets/authelia/ldap_admin_password".
-        sops.secrets."authelia/ldap_admin_password" = {
-          sopsFile = ./secrets.yaml;
-          key = "lldap/user_password";
-          mode = "0400";
-          owner = config.shb.authelia.autheliaUser;
-          restartUnits = [ "authelia.service" ];
-        };
-        sops.secrets."authelia/session_secret" = {
-          sopsFile = ./secrets.yaml;
-          mode = "0400";
-          owner = config.shb.authelia.autheliaUser;
-          restartUnits = [ "authelia.service" ];
-        };
-        sops.secrets."authelia/storage_encryption_key" = {
-          sopsFile = ./secrets.yaml;
-          mode = "0400";
-          owner = config.shb.authelia.autheliaUser;
-          restartUnits = [ "authelia.service" ];
-        };
-        sops.secrets."authelia/hmac_secret" = {
-          sopsFile = ./secrets.yaml;
-          mode = "0400";
-          owner = config.shb.authelia.autheliaUser;
-          restartUnits = [ "authelia.service" ];
-        };
-        sops.secrets."authelia/private_key" = {
-          sopsFile = ./secrets.yaml;
-          mode = "0400";
-          owner = config.shb.authelia.autheliaUser;
-          restartUnits = [ "authelia.service" ];
-        };
+        shb.sops.secret."authelia/jwt_secret".request = config.shb.authelia.secrets.jwtSecret.request;
+        shb.sops.secret."authelia/ldap_admin_password".request = config.shb.authelia.secrets.ldapAdminPassword.request;
+        shb.sops.secret."authelia/session_secret".request = config.shb.authelia.secrets.sessionSecret.request;
+        shb.sops.secret."authelia/storage_encryption_key".request = config.shb.authelia.secrets.storageEncryptionKey.request;
+        shb.sops.secret."authelia/hmac_secret".request = config.shb.authelia.secrets.identityProvidersOIDCHMACSecret.request;
+        shb.sops.secret."authelia/private_key".request = config.shb.authelia.secrets.identityProvidersOIDCIssuerPrivateKey.request;
 
         shb.nextcloud.apps.sso = {
           enable = true;
@@ -197,21 +140,13 @@
           clientID = "nextcloud";
           fallbackDefaultAuth = true;
 
-          secretFile = config.sops.secrets."nextcloud/sso/secret".path;
-          secretFileForAuthelia = config.sops.secrets."authelia/nextcloud_sso_secret".path;
+          secret.result = config.shb.sops.secret."nextcloud/sso/secret".result;
+          secretForAuthelia.result = config.shb.sops.secret."authelia/nextcloud_sso_secret".result;
         };
-
-        sops.secrets."nextcloud/sso/secret" = {
-          sopsFile = ./secrets.yaml;
-          mode = "0400";
-          owner = "nextcloud";
-          restartUnits = [ "nextcloud-setup.service" ];
-        };
-        sops.secrets."authelia/nextcloud_sso_secret" = {
-          sopsFile = ./secrets.yaml;
-          key = "nextcloud/sso/secret";
-          mode = "0400";
-          owner = config.shb.authelia.autheliaUser;
+        shb.sops.secret."nextcloud/sso/secret".request = config.shb.nextcloud.apps.sso.secret.request;
+        shb.sops.secret."authelia/nextcloud_sso_secret" = {
+          request = config.shb.nextcloud.apps.sso.secretForAuthelia.request;
+          settings.key = "nextcloud/sso/secret";
         };
       };
 
