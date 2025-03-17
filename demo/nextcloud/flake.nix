@@ -80,7 +80,7 @@
         };
       };
 
-      sso = { config, ... }: {
+      sso = { config, lib, ... }: {
         shb.certs = {
           cas.selfsigned.myca = {
             name = "My CA";
@@ -89,10 +89,14 @@
             n = {
               ca = config.shb.certs.cas.selfsigned.myca;
               domain = "*.example.com";
+              group = "nginx";
             };
           };
         };
-        shb.nextcloud.ssl = config.shb.certs.certs.selfsigned.n;
+        shb.nextcloud = {
+          port = lib.mkForce null;
+          ssl = config.shb.certs.certs.selfsigned.n;
+        };
         shb.ldap.ssl = config.shb.certs.certs.selfsigned.n;
 
         services.dnsmasq = {
@@ -130,7 +134,10 @@
           };
         };
         shb.sops.secret."authelia/jwt_secret".request = config.shb.authelia.secrets.jwtSecret.request;
-        shb.sops.secret."authelia/ldap_admin_password".request = config.shb.authelia.secrets.ldapAdminPassword.request;
+        shb.sops.secret."authelia/ldap_admin_password" = {
+          request = config.shb.authelia.secrets.ldapAdminPassword.request;
+          settings.key = "lldap/user_password";
+        };
         shb.sops.secret."authelia/session_secret".request = config.shb.authelia.secrets.sessionSecret.request;
         shb.sops.secret."authelia/storage_encryption_key".request = config.shb.authelia.secrets.storageEncryptionKey.request;
         shb.sops.secret."authelia/hmac_secret".request = config.shb.authelia.secrets.identityProvidersOIDCHMACSecret.request;
