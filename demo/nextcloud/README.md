@@ -172,6 +172,8 @@ Create the group `nextcloud_user` and a create a user and assign them to that gr
 
 Finally, go to [http://n.example.com/login:8080](http://n.example.com/login:8080) and login with the user and
 password you just created above.
+You might need to wait a minute or two until Nextcloud initialized correctly.
+Until then, you'll get a 502 Bad Gateway error.
 
 Nextcloud doesn't like being run without SSL protection, which this demo does not setup, so you
 might see errors loading scripts. See the `sso` demo for SSL.
