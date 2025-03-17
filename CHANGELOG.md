@@ -20,6 +20,10 @@ Template:
 
 - Add option to add extra args to hledger command.
 
+## Breaking Changes
+
+- Default version of Nextcloud is now 29.
+
 # v0.2.10
 
 ## New Features
