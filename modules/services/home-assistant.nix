@@ -347,11 +347,11 @@ in
           mkdir -p ''$(dirname ${file}) && cp ${onboarding} ${file}
         fi
       '')
-      + (lib.optionalString cfg.ldap.enable (shblib.replaceSecrets {
+      + (shblib.replaceSecrets {
         userConfig = cfg.config;
         resultPath = "${config.services.home-assistant.configDir}/secrets.yaml";
         generator = shblib.replaceSecretsGeneratorAdapter (lib.generators.toYAML {});
-      }));
+      });
 
     systemd.tmpfiles.rules = [
       "f ${config.services.home-assistant.configDir}/automations.yaml 0755 hass hass"

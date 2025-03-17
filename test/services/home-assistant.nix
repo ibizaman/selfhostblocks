@@ -65,7 +65,11 @@ let
             "expect(page.get_by_text('All set')).to_be_visible()"
             "page.get_by_role('button', name=re.compile('Finish')).click()"
 
-            "expect(page.get_by_text('Overview')).to_be_visible()"
+            "page.get_by_label(re.compile('Username')).fill('admin')"
+            "page.get_by_label(re.compile('Password')).fill('adminpassword')"
+            "page.get_by_role('button', name=re.compile('Log in')).click()"
+
+            "expect(page).to_have_title(re.compile('Overview'))"
           ]; }
       ];
     };
