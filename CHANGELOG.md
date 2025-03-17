@@ -24,6 +24,11 @@ Template:
 
 - Default version of Nextcloud is now 29.
 
+## Fixes
+
+- Home Assistant config gets correctly generated with secrets
+  even if LDAP integration is not enabled.
+
 # v0.2.10
 
 ## New Features

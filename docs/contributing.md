@@ -46,7 +46,7 @@ then will run the test script.
 If the test includes playwright tests, you can see the playwright trace with:
 
 ```bash
-$ nix run .#playwright -- show-trace path/to/trace.zip
+$ nix run .#playwright -- show-trace $(nix eval .#checks.x86_64-linux.vm_grocy_basic --raw)/trace/0.zip
 ```
 
 ## Upload test results to CI {#contributing-upload}

@@ -107,7 +107,8 @@ Self Host Blocks takes care of common self-hosting needs:
 
 Great care is taken to make the proposed stack robust.
 This translates into a test suite comprised of automated NixOS VM tests
-including playwright tests.
+which includes playwright tests to verify some important workflow
+like logging in.
 
 ### Services
 
