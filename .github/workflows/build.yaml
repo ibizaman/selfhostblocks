@@ -58,7 +58,7 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           extra-conf: "system-features = nixos-test benchmark big-parallel kvm"
       - name: Setup Caching
-        uses: cachix/cachix-action@v15
+        uses: cachix/cachix-action@v16
         with:
           name: selfhostblocks
           authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'
@@ -85,7 +85,7 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           extra-conf: "system-features = nixos-test benchmark big-parallel kvm"
       - name: Setup Caching
-        uses: cachix/cachix-action@v15
+        uses: cachix/cachix-action@v16
         with:
           name: selfhostblocks
           authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'
@@ -112,7 +112,7 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           extra-conf: "system-features = nixos-test benchmark big-parallel kvm"
       - name: Setup Caching
-        uses: cachix/cachix-action@v15
+        uses: cachix/cachix-action@v16
         with:
           name: selfhostblocks
           authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'
