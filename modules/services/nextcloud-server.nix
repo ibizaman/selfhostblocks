@@ -1061,8 +1061,12 @@ in
     in lib.mkIf (cfg.enable && cfg.apps.sso.enable) {
       assertions = [
         {
-          assertion = cfg.apps.sso.enable -> cfg.apps.ldap.enable;
+          assertion = cfg.apps.ldap.enable;
           message = "SSO app requires LDAP app to work correctly.";
+        }
+        {
+          assertion = cfg.ssl != null;
+          message = "To integrate SSO, SSL must be enabled, set the shb.nextcloud.ssl option.";
         }
       ];
 

@@ -92,6 +92,8 @@
             };
           };
         };
+        shb.nextcloud.ssl = config.shb.certs.certs.selfsigned.n;
+        shb.ldap.ssl = config.shb.certs.certs.selfsigned.n;
 
         services.dnsmasq = {
           enable = true;
