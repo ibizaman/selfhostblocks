@@ -122,6 +122,7 @@ jobs:
           echo "resultPath=$(nix eval .#checks.x86_64-linux.vm_grocy_basic --raw)" >> $GITHUB_ENV
       - name: Upload Build Result
         uses: actions/upload-artifact@v4
+        if: always()
         with:
           path: ${{ env.resultPath }}/**/*
           overwrite: true
