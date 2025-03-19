@@ -213,9 +213,9 @@ in
 
 
             browsers = {
-                "chromium": ["--headless", "--disable-gpu"],
-                "firefox": [],
-                "webkit": []
+                "chromium": ["--reporter", "html", "--headless", "--disable-gpu"],
+                "firefox": ["--reporter", "html"],
+                "webkit": ["--reporter", "html"]
             }
             if len(sys.argv) != 2 or sys.argv[1] not in browsers.keys():
                 print(f"usage: {sys.argv[0]} [{'|'.join(browsers.keys())}]")
