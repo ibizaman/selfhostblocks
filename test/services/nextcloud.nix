@@ -160,13 +160,13 @@ let
       loginButtonNameRegex = "[Ll]og [Ii]n";
       testLoginWith = [
         { username = adminUser; password = adminPass; nextPageExpect = [
-            "expect(page.get_by_text('Wrong username or password')).not_to_be_visible()"
+            "expect(page.get_by_text('Wrong login or password')).not_to_be_visible()"
             "expect(page.get_by_role('button', name=re.compile('[Ll]og [Ii]n'))).not_to_be_visible()"
             "expect(page).to_have_title(re.compile('Dashboard'))"
           ]; }
         # Failure is after so we're not throttled too much.
         { username = adminUser; password = adminPass + "oops"; nextPageExpect = [
-            "expect(page.get_by_text('Wrong username or password')).to_be_visible()"
+            "expect(page.get_by_text('Wrong login or password')).to_be_visible()"
           ]; }
       ];
     };
