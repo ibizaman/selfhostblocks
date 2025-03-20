@@ -3,6 +3,8 @@
 let
   cfg = config.shb.nextcloud;
 
+  inherit (lib) mkIf;
+
   fqdn = "${cfg.subdomain}.${cfg.domain}";
   fqdnWithPort = if isNull cfg.port then fqdn else "${fqdn}:${toString cfg.port}";
   protocol = if !(isNull cfg.ssl) then "https" else "http";
@@ -662,7 +664,7 @@ in
   };
 
   config = lib.mkMerge [
-    (lib.mkIf cfg.enable {
+    (mkIf cfg.enable {
       users.users = {
         nextcloud = {
           name = "nextcloud";
@@ -780,7 +782,7 @@ in
           "xdebug.start_with_request" = "trigger";
         };
 
-        poolSettings = lib.mkIf (! (isNull cfg.phpFpmPoolSettings)) cfg.phpFpmPoolSettings;
+        poolSettings = mkIf (! (isNull cfg.phpFpmPoolSettings)) cfg.phpFpmPoolSettings;
 
         phpExtraExtensions = all: [ all.xdebug ];
       };
@@ -788,8 +790,8 @@ in
       services.nginx.virtualHosts.${fqdn} = {
         # listen = [ { addr = "0.0.0.0"; port = 443; } ];
         forceSSL = !(isNull cfg.ssl);
-        sslCertificate = lib.mkIf (!(isNull cfg.ssl)) cfg.ssl.paths.cert;
-        sslCertificateKey = lib.mkIf (!(isNull cfg.ssl)) cfg.ssl.paths.key;
+        sslCertificate = mkIf (!(isNull cfg.ssl)) cfg.ssl.paths.cert;
+        sslCertificateKey = mkIf (!(isNull cfg.ssl)) cfg.ssl.paths.key;
 
         # From [1] this should fix downloading of big files. [2] seems to indicate that buffering
         # happens at multiple places anyway, so disabling one place should be okay.
@@ -805,7 +807,7 @@ in
         pkgs.ffmpeg-headless
       ];
 
-      services.postgresql.settings = lib.mkIf (! (isNull cfg.postgresSettings)) cfg.postgresSettings;
+      services.postgresql.settings = mkIf (! (isNull cfg.postgresSettings)) cfg.postgresSettings;
 
       systemd.services.phpfpm-nextcloud.preStart = ''
       mkdir -p /var/log/xdebug; chown -R nextcloud: /var/log/xdebug
@@ -825,7 +827,7 @@ in
       systemd.services.nextcloud-setup.after = cfg.mountPointServices;
     })
 
-    (lib.mkIf cfg.phpFpmPrometheusExporter.enable {
+    (mkIf cfg.phpFpmPrometheusExporter.enable {
       services.prometheus.exporters.php-fpm = {
         enable = true;
         user = "nginx";
@@ -862,7 +864,7 @@ in
       ];
     })
 
-    (lib.mkIf (cfg.enable && cfg.apps.onlyoffice.enable) {
+    (mkIf (cfg.enable && cfg.apps.onlyoffice.enable) {
       assertions = [
         {
           assertion = !(isNull cfg.apps.onlyoffice.jwtSecretFile);
@@ -886,8 +888,8 @@ in
 
       services.nginx.virtualHosts."${cfg.apps.onlyoffice.subdomain}.${cfg.domain}" = {
         forceSSL = !(isNull cfg.ssl);
-        sslCertificate = lib.mkIf (!(isNull cfg.ssl)) cfg.ssl.paths.cert;
-        sslCertificateKey = lib.mkIf (!(isNull cfg.ssl)) cfg.ssl.paths.key;
+        sslCertificate = mkIf (!(isNull cfg.ssl)) cfg.ssl.paths.cert;
+        sslCertificateKey = mkIf (!(isNull cfg.ssl)) cfg.ssl.paths.key;
 
         locations."/" = {
           extraConfig = ''
@@ -897,7 +899,7 @@ in
       };
     })
 
-    (lib.mkIf (cfg.enable && cfg.apps.previewgenerator.enable) {
+    (mkIf (cfg.enable && cfg.apps.previewgenerator.enable) {
       services.nextcloud.extraApps = {
         inherit (nextcloudApps) previewgenerator;
       };
@@ -924,7 +926,7 @@ in
 
       # Values taken from
       # http://web.archive.org/web/20200513043150/https://ownyourbits.com/2019/06/29/understanding-and-improving-nextcloud-previews/
-      systemd.services.nextcloud-setup.script = lib.mkIf cfg.apps.previewgenerator.recommendedSettings ''
+      systemd.services.nextcloud-setup.script = mkIf cfg.apps.previewgenerator.recommendedSettings ''
         ${occ} config:app:set previewgenerator squareSizes --value="32 256"
         ${occ} config:app:set previewgenerator widthSizes  --value="256 384"
         ${occ} config:app:set previewgenerator heightSizes --value="256"
@@ -956,7 +958,7 @@ in
       };
     })
 
-    (lib.mkIf (cfg.enable && cfg.apps.externalStorage.enable) {
+    (mkIf (cfg.enable && cfg.apps.externalStorage.enable) {
       systemd.services.nextcloud-setup.script = ''
         ${occ} app:install files_external || :
         ${occ} app:enable  files_external
@@ -978,7 +980,7 @@ in
           '');
     })
 
-    (lib.mkIf (cfg.enable && cfg.apps.ldap.enable) {
+    (mkIf (cfg.enable && cfg.apps.ldap.enable) {
       systemd.services.nextcloud-setup.path = [ pkgs.jq ];
       systemd.services.nextcloud-setup.script =
         let
@@ -1058,7 +1060,7 @@ in
           "email"
           "groups"
         ];
-    in lib.mkIf (cfg.enable && cfg.apps.sso.enable) {
+    in mkIf (cfg.enable && cfg.apps.sso.enable) {
       assertions = [
         {
           assertion = cfg.apps.ldap.enable;
@@ -1142,7 +1144,7 @@ in
         };
       };
 
-      shb.authelia.oidcClients = lib.mkIf (cfg.apps.sso.provider == "Authelia") [
+      shb.authelia.oidcClients = mkIf (cfg.apps.sso.provider == "Authelia") [
         {
           client_id = cfg.apps.sso.clientID;
           client_name = "Nextcloud";
@@ -1156,7 +1158,7 @@ in
       ];
     })
 
-    (lib.mkIf (cfg.enable && cfg.autoDisableMaintenanceModeOnStart) {
+    (mkIf (cfg.enable && cfg.autoDisableMaintenanceModeOnStart) {
       systemd.services.nextcloud-setup.preStart =
         lib.mkBefore ''
         if [[ -e /var/lib/nextcloud/config/config.php ]]; then
@@ -1165,7 +1167,7 @@ in
         '';
     })
 
-    (lib.mkIf (cfg.enable && cfg.alwaysApplyExpensiveMigrations) {
+    (mkIf (cfg.enable && cfg.alwaysApplyExpensiveMigrations) {
       systemd.services.nextcloud-setup.script =
         ''
         if [[ -e /var/lib/nextcloud/config/config.php ]]; then
@@ -1176,11 +1178,18 @@ in
 
     # Great source of inspiration:
     # https://github.com/Shawn8901/nix-configuration/blob/538c18d9ecbf7c7e649b1540c0d40881bada6690/modules/nixos/private/nextcloud/memories.nix#L226
-    (lib.mkIf cfg.apps.memories.enable
+    (mkIf cfg.apps.memories.enable
       (let
         cfg' = cfg.apps.memories;
       in
         {
+          assertions = [
+            {
+              assertion = true;
+              message = "Memories app has an issue for now.";
+            }
+          ];
+
           services.nextcloud.extraApps = {
             inherit (nextcloudApps) memories;
           };
@@ -1213,13 +1222,13 @@ in
             };
           };
 
-          systemd.services.phpfpm-nextcloud.serviceConfig = lib.mkIf cfg'.vaapi {
+          systemd.services.phpfpm-nextcloud.serviceConfig = mkIf cfg'.vaapi {
             DeviceAllow = [ "/dev/dri/renderD128 rwm" ];
             PrivateDevices = lib.mkForce false;
           };
         }))
 
-    (lib.mkIf cfg.apps.recognize.enable
+    (mkIf cfg.apps.recognize.enable
       (let
         cfg' = cfg.apps.recognize;
       in

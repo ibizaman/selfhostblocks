@@ -25,6 +25,19 @@ let
         # This call does not block until the service is done.
         server.succeed("systemctl start nextcloud-cron.service&")
 
+    with subtest("setup succeeds"):
+        print(server.succeed("systemctl cat nextcloud-setup"))
+        # If the service failed, then we're not happy.
+        status = "active"
+        while status == "active":
+            status = server.get_unit_info("nextcloud-setup")["ActiveState"]
+            time.sleep(5)
+        if status != "inactive":
+            raise Exception("Setup job did not finish correctly")
+
+        if not find_in_logs("nextcloud-setup", "nextcloud-setup.service: Deactivated successfully."):
+            raise Exception("Nextcloud setup job did not finish successfully.")
+
     with subtest("fails with incorrect authentication"):
         client.fail(
             "curl -f -s --location -X PROPFIND"
@@ -248,6 +261,27 @@ let
     };
   };
 
+  memories = { config, ...}: {
+    systemd.tmpfiles.rules = [
+      "d '/srv/nextcloud' 0750 nextcloud nextcloud - -"
+    ];
+
+    shb.nextcloud = {
+      apps.memories.enable = true;
+      apps.memories.vaapi = true;
+    };
+  };
+
+  recognize = { config, ...}: {
+    systemd.tmpfiles.rules = [
+      "d '/srv/nextcloud' 0750 nextcloud nextcloud - -"
+    ];
+
+    shb.nextcloud = {
+      apps.recognize.enable = true;
+    };
+  };
+
   prometheus = { config, ... }: {
     shb.nextcloud = {
       phpFpmPrometheusExporter.enable = true;
@@ -344,6 +378,42 @@ in
         testLib.certs
         https
         externalstorage
+      ];
+    };
+
+    nodes.client = {};
+
+    testScript = commonTestScript.access;
+  };
+
+  # TODO: fix memories app
+
+  # memories = pkgs.testers.runNixOSTest {
+  #   name = "nextcloud_memories";
+
+  #   nodes.server = {
+  #     imports = [
+  #       basic
+  #       testLib.certs
+  #       https
+  #       memories
+  #     ];
+  #   };
+
+  #   nodes.client = {};
+
+  #   testScript = commonTestScript.access;
+  # };
+
+  recognize = pkgs.testers.runNixOSTest {
+    name = "nextcloud_recognize";
+
+    nodes.server = {
+      imports = [
+        basic
+        testLib.certs
+        https
+        recognize
       ];
     };
 
