@@ -1072,6 +1072,17 @@ in
         }
       ];
 
+      services.nextcloud.extraApps = {
+        oidc_login = pkgs.fetchNextcloudApp {
+          hash = "sha256-RLYquOE83xquzv+s38bahOixQ+y4UI6OxP9HfO26faI=";
+          url = "https://github.com/pulsejet/nextcloud-oidc-login/releases/download/v3.2.2/oidc_login.tar.gz";
+          appVersion = "3.2.2";
+          description = "Provides user creation and login via one single OpenID Connect provider.";
+          homepage = "https://github.com/pulsejet/nextcloud-oidc-login";
+          license = "agpl3Only";
+        };
+      };
+
       systemd.services.nextcloud-setup.script =
         ''
         ${occ} app:install oidc_login || :
