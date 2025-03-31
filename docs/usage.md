@@ -63,7 +63,7 @@ guarantee Self Host Block won't use a non-existing option from `nixpkgs`.
 To pin Self Host Blocks to a release/tag, run the following snippet:
 
 ```nix
-nix flake lock --override-input selfhostblocks github:ibizaman/selfhostblocks/@VERSION@
+nix flake update --override-input selfhostblocks github:ibizaman/selfhostblocks/@VERSION@ selfhostblock
 ```
 
 Updating Self Host Blocks to a new version can be done the same way.
@@ -80,7 +80,9 @@ The setup is explained in [this blog post][2].
 
 ## Example Deployment with Nixos-Rebuild {#usage-example-nixosrebuild}
 
-The following snippets show how to deploy Self Host Blocks using the standard deployment system `nixos-rebuild`.
+The following snippets show how to deploy Self Host Blocks using the standard deployment system [nixos-rebuild][].
+
+[nixos-rebuild]:https://nixos.org/manual/nixos/stable/#sec-changing-config
 
 ```nix
 {
