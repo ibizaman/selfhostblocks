@@ -38,7 +38,11 @@ before ease of installation.
 To achieve this, it provides building blocks to setup services.
 Some services are already provided out of the box
 and adding custom ones is done easily thanks to those blocks.
-These building blocks fit together nicely thanks to [contracts](#contracts).
+
+The building blocks fit nicely together thanks to [contracts](#contracts)
+which SelfHostBlocks introduces into nixpkgs.
+This will increase modularity, code-reuse and empower end users to
+assemble components that fit together to build their server.
 
 ## TOC
 
@@ -253,7 +257,7 @@ that are configured in the same way.
 ### Contracts
 
 To make building blocks that fit nicely together,
-SHB pioneers [contracts][] which allows you, the final user,
+SelfHostBlocks pioneers [contracts][] which allows you, the final user,
 to be more in control of which piece goes where.
 This lets you choose, for example,
 any reverse proxy you want or any database you want,
@@ -285,7 +289,7 @@ which are, for self hosted applications specifically:
 - declarative configuration;
 - atomic configuration rollbacks;
 - real programming language to define configurations;
-- create your own higher level abstractions on top of SHB;
+- create your own higher level abstractions on top of SelfHostBlocks;
 - integration with the rest of nixpkgs;
 - much fewer "works on my machine" type of issues.
 
@@ -351,7 +355,7 @@ of the manual.
 
 Come hang out in the [Matrix channel](https://matrix.to/#/%23selfhostblocks%3Amatrix.org). :)
 
-One aspect that's close to my heart is I intent to make SHB the lightest layer on top of nixpkgs as
+One aspect that's close to my heart is I intent to make SelfHostBlocks the lightest layer on top of nixpkgs as
 possible. I want to upstream as much as possible. I will still take some time to experiment here but
 when I'm satisfied with how things look, I'll upstream changes.
 
