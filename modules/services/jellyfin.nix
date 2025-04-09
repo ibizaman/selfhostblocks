@@ -311,7 +311,7 @@ in
             <UseStartTls>false</UseStartTls>
             <SkipSslVerify>false</SkipSslVerify>
             <LdapBindUser>uid=admin,ou=people,${cfg.ldap.dcdomain}</LdapBindUser>
-            <LdapBindPassword>%LDAP_PASSWORD%</LdapBindPassword>
+            <LdapBindPassword>%SECRET_LDAP_PASSWORD%</LdapBindPassword>
             <LdapBaseDn>ou=people,${cfg.ldap.dcdomain}</LdapBaseDn>
             <LdapSearchFilter>(memberof=cn=${cfg.ldap.userGroup},ou=groups,${cfg.ldap.dcdomain})</LdapSearchFilter>
             <LdapAdminBaseDn>ou=people,${cfg.ldap.dcdomain}</LdapAdminBaseDn>
@@ -344,7 +344,7 @@ in
                   <PluginConfiguration>
                     <OidEndpoint>${cfg.sso.endpoint}</OidEndpoint>
                     <OidClientId>${cfg.sso.clientID}</OidClientId>
-                    <OidSecret>%SSO_SECRET%</OidSecret>
+                    <OidSecret>%SECRET_SSO_SECRET%</OidSecret>
                     <Enabled>true</Enabled>
                     <EnableAuthorization>true</EnableAuthorization>
                     <EnableAllFolders>true</EnableAllFolders>
@@ -420,7 +420,7 @@ in
           resultPath = "/var/lib/jellyfin/plugins/configurations/LDAP-Auth.xml";
           replacements = [
             {
-              name = [ "%LDAP_PASSWORD%" ];
+              name = [ "LDAP_PASSWORD" ];
               source = cfg.ldap.adminPassword.result.path;
             }
           ];
@@ -430,7 +430,7 @@ in
           resultPath = "/var/lib/jellyfin/plugins/configurations/SSO-Auth.xml";
           replacements = [
             {
-              name = [ "%SSO_SECRET%" ];
+              name = [ "SSO_SECRET" ];
               source = cfg.sso.sharedSecret.result.path;
             }
           ];
@@ -449,7 +449,14 @@ in
         client_secret.source = cfg.sso.sharedSecretForAuthelia.result.path;
         public = false;
         authorization_policy = cfg.sso.authorization_policy;
-        redirect_uris = [ "https://${cfg.subdomain}.${cfg.domain}/sso/OID/r/${cfg.sso.provider}" ];
+        redirect_uris = [
+          "https://${cfg.subdomain}.${cfg.domain}/sso/OID/r/${cfg.sso.provider}"
+          "https://${cfg.subdomain}.${cfg.domain}/sso/OID/redirect/${cfg.sso.provider}"
+        ];
+        require_pkce = true;
+        pkce_challenge_method = "S256";
+        userinfo_signed_response_alg = "none";
+        token_endpoint_auth_method = "client_secret_post";
       }
     ];
   };
