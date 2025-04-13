@@ -142,7 +142,6 @@ Also, the stack fits together nicely thanks to [contracts](#contracts).
 - Hledger
 - Home-Assistant
 - Jellyfin
-- Nextcloud
 - Vaultwarden
 
 Like explained above, those services all benefit from
