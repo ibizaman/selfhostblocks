@@ -19,30 +19,37 @@
 using building blocks and promoting best practices.*
 
 It is obvious by now that
-a deep dependency on proprietary service providers - "the cloud" - is a significant liability.
-One aspect often talked about is privacy which is inherently not guaranteed
-when using a proprietary service and is a valid concern.
+a deep dependency on proprietary service providers - "the cloud" -
+is a significant liability.
+One aspect often talked about is privacy
+which is inherently not guaranteed when using a proprietary service
+and is a valid concern.
 A more punishing issue is having your account closed or locked
-without prior warning.
-When that happens, you get an instantaneous sinking feeling in your stomach
-at the realization you lost access to your data, possibly without recourse.
+without prior warning
+When that happens,
+you get an instantaneous sinking feeling in your stomach
+at the realization you lost access to your data,
+possibly without recourse.
 
-Self-hosting is the only alternative that alleviate those concerns
-but it requires a lot of technical skills and time.
-SelfHostBlocks' and its sibling project [Skarabox][]' goal
-is to lower the bar to self-hosting.
-
-SelfHostBlocks is different from other server management projects
-because it's main focus is ease of long term maintenance
+Hosting services yourself is the obvious alternative
+to alleviate those concerns
+but it tends to require a lot of technical skills and time.
+SelfHostBlocks (together with its sibling project [Skarabox][])
+aims to lower the bar to self-hosting,
+and provides an opinionated server management system based on NixOS modules
+embedding best practices.
+Contrary to other server management projects,
+its main focus is ease of long term maintenance
 before ease of installation.
 To achieve this, it provides building blocks to setup services.
-Some services are already provided out of the box
-and adding custom ones is done easily thanks to those blocks.
+Some are already provided out of the box,
+and customizing or adding additional ones is done easily.
 
 The building blocks fit nicely together thanks to [contracts](#contracts)
-which SelfHostBlocks introduces into nixpkgs.
-This will increase modularity, code-reuse and empower end users to
-assemble components that fit together to build their server.
+which SelfHostBlocks sets out to introduce into nixpkgs.
+This will increase modularity, code reuse
+and empower end users to assemble components
+that fit together to build their server.
 
 ## TOC
 
