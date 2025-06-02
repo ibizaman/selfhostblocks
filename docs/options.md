@@ -2,6 +2,6 @@
 
 ```{=include=} options
 id-prefix: opt-
-list-id: selfhostblock-options
+list-id: selfhostblocks-options
 source: @OPTIONS_JSON@
 ```

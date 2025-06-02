@@ -177,7 +177,7 @@ user and password you just created above.
 ### Files {#demo-homeassistant-files}
 
 - [`flake.nix`](./flake.nix): nix entry point, defines one target host for
-  [colmena](https://colmena.cli.rs) to deploy to as well as the selfhostblock's config for
+  [colmena](https://colmena.cli.rs) to deploy to as well as the selfhostblocks' config for
   setting up the home assistant server paired with the LDAP server.
 - [`configuration.nix`](./configuration.nix): defines all configuration required for colmena
   to deploy to the VM. The file has comments if you're interested.

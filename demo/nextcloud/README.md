@@ -219,7 +219,7 @@ This is the end of the `sso` demo.
 ### Files {#demo-nextcloud-tips-files}
 
 - [`flake.nix`](./flake.nix): nix entry point, defines the target hosts for
-  [colmena](https://colmena.cli.rs) to deploy to as well as the selfhostblock's config for setting
+  [colmena](https://colmena.cli.rs) to deploy to as well as the selfhostblocks' config for setting
   up Nextcloud and the auxiliary services.
 - [`configuration.nix`](./configuration.nix): defines all configuration required for colmena
   to deploy to the VM. The file has comments if you're interested.

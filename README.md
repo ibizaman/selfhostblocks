@@ -317,7 +317,7 @@ replacing the RELEASE with the one you want:
 RELEASE=0.2.4
 nix flake update \
   --override-input selfhostblocks github:ibizaman/selfhostblocks/$RELEASE \
-  selfhostblock
+  selfhostblocks
 ```
 
 ### Demos
