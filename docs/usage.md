@@ -63,7 +63,7 @@ guarantee Self Host Block won't use a non-existing option from `nixpkgs`.
 To pin Self Host Blocks to a release/tag, run the following snippet:
 
 ```nix
-nix flake update --override-input selfhostblocks github:ibizaman/selfhostblocks/@VERSION@ selfhostblock
+nix flake update --override-input selfhostblocks github:ibizaman/selfhostblocks/@VERSION@ selfhostblocks
 ```
 
 Updating Self Host Blocks to a new version can be done the same way.
