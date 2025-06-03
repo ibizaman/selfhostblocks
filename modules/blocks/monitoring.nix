@@ -124,7 +124,7 @@ in
           from_name = lib.mkOption {
             type = lib.types.str;
             description = "SMTP name from which the emails originate.";
-            default = "Vaultwarden";
+            default = "Grafana";
           };
           host = lib.mkOption {
             type = lib.types.str;
