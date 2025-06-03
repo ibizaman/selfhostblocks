@@ -104,7 +104,11 @@
           release = builtins.readFile ./VERSION;
         };
 
-        lib.contracts = pkgs.callPackage ./modules/contracts {};
+        lib =
+          (pkgs.callPackage ./lib {})
+          // {
+            contracts = pkgs.callPackage ./modules/contracts {};
+          };
 
         checks =
           let
