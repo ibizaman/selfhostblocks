@@ -75,8 +75,29 @@ the [GitHub repository][1] for Self Host Blocks updates the `nixpkgs` input ever
 and verifies all tests pass before automatically merging the new `nixpkgs` version.
 The setup is explained in [this blog post][2].
 
-[1]: https://github.com/ibizaman/selfhostblocks
-[2]: https://blog.tiserbox.com/posts/2023-12-25-automated-flake-lock-update-pull-requests-and-merging.html
+[repo]: https://github.com/ibizaman/selfhostblocks
+[automerge]: https://blog.tiserbox.com/posts/2023-12-25-automated-flake-lock-update-pull-requests-and-merging.html
+
+### Use SelfHostBlocks' lib {#usage-lib}
+
+Access any functions exposed by the [lib][] with this snippet:
+
+```nix
+{
+  inputs = {
+    selfhostblocks.url = "github:ibizaman/selfhostblocks";
+  };
+  outputs = { selfhostblocks, ... }:
+    let
+      shblib = selfhostblocks.lib.${system};
+    in
+      {
+        // Use shblib.replaceSecrets for example.
+      }
+}
+```
+
+[lib]: https://github.com/ibizaman/selfhostblocks/blob/main/lib/default.nix
 
 ## Example Deployment with Nixos-Rebuild {#usage-example-nixosrebuild}
 
