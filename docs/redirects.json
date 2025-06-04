@@ -1850,6 +1850,9 @@
   "usage-example-nixosrebuild": [
     "usage.html#usage-example-nixosrebuild"
   ],
+  "usage-lib": [
+    "usage.html#usage-lib"
+  ],
   "usage-flake": [
     "usage.html#usage-flake"
   ],
