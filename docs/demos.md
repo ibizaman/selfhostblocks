@@ -1,3 +1,4 @@
+<!-- Read these docs at https://shb.skarabox.com -->
 # Demos {#demos}
 
 These demos are showcasing what Self Host Blocks can do. They deploy a block or a service on a VM on

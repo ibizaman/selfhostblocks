@@ -1,3 +1,4 @@
+<!-- Read these docs at https://shb.skarabox.com -->
 # Services {#services}
 
 Services are usually web applications that SHB help you self-host. Configuration of those is

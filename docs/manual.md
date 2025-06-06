@@ -1,3 +1,4 @@
+<!-- Read these docs at https://shb.skarabox.com -->
 # Self Host Blocks Manual {#self-host-blocks-manual}
 
 ## Version @VERSION@

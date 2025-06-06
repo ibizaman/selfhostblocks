@@ -1,3 +1,4 @@
+<!-- Read these docs at https://shb.skarabox.com -->
 # Contracts {#contracts}
 
 A contract decouples modules that use a functionality from modules that provide it. A first
