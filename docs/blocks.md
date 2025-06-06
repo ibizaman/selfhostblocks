@@ -1,3 +1,4 @@
+<!-- Read these docs at https://shb.skarabox.com -->
 # Blocks {#blocks}
 
 Blocks help you self-host apps or services. They implement a specific function like backup or secure

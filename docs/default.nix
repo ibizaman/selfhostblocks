@@ -1,4 +1,5 @@
 # Taken nearly verbatim from https://github.com/nix-community/home-manager/pull/4673
+# Read these docs online at https://shb.skarabox.com.
 { pkgs
 , buildPackages
 , lib

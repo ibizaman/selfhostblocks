@@ -355,11 +355,28 @@ This project has been the main focus
 of my (non work) life for the past 3 year now
 and I intend to continue working on this for a long time.
 
-All issues and PRs are welcome. For PRs, if they are substantial changes, please open an issue to
+All issues and PRs are welcome:
+
+- Use this project. Something does not make sense? Something's not working?
+- Documentation. Something is not clear?
+- New services. Have one of your preferred service not integrated yet?
+- Better patterns. See something weird in the code?
+
+For PRs, if they are substantial changes, please open an issue to
 discuss the details first. More details in [the contributing section](https://shb.skarabox.com/contributing.html)
 of the manual.
 
-Come hang out in the [Matrix channel](https://matrix.to/#/%23selfhostblocks%3Amatrix.org). :)
+Issues that are being worked on are labeled with the [in progress][] label.
+Before starting work on those, you might want to talk about it in the issue tracker
+or in the [matrix][] channel.
+
+The prioritized issues are those belonging to the [next milestone][milestone].
+Those issues are not set in stone and I'd be very happy to solve
+an issue an user has before scratching my own itch.
+
+[in progress]: https://github.com/ibizaman/selfhostblocks/issues?q=is%3Aissue%20state%3Aopen%20label%3A%22in%20progress%22
+[matrix]: https://matrix.to/#/%23selfhostblocks%3Amatrix.org
+[milestone]: https://github.com/ibizaman/selfhostblocks/milestones
 
 One aspect that's close to my heart is I intent to make SelfHostBlocks the lightest layer on top of nixpkgs as
 possible. I want to upstream as much as possible. I will still take some time to experiment here but
