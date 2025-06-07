@@ -32,6 +32,10 @@ demos.md
 contributing.md
 ```
 
+```{=include=} chapters html:into-file=//service-implementation-guide.html
+service-implementation-guide.md
+```
+
 ```{=include=} appendix html:into-file=//options.html
 options.md
 ```

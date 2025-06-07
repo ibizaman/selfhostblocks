@@ -1,6 +1,48 @@
 {
+  "adding-new-service-documentation": [
+    "service-implementation-guide.html#adding-new-service-documentation"
+  ],
   "all-options": [
     "options.html#all-options"
+  ],
+  "analyze-existing-services": [
+    "service-implementation-guide.html#analyze-existing-services"
+  ],
+  "api-health-check": [
+    "service-implementation-guide.html#api-health-check"
+  ],
+  "authentication-integration": [
+    "service-implementation-guide.html#authentication-integration"
+  ],
+  "authentication-integration-pitfalls": [
+    "service-implementation-guide.html#authentication-integration-pitfalls"
+  ],
+  "automated-redirect-generation": [
+    "service-implementation-guide.html#automated-redirect-generation"
+  ],
+  "best-practices-summary": [
+    "service-implementation-guide.html#best-practices-summary"
+  ],
+  "block-ssl": [
+    "blocks-ssl.html#block-ssl"
+  ],
+  "block-ssl-debug": [
+    "blocks-ssl.html#block-ssl-debug"
+  ],
+  "block-ssl-impl-lets-encrypt": [
+    "blocks-ssl.html#block-ssl-impl-lets-encrypt"
+  ],
+  "block-ssl-impl-self-signed": [
+    "blocks-ssl.html#block-ssl-impl-self-signed"
+  ],
+  "block-ssl-options": [
+    "blocks-ssl.html#block-ssl-options"
+  ],
+  "block-ssl-tests": [
+    "blocks-ssl.html#block-ssl-tests"
+  ],
+  "block-ssl-usage": [
+    "blocks-ssl.html#block-ssl-usage"
   ],
   "blocks": [
     "blocks.html#blocks"
@@ -14,20 +56,14 @@
   "blocks-monitoring-configuration": [
     "blocks-monitoring.html#blocks-monitoring-configuration"
   ],
-  "blocks-monitoring-nextcloud-dashboard": [
-    "blocks-monitoring.html#blocks-monitoring-nextcloud-dashboard"
-  ],
   "blocks-monitoring-deluge-dashboard": [
     "blocks-monitoring.html#blocks-monitoring-deluge-dashboard"
   ],
   "blocks-monitoring-error-dashboard": [
     "blocks-monitoring.html#blocks-monitoring-error-dashboard"
   ],
-  "blocks-monitoring-performance-dashboard": [
-    "blocks-monitoring.html#blocks-monitoring-performance-dashboard"
-  ],
-  "blocks-monitoring-provisioning": [
-    "blocks-monitoring.html#blocks-monitoring-provisioning"
+  "blocks-monitoring-nextcloud-dashboard": [
+    "blocks-monitoring.html#blocks-monitoring-nextcloud-dashboard"
   ],
   "blocks-monitoring-options": [
     "blocks-monitoring.html#blocks-monitoring-options"
@@ -148,6 +184,12 @@
   ],
   "blocks-monitoring-options-shb.monitoring.subdomain": [
     "blocks-monitoring.html#blocks-monitoring-options-shb.monitoring.subdomain"
+  ],
+  "blocks-monitoring-performance-dashboard": [
+    "blocks-monitoring.html#blocks-monitoring-performance-dashboard"
+  ],
+  "blocks-monitoring-provisioning": [
+    "blocks-monitoring.html#blocks-monitoring-provisioning"
   ],
   "blocks-postgresql": [
     "blocks-postgresql.html#blocks-postgresql"
@@ -473,32 +515,11 @@
   "blocks-sops-usage": [
     "blocks-sops.html#blocks-sops-usage"
   ],
-  "blocks-sops-usage-requester": [
-    "blocks-sops.html#blocks-sops-usage-requester"
-  ],
   "blocks-sops-usage-manual": [
     "blocks-sops.html#blocks-sops-usage-manual"
   ],
-  "block-ssl": [
-    "blocks-ssl.html#block-ssl"
-  ],
-  "block-ssl-debug": [
-    "blocks-ssl.html#block-ssl-debug"
-  ],
-  "block-ssl-impl-lets-encrypt": [
-    "blocks-ssl.html#block-ssl-impl-lets-encrypt"
-  ],
-  "block-ssl-impl-self-signed": [
-    "blocks-ssl.html#block-ssl-impl-self-signed"
-  ],
-  "block-ssl-options": [
-    "blocks-ssl.html#block-ssl-options"
-  ],
-  "block-ssl-tests": [
-    "blocks-ssl.html#block-ssl-tests"
-  ],
-  "block-ssl-usage": [
-    "blocks-ssl.html#block-ssl-usage"
+  "blocks-sops-usage-requester": [
+    "blocks-sops.html#blocks-sops-usage-requester"
   ],
   "blocks-ssl-options-shb.certs.cas.selfsigned": [
     "blocks-ssl.html#blocks-ssl-options-shb.certs.cas.selfsigned"
@@ -617,6 +638,27 @@
   "blocks-ssl-options-shb.certs.systemdService": [
     "blocks-ssl.html#blocks-ssl-options-shb.certs.systemdService"
   ],
+  "build-time-validation": [
+    "service-implementation-guide.html#build-time-validation"
+  ],
+  "check-nixos-integration": [
+    "service-implementation-guide.html#check-nixos-integration"
+  ],
+  "common-pitfalls-and-solutions": [
+    "service-implementation-guide.html#common-pitfalls-and-solutions"
+  ],
+  "complete-shb-service": [
+    "service-implementation-guide.html#complete-shb-service"
+  ],
+  "complete-workflow": [
+    "service-implementation-guide.html#complete-workflow"
+  ],
+  "configuration-issues": [
+    "service-implementation-guide.html#configuration-issues"
+  ],
+  "configuration-management": [
+    "service-implementation-guide.html#configuration-management"
+  ],
   "contract-backup": [
     "contracts-backup.html#contract-backup"
   ],
@@ -686,27 +728,6 @@
   "contracts": [
     "contracts.html#contracts"
   ],
-  "contracts-nixpkgs": [
-    "contracts.html#contracts-nixpkgs"
-  ],
-  "contracts-provided": [
-    "contracts.html#contracts-provided"
-  ],
-  "contracts-concept": [
-    "contracts.html#contracts-concept"
-  ],
-  "contracts-schema": [
-    "contracts.html#contracts-schema"
-  ],
-  "contracts-test": [
-    "contracts.html#contracts-test"
-  ],
-  "contracts-videos": [
-    "contracts.html#contracts-videos"
-  ],
-  "contracts-why": [
-    "contracts.html#contracts-why"
-  ],
   "contracts-backup-options-shb.contracts.backup": [
     "contracts-backup.html#contracts-backup-options-shb.contracts.backup"
   ],
@@ -743,6 +764,9 @@
   "contracts-backup-options-shb.contracts.backup.settings": [
     "contracts-backup.html#contracts-backup-options-shb.contracts.backup.settings"
   ],
+  "contracts-concept": [
+    "contracts.html#contracts-concept"
+  ],
   "contracts-databasebackup-options-shb.contracts.databasebackup": [
     "contracts-databasebackup.html#contracts-databasebackup-options-shb.contracts.databasebackup"
   ],
@@ -772,6 +796,15 @@
   ],
   "contracts-databasebackup-options-shb.contracts.databasebackup.settings": [
     "contracts-databasebackup.html#contracts-databasebackup-options-shb.contracts.databasebackup.settings"
+  ],
+  "contracts-nixpkgs": [
+    "contracts.html#contracts-nixpkgs"
+  ],
+  "contracts-provided": [
+    "contracts.html#contracts-provided"
+  ],
+  "contracts-schema": [
+    "contracts.html#contracts-schema"
   ],
   "contracts-secret-options-shb.contracts.secret": [
     "contracts-secret.html#contracts-secret-options-shb.contracts.secret"
@@ -815,6 +848,15 @@
   "contracts-ssl-options-shb.contracts.ssl.systemdService": [
     "contracts-ssl.html#contracts-ssl-options-shb.contracts.ssl.systemdService"
   ],
+  "contracts-test": [
+    "contracts.html#contracts-test"
+  ],
+  "contracts-videos": [
+    "contracts.html#contracts-videos"
+  ],
+  "contracts-why": [
+    "contracts.html#contracts-why"
+  ],
   "contributing": [
     "contributing.html#contributing"
   ],
@@ -857,6 +899,15 @@
   "contributing-upstream": [
     "contributing.html#contributing-upstream"
   ],
+  "create-comprehensive-tests": [
+    "service-implementation-guide.html#create-comprehensive-tests"
+  ],
+  "create-service-documentation": [
+    "service-implementation-guide.html#create-service-documentation"
+  ],
+  "create-service-module": [
+    "service-implementation-guide.html#create-service-module"
+  ],
   "demo-homeassistant": [
     "demo-homeassistant.html#demo-homeassistant"
   ],
@@ -865,6 +916,9 @@
   ],
   "demo-homeassistant-deploy-basic": [
     "demo-homeassistant.html#demo-homeassistant-deploy-basic"
+  ],
+  "demo-homeassistant-deploy-colmena": [
+    "demo-homeassistant.html#demo-homeassistant-deploy-colmena"
   ],
   "demo-homeassistant-deploy-ldap": [
     "demo-homeassistant.html#demo-homeassistant-deploy-ldap"
@@ -895,9 +949,6 @@
   ],
   "demo-homeassistant-virtual-machine": [
     "demo-homeassistant.html#demo-homeassistant-virtual-machine"
-  ],
-  "demo-homeassistant-deploy-colmena": [
-    "demo-homeassistant.html#demo-homeassistant-deploy-colmena"
   ],
   "demo-nextcloud": [
     "demo-nextcloud.html#demo-nextcloud"
@@ -947,11 +998,68 @@
   "demos": [
     "demos.html#demos"
   ],
+  "external-exporter": [
+    "service-implementation-guide.html#external-exporter"
+  ],
+  "handle-unfree-dependencies": [
+    "service-implementation-guide.html#handle-unfree-dependencies"
+  ],
+  "how-redirects-work": [
+    "service-implementation-guide.html#how-redirects-work"
+  ],
+  "implementation-considerations": [
+    "service-implementation-guide.html#implementation-considerations"
+  ],
+  "implementation-steps": [
+    "service-implementation-guide.html#implementation-steps"
+  ],
+  "iterative-development-approach": [
+    "service-implementation-guide.html#iterative-development-approach"
+  ],
+  "local-testing": [
+    "service-implementation-guide.html#local-testing"
+  ],
+  "monitoring-failures": [
+    "service-implementation-guide.html#monitoring-failures"
+  ],
+  "monitoring-implementation": [
+    "service-implementation-guide.html#monitoring-implementation"
+  ],
+  "native-prometheus-metrics": [
+    "service-implementation-guide.html#native-prometheus-metrics"
+  ],
+  "nixpkgs-integration": [
+    "service-implementation-guide.html#nixpkgs-integration"
+  ],
+  "pre-implementation-research": [
+    "service-implementation-guide.html#pre-implementation-research"
+  ],
   "preface": [
     "index.html#preface"
   ],
+  "quick-reference": [
+    "service-implementation-guide.html#quick-reference"
+  ],
+  "redirect-management": [
+    "service-implementation-guide.html#redirect-management"
+  ],
+  "redirect-patterns": [
+    "service-implementation-guide.html#redirect-patterns"
+  ],
+  "required-test-variants": [
+    "service-implementation-guide.html#required-test-variants"
+  ],
+  "resources": [
+    "service-implementation-guide.html#resources"
+  ],
+  "security-best-practices": [
+    "service-implementation-guide.html#security-best-practices"
+  ],
   "self-host-blocks-manual": [
     "index.html#self-host-blocks-manual"
+  ],
+  "service-implementation-guide": [
+    "service-implementation-guide.html#service-implementation-guide"
   ],
   "services": [
     "services.html#services"
@@ -967,39 +1075,6 @@
   ],
   "services-forgejo-options": [
     "services-forgejo.html#services-forgejo-options"
-  ],
-  "services-forgejo-options-shb.forgejo.users": [
-    "services-forgejo.html#services-forgejo-options-shb.forgejo.users"
-  ],
-  "services-forgejo-options-shb.forgejo.users._name_.email": [
-    "services-forgejo.html#services-forgejo-options-shb.forgejo.users._name_.email"
-  ],
-  "services-forgejo-options-shb.forgejo.users._name_.isAdmin": [
-    "services-forgejo.html#services-forgejo-options-shb.forgejo.users._name_.isAdmin"
-  ],
-  "services-forgejo-options-shb.forgejo.users._name_.password": [
-    "services-forgejo.html#services-forgejo-options-shb.forgejo.users._name_.password"
-  ],
-  "services-forgejo-options-shb.forgejo.users._name_.password.request": [
-    "services-forgejo.html#services-forgejo-options-shb.forgejo.users._name_.password.request"
-  ],
-  "services-forgejo-options-shb.forgejo.users._name_.password.request.group": [
-    "services-forgejo.html#services-forgejo-options-shb.forgejo.users._name_.password.request.group"
-  ],
-  "services-forgejo-options-shb.forgejo.users._name_.password.request.mode": [
-    "services-forgejo.html#services-forgejo-options-shb.forgejo.users._name_.password.request.mode"
-  ],
-  "services-forgejo-options-shb.forgejo.users._name_.password.request.owner": [
-    "services-forgejo.html#services-forgejo-options-shb.forgejo.users._name_.password.request.owner"
-  ],
-  "services-forgejo-options-shb.forgejo.users._name_.password.request.restartUnits": [
-    "services-forgejo.html#services-forgejo-options-shb.forgejo.users._name_.password.request.restartUnits"
-  ],
-  "services-forgejo-options-shb.forgejo.users._name_.password.result": [
-    "services-forgejo.html#services-forgejo-options-shb.forgejo.users._name_.password.result"
-  ],
-  "services-forgejo-options-shb.forgejo.users._name_.password.result.path": [
-    "services-forgejo.html#services-forgejo-options-shb.forgejo.users._name_.password.result.path"
   ],
   "services-forgejo-options-shb.forgejo.backup": [
     "services-forgejo.html#services-forgejo-options-shb.forgejo.backup"
@@ -1187,6 +1262,27 @@
   "services-forgejo-options-shb.forgejo.sso.sharedSecret": [
     "services-forgejo.html#services-forgejo-options-shb.forgejo.sso.sharedSecret"
   ],
+  "services-forgejo-options-shb.forgejo.sso.sharedSecret.request": [
+    "services-forgejo.html#services-forgejo-options-shb.forgejo.sso.sharedSecret.request"
+  ],
+  "services-forgejo-options-shb.forgejo.sso.sharedSecret.request.group": [
+    "services-forgejo.html#services-forgejo-options-shb.forgejo.sso.sharedSecret.request.group"
+  ],
+  "services-forgejo-options-shb.forgejo.sso.sharedSecret.request.mode": [
+    "services-forgejo.html#services-forgejo-options-shb.forgejo.sso.sharedSecret.request.mode"
+  ],
+  "services-forgejo-options-shb.forgejo.sso.sharedSecret.request.owner": [
+    "services-forgejo.html#services-forgejo-options-shb.forgejo.sso.sharedSecret.request.owner"
+  ],
+  "services-forgejo-options-shb.forgejo.sso.sharedSecret.request.restartUnits": [
+    "services-forgejo.html#services-forgejo-options-shb.forgejo.sso.sharedSecret.request.restartUnits"
+  ],
+  "services-forgejo-options-shb.forgejo.sso.sharedSecret.result": [
+    "services-forgejo.html#services-forgejo-options-shb.forgejo.sso.sharedSecret.result"
+  ],
+  "services-forgejo-options-shb.forgejo.sso.sharedSecret.result.path": [
+    "services-forgejo.html#services-forgejo-options-shb.forgejo.sso.sharedSecret.result.path"
+  ],
   "services-forgejo-options-shb.forgejo.sso.sharedSecretForAuthelia": [
     "services-forgejo.html#services-forgejo-options-shb.forgejo.sso.sharedSecretForAuthelia"
   ],
@@ -1211,29 +1307,41 @@
   "services-forgejo-options-shb.forgejo.sso.sharedSecretForAuthelia.result.path": [
     "services-forgejo.html#services-forgejo-options-shb.forgejo.sso.sharedSecretForAuthelia.result.path"
   ],
-  "services-forgejo-options-shb.forgejo.sso.sharedSecret.request": [
-    "services-forgejo.html#services-forgejo-options-shb.forgejo.sso.sharedSecret.request"
-  ],
-  "services-forgejo-options-shb.forgejo.sso.sharedSecret.request.group": [
-    "services-forgejo.html#services-forgejo-options-shb.forgejo.sso.sharedSecret.request.group"
-  ],
-  "services-forgejo-options-shb.forgejo.sso.sharedSecret.request.mode": [
-    "services-forgejo.html#services-forgejo-options-shb.forgejo.sso.sharedSecret.request.mode"
-  ],
-  "services-forgejo-options-shb.forgejo.sso.sharedSecret.request.owner": [
-    "services-forgejo.html#services-forgejo-options-shb.forgejo.sso.sharedSecret.request.owner"
-  ],
-  "services-forgejo-options-shb.forgejo.sso.sharedSecret.request.restartUnits": [
-    "services-forgejo.html#services-forgejo-options-shb.forgejo.sso.sharedSecret.request.restartUnits"
-  ],
-  "services-forgejo-options-shb.forgejo.sso.sharedSecret.result": [
-    "services-forgejo.html#services-forgejo-options-shb.forgejo.sso.sharedSecret.result"
-  ],
-  "services-forgejo-options-shb.forgejo.sso.sharedSecret.result.path": [
-    "services-forgejo.html#services-forgejo-options-shb.forgejo.sso.sharedSecret.result.path"
-  ],
   "services-forgejo-options-shb.forgejo.subdomain": [
     "services-forgejo.html#services-forgejo-options-shb.forgejo.subdomain"
+  ],
+  "services-forgejo-options-shb.forgejo.users": [
+    "services-forgejo.html#services-forgejo-options-shb.forgejo.users"
+  ],
+  "services-forgejo-options-shb.forgejo.users._name_.email": [
+    "services-forgejo.html#services-forgejo-options-shb.forgejo.users._name_.email"
+  ],
+  "services-forgejo-options-shb.forgejo.users._name_.isAdmin": [
+    "services-forgejo.html#services-forgejo-options-shb.forgejo.users._name_.isAdmin"
+  ],
+  "services-forgejo-options-shb.forgejo.users._name_.password": [
+    "services-forgejo.html#services-forgejo-options-shb.forgejo.users._name_.password"
+  ],
+  "services-forgejo-options-shb.forgejo.users._name_.password.request": [
+    "services-forgejo.html#services-forgejo-options-shb.forgejo.users._name_.password.request"
+  ],
+  "services-forgejo-options-shb.forgejo.users._name_.password.request.group": [
+    "services-forgejo.html#services-forgejo-options-shb.forgejo.users._name_.password.request.group"
+  ],
+  "services-forgejo-options-shb.forgejo.users._name_.password.request.mode": [
+    "services-forgejo.html#services-forgejo-options-shb.forgejo.users._name_.password.request.mode"
+  ],
+  "services-forgejo-options-shb.forgejo.users._name_.password.request.owner": [
+    "services-forgejo.html#services-forgejo-options-shb.forgejo.users._name_.password.request.owner"
+  ],
+  "services-forgejo-options-shb.forgejo.users._name_.password.request.restartUnits": [
+    "services-forgejo.html#services-forgejo-options-shb.forgejo.users._name_.password.request.restartUnits"
+  ],
+  "services-forgejo-options-shb.forgejo.users._name_.password.result": [
+    "services-forgejo.html#services-forgejo-options-shb.forgejo.users._name_.password.result"
+  ],
+  "services-forgejo-options-shb.forgejo.users._name_.password.result.path": [
+    "services-forgejo.html#services-forgejo-options-shb.forgejo.users._name_.password.result.path"
   ],
   "services-forgejo-usage": [
     "services-forgejo.html#services-forgejo-usage"
@@ -1244,11 +1352,11 @@
   "services-forgejo-usage-configuration": [
     "services-forgejo.html#services-forgejo-usage-configuration"
   ],
-  "services-forgejo-usage-https": [
-    "services-forgejo.html#services-forgejo-usage-https"
-  ],
   "services-forgejo-usage-extra-settings": [
     "services-forgejo.html#services-forgejo-usage-extra-settings"
+  ],
+  "services-forgejo-usage-https": [
+    "services-forgejo.html#services-forgejo-usage-https"
   ],
   "services-forgejo-usage-ldap": [
     "services-forgejo.html#services-forgejo-usage-ldap"
@@ -1259,6 +1367,9 @@
   "services-nextcloudserver": [
     "services-nextcloud.html#services-nextcloudserver"
   ],
+  "services-nextcloudserver-dashboard": [
+    "services-nextcloud.html#services-nextcloudserver-dashboard"
+  ],
   "services-nextcloudserver-debug": [
     "services-nextcloud.html#services-nextcloudserver-debug"
   ],
@@ -1267,9 +1378,6 @@
   ],
   "services-nextcloudserver-features": [
     "services-nextcloud.html#services-nextcloudserver-features"
-  ],
-  "services-nextcloudserver-dashboard": [
-    "services-nextcloud.html#services-nextcloudserver-dashboard"
   ],
   "services-nextcloudserver-options": [
     "services-nextcloud.html#services-nextcloudserver-options"
@@ -1373,20 +1481,14 @@
   "services-nextcloudserver-options-shb.nextcloud.apps.memories": [
     "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.apps.memories"
   ],
-  "services-nextcloudserver-options-shb.nextcloud.apps.memories.vaapi": [
-    "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.apps.memories.vaapi"
-  ],
   "services-nextcloudserver-options-shb.nextcloud.apps.memories.enable": [
     "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.apps.memories.enable"
   ],
   "services-nextcloudserver-options-shb.nextcloud.apps.memories.photosPath": [
     "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.apps.memories.photosPath"
   ],
-  "services-nextcloudserver-options-shb.nextcloud.apps.recognize": [
-    "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.apps.recognize"
-  ],
-  "services-nextcloudserver-options-shb.nextcloud.apps.recognize.enable": [
-    "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.apps.recognize.enable"
+  "services-nextcloudserver-options-shb.nextcloud.apps.memories.vaapi": [
+    "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.apps.memories.vaapi"
   ],
   "services-nextcloudserver-options-shb.nextcloud.apps.onlyoffice": [
     "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.apps.onlyoffice"
@@ -1430,6 +1532,12 @@
   "services-nextcloudserver-options-shb.nextcloud.apps.previewgenerator.recommendedSettings": [
     "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.apps.previewgenerator.recommendedSettings"
   ],
+  "services-nextcloudserver-options-shb.nextcloud.apps.recognize": [
+    "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.apps.recognize"
+  ],
+  "services-nextcloudserver-options-shb.nextcloud.apps.recognize.enable": [
+    "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.apps.recognize.enable"
+  ],
   "services-nextcloudserver-options-shb.nextcloud.apps.sso": [
     "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.apps.sso"
   ],
@@ -1457,6 +1565,27 @@
   "services-nextcloudserver-options-shb.nextcloud.apps.sso.secret": [
     "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.apps.sso.secret"
   ],
+  "services-nextcloudserver-options-shb.nextcloud.apps.sso.secret.request": [
+    "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.apps.sso.secret.request"
+  ],
+  "services-nextcloudserver-options-shb.nextcloud.apps.sso.secret.request.group": [
+    "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.apps.sso.secret.request.group"
+  ],
+  "services-nextcloudserver-options-shb.nextcloud.apps.sso.secret.request.mode": [
+    "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.apps.sso.secret.request.mode"
+  ],
+  "services-nextcloudserver-options-shb.nextcloud.apps.sso.secret.request.owner": [
+    "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.apps.sso.secret.request.owner"
+  ],
+  "services-nextcloudserver-options-shb.nextcloud.apps.sso.secret.request.restartUnits": [
+    "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.apps.sso.secret.request.restartUnits"
+  ],
+  "services-nextcloudserver-options-shb.nextcloud.apps.sso.secret.result": [
+    "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.apps.sso.secret.result"
+  ],
+  "services-nextcloudserver-options-shb.nextcloud.apps.sso.secret.result.path": [
+    "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.apps.sso.secret.result.path"
+  ],
   "services-nextcloudserver-options-shb.nextcloud.apps.sso.secretForAuthelia": [
     "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.apps.sso.secretForAuthelia"
   ],
@@ -1480,27 +1609,6 @@
   ],
   "services-nextcloudserver-options-shb.nextcloud.apps.sso.secretForAuthelia.result.path": [
     "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.apps.sso.secretForAuthelia.result.path"
-  ],
-  "services-nextcloudserver-options-shb.nextcloud.apps.sso.secret.request": [
-    "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.apps.sso.secret.request"
-  ],
-  "services-nextcloudserver-options-shb.nextcloud.apps.sso.secret.request.group": [
-    "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.apps.sso.secret.request.group"
-  ],
-  "services-nextcloudserver-options-shb.nextcloud.apps.sso.secret.request.mode": [
-    "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.apps.sso.secret.request.mode"
-  ],
-  "services-nextcloudserver-options-shb.nextcloud.apps.sso.secret.request.owner": [
-    "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.apps.sso.secret.request.owner"
-  ],
-  "services-nextcloudserver-options-shb.nextcloud.apps.sso.secret.request.restartUnits": [
-    "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.apps.sso.secret.request.restartUnits"
-  ],
-  "services-nextcloudserver-options-shb.nextcloud.apps.sso.secret.result": [
-    "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.apps.sso.secret.result"
-  ],
-  "services-nextcloudserver-options-shb.nextcloud.apps.sso.secret.result.path": [
-    "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.apps.sso.secret.result.path"
   ],
   "services-nextcloudserver-options-shb.nextcloud.autoDisableMaintenanceModeOnStart": [
     "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.autoDisableMaintenanceModeOnStart"
@@ -1835,6 +1943,21 @@
   "services-vaultwarden-zfs": [
     "services-vaultwarden.html#services-vaultwarden-zfs"
   ],
+  "test-failures": [
+    "service-implementation-guide.html#test-failures"
+  ],
+  "testing-and-validation": [
+    "service-implementation-guide.html#testing-and-validation"
+  ],
+  "understand-target-service": [
+    "service-implementation-guide.html#understand-target-service"
+  ],
+  "update-flake-configuration": [
+    "service-implementation-guide.html#update-flake-configuration"
+  ],
+  "update-redirects-automatically": [
+    "service-implementation-guide.html#update-redirects-automatically"
+  ],
   "usage": [
     "usage.html#usage"
   ],
@@ -1850,9 +1973,6 @@
   "usage-example-nixosrebuild": [
     "usage.html#usage-example-nixosrebuild"
   ],
-  "usage-lib": [
-    "usage.html#usage-lib"
-  ],
   "usage-flake": [
     "usage.html#usage-flake"
   ],
@@ -1867,6 +1987,9 @@
   ],
   "usage-flake-tag": [
     "usage.html#usage-flake-tag"
+  ],
+  "usage-lib": [
+    "usage.html#usage-lib"
   ],
   "usage-secrets": [
     "usage.html#usage-secrets"
