@@ -104,6 +104,58 @@
           release = builtins.readFile ./VERSION;
         };
 
+        # Documentation redirect generation tool - scans HTML files for anchor mappings
+        packages.generateRedirects = 
+        let
+          # Python patch to inject redirect collector
+          pythonPatch = pkgs.writeText "nixos-render-docs-patch.py" ''
+            # Load redirect collector patch
+            try:
+                import sys, os
+                sys.path.insert(0, os.path.dirname(__file__) + '/..')
+                import missing_refs_collector
+            except Exception as e:
+                print(f"Warning: Failed to load redirect collector: {e}", file=sys.stderr)
+          '';
+
+          # Patched nixos-render-docs that collects redirects during HTML generation
+          nixos-render-docs-patched = pkgs.writeShellApplication {
+            name = "nixos-render-docs";
+            runtimeInputs = [ pkgs.nixos-render-docs ];
+            text = ''
+              TEMP_DIR=$(mktemp -d); trap 'rm -rf "$TEMP_DIR"' EXIT
+              
+              cp -r ${pkgs.nixos-render-docs}/${pkgs.python3.sitePackages}/nixos_render_docs "$TEMP_DIR/"
+              chmod -R +w "$TEMP_DIR"
+              cp ${./docs/generate-redirects-nixos-render-docs.py} "$TEMP_DIR/missing_refs_collector.py"
+              echo '{}' > "$TEMP_DIR/empty_redirects.json"
+              cat ${pythonPatch} >> "$TEMP_DIR/nixos_render_docs/__init__.py"
+              
+              ARGS=()
+              while [[ $# -gt 0 ]]; do
+                case $1 in
+                  --redirects) ARGS+=("$1" "$TEMP_DIR/empty_redirects.json"); shift 2 ;;
+                  *) ARGS+=("$1"); shift ;;
+                esac
+              done
+              
+              export PYTHONPATH="$TEMP_DIR:''${PYTHONPATH:-}"
+              nixos-render-docs "''${ARGS[@]}"
+            '';
+          };
+        in
+        (pkgs.callPackage ./docs {
+          inherit nmdsrc;
+          allModules = allModules ++ contractDummyModules;
+          release = builtins.readFile ./VERSION;
+          nixos-render-docs = nixos-render-docs-patched;
+        }).overrideAttrs (old: {
+          installPhase = ''
+            ${old.installPhase}
+            ln -sf share/doc/selfhostblocks/redirects.json $out/redirects.json
+          '';
+        });
+
         lib =
           (pkgs.callPackage ./lib {})
           // {
@@ -193,6 +245,32 @@
                 --set PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS true
             '';
           }) {};
+
+        # Run "nix run .#update-redirects" to regenerate docs/redirects.json
+        apps.update-redirects = {
+          type = "app";
+          program = "${pkgs.writeShellApplication {
+            name = "update-redirects";
+            runtimeInputs = [ pkgs.nix pkgs.jq ];
+            text = ''
+              echo "=== SelfHostBlocks Redirects Updater ==="
+              echo "Generating fresh ./docs/redirects.json..."
+              
+              nix build .#generateRedirects || { echo "Error: Failed to generate redirects" >&2; exit 1; }
+              [[ -f result/redirects.json ]] || { echo "Error: Generated redirects file not found" >&2; exit 1; }
+              
+              echo "Generated $(jq 'keys | length' result/redirects.json) redirects"
+              echo
+              read -p "Update docs/redirects.json? This will backup the current file [y/N] " -r response
+              [[ "$response" =~ ^[Yy] ]] || { echo "Aborted - no changes made"; exit 0; }
+              
+              [[ -f docs/redirects.json ]] && cp docs/redirects.json docs/redirects.json.backup && echo "Created backup"
+              cp result/redirects.json docs/redirects.json
+              echo "  Updated docs/redirects.json"
+              echo "To verify: nix build .#manualHtml"
+            '';
+          }}/bin/update-redirects";
+        };
       }
   ) // {
     herculesCI.ciSystems = [ "x86_64-linux" ];
