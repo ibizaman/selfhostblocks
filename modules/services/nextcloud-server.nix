@@ -963,18 +963,18 @@ in
       '' + lib.optionalString (cfg.apps.externalStorage.userLocalMount != null) (
         let
           cfg' = cfg.apps.externalStorage.userLocalMount;
-
-          escape = x: builtins.replaceStrings ["/"] [''\\\/''] x;
+          jq = "${pkgs.jq}/bin/jq";
         in
+          # sh
           ''
-          ${occ} files_external:list \
-                   | grep '${escape cfg'.mountName}' \
-                   | grep '${escape cfg'.directory}' \
-          || ${occ} files_external:create \
-                   '${cfg'.mountName}' \
-                   local \
-                   null::null \
-                   --config datadir='${cfg'.directory}'
+          exists=$(${occ} files_external:list --output=json | ${jq} 'any(.[]; .mount_point == "${cfg'.mountName}" and .configuration.datadir == "${cfg'.directory}")')
+          if [[ "$exists" == "false" ]]; then
+            ${occ} files_external:create \
+                    '${cfg'.mountName}' \
+                    local \
+                    null::null \
+                    --config datadir='${cfg'.directory}'
+          fi
           '');
     })
 
