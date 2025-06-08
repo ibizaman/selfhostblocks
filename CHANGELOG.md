@@ -16,6 +16,8 @@ Template:
 
 # Upcoming Release
 
+# v0.3.0
+
 ## New Features
 
 - Add option to add extra args to hledger command.
@@ -28,6 +30,16 @@ Template:
 
 - Home Assistant config gets correctly generated with secrets
   even if LDAP integration is not enabled.
+- Fix Jellyfin SSO plugin which was left badly configured
+  after a code refactoring.
+
+## Other Changes
+
+- Add a lot of playwright tests for services.
+- Add service implementation manual page to document
+  how to integrate a service in SHB.
+- Add `update-redirects` command to manage the `redirect.json` page.
+- Add home-assistant manual.
 
 # v0.2.10
 
