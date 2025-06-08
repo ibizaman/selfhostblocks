@@ -381,6 +381,16 @@ source: @OPTIONS_JSON@
 
 Note: Replace `servicename` with your actual service name (e.g., `nzbget`, `jellyfin`).
 
+For the `@OPTIONS_JSON@` to work, the following snippet must be added
+in the `docs/default.nix` file.
+
+```nix
+substituteInPlace ./modules/services/servicename/docs/default.md \
+  --replace \
+    '@OPTIONS_JSON@' \
+   ${individualModuleOptionsDocs [ ../modules/services/servicename.nix ]}/share/doc/nixos/options.json
+```
+
 ### 7. Update Redirects Automatically {#update-redirects-automatically}
 
 After creating documentation, generate the required redirects:

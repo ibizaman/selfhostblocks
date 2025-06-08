@@ -1028,6 +1028,9 @@
   "native-prometheus-metrics": [
     "service-implementation-guide.html#native-prometheus-metrics"
   ],
+  "next-steps": [
+    "index.html#next-steps"
+  ],
   "nixpkgs-integration": [
     "service-implementation-guide.html#nixpkgs-integration"
   ],
@@ -1363,6 +1366,165 @@
   ],
   "services-forgejo-usage-sso": [
     "services-forgejo.html#services-forgejo-usage-sso"
+  ],
+  "services-home-assistant": [
+    "services-home-assistant.html#services-home-assistant"
+  ],
+  "services-home-assistant-debug": [
+    "services-home-assistant.html#services-home-assistant-debug"
+  ],
+  "services-home-assistant-features": [
+    "services-home-assistant.html#services-home-assistant-features"
+  ],
+  "services-home-assistant-options": [
+    "services-home-assistant.html#services-home-assistant-options"
+  ],
+  "services-home-assistant-options-shb.home-assistant.backup": [
+    "services-home-assistant.html#services-home-assistant-options-shb.home-assistant.backup"
+  ],
+  "services-home-assistant-options-shb.home-assistant.backup.request": [
+    "services-home-assistant.html#services-home-assistant-options-shb.home-assistant.backup.request"
+  ],
+  "services-home-assistant-options-shb.home-assistant.backup.request.excludePatterns": [
+    "services-home-assistant.html#services-home-assistant-options-shb.home-assistant.backup.request.excludePatterns"
+  ],
+  "services-home-assistant-options-shb.home-assistant.backup.request.hooks": [
+    "services-home-assistant.html#services-home-assistant-options-shb.home-assistant.backup.request.hooks"
+  ],
+  "services-home-assistant-options-shb.home-assistant.backup.request.hooks.afterBackup": [
+    "services-home-assistant.html#services-home-assistant-options-shb.home-assistant.backup.request.hooks.afterBackup"
+  ],
+  "services-home-assistant-options-shb.home-assistant.backup.request.hooks.beforeBackup": [
+    "services-home-assistant.html#services-home-assistant-options-shb.home-assistant.backup.request.hooks.beforeBackup"
+  ],
+  "services-home-assistant-options-shb.home-assistant.backup.request.sourceDirectories": [
+    "services-home-assistant.html#services-home-assistant-options-shb.home-assistant.backup.request.sourceDirectories"
+  ],
+  "services-home-assistant-options-shb.home-assistant.backup.request.user": [
+    "services-home-assistant.html#services-home-assistant-options-shb.home-assistant.backup.request.user"
+  ],
+  "services-home-assistant-options-shb.home-assistant.backup.result": [
+    "services-home-assistant.html#services-home-assistant-options-shb.home-assistant.backup.result"
+  ],
+  "services-home-assistant-options-shb.home-assistant.backup.result.backupService": [
+    "services-home-assistant.html#services-home-assistant-options-shb.home-assistant.backup.result.backupService"
+  ],
+  "services-home-assistant-options-shb.home-assistant.backup.result.restoreScript": [
+    "services-home-assistant.html#services-home-assistant-options-shb.home-assistant.backup.result.restoreScript"
+  ],
+  "services-home-assistant-options-shb.home-assistant.config": [
+    "services-home-assistant.html#services-home-assistant-options-shb.home-assistant.config"
+  ],
+  "services-home-assistant-options-shb.home-assistant.config.country": [
+    "services-home-assistant.html#services-home-assistant-options-shb.home-assistant.config.country"
+  ],
+  "services-home-assistant-options-shb.home-assistant.config.latitude": [
+    "services-home-assistant.html#services-home-assistant-options-shb.home-assistant.config.latitude"
+  ],
+  "services-home-assistant-options-shb.home-assistant.config.longitude": [
+    "services-home-assistant.html#services-home-assistant-options-shb.home-assistant.config.longitude"
+  ],
+  "services-home-assistant-options-shb.home-assistant.config.name": [
+    "services-home-assistant.html#services-home-assistant-options-shb.home-assistant.config.name"
+  ],
+  "services-home-assistant-options-shb.home-assistant.config.time_zone": [
+    "services-home-assistant.html#services-home-assistant-options-shb.home-assistant.config.time_zone"
+  ],
+  "services-home-assistant-options-shb.home-assistant.config.unit_system": [
+    "services-home-assistant.html#services-home-assistant-options-shb.home-assistant.config.unit_system"
+  ],
+  "services-home-assistant-options-shb.home-assistant.domain": [
+    "services-home-assistant.html#services-home-assistant-options-shb.home-assistant.domain"
+  ],
+  "services-home-assistant-options-shb.home-assistant.enable": [
+    "services-home-assistant.html#services-home-assistant-options-shb.home-assistant.enable"
+  ],
+  "services-home-assistant-options-shb.home-assistant.ldap": [
+    "services-home-assistant.html#services-home-assistant-options-shb.home-assistant.ldap"
+  ],
+  "services-home-assistant-options-shb.home-assistant.ldap.enable": [
+    "services-home-assistant.html#services-home-assistant-options-shb.home-assistant.ldap.enable"
+  ],
+  "services-home-assistant-options-shb.home-assistant.ldap.host": [
+    "services-home-assistant.html#services-home-assistant-options-shb.home-assistant.ldap.host"
+  ],
+  "services-home-assistant-options-shb.home-assistant.ldap.keepDefaultAuth": [
+    "services-home-assistant.html#services-home-assistant-options-shb.home-assistant.ldap.keepDefaultAuth"
+  ],
+  "services-home-assistant-options-shb.home-assistant.ldap.port": [
+    "services-home-assistant.html#services-home-assistant-options-shb.home-assistant.ldap.port"
+  ],
+  "services-home-assistant-options-shb.home-assistant.ldap.userGroup": [
+    "services-home-assistant.html#services-home-assistant-options-shb.home-assistant.ldap.userGroup"
+  ],
+  "services-home-assistant-options-shb.home-assistant.ssl": [
+    "services-home-assistant.html#services-home-assistant-options-shb.home-assistant.ssl"
+  ],
+  "services-home-assistant-options-shb.home-assistant.ssl.paths": [
+    "services-home-assistant.html#services-home-assistant-options-shb.home-assistant.ssl.paths"
+  ],
+  "services-home-assistant-options-shb.home-assistant.ssl.paths.cert": [
+    "services-home-assistant.html#services-home-assistant-options-shb.home-assistant.ssl.paths.cert"
+  ],
+  "services-home-assistant-options-shb.home-assistant.ssl.paths.key": [
+    "services-home-assistant.html#services-home-assistant-options-shb.home-assistant.ssl.paths.key"
+  ],
+  "services-home-assistant-options-shb.home-assistant.ssl.systemdService": [
+    "services-home-assistant.html#services-home-assistant-options-shb.home-assistant.ssl.systemdService"
+  ],
+  "services-home-assistant-options-shb.home-assistant.subdomain": [
+    "services-home-assistant.html#services-home-assistant-options-shb.home-assistant.subdomain"
+  ],
+  "services-home-assistant-options-shb.home-assistant.voice": [
+    "services-home-assistant.html#services-home-assistant-options-shb.home-assistant.voice"
+  ],
+  "services-home-assistant-options-shb.home-assistant.voice.speech-to-text": [
+    "services-home-assistant.html#services-home-assistant-options-shb.home-assistant.voice.speech-to-text"
+  ],
+  "services-home-assistant-options-shb.home-assistant.voice.text-to-speech": [
+    "services-home-assistant.html#services-home-assistant-options-shb.home-assistant.voice.text-to-speech"
+  ],
+  "services-home-assistant-options-shb.home-assistant.voice.wakeword": [
+    "services-home-assistant.html#services-home-assistant-options-shb.home-assistant.voice.wakeword"
+  ],
+  "services-home-assistant-usage": [
+    "services-home-assistant.html#services-home-assistant-usage"
+  ],
+  "services-home-assistant-usage-backup": [
+    "services-home-assistant.html#services-home-assistant-usage-backup"
+  ],
+  "services-home-assistant-usage-configuration": [
+    "services-home-assistant.html#services-home-assistant-usage-configuration"
+  ],
+  "services-home-assistant-usage-custom-components": [
+    "services-home-assistant.html#services-home-assistant-usage-custom-components"
+  ],
+  "services-home-assistant-usage-custom-lovelace-modules": [
+    "services-home-assistant.html#services-home-assistant-usage-custom-lovelace-modules"
+  ],
+  "services-home-assistant-usage-extra-components": [
+    "services-home-assistant.html#services-home-assistant-usage-extra-components"
+  ],
+  "services-home-assistant-usage-extra-groups": [
+    "services-home-assistant.html#services-home-assistant-usage-extra-groups"
+  ],
+  "services-home-assistant-usage-extra-packages": [
+    "services-home-assistant.html#services-home-assistant-usage-extra-packages"
+  ],
+  "services-home-assistant-usage-https": [
+    "services-home-assistant.html#services-home-assistant-usage-https"
+  ],
+  "services-home-assistant-usage-ldap": [
+    "services-home-assistant.html#services-home-assistant-usage-ldap"
+  ],
+  "services-home-assistant-usage-music-assistant": [
+    "services-home-assistant.html#services-home-assistant-usage-music-assistant"
+  ],
+  "services-home-assistant-usage-sso": [
+    "services-home-assistant.html#services-home-assistant-usage-sso"
+  ],
+  "services-home-assistant-usage-voice": [
+    "services-home-assistant.html#services-home-assistant-usage-voice"
   ],
   "services-nextcloudserver": [
     "services-nextcloud.html#services-nextcloudserver"
