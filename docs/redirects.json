@@ -1067,6 +1067,510 @@
   "services": [
     "services.html#services"
   ],
+  "services-arr": [
+    "services-arr.html#services-arr"
+  ],
+  "services-arr-options": [
+    "services-arr.html#services-arr-options"
+  ],
+  "services-arr-options-shb.arr.bazarr": [
+    "services-arr.html#services-arr-options-shb.arr.bazarr"
+  ],
+  "services-arr-options-shb.arr.bazarr.authEndpoint": [
+    "services-arr.html#services-arr-options-shb.arr.bazarr.authEndpoint"
+  ],
+  "services-arr-options-shb.arr.bazarr.backup": [
+    "services-arr.html#services-arr-options-shb.arr.bazarr.backup"
+  ],
+  "services-arr-options-shb.arr.bazarr.backup.request": [
+    "services-arr.html#services-arr-options-shb.arr.bazarr.backup.request"
+  ],
+  "services-arr-options-shb.arr.bazarr.backup.request.excludePatterns": [
+    "services-arr.html#services-arr-options-shb.arr.bazarr.backup.request.excludePatterns"
+  ],
+  "services-arr-options-shb.arr.bazarr.backup.request.hooks": [
+    "services-arr.html#services-arr-options-shb.arr.bazarr.backup.request.hooks"
+  ],
+  "services-arr-options-shb.arr.bazarr.backup.request.hooks.afterBackup": [
+    "services-arr.html#services-arr-options-shb.arr.bazarr.backup.request.hooks.afterBackup"
+  ],
+  "services-arr-options-shb.arr.bazarr.backup.request.hooks.beforeBackup": [
+    "services-arr.html#services-arr-options-shb.arr.bazarr.backup.request.hooks.beforeBackup"
+  ],
+  "services-arr-options-shb.arr.bazarr.backup.request.sourceDirectories": [
+    "services-arr.html#services-arr-options-shb.arr.bazarr.backup.request.sourceDirectories"
+  ],
+  "services-arr-options-shb.arr.bazarr.backup.request.user": [
+    "services-arr.html#services-arr-options-shb.arr.bazarr.backup.request.user"
+  ],
+  "services-arr-options-shb.arr.bazarr.backup.result": [
+    "services-arr.html#services-arr-options-shb.arr.bazarr.backup.result"
+  ],
+  "services-arr-options-shb.arr.bazarr.backup.result.backupService": [
+    "services-arr.html#services-arr-options-shb.arr.bazarr.backup.result.backupService"
+  ],
+  "services-arr-options-shb.arr.bazarr.backup.result.restoreScript": [
+    "services-arr.html#services-arr-options-shb.arr.bazarr.backup.result.restoreScript"
+  ],
+  "services-arr-options-shb.arr.bazarr.dataDir": [
+    "services-arr.html#services-arr-options-shb.arr.bazarr.dataDir"
+  ],
+  "services-arr-options-shb.arr.bazarr.domain": [
+    "services-arr.html#services-arr-options-shb.arr.bazarr.domain"
+  ],
+  "services-arr-options-shb.arr.bazarr.enable": [
+    "services-arr.html#services-arr-options-shb.arr.bazarr.enable"
+  ],
+  "services-arr-options-shb.arr.bazarr.settings": [
+    "services-arr.html#services-arr-options-shb.arr.bazarr.settings"
+  ],
+  "services-arr-options-shb.arr.bazarr.settings.LogLevel": [
+    "services-arr.html#services-arr-options-shb.arr.bazarr.settings.LogLevel"
+  ],
+  "services-arr-options-shb.arr.bazarr.settings.Port": [
+    "services-arr.html#services-arr-options-shb.arr.bazarr.settings.Port"
+  ],
+  "services-arr-options-shb.arr.bazarr.ssl": [
+    "services-arr.html#services-arr-options-shb.arr.bazarr.ssl"
+  ],
+  "services-arr-options-shb.arr.bazarr.ssl.paths": [
+    "services-arr.html#services-arr-options-shb.arr.bazarr.ssl.paths"
+  ],
+  "services-arr-options-shb.arr.bazarr.ssl.paths.cert": [
+    "services-arr.html#services-arr-options-shb.arr.bazarr.ssl.paths.cert"
+  ],
+  "services-arr-options-shb.arr.bazarr.ssl.paths.key": [
+    "services-arr.html#services-arr-options-shb.arr.bazarr.ssl.paths.key"
+  ],
+  "services-arr-options-shb.arr.bazarr.ssl.systemdService": [
+    "services-arr.html#services-arr-options-shb.arr.bazarr.ssl.systemdService"
+  ],
+  "services-arr-options-shb.arr.bazarr.subdomain": [
+    "services-arr.html#services-arr-options-shb.arr.bazarr.subdomain"
+  ],
+  "services-arr-options-shb.arr.jackett": [
+    "services-arr.html#services-arr-options-shb.arr.jackett"
+  ],
+  "services-arr-options-shb.arr.jackett.authEndpoint": [
+    "services-arr.html#services-arr-options-shb.arr.jackett.authEndpoint"
+  ],
+  "services-arr-options-shb.arr.jackett.backup": [
+    "services-arr.html#services-arr-options-shb.arr.jackett.backup"
+  ],
+  "services-arr-options-shb.arr.jackett.backup.request": [
+    "services-arr.html#services-arr-options-shb.arr.jackett.backup.request"
+  ],
+  "services-arr-options-shb.arr.jackett.backup.request.excludePatterns": [
+    "services-arr.html#services-arr-options-shb.arr.jackett.backup.request.excludePatterns"
+  ],
+  "services-arr-options-shb.arr.jackett.backup.request.hooks": [
+    "services-arr.html#services-arr-options-shb.arr.jackett.backup.request.hooks"
+  ],
+  "services-arr-options-shb.arr.jackett.backup.request.hooks.afterBackup": [
+    "services-arr.html#services-arr-options-shb.arr.jackett.backup.request.hooks.afterBackup"
+  ],
+  "services-arr-options-shb.arr.jackett.backup.request.hooks.beforeBackup": [
+    "services-arr.html#services-arr-options-shb.arr.jackett.backup.request.hooks.beforeBackup"
+  ],
+  "services-arr-options-shb.arr.jackett.backup.request.sourceDirectories": [
+    "services-arr.html#services-arr-options-shb.arr.jackett.backup.request.sourceDirectories"
+  ],
+  "services-arr-options-shb.arr.jackett.backup.request.user": [
+    "services-arr.html#services-arr-options-shb.arr.jackett.backup.request.user"
+  ],
+  "services-arr-options-shb.arr.jackett.backup.result": [
+    "services-arr.html#services-arr-options-shb.arr.jackett.backup.result"
+  ],
+  "services-arr-options-shb.arr.jackett.backup.result.backupService": [
+    "services-arr.html#services-arr-options-shb.arr.jackett.backup.result.backupService"
+  ],
+  "services-arr-options-shb.arr.jackett.backup.result.restoreScript": [
+    "services-arr.html#services-arr-options-shb.arr.jackett.backup.result.restoreScript"
+  ],
+  "services-arr-options-shb.arr.jackett.dataDir": [
+    "services-arr.html#services-arr-options-shb.arr.jackett.dataDir"
+  ],
+  "services-arr-options-shb.arr.jackett.domain": [
+    "services-arr.html#services-arr-options-shb.arr.jackett.domain"
+  ],
+  "services-arr-options-shb.arr.jackett.enable": [
+    "services-arr.html#services-arr-options-shb.arr.jackett.enable"
+  ],
+  "services-arr-options-shb.arr.jackett.settings": [
+    "services-arr.html#services-arr-options-shb.arr.jackett.settings"
+  ],
+  "services-arr-options-shb.arr.jackett.settings.ApiKey": [
+    "services-arr.html#services-arr-options-shb.arr.jackett.settings.ApiKey"
+  ],
+  "services-arr-options-shb.arr.jackett.settings.ApiKey.source": [
+    "services-arr.html#services-arr-options-shb.arr.jackett.settings.ApiKey.source"
+  ],
+  "services-arr-options-shb.arr.jackett.settings.ApiKey.transform": [
+    "services-arr.html#services-arr-options-shb.arr.jackett.settings.ApiKey.transform"
+  ],
+  "services-arr-options-shb.arr.jackett.settings.FlareSolverrUrl": [
+    "services-arr.html#services-arr-options-shb.arr.jackett.settings.FlareSolverrUrl"
+  ],
+  "services-arr-options-shb.arr.jackett.settings.OmdbApiKey": [
+    "services-arr.html#services-arr-options-shb.arr.jackett.settings.OmdbApiKey"
+  ],
+  "services-arr-options-shb.arr.jackett.settings.OmdbApiKey.source": [
+    "services-arr.html#services-arr-options-shb.arr.jackett.settings.OmdbApiKey.source"
+  ],
+  "services-arr-options-shb.arr.jackett.settings.OmdbApiKey.transform": [
+    "services-arr.html#services-arr-options-shb.arr.jackett.settings.OmdbApiKey.transform"
+  ],
+  "services-arr-options-shb.arr.jackett.settings.Port": [
+    "services-arr.html#services-arr-options-shb.arr.jackett.settings.Port"
+  ],
+  "services-arr-options-shb.arr.jackett.settings.ProxyPort": [
+    "services-arr.html#services-arr-options-shb.arr.jackett.settings.ProxyPort"
+  ],
+  "services-arr-options-shb.arr.jackett.settings.ProxyType": [
+    "services-arr.html#services-arr-options-shb.arr.jackett.settings.ProxyType"
+  ],
+  "services-arr-options-shb.arr.jackett.settings.ProxyUrl": [
+    "services-arr.html#services-arr-options-shb.arr.jackett.settings.ProxyUrl"
+  ],
+  "services-arr-options-shb.arr.jackett.ssl": [
+    "services-arr.html#services-arr-options-shb.arr.jackett.ssl"
+  ],
+  "services-arr-options-shb.arr.jackett.ssl.paths": [
+    "services-arr.html#services-arr-options-shb.arr.jackett.ssl.paths"
+  ],
+  "services-arr-options-shb.arr.jackett.ssl.paths.cert": [
+    "services-arr.html#services-arr-options-shb.arr.jackett.ssl.paths.cert"
+  ],
+  "services-arr-options-shb.arr.jackett.ssl.paths.key": [
+    "services-arr.html#services-arr-options-shb.arr.jackett.ssl.paths.key"
+  ],
+  "services-arr-options-shb.arr.jackett.ssl.systemdService": [
+    "services-arr.html#services-arr-options-shb.arr.jackett.ssl.systemdService"
+  ],
+  "services-arr-options-shb.arr.jackett.subdomain": [
+    "services-arr.html#services-arr-options-shb.arr.jackett.subdomain"
+  ],
+  "services-arr-options-shb.arr.lidarr": [
+    "services-arr.html#services-arr-options-shb.arr.lidarr"
+  ],
+  "services-arr-options-shb.arr.lidarr.authEndpoint": [
+    "services-arr.html#services-arr-options-shb.arr.lidarr.authEndpoint"
+  ],
+  "services-arr-options-shb.arr.lidarr.backup": [
+    "services-arr.html#services-arr-options-shb.arr.lidarr.backup"
+  ],
+  "services-arr-options-shb.arr.lidarr.backup.request": [
+    "services-arr.html#services-arr-options-shb.arr.lidarr.backup.request"
+  ],
+  "services-arr-options-shb.arr.lidarr.backup.request.excludePatterns": [
+    "services-arr.html#services-arr-options-shb.arr.lidarr.backup.request.excludePatterns"
+  ],
+  "services-arr-options-shb.arr.lidarr.backup.request.hooks": [
+    "services-arr.html#services-arr-options-shb.arr.lidarr.backup.request.hooks"
+  ],
+  "services-arr-options-shb.arr.lidarr.backup.request.hooks.afterBackup": [
+    "services-arr.html#services-arr-options-shb.arr.lidarr.backup.request.hooks.afterBackup"
+  ],
+  "services-arr-options-shb.arr.lidarr.backup.request.hooks.beforeBackup": [
+    "services-arr.html#services-arr-options-shb.arr.lidarr.backup.request.hooks.beforeBackup"
+  ],
+  "services-arr-options-shb.arr.lidarr.backup.request.sourceDirectories": [
+    "services-arr.html#services-arr-options-shb.arr.lidarr.backup.request.sourceDirectories"
+  ],
+  "services-arr-options-shb.arr.lidarr.backup.request.user": [
+    "services-arr.html#services-arr-options-shb.arr.lidarr.backup.request.user"
+  ],
+  "services-arr-options-shb.arr.lidarr.backup.result": [
+    "services-arr.html#services-arr-options-shb.arr.lidarr.backup.result"
+  ],
+  "services-arr-options-shb.arr.lidarr.backup.result.backupService": [
+    "services-arr.html#services-arr-options-shb.arr.lidarr.backup.result.backupService"
+  ],
+  "services-arr-options-shb.arr.lidarr.backup.result.restoreScript": [
+    "services-arr.html#services-arr-options-shb.arr.lidarr.backup.result.restoreScript"
+  ],
+  "services-arr-options-shb.arr.lidarr.dataDir": [
+    "services-arr.html#services-arr-options-shb.arr.lidarr.dataDir"
+  ],
+  "services-arr-options-shb.arr.lidarr.domain": [
+    "services-arr.html#services-arr-options-shb.arr.lidarr.domain"
+  ],
+  "services-arr-options-shb.arr.lidarr.enable": [
+    "services-arr.html#services-arr-options-shb.arr.lidarr.enable"
+  ],
+  "services-arr-options-shb.arr.lidarr.settings": [
+    "services-arr.html#services-arr-options-shb.arr.lidarr.settings"
+  ],
+  "services-arr-options-shb.arr.lidarr.settings.LogLevel": [
+    "services-arr.html#services-arr-options-shb.arr.lidarr.settings.LogLevel"
+  ],
+  "services-arr-options-shb.arr.lidarr.settings.Port": [
+    "services-arr.html#services-arr-options-shb.arr.lidarr.settings.Port"
+  ],
+  "services-arr-options-shb.arr.lidarr.ssl": [
+    "services-arr.html#services-arr-options-shb.arr.lidarr.ssl"
+  ],
+  "services-arr-options-shb.arr.lidarr.ssl.paths": [
+    "services-arr.html#services-arr-options-shb.arr.lidarr.ssl.paths"
+  ],
+  "services-arr-options-shb.arr.lidarr.ssl.paths.cert": [
+    "services-arr.html#services-arr-options-shb.arr.lidarr.ssl.paths.cert"
+  ],
+  "services-arr-options-shb.arr.lidarr.ssl.paths.key": [
+    "services-arr.html#services-arr-options-shb.arr.lidarr.ssl.paths.key"
+  ],
+  "services-arr-options-shb.arr.lidarr.ssl.systemdService": [
+    "services-arr.html#services-arr-options-shb.arr.lidarr.ssl.systemdService"
+  ],
+  "services-arr-options-shb.arr.lidarr.subdomain": [
+    "services-arr.html#services-arr-options-shb.arr.lidarr.subdomain"
+  ],
+  "services-arr-options-shb.arr.radarr": [
+    "services-arr.html#services-arr-options-shb.arr.radarr"
+  ],
+  "services-arr-options-shb.arr.radarr.authEndpoint": [
+    "services-arr.html#services-arr-options-shb.arr.radarr.authEndpoint"
+  ],
+  "services-arr-options-shb.arr.radarr.backup": [
+    "services-arr.html#services-arr-options-shb.arr.radarr.backup"
+  ],
+  "services-arr-options-shb.arr.radarr.backup.request": [
+    "services-arr.html#services-arr-options-shb.arr.radarr.backup.request"
+  ],
+  "services-arr-options-shb.arr.radarr.backup.request.excludePatterns": [
+    "services-arr.html#services-arr-options-shb.arr.radarr.backup.request.excludePatterns"
+  ],
+  "services-arr-options-shb.arr.radarr.backup.request.hooks": [
+    "services-arr.html#services-arr-options-shb.arr.radarr.backup.request.hooks"
+  ],
+  "services-arr-options-shb.arr.radarr.backup.request.hooks.afterBackup": [
+    "services-arr.html#services-arr-options-shb.arr.radarr.backup.request.hooks.afterBackup"
+  ],
+  "services-arr-options-shb.arr.radarr.backup.request.hooks.beforeBackup": [
+    "services-arr.html#services-arr-options-shb.arr.radarr.backup.request.hooks.beforeBackup"
+  ],
+  "services-arr-options-shb.arr.radarr.backup.request.sourceDirectories": [
+    "services-arr.html#services-arr-options-shb.arr.radarr.backup.request.sourceDirectories"
+  ],
+  "services-arr-options-shb.arr.radarr.backup.request.user": [
+    "services-arr.html#services-arr-options-shb.arr.radarr.backup.request.user"
+  ],
+  "services-arr-options-shb.arr.radarr.backup.result": [
+    "services-arr.html#services-arr-options-shb.arr.radarr.backup.result"
+  ],
+  "services-arr-options-shb.arr.radarr.backup.result.backupService": [
+    "services-arr.html#services-arr-options-shb.arr.radarr.backup.result.backupService"
+  ],
+  "services-arr-options-shb.arr.radarr.backup.result.restoreScript": [
+    "services-arr.html#services-arr-options-shb.arr.radarr.backup.result.restoreScript"
+  ],
+  "services-arr-options-shb.arr.radarr.dataDir": [
+    "services-arr.html#services-arr-options-shb.arr.radarr.dataDir"
+  ],
+  "services-arr-options-shb.arr.radarr.domain": [
+    "services-arr.html#services-arr-options-shb.arr.radarr.domain"
+  ],
+  "services-arr-options-shb.arr.radarr.enable": [
+    "services-arr.html#services-arr-options-shb.arr.radarr.enable"
+  ],
+  "services-arr-options-shb.arr.radarr.settings": [
+    "services-arr.html#services-arr-options-shb.arr.radarr.settings"
+  ],
+  "services-arr-options-shb.arr.radarr.settings.AnalyticsEnabled": [
+    "services-arr.html#services-arr-options-shb.arr.radarr.settings.AnalyticsEnabled"
+  ],
+  "services-arr-options-shb.arr.radarr.settings.ApiKey": [
+    "services-arr.html#services-arr-options-shb.arr.radarr.settings.ApiKey"
+  ],
+  "services-arr-options-shb.arr.radarr.settings.ApiKey.source": [
+    "services-arr.html#services-arr-options-shb.arr.radarr.settings.ApiKey.source"
+  ],
+  "services-arr-options-shb.arr.radarr.settings.ApiKey.transform": [
+    "services-arr.html#services-arr-options-shb.arr.radarr.settings.ApiKey.transform"
+  ],
+  "services-arr-options-shb.arr.radarr.settings.LogLevel": [
+    "services-arr.html#services-arr-options-shb.arr.radarr.settings.LogLevel"
+  ],
+  "services-arr-options-shb.arr.radarr.settings.Port": [
+    "services-arr.html#services-arr-options-shb.arr.radarr.settings.Port"
+  ],
+  "services-arr-options-shb.arr.radarr.ssl": [
+    "services-arr.html#services-arr-options-shb.arr.radarr.ssl"
+  ],
+  "services-arr-options-shb.arr.radarr.ssl.paths": [
+    "services-arr.html#services-arr-options-shb.arr.radarr.ssl.paths"
+  ],
+  "services-arr-options-shb.arr.radarr.ssl.paths.cert": [
+    "services-arr.html#services-arr-options-shb.arr.radarr.ssl.paths.cert"
+  ],
+  "services-arr-options-shb.arr.radarr.ssl.paths.key": [
+    "services-arr.html#services-arr-options-shb.arr.radarr.ssl.paths.key"
+  ],
+  "services-arr-options-shb.arr.radarr.ssl.systemdService": [
+    "services-arr.html#services-arr-options-shb.arr.radarr.ssl.systemdService"
+  ],
+  "services-arr-options-shb.arr.radarr.subdomain": [
+    "services-arr.html#services-arr-options-shb.arr.radarr.subdomain"
+  ],
+  "services-arr-options-shb.arr.readarr": [
+    "services-arr.html#services-arr-options-shb.arr.readarr"
+  ],
+  "services-arr-options-shb.arr.readarr.authEndpoint": [
+    "services-arr.html#services-arr-options-shb.arr.readarr.authEndpoint"
+  ],
+  "services-arr-options-shb.arr.readarr.backup": [
+    "services-arr.html#services-arr-options-shb.arr.readarr.backup"
+  ],
+  "services-arr-options-shb.arr.readarr.backup.request": [
+    "services-arr.html#services-arr-options-shb.arr.readarr.backup.request"
+  ],
+  "services-arr-options-shb.arr.readarr.backup.request.excludePatterns": [
+    "services-arr.html#services-arr-options-shb.arr.readarr.backup.request.excludePatterns"
+  ],
+  "services-arr-options-shb.arr.readarr.backup.request.hooks": [
+    "services-arr.html#services-arr-options-shb.arr.readarr.backup.request.hooks"
+  ],
+  "services-arr-options-shb.arr.readarr.backup.request.hooks.afterBackup": [
+    "services-arr.html#services-arr-options-shb.arr.readarr.backup.request.hooks.afterBackup"
+  ],
+  "services-arr-options-shb.arr.readarr.backup.request.hooks.beforeBackup": [
+    "services-arr.html#services-arr-options-shb.arr.readarr.backup.request.hooks.beforeBackup"
+  ],
+  "services-arr-options-shb.arr.readarr.backup.request.sourceDirectories": [
+    "services-arr.html#services-arr-options-shb.arr.readarr.backup.request.sourceDirectories"
+  ],
+  "services-arr-options-shb.arr.readarr.backup.request.user": [
+    "services-arr.html#services-arr-options-shb.arr.readarr.backup.request.user"
+  ],
+  "services-arr-options-shb.arr.readarr.backup.result": [
+    "services-arr.html#services-arr-options-shb.arr.readarr.backup.result"
+  ],
+  "services-arr-options-shb.arr.readarr.backup.result.backupService": [
+    "services-arr.html#services-arr-options-shb.arr.readarr.backup.result.backupService"
+  ],
+  "services-arr-options-shb.arr.readarr.backup.result.restoreScript": [
+    "services-arr.html#services-arr-options-shb.arr.readarr.backup.result.restoreScript"
+  ],
+  "services-arr-options-shb.arr.readarr.dataDir": [
+    "services-arr.html#services-arr-options-shb.arr.readarr.dataDir"
+  ],
+  "services-arr-options-shb.arr.readarr.domain": [
+    "services-arr.html#services-arr-options-shb.arr.readarr.domain"
+  ],
+  "services-arr-options-shb.arr.readarr.enable": [
+    "services-arr.html#services-arr-options-shb.arr.readarr.enable"
+  ],
+  "services-arr-options-shb.arr.readarr.settings": [
+    "services-arr.html#services-arr-options-shb.arr.readarr.settings"
+  ],
+  "services-arr-options-shb.arr.readarr.settings.LogLevel": [
+    "services-arr.html#services-arr-options-shb.arr.readarr.settings.LogLevel"
+  ],
+  "services-arr-options-shb.arr.readarr.settings.Port": [
+    "services-arr.html#services-arr-options-shb.arr.readarr.settings.Port"
+  ],
+  "services-arr-options-shb.arr.readarr.ssl": [
+    "services-arr.html#services-arr-options-shb.arr.readarr.ssl"
+  ],
+  "services-arr-options-shb.arr.readarr.ssl.paths": [
+    "services-arr.html#services-arr-options-shb.arr.readarr.ssl.paths"
+  ],
+  "services-arr-options-shb.arr.readarr.ssl.paths.cert": [
+    "services-arr.html#services-arr-options-shb.arr.readarr.ssl.paths.cert"
+  ],
+  "services-arr-options-shb.arr.readarr.ssl.paths.key": [
+    "services-arr.html#services-arr-options-shb.arr.readarr.ssl.paths.key"
+  ],
+  "services-arr-options-shb.arr.readarr.ssl.systemdService": [
+    "services-arr.html#services-arr-options-shb.arr.readarr.ssl.systemdService"
+  ],
+  "services-arr-options-shb.arr.readarr.subdomain": [
+    "services-arr.html#services-arr-options-shb.arr.readarr.subdomain"
+  ],
+  "services-arr-options-shb.arr.sonarr": [
+    "services-arr.html#services-arr-options-shb.arr.sonarr"
+  ],
+  "services-arr-options-shb.arr.sonarr.authEndpoint": [
+    "services-arr.html#services-arr-options-shb.arr.sonarr.authEndpoint"
+  ],
+  "services-arr-options-shb.arr.sonarr.backup": [
+    "services-arr.html#services-arr-options-shb.arr.sonarr.backup"
+  ],
+  "services-arr-options-shb.arr.sonarr.backup.request": [
+    "services-arr.html#services-arr-options-shb.arr.sonarr.backup.request"
+  ],
+  "services-arr-options-shb.arr.sonarr.backup.request.excludePatterns": [
+    "services-arr.html#services-arr-options-shb.arr.sonarr.backup.request.excludePatterns"
+  ],
+  "services-arr-options-shb.arr.sonarr.backup.request.hooks": [
+    "services-arr.html#services-arr-options-shb.arr.sonarr.backup.request.hooks"
+  ],
+  "services-arr-options-shb.arr.sonarr.backup.request.hooks.afterBackup": [
+    "services-arr.html#services-arr-options-shb.arr.sonarr.backup.request.hooks.afterBackup"
+  ],
+  "services-arr-options-shb.arr.sonarr.backup.request.hooks.beforeBackup": [
+    "services-arr.html#services-arr-options-shb.arr.sonarr.backup.request.hooks.beforeBackup"
+  ],
+  "services-arr-options-shb.arr.sonarr.backup.request.sourceDirectories": [
+    "services-arr.html#services-arr-options-shb.arr.sonarr.backup.request.sourceDirectories"
+  ],
+  "services-arr-options-shb.arr.sonarr.backup.request.user": [
+    "services-arr.html#services-arr-options-shb.arr.sonarr.backup.request.user"
+  ],
+  "services-arr-options-shb.arr.sonarr.backup.result": [
+    "services-arr.html#services-arr-options-shb.arr.sonarr.backup.result"
+  ],
+  "services-arr-options-shb.arr.sonarr.backup.result.backupService": [
+    "services-arr.html#services-arr-options-shb.arr.sonarr.backup.result.backupService"
+  ],
+  "services-arr-options-shb.arr.sonarr.backup.result.restoreScript": [
+    "services-arr.html#services-arr-options-shb.arr.sonarr.backup.result.restoreScript"
+  ],
+  "services-arr-options-shb.arr.sonarr.dataDir": [
+    "services-arr.html#services-arr-options-shb.arr.sonarr.dataDir"
+  ],
+  "services-arr-options-shb.arr.sonarr.domain": [
+    "services-arr.html#services-arr-options-shb.arr.sonarr.domain"
+  ],
+  "services-arr-options-shb.arr.sonarr.enable": [
+    "services-arr.html#services-arr-options-shb.arr.sonarr.enable"
+  ],
+  "services-arr-options-shb.arr.sonarr.settings": [
+    "services-arr.html#services-arr-options-shb.arr.sonarr.settings"
+  ],
+  "services-arr-options-shb.arr.sonarr.settings.ApiKey": [
+    "services-arr.html#services-arr-options-shb.arr.sonarr.settings.ApiKey"
+  ],
+  "services-arr-options-shb.arr.sonarr.settings.ApiKey.source": [
+    "services-arr.html#services-arr-options-shb.arr.sonarr.settings.ApiKey.source"
+  ],
+  "services-arr-options-shb.arr.sonarr.settings.ApiKey.transform": [
+    "services-arr.html#services-arr-options-shb.arr.sonarr.settings.ApiKey.transform"
+  ],
+  "services-arr-options-shb.arr.sonarr.settings.LogLevel": [
+    "services-arr.html#services-arr-options-shb.arr.sonarr.settings.LogLevel"
+  ],
+  "services-arr-options-shb.arr.sonarr.settings.Port": [
+    "services-arr.html#services-arr-options-shb.arr.sonarr.settings.Port"
+  ],
+  "services-arr-options-shb.arr.sonarr.ssl": [
+    "services-arr.html#services-arr-options-shb.arr.sonarr.ssl"
+  ],
+  "services-arr-options-shb.arr.sonarr.ssl.paths": [
+    "services-arr.html#services-arr-options-shb.arr.sonarr.ssl.paths"
+  ],
+  "services-arr-options-shb.arr.sonarr.ssl.paths.cert": [
+    "services-arr.html#services-arr-options-shb.arr.sonarr.ssl.paths.cert"
+  ],
+  "services-arr-options-shb.arr.sonarr.ssl.paths.key": [
+    "services-arr.html#services-arr-options-shb.arr.sonarr.ssl.paths.key"
+  ],
+  "services-arr-options-shb.arr.sonarr.ssl.systemdService": [
+    "services-arr.html#services-arr-options-shb.arr.sonarr.ssl.systemdService"
+  ],
+  "services-arr-options-shb.arr.sonarr.subdomain": [
+    "services-arr.html#services-arr-options-shb.arr.sonarr.subdomain"
+  ],
   "services-forgejo": [
     "services-forgejo.html#services-forgejo"
   ],
