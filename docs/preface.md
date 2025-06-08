@@ -101,3 +101,22 @@ It also provides some services that are already integrated with all those buildi
 
 Self Host Blocks uses the full power of NixOS modules to achieve these goals.
 Blocks and service are both NixOS modules.
+
+## Next Steps {#next-steps}
+
+To get started using SelfHostBlocks,
+follow [the usage section](https://shb.skarabox.com/usage.html) of the manual.
+It goes over how to deploy with [Colmena][], [nixos-rebuild][] and [deploy-rs][]
+and also goes over secrets management with [SOPS][].
+
+[Colmena]: https://shb.skarabox.com/usage.html#usage-example-colmena
+[nixos-rebuild]: https://shb.skarabox.com/usage.html#usage-example-nixosrebuild
+[deploy-rs]: https://shb.skarabox.com/usage.html#usage-example-deployrs
+[SOPS]: https://shb.skarabox.com/usage.html#usage-secrets
+
+Then, to actually configure services, you can choose which one interests you in
+[the services section](https://shb.skarabox.com/services.html) of the manual.
+Not all services have a corresponding manual page yet.
+
+Head over to the [matrix channel](https://matrix.to/#/#selfhostblocks:matrix.org)
+for any remaining question, or just to say hi :)
