@@ -163,6 +163,11 @@ in stdenv.mkDerivation {
         '@OPTIONS_JSON@' \
         ${individualModuleOptionsDocs [ ../modules/blocks/sops.nix ]}/share/doc/nixos/options.json
 
+    substituteInPlace ./modules/services/home-assistant/docs/default.md \
+      --replace \
+        '@OPTIONS_JSON@' \
+       ${individualModuleOptionsDocs [ ../modules/services/home-assistant.nix ]}/share/doc/nixos/options.json
+
     substituteInPlace ./modules/services/nextcloud-server/docs/default.md \
       --replace \
         '@OPTIONS_JSON@' \
