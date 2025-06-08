@@ -13,6 +13,7 @@ information is provided in the respective manual sections.
 
 | Service               | Backup | Reverse Proxy | SSO | LDAP  | Monitoring | Profiling |
 |-----------------------|--------|---------------|-----|-------|------------|-----------|
+| [*Arr][]             | Y (1)  | Y             | Y   | Y (4) | Y (2)      | N         |
 | [Forgejo][]          | Y (1)  | Y             | Y   | Y     | Y (2)      | N         |
 | [Home-Assistant][]   | Y (1)  | Y             | N   | Y     | Y (2)      | N         |
 | [Nextcloud Server][] | Y (1)  | Y             | Y   | Y     | Y (2)      | P (3)     |
@@ -21,13 +22,21 @@ information is provided in the respective manual sections.
 Legend: **N**: no but WIP; **P**: partial; **Y**: yes
 
 1. Database and data files are backed up separately.
+   This could lead to backups not being in sync.
+   Any idea on how to fix this is welcomed!
 2. Dashboard is common to all services.
 3. Works but the traces are not exported to Grafana yet.
+4. Uses LDAP indirectly through forward auth.
 
+[*Arr]: services-arr.html
 [Forgejo]: services-forgejo.html
 [Home-Assistant]: services-home-assistant.html
 [Nextcloud Server]: services-nextcloud.html
 [Vaultwarden]: services-vaultwarden.html
+
+```{=include=} chapters html:into-file=//services-arr.html
+modules/services/arr/docs/default.md
+```
 
 ```{=include=} chapters html:into-file=//services-forgejo.html
 modules/services/forgejo/docs/default.md
