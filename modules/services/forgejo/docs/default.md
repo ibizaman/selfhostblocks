@@ -28,7 +28,7 @@ The following snippet enables Forgejo and makes it available under the `forgejo.
 shb.forgejo = {
   enable = true;
   subdomain = "forgejo";
-  enable = "example.com";
+  domain = "example.com";
 
   users = {
     "theadmin" = {
@@ -53,8 +53,8 @@ shb.hardcodedsecret."forgejo/user/password" = {
 ```
 
 Two users are created, `theadmin` and `theuser`,
-respectively with the passwords `foregejo/admin/password`
-and `foregejo/user/password` from a SOPS file.
+respectively with the passwords `forgejo/admin/password`
+and `forgejo/user/password` from a SOPS file.
 
 This assumes secrets are setup with SOPS
 as mentioned in [the secrets setup section](usage.html#usage-secrets) of the manual.
@@ -212,7 +212,7 @@ shb.forgejo.sso = {
 Passing the `ssl` option will auto-configure nginx to force SSL connections with the given
 certificate.
 
-The `shb.foregejo.sso.secretFile` and `shb.forgejo.sso.secretFileForAuthelia` options
+The `shb.forgejo.sso.secretFile` and `shb.forgejo.sso.secretFileForAuthelia` options
 must have the same content. The former is a file that must be owned by the `forgejo` user while
 the latter must be owned by the `authelia` user. I want to avoid needing to define the same secret
 twice with a future secrets SHB block.
@@ -230,9 +230,9 @@ shb.restic.instances."forgejo" = {
 };
 ```
 
-The name `"foregjo"` in the `instances` can be anything.
+The name `"forgjo"` in the `instances` can be anything.
 The `config.shb.forgejo.backup` option provides what directories to backup.
-You can define any number of Restic instances to backup Foregejo multiple times.
+You can define any number of Restic instances to backup Forgejo multiple times.
 
 ### Extra Settings {#services-forgejo-usage-extra-settings}
 
