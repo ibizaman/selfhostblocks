@@ -39,21 +39,19 @@ deployments. Also, patches can be applied by Self Host Blocks. To handle all thi
 following code instead wherever you import `nixpkgs`:
 
 ```nix
-let
-  system = "x86_64-linux";
-  originPkgs = selfhostblocks.inputs.nixpkgs;
+{
+  inputs.selfhostblocks.url = "github:ibizaman/selfhostblocks";
 
-  nixpkgs' = originPkgs.legacyPackages.${system}.applyPatches {
-    name = "nixpkgs-patched";
-    src = originPkgs;
-    patches = selfhostblocks.patches.${system};
-  };
+  outputs = { selfhostblocks, ... }: let
+    system = "x86_64-linux";
+    shbLib = selfhostblocks.lib.${system};
 
-  shbNixpkgs = import nixpkgs' {
-    inherit system;
-  };
-in
-  # ... Use shbNixpkgs
+    nixpkgs' = shbLib.patchedNixpkgs;
+
+    shbNixpkgs = import nixpkgs' {
+      inherit system;
+    };
+  in
 ```
 
 Advanced users can if they wish use a version of `nixpkgs` of their choosing but then we cannot
@@ -115,13 +113,9 @@ The following snippets show how to deploy Self Host Blocks using the standard de
   outputs = { self, selfhostblocks }: {
     let
       system = "x86_64-linux";
-      originPkgs = selfhostblocks.inputs.nixpkgs;
+      shbLib = selfhostblocks.lib.${system};
 
-      nixpkgs' = originPkgs.legacyPackages.${system}.applyPatches {
-        name = "nixpkgs-patched";
-        src = originPkgs;
-        patches = selfhostblocks.patches.${system};
-      };
+      nixpkgs' = shbLib.patchedNixpkgs;
 
       nixosSystem' = import "${nixpkgs'}/nixos/lib/eval-config.nix";
     in
@@ -153,13 +147,9 @@ some not using Self Host Blocks, then you can do the following:
   outputs = { self, selfhostblocks }: {
     let
       system = "x86_64-linux";
-      originPkgs = selfhostblocks.inputs.nixpkgs;
+      shbLib = selfhostblocks.lib.${system};
 
-      nixpkgs' = originPkgs.legacyPackages.${system}.applyPatches {
-        name = "nixpkgs-patched";
-        src = originPkgs;
-        patches = selfhostblocks.patches.${system};
-      };
+      nixpkgs' = shbLib.patchedNixpkgs;
 
       shbNixpkgs = import nixpkgs' {
         inherit system;
@@ -197,13 +187,9 @@ The following snippets show how to deploy Self Host Blocks using the deployment 
   outputs = { self, selfhostblocks }: {
     let
       system = "x86_64-linux";
-      originPkgs = selfhostblocks.inputs.nixpkgs;
+      shbLib = selfhostblocks.lib.${system};
 
-      nixpkgs' = originPkgs.legacyPackages.${system}.applyPatches {
-        name = "nixpkgs-patched";
-        src = originPkgs;
-        patches = selfhostblocks.patches.${system};
-      };
+      nixpkgs' = shbLib.patchedNixpkgs;
 
       shbNixpkgs = import nixpkgs' {
         inherit system;
@@ -241,13 +227,9 @@ in this case you can use the `colmena.meta.nodeNixpkgs` option:
   outputs = { self, selfhostblocks }: {
     let
       system = "x86_64-linux";
-      originPkgs = selfhostblocks.inputs.nixpkgs;
+      shbLib = selfhostblocks.lib.${system};
 
-      nixpkgs' = originPkgs.legacyPackages.${system}.applyPatches {
-        name = "nixpkgs-patched";
-        src = originPkgs;
-        patches = selfhostblocks.patches.${system};
-      };
+      nixpkgs' = shbLib.patchedNixpkgs;
 
       shbNixpkgs = import nixpkgs' {
         inherit system;
@@ -294,17 +276,13 @@ The following snippets show how to deploy Self Host Blocks using the deployment 
   outputs = { self, selfhostblocks }: {
     let
       system = "x86_64-linux";
-      originPkgs = selfhostblocks.inputs.nixpkgs;
+      shbLib = selfhostblocks.lib.${system};
 
-      shbNixpkgs = originPkgs.legacyPackages.${system}.applyPatches {
-        name = "nixpkgs-patched";
-        src = originPkgs;
-        patches = selfhostblocks.patches.${system};
-      };
+      nixpkgs' = shbLib.patchedNixpkgs;
 
       shbPkgs = import shbNixpkgs { inherit system; };
 
-      deployPkgs = import originPkgs {
+      deployPkgs = import selfhostblocks.inputs.nixpkgs {
         inherit system;
         overlays = [
           deploy-rs.overlay
@@ -365,17 +343,13 @@ in this case you can do:
   outputs = { self, selfhostblocks }: {
     let
       system = "x86_64-linux";
-      originPkgs = selfhostblocks.inputs.nixpkgs;
+      shbLib = selfhostblocks.lib.${system};
 
-      shbNixpkgs = originPkgs.legacyPackages.${system}.applyPatches {
-        name = "nixpkgs-patched";
-        src = originPkgs;
-        patches = selfhostblocks.patches.${system};
-      };
+      nixpkgs' = shbLib.patchedNixpkgs;
 
-      shbPkgs = import shbNixpkgs { inherit system; };
+      shbPkgs = import nixpkgs' { inherit system; };
 
-      deployPkgs = import originPkgs {
+      deployPkgs = import selfhostblocks.inputs.nixpkgs {
         inherit system;
         overlays = [
           deploy-rs.overlay
@@ -568,18 +542,14 @@ as well as [Skarabox][], my sibling project used to bootstrap a server.
   outputs = { self, skarabox, selfhostblocks, sops-nix, deploy-rs }:
     let
       system = "x86_64-linux";
-      originPkgs = selfhostblocks.inputs.nixpkgs;
+      shbLib = selfhostblocks.lib.${system};
 
-      shbNixpkgs = originPkgs.legacyPackages.${system}.applyPatches {
-        name = "nixpkgs-patched";
-        src = originPkgs;
-        patches = selfhostblocks.patches.${system};
-      };
+      nixpkgs' = shbLib.patchedNixpkgs;
 
-      shbPkgs = import shbNixpkgs { inherit system; };
+      shbPkgs = import nixpkgs' { inherit system; };
 
       # Taken from https://github.com/serokell/deploy-rs?tab=readme-ov-file#overall-usage
-      deployPkgs = import originPkgs {
+      deployPkgs = import selfhostblocks.inputs.nixpkgs {
         inherit system;
         overlays = [
           deploy-rs.overlay

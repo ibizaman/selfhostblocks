@@ -16,6 +16,10 @@ Template:
 
 # Upcoming Release
 
+## New Features
+
+- Add patchNixpkgs function and pre-patched patchedNixpkgs output.
+
 # v0.3.0
 
 ## New Features

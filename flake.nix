@@ -11,21 +11,30 @@
     };
   };
 
-  outputs = { nixpkgs, nix-flake-tests, flake-utils, nmdsrc, ... }: flake-utils.lib.eachDefaultSystem (system:
+  outputs = inputs@{ nixpkgs, nix-flake-tests, flake-utils, nmdsrc, ... }: flake-utils.lib.eachDefaultSystem (system:
     let
       originPkgs = nixpkgs.legacyPackages.${system};
-      patches = originPkgs.lib.optionals (system == "x86_64-linux") [
+      shbPatches = originPkgs.lib.optionals (system == "x86_64-linux") [
         # Leaving commented out for an example.
         # (originPkgs.fetchpatch {
         #   url = "https://github.com/NixOS/nixpkgs/pull/317107.patch";
         #   hash = "sha256-hoLrqV7XtR1hP/m0rV9hjYUBtrSjay0qcPUYlKKuVWk=";
         # })
       ];
-      patchedNixpkgs = originPkgs.applyPatches {
+      patchNixpkgs = {
+        nixpkgs,
+        patches,
+        system,
+      }: nixpkgs.legacyPackages.${system}.applyPatches {
         name = "nixpkgs-patched";
         src = nixpkgs;
         inherit patches;
       };
+      patchedNixpkgs = (patchNixpkgs {
+        nixpkgs = inputs.nixpkgs;
+        patches = shbPatches;
+        inherit system;
+      });
       pkgs = import patchedNixpkgs {
         inherit system;
 
@@ -90,8 +99,6 @@
       ];
     in
       {
-        inherit patches;
-
         nixosModules.default = { config, ... }: {
           imports = allModules;
         };
@@ -158,6 +165,8 @@
           (pkgs.callPackage ./lib {})
           // {
             contracts = pkgs.callPackage ./modules/contracts {};
+            patches = shbPatches;
+            inherit patchNixpkgs patchedNixpkgs;
           };
 
         checks =
