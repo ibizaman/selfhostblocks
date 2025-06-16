@@ -9,13 +9,7 @@
   outputs = inputs@{ self, selfhostblocks, sops-nix }:
     let
       system = "x86_64-linux";
-      originPkgs = selfhostblocks.inputs.nixpkgs;
-
-      nixpkgs' = originPkgs.legacyPackages.${system}.applyPatches {
-        name = "nixpkgs-patched";
-        src = originPkgs;
-        patches = selfhostblocks.patches.${system};
-      };
+      nixpkgs' = selfhostblocks.lib.${system}.patchedNixpkgs;
       nixosSystem' = import "${nixpkgs'}/nixos/lib/eval-config.nix";
 
       basic = { config, ... }: {
