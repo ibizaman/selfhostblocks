@@ -49,6 +49,12 @@ let
         subject = ["group:service_user"];
         }]'';
       };
+
+      extraConfig = lib.mkOption {
+        type = lib.types.lines;
+        default = "";
+        description = "Extra config to add to the root / location. Strings separated by newlines.";
+      };
     };
   };
 in
@@ -136,6 +142,7 @@ in
 
               proxy_pass ${c.upstream};
             ''
+            + c.extraConfig
             + lib.optionalString (c.authEndpoint != null) ''
               auth_request /authelia;
               auth_request_set $user $upstream_http_remote_user;
