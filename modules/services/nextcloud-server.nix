@@ -1076,15 +1076,21 @@ in
         ${occ} app:enable  oidc_login
         '';
 
-      systemd.services.nextcloud-setup.preStart =
-        ''
-        mkdir -p ${cfg.dataDir}/config
-        cat <<EOF > "${cfg.dataDir}/config/secretFile"
-        {
-          "oidc_login_client_secret": "$(cat ${cfg.apps.sso.secret.result.path})"
-        }
-        EOF
-        '';
+      systemd.services.nextcloud-setup-pre = {
+        wantedBy = [ "multi-user.target" ];
+        before = [ "nextcloud-setup.service" ];
+        serviceConfig.Type = "oneshot";
+        serviceConfig.User = "nextcloud";
+        script =
+          ''
+          mkdir -p ${cfg.dataDir}/config
+          cat <<EOF > "${cfg.dataDir}/config/secretFile"
+          {
+            "oidc_login_client_secret": "$(cat ${cfg.apps.sso.secret.result.path})"
+          }
+          EOF
+          '';
+      };
 
       services.nextcloud = {
         secretFile = "${cfg.dataDir}/config/secretFile";
