@@ -229,7 +229,7 @@ in
   # };
 
   voice = pkgs.testers.runNixOSTest {
-    name = "homeassistant_ldap";
+    name = "homeassistant_voice";
   
     nodes.server = {
       imports = [ 
