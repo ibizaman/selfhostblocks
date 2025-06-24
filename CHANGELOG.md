@@ -16,6 +16,10 @@ Template:
 
 # Upcoming Release
 
+## Breaking Changes
+
+- Default version of Nextcloud is now 30.
+
 ## New Features
 
 - Add patchNixpkgs function and pre-patched patchedNixpkgs output.
