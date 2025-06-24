@@ -82,7 +82,7 @@ let
       startUrl = "http://${config.test.fqdn}/user/login";
       usernameFieldLabelRegex = "Username or email address";
       passwordFieldLabelRegex = "Password";
-      loginButtonNameRegex = "Sign In";
+      loginButtonNameRegex = "[sS]ign [iI]n";
       testLoginWith = [
         { username = "theadmin"; password = adminPassword + "oops"; nextPageExpect = [
             "expect(page.get_by_text('Username or password is incorrect.')).to_be_visible()"
