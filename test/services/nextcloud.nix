@@ -155,7 +155,7 @@ let
 
     test.login = {
       startUrl = "http://${config.test.fqdn}";
-      usernameFieldLabelRegex = "[Uu]sername";
+      usernameFieldLabelRegex = "[Ee]mail";
       passwordFieldLabelRegex = "^ *[Pp]assword";
       loginButtonNameRegex = "[Ll]og [Ii]n";
       testLoginWith = [
