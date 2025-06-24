@@ -16,13 +16,24 @@ Template:
 
 # Upcoming Release
 
+# v0.3.1
+
 ## Breaking Changes
 
 - Default version of Nextcloud is now 30.
+- Disable memories app on Nextcloud because it is broken.
 
 ## New Features
 
 - Add patchNixpkgs function and pre-patched patchedNixpkgs output.
+
+## Fixes
+
+- Fix secrets passing to Nextcloud service after update.
+
+## Other Changes
+
+- Bump nixpkgs to https://github.com/NixOS/nixpkgs/commit/216207b1e58325f3590277d9102b45273afe9878
 
 # v0.3.0
 
