@@ -15,7 +15,7 @@
     let
       originPkgs = nixpkgs.legacyPackages.${system};
       shbPatches = originPkgs.lib.optionals (system == "x86_64-linux") [
-        # Leaving commented out for an example.
+        # Leaving commented out as an example.
         # (originPkgs.fetchpatch {
         #   url = "https://github.com/NixOS/nixpkgs/pull/317107.patch";
         #   hash = "sha256-hoLrqV7XtR1hP/m0rV9hjYUBtrSjay0qcPUYlKKuVWk=";
@@ -56,11 +56,12 @@
             });
           })
           (final: prev: {
-            grocy = prev.grocy.overrideAttrs (f: p: {
-              patches = p.patches ++ [
-                ./patches/grocy.patch
-              ];
-            });
+            # Leaving commented out as an example.
+            # grocy = prev.grocy.overrideAttrs (f: p: {
+            #   patches = p.patches ++ [
+            #     ./patches/grocy.patch
+            #   ];
+            # });
           })
         ];
       };
