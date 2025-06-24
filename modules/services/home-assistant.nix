@@ -79,8 +79,8 @@ in
           };
           unit_system = lib.mkOption {
             type = lib.types.oneOf [ lib.types.str (lib.types.enum [ "metric" "us_customary" ]) ];
-            description = "Timezone of this instance.";
-            example = "America/Los_Angeles";
+            description = "Unit system of this instance.";
+            example = "metric";
           };
         };
       };
@@ -326,6 +326,7 @@ in
 
     systemd.services.home-assistant.preStart =
       (let
+        # TODO: this probably does not work anymore
         onboarding = pkgs.writeText "onboarding" ''
           {
             "version": 4,
