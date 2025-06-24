@@ -1187,6 +1187,13 @@ in
         cfg' = cfg.apps.memories;
       in
         {
+          assertions = [
+            {
+              assertion = true;
+              message = "Memories app has an issue for now, see https://github.com/ibizaman/selfhostblocks/issues/476.";
+            }
+          ];
+
           services.nextcloud.extraApps = {
             inherit (nextcloudApps) memories;
           };

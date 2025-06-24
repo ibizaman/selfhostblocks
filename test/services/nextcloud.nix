@@ -248,6 +248,27 @@ let
     };
   };
 
+  memories = { config, ...}: {
+    systemd.tmpfiles.rules = [
+      "d '/srv/nextcloud' 0750 nextcloud nextcloud - -"
+    ];
+
+    shb.nextcloud = {
+      apps.memories.enable = true;
+      apps.memories.vaapi = true;
+    };
+  };
+
+  recognize = { config, ...}: {
+    systemd.tmpfiles.rules = [
+      "d '/srv/nextcloud' 0750 nextcloud nextcloud - -"
+    ];
+
+    shb.nextcloud = {
+      apps.recognize.enable = true;
+    };
+  };
+
   prometheus = { config, ... }: {
     shb.nextcloud = {
       phpFpmPrometheusExporter.enable = true;
@@ -344,6 +365,43 @@ in
         testLib.certs
         https
         externalstorage
+      ];
+    };
+
+    nodes.client = {};
+
+    testScript = commonTestScript.access;
+  };
+
+  # TODO: fix memories app
+  # See https://github.com/ibizaman/selfhostblocks/issues/476
+
+  # memories = pkgs.testers.runNixOSTest {
+  #   name = "nextcloud_memories";
+
+  #   nodes.server = {
+  #     imports = [
+  #       basic
+  #       testLib.certs
+  #       https
+  #       memories
+  #     ];
+  #   };
+
+  #   nodes.client = {};
+
+  #   testScript = commonTestScript.access;
+  # };
+
+  recognize = pkgs.testers.runNixOSTest {
+    name = "nextcloud_recognize";
+
+    nodes.server = {
+      imports = [
+        basic
+        testLib.certs
+        https
+        recognize
       ];
     };
 
