@@ -306,7 +306,10 @@ in
 
     services.wyoming.piper.servers = cfg.voice.text-to-speech;
     services.wyoming.faster-whisper.servers = cfg.voice.speech-to-text;
-    services.wyoming.openwakeword = cfg.voice.wakeword;
+    services.wyoming.openwakeword = cfg.voice.wakeword // {
+      # TODO: remove this when https://github.com/NixOS/nixpkgs/issues/392602 is merged.
+      package = pkgs.wyoming-openwakeword.override { python3Packages = pkgs.python312Packages; };
+    };
 
     services.nginx.virtualHosts."${fqdn}" = {
       http2 = true;
