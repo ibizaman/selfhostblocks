@@ -29,10 +29,10 @@ let
 
       config = {
         name = "Tiserbox";
-        country = "My Country";
+        country = "CH";
         latitude = "01.0000000000";
         longitude.source = pkgs.writeText "longitude" "01.0000000000";
-        time_zone = "America/Los_Angeles";
+        time_zone = "Europe/Zurich";
         unit_system = "metric";
       };
     };
@@ -62,14 +62,10 @@ let
             "page.get_by_label(re.compile('Confirm password')).fill('adminpassword')"
             "page.get_by_role('button', name=re.compile('Create account')).click()"
 
-            "expect(page.get_by_text('All set')).to_be_visible()"
+            "expect(page.get_by_text('We found compatible devices')).to_be_visible()"
             "page.get_by_role('button', name=re.compile('Finish')).click()"
 
-            "page.get_by_label(re.compile('Username')).fill('admin')"
-            "page.get_by_label(re.compile('Password')).fill('adminpassword')"
-            "page.get_by_role('button', name=re.compile('Log in')).click()"
-
-            "expect(page).to_have_title(re.compile('Overview'))"
+            "expect(page).to_have_title(re.compile('Overview'), timeout=15000)"
           ]; }
       ];
     };
