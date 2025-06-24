@@ -135,6 +135,9 @@ This translates into a test suite comprised of automated NixOS VM tests
 which includes playwright tests to verify some important workflow
 like logging in.
 
+This test suite also serves as a guaranty that all services provided by SelfHostBlocks
+all evaluate, build and work correctly together. It works similarly as a distribution but here it's all [automated](#automatic-updates).
+
 Also, the stack fits together nicely thanks to [contracts](#contracts).
 
 ### Services
