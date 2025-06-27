@@ -33,7 +33,6 @@ let
 
   clientLogin = { config, ... }: {
     imports = [
-      testLib.baseModule
       testLib.clientLoginModule
     ];
     virtualisation.memorySize = 4096;
@@ -46,8 +45,8 @@ let
       # I tried without the path part but it randomly selects either the wizard
       # or the page that selects a server.
       # startUrl = "http://${config.test.fqdn}/web/#/wizardstart.html";
-      startUrl = "http://${config.test.fqdn}";
-      # startUrl = "http://127.0.0.1:8096";
+      # startUrl = "http://${config.test.fqdn}";
+      startUrl = "http://127.0.0.1:8096";
       testLoginWith = [
         { nextPageExpect = [
             "expect(page.get_by_text(re.compile('Welcome to Jellyfin'))).to_be_visible(timeout=15_000)"
@@ -56,7 +55,9 @@ let
             "expect(page.get_by_text('Tell us about yourself')).to_be_visible()"
             "page.get_by_label(re.compile('Username')).fill('Admin')"
             "page.get_by_label(re.compile('Password$')).fill('adminpassword')"
+            "page.get_by_label(re.compile('Password$')).fill('adminpassword')"
             "page.get_by_label(re.compile('Password ')).fill('adminpassword')"
+            "page.get_by_role('button', name=re.compile('Next')).click()"
 
             "expect(page.get_by_text('Set up your media libraries')).to_be_visible()"
             "page.get_by_role('button', name=re.compile('Next')).click()"
@@ -143,12 +144,13 @@ in
 
     nodes.client = {
       imports = [
-        clientLogin
+        testLib.baseModule
       ];
     };
     nodes.server = {
       imports = [
         basic
+        clientLogin
       ];
     };
 
