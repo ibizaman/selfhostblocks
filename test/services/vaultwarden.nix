@@ -49,7 +49,6 @@ let
       subdomain = "v";
     };
 
-    shb.nginx.accessLog = true;
     shb.vaultwarden = {
       enable = true;
       inherit (config.test) subdomain domain;

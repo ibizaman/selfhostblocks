@@ -15,6 +15,7 @@ let
     , waitForServices ? s: []
     , waitForPorts ? p: []
     , waitForUnixSocket ? u: []
+    , waitForUrls ? u: []
     , extraScript ? {...}: ""
     , redirectSSO ? false
   }: { nodes, ... }:
@@ -34,20 +35,10 @@ let
     import json
     import os
     import pathlib
+    import time
 
     start_all()
-    ''
-    + lib.strings.concatMapStrings (s: ''server.wait_for_unit("${s}")'' + "\n") (
-      waitForServices args
-      ++ (lib.optionals redirectSSO [ "authelia-auth.${cfg.domain}.service" ])
-    )
-    + lib.strings.concatMapStrings (p: ''server.wait_for_open_port(${toString p})'' + "\n") (
-      waitForPorts args
-      # TODO: when the SSO block exists, replace this hardcoded port.
-      ++ (lib.optionals redirectSSO [ 9091 /* nodes.server.services.authelia.instances."auth.${domain}".settings.server.port */ ] )
-    )
-    + lib.strings.concatMapStrings (u: ''server.wait_for_open_unix_socket("${u}")'' + "\n") (waitForUnixSocket args)
-    + ''
+
     if ${if hasSSL args then "True" else "False"}:
         server.copy_from_vm("/etc/ssl/certs/ca-certificates.crt")
         client.succeed("rm -r /etc/ssl/certs")
@@ -67,9 +58,35 @@ let
               + f" {endpoint}")
         print(cmd)
         _, r = target.execute(cmd)
-        # print(r)
+        print(r)
+        if format == "":
+            return r
         return json.loads(r)
 
+    ''
+    + lib.strings.concatMapStrings (s: ''server.wait_for_unit("${s}")'' + "\n") (
+      waitForServices args
+      ++ (lib.optionals redirectSSO [ "authelia-auth.${cfg.domain}.service" ])
+    )
+    + lib.strings.concatMapStrings (p: ''server.wait_for_open_port(${toString p})'' + "\n") (
+      waitForPorts args
+      # TODO: when the SSO block exists, replace this hardcoded port.
+      ++ (lib.optionals redirectSSO [ 9091 /* nodes.server.services.authelia.instances."auth.${domain}".settings.server.port */ ] )
+    )
+    + lib.strings.concatMapStrings (u: ''server.wait_for_open_unix_socket("${u}")'' + "\n") (waitForUnixSocket args)
+    + lib.strings.concatMapStrings (u: ''
+        response = {'code': 0}
+        count = 15
+        while response['code'] != 200 and count > 0:
+            response = curl(client, """{"code":%{response_code}}""", "${u}")
+            time.sleep(5)
+            count -= 1
+        if response['code'] != 200:
+            raise Exception("Response was never 200")
+      '' + "\n") (
+      waitForUrls args
+    )
+    + ''
     def unline_with(j, s):
         return j.join((x.strip() for x in s.split("\n")))
 
@@ -99,6 +116,14 @@ let
     with subtest("Login"):
         code, logs = client.execute("login_playwright firefox")
         client.copy_from_vm("trace")
+        print(logs)
+        if code != 0:
+            raise Exception("login_playwright did not succeed")
+    '')
+    + (optionalString (hasAttr "test" nodes.server && hasAttr "login" nodes.server.test) ''
+    with subtest("Login"):
+        code, logs = server.execute("login_playwright firefox")
+        server.copy_from_vm("trace")
         print(logs)
         if code != 0:
             raise Exception("login_playwright did not succeed")
@@ -146,6 +171,7 @@ in
     config = {
       # HTTP(s) server port.
       networking.firewall.allowedTCPPorts = [ 80 443 ];
+      shb.nginx.accessLog = true;
     };
   };
 
@@ -232,6 +258,9 @@ in
 
                 for i, u in enumerate(testCfg["testLoginWith"]):
                     print(f"Testing for user {u['username']} and password {u['password']}")
+
+                    import time
+                    time.sleep(10)
 
                     context = browser.new_context(ignore_https_errors=True)
                     context.set_default_navigation_timeout(2 * 60 * 1000)
