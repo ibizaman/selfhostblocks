@@ -67,6 +67,7 @@ jobs:
         run: |
           nix flake show --allow-import-from-derivation --json \
               | jq -c '.["checks"]["x86_64-linux"] | keys' > .output
+          echo '[  "vm_jellyfin_basic" ]' > .output
 
           cat .output
 
