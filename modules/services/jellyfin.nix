@@ -1,6 +1,8 @@
 { config, lib, pkgs, ...}:
 
 let
+  inherit (lib) types;
+
   cfg = config.shb.jellyfin;
 
   contracts = pkgs.callPackage ../contracts {};
@@ -13,63 +15,63 @@ in
     enable = lib.mkEnableOption "shb jellyfin";
 
     subdomain = lib.mkOption {
-      type = lib.types.str;
+      type = types.str;
       description = "Subdomain under which home-assistant will be served.";
       example = "jellyfin";
     };
 
     domain = lib.mkOption {
       description = "Domain to serve sites under.";
-      type = lib.types.str;
+      type = types.str;
       example = "domain.com";
     };
 
     ssl = lib.mkOption {
       description = "Path to SSL files";
-      type = lib.types.nullOr contracts.ssl.certs;
+      type = types.nullOr contracts.ssl.certs;
       default = null;
     };
 
     ldap = lib.mkOption {
       description = "LDAP configuration.";
       default = {};
-      type = lib.types.submodule {
+      type = types.submodule {
         options = {
           enable = lib.mkEnableOption "LDAP";
 
           host = lib.mkOption {
-            type = lib.types.str;
+            type = types.str;
             description = "Host serving the LDAP server.";
             example = "127.0.0.1";
           };
 
           port = lib.mkOption {
-            type = lib.types.int;
+            type = types.int;
             description = "Port where the LDAP server is listening.";
             example = 389;
           };
 
           dcdomain = lib.mkOption {
-            type = lib.types.str;
+            type = types.str;
             description = "DC domain for LDAP.";
             example = "dc=mydomain,dc=com";
           };
 
           userGroup = lib.mkOption {
-            type = lib.types.str;
+            type = types.str;
             description = "LDAP user group";
             default = "jellyfin_user";
           };
 
           adminGroup = lib.mkOption {
-            type = lib.types.str;
+            type = types.str;
             description = "LDAP admin group";
             default = "jellyfin_admin";
           };
 
           adminPassword = lib.mkOption {
             description = "LDAP admin password.";
-            type = lib.types.submodule {
+            type = types.submodule {
               options = contracts.secret.mkRequester {
                 mode = "0440";
                 owner = "jellyfin";
@@ -85,49 +87,49 @@ in
     sso = lib.mkOption {
       description = "SSO configuration.";
       default = {};
-      type = lib.types.submodule {
+      type = types.submodule {
         options = {
           enable = lib.mkEnableOption "SSO";
 
           provider = lib.mkOption {
-            type = lib.types.str;
+            type = types.str;
             description = "OIDC provider name";
             default = "Authelia";
           };
 
           endpoint = lib.mkOption {
-            type = lib.types.str;
+            type = types.str;
             description = "OIDC endpoint for SSO";
             example = "https://authelia.example.com";
           };
 
           clientID = lib.mkOption {
-            type = lib.types.str;
+            type = types.str;
             description = "Client ID for the OIDC endpoint";
             default = "jellyfin";
           };
 
           adminUserGroup = lib.mkOption {
-            type = lib.types.str;
+            type = types.str;
             description = "OIDC admin group";
             default = "jellyfin_admin";
           };
 
           userGroup = lib.mkOption {
-            type = lib.types.str;
+            type = types.str;
             description = "OIDC user group";
             default = "jellyfin_user";
           };
 
           authorization_policy = lib.mkOption {
-            type = lib.types.enum [ "one_factor" "two_factor" ];
+            type = types.enum [ "one_factor" "two_factor" ];
             description = "Require one factor (password) or two factor (device) authentication.";
             default = "one_factor";
           };
 
           sharedSecret = lib.mkOption {
             description = "OIDC shared secret for Jellyfin.";
-            type = lib.types.submodule {
+            type = types.submodule {
               options = contracts.secret.mkRequester {
                 mode = "0440";
                 owner = "jellyfin";
@@ -139,7 +141,7 @@ in
 
           sharedSecretForAuthelia = lib.mkOption {
             description = "OIDC shared secret for Authelia.";
-            type = lib.types.submodule {
+            type = types.submodule {
               options = contracts.secret.mkRequester {
                 mode = "0400";
                 owner = config.shb.authelia.autheliaUser;
@@ -155,7 +157,7 @@ in
         Backup configuration.
       '';
       default = {};
-      type = lib.types.submodule {
+      type = types.submodule {
         options = contracts.backup.mkRequester {
           user = "jellyfin";
           sourceDirectories = [
