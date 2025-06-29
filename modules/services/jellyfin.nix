@@ -167,8 +167,11 @@ in
         options = contracts.backup.mkRequester {
           user = "jellyfin";
           sourceDirectories = [
-            "/var/lib/jellyfin"
+            config.services.jellyfin.dataDir
           ];
+          sourceDirectoriesText = ''[
+            "services.jellyfin.dataDir"
+          ]'';
         };
       };
     };
@@ -449,7 +452,7 @@ in
           ''
         + lib.strings.optionalString cfg.ldap.enable (shblib.replaceSecretsScript {
           file = ldapConfig;
-          resultPath = "/var/lib/jellyfin/plugins/configurations/LDAP-Auth.xml";
+          resultPath = "${config.services.jellyfin.dataDir}/plugins/configurations/LDAP-Auth.xml";
           replacements = [
             {
               name = [ "LDAP_PASSWORD" ];
@@ -459,7 +462,7 @@ in
         })
         + lib.strings.optionalString cfg.sso.enable (shblib.replaceSecretsScript {
           file = ssoConfig;
-          resultPath = "/var/lib/jellyfin/plugins/configurations/SSO-Auth.xml";
+          resultPath = "${config.services.jellyfin.dataDir}/plugins/configurations/SSO-Auth.xml";
           replacements = [
             {
               name = [ "SSO_SECRET" ];
@@ -469,7 +472,7 @@ in
         })
         + lib.strings.optionalString cfg.sso.enable (shblib.replaceSecretsScript {
           file = brandingConfig;
-          resultPath = "/var/lib/jellyfin/config/branding.xml";
+          resultPath = "${config.services.jellyfin.dataDir}/config/branding.xml";
           replacements = [
           ];
         });
