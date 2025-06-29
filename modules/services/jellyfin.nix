@@ -333,6 +333,8 @@ in
           </PluginConfiguration>
           '';
 
+        # SchemeOverride is needed because of
+        # https://github.com/9p4/jellyfin-plugin-sso/issues/264
         ssoConfig = pkgs.writeText "SSO-Auth.xml" ''
           <?xml version="1.0" encoding="utf-8"?>
           <PluginConfiguration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
@@ -344,6 +346,7 @@ in
                 </key>
                 <value>
                   <PluginConfiguration>
+                    <SchemeOverride>https</SchemeOverride>
                     <OidEndpoint>${cfg.sso.endpoint}</OidEndpoint>
                     <OidClientId>${cfg.sso.clientID}</OidClientId>
                     <OidSecret>%SECRET_SSO_SECRET%</OidSecret>
