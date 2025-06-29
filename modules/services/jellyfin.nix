@@ -32,6 +32,12 @@ in
       default = null;
     };
 
+    debug = lib.mkOption {
+      description = "Enable debug logging";
+      type = types.bool;
+      default = false;
+    };
+
     ldap = lib.mkOption {
       description = "LDAP configuration.";
       default = {};
@@ -419,8 +425,29 @@ in
             <SplashscreenEnabled>true</SplashscreenEnabled>
           </BrandingOptions>
         '';
+
+        debugLogging = pkgs.writeText "debugLogging.json" ''
+          {
+            "Serilog": {
+              "MinimumLevel": {
+                "Default": "Debug",
+                "Override": {
+                  "": "Debug"
+                }
+              }
+            }
+          }
+        '';
       in
-        lib.strings.optionalString cfg.ldap.enable (shblib.replaceSecretsScript {
+        lib.strings.optionalString cfg.debug
+          ''
+          if [ -f "${config.services.jellyfin.configDir}/logging.json" ] && [ ! -L "${config.services.jellyfin.configDir}/logging.json" ]; then
+            echo "A ${config.services.jellyfin.configDir}/logging.json file exists already, this indicates probably an existing installation. Please remove it before continuing."
+            exit 1
+          fi
+          ln -fs "${debugLogging}" "${config.services.jellyfin.configDir}/logging.json"
+          ''
+        + lib.strings.optionalString cfg.ldap.enable (shblib.replaceSecretsScript {
           file = ldapConfig;
           resultPath = "/var/lib/jellyfin/plugins/configurations/LDAP-Auth.xml";
           replacements = [
