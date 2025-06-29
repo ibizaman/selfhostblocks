@@ -24,6 +24,7 @@ let
     shb.jellyfin = {
       enable = true;
       inherit (config.test) subdomain domain;
+      debug = true;
     };
   };
 
