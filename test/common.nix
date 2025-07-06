@@ -15,6 +15,7 @@ let
     , waitForServices ? s: []
     , waitForPorts ? p: []
     , waitForUnixSocket ? u: []
+    , waitForUrls ? u: []
     , extraScript ? {...}: ""
     , redirectSSO ? false
   }: { nodes, ... }:
@@ -36,6 +37,29 @@ let
     import pathlib
 
     start_all()
+
+    def curl(target, format, endpoint, data="", extra=""):
+        cmd = ("curl --show-error --location"
+              + " --cookie-jar cookie.txt"
+              + " --cookie cookie.txt"
+              + " --connect-to ${fqdn}:443:server:443"
+              + " --connect-to ${fqdn}:80:server:80"
+              # Client must be able to resolve talking to auth server
+              + " --connect-to auth.${cfg.domain}:443:server:443"
+              + (f" --data '{data}'" if data != "" else "")
+              + (f" --silent --output /dev/null --write-out '{format}'" if format != "" else "")
+              + (f" {extra}" if extra != "" else "")
+              + f" {endpoint}")
+        print(cmd)
+        _, r = target.execute(cmd)
+        print(r)
+        try:
+            return json.loads(r)
+        except:
+            return r
+
+    def unline_with(j, s):
+        return j.join((x.strip() for x in s.split("\n")))
     ''
     + lib.strings.concatMapStrings (s: ''server.wait_for_unit("${s}")'' + "\n") (
       waitForServices args
@@ -53,27 +77,25 @@ let
         client.succeed("rm -r /etc/ssl/certs")
         client.copy_from_host(str(pathlib.Path(os.environ.get("out", os.getcwd())) / "ca-certificates.crt"), "/etc/ssl/certs/ca-certificates.crt")
 
-    def curl(target, format, endpoint, data="", extra=""):
-        cmd = ("curl --show-error --location"
-              + " --cookie-jar cookie.txt"
-              + " --cookie cookie.txt"
-              + " --connect-to ${fqdn}:443:server:443"
-              + " --connect-to ${fqdn}:80:server:80"
-              # Client must be able to resolve talking to auth server
-              + " --connect-to auth.${cfg.domain}:443:server:443"
-              + (f" --data '{data}'" if data != "" else "")
-              + (f" --silent --output /dev/null --write-out '{format}'" if format != "" else "")
-              + (f" {extra}" if extra != "" else "")
-              + f" {endpoint}")
-        print(cmd)
-        _, r = target.execute(cmd)
-        # print(r)
-        return json.loads(r)
-
-    def unline_with(j, s):
-        return j.join((x.strip() for x in s.split("\n")))
-
     ''
+    # Making a curl request to an URL needs to happen after we copied the certificates over,
+    # otherwise curl will not be able to verify the "legitimacy of the server".
+    + lib.strings.concatMapStrings (u: ''
+        import time
+
+        done = False
+        count = 15
+        while not done and count > 0:
+            response = curl(client, """{"code":%{response_code}}""", "${u}")
+            time.sleep(5)
+            count -= 1
+            if isinstance(response, dict):
+                done = response.get('code') == 200
+        if not done:
+            raise Exception(f"Response was never 200, got last: {response}")
+      '' + "\n") (
+      waitForUrls args
+    )
     + (if (! redirectSSO) then ''
     with subtest("access"):
         response = curl(client, """{"code":%{response_code}}""", "${proto_fqdn}")
