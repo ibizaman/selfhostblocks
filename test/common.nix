@@ -146,6 +146,7 @@ in
     config = {
       # HTTP(s) server port.
       networking.firewall.allowedTCPPorts = [ 80 443 ];
+      shb.nginx.accessLog = true;
     };
   };
 
