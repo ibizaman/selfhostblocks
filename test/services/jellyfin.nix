@@ -15,7 +15,7 @@ let
 
   basic = { config, ... }: {
     test = {
-      subdomain = "v";
+      subdomain = "j";
     };
 
     shb.jellyfin = {
