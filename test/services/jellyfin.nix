@@ -11,6 +11,9 @@ let
     waitForPorts = { node, ... }: [
       8096
     ];
+    waitForUrls = { proto_fqdn, ... }: [
+      "${proto_fqdn}/System/Info/Public"
+    ];
   };
 
   basic = { config, ... }: {
