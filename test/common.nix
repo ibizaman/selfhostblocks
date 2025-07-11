@@ -184,9 +184,17 @@ in
         type = str;
         default = "[Uu]sername";
       };
+      usernameFieldSelector = mkOption {
+        type = str;
+        default = "get_by_label(re.compile('${cfg.usernameFieldLabelRegex}'))";
+      };
       passwordFieldLabelRegex = mkOption {
         type = str;
         default = "[Pp]assword";
+      };
+      passwordFieldSelector = mkOption {
+        type = str;
+        default = "get_by_label(re.compile('${cfg.passwordFieldLabelRegex}'))";
       };
       loginButtonNameRegex = mkOption {
         type = str;
@@ -267,11 +275,11 @@ in
                         page.goto(testCfg['startUrl'])
       
                         if u['username'] is not None:
-                            print(f"Filling field {testCfg['usernameFieldLabelRegex']} with {u['username']}")
-                            page.get_by_label(re.compile(testCfg['usernameFieldLabelRegex'])).fill(u['username'])
+                            print(f"Filling field username with {u['username']}")
+                            page.${cfg.usernameFieldSelector}.fill(u['username'])
                         if u['password'] is not None:
-                            print(f"Filling field {testCfg['passwordFieldLabelRegex']} with {u['password']}")
-                            page.get_by_label(re.compile(testCfg['passwordFieldLabelRegex'])).fill(u['password'])
+                            print(f"Filling field password with {u['password']}")
+                            page.${cfg.passwordFieldSelector}.fill(u['password'])
 
                         # Assumes we don't need to login, so skip this.
                         if u['username'] is not None or u['password'] is not None:
