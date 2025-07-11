@@ -120,7 +120,10 @@ let
     + (optionalString (hasAttr "test" nodes.server && hasAttr "login" nodes.server.test) ''
     with subtest("Login from server"):
         code, logs = server.execute("login_playwright")
-        server.copy_from_vm("trace")
+        try:
+            server.copy_from_vm("trace")
+        except:
+            print("No trace found on server")
         print(logs)
         if code != 0:
             raise Exception("login_playwright did not succeed")
@@ -128,7 +131,10 @@ let
     + (optionalString (hasAttr "test" nodes.client && hasAttr "login" nodes.client.test) ''
     with subtest("Login from client"):
         code, logs = client.execute("login_playwright")
-        client.copy_from_vm("trace")
+        try:
+            server.copy_from_vm("trace")
+        except:
+            print("No trace found on client")
         print(logs)
         if code != 0:
             raise Exception("login_playwright did not succeed")
