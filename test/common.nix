@@ -281,7 +281,7 @@ in
                         for line in u['nextPageExpect']:
                             print(f"Running: {line}")
                             print(f"Page has title: {page.title()}")
-                            eval(line)
+                            exec(line)
                     finally:
                         context.tracing.stop(path=f"trace/{i}.zip")
 
