@@ -74,11 +74,23 @@ let
       settings.content = "ssoPassword";
     };
   };
+
+  jellyfinTest = name: { nodes, testScript }: pkgs.testers.runNixOSTest {
+    name = "jellyfin_${name}";
+
+    interactive.sshBackdoor.enable = true;
+    interactive.nodes.server = {
+      environment.systemPackages = [
+        pkgs.sqlite
+      ];
+    };
+
+    inherit nodes;
+    inherit testScript;
+  };
 in
 {
-  basic = pkgs.testers.runNixOSTest {
-    name = "jellyfin_basic";
-
+  basic = jellyfinTest "basic" {
     nodes.server = {
       imports = [
         testLib.baseModule
@@ -92,9 +104,7 @@ in
     testScript = commonTestScript.access;
   };
 
-  backup = pkgs.testers.runNixOSTest {
-    name = "jellyfin_backup";
-
+  backup = jellyfinTest "backup" {
     nodes.server = { config, ... }: {
       imports = [
         testLib.baseModule
@@ -109,9 +119,7 @@ in
     testScript = commonTestScript.backup;
   };
 
-  https = pkgs.testers.runNixOSTest {
-    name = "jellyfin_https";
-
+  https = jellyfinTest "https" {
     nodes.server = {
       imports = [
         testLib.baseModule
@@ -127,9 +135,7 @@ in
     testScript = commonTestScript.access;
   };
 
-  ldap = pkgs.testers.runNixOSTest {
-    name = "jellyfin_ldap";
-
+  ldap = jellyfinTest "ldap" {
     nodes.server = {
       imports = [
         testLib.baseModule
@@ -145,9 +151,7 @@ in
     testScript = commonTestScript.access;
   };
 
-  sso = pkgs.testers.runNixOSTest {
-    name = "jellyfin_sso";
-
+  sso = jellyfinTest "sso" {
     nodes.server = { config, pkgs, ... }: {
       imports = [
         testLib.baseModule
