@@ -1,7 +1,7 @@
 { pkgs, lib }:
 let
   inherit (lib) hasAttr mkOption optionalString;
-  inherit (lib.types) listOf nullOr submodule str;
+  inherit (lib.types) enum listOf nullOr submodule str;
 
   baseImports = {
     imports = [
@@ -119,7 +119,7 @@ let
       lib.optionalString (script != "") script)
     + (optionalString (hasAttr "test" nodes.client && hasAttr "login" nodes.client.test) ''
     with subtest("Login"):
-        code, logs = client.execute("login_playwright firefox")
+        code, logs = client.execute("login_playwright")
         client.copy_from_vm("trace")
         print(logs)
         if code != 0:
@@ -176,6 +176,10 @@ in
     cfg = config.test.login;
   in {
     options.test.login = {
+      browser = mkOption {
+        type = enum [ "firefox" "chromium" "webkit" ];
+        default = "firefox";
+      };
       usernameFieldLabelRegex = mkOption {
         type = str;
         default = "[Uu]sername";
@@ -236,22 +240,20 @@ in
 
 
             browsers = {
-                "chromium": ["--reporter", "html", "--headless", "--disable-gpu"],
-                "firefox": ["--reporter", "html"],
-                "webkit": ["--reporter", "html"]
+                "chromium": {'args': ["--headless", "--disable-gpu"], 'channel': 'chromium'},
+                "firefox": {'args': ["--reporter", "html"]},
+                "webkit": {},
             }
-            if len(sys.argv) != 2 or sys.argv[1] not in browsers.keys():
-                print(f"usage: {sys.argv[0]} [{'|'.join(browsers.keys())}]")
-                sys.exit(1)
-            browser_name = sys.argv[1]
-            browser_args = browsers.get(browser_name)
-            print(f"Running test on {browser_name} {' '.join(browser_args)}")
 
             with open("${testCfg}") as f:
                 testCfg = json.load(f)
 
+            browser_name = testCfg['browser']
+            browser_args = browsers.get(browser_name)
+            print(f"Running test on {browser_name} {' '.join(browser_args)}")
+
             with sync_playwright() as p:
-                browser = getattr(p, browser_name).launch(args=browser_args)
+                browser = getattr(p, browser_name).launch(**browser_args)
 
                 for i, u in enumerate(testCfg["testLoginWith"]):
                     print(f"Testing for user {u['username']} and password {u['password']}")
