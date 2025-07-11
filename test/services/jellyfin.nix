@@ -19,6 +19,10 @@ let
   };
 
   basic = { config, ... }: {
+    imports = [
+      testLib.baseModule
+      ../../modules/services/jellyfin.nix
+    ];
     test = {
       subdomain = "j";
     };
@@ -93,8 +97,6 @@ in
   basic = jellyfinTest "basic" {
     nodes.server = {
       imports = [
-        testLib.baseModule
-        ../../modules/services/jellyfin.nix
         basic
       ];
     };
@@ -107,8 +109,6 @@ in
   backup = jellyfinTest "backup" {
     nodes.server = { config, ... }: {
       imports = [
-        testLib.baseModule
-        ../../modules/services/jellyfin.nix
         basic
         (testLib.backup config.shb.jellyfin.backup)
       ];
@@ -122,10 +122,8 @@ in
   https = jellyfinTest "https" {
     nodes.server = {
       imports = [
-        testLib.baseModule
-        ../../modules/services/jellyfin.nix
-        testLib.certs
         basic
+        testLib.certs
         https
       ];
     };
@@ -138,8 +136,6 @@ in
   ldap = jellyfinTest "ldap" {
     nodes.server = {
       imports = [
-        testLib.baseModule
-        ../../modules/services/jellyfin.nix
         basic
         testLib.ldap
         ldap
@@ -154,10 +150,8 @@ in
   sso = jellyfinTest "sso" {
     nodes.server = { config, pkgs, ... }: {
       imports = [
-        testLib.baseModule
-        ../../modules/services/jellyfin.nix
-        testLib.certs
         basic
+        testLib.certs
         https
         testLib.ldap
         (testLib.sso config.shb.certs.certs.selfsigned.n)
