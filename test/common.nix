@@ -117,8 +117,16 @@ let
       script = extraScript args;
     in
       lib.optionalString (script != "") script)
+    + (optionalString (hasAttr "test" nodes.server && hasAttr "login" nodes.server.test) ''
+    with subtest("Login from server"):
+        code, logs = server.execute("login_playwright")
+        server.copy_from_vm("trace")
+        print(logs)
+        if code != 0:
+            raise Exception("login_playwright did not succeed")
+    '')
     + (optionalString (hasAttr "test" nodes.client && hasAttr "login" nodes.client.test) ''
-    with subtest("Login"):
+    with subtest("Login from client"):
         code, logs = client.execute("login_playwright")
         client.copy_from_vm("trace")
         print(logs)
