@@ -1,7 +1,7 @@
 { pkgs, lib }:
 let
   inherit (lib) hasAttr mkOption optionalString;
-  inherit (lib.types) enum listOf nullOr submodule str;
+  inherit (lib.types) bool enum listOf nullOr submodule str;
 
   baseImports = {
     imports = [
@@ -164,6 +164,20 @@ in
         type = str;
         readOnly = true;
         default = "${config.test.subdomain}.${config.test.domain}";
+      };
+      hasSSL = mkOption {
+        type = bool;
+        default = false;
+      };
+      proto = mkOption {
+        type = str;
+        readOnly = true;
+        default = if config.test.hasSSL then "https" else "http";
+      };
+      proto_fqdn = mkOption {
+        type = str;
+        readOnly = true;
+        default = "${config.test.proto}://${config.test.fqdn}";
       };
     };
     imports = [
