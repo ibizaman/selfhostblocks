@@ -26,6 +26,12 @@ in
       example = "domain.com";
     };
 
+    port = lib.mkOption {
+      description = "Listen on port.";
+      type = types.port;
+      default = 8096;
+    };
+
     ssl = lib.mkOption {
       description = "Path to SSL files";
       type = types.nullOr contracts.ssl.certs;
@@ -256,7 +262,7 @@ in
 
         location / {
             # Proxy main Jellyfin traffic
-            proxy_pass http://$jellyfin:8096;
+            proxy_pass http://$jellyfin:${toString cfg.port};
             proxy_set_header Host $host;
             proxy_set_header X-Real-IP $remote_addr;
             proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
@@ -271,7 +277,7 @@ in
         # location block for /web - This is purely for aesthetics so /web/#!/ works instead of having to go to /web/index.html/#!/
         location = /web/ {
             # Proxy main Jellyfin traffic
-            proxy_pass http://$jellyfin:8096/web/index.html;
+            proxy_pass http://$jellyfin:${toString cfg.port}/web/index.html;
             proxy_set_header Host $host;
             proxy_set_header X-Real-IP $remote_addr;
             proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
@@ -282,7 +288,7 @@ in
 
         location /socket {
             # Proxy Jellyfin Websockets traffic
-            proxy_pass http://$jellyfin:8096;
+            proxy_pass http://$jellyfin:${toString cfg.port};
             proxy_http_version 1.1;
             proxy_set_header Upgrade $http_upgrade;
             proxy_set_header Connection "upgrade";
@@ -300,7 +306,7 @@ in
       job_name = "jellyfin";
       static_configs = [
         {
-          targets = ["127.0.0.1:8096"];
+          targets = ["127.0.0.1:${toString cfg.port}"];
           labels = {
             "hostname" = config.networking.hostName;
             "domain" = cfg.domain;
@@ -441,6 +447,37 @@ in
             }
           }
         '';
+
+        networkConfig = pkgs.writeText "" ''
+          <?xml version="1.0" encoding="utf-8"?>
+          <NetworkConfiguration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+            <BaseUrl />
+            <EnableHttps>false</EnableHttps>
+            <RequireHttps>false</RequireHttps>
+            <CertificatePath />
+            <CertificatePassword />
+            <InternalHttpPort>${toString cfg.port}</InternalHttpPort>
+            <InternalHttpsPort>8920</InternalHttpsPort>
+            <PublicHttpPort>${toString cfg.port}</PublicHttpPort>
+            <PublicHttpsPort>8920</PublicHttpsPort>
+            <AutoDiscovery>true</AutoDiscovery>
+            <EnableUPnP>false</EnableUPnP>
+            <EnableIPv4>true</EnableIPv4>
+            <EnableIPv6>false</EnableIPv6>
+            <EnableRemoteAccess>false</EnableRemoteAccess>
+            <LocalNetworkSubnets />
+            <LocalNetworkAddresses />
+            <KnownProxies />
+            <IgnoreVirtualInterfaces>true</IgnoreVirtualInterfaces>
+            <VirtualInterfaceNames>
+              <string>veth</string>
+            </VirtualInterfaceNames>
+            <EnablePublishedServerUriByRequest>false</EnablePublishedServerUriByRequest>
+            <PublishedServerUriBySubnet />
+            <RemoteIPFilter />
+            <IsRemoteIPFilterBlacklist>false</IsRemoteIPFilterBlacklist>
+          </NetworkConfiguration>
+        '';
       in
         lib.strings.optionalString cfg.debug
           ''
@@ -450,6 +487,12 @@ in
           fi
           ln -fs "${debugLogging}" "${config.services.jellyfin.configDir}/logging.json"
           ''
+        + (shblib.replaceSecretsScript {
+          file = networkConfig;
+          resultPath = "${config.services.jellyfin.dataDir}/config/network.xml";
+          replacements = [
+          ];
+        })
         + lib.strings.optionalString cfg.ldap.enable (shblib.replaceSecretsScript {
           file = ldapConfig;
           resultPath = "${config.services.jellyfin.dataDir}/plugins/configurations/LDAP-Auth.xml";

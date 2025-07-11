@@ -2,6 +2,8 @@
 let
   testLib = pkgs.callPackage ../common.nix {};
 
+  port = 9096;
+
   commonTestScript = testLib.mkScripts {
     hasSSL = { node, ... }: !(isNull node.config.shb.jellyfin.ssl);
     waitForServices = { ... }: [
@@ -9,7 +11,7 @@ let
       "nginx.service"
     ];
     waitForPorts = { node, ... }: [
-      8096
+      port
     ];
     waitForUrls = { proto_fqdn, ... }: [
       "${proto_fqdn}/System/Info/Public"
@@ -24,6 +26,7 @@ let
     shb.jellyfin = {
       enable = true;
       inherit (config.test) subdomain domain;
+      inherit port;
       debug = true;
     };
   };
