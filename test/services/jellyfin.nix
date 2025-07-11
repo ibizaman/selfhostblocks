@@ -16,6 +16,25 @@ let
     waitForUrls = { proto_fqdn, ... }: [
       "${proto_fqdn}/System/Info/Public"
     ];
+    extraScript = { node, ... }: ''
+      headers = unline_with(" ", """
+          -H 'Content-Type: application/json'
+          -H 'Authorization: MediaBrowser Client="Android TV", Device="Nvidia Shield", DeviceId="ZQ9YQHHrUzk24vV", Version="0.15.3"'
+      """)
+      with subtest("api login success"):
+          response = curl(client, """{"code":%{response_code}}""", "${node.config.test.proto_fqdn}/Users/AuthenticateByName",
+              data="""{"Username": "jellyfin", "Pw": "admin"}""",
+              extra=headers)
+          if response['code'] != 200:
+              raise Exception(f"Expected success, got: {response['code']}")
+
+      with subtest("api login failure"):
+          response = curl(client, """{"code":%{response_code}}""", "${node.config.test.proto_fqdn}/Users/AuthenticateByName",
+              data="""{"Username": "jellyfin", "Pw": "badpassword"}""",
+              extra=headers)
+          if response['code'] != 401:
+              raise Exception(f"Expected failure, got: {response['code']}")
+    '';
   };
 
   basic = { config, ... }: {
@@ -31,13 +50,67 @@ let
       enable = true;
       inherit (config.test) subdomain domain;
       inherit port;
+      admin = {
+        username = "jellyfin";
+        password.result = config.shb.hardcodedsecret.jellyfinAdminPassword.result;
+      };
       debug = true;
+    };
+
+    shb.hardcodedsecret.jellyfinAdminPassword = {
+      request = config.shb.jellyfin.admin.password.request;
+      settings.content = "admin";
+    };
+
+    environment.systemPackages = [
+      pkgs.sqlite
+    ];
+  };
+
+  clientLogin = { config, ... }: {
+    imports = [
+      testLib.clientLoginModule
+    ];
+    virtualisation.memorySize = 4096;
+
+    test = {
+      subdomain = "j";
+    };
+
+    test.login = {
+      browser = "firefox";
+      # I tried without the path part but it randomly selects either the wizard
+      # or the page that selects a server.
+      # startUrl = "${config.test.proto}://${config.test.fqdn}/web/#/wizardstart.html";
+      # startUrl = "${config.test.proto}://${config.test.fqdn}";
+      startUrl = "${config.test.proto}://${config.test.fqdn}/web/#/login.html";
+      usernameFieldLabelRegex = "[Uu]ser";
+      loginButtonNameRegex = "Sign In";
+      testLoginWith = [
+        # I just couldn't make this work. It's very flaky.
+        # Most of the time, the login jellyfin page doesn't even load
+        # and the playwright browser is stuck on the splash page.
+        # I resorted to test the API directly.
+        # { username = "jellyfin"; password = "badpassword"; nextPageExpect = [
+        #     "expect(page).to_have_title(re.compile('Jellyfin'))"
+        #     "expect(page.get_by_text(re.compile('[Ii]nvalid'))).to_be_visible(timeout=30000)"
+        #   ]; }
+        # { username = "jellyfin"; password = "admin"; nextPageExpect = [
+        #     "expect(page).to_have_title(re.compile('Jellyfin'))"
+        #     "expect(page.get_by_text(re.compile('[Ii]nvalid'))).not_to_be_visible(timeout=30000)"
+        #     "expect(page.get_by_role('label', re.compile('[Uu]ser'))).not_to_be_visible(timeout=30000)"
+        #     "expect(page.get_by_text(re.compile('[Pp]assword'))).not_to_be_visible(timeout=30000)"
+        #   ]; }
+      ];
     };
   };
 
   https = { config, ... }: {
     shb.jellyfin = {
       ssl = config.shb.certs.certs.selfsigned.n;
+    };
+    test = {
+      hasSSL = true;
     };
   };
 
@@ -98,9 +171,12 @@ in
     nodes.server = {
       imports = [
         basic
+        clientLogin
       ];
     };
 
+    # Client login does not work without SSL.
+    # At least, I couldn't make it work.
     nodes.client = {};
 
     testScript = commonTestScript.access;
@@ -128,7 +204,12 @@ in
       ];
     };
 
-    nodes.client = {};
+    nodes.client = { config, lib, ... }: {
+      imports = [
+        testLib.baseModule
+        clientLogin
+      ];
+    };
 
     testScript = commonTestScript.access;
   };
