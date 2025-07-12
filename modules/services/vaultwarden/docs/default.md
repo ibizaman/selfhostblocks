@@ -16,48 +16,20 @@ This NixOS module is a service that sets up a [Vaultwarden Server](https://githu
 
 ## Usage {#services-vaultwarden-usage}
 
-### Secrets {#services-vaultwarden-secrets}
+### Initial Configuration {#services-vaultwarden-usage-configuration}
 
-All the secrets should be readable by the vaultwarden user.
-
-Secrets should not be stored in the nix store. If you're using
-[sops-nix](https://github.com/Mic92/sops-nix) and assuming your secrets file is located at
-`./secrets.yaml`, you can define a secret with:
+The following snippet enables Vaultwarden and makes it available under the `vaultwarden.example.com` endpoint.
 
 ```nix
-sops.secrets."vaultwarden/db" = {
-  sopsFile = ./secrets.yaml;
-  mode = "0400";
-  owner = "vaultwarden";
-  group = "postgres";
-  restartUnits = [ "vaultwarden.service" ];
-};
-```
-
-Then you can use that secret:
-
-```nix
-shb.vaultwarden.databasePasswordFile = config.sops.secrets."vaultwarden/db".path;
-```
-
-### SSO {#services-vaultwarden-sso}
-
-To protect the `/admin` endpoint, we use SSO.
-This requires the SSL, LDAP and SSO block to be configured.
-Follow those links first if needed.
-
-```nix
-let
-  domain = <...>;
-in
 shb.vaultwarden = {
   enable = true;
-  inherit domain;
+  domain = "example.com";
   subdomain = "vaultwarden";
-  ssl = config.shb.certs.certs.letsencrypt.${domain};
+
   port = 8222;
-  authEndpoint = "https://${config.shb.authelia.subdomain}.${config.shb.authelia.domain}";
-  databasePasswordFile = config.sops.secrets."vaultwarden/db".path;
+
+  databasePassword.result = config.shb.sops.secrets."vaultwarden/db".result;
+
   smtp = {
     host = "smtp.eu.mailgun.org";
     port = 587;
@@ -67,21 +39,60 @@ shb.vaultwarden = {
   };
 };
 
-sops.secrets."vaultwarden/db" = {
-  sopsFile = ./secrets.yaml;
-  mode = "0440";
-  owner = "vaultwarden";
-  group = "postgres";
-  restartUnits = [ "vaultwarden.service" "postgresql.service" ];
-};
-sops.secrets."vaultwarden/smtp" = {
-  sopsFile = ./secrets.yaml;
-  mode = "0400";
-  owner = "vaultwarden";
-  group = "vaultwarden";
-  restartUnits = [ "vaultwarden.service" ];
+shb.sops.secret."vaultwarden/db".request = config.shb.vaultwarden.databasePassword.request;
+shb.sops.secret."vaultwarden/smtp".request = config.shb.vaultwarden.smtp.password.request;
+```
+
+This assumes secrets are setup with SOPS
+as mentioned in [the secrets setup section](usage.html#usage-secrets) of the manual.
+Secrets can be randomly generated with `nix run nixpkgs#openssl -- rand -hex 64`.
+
+The SMTP configuration is needed to invite users to Vaultwarden.
+
+### HTTPS {#services-vaultwarden-usage-https}
+
+If the `shb.ssl` block is used (see [manual](blocks-ssl.html#usage) on how to set it up),
+the instance will be reachable at `https://vaultwarden.example.com`.
+
+Here is an example with Let's Encrypt certificates, validated using the HTTP method:
+
+```nix
+shb.certs.certs.letsencrypt."example.com" = {
+  domain = "example.com";
+  group = "nginx";
+  reloadServices = [ "nginx.service" ];
+  adminEmail = "myemail@mydomain.com";
 };
 ```
+
+Then you can tell Vaultwarden to use those certificates.
+
+```nix
+shb.certs.certs.letsencrypt."example.com".extraDomains = [ "vaultwarden.example.com" ];
+
+shb.forgejo = {
+  ssl = config.shb.certs.certs.letsencrypt."example.com";
+};
+```
+
+### SSO {#services-vaultwarden-usage-sso}
+
+To protect the `/admin` endpoint and avoid needing a secret passphrase for it, we can use SSO.
+
+We will use the [SSO block][] provided by Self Host Blocks.
+Assuming it [has been set already][SSO block setup], add the following configuration:
+
+[SSO block]: blocks-sso.html
+[SSO block setup]: blocks-sso.html#blocks-sso-global-setup
+
+```nix
+shb.vaultwarden.authEndpoint = "https://${config.shb.authelia.subdomain}.${config.shb.authelia.domain}";
+```
+
+Now, go to the LDAP server at `https://ldap.example.com`,
+create the `vaultwarden_admin` group and add a user to that group.
+When that's done, go back to the Vaultwarden server at
+`https://vaultwarden.example.com/admin` and login with that user.
 
 ### ZFS {#services-vaultwarden-zfs}
 

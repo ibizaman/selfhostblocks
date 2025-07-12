@@ -151,6 +151,8 @@
             "./usage.md"
           ];
           modules = {
+            "blocks/authelia" = ./modules/blocks/authelia.nix;
+            "blocks/lldap" = ./modules/blocks/lldap.nix;
             "blocks/ssl" = ./modules/blocks/ssl.nix;
             "blocks/monitoring" = ./modules/blocks/monitoring.nix;
             "blocks/postgresql" = ./modules/blocks/postgresql.nix;

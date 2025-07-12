@@ -149,31 +149,12 @@ demo](demo-nextcloud-server.html#demo-nextcloud-deploy-ldap).
 
 We will build upon the [HTTP][] and [HTTPS][] sections,
 so please read those first.
-We will use the LDAP block provided by Self Host Blocks to setup a
-[LLDAP](https://github.com/lldap/lldap) service.
-If did already configure this for another service, you can skip this snippet.
 
-```nix
-shb.lldap = {
-  enable = true;
-  domain = "example.com";
-  subdomain = "ldap";
-  ssl = config.shb.certs.certs.letsencrypt."example.com";
-  ldapPort = 3890;
-  webUIListenPort = 17170;
-  dcdomain = "dc=example,dc=com";
-  ldapUserPassword.result = config.shb.sops.secrets."ldap/userPassword".result;
-  jwtSecret.result = config.shb.sops.secrets."ldap/jwtSecret".result;
-};
+We will use the [LLDAP block][] provided by Self Host Blocks.
+Assuming it [has been set already][LLDAP block setup], add the following configuration:
 
-shb.certs.certs.letsencrypt."example.com".extraDomains = [ "ldap.example.com" ];
-
-shb.sops.secrets."ldap/userPassword".request = config.shb.lldap.userPassword.request;
-shb.sops.secrets."ldap/jwtSecret".request = config.shb.lldap.jwtSecret.request;
-```
-
-On the `nextcloud` module side, we need to configure it to talk to the LDAP server we
-just defined:
+[LLDAP block]: blocks-lldap.html
+[LLDAP block setup]: blocks-lldap.html#blocks-lldap-global-setup
 
 ```nix
 shb.nextcloud.apps.ldap = {
@@ -219,52 +200,12 @@ demo](demo-nextcloud-server.html#demo-nextcloud-deploy-sso).
 
 We will build upon the [HTTP][], [HTTPS][] and [LDAP][] sections,
 so please read those first.
-We need to setup the SSO provider, here Authelia, thanks to the corresponding SHB block
-and we link it to the LDAP server:
 
-```nix
-shb.authelia = {
-  enable = true;
-  domain = "example.com";
-  subdomain = "auth";
-  ssl = config.shb.certs.certs.letsencrypt."example.com";
+We will use the [SSO block][] provided by Self Host Blocks.
+Assuming it [has been set already][SSO block setup], add the following configuration:
 
-  ldapHostname = "127.0.0.1";
-  ldapPort = config.shb.lldap.ldapPort;
-  dcdomain = config.shb.lldap.dcdomain;
-
-  smtp = {
-    host = "smtp.eu.mailgun.org";
-    port = 587;
-    username = "postmaster@mg.example.com";
-    from_address = "authelia@example.com";
-    password.result = config.shb.sops.secrets."authelia/smtp_password".result;
-  };
-
-  secrets = {
-    jwtSecret.result = config.shb.sops.secrets."authelia/jwt_secret".result;
-    ldapAdminPassword.result = config.shb.sops.secrets."authelia/ldap_admin_password".result;
-    sessionSecret.result = config.shb.sops.secrets."authelia/session_secret".result;
-    storageEncryptionKey.result = config.shb.sops.secrets."authelia/storage_encryption_key".result;
-    identityProvidersOIDCHMACSecret.result = config.shb.sops.secrets."authelia/hmac_secret".result;
-    identityProvidersOIDCIssuerPrivateKey.result = config.shb.sops.secrets."authelia/private_key".result;
-  };
-};
-
-shb.certs.certs.letsencrypt."example.com".extraDomains = [ "auth.example.com" ];
-
-shb.sops.secrets."authelia/jwt_secret".request = config.shb.authelia.secrets.jwtSecret.request;
-shb.sops.secrets."authelia/ldap_admin_password".request = config.shb.authelia.secrets.ldapAdminPassword.request;
-shb.sops.secrets."authelia/session_secret".request = config.shb.authelia.secrets.sessionSecret.request;
-shb.sops.secrets."authelia/storage_encryption_key".request = config.shb.authelia.secrets.storageEncryptionKey.request;
-shb.sops.secrets."authelia/hmac_secret".request = config.shb.authelia.secrets.identityProvidersOIDCHMACSecret.request;
-shb.sops.secrets."authelia/private_key".request = config.shb.authelia.secrets.identityProvidersOIDCIssuerPrivateKey.request;
-shb.sops.secrets."authelia/smtp_password".request = config.shb.authelia.smtp.password.request;
-```
-
-The secrets can be randomly generated with `nix run nixpkgs#openssl -- rand -hex 64`.
-
-Now, on the Nextcloud side, you need to add the following options:
+[SSO block]: blocks-sso.html
+[SSO block setup]: blocks-sso.html#blocks-sso-global-setup
 
 ```nix
 shb.nextcloud.apps.sso = {

@@ -47,6 +47,414 @@
   "blocks": [
     "blocks.html#blocks"
   ],
+  "blocks-authelia": [
+    "blocks-authelia.html#blocks-authelia"
+  ],
+  "blocks-authelia-forward-auth": [
+    "blocks-authelia.html#blocks-authelia-forward-auth"
+  ],
+  "blocks-authelia-global-setup": [
+    "blocks-authelia.html#blocks-authelia-global-setup"
+  ],
+  "blocks-authelia-oidc": [
+    "blocks-authelia.html#blocks-authelia-oidc"
+  ],
+  "blocks-authelia-options": [
+    "blocks-authelia.html#blocks-authelia-options"
+  ],
+  "blocks-authelia-options-shb.authelia.autheliaUser": [
+    "blocks-authelia.html#blocks-authelia-options-shb.authelia.autheliaUser"
+  ],
+  "blocks-authelia-options-shb.authelia.dcdomain": [
+    "blocks-authelia.html#blocks-authelia-options-shb.authelia.dcdomain"
+  ],
+  "blocks-authelia-options-shb.authelia.domain": [
+    "blocks-authelia.html#blocks-authelia-options-shb.authelia.domain"
+  ],
+  "blocks-authelia-options-shb.authelia.enable": [
+    "blocks-authelia.html#blocks-authelia-options-shb.authelia.enable"
+  ],
+  "blocks-authelia-options-shb.authelia.ldapHostname": [
+    "blocks-authelia.html#blocks-authelia-options-shb.authelia.ldapHostname"
+  ],
+  "blocks-authelia-options-shb.authelia.ldapPort": [
+    "blocks-authelia.html#blocks-authelia-options-shb.authelia.ldapPort"
+  ],
+  "blocks-authelia-options-shb.authelia.mount": [
+    "blocks-authelia.html#blocks-authelia-options-shb.authelia.mount"
+  ],
+  "blocks-authelia-options-shb.authelia.mount.path": [
+    "blocks-authelia.html#blocks-authelia-options-shb.authelia.mount.path"
+  ],
+  "blocks-authelia-options-shb.authelia.mountRedis": [
+    "blocks-authelia.html#blocks-authelia-options-shb.authelia.mountRedis"
+  ],
+  "blocks-authelia-options-shb.authelia.mountRedis.path": [
+    "blocks-authelia.html#blocks-authelia-options-shb.authelia.mountRedis.path"
+  ],
+  "blocks-authelia-options-shb.authelia.oidcClients": [
+    "blocks-authelia.html#blocks-authelia-options-shb.authelia.oidcClients"
+  ],
+  "blocks-authelia-options-shb.authelia.oidcClients._.authorization_policy": [
+    "blocks-authelia.html#blocks-authelia-options-shb.authelia.oidcClients._.authorization_policy"
+  ],
+  "blocks-authelia-options-shb.authelia.oidcClients._.client_id": [
+    "blocks-authelia.html#blocks-authelia-options-shb.authelia.oidcClients._.client_id"
+  ],
+  "blocks-authelia-options-shb.authelia.oidcClients._.client_name": [
+    "blocks-authelia.html#blocks-authelia-options-shb.authelia.oidcClients._.client_name"
+  ],
+  "blocks-authelia-options-shb.authelia.oidcClients._.client_secret": [
+    "blocks-authelia.html#blocks-authelia-options-shb.authelia.oidcClients._.client_secret"
+  ],
+  "blocks-authelia-options-shb.authelia.oidcClients._.client_secret.source": [
+    "blocks-authelia.html#blocks-authelia-options-shb.authelia.oidcClients._.client_secret.source"
+  ],
+  "blocks-authelia-options-shb.authelia.oidcClients._.client_secret.transform": [
+    "blocks-authelia.html#blocks-authelia-options-shb.authelia.oidcClients._.client_secret.transform"
+  ],
+  "blocks-authelia-options-shb.authelia.oidcClients._.public": [
+    "blocks-authelia.html#blocks-authelia-options-shb.authelia.oidcClients._.public"
+  ],
+  "blocks-authelia-options-shb.authelia.oidcClients._.redirect_uris": [
+    "blocks-authelia.html#blocks-authelia-options-shb.authelia.oidcClients._.redirect_uris"
+  ],
+  "blocks-authelia-options-shb.authelia.oidcClients._.scopes": [
+    "blocks-authelia.html#blocks-authelia-options-shb.authelia.oidcClients._.scopes"
+  ],
+  "blocks-authelia-options-shb.authelia.port": [
+    "blocks-authelia.html#blocks-authelia-options-shb.authelia.port"
+  ],
+  "blocks-authelia-options-shb.authelia.rules": [
+    "blocks-authelia.html#blocks-authelia-options-shb.authelia.rules"
+  ],
+  "blocks-authelia-options-shb.authelia.secrets": [
+    "blocks-authelia.html#blocks-authelia-options-shb.authelia.secrets"
+  ],
+  "blocks-authelia-options-shb.authelia.secrets.identityProvidersOIDCHMACSecret": [
+    "blocks-authelia.html#blocks-authelia-options-shb.authelia.secrets.identityProvidersOIDCHMACSecret"
+  ],
+  "blocks-authelia-options-shb.authelia.secrets.identityProvidersOIDCHMACSecret.request": [
+    "blocks-authelia.html#blocks-authelia-options-shb.authelia.secrets.identityProvidersOIDCHMACSecret.request"
+  ],
+  "blocks-authelia-options-shb.authelia.secrets.identityProvidersOIDCHMACSecret.request.group": [
+    "blocks-authelia.html#blocks-authelia-options-shb.authelia.secrets.identityProvidersOIDCHMACSecret.request.group"
+  ],
+  "blocks-authelia-options-shb.authelia.secrets.identityProvidersOIDCHMACSecret.request.mode": [
+    "blocks-authelia.html#blocks-authelia-options-shb.authelia.secrets.identityProvidersOIDCHMACSecret.request.mode"
+  ],
+  "blocks-authelia-options-shb.authelia.secrets.identityProvidersOIDCHMACSecret.request.owner": [
+    "blocks-authelia.html#blocks-authelia-options-shb.authelia.secrets.identityProvidersOIDCHMACSecret.request.owner"
+  ],
+  "blocks-authelia-options-shb.authelia.secrets.identityProvidersOIDCHMACSecret.request.restartUnits": [
+    "blocks-authelia.html#blocks-authelia-options-shb.authelia.secrets.identityProvidersOIDCHMACSecret.request.restartUnits"
+  ],
+  "blocks-authelia-options-shb.authelia.secrets.identityProvidersOIDCHMACSecret.result": [
+    "blocks-authelia.html#blocks-authelia-options-shb.authelia.secrets.identityProvidersOIDCHMACSecret.result"
+  ],
+  "blocks-authelia-options-shb.authelia.secrets.identityProvidersOIDCHMACSecret.result.path": [
+    "blocks-authelia.html#blocks-authelia-options-shb.authelia.secrets.identityProvidersOIDCHMACSecret.result.path"
+  ],
+  "blocks-authelia-options-shb.authelia.secrets.identityProvidersOIDCIssuerPrivateKey": [
+    "blocks-authelia.html#blocks-authelia-options-shb.authelia.secrets.identityProvidersOIDCIssuerPrivateKey"
+  ],
+  "blocks-authelia-options-shb.authelia.secrets.identityProvidersOIDCIssuerPrivateKey.request": [
+    "blocks-authelia.html#blocks-authelia-options-shb.authelia.secrets.identityProvidersOIDCIssuerPrivateKey.request"
+  ],
+  "blocks-authelia-options-shb.authelia.secrets.identityProvidersOIDCIssuerPrivateKey.request.group": [
+    "blocks-authelia.html#blocks-authelia-options-shb.authelia.secrets.identityProvidersOIDCIssuerPrivateKey.request.group"
+  ],
+  "blocks-authelia-options-shb.authelia.secrets.identityProvidersOIDCIssuerPrivateKey.request.mode": [
+    "blocks-authelia.html#blocks-authelia-options-shb.authelia.secrets.identityProvidersOIDCIssuerPrivateKey.request.mode"
+  ],
+  "blocks-authelia-options-shb.authelia.secrets.identityProvidersOIDCIssuerPrivateKey.request.owner": [
+    "blocks-authelia.html#blocks-authelia-options-shb.authelia.secrets.identityProvidersOIDCIssuerPrivateKey.request.owner"
+  ],
+  "blocks-authelia-options-shb.authelia.secrets.identityProvidersOIDCIssuerPrivateKey.request.restartUnits": [
+    "blocks-authelia.html#blocks-authelia-options-shb.authelia.secrets.identityProvidersOIDCIssuerPrivateKey.request.restartUnits"
+  ],
+  "blocks-authelia-options-shb.authelia.secrets.identityProvidersOIDCIssuerPrivateKey.result": [
+    "blocks-authelia.html#blocks-authelia-options-shb.authelia.secrets.identityProvidersOIDCIssuerPrivateKey.result"
+  ],
+  "blocks-authelia-options-shb.authelia.secrets.identityProvidersOIDCIssuerPrivateKey.result.path": [
+    "blocks-authelia.html#blocks-authelia-options-shb.authelia.secrets.identityProvidersOIDCIssuerPrivateKey.result.path"
+  ],
+  "blocks-authelia-options-shb.authelia.secrets.jwtSecret": [
+    "blocks-authelia.html#blocks-authelia-options-shb.authelia.secrets.jwtSecret"
+  ],
+  "blocks-authelia-options-shb.authelia.secrets.jwtSecret.request": [
+    "blocks-authelia.html#blocks-authelia-options-shb.authelia.secrets.jwtSecret.request"
+  ],
+  "blocks-authelia-options-shb.authelia.secrets.jwtSecret.request.group": [
+    "blocks-authelia.html#blocks-authelia-options-shb.authelia.secrets.jwtSecret.request.group"
+  ],
+  "blocks-authelia-options-shb.authelia.secrets.jwtSecret.request.mode": [
+    "blocks-authelia.html#blocks-authelia-options-shb.authelia.secrets.jwtSecret.request.mode"
+  ],
+  "blocks-authelia-options-shb.authelia.secrets.jwtSecret.request.owner": [
+    "blocks-authelia.html#blocks-authelia-options-shb.authelia.secrets.jwtSecret.request.owner"
+  ],
+  "blocks-authelia-options-shb.authelia.secrets.jwtSecret.request.restartUnits": [
+    "blocks-authelia.html#blocks-authelia-options-shb.authelia.secrets.jwtSecret.request.restartUnits"
+  ],
+  "blocks-authelia-options-shb.authelia.secrets.jwtSecret.result": [
+    "blocks-authelia.html#blocks-authelia-options-shb.authelia.secrets.jwtSecret.result"
+  ],
+  "blocks-authelia-options-shb.authelia.secrets.jwtSecret.result.path": [
+    "blocks-authelia.html#blocks-authelia-options-shb.authelia.secrets.jwtSecret.result.path"
+  ],
+  "blocks-authelia-options-shb.authelia.secrets.ldapAdminPassword": [
+    "blocks-authelia.html#blocks-authelia-options-shb.authelia.secrets.ldapAdminPassword"
+  ],
+  "blocks-authelia-options-shb.authelia.secrets.ldapAdminPassword.request": [
+    "blocks-authelia.html#blocks-authelia-options-shb.authelia.secrets.ldapAdminPassword.request"
+  ],
+  "blocks-authelia-options-shb.authelia.secrets.ldapAdminPassword.request.group": [
+    "blocks-authelia.html#blocks-authelia-options-shb.authelia.secrets.ldapAdminPassword.request.group"
+  ],
+  "blocks-authelia-options-shb.authelia.secrets.ldapAdminPassword.request.mode": [
+    "blocks-authelia.html#blocks-authelia-options-shb.authelia.secrets.ldapAdminPassword.request.mode"
+  ],
+  "blocks-authelia-options-shb.authelia.secrets.ldapAdminPassword.request.owner": [
+    "blocks-authelia.html#blocks-authelia-options-shb.authelia.secrets.ldapAdminPassword.request.owner"
+  ],
+  "blocks-authelia-options-shb.authelia.secrets.ldapAdminPassword.request.restartUnits": [
+    "blocks-authelia.html#blocks-authelia-options-shb.authelia.secrets.ldapAdminPassword.request.restartUnits"
+  ],
+  "blocks-authelia-options-shb.authelia.secrets.ldapAdminPassword.result": [
+    "blocks-authelia.html#blocks-authelia-options-shb.authelia.secrets.ldapAdminPassword.result"
+  ],
+  "blocks-authelia-options-shb.authelia.secrets.ldapAdminPassword.result.path": [
+    "blocks-authelia.html#blocks-authelia-options-shb.authelia.secrets.ldapAdminPassword.result.path"
+  ],
+  "blocks-authelia-options-shb.authelia.secrets.sessionSecret": [
+    "blocks-authelia.html#blocks-authelia-options-shb.authelia.secrets.sessionSecret"
+  ],
+  "blocks-authelia-options-shb.authelia.secrets.sessionSecret.request": [
+    "blocks-authelia.html#blocks-authelia-options-shb.authelia.secrets.sessionSecret.request"
+  ],
+  "blocks-authelia-options-shb.authelia.secrets.sessionSecret.request.group": [
+    "blocks-authelia.html#blocks-authelia-options-shb.authelia.secrets.sessionSecret.request.group"
+  ],
+  "blocks-authelia-options-shb.authelia.secrets.sessionSecret.request.mode": [
+    "blocks-authelia.html#blocks-authelia-options-shb.authelia.secrets.sessionSecret.request.mode"
+  ],
+  "blocks-authelia-options-shb.authelia.secrets.sessionSecret.request.owner": [
+    "blocks-authelia.html#blocks-authelia-options-shb.authelia.secrets.sessionSecret.request.owner"
+  ],
+  "blocks-authelia-options-shb.authelia.secrets.sessionSecret.request.restartUnits": [
+    "blocks-authelia.html#blocks-authelia-options-shb.authelia.secrets.sessionSecret.request.restartUnits"
+  ],
+  "blocks-authelia-options-shb.authelia.secrets.sessionSecret.result": [
+    "blocks-authelia.html#blocks-authelia-options-shb.authelia.secrets.sessionSecret.result"
+  ],
+  "blocks-authelia-options-shb.authelia.secrets.sessionSecret.result.path": [
+    "blocks-authelia.html#blocks-authelia-options-shb.authelia.secrets.sessionSecret.result.path"
+  ],
+  "blocks-authelia-options-shb.authelia.secrets.storageEncryptionKey": [
+    "blocks-authelia.html#blocks-authelia-options-shb.authelia.secrets.storageEncryptionKey"
+  ],
+  "blocks-authelia-options-shb.authelia.secrets.storageEncryptionKey.request": [
+    "blocks-authelia.html#blocks-authelia-options-shb.authelia.secrets.storageEncryptionKey.request"
+  ],
+  "blocks-authelia-options-shb.authelia.secrets.storageEncryptionKey.request.group": [
+    "blocks-authelia.html#blocks-authelia-options-shb.authelia.secrets.storageEncryptionKey.request.group"
+  ],
+  "blocks-authelia-options-shb.authelia.secrets.storageEncryptionKey.request.mode": [
+    "blocks-authelia.html#blocks-authelia-options-shb.authelia.secrets.storageEncryptionKey.request.mode"
+  ],
+  "blocks-authelia-options-shb.authelia.secrets.storageEncryptionKey.request.owner": [
+    "blocks-authelia.html#blocks-authelia-options-shb.authelia.secrets.storageEncryptionKey.request.owner"
+  ],
+  "blocks-authelia-options-shb.authelia.secrets.storageEncryptionKey.request.restartUnits": [
+    "blocks-authelia.html#blocks-authelia-options-shb.authelia.secrets.storageEncryptionKey.request.restartUnits"
+  ],
+  "blocks-authelia-options-shb.authelia.secrets.storageEncryptionKey.result": [
+    "blocks-authelia.html#blocks-authelia-options-shb.authelia.secrets.storageEncryptionKey.result"
+  ],
+  "blocks-authelia-options-shb.authelia.secrets.storageEncryptionKey.result.path": [
+    "blocks-authelia.html#blocks-authelia-options-shb.authelia.secrets.storageEncryptionKey.result.path"
+  ],
+  "blocks-authelia-options-shb.authelia.smtp": [
+    "blocks-authelia.html#blocks-authelia-options-shb.authelia.smtp"
+  ],
+  "blocks-authelia-options-shb.authelia.ssl": [
+    "blocks-authelia.html#blocks-authelia-options-shb.authelia.ssl"
+  ],
+  "blocks-authelia-options-shb.authelia.ssl.paths": [
+    "blocks-authelia.html#blocks-authelia-options-shb.authelia.ssl.paths"
+  ],
+  "blocks-authelia-options-shb.authelia.ssl.paths.cert": [
+    "blocks-authelia.html#blocks-authelia-options-shb.authelia.ssl.paths.cert"
+  ],
+  "blocks-authelia-options-shb.authelia.ssl.paths.key": [
+    "blocks-authelia.html#blocks-authelia-options-shb.authelia.ssl.paths.key"
+  ],
+  "blocks-authelia-options-shb.authelia.ssl.systemdService": [
+    "blocks-authelia.html#blocks-authelia-options-shb.authelia.ssl.systemdService"
+  ],
+  "blocks-authelia-options-shb.authelia.subdomain": [
+    "blocks-authelia.html#blocks-authelia-options-shb.authelia.subdomain"
+  ],
+  "blocks-authelia-shb-forward-auth": [
+    "blocks-authelia.html#blocks-authelia-shb-forward-auth"
+  ],
+  "blocks-authelia-shb-oidc": [
+    "blocks-authelia.html#blocks-authelia-shb-oidc"
+  ],
+  "blocks-authelia-tests": [
+    "blocks-authelia.html#blocks-authelia-tests"
+  ],
+  "blocks-lldap": [
+    "blocks-lldap.html#blocks-lldap"
+  ],
+  "blocks-lldap-global-setup": [
+    "blocks-lldap.html#blocks-lldap-global-setup"
+  ],
+  "blocks-lldap-manage-user-group": [
+    "blocks-lldap.html#blocks-lldap-manage-user-group"
+  ],
+  "blocks-lldap-options": [
+    "blocks-lldap.html#blocks-lldap-options"
+  ],
+  "blocks-lldap-options-shb.lldap.backup": [
+    "blocks-lldap.html#blocks-lldap-options-shb.lldap.backup"
+  ],
+  "blocks-lldap-options-shb.lldap.backup.request": [
+    "blocks-lldap.html#blocks-lldap-options-shb.lldap.backup.request"
+  ],
+  "blocks-lldap-options-shb.lldap.backup.request.excludePatterns": [
+    "blocks-lldap.html#blocks-lldap-options-shb.lldap.backup.request.excludePatterns"
+  ],
+  "blocks-lldap-options-shb.lldap.backup.request.hooks": [
+    "blocks-lldap.html#blocks-lldap-options-shb.lldap.backup.request.hooks"
+  ],
+  "blocks-lldap-options-shb.lldap.backup.request.hooks.afterBackup": [
+    "blocks-lldap.html#blocks-lldap-options-shb.lldap.backup.request.hooks.afterBackup"
+  ],
+  "blocks-lldap-options-shb.lldap.backup.request.hooks.beforeBackup": [
+    "blocks-lldap.html#blocks-lldap-options-shb.lldap.backup.request.hooks.beforeBackup"
+  ],
+  "blocks-lldap-options-shb.lldap.backup.request.sourceDirectories": [
+    "blocks-lldap.html#blocks-lldap-options-shb.lldap.backup.request.sourceDirectories"
+  ],
+  "blocks-lldap-options-shb.lldap.backup.request.user": [
+    "blocks-lldap.html#blocks-lldap-options-shb.lldap.backup.request.user"
+  ],
+  "blocks-lldap-options-shb.lldap.backup.result": [
+    "blocks-lldap.html#blocks-lldap-options-shb.lldap.backup.result"
+  ],
+  "blocks-lldap-options-shb.lldap.backup.result.backupService": [
+    "blocks-lldap.html#blocks-lldap-options-shb.lldap.backup.result.backupService"
+  ],
+  "blocks-lldap-options-shb.lldap.backup.result.restoreScript": [
+    "blocks-lldap.html#blocks-lldap-options-shb.lldap.backup.result.restoreScript"
+  ],
+  "blocks-lldap-options-shb.lldap.dcdomain": [
+    "blocks-lldap.html#blocks-lldap-options-shb.lldap.dcdomain"
+  ],
+  "blocks-lldap-options-shb.lldap.debug": [
+    "blocks-lldap.html#blocks-lldap-options-shb.lldap.debug"
+  ],
+  "blocks-lldap-options-shb.lldap.domain": [
+    "blocks-lldap.html#blocks-lldap-options-shb.lldap.domain"
+  ],
+  "blocks-lldap-options-shb.lldap.enable": [
+    "blocks-lldap.html#blocks-lldap-options-shb.lldap.enable"
+  ],
+  "blocks-lldap-options-shb.lldap.jwtSecret": [
+    "blocks-lldap.html#blocks-lldap-options-shb.lldap.jwtSecret"
+  ],
+  "blocks-lldap-options-shb.lldap.jwtSecret.request": [
+    "blocks-lldap.html#blocks-lldap-options-shb.lldap.jwtSecret.request"
+  ],
+  "blocks-lldap-options-shb.lldap.jwtSecret.request.group": [
+    "blocks-lldap.html#blocks-lldap-options-shb.lldap.jwtSecret.request.group"
+  ],
+  "blocks-lldap-options-shb.lldap.jwtSecret.request.mode": [
+    "blocks-lldap.html#blocks-lldap-options-shb.lldap.jwtSecret.request.mode"
+  ],
+  "blocks-lldap-options-shb.lldap.jwtSecret.request.owner": [
+    "blocks-lldap.html#blocks-lldap-options-shb.lldap.jwtSecret.request.owner"
+  ],
+  "blocks-lldap-options-shb.lldap.jwtSecret.request.restartUnits": [
+    "blocks-lldap.html#blocks-lldap-options-shb.lldap.jwtSecret.request.restartUnits"
+  ],
+  "blocks-lldap-options-shb.lldap.jwtSecret.result": [
+    "blocks-lldap.html#blocks-lldap-options-shb.lldap.jwtSecret.result"
+  ],
+  "blocks-lldap-options-shb.lldap.jwtSecret.result.path": [
+    "blocks-lldap.html#blocks-lldap-options-shb.lldap.jwtSecret.result.path"
+  ],
+  "blocks-lldap-options-shb.lldap.ldapPort": [
+    "blocks-lldap.html#blocks-lldap-options-shb.lldap.ldapPort"
+  ],
+  "blocks-lldap-options-shb.lldap.ldapUserPassword": [
+    "blocks-lldap.html#blocks-lldap-options-shb.lldap.ldapUserPassword"
+  ],
+  "blocks-lldap-options-shb.lldap.ldapUserPassword.request": [
+    "blocks-lldap.html#blocks-lldap-options-shb.lldap.ldapUserPassword.request"
+  ],
+  "blocks-lldap-options-shb.lldap.ldapUserPassword.request.group": [
+    "blocks-lldap.html#blocks-lldap-options-shb.lldap.ldapUserPassword.request.group"
+  ],
+  "blocks-lldap-options-shb.lldap.ldapUserPassword.request.mode": [
+    "blocks-lldap.html#blocks-lldap-options-shb.lldap.ldapUserPassword.request.mode"
+  ],
+  "blocks-lldap-options-shb.lldap.ldapUserPassword.request.owner": [
+    "blocks-lldap.html#blocks-lldap-options-shb.lldap.ldapUserPassword.request.owner"
+  ],
+  "blocks-lldap-options-shb.lldap.ldapUserPassword.request.restartUnits": [
+    "blocks-lldap.html#blocks-lldap-options-shb.lldap.ldapUserPassword.request.restartUnits"
+  ],
+  "blocks-lldap-options-shb.lldap.ldapUserPassword.result": [
+    "blocks-lldap.html#blocks-lldap-options-shb.lldap.ldapUserPassword.result"
+  ],
+  "blocks-lldap-options-shb.lldap.ldapUserPassword.result.path": [
+    "blocks-lldap.html#blocks-lldap-options-shb.lldap.ldapUserPassword.result.path"
+  ],
+  "blocks-lldap-options-shb.lldap.mount": [
+    "blocks-lldap.html#blocks-lldap-options-shb.lldap.mount"
+  ],
+  "blocks-lldap-options-shb.lldap.mount.path": [
+    "blocks-lldap.html#blocks-lldap-options-shb.lldap.mount.path"
+  ],
+  "blocks-lldap-options-shb.lldap.restrictAccessIPRange": [
+    "blocks-lldap.html#blocks-lldap-options-shb.lldap.restrictAccessIPRange"
+  ],
+  "blocks-lldap-options-shb.lldap.ssl": [
+    "blocks-lldap.html#blocks-lldap-options-shb.lldap.ssl"
+  ],
+  "blocks-lldap-options-shb.lldap.ssl.paths": [
+    "blocks-lldap.html#blocks-lldap-options-shb.lldap.ssl.paths"
+  ],
+  "blocks-lldap-options-shb.lldap.ssl.paths.cert": [
+    "blocks-lldap.html#blocks-lldap-options-shb.lldap.ssl.paths.cert"
+  ],
+  "blocks-lldap-options-shb.lldap.ssl.paths.key": [
+    "blocks-lldap.html#blocks-lldap-options-shb.lldap.ssl.paths.key"
+  ],
+  "blocks-lldap-options-shb.lldap.ssl.systemdService": [
+    "blocks-lldap.html#blocks-lldap-options-shb.lldap.ssl.systemdService"
+  ],
+  "blocks-lldap-options-shb.lldap.subdomain": [
+    "blocks-lldap.html#blocks-lldap-options-shb.lldap.subdomain"
+  ],
+  "blocks-lldap-options-shb.lldap.webUIListenPort": [
+    "blocks-lldap.html#blocks-lldap-options-shb.lldap.webUIListenPort"
+  ],
+  "blocks-lldap-restrict-access-by-ip": [
+    "blocks-lldap.html#blocks-lldap-restrict-access-by-ip"
+  ],
+  "blocks-lldap-ssl": [
+    "blocks-lldap.html#blocks-lldap-ssl"
+  ],
+  "blocks-lldap-tests": [
+    "blocks-lldap.html#blocks-lldap-tests"
+  ],
+  "blocks-lldap-troubleshooting": [
+    "blocks-lldap.html#blocks-lldap-troubleshooting"
+  ],
   "blocks-monitoring": [
     "blocks-monitoring.html#blocks-monitoring"
   ],
@@ -2597,14 +3005,17 @@
   "services-vaultwarden-options-shb.vaultwarden.subdomain": [
     "services-vaultwarden.html#services-vaultwarden-options-shb.vaultwarden.subdomain"
   ],
-  "services-vaultwarden-secrets": [
-    "services-vaultwarden.html#services-vaultwarden-secrets"
-  ],
-  "services-vaultwarden-sso": [
-    "services-vaultwarden.html#services-vaultwarden-sso"
-  ],
   "services-vaultwarden-usage": [
     "services-vaultwarden.html#services-vaultwarden-usage"
+  ],
+  "services-vaultwarden-usage-configuration": [
+    "services-vaultwarden.html#services-vaultwarden-usage-configuration"
+  ],
+  "services-vaultwarden-usage-https": [
+    "services-vaultwarden.html#services-vaultwarden-usage-https"
+  ],
+  "services-vaultwarden-usage-sso": [
+    "services-vaultwarden.html#services-vaultwarden-usage-sso"
   ],
   "services-vaultwarden-zfs": [
     "services-vaultwarden.html#services-vaultwarden-zfs"

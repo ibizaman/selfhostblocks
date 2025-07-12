@@ -115,31 +115,11 @@ We will build upon the [HTTPS](#services-home-assistant-usage-https) section,
 so please follow that first.
 ::::
 
-We will use the LDAP block provided by Self Host Blocks
-to setup a [LLDAP](https://github.com/lldap/lldap) service.
-First, setup the global ldap block if not done yet:
+We will use the [LLDAP block][] provided by Self Host Blocks.
+Assuming it [has been set already][LLDAP block setup], add the following configuration:
 
-```nix
-shb.lldap = {
-  enable = true;
-  domain = "example.com";
-  subdomain = "ldap";
-  ssl = config.shb.certs.certs.letsencrypt."example.com";
-  ldapPort = 3890;
-  webUIListenPort = 17170;
-  dcdomain = "dc=example,dc=com";
-  ldapUserPassword.result = config.shb.sops.secrets."ldap/userPassword".result;
-  jwtSecret.result = config.shb.sops.secrets."ldap/jwtSecret".result;
-};
-
-shb.certs.certs.letsencrypt."example.com".extraDomains = [ "ldap.example.com" ];
-
-shb.sops.secrets."ldap/userPassword".request = config.shb.lldap.userPassword.request;
-shb.sops.secrets."ldap/jwtSecret".request = config.shb.lldap.jwtSecret.request;
-```
-
-We then need to configure the `home-assistant` service
-to talk to the LDAP server we just defined:
+[LLDAP block]: blocks-lldap.html
+[LLDAP block setup]: blocks-lldap.html#blocks-lldap-global-setup
 
 ```nix
 shb.home-assistant.ldap
@@ -156,8 +136,6 @@ create the `home-assistant_user` group,
 create a user and add it to one or both groups.
 When that's done, go back to the Home-Assistant server at
 `http://home-assistant.example.com` and login with that user.
-
-Work is in progress to make the creation of the LDAP user and group declarative too.
 
 ### With SSO Support {#services-home-assistant-usage-sso}
 
