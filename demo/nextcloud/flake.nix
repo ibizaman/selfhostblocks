@@ -46,7 +46,7 @@
       };
 
       ldap = { config, ... }: {
-        shb.ldap = {
+        shb.lldap = {
           enable = true;
           domain = "example.com";
           subdomain = "ldap";
@@ -56,14 +56,14 @@
           ldapUserPassword.result = config.shb.sops.secret."lldap/user_password".result;
           jwtSecret.result = config.shb.sops.secret."lldap/jwt_secret".result;
         };
-        shb.sops.secret."lldap/user_password".request = config.shb.ldap.ldapUserPassword.request;
-        shb.sops.secret."lldap/jwt_secret".request = config.shb.ldap.jwtSecret.request;
+        shb.sops.secret."lldap/user_password".request = config.shb.lldap.ldapUserPassword.request;
+        shb.sops.secret."lldap/jwt_secret".request = config.shb.lldap.jwtSecret.request;
 
         shb.nextcloud.apps.ldap = {
           enable = true;
           host = "127.0.0.1";
-          port = config.shb.ldap.ldapPort;
-          dcdomain = config.shb.ldap.dcdomain;
+          port = config.shb.lldap.ldapPort;
+          dcdomain = config.shb.lldap.dcdomain;
           adminName = "admin";
           adminPassword.result = config.shb.sops.secret."nextcloud/ldap_admin_password".result;
           userGroup = "nextcloud_user";
@@ -91,7 +91,7 @@
           port = lib.mkForce null;
           ssl = config.shb.certs.certs.selfsigned.n;
         };
-        shb.ldap.ssl = config.shb.certs.certs.selfsigned.n;
+        shb.lldap.ssl = config.shb.certs.certs.selfsigned.n;
 
         services.dnsmasq = {
           enable = true;
@@ -114,9 +114,9 @@
           domain = "example.com";
           subdomain = "auth";
           ssl = config.shb.certs.certs.selfsigned.n;
-          ldapPort = config.shb.ldap.ldapPort;
+          ldapPort = config.shb.lldap.ldapPort;
           ldapHostname = "127.0.0.1";
-          dcdomain = config.shb.ldap.dcdomain;
+          dcdomain = config.shb.lldap.dcdomain;
 
           secrets = {
             jwtSecret.result = config.shb.sops.secret."authelia/jwt_secret".result;

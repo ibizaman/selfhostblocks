@@ -376,7 +376,7 @@ in
 
   ldap = { config, pkgs, ... }: {
     imports = [
-      ../modules/blocks/ldap.nix
+      ../modules/blocks/lldap.nix
     ];
 
     networking.hosts = {
@@ -384,15 +384,15 @@ in
     };
 
     shb.hardcodedsecret.ldapUserPassword = {
-      request = config.shb.ldap.ldapUserPassword.request;
+      request = config.shb.lldap.ldapUserPassword.request;
       settings.content = "ldapUserPassword";
     };
     shb.hardcodedsecret.jwtSecret = {
-      request = config.shb.ldap.jwtSecret.request;
+      request = config.shb.lldap.jwtSecret.request;
       settings.content = "jwtSecrets";
     };
 
-    shb.ldap = {
+    shb.lldap = {
       enable = true;
       inherit (config.test) domain;
       subdomain = "ldap";
@@ -420,8 +420,8 @@ in
       ssl = config.shb.certs.certs.selfsigned.n;
 
       ldapHostname = "127.0.0.1";
-      ldapPort = config.shb.ldap.ldapPort;
-      dcdomain = config.shb.ldap.dcdomain;
+      ldapPort = config.shb.lldap.ldapPort;
+      dcdomain = config.shb.lldap.dcdomain;
 
       secrets = {
         jwtSecret.result = config.shb.hardcodedsecret.autheliaJwtSecret.result;
