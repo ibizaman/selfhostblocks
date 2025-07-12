@@ -76,7 +76,7 @@ let
   # ldap = { config, ... }: {
   #   # shb.vaultwarden = {
   #   #   ldapHostname = "127.0.0.1";
-  #   #   ldapPort = config.shb.ldap.webUIListenPort;
+  #   #   ldapPort = config.shb.lldap.webUIListenPort;
   #   # };
   # };
 

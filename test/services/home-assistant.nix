@@ -82,7 +82,7 @@ let
       ldap = {
         enable = true;
         host = "127.0.0.1";
-        port = config.shb.ldap.webUIListenPort;
+        port = config.shb.lldap.webUIListenPort;
         userGroup = "homeassistant_user";
       };
     };

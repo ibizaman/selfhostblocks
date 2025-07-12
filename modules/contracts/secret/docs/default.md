@@ -26,7 +26,7 @@ sops.secrets."ldap/user_password" = {
   sopsFile = ./secrets.yaml;
 };
 
-shb.ldap.userPassword.result = config.sops.secrets."ldap/user_password".result;
+shb.lldap.userPassword.result = config.sops.secrets."ldap/user_password".result;
 ```
 
 The problem this contract intends to fix is how to ensure
@@ -43,11 +43,11 @@ The configuration then becomes:
 
 ```nix
 shb.sops.secrets."ldap/user_password" = {
-  request = config.shb.ldap.userPassword.request;
+  request = config.shb.lldap.userPassword.request;
   settings.sopsFile = ./secrets.yaml;
 };
 
-shb.ldap.userPassword.result = config.shb.sops.secrets."ldap/user_password".result;
+shb.lldap.userPassword.result = config.shb.sops.secrets."ldap/user_password".result;
 ```
 
 The issue is now gone as the responsibility falls
@@ -63,9 +63,9 @@ sops.defaultSopsFile = ./secrets.yaml;
 Then the snippet above is even more simplified:
 
 ```nix
-shb.sops.secrets."ldap/user_password".request = config.shb.ldap.userPassword.request;
+shb.sops.secrets."ldap/user_password".request = config.shb.lldap.userPassword.request;
 
-shb.ldap.userPassword.result = config.shb.sops.secrets."ldap/user_password".result;
+shb.lldap.userPassword.result = config.shb.sops.secrets."ldap/user_password".result;
 ```
 
 ## Contract Reference {#contract-secret-options}

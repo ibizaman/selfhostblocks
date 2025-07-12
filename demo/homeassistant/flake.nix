@@ -65,7 +65,7 @@
       };
 
       ldap = { config, ...  }: {
-        shb.ldap = {
+        shb.lldap = {
           enable = true;
           domain = "example.com";
           subdomain = "ldap";
@@ -75,13 +75,13 @@
           ldapUserPassword.result = config.shb.sops.secret."lldap/user_password".result;
           jwtSecret.result = config.shb.sops.secret."lldap/jwt_secret".result;
         };
-        shb.sops.secret."lldap/user_password".request = config.shb.ldap.ldapUserPassword.request;
-        shb.sops.secret."lldap/jwt_secret".request = config.shb.ldap.jwtSecret.request;
+        shb.sops.secret."lldap/user_password".request = config.shb.lldap.ldapUserPassword.request;
+        shb.sops.secret."lldap/jwt_secret".request = config.shb.lldap.jwtSecret.request;
 
         shb.home-assistant.ldap = {
           enable = true;
           host = "127.0.0.1";
-          port = config.shb.ldap.webUIListenPort;
+          port = config.shb.lldap.webUIListenPort;
           userGroup = "homeassistant_user";
         };
       };

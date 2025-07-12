@@ -120,7 +120,7 @@ to setup a [LLDAP](https://github.com/lldap/lldap) service.
 First, setup the global ldap block if not done yet:
 
 ```nix
-shb.ldap = {
+shb.lldap = {
   enable = true;
   domain = "example.com";
   subdomain = "ldap";
@@ -134,8 +134,8 @@ shb.ldap = {
 
 shb.certs.certs.letsencrypt."example.com".extraDomains = [ "ldap.example.com" ];
 
-shb.sops.secrets."ldap/userPassword".request = config.shb.ldap.userPassword.request;
-shb.sops.secrets."ldap/jwtSecret".request = config.shb.ldap.jwtSecret.request;
+shb.sops.secrets."ldap/userPassword".request = config.shb.lldap.userPassword.request;
+shb.sops.secrets."ldap/jwtSecret".request = config.shb.lldap.jwtSecret.request;
 ```
 
 We then need to configure the `home-assistant` service
@@ -145,7 +145,7 @@ to talk to the LDAP server we just defined:
 shb.home-assistant.ldap
   enable = true;
   host = "127.0.0.1";
-  port = config.shb.ldap.webUIListenPort;
+  port = config.shb.lldap.webUIListenPort;
   userGroup = "homeassistant_user";
 };
 ```

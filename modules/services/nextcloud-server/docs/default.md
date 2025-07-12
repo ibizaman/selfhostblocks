@@ -154,7 +154,7 @@ We will use the LDAP block provided by Self Host Blocks to setup a
 If did already configure this for another service, you can skip this snippet.
 
 ```nix
-shb.ldap = {
+shb.lldap = {
   enable = true;
   domain = "example.com";
   subdomain = "ldap";
@@ -168,8 +168,8 @@ shb.ldap = {
 
 shb.certs.certs.letsencrypt."example.com".extraDomains = [ "ldap.example.com" ];
 
-shb.sops.secrets."ldap/userPassword".request = config.shb.ldap.userPassword.request;
-shb.sops.secrets."ldap/jwtSecret".request = config.shb.ldap.jwtSecret.request;
+shb.sops.secrets."ldap/userPassword".request = config.shb.lldap.userPassword.request;
+shb.sops.secrets."ldap/jwtSecret".request = config.shb.lldap.jwtSecret.request;
 ```
 
 On the `nextcloud` module side, we need to configure it to talk to the LDAP server we
@@ -179,8 +179,8 @@ just defined:
 shb.nextcloud.apps.ldap = {
   enable = true;
   host = "127.0.0.1";
-  port = config.shb.ldap.ldapPort;
-  dcdomain = config.shb.ldap.dcdomain;
+  port = config.shb.lldap.ldapPort;
+  dcdomain = config.shb.lldap.dcdomain;
   adminName = "admin";
   adminPassword.result = config.shb.sops.secrets."nextcloud/ldap/adminPassword".result
   userGroup = "nextcloud_user";
@@ -192,7 +192,7 @@ shb.sops.secrets."nextcloud/ldap/adminPassword" = {
 };
 ```
 
-The LDAP admin password must be shared between `shb.ldap` and `shb.nextcloud`,
+The LDAP admin password must be shared between `shb.lldap` and `shb.nextcloud`,
 to do that with SOPS we use the `key` option so that both
 `sops.secrets."ldap/userPassword"`
 and `sops.secrets."nextcloud/ldapUserPassword"`
@@ -230,8 +230,8 @@ shb.authelia = {
   ssl = config.shb.certs.certs.letsencrypt."example.com";
 
   ldapHostname = "127.0.0.1";
-  ldapPort = config.shb.ldap.ldapPort;
-  dcdomain = config.shb.ldap.dcdomain;
+  ldapPort = config.shb.lldap.ldapPort;
+  dcdomain = config.shb.lldap.dcdomain;
 
   smtp = {
     host = "smtp.eu.mailgun.org";

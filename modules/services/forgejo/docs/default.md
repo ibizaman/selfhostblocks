@@ -102,7 +102,7 @@ We will use the LDAP block provided by Self Host Blocks
 to setup a [LLDAP](https://github.com/lldap/lldap) service.
 
 ```nix
-shb.ldap = {
+shb.lldap = {
   enable = true;
   domain = "example.com";
   subdomain = "ldap";
@@ -116,8 +116,8 @@ shb.ldap = {
 
 shb.certs.certs.letsencrypt."example.com".extraDomains = [ "ldap.example.com" ];
 
-shb.sops.secrets."ldap/userPassword".request = config.shb.ldap.userPassword.request;
-shb.sops.secrets."ldap/jwtSecret".request = config.shb.ldap.jwtSecret.request;
+shb.sops.secrets."ldap/userPassword".request = config.shb.lldap.userPassword.request;
+shb.sops.secrets."ldap/jwtSecret".request = config.shb.lldap.jwtSecret.request;
 ```
 
 We also need to configure the `forgejo` service
@@ -127,8 +127,8 @@ to talk to the LDAP server we just defined:
 shb.forgejo.ldap
   enable = true;
   host = "127.0.0.1";
-  port = config.shb.ldap.ldapPort;
-  dcdomain = config.shb.ldap.dcdomain;
+  port = config.shb.lldap.ldapPort;
+  dcdomain = config.shb.lldap.dcdomain;
   adminPassword.result = config.shb.sops.secrets."forgejo/ldap/adminPassword".result
 };
 
@@ -139,7 +139,7 @@ shb.sops.secrets."forgejo/ldap/adminPassword" = {
 ```
 
 The `shb.forgejo.ldap.adminPasswordFile` must be the same
-as the `shb.ldap.ldapUserPasswordFile` which is achieved
+as the `shb.lldap.ldapUserPasswordFile` which is achieved
 with the `key` option.
 The other secrets can be randomly generated with
 `nix run nixpkgs#openssl -- rand -hex 64`.
@@ -169,8 +169,8 @@ shb.authelia = {
   ssl = config.shb.certs.certs.letsencrypt."example.com";
 
   ldapHostname = "127.0.0.1";
-  ldapPort = config.shb.ldap.ldapPort;
-  dcdomain = config.shb.ldap.dcdomain;
+  ldapPort = config.shb.lldap.ldapPort;
+  dcdomain = config.shb.lldap.dcdomain;
 
   secrets = {
     jwtSecret.result = config.shb.sops.secrets."authelia/jwt_secret".result;
@@ -194,7 +194,7 @@ shb.sops.secrets."authelia/smtp_password".request = config.shb.authelia.smtp.pas
 ```
 
 The `shb.authelia.secrets.ldapAdminPasswordFile` must be the same
-as the `shb.ldap.ldapUserPasswordFile` defined in the previous section.
+as the `shb.lldap.ldapUserPasswordFile` defined in the previous section.
 The other secrets can be randomly generated
 with `nix run nixpkgs#openssl -- rand -hex 64`.
 

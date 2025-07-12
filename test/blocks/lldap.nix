@@ -18,10 +18,10 @@ in
           };
         }
         ../../modules/blocks/hardcodedsecret.nix
-        ../../modules/blocks/ldap.nix
+        ../../modules/blocks/lldap.nix
       ];
 
-      shb.ldap = {
+      shb.lldap = {
         enable = true;
         dcdomain = "dc=example,dc=com";
         subdomain = "ldap";
@@ -31,11 +31,11 @@ in
         debug = true;
       };
       shb.hardcodedsecret.ldapUserPassword = {
-        request = config.shb.ldap.ldapUserPassword.request;
+        request = config.shb.lldap.ldapUserPassword.request;
         settings.content = password;
       };
       shb.hardcodedsecret.jwtSecret = {
-        request = config.shb.ldap.jwtSecret.request;
+        request = config.shb.lldap.jwtSecret.request;
         settings.content = "jwtSecret";
       };
 

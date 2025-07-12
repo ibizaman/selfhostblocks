@@ -107,7 +107,7 @@
         modules/blocks/authelia.nix
         modules/blocks/davfs.nix
         modules/blocks/hardcodedsecret.nix
-        modules/blocks/ldap.nix
+        modules/blocks/lldap.nix
         modules/blocks/monitoring.nix
         modules/blocks/nginx.nix
         modules/blocks/postgresql.nix
@@ -282,7 +282,7 @@
           // (vm_test "vaultwarden" ./test/services/vaultwarden.nix)
 
           // (vm_test "authelia" ./test/blocks/authelia.nix)
-          // (vm_test "ldap" ./test/blocks/ldap.nix)
+          // (vm_test "lldap" ./test/blocks/lldap.nix)
           // (vm_test "lib" ./test/blocks/lib.nix)
           // (vm_test "postgresql" ./test/blocks/postgresql.nix)
           // (vm_test "restic" ./test/blocks/restic.nix)

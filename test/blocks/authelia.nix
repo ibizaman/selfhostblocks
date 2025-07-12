@@ -14,7 +14,7 @@ in
         (pkgs'.path + "/nixos/modules/profiles/qemu-guest.nix")
         ../../modules/blocks/authelia.nix
         ../../modules/blocks/hardcodedsecret.nix
-        ../../modules/blocks/ldap.nix
+        ../../modules/blocks/lldap.nix
         ../../modules/blocks/postgresql.nix
       ];
 
@@ -28,7 +28,7 @@ in
         ];
       };
 
-      shb.ldap = {
+      shb.lldap = {
         enable = true;
         dcdomain = "dc=example,dc=com";
         subdomain = "ldap";
@@ -38,11 +38,11 @@ in
       };
 
       shb.hardcodedsecret.ldapUserPassword = {
-        request = config.shb.ldap.ldapUserPassword.request;
+        request = config.shb.lldap.ldapUserPassword.request;
         settings.content = ldapAdminPassword;
       };
       shb.hardcodedsecret.jwtSecret = {
-        request = config.shb.ldap.jwtSecret.request;
+        request = config.shb.lldap.jwtSecret.request;
         settings.content = "jwtsecret";
       };
 
@@ -50,9 +50,9 @@ in
         enable = true;
         subdomain = "authelia";
         domain = "machine.com";
-        ldapHostname = "${config.shb.ldap.subdomain}.${config.shb.ldap.domain}";
-        ldapPort = config.shb.ldap.ldapPort;
-        dcdomain = config.shb.ldap.dcdomain;
+        ldapHostname = "${config.shb.lldap.subdomain}.${config.shb.lldap.domain}";
+        ldapPort = config.shb.lldap.ldapPort;
+        dcdomain = config.shb.lldap.dcdomain;
         secrets = {
           jwtSecret.result = config.shb.hardcodedsecret.autheliaJwtSecret.result;
           ldapAdminPassword.result = config.shb.hardcodedsecret.ldapAdminPassword.result;

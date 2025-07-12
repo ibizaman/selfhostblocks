@@ -1,14 +1,14 @@
 { config, pkgs, lib, ... }:
 
 let
-  cfg = config.shb.ldap;
+  cfg = config.shb.lldap;
 
   contracts = pkgs.callPackage ../contracts {};
 
   fqdn = "${cfg.subdomain}.${cfg.domain}";
 in
 {
-  options.shb.ldap = {
+  options.shb.lldap = {
     enable = lib.mkEnableOption "the LDAP service";
 
     dcdomain = lib.mkOption {
@@ -95,7 +95,7 @@ in
         ```
         shb.zfs.datasets."ldap" = {
           poolName = "root";
-        } // config.shb.ldap.mount;
+        } // config.shb.lldap.mount;
         ```
       '';
       readOnly = true;

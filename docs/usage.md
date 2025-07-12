@@ -832,7 +832,7 @@ in
       };
 
       shb.certs.certs.letsencrypt.${domain}.extraDomains = [ "ldap.${domain}" ];
-      shb.ldap = {
+      shb.lldap = {
         enable = true;
         inherit domain;
         subdomain = "ldap";
@@ -845,8 +845,8 @@ in
         # restrictAccessIPRange = "192.168.50.0/24";
         debug = false;
       };
-      shb.sops.secret."ldap/user_password".request = config.shb.ldap.ldapUserPassword.request;
-      shb.sops.secret."ldap/jwt_secret".request = config.shb.ldap.jwtSecret.request;
+      shb.sops.secret."ldap/user_password".request = config.shb.lldap.ldapUserPassword.request;
+      shb.sops.secret."ldap/jwt_secret".request = config.shb.lldap.jwtSecret.request;
 
       shb.zfs.datasets."safe/ldap2".path = "/var/lib/private/lldap";
 
@@ -873,8 +873,8 @@ in
         ssl = config.shb.certs.certs.letsencrypt.${domain};
 
         ldapHostname = "127.0.0.1";
-        ldapPort = config.shb.ldap.ldapPort;
-        dcdomain = config.shb.ldap.dcdomain;
+        ldapPort = config.shb.lldap.ldapPort;
+        dcdomain = config.shb.lldap.dcdomain;
 
         smtp = {
           host = "smtp.eu.mailgun.org";
@@ -933,8 +933,8 @@ in
         ldap = {
           enable = true;
           host = "127.0.0.1";
-          port = config.shb.ldap.ldapPort;
-          dcdomain = config.shb.ldap.dcdomain;
+          port = config.shb.lldap.ldapPort;
+          dcdomain = config.shb.lldap.dcdomain;
           adminPassword.result = config.shb.sops.secret."forgejo/ldap_admin_password".result;
         };
 
@@ -1062,8 +1062,8 @@ in
           ldap = {
             enable = true;
             host = "127.0.0.1";
-            port = config.shb.ldap.ldapPort;
-            dcdomain = config.shb.ldap.dcdomain;
+            port = config.shb.lldap.ldapPort;
+            dcdomain = config.shb.lldap.dcdomain;
             adminName = "admin";
             adminPassword.result = config.shb.sops.secret."nextcloud/ldap_admin_password".result;
             userGroup = "nextcloud_user";
@@ -1167,8 +1167,8 @@ in
         ldap = {
           enable = true;
           host = "127.0.0.1";
-          port = config.shb.ldap.ldapPort;
-          dcdomain = config.shb.ldap.dcdomain;
+          port = config.shb.lldap.ldapPort;
+          dcdomain = config.shb.lldap.dcdomain;
           adminPassword.result = config.shb.sops.secret."jellyfin/ldap_password".result;
           userGroup = "jellyfin_user";
         };
@@ -1223,7 +1223,7 @@ in
         ldap = {
           enable = true;
           host = "127.0.0.1";
-          port = config.shb.ldap.webUIListenPort;
+          port = config.shb.lldap.webUIListenPort;
           userGroup = "homeassistant_user";
         };
       };

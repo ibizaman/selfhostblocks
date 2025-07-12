@@ -115,8 +115,8 @@ let
       ldap = {
         enable = true;
         host = "127.0.0.1";
-        port = config.shb.ldap.ldapPort;
-        dcdomain = config.shb.ldap.dcdomain;
+        port = config.shb.lldap.ldapPort;
+        dcdomain = config.shb.lldap.dcdomain;
         adminPassword.result = config.shb.hardcodedsecret.forgejoLdapUserPassword.result;
       };
     };
