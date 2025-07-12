@@ -84,7 +84,7 @@ so please follow that first.
 ::::
 
 If the `shb.ssl` block is used (see [manual](blocks-ssl.html#usage) on how to set it up),
-the instance will be reachable at `https://fogejo.example.com`.
+the instance will be reachable at `https://ha.example.com`.
 
 Here is an example with Let's Encrypt certificates, validated using the HTTP method.
 First, set the global configuration for your domain:
