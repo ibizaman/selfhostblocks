@@ -148,7 +148,7 @@ in stdenv.mkDerivation {
     find . -name "*.md" -print0 | \
       while IFS= read -r -d ''' f; do
         substituteInPlace "''${f}" \
-          --replace \
+          --replace-quiet \
             '@REPO@' \
             "${ghRoot}" 2>/dev/null
       done
