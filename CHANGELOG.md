@@ -2,9 +2,9 @@
 
 Template:
 
-## New Features
-
 ## Breaking Changes
+
+## New Features
 
 ## User Facing Backwards Compatible Changes
 
@@ -15,6 +15,27 @@ Template:
 -->
 
 # Upcoming Release
+
+# v0.4.0
+
+## Breaking Changes
+
+- Rename ldap module to lldap as well as option name `shb.ldap` to `shb.lldap`.
+
+## New Features
+
+- Jellyfin service now waits for Jellyfin server to be fully available before starting.
+- Add debug option for Jellyfin.
+- Allow to choose port for Jellyfin.
+- Make Jellyfin setup including initial admin user declarative.
+
+## Fixes
+
+- Fix Jellyfin redirect URI scheme after update.
+
+## Other Changes
+
+- Add documentation for LLDAP and Authelia block and link to it from other docs.
 
 # v0.3.1
 
