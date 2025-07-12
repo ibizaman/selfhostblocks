@@ -180,6 +180,7 @@ in
             type = types.submodule {
               options = contracts.secret.mkRequester {
                 mode = "0400";
+                ownerText = "config.shb.authelia.autheliaUser";
                 owner = config.shb.authelia.autheliaUser;
               };
             };

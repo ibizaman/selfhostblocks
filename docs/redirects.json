@@ -2438,6 +2438,246 @@
   "services-home-assistant-usage-voice": [
     "services-home-assistant.html#services-home-assistant-usage-voice"
   ],
+  "services-jellyfin": [
+    "services-jellyfin.html#services-jellyfin"
+  ],
+  "services-jellyfin-debug": [
+    "services-jellyfin.html#services-jellyfin-debug"
+  ],
+  "services-jellyfin-features": [
+    "services-jellyfin.html#services-jellyfin-features"
+  ],
+  "services-jellyfin-options": [
+    "services-jellyfin.html#services-jellyfin-options"
+  ],
+  "services-jellyfin-options-shb.jellyfin.admin": [
+    "services-jellyfin.html#services-jellyfin-options-shb.jellyfin.admin"
+  ],
+  "services-jellyfin-options-shb.jellyfin.admin.password": [
+    "services-jellyfin.html#services-jellyfin-options-shb.jellyfin.admin.password"
+  ],
+  "services-jellyfin-options-shb.jellyfin.admin.password.request": [
+    "services-jellyfin.html#services-jellyfin-options-shb.jellyfin.admin.password.request"
+  ],
+  "services-jellyfin-options-shb.jellyfin.admin.password.request.group": [
+    "services-jellyfin.html#services-jellyfin-options-shb.jellyfin.admin.password.request.group"
+  ],
+  "services-jellyfin-options-shb.jellyfin.admin.password.request.mode": [
+    "services-jellyfin.html#services-jellyfin-options-shb.jellyfin.admin.password.request.mode"
+  ],
+  "services-jellyfin-options-shb.jellyfin.admin.password.request.owner": [
+    "services-jellyfin.html#services-jellyfin-options-shb.jellyfin.admin.password.request.owner"
+  ],
+  "services-jellyfin-options-shb.jellyfin.admin.password.request.restartUnits": [
+    "services-jellyfin.html#services-jellyfin-options-shb.jellyfin.admin.password.request.restartUnits"
+  ],
+  "services-jellyfin-options-shb.jellyfin.admin.password.result": [
+    "services-jellyfin.html#services-jellyfin-options-shb.jellyfin.admin.password.result"
+  ],
+  "services-jellyfin-options-shb.jellyfin.admin.password.result.path": [
+    "services-jellyfin.html#services-jellyfin-options-shb.jellyfin.admin.password.result.path"
+  ],
+  "services-jellyfin-options-shb.jellyfin.admin.username": [
+    "services-jellyfin.html#services-jellyfin-options-shb.jellyfin.admin.username"
+  ],
+  "services-jellyfin-options-shb.jellyfin.backup": [
+    "services-jellyfin.html#services-jellyfin-options-shb.jellyfin.backup"
+  ],
+  "services-jellyfin-options-shb.jellyfin.backup.request": [
+    "services-jellyfin.html#services-jellyfin-options-shb.jellyfin.backup.request"
+  ],
+  "services-jellyfin-options-shb.jellyfin.backup.request.excludePatterns": [
+    "services-jellyfin.html#services-jellyfin-options-shb.jellyfin.backup.request.excludePatterns"
+  ],
+  "services-jellyfin-options-shb.jellyfin.backup.request.hooks": [
+    "services-jellyfin.html#services-jellyfin-options-shb.jellyfin.backup.request.hooks"
+  ],
+  "services-jellyfin-options-shb.jellyfin.backup.request.hooks.afterBackup": [
+    "services-jellyfin.html#services-jellyfin-options-shb.jellyfin.backup.request.hooks.afterBackup"
+  ],
+  "services-jellyfin-options-shb.jellyfin.backup.request.hooks.beforeBackup": [
+    "services-jellyfin.html#services-jellyfin-options-shb.jellyfin.backup.request.hooks.beforeBackup"
+  ],
+  "services-jellyfin-options-shb.jellyfin.backup.request.sourceDirectories": [
+    "services-jellyfin.html#services-jellyfin-options-shb.jellyfin.backup.request.sourceDirectories"
+  ],
+  "services-jellyfin-options-shb.jellyfin.backup.request.user": [
+    "services-jellyfin.html#services-jellyfin-options-shb.jellyfin.backup.request.user"
+  ],
+  "services-jellyfin-options-shb.jellyfin.backup.result": [
+    "services-jellyfin.html#services-jellyfin-options-shb.jellyfin.backup.result"
+  ],
+  "services-jellyfin-options-shb.jellyfin.backup.result.backupService": [
+    "services-jellyfin.html#services-jellyfin-options-shb.jellyfin.backup.result.backupService"
+  ],
+  "services-jellyfin-options-shb.jellyfin.backup.result.restoreScript": [
+    "services-jellyfin.html#services-jellyfin-options-shb.jellyfin.backup.result.restoreScript"
+  ],
+  "services-jellyfin-options-shb.jellyfin.debug": [
+    "services-jellyfin.html#services-jellyfin-options-shb.jellyfin.debug"
+  ],
+  "services-jellyfin-options-shb.jellyfin.domain": [
+    "services-jellyfin.html#services-jellyfin-options-shb.jellyfin.domain"
+  ],
+  "services-jellyfin-options-shb.jellyfin.enable": [
+    "services-jellyfin.html#services-jellyfin-options-shb.jellyfin.enable"
+  ],
+  "services-jellyfin-options-shb.jellyfin.ldap": [
+    "services-jellyfin.html#services-jellyfin-options-shb.jellyfin.ldap"
+  ],
+  "services-jellyfin-options-shb.jellyfin.ldap.adminGroup": [
+    "services-jellyfin.html#services-jellyfin-options-shb.jellyfin.ldap.adminGroup"
+  ],
+  "services-jellyfin-options-shb.jellyfin.ldap.adminPassword": [
+    "services-jellyfin.html#services-jellyfin-options-shb.jellyfin.ldap.adminPassword"
+  ],
+  "services-jellyfin-options-shb.jellyfin.ldap.adminPassword.request": [
+    "services-jellyfin.html#services-jellyfin-options-shb.jellyfin.ldap.adminPassword.request"
+  ],
+  "services-jellyfin-options-shb.jellyfin.ldap.adminPassword.request.group": [
+    "services-jellyfin.html#services-jellyfin-options-shb.jellyfin.ldap.adminPassword.request.group"
+  ],
+  "services-jellyfin-options-shb.jellyfin.ldap.adminPassword.request.mode": [
+    "services-jellyfin.html#services-jellyfin-options-shb.jellyfin.ldap.adminPassword.request.mode"
+  ],
+  "services-jellyfin-options-shb.jellyfin.ldap.adminPassword.request.owner": [
+    "services-jellyfin.html#services-jellyfin-options-shb.jellyfin.ldap.adminPassword.request.owner"
+  ],
+  "services-jellyfin-options-shb.jellyfin.ldap.adminPassword.request.restartUnits": [
+    "services-jellyfin.html#services-jellyfin-options-shb.jellyfin.ldap.adminPassword.request.restartUnits"
+  ],
+  "services-jellyfin-options-shb.jellyfin.ldap.adminPassword.result": [
+    "services-jellyfin.html#services-jellyfin-options-shb.jellyfin.ldap.adminPassword.result"
+  ],
+  "services-jellyfin-options-shb.jellyfin.ldap.adminPassword.result.path": [
+    "services-jellyfin.html#services-jellyfin-options-shb.jellyfin.ldap.adminPassword.result.path"
+  ],
+  "services-jellyfin-options-shb.jellyfin.ldap.dcdomain": [
+    "services-jellyfin.html#services-jellyfin-options-shb.jellyfin.ldap.dcdomain"
+  ],
+  "services-jellyfin-options-shb.jellyfin.ldap.enable": [
+    "services-jellyfin.html#services-jellyfin-options-shb.jellyfin.ldap.enable"
+  ],
+  "services-jellyfin-options-shb.jellyfin.ldap.host": [
+    "services-jellyfin.html#services-jellyfin-options-shb.jellyfin.ldap.host"
+  ],
+  "services-jellyfin-options-shb.jellyfin.ldap.port": [
+    "services-jellyfin.html#services-jellyfin-options-shb.jellyfin.ldap.port"
+  ],
+  "services-jellyfin-options-shb.jellyfin.ldap.userGroup": [
+    "services-jellyfin.html#services-jellyfin-options-shb.jellyfin.ldap.userGroup"
+  ],
+  "services-jellyfin-options-shb.jellyfin.port": [
+    "services-jellyfin.html#services-jellyfin-options-shb.jellyfin.port"
+  ],
+  "services-jellyfin-options-shb.jellyfin.ssl": [
+    "services-jellyfin.html#services-jellyfin-options-shb.jellyfin.ssl"
+  ],
+  "services-jellyfin-options-shb.jellyfin.ssl.paths": [
+    "services-jellyfin.html#services-jellyfin-options-shb.jellyfin.ssl.paths"
+  ],
+  "services-jellyfin-options-shb.jellyfin.ssl.paths.cert": [
+    "services-jellyfin.html#services-jellyfin-options-shb.jellyfin.ssl.paths.cert"
+  ],
+  "services-jellyfin-options-shb.jellyfin.ssl.paths.key": [
+    "services-jellyfin.html#services-jellyfin-options-shb.jellyfin.ssl.paths.key"
+  ],
+  "services-jellyfin-options-shb.jellyfin.ssl.systemdService": [
+    "services-jellyfin.html#services-jellyfin-options-shb.jellyfin.ssl.systemdService"
+  ],
+  "services-jellyfin-options-shb.jellyfin.sso": [
+    "services-jellyfin.html#services-jellyfin-options-shb.jellyfin.sso"
+  ],
+  "services-jellyfin-options-shb.jellyfin.sso.adminUserGroup": [
+    "services-jellyfin.html#services-jellyfin-options-shb.jellyfin.sso.adminUserGroup"
+  ],
+  "services-jellyfin-options-shb.jellyfin.sso.authorization_policy": [
+    "services-jellyfin.html#services-jellyfin-options-shb.jellyfin.sso.authorization_policy"
+  ],
+  "services-jellyfin-options-shb.jellyfin.sso.clientID": [
+    "services-jellyfin.html#services-jellyfin-options-shb.jellyfin.sso.clientID"
+  ],
+  "services-jellyfin-options-shb.jellyfin.sso.enable": [
+    "services-jellyfin.html#services-jellyfin-options-shb.jellyfin.sso.enable"
+  ],
+  "services-jellyfin-options-shb.jellyfin.sso.endpoint": [
+    "services-jellyfin.html#services-jellyfin-options-shb.jellyfin.sso.endpoint"
+  ],
+  "services-jellyfin-options-shb.jellyfin.sso.provider": [
+    "services-jellyfin.html#services-jellyfin-options-shb.jellyfin.sso.provider"
+  ],
+  "services-jellyfin-options-shb.jellyfin.sso.sharedSecret": [
+    "services-jellyfin.html#services-jellyfin-options-shb.jellyfin.sso.sharedSecret"
+  ],
+  "services-jellyfin-options-shb.jellyfin.sso.sharedSecret.request": [
+    "services-jellyfin.html#services-jellyfin-options-shb.jellyfin.sso.sharedSecret.request"
+  ],
+  "services-jellyfin-options-shb.jellyfin.sso.sharedSecret.request.group": [
+    "services-jellyfin.html#services-jellyfin-options-shb.jellyfin.sso.sharedSecret.request.group"
+  ],
+  "services-jellyfin-options-shb.jellyfin.sso.sharedSecret.request.mode": [
+    "services-jellyfin.html#services-jellyfin-options-shb.jellyfin.sso.sharedSecret.request.mode"
+  ],
+  "services-jellyfin-options-shb.jellyfin.sso.sharedSecret.request.owner": [
+    "services-jellyfin.html#services-jellyfin-options-shb.jellyfin.sso.sharedSecret.request.owner"
+  ],
+  "services-jellyfin-options-shb.jellyfin.sso.sharedSecret.request.restartUnits": [
+    "services-jellyfin.html#services-jellyfin-options-shb.jellyfin.sso.sharedSecret.request.restartUnits"
+  ],
+  "services-jellyfin-options-shb.jellyfin.sso.sharedSecret.result": [
+    "services-jellyfin.html#services-jellyfin-options-shb.jellyfin.sso.sharedSecret.result"
+  ],
+  "services-jellyfin-options-shb.jellyfin.sso.sharedSecret.result.path": [
+    "services-jellyfin.html#services-jellyfin-options-shb.jellyfin.sso.sharedSecret.result.path"
+  ],
+  "services-jellyfin-options-shb.jellyfin.sso.sharedSecretForAuthelia": [
+    "services-jellyfin.html#services-jellyfin-options-shb.jellyfin.sso.sharedSecretForAuthelia"
+  ],
+  "services-jellyfin-options-shb.jellyfin.sso.sharedSecretForAuthelia.request": [
+    "services-jellyfin.html#services-jellyfin-options-shb.jellyfin.sso.sharedSecretForAuthelia.request"
+  ],
+  "services-jellyfin-options-shb.jellyfin.sso.sharedSecretForAuthelia.request.group": [
+    "services-jellyfin.html#services-jellyfin-options-shb.jellyfin.sso.sharedSecretForAuthelia.request.group"
+  ],
+  "services-jellyfin-options-shb.jellyfin.sso.sharedSecretForAuthelia.request.mode": [
+    "services-jellyfin.html#services-jellyfin-options-shb.jellyfin.sso.sharedSecretForAuthelia.request.mode"
+  ],
+  "services-jellyfin-options-shb.jellyfin.sso.sharedSecretForAuthelia.request.owner": [
+    "services-jellyfin.html#services-jellyfin-options-shb.jellyfin.sso.sharedSecretForAuthelia.request.owner"
+  ],
+  "services-jellyfin-options-shb.jellyfin.sso.sharedSecretForAuthelia.request.restartUnits": [
+    "services-jellyfin.html#services-jellyfin-options-shb.jellyfin.sso.sharedSecretForAuthelia.request.restartUnits"
+  ],
+  "services-jellyfin-options-shb.jellyfin.sso.sharedSecretForAuthelia.result": [
+    "services-jellyfin.html#services-jellyfin-options-shb.jellyfin.sso.sharedSecretForAuthelia.result"
+  ],
+  "services-jellyfin-options-shb.jellyfin.sso.sharedSecretForAuthelia.result.path": [
+    "services-jellyfin.html#services-jellyfin-options-shb.jellyfin.sso.sharedSecretForAuthelia.result.path"
+  ],
+  "services-jellyfin-options-shb.jellyfin.sso.userGroup": [
+    "services-jellyfin.html#services-jellyfin-options-shb.jellyfin.sso.userGroup"
+  ],
+  "services-jellyfin-options-shb.jellyfin.subdomain": [
+    "services-jellyfin.html#services-jellyfin-options-shb.jellyfin.subdomain"
+  ],
+  "services-jellyfin-usage": [
+    "services-jellyfin.html#services-jellyfin-usage"
+  ],
+  "services-jellyfin-usage-backup": [
+    "services-jellyfin.html#services-jellyfin-usage-backup"
+  ],
+  "services-jellyfin-usage-configuration": [
+    "services-jellyfin.html#services-jellyfin-usage-configuration"
+  ],
+  "services-jellyfin-usage-https": [
+    "services-jellyfin.html#services-jellyfin-usage-https"
+  ],
+  "services-jellyfin-usage-ldap": [
+    "services-jellyfin.html#services-jellyfin-usage-ldap"
+  ],
+  "services-jellyfin-usage-sso": [
+    "services-jellyfin.html#services-jellyfin-usage-sso"
+  ],
   "services-nextcloudserver": [
     "services-nextcloud.html#services-nextcloudserver"
   ],

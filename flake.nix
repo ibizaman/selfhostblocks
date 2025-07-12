@@ -164,6 +164,7 @@
               (pkgs.path + "/nixos/modules/services/misc/forgejo.nix")
             ];
             "services/home-assistant" = ./modules/services/home-assistant.nix;
+            "services/jellyfin" = ./modules/services/jellyfin.nix;
             "services/nextcloud-server" = ./modules/services/nextcloud-server.nix;
             "services/vaultwarden" = ./modules/services/vaultwarden.nix;
             "contracts/backup" = ./modules/contracts/backup/dummyModule.nix;
