@@ -145,6 +145,30 @@
           inherit nmdsrc;
           allModules = allModules ++ contractDummyModules;
           release = builtins.readFile ./VERSION;
+
+          substituteVersionIn = [
+            "./manual.md"
+            "./usage.md"
+          ];
+          modules = {
+            "blocks/ssl" = ./modules/blocks/ssl.nix;
+            "blocks/monitoring" = ./modules/blocks/monitoring.nix;
+            "blocks/postgresql" = ./modules/blocks/postgresql.nix;
+            "blocks/restic" = ./modules/blocks/restic.nix;
+            "blocks/sops" = ./modules/blocks/sops.nix;
+            "services/arr" = ./modules/services/arr.nix;
+            "services/forgejo" = [
+              ./modules/services/forgejo.nix
+              (pkgs.path + "/nixos/modules/services/misc/forgejo.nix")
+            ];
+            "services/home-assistant" = ./modules/services/home-assistant.nix;
+            "services/nextcloud-server" = ./modules/services/nextcloud-server.nix;
+            "services/vaultwarden" = ./modules/services/vaultwarden.nix;
+            "contracts/backup" = ./modules/contracts/backup/dummyModule.nix;
+            "contracts/databasebackup" = ./modules/contracts/databasebackup/dummyModule.nix;
+            "contracts/secret" = ./modules/contracts/secret/dummyModule.nix;
+            "contracts/ssl" = ./modules/contracts/ssl/dummyModule.nix;
+          };
         };
 
         # Documentation redirect generation tool - scans HTML files for anchor mappings

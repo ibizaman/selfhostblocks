@@ -10,6 +10,11 @@
 
 , release
 , allModules
+
+, version ? builtins.readFile ../VERSION
+, substituteVersionIn
+
+, modules
 }:
 
 let
@@ -121,96 +126,25 @@ in stdenv.mkDerivation {
       ${nmdsrc}/static/highlightjs/highlight.min.js \
       ${nmdsrc}/static/highlightjs/highlight.load.js
 
-    substituteInPlace ./manual.md \
-      --replace \
-        '@VERSION@' \
-        ${builtins.readFile ../VERSION}
-
-    substituteInPlace ./usage.md \
-      --replace \
-        '@VERSION@' \
-        ${builtins.readFile ../VERSION}
-
+  ''
+  + lib.concatStringsSep "\n" (map (m: ''
+    substituteInPlace ${m} --replace '@VERSION@' ${version}
+  '') substituteVersionIn)
+  + ''
     substituteInPlace ./options.md \
       --replace \
         '@OPTIONS_JSON@' \
         ${allOptionsDocs [
           (pkgs.path + "/nixos/modules/services/misc/forgejo.nix")
         ]}/share/doc/nixos/options.json
-
-    substituteInPlace ./modules/blocks/ssl/docs/default.md \
-      --replace \
+  ''
+  + lib.concatStringsSep "\n" (lib.mapAttrsToList (name: path: ''
+    substituteInPlace ./modules/${name}/docs/default.md \
+      --replace-fail \
         '@OPTIONS_JSON@' \
-        ${individualModuleOptionsDocs [ ../modules/blocks/ssl.nix ]}/share/doc/nixos/options.json
-
-    substituteInPlace ./modules/blocks/monitoring/docs/default.md \
-      --replace \
-        '@OPTIONS_JSON@' \
-       ${individualModuleOptionsDocs [ ../modules/blocks/monitoring.nix ]}/share/doc/nixos/options.json
-
-    substituteInPlace ./modules/blocks/postgresql/docs/default.md \
-      --replace \
-        '@OPTIONS_JSON@' \
-        ${individualModuleOptionsDocs [ ../modules/blocks/postgresql.nix ]}/share/doc/nixos/options.json
-
-    substituteInPlace ./modules/blocks/restic/docs/default.md \
-      --replace \
-        '@OPTIONS_JSON@' \
-        ${individualModuleOptionsDocs [ ../modules/blocks/restic.nix ]}/share/doc/nixos/options.json
-
-    substituteInPlace ./modules/blocks/sops/docs/default.md \
-      --replace \
-        '@OPTIONS_JSON@' \
-        ${individualModuleOptionsDocs [ ../modules/blocks/sops.nix ]}/share/doc/nixos/options.json
-
-    substituteInPlace ./modules/services/arr/docs/default.md \
-      --replace \
-        '@OPTIONS_JSON@' \
-       ${individualModuleOptionsDocs [ ../modules/services/arr.nix ]}/share/doc/nixos/options.json
-
-    substituteInPlace ./modules/services/home-assistant/docs/default.md \
-      --replace \
-        '@OPTIONS_JSON@' \
-       ${individualModuleOptionsDocs [ ../modules/services/home-assistant.nix ]}/share/doc/nixos/options.json
-
-    substituteInPlace ./modules/services/nextcloud-server/docs/default.md \
-      --replace \
-        '@OPTIONS_JSON@' \
-       ${individualModuleOptionsDocs [ ../modules/services/nextcloud-server.nix ]}/share/doc/nixos/options.json
-
-    substituteInPlace ./modules/services/vaultwarden/docs/default.md \
-      --replace \
-        '@OPTIONS_JSON@' \
-       ${individualModuleOptionsDocs [ ../modules/services/vaultwarden.nix ]}/share/doc/nixos/options.json
-
-    substituteInPlace ./modules/services/forgejo/docs/default.md \
-      --replace \
-        '@OPTIONS_JSON@' \
-       ${individualModuleOptionsDocs [
-         ../modules/services/forgejo.nix
-         (pkgs.path + "/nixos/modules/services/misc/forgejo.nix")
-       ]}/share/doc/nixos/options.json
-
-    substituteInPlace ./modules/contracts/backup/docs/default.md \
-      --replace \
-        '@OPTIONS_JSON@' \
-       ${individualModuleOptionsDocs [ ../modules/contracts/backup/dummyModule.nix ]}/share/doc/nixos/options.json
-
-    substituteInPlace ./modules/contracts/databasebackup/docs/default.md \
-      --replace \
-        '@OPTIONS_JSON@' \
-       ${individualModuleOptionsDocs [ ../modules/contracts/databasebackup/dummyModule.nix ]}/share/doc/nixos/options.json
-
-    substituteInPlace ./modules/contracts/secret/docs/default.md \
-      --replace \
-        '@OPTIONS_JSON@' \
-       ${individualModuleOptionsDocs [ ../modules/contracts/secret/dummyModule.nix ]}/share/doc/nixos/options.json
-
-    substituteInPlace ./modules/contracts/ssl/docs/default.md \
-      --replace \
-        '@OPTIONS_JSON@' \
-       ${individualModuleOptionsDocs [ ../modules/contracts/ssl/dummyModule.nix ]}/share/doc/nixos/options.json
-
+        ${individualModuleOptionsDocs (if builtins.isList path then path else [ path ])}/share/doc/nixos/options.json
+  '') modules)
+  + ''
     find . -name "*.md" -print0 | \
       while IFS= read -r -d ''' f; do
         substituteInPlace "''${f}" \
