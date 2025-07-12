@@ -98,33 +98,14 @@ We will build upon the [HTTPS](#services-forgejo-usage-https) section,
 so please follow that first.
 ::::
 
-We will use the LDAP block provided by Self Host Blocks
-to setup a [LLDAP](https://github.com/lldap/lldap) service.
+We will use the [LLDAP block][] provided by Self Host Blocks.
+Assuming it [has been set already][LLDAP block setup], add the following configuration:
+
+[LLDAP block]: blocks-lldap.html
+[LLDAP block setup]: blocks-lldap.html#blocks-lldap-global-setup
 
 ```nix
-shb.lldap = {
-  enable = true;
-  domain = "example.com";
-  subdomain = "ldap";
-  ssl = config.shb.certs.certs.letsencrypt."example.com";
-  ldapPort = 3890;
-  webUIListenPort = 17170;
-  dcdomain = "dc=example,dc=com";
-  ldapUserPassword.result = config.shb.sops.secrets."ldap/userPassword".result;
-  jwtSecret.result = config.shb.sops.secrets."ldap/jwtSecret".result;
-};
-
-shb.certs.certs.letsencrypt."example.com".extraDomains = [ "ldap.example.com" ];
-
-shb.sops.secrets."ldap/userPassword".request = config.shb.lldap.userPassword.request;
-shb.sops.secrets."ldap/jwtSecret".request = config.shb.lldap.jwtSecret.request;
-```
-
-We also need to configure the `forgejo` service
-to talk to the LDAP server we just defined:
-
-```nix
-shb.forgejo.ldap
+shb.forgejo.ldap = {
   enable = true;
   host = "127.0.0.1";
   port = config.shb.lldap.ldapPort;
@@ -158,47 +139,11 @@ We will build upon the [LDAP](#services-forgejo-usage-ldap) section,
 so please follow that first.
 ::::
 
-We then need to setup the SSO provider,
-here Authelia thanks to the corresponding SHB block:
+We will use the [SSO block][] provided by Self Host Blocks.
+Assuming it [has been set already][SSO block setup], add the following configuration:
 
-```nix
-shb.authelia = {
-  enable = true;
-  domain = "example.com";
-  subdomain = "auth";
-  ssl = config.shb.certs.certs.letsencrypt."example.com";
-
-  ldapHostname = "127.0.0.1";
-  ldapPort = config.shb.lldap.ldapPort;
-  dcdomain = config.shb.lldap.dcdomain;
-
-  secrets = {
-    jwtSecret.result = config.shb.sops.secrets."authelia/jwt_secret".result;
-    ldapAdminPassword.result = config.shb.sops.secrets."authelia/ldap_admin_password".result;
-    sessionSecret.result = config.shb.sops.secrets."authelia/session_secret".result;
-    storageEncryptionKey.result = config.shb.sops.secrets."authelia/storage_encryption_key".result;
-    identityProvidersOIDCHMACSecret.result = config.shb.sops.secrets."authelia/hmac_secret".result;
-    identityProvidersOIDCIssuerPrivateKey.result = config.shb.sops.secrets."authelia/private_key".result;
-  };
-};
-
-shb.certs.certs.letsencrypt."example.com".extraDomains = [ "auth.example.com" ];
-
-shb.sops.secrets."authelia/jwt_secret".request = config.shb.authelia.secrets.jwtSecret.request;
-shb.sops.secrets."authelia/ldap_admin_password".request = config.shb.authelia.secrets.ldapAdminPassword.request;
-shb.sops.secrets."authelia/session_secret".request = config.shb.authelia.secrets.sessionSecret.request;
-shb.sops.secrets."authelia/storage_encryption_key".request = config.shb.authelia.secrets.storageEncryptionKey.request;
-shb.sops.secrets."authelia/hmac_secret".request = config.shb.authelia.secrets.identityProvidersOIDCHMACSecret.request;
-shb.sops.secrets."authelia/private_key".request = config.shb.authelia.secrets.identityProvidersOIDCIssuerPrivateKey.request;
-shb.sops.secrets."authelia/smtp_password".request = config.shb.authelia.smtp.password.request;
-```
-
-The `shb.authelia.secrets.ldapAdminPasswordFile` must be the same
-as the `shb.lldap.ldapUserPasswordFile` defined in the previous section.
-The other secrets can be randomly generated
-with `nix run nixpkgs#openssl -- rand -hex 64`.
-
-Now, on the forgejo side, you need to add the following options:
+[SSO block]: blocks-sso.html
+[SSO block setup]: blocks-sso.html#blocks-sso-global-setup
 
 ```nix
 shb.forgejo.sso = {
