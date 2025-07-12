@@ -11,7 +11,7 @@
     };
   };
 
-  outputs = inputs@{ nixpkgs, nix-flake-tests, flake-utils, nmdsrc, ... }: flake-utils.lib.eachDefaultSystem (system:
+  outputs = inputs@{ self, nixpkgs, nix-flake-tests, flake-utils, nmdsrc, ... }: flake-utils.lib.eachDefaultSystem (system:
     let
       originPkgs = nixpkgs.legacyPackages.${system};
       shbPatches = originPkgs.lib.optionals (system == "x86_64-linux") [
@@ -187,10 +187,7 @@
             '';
           };
         in
-        (pkgs.callPackage ./docs {
-          inherit nmdsrc;
-          allModules = allModules ++ contractDummyModules;
-          release = builtins.readFile ./VERSION;
+        (self.packages.${system}.manualHtml.override {
           nixos-render-docs = nixos-render-docs-patched;
         }).overrideAttrs (old: {
           installPhase = ''
