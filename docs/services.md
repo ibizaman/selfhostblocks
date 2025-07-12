@@ -13,11 +13,12 @@ information is provided in the respective manual sections.
 
 | Service               | Backup | Reverse Proxy | SSO | LDAP  | Monitoring | Profiling |
 |-----------------------|--------|---------------|-----|-------|------------|-----------|
-| [*Arr][]             | Y (1)  | Y             | Y   | Y (4) | Y (2)      | N         |
-| [Forgejo][]          | Y (1)  | Y             | Y   | Y     | Y (2)      | N         |
-| [Home-Assistant][]   | Y (1)  | Y             | N   | Y     | Y (2)      | N         |
-| [Nextcloud Server][] | Y (1)  | Y             | Y   | Y     | Y (2)      | P (3)     |
-| [Vaultwarden][]      | Y (1)  | Y             | Y   | Y     | Y (2)      | N         |
+| [*Arr][]              | Y (1)  | Y             | Y   | Y (4) | Y (2)      | N         |
+| [Forgejo][]           | Y (1)  | Y             | Y   | Y     | Y (2)      | N         |
+| [Jellyfin][]          | Y (1)  | Y             | Y   | Y     | Y (2)      | N         |
+| [Home-Assistant][]    | Y (1)  | Y             | N   | Y     | Y (2)      | N         |
+| [Nextcloud Server][]  | Y (1)  | Y             | Y   | Y     | Y (2)      | P (3)     |
+| [Vaultwarden][]       | Y (1)  | Y             | Y   | Y     | Y (2)      | N         |
 
 Legend: **N**: no but WIP; **P**: partial; **Y**: yes
 
@@ -31,6 +32,7 @@ Legend: **N**: no but WIP; **P**: partial; **Y**: yes
 [*Arr]: services-arr.html
 [Forgejo]: services-forgejo.html
 [Home-Assistant]: services-home-assistant.html
+[Jellyfin]: services-jellyfin.html
 [Nextcloud Server]: services-nextcloud.html
 [Vaultwarden]: services-vaultwarden.html
 
@@ -40,6 +42,10 @@ modules/services/arr/docs/default.md
 
 ```{=include=} chapters html:into-file=//services-forgejo.html
 modules/services/forgejo/docs/default.md
+```
+
+```{=include=} chapters html:into-file=//services-jellyfin.html
+modules/services/jellyfin/docs/default.md
 ```
 
 ```{=include=} chapters html:into-file=//services-home-assistant.html
