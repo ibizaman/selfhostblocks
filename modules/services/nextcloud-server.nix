@@ -1185,6 +1185,14 @@ in
     (lib.mkIf cfg.apps.memories.enable
       (let
         cfg' = cfg.apps.memories;
+
+        exiftool = pkgs.exiftool.overrideAttrs (f: p: {
+          version = "12.70";
+          src = pkgs.fetchurl {
+            url = "https://exiftool.org/Image-ExifTool-12.70.tar.gz";
+            hash = "sha256-TLJSJEXMPj870TkExq6uraX8Wl4kmNerrSlX3LQsr/4=";
+          };
+        });
       in
         {
           assertions = [
@@ -1207,7 +1215,7 @@ in
           services.nextcloud = {
             # See all options at https://memories.gallery/system-config/
             settings = {
-              "memories.exiftool" = "${pkgs.exiftool}/bin/exiftool";
+              "memories.exiftool" = "${exiftool}/bin/exiftool";
               "memories.exiftool_no_local" = false;
               "memories.index.mode" = "3";
               "memories.index.path" = cfg'.photosPath;

@@ -9,11 +9,21 @@ Self Host Blocks is available as a flake. To use it in your project, add the fol
 inputs.selfhostblocks.url = "github:ibizaman/selfhostblocks";
 ```
 
-Then, in your `nixosConfigurations`, import the module with:
+Then, in your `nixosConfigurations`, you can import all modules with:
 
 ```nix
 imports = [
   inputs.selfhostblocks.nixosModules.x86_64-linux.default
+];
+```
+
+or selectively import some with, for example:
+
+```nix
+imports = [
+  inputs.selfhostblocks.nixosModules.x86_64-linux.authelia
+  inputs.selfhostblocks.nixosModules.x86_64-linux.lldap
+  inputs.selfhostblocks.nixosModules.x86_64-linux.nextcloud
 ];
 ```
 

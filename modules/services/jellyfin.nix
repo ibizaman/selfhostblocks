@@ -9,6 +9,51 @@ let
   shblib = pkgs.callPackage ../../lib {};
 
   fqdn = "${cfg.subdomain}.${cfg.domain}";
+
+  jellyfin-cli = pkgs.buildDotnetModule rec {
+    pname = "jellyfin-cli";
+    version = "10.10.7";
+
+    src = pkgs.fetchFromGitHub {
+      owner = "ibizaman";
+      repo = "jellyfin";
+      rev = "0b1a5d929960f852dba90c1fc36f3a19dc094f8d";
+      hash = "sha256-H9V65+886EYMn/xDEgmxvoEOrbZaI1wSfmkN9vAzGhw=";
+    };
+
+    propagatedBuildInputs = [ pkgs.sqlite ];
+
+    projectFile = "Jellyfin.Cli/Jellyfin.Cli.csproj";
+    executables = [ "jellyfin-cli" ];
+    nugetDeps = "${pkgs.path}/pkgs/by-name/je/jellyfin/nuget-deps.json";
+    runtimeDeps = [
+      pkgs.jellyfin-ffmpeg
+      pkgs.fontconfig
+      pkgs.freetype
+    ];
+    dotnet-sdk = pkgs.dotnetCorePackages.sdk_8_0;
+    dotnet-runtime = pkgs.dotnetCorePackages.aspnetcore_8_0;
+    dotnetBuildFlags = [ "--no-self-contained" ];
+
+    passthru.tests = {
+      smoke-test = pkgs.nixosTests.jellyfin;
+    };
+
+    meta = with pkgs.lib; {
+      description = "Free Software Media System";
+      homepage = "https://jellyfin.org/";
+      # https://github.com/jellyfin/jellyfin/issues/610#issuecomment-537625510
+      license = licenses.gpl2Plus;
+      maintainers = with maintainers; [
+        nyanloutre
+        minijackson
+        purcell
+        jojosch
+      ];
+      mainProgram = "jellyfin-cli";
+      platforms = dotnet-runtime.meta.platforms;
+    };
+  };
 in
 {
   options.shb.jellyfin = {
@@ -597,7 +642,7 @@ in
         runtimeInputs = [ pkgs.systemd ];
         text = ''
           if ! [ -f "${restartedFile}" ]; then
-            ${lib.getExe pkgs.jellyfin-cli} wizard \
+            ${lib.getExe jellyfin-cli} wizard \
               --datadir='${config.services.jellyfin.dataDir}' \
               --configdir='${config.services.jellyfin.configDir}' \
               --cachedir='${config.services.jellyfin.cacheDir}' \
