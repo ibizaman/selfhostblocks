@@ -37,98 +37,7 @@
       });
       pkgs = import patchedNixpkgs {
         inherit system;
-
-        config = {
-          permittedInsecurePackages = [
-            # TODO: https://github.com/NixOS/nixpkgs/issues/326335
-            "dotnet-sdk-6.0.428"
-          ];
-        };
-
-        overlays = [
-          (final: prev: {
-            exiftool = prev.exiftool.overrideAttrs (f: p: {
-              version = "12.70";
-              src = pkgs.fetchurl {
-                url = "https://exiftool.org/Image-ExifTool-12.70.tar.gz";
-                hash = "sha256-TLJSJEXMPj870TkExq6uraX8Wl4kmNerrSlX3LQsr/4=";
-              };
-            });
-
-            jellyfin-cli = pkgs.buildDotnetModule rec {
-              pname = "jellyfin-cli";
-              version = "10.10.7";
-
-              src = pkgs.fetchFromGitHub {
-                owner = "ibizaman";
-                repo = "jellyfin";
-                rev = "0b1a5d929960f852dba90c1fc36f3a19dc094f8d";
-                hash = "sha256-H9V65+886EYMn/xDEgmxvoEOrbZaI1wSfmkN9vAzGhw=";
-              };
-
-              propagatedBuildInputs = [ pkgs.sqlite ];
-
-              projectFile = "Jellyfin.Cli/Jellyfin.Cli.csproj";
-              executables = [ "jellyfin-cli" ];
-              nugetDeps = "${pkgs.path}/pkgs/by-name/je/jellyfin/nuget-deps.json";
-              runtimeDeps = [
-                pkgs.jellyfin-ffmpeg
-                pkgs.fontconfig
-                pkgs.freetype
-              ];
-              dotnet-sdk = pkgs.dotnetCorePackages.sdk_8_0;
-              dotnet-runtime = pkgs.dotnetCorePackages.aspnetcore_8_0;
-              dotnetBuildFlags = [ "--no-self-contained" ];
-
-              passthru.tests = {
-                smoke-test = pkgs.nixosTests.jellyfin;
-              };
-
-              meta = with pkgs.lib; {
-                description = "Free Software Media System";
-                homepage = "https://jellyfin.org/";
-                # https://github.com/jellyfin/jellyfin/issues/610#issuecomment-537625510
-                license = licenses.gpl2Plus;
-                maintainers = with maintainers; [
-                  nyanloutre
-                  minijackson
-                  purcell
-                  jojosch
-                ];
-                mainProgram = "jellyfin-cli";
-                platforms = dotnet-runtime.meta.platforms;
-              };
-            };
-          })
-        ];
       };
-
-      allModules = [
-        modules/blocks/authelia.nix
-        modules/blocks/davfs.nix
-        modules/blocks/hardcodedsecret.nix
-        modules/blocks/lldap.nix
-        modules/blocks/monitoring.nix
-        modules/blocks/nginx.nix
-        modules/blocks/postgresql.nix
-        modules/blocks/restic.nix
-        modules/blocks/ssl.nix
-        modules/blocks/sops.nix
-        modules/blocks/tinyproxy.nix
-        modules/blocks/vpn.nix
-        modules/blocks/zfs.nix
-
-        modules/services/arr.nix
-        modules/services/audiobookshelf.nix
-        modules/services/deluge.nix
-        modules/services/forgejo.nix
-        modules/services/grocy.nix
-        modules/services/hledger.nix
-        modules/services/home-assistant.nix
-        modules/services/jellyfin.nix
-        modules/services/nextcloud-server.nix
-        modules/services/vaultwarden.nix
-      ];
 
       # The contract dummies are used to show options for contracts.
       contractDummyModules = [
@@ -137,13 +46,73 @@
       ];
     in
       {
-        nixosModules.default = { config, ... }: {
-          imports = allModules;
+        nixosModules.default = self.nixosModules.${system}.all;
+        nixosModules.all = {
+          imports = [
+            self.nixosModules.${system}.insecure
+
+            # blocks
+            self.nixosModules.${system}.authelia
+            self.nixosModules.${system}.davfs
+            self.nixosModules.${system}.hardcodedsecret
+            self.nixosModules.${system}.lldap
+            self.nixosModules.${system}.monitoring
+            self.nixosModules.${system}.nginx
+            self.nixosModules.${system}.postgresql
+            self.nixosModules.${system}.restic
+            self.nixosModules.${system}.ssl
+            self.nixosModules.${system}.sops
+            self.nixosModules.${system}.tinyproxy
+            self.nixosModules.${system}.vpn
+            self.nixosModules.${system}.zfs
+
+            # services
+            self.nixosModules.${system}.arr
+            self.nixosModules.${system}.audiobookshelf
+            self.nixosModules.${system}.deluge
+            self.nixosModules.${system}.forgejo
+            self.nixosModules.${system}.grocy
+            self.nixosModules.${system}.hledger
+            self.nixosModules.${system}.assistant
+            self.nixosModules.${system}.jellyfin
+            self.nixosModules.${system}.nextcloud-server
+            self.nixosModules.${system}.vaultwarden
+          ];
         };
+
+        nixosModules.insecure = {
+          nixpkgs.config.permittedInsecurePackages = [
+          ];
+        };
+
+        nixosModules.authelia = modules/blocks/authelia.nix;
+        nixosModules.davfs = modules/blocks/davfs.nix;
+        nixosModules.hardcodedsecret = modules/blocks/hardcodedsecret.nix;
+        nixosModules.lldap = modules/blocks/lldap.nix;
+        nixosModules.monitoring = modules/blocks/monitoring.nix;
+        nixosModules.nginx = modules/blocks/nginx.nix;
+        nixosModules.postgresql = modules/blocks/postgresql.nix;
+        nixosModules.restic = modules/blocks/restic.nix;
+        nixosModules.ssl = modules/blocks/ssl.nix;
+        nixosModules.sops = modules/blocks/sops.nix;
+        nixosModules.tinyproxy = modules/blocks/tinyproxy.nix;
+        nixosModules.vpn = modules/blocks/vpn.nix;
+        nixosModules.zfs = modules/blocks/zfs.nix;
+
+        nixosModules.arr = modules/services/arr.nix;
+        nixosModules.audiobookshelf = modules/services/audiobookshelf.nix;
+        nixosModules.deluge = modules/services/deluge.nix;
+        nixosModules.forgejo = modules/services/forgejo.nix;
+        nixosModules.grocy = modules/services/grocy.nix;
+        nixosModules.hledger = modules/services/hledger.nix;
+        nixosModules.assistant = modules/services/home-assistant.nix;
+        nixosModules.jellyfin = modules/services/jellyfin.nix;
+        nixosModules.nextcloud-server = modules/services/nextcloud-server.nix;
+        nixosModules.vaultwarden = modules/services/vaultwarden.nix;
 
         packages.manualHtml = pkgs.callPackage ./docs {
           inherit nmdsrc;
-          allModules = allModules ++ contractDummyModules;
+          allModules = self.nixosModules.${system}.all.imports ++ contractDummyModules;
           release = builtins.readFile ./VERSION;
 
           substituteVersionIn = [
