@@ -1,0 +1,163 @@
+From 5bc3588204e71a77d7e0bfccc4cb70e6ccfbb54b Mon Sep 17 00:00:00 2001
+From: ibizaman <ibizaman@tiserbox.com>
+Date: Tue, 15 Jul 2025 18:42:42 +0200
+Subject: [PATCH 1/3] lldap: lldap 0.6.1 -> unstable-2025-07-16
+
+---
+ .../0001-parameterize-frontend-location.patch | 64 -------------------
+ pkgs/by-name/ll/lldap/package.nix             | 30 +++++----
+ 2 files changed, 16 insertions(+), 78 deletions(-)
+ delete mode 100644 pkgs/by-name/ll/lldap/0001-parameterize-frontend-location.patch
+
+diff --git a/pkgs/by-name/ll/lldap/0001-parameterize-frontend-location.patch b/pkgs/by-name/ll/lldap/0001-parameterize-frontend-location.patch
+deleted file mode 100644
+index c33f5a7afa10..000000000000
+--- a/pkgs/by-name/ll/lldap/0001-parameterize-frontend-location.patch
++++ /dev/null
+@@ -1,64 +0,0 @@
+-From a09babb0cd9dd532ad2de920a2a35aa03d740dc6 Mon Sep 17 00:00:00 2001
+-From: Herwig Hochleitner <herwig@bendlas.net>
+-Date: Thu, 8 Aug 2024 00:29:14 +0200
+-Subject: [PATCH] parameterize frontend location
+-
+----
+- server/src/infra/tcp_server.rs | 14 +++++++-------
+- 1 file changed, 7 insertions(+), 7 deletions(-)
+-
+-diff --git a/server/src/infra/tcp_server.rs b/server/src/infra/tcp_server.rs
+-index fa5f11f..16e64c5 100644
+---- a/server/src/infra/tcp_server.rs
+-+++ b/server/src/infra/tcp_server.rs
+-@@ -25,7 +25,7 @@ use std::sync::RwLock;
+- use tracing::info;
+- 
+- async fn index<Backend>(data: web::Data<AppState<Backend>>) -> actix_web::Result<impl Responder> {
+--    let mut file = std::fs::read_to_string(r"./app/index.html")?;
+-+    let mut file = std::fs::read_to_string(r"@frontend@/index.html")?;
+- 
+-     if data.server_url.path() != "/" {
+-         file = file.replace(
+-@@ -80,7 +80,7 @@ pub(crate) fn error_to_http_response(error: TcpError) -> HttpResponse {
+- async fn main_js_handler<Backend>(
+-     data: web::Data<AppState<Backend>>,
+- ) -> actix_web::Result<impl Responder> {
+--    let mut file = std::fs::read_to_string(r"./app/static/main.js")?;
+-+    let mut file = std::fs::read_to_string(r"@frontend@/static/main.js")?;
+- 
+-     if data.server_url.path() != "/" {
+-         file = file.replace("/pkg/", format!("{}/pkg/", data.server_url.path()).as_str());
+-@@ -92,12 +92,12 @@ async fn main_js_handler<Backend>(
+- }
+- 
+- async fn wasm_handler() -> actix_web::Result<impl Responder> {
+--    Ok(actix_files::NamedFile::open_async("./app/pkg/lldap_app_bg.wasm").await?)
+-+    Ok(actix_files::NamedFile::open_async("@frontend@/pkg/lldap_app_bg.wasm").await?)
+- }
+- 
+- async fn wasm_handler_compressed() -> actix_web::Result<impl Responder> {
+-     Ok(
+--        actix_files::NamedFile::open_async("./app/pkg/lldap_app_bg.wasm.gz")
+-+        actix_files::NamedFile::open_async("@frontend@/pkg/lldap_app_bg.wasm.gz")
+-             .await?
+-             .customize()
+-             .insert_header(header::ContentEncoding::Gzip)
+-@@ -143,11 +143,11 @@ fn http_config<Backend>(
+-     .service(web::resource("/pkg/lldap_app_bg.wasm").route(web::route().to(wasm_handler)))
+-     .service(web::resource("/static/main.js").route(web::route().to(main_js_handler::<Backend>)))
+-     // Serve the /pkg path with the compiled WASM app.
+--    .service(Files::new("/pkg", "./app/pkg"))
+-+    .service(Files::new("/pkg", "@frontend@/pkg"))
+-     // Serve static files
+--    .service(Files::new("/static", "./app/static"))
+-+    .service(Files::new("/static", "@frontend@/static"))
+-     // Serve static fonts
+--    .service(Files::new("/static/fonts", "./app/static/fonts"))
+-+    .service(Files::new("/static/fonts", "@frontend@/static/fonts"))
+-     // Default to serve index.html for unknown routes, to support routing.
+-     .default_service(web::route().guard(guard::Get()).to(index::<Backend>));
+- }
+--- 
+-2.45.2
+-
+diff --git a/pkgs/by-name/ll/lldap/package.nix b/pkgs/by-name/ll/lldap/package.nix
+index 6931256080b2..41e4a332018e 100644
+--- a/pkgs/by-name/ll/lldap/package.nix
++++ b/pkgs/by-name/ll/lldap/package.nix
+@@ -3,29 +3,30 @@
+   fetchFromGitHub,
+   lib,
+   lldap,
++  makeWrapper,
+   nixosTests,
+   rustPlatform,
+   rustc,
+-  wasm-bindgen-cli_0_2_95,
++  wasm-bindgen-cli_0_2_100,
+   wasm-pack,
+   which,
+ }:
+ 
+ let
+ 
+-  commonDerivationAttrs = rec {
++  commonDerivationAttrs = {
+     pname = "lldap";
+-    version = "0.6.1";
++    version = "unstable-2025-07-16";
+ 
+     src = fetchFromGitHub {
+       owner = "lldap";
+       repo = "lldap";
+-      rev = "v${version}";
+-      hash = "sha256-iQ+Vv9kx/pWHoa/WZChBK+FD2r1avzWWz57bnnzRjUg=";
++      rev = "78337bce722c3573d9fc6eafe345a3dbce4b9119";
++      hash = "sha256-/djLboAQwK/KQ0u9vzoOdDHwh/BQSvMa8lQkABn10Cw=";
+     };
+ 
+     useFetchCargoVendor = true;
+-    cargoHash = "sha256-qXYgr9uRswuo9hwVROUX9KUKpkzR0VEcXImbdyOgxsY=";
++    cargoHash = "sha256-/dyrtX2FUHSGkJ6AkCM81iPqI03IWA0tecR4KHSx8gA=";
+ 
+   };
+ 
+@@ -36,7 +37,7 @@ let
+ 
+       nativeBuildInputs = [
+         wasm-pack
+-        wasm-bindgen-cli_0_2_95
++        wasm-bindgen-cli_0_2_100
+         binaryen
+         which
+         rustc
+@@ -69,12 +70,10 @@ rustPlatform.buildRustPackage (
+       "lldap_set_password"
+     ];
+ 
+-    patches = [
+-      ./0001-parameterize-frontend-location.patch
+-    ];
+-
+-    postPatch = ''
+-      substituteInPlace server/src/infra/tcp_server.rs --subst-var-by frontend '${frontend}'
++    nativeBuildInputs = [ makeWrapper ];
++    postInstall = ''
++      wrapProgram $out/bin/lldap \
++        --set LLDAP_ASSETS_PATH ${frontend}
+     '';
+ 
+     passthru = {
+@@ -90,7 +89,10 @@ rustPlatform.buildRustPackage (
+       changelog = "https://github.com/lldap/lldap/blob/v${lldap.version}/CHANGELOG.md";
+       license = licenses.gpl3Only;
+       platforms = platforms.linux;
+-      maintainers = with maintainers; [ bendlas ];
++      maintainers = with maintainers; [
++        bendlas
++        ibizaman
++      ];
+       mainProgram = "lldap";
+     };
+   }
+-- 
+2.49.0
+

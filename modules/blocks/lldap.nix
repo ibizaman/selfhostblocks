@@ -6,6 +6,46 @@ let
   contracts = pkgs.callPackage ../contracts {};
 
   fqdn = "${cfg.subdomain}.${cfg.domain}";
+
+  inherit (lib) mkOption types;
+
+  ensureFormat = pkgs.formats.json { };
+
+  ensureFieldsOptions = name: {
+    name = mkOption {
+      type = types.str;
+      description = "Name of the field.";
+      default = name;
+    };
+
+    attributeType = mkOption {
+      type = types.enum [
+        "STRING"
+        "INTEGER"
+        "JPEG"
+        "DATE_TIME"
+      ];
+      description = "Attribute type.";
+    };
+
+    isEditable = mkOption {
+      type = types.bool;
+      description = "Is field editable.";
+      default = true;
+    };
+
+    isList = mkOption {
+      type = types.bool;
+      description = "Is field a list.";
+      default = false;
+    };
+
+    isVisible = mkOption {
+      type = types.bool;
+      description = "Is field visible in UI.";
+      default = true;
+    };
+  };
 in
 {
   options.shb.lldap = {
@@ -118,10 +158,155 @@ in
         };
       };
     };
+
+    ensureUsers = mkOption {
+      description = ''
+        Create the users defined here on service startup.
+
+        If `enforceEnsure` option is `true`, the groups
+        users belong to must be present in the `ensureGroups` option.
+
+        Non-default options must be added to the `ensureGroupFields` option.
+      '';
+      default = { };
+      type = types.attrsOf (
+        types.submodule (
+          { name, ... }:
+          {
+            freeformType = ensureFormat.type;
+
+            options = {
+              id = mkOption {
+                type = types.str;
+                description = "Username.";
+                default = name;
+              };
+
+              email = mkOption {
+                type = types.str;
+                description = "Email.";
+              };
+
+              password = mkOption {
+                description = "Password.";
+                type = lib.types.submodule {
+                  options = contracts.secret.mkRequester {
+                    mode = "0440";
+                    owner = "lldap";
+                    group = "lldap";
+                    restartUnits = [ "lldap.service" ];
+                  };
+                };
+              };
+
+              displayName = mkOption {
+                type = types.nullOr types.str;
+                default = null;
+                description = "Display name.";
+              };
+
+              firstName = mkOption {
+                type = types.nullOr types.str;
+                default = null;
+                description = "First name.";
+              };
+
+              lastName = mkOption {
+                type = types.nullOr types.str;
+                default = null;
+                description = "Last name.";
+              };
+
+              avatar_file = mkOption {
+                type = types.nullOr types.str;
+                default = null;
+                description = "Avatar file. Must be a valid path to jpeg file (ignored if avatar_url specified)";
+              };
+
+              avatar_url = mkOption {
+                type = types.nullOr types.str;
+                default = null;
+                description = "Avatar url. must be a valid URL to jpeg file (ignored if gravatar_avatar specified)";
+              };
+
+              gravatar_avatar = mkOption {
+                type = types.nullOr types.str;
+                default = null;
+                description = "Get avatar from Gravatar using the email.";
+              };
+
+              weser_avatar = mkOption {
+                type = types.nullOr types.str;
+                default = null;
+                description = "Convert avatar retrieved by gravatar or the URL.";
+              };
+
+              groups = mkOption {
+                type = types.listOf types.str;
+                default = [ ];
+                description = "Groups the user would be a member of (all the groups must be specified in group config files).";
+              };
+            };
+          }
+        )
+      );
+    };
+
+    ensureGroups = mkOption {
+      description = ''
+        Create the groups defined here on service startup.
+
+        Non-default options must be added to the `ensureGroupFields` option.
+      '';
+      default = { };
+      type = types.attrsOf (
+        types.submodule (
+          { name, ... }:
+          {
+            freeformType = ensureFormat.type;
+
+            options = {
+              name = mkOption {
+                type = types.str;
+                description = "Name of the group.";
+                default = name;
+              };
+            };
+          }
+        )
+      );
+    };
+
+    ensureUserFields = mkOption {
+      description = "Extra fields for users";
+      default = { };
+      type = types.attrsOf (
+        types.submodule (
+          { name, ... }:
+          {
+            options = ensureFieldsOptions name;
+          }
+        )
+      );
+    };
+
+    ensureGroupFields = mkOption {
+      description = "Extra fields for groups";
+      default = { };
+      type = types.attrsOf (
+        types.submodule (
+          { name, ... }:
+          {
+            options = ensureFieldsOptions name;
+          }
+        )
+      );
+    };
   };
 
   
   config = lib.mkIf cfg.enable {
+
     services.nginx = {
       enable = true;
 
@@ -151,10 +336,12 @@ in
     services.lldap = {
       enable = true;
 
-      environment = {
-        LLDAP_JWT_SECRET_FILE = toString cfg.jwtSecret.result.path;
-        LLDAP_LDAP_USER_PASS_FILE = toString cfg.ldapUserPassword.result.path;
+      adminPasswordFile = toString cfg.ldapUserPassword.result.path;
+      jwtSecretFile = toString cfg.jwtSecret.result.path;
+      resetAdminPassword = "always";
+      enforceEnsure = true;
 
+      environment = {
         RUST_LOG = lib.mkIf cfg.debug "debug";
       };
 
@@ -170,6 +357,11 @@ in
 
         verbose = cfg.debug;
       };
+
+      inherit (cfg) ensureGroups ensureUserFields ensureGroupFields;
+      ensureUsers = lib.mapAttrs (n: v: (lib.removeAttrs v [ "password" ]) // {
+        "password_file" = v.password.result.path;
+      }) cfg.ensureUsers;
     };
   };
 }

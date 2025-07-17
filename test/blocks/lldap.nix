@@ -3,6 +3,7 @@ let
   pkgs' = pkgs;
 
   password = "securepassword";
+  charliePassword = "CharliePassword";
 in
 {
   auth = pkgs.testers.runNixOSTest {
@@ -29,6 +30,17 @@ in
         ldapUserPassword.result = config.shb.hardcodedsecret.ldapUserPassword.result;
         jwtSecret.result = config.shb.hardcodedsecret.jwtSecret.result;
         debug = true;
+
+        ensureUsers = {
+          "charlie" = {
+            email = "charlie@example.com";
+            password.result = config.shb.hardcodedsecret."charlie".result;
+          };
+        };
+
+        ensureGroups = {
+          "family" = {};
+        };
       };
       shb.hardcodedsecret.ldapUserPassword = {
         request = config.shb.lldap.ldapUserPassword.request;
@@ -37,6 +49,10 @@ in
       shb.hardcodedsecret.jwtSecret = {
         request = config.shb.lldap.jwtSecret.request;
         settings.content = "jwtSecret";
+      };
+      shb.hardcodedsecret."charlie" = {
+        request = config.shb.lldap.ensureUsers."charlie".password.request;
+        settings.content = charliePassword;
       };
 
       networking.firewall.allowedTCPPorts = [ 80 ]; # nginx port
@@ -89,6 +105,15 @@ in
 
         assert data['user']['displayName'] == "Administrator"
         assert data['user']['groups'][0]['displayName'] == "lldap_admin"
+
+    with subtest("succeed charlie"):
+        client.succeed(
+            "curl -f -s -X POST "
+            + """ -H "Content-type: application/json" """
+            + """ -H "Host: ldap.example.com" """
+            + " http://server/auth/simple/login "
+            + """ -d '{"username": "charlie", "password": "${charliePassword}"}' """
+        )
     '';
   };
 }

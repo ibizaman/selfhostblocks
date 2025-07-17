@@ -53,14 +53,94 @@ by adding the following line:
 shb.lldap.restrictAccessIPRange = "192.168.50.0/24";
 ```
 
-## Manage User and Group {#blocks-lldap-manage-user-group}
+## Manage Groups {#blocks-lldap-manage-groups}
 
-Currently, managing users and groups must be done manually.
-Work is in progress to make this declarative.
+The following snippet will create group named "family" if it does not exist yet.
+Also, all other groups will be deleted and only the "family" group will remain.
+
+Note that the `lldap_admin`, `lldap_password_manager` and `lldap_strict_readonly` groups, which are internal to LLDAP, will always exist.
+
+```nix
+{
+  shb.lldap.ensureGroups = {
+   family = {};
+  };
+}
+```
+
+Changing the configuration to the following will add a new group "friends":
+
+```nix
+{
+  shb.lldap.ensureGroups = {
+    family = {};
+    friends = {};
+  };
+}
+```
+
+Switching back the configuration to the previous one will delete the group "friends":
+
+```nix
+{
+  shb.lldap.ensureGroups = {
+    family = {};
+  };
+}
+```
+
+Custom fields can be added to groups as long as they are added to the `ensureGroupFields` field:
+
+```nix
+shb.lldap = {
+  ensureGroupFields = {
+    mygroupattribute = {
+      attributeType = "STRING";
+    };
+  };
+
+  ensureGroups = {
+    family = {
+      mygroupattribute = "Managed by NixOS";
+    };
+  };
+};
+```
+
+## Manage Users {#blocks-lldap-manage-users}
+
+The following snippet creates a user and makes it a member of the "family" group.
+
+```nix
+{
+  shb.lldap.ensureUsers = {
+    dad = {
+      email = "dad@example.com";
+      displayName = "Dad";
+      firstName = "First Name";
+      lastName = "Last Name";
+      groups = [ "family" ];
+      password.result = config.shb.sops.secret."dad".result;
+    };
+  };
+
+  shb.sops.secret."dad".request =
+    shb.ldap.ensureUsers.dad.password.request;
+}
+```
+
+The password field assumes usage of the [sops block][] to provide secrets
+although any blocks providing the [secrets contract][] works too.
+
+[sops block]: blocks-sops.html
+[secrets contract]: contracts-secrets.html
+
+The user is still editable through the UI.
+That being said, any change will be overwritten next time the configuration is applied.
 
 ## Troubleshooting {#blocks-lldap-troubleshooting}
 
-To increase logging verbosity, add:
+To increase logging verbosity and see the trace of the GraphQL queries, add:
 
 ```nix
 shb.lldap.debug = true;
@@ -68,6 +148,8 @@ shb.lldap.debug = true;
 
 Note that verbosity is truly verbose here
 so you will want to revert this at some point.
+
+To see the logs, then run `journalctl -u lldap.service`.
 
 ## Tests {#blocks-lldap-tests}
 

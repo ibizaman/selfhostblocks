@@ -311,8 +311,11 @@
   "blocks-lldap-global-setup": [
     "blocks-lldap.html#blocks-lldap-global-setup"
   ],
-  "blocks-lldap-manage-user-group": [
-    "blocks-lldap.html#blocks-lldap-manage-user-group"
+  "blocks-lldap-manage-groups": [
+    "blocks-lldap.html#blocks-lldap-manage-groups"
+  ],
+  "blocks-lldap-manage-users": [
+    "blocks-lldap.html#blocks-lldap-manage-users"
   ],
   "blocks-lldap-options": [
     "blocks-lldap.html#blocks-lldap-options"
@@ -361,6 +364,105 @@
   ],
   "blocks-lldap-options-shb.lldap.enable": [
     "blocks-lldap.html#blocks-lldap-options-shb.lldap.enable"
+  ],
+  "blocks-lldap-options-shb.lldap.ensureGroupFields": [
+    "blocks-lldap.html#blocks-lldap-options-shb.lldap.ensureGroupFields"
+  ],
+  "blocks-lldap-options-shb.lldap.ensureGroupFields._name_.attributeType": [
+    "blocks-lldap.html#blocks-lldap-options-shb.lldap.ensureGroupFields._name_.attributeType"
+  ],
+  "blocks-lldap-options-shb.lldap.ensureGroupFields._name_.isEditable": [
+    "blocks-lldap.html#blocks-lldap-options-shb.lldap.ensureGroupFields._name_.isEditable"
+  ],
+  "blocks-lldap-options-shb.lldap.ensureGroupFields._name_.isList": [
+    "blocks-lldap.html#blocks-lldap-options-shb.lldap.ensureGroupFields._name_.isList"
+  ],
+  "blocks-lldap-options-shb.lldap.ensureGroupFields._name_.isVisible": [
+    "blocks-lldap.html#blocks-lldap-options-shb.lldap.ensureGroupFields._name_.isVisible"
+  ],
+  "blocks-lldap-options-shb.lldap.ensureGroupFields._name_.name": [
+    "blocks-lldap.html#blocks-lldap-options-shb.lldap.ensureGroupFields._name_.name"
+  ],
+  "blocks-lldap-options-shb.lldap.ensureGroups": [
+    "blocks-lldap.html#blocks-lldap-options-shb.lldap.ensureGroups"
+  ],
+  "blocks-lldap-options-shb.lldap.ensureGroups._name_.name": [
+    "blocks-lldap.html#blocks-lldap-options-shb.lldap.ensureGroups._name_.name"
+  ],
+  "blocks-lldap-options-shb.lldap.ensureUserFields": [
+    "blocks-lldap.html#blocks-lldap-options-shb.lldap.ensureUserFields"
+  ],
+  "blocks-lldap-options-shb.lldap.ensureUserFields._name_.attributeType": [
+    "blocks-lldap.html#blocks-lldap-options-shb.lldap.ensureUserFields._name_.attributeType"
+  ],
+  "blocks-lldap-options-shb.lldap.ensureUserFields._name_.isEditable": [
+    "blocks-lldap.html#blocks-lldap-options-shb.lldap.ensureUserFields._name_.isEditable"
+  ],
+  "blocks-lldap-options-shb.lldap.ensureUserFields._name_.isList": [
+    "blocks-lldap.html#blocks-lldap-options-shb.lldap.ensureUserFields._name_.isList"
+  ],
+  "blocks-lldap-options-shb.lldap.ensureUserFields._name_.isVisible": [
+    "blocks-lldap.html#blocks-lldap-options-shb.lldap.ensureUserFields._name_.isVisible"
+  ],
+  "blocks-lldap-options-shb.lldap.ensureUserFields._name_.name": [
+    "blocks-lldap.html#blocks-lldap-options-shb.lldap.ensureUserFields._name_.name"
+  ],
+  "blocks-lldap-options-shb.lldap.ensureUsers": [
+    "blocks-lldap.html#blocks-lldap-options-shb.lldap.ensureUsers"
+  ],
+  "blocks-lldap-options-shb.lldap.ensureUsers._name_.avatar_file": [
+    "blocks-lldap.html#blocks-lldap-options-shb.lldap.ensureUsers._name_.avatar_file"
+  ],
+  "blocks-lldap-options-shb.lldap.ensureUsers._name_.avatar_url": [
+    "blocks-lldap.html#blocks-lldap-options-shb.lldap.ensureUsers._name_.avatar_url"
+  ],
+  "blocks-lldap-options-shb.lldap.ensureUsers._name_.displayName": [
+    "blocks-lldap.html#blocks-lldap-options-shb.lldap.ensureUsers._name_.displayName"
+  ],
+  "blocks-lldap-options-shb.lldap.ensureUsers._name_.email": [
+    "blocks-lldap.html#blocks-lldap-options-shb.lldap.ensureUsers._name_.email"
+  ],
+  "blocks-lldap-options-shb.lldap.ensureUsers._name_.firstName": [
+    "blocks-lldap.html#blocks-lldap-options-shb.lldap.ensureUsers._name_.firstName"
+  ],
+  "blocks-lldap-options-shb.lldap.ensureUsers._name_.gravatar_avatar": [
+    "blocks-lldap.html#blocks-lldap-options-shb.lldap.ensureUsers._name_.gravatar_avatar"
+  ],
+  "blocks-lldap-options-shb.lldap.ensureUsers._name_.groups": [
+    "blocks-lldap.html#blocks-lldap-options-shb.lldap.ensureUsers._name_.groups"
+  ],
+  "blocks-lldap-options-shb.lldap.ensureUsers._name_.id": [
+    "blocks-lldap.html#blocks-lldap-options-shb.lldap.ensureUsers._name_.id"
+  ],
+  "blocks-lldap-options-shb.lldap.ensureUsers._name_.lastName": [
+    "blocks-lldap.html#blocks-lldap-options-shb.lldap.ensureUsers._name_.lastName"
+  ],
+  "blocks-lldap-options-shb.lldap.ensureUsers._name_.password": [
+    "blocks-lldap.html#blocks-lldap-options-shb.lldap.ensureUsers._name_.password"
+  ],
+  "blocks-lldap-options-shb.lldap.ensureUsers._name_.password.request": [
+    "blocks-lldap.html#blocks-lldap-options-shb.lldap.ensureUsers._name_.password.request"
+  ],
+  "blocks-lldap-options-shb.lldap.ensureUsers._name_.password.request.group": [
+    "blocks-lldap.html#blocks-lldap-options-shb.lldap.ensureUsers._name_.password.request.group"
+  ],
+  "blocks-lldap-options-shb.lldap.ensureUsers._name_.password.request.mode": [
+    "blocks-lldap.html#blocks-lldap-options-shb.lldap.ensureUsers._name_.password.request.mode"
+  ],
+  "blocks-lldap-options-shb.lldap.ensureUsers._name_.password.request.owner": [
+    "blocks-lldap.html#blocks-lldap-options-shb.lldap.ensureUsers._name_.password.request.owner"
+  ],
+  "blocks-lldap-options-shb.lldap.ensureUsers._name_.password.request.restartUnits": [
+    "blocks-lldap.html#blocks-lldap-options-shb.lldap.ensureUsers._name_.password.request.restartUnits"
+  ],
+  "blocks-lldap-options-shb.lldap.ensureUsers._name_.password.result": [
+    "blocks-lldap.html#blocks-lldap-options-shb.lldap.ensureUsers._name_.password.result"
+  ],
+  "blocks-lldap-options-shb.lldap.ensureUsers._name_.password.result.path": [
+    "blocks-lldap.html#blocks-lldap-options-shb.lldap.ensureUsers._name_.password.result.path"
+  ],
+  "blocks-lldap-options-shb.lldap.ensureUsers._name_.weser_avatar": [
+    "blocks-lldap.html#blocks-lldap-options-shb.lldap.ensureUsers._name_.weser_avatar"
   ],
   "blocks-lldap-options-shb.lldap.jwtSecret": [
     "blocks-lldap.html#blocks-lldap-options-shb.lldap.jwtSecret"
