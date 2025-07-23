@@ -1,14 +1,127 @@
-From 5bc3588204e71a77d7e0bfccc4cb70e6ccfbb54b Mon Sep 17 00:00:00 2001
+From ac7fcd01a20cfd93e2ac2b558f38bfa500e5f28a Mon Sep 17 00:00:00 2001
 From: ibizaman <ibizaman@tiserbox.com>
 Date: Tue, 15 Jul 2025 18:42:42 +0200
-Subject: [PATCH 1/3] lldap: lldap 0.6.1 -> unstable-2025-07-16
+Subject: [PATCH 2/3] lldap: lldap 0.6.1 -> unstable-2025-07-16
 
 ---
+ nixos/modules/services/databases/lldap.nix    | 43 ++++++++++---
+ nixos/tests/lldap.nix                         |  8 ++-
  .../0001-parameterize-frontend-location.patch | 64 -------------------
  pkgs/by-name/ll/lldap/package.nix             | 30 +++++----
- 2 files changed, 16 insertions(+), 78 deletions(-)
+ 4 files changed, 55 insertions(+), 90 deletions(-)
  delete mode 100644 pkgs/by-name/ll/lldap/0001-parameterize-frontend-location.patch
 
+diff --git a/nixos/modules/services/databases/lldap.nix b/nixos/modules/services/databases/lldap.nix
+index 1607754d7d9c..1095021b3f35 100644
+--- a/nixos/modules/services/databases/lldap.nix
++++ b/nixos/modules/services/databases/lldap.nix
+@@ -2,7 +2,6 @@
+   config,
+   lib,
+   pkgs,
+-  utils,
+   ...
+ }:
+ 
+@@ -103,6 +102,16 @@ in
+             example = "postgres://postgres-user:password@postgres-server/my-database";
+           };
+ 
++          ldap_user_pass = mkOption {
++            type = types.nullOr types.str;
++            default = null;
++            description = ''
++              Password for default admin password.
++
++              Unsecure: Use `ldap_user_pass_file` settings instead.
++            '';
++          };
++
+           ldap_user_pass_file = mkOption {
+             type = types.nullOr types.str;
+             default = null;
+@@ -163,18 +172,32 @@ in
+   };
+ 
+   config = lib.mkIf cfg.enable {
++    assertions = [
++      {
++        assertion =
++          (cfg.settings.ldap_user_pass_file or null) != null || (cfg.settings.ldap_user_pass or null) != null;
++        message = "lldap: Default admin user password must be set. Please set the `ldap_user_pass` or better the `ldap_user_pass_file` setting.";
++      }
++      {
++        assertion =
++          (cfg.settings.ldap_user_pass_file or null) == null || (cfg.settings.ldap_user_pass or null) == null;
++        message = "lldap: Both `ldap_user_pass` and `ldap_user_pass_file` settings should not be set at the same time. Set one to `null`.";
++      }
++    ];
++
+     warnings =
+-      lib.optionals
+-        (
+-          (cfg.settings.ldap_user_pass_file or null) != null
+-          && cfg.settings.force_ldap_user_pass_reset == false
+-          && cfg.silenceForceUserPassResetWarning == false
+-        )
++      lib.optionals (cfg.settings.ldap_user_pass or null != null) [
++        ''
++          lldap: Unsecure `ldap_user_pass` setting is used. Prefer `ldap_user_pass_file` instead.
++        ''
++      ]
++      ++ lib.optionals
++        (cfg.settings.force_ldap_user_pass_reset == false && cfg.silenceForceUserPassResetWarning == false)
+         [
+           ''
+-            lldap: The default admin password is declared with the setting `ldap_user_pass_file`, but `force_ldap_user_pass_reset` is set to `false`.
+-            This means the admin password can be changed through the UI and will drift from the one defined in your nix config.
+-            It also means changing the setting `ldap_user_pass_file` will have no effect on the admin password.
++            lldap: The `force_ldap_user_pass_reset` setting is set to `false` which means
++            the admin password can be changed through the UI and will drift from the one defined in your nix config.
++            It also means changing the setting `ldap_user_pass` or `ldap_user_pass_file` will have no effect on the admin password.
+             Either set `force_ldap_user_pass_reset` to `"always"` or silence this warning by setting the option `services.lldap.silenceForceUserPassResetWarning` to `true`.
+           ''
+         ];
+diff --git a/nixos/tests/lldap.nix b/nixos/tests/lldap.nix
+index aea6b2058727..8e38d4bdefa3 100644
+--- a/nixos/tests/lldap.nix
++++ b/nixos/tests/lldap.nix
+@@ -6,7 +6,7 @@ in
+   name = "lldap";
+ 
+   nodes.machine =
+-    { pkgs, ... }:
++    { pkgs, lib, ... }:
+     {
+       services.lldap = {
+         enable = true;
+@@ -14,6 +14,8 @@ in
+         settings = {
+           verbose = true;
+           ldap_base_dn = "dc=example,dc=com";
++
++          ldap_user_pass = "password";
+         };
+       };
+       environment.systemPackages = [ pkgs.openldap ];
+@@ -23,7 +25,8 @@ in
+           { ... }:
+           {
+             services.lldap.settings = {
+-              ldap_user_pass_file = toString (pkgs.writeText "adminPasswordFile" adminPassword);
++              ldap_user_pass = lib.mkForce null;
++              ldap_user_pass_file = lib.mkForce (toString (pkgs.writeText "adminPasswordFile" adminPassword));
+               force_ldap_user_pass_reset = "always";
+             };
+           };
+@@ -32,6 +35,7 @@ in
+           { ... }:
+           {
+             services.lldap.settings = {
++              ldap_user_pass = lib.mkForce null;
+               ldap_user_pass_file = toString (pkgs.writeText "adminPasswordFile" "password");
+               force_ldap_user_pass_reset = false;
+             };
 diff --git a/pkgs/by-name/ll/lldap/0001-parameterize-frontend-location.patch b/pkgs/by-name/ll/lldap/0001-parameterize-frontend-location.patch
 deleted file mode 100644
 index c33f5a7afa10..000000000000
