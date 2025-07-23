@@ -336,9 +336,6 @@ in
     services.lldap = {
       enable = true;
 
-      adminPasswordFile = toString cfg.ldapUserPassword.result.path;
-      jwtSecretFile = toString cfg.jwtSecret.result.path;
-      resetAdminPassword = "always";
       enforceEnsure = true;
 
       environment = {
@@ -352,8 +349,11 @@ in
 
         ldap_host = "127.0.0.1";
         ldap_port = cfg.ldapPort;
-
         ldap_base_dn = cfg.dcdomain;
+
+        ldap_user_pass_file = toString cfg.ldapUserPassword.result.path;
+        force_ldap_user_pass_reset = "always";
+        jwt_secret_file = toString cfg.jwtSecret.result.path;
 
         verbose = cfg.debug;
       };
