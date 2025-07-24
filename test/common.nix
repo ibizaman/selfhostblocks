@@ -120,22 +120,22 @@ let
     + (optionalString (hasAttr "test" nodes.server && hasAttr "login" nodes.server.test) ''
     with subtest("Login from server"):
         code, logs = server.execute("login_playwright")
+        print(logs)
         try:
             server.copy_from_vm("trace")
         except:
             print("No trace found on server")
-        print(logs)
         if code != 0:
             raise Exception("login_playwright did not succeed")
     '')
     + (optionalString (hasAttr "test" nodes.client && hasAttr "login" nodes.client.test) ''
     with subtest("Login from client"):
         code, logs = client.execute("login_playwright")
+        print(logs)
         try:
-            server.copy_from_vm("trace")
+            client.copy_from_vm("trace")
         except:
             print("No trace found on client")
-        print(logs)
         if code != 0:
             raise Exception("login_playwright did not succeed")
     '')
@@ -319,6 +319,7 @@ in
                             print(f"Page has title: {page.title()}")
                             exec(line)
                     finally:
+                        print(f'Saving trace at trace/{i}.zip')
                         context.tracing.stop(path=f"trace/{i}.zip")
 
                 browser.close()
@@ -401,6 +402,24 @@ in
       dcdomain = "dc=example,dc=com";
       ldapUserPassword.result = config.shb.hardcodedsecret.ldapUserPassword.result;
       jwtSecret.result = config.shb.hardcodedsecret.jwtSecret.result;
+
+      ensureUsers = {
+        alice = {
+          email = "alice@example.com";
+          groups = [ "user_group" ];
+          password.result.path = pkgs.writeText "alicePassword" "AlicePassword";
+        };
+        bob = {
+          email = "bob@example.com";
+          groups = [ "user_group" "admin_group" ];
+          password.result.path = pkgs.writeText "bobPassword" "BobPassword";
+        };
+      };
+
+      ensureGroups = {
+        user_group = {};
+        admin_group = {};
+      };
     };
   };
 

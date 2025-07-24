@@ -108,6 +108,16 @@ in
             description = "Group users must belong to be admins.";
             default = "forgejo_admin";
           };
+
+          waitForSystemdServices = mkOption {
+            type = listOf str;
+            default = [];
+            description = ''
+              List of systemd services to wait on before starting.
+              This is needed because forgejo will try a lookup on the LDAP instance
+              and will abort setting up LDAP if it can't reach it.
+            '';
+          };
         };
       });
     };
@@ -392,6 +402,8 @@ in
     # For cli info: https://docs.gitea.com/usage/command-line
     # Security protocols in: https://codeberg.org/forgejo/forgejo/src/branch/forgejo/services/auth/source/ldap/security_protocol.go#L27-L31
     (mkIf (cfg.enable && cfg.ldap.enable != false) {
+      systemd.services.forgejo.wants = cfg.ldap.waitForSystemdServices;
+      systemd.services.forgejo.after = cfg.ldap.waitForSystemdServices;
       # The delimiter in the `cut` command is a TAB!
       systemd.services.forgejo.preStart = let
         provider = "SHB-${cfg.ldap.provider}";

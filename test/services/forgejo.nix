@@ -118,6 +118,9 @@ let
         port = config.shb.lldap.ldapPort;
         dcdomain = config.shb.lldap.dcdomain;
         adminPassword.result = config.shb.hardcodedsecret.forgejoLdapUserPassword.result;
+        waitForSystemdServices = [ "lldap.service" ];
+
+        userGroup = "user_group";
       };
     };
 
@@ -200,6 +203,8 @@ in
   ldap = pkgs.testers.runNixOSTest {
     name = "forgejo_ldap";
 
+    interactive.sshBackdoor.enable = true;
+
     nodes.server = {
       imports = [
         basic
@@ -208,7 +213,45 @@ in
       ];
     };
   
-    nodes.client = {};
+    nodes.client = {
+      imports = [
+        ({ config, ... }: {
+          imports = [
+            testLib.baseModule
+            testLib.clientLoginModule
+          ];
+
+          test = {
+            subdomain = "f";
+          };
+
+          test.login = {
+            startUrl = "http://${config.test.fqdn}/user/login";
+            usernameFieldLabelRegex = "Username or email address";
+            passwordFieldLabelRegex = "Password";
+            loginButtonNameRegex = "[sS]ign [iI]n";
+            testLoginWith = [
+              { username = "alice"; password = "NotAlicePassword"; nextPageExpect = [
+                  "expect(page.get_by_text('Username or password is incorrect.')).to_be_visible()"
+                ]; }
+              { username = "alice"; password = "AlicePassword"; nextPageExpect = [
+                  "expect(page.get_by_text('Username or password is incorrect.')).not_to_be_visible()"
+                  "expect(page.get_by_role('button', name=re.compile('Sign In'))).not_to_be_visible()"
+                  "expect(page).to_have_title(re.compile('Dashboard'))"
+                ]; }
+              { username = "bob"; password = "NotBobPassword"; nextPageExpect = [
+                  "expect(page.get_by_text('Username or password is incorrect.')).to_be_visible()"
+                ]; }
+              { username = "bob"; password = "BobPassword"; nextPageExpect = [
+                  "expect(page.get_by_text('Username or password is incorrect.')).not_to_be_visible()"
+                  "expect(page.get_by_role('button', name=re.compile('Sign In'))).not_to_be_visible()"
+                  "expect(page).to_have_title(re.compile('Dashboard'))"
+                ]; }
+            ];
+          };
+        })
+      ];
+    };
   
     testScript = commonTestScript.access;
   };
