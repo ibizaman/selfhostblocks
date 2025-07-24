@@ -360,7 +360,7 @@ in
 
       inherit (cfg) ensureGroups ensureUserFields ensureGroupFields;
       ensureUsers = lib.mapAttrs (n: v: (lib.removeAttrs v [ "password" ]) // {
-        "password_file" = v.password.result.path;
+        "password_file" = toString v.password.result.path;
       }) cfg.ensureUsers;
     };
   };

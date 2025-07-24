@@ -2213,6 +2213,9 @@
   "services-forgejo-options-shb.forgejo.ldap.userGroup": [
     "services-forgejo.html#services-forgejo-options-shb.forgejo.ldap.userGroup"
   ],
+  "services-forgejo-options-shb.forgejo.ldap.waitForSystemdServices": [
+    "services-forgejo.html#services-forgejo-options-shb.forgejo.ldap.waitForSystemdServices"
+  ],
   "services-forgejo-options-shb.forgejo.localActionRunner": [
     "services-forgejo.html#services-forgejo-options-shb.forgejo.localActionRunner"
   ],
