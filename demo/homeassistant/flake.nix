@@ -10,7 +10,6 @@
     let
       system = "x86_64-linux";
       nixpkgs' = selfhostblocks.lib.${system}.patchedNixpkgs;
-      nixosSystem' = import "${nixpkgs'}/nixos/lib/eval-config.nix";
 
       basic = { config, ...  }: {
         imports = [
@@ -93,7 +92,7 @@
     in
       {
         nixosConfigurations = {
-          basic = nixosSystem' {
+          basic = nixpkgs'.lib.nixosSystem {
             system = "x86_64-linux";
             modules = [
               basic
@@ -101,7 +100,7 @@
             ];
           };
 
-          ldap = nixosSystem' {
+          ldap = nixpkgs'.lib.nixosSystem {
             system = "x86_64-linux";
             modules = [
               basic

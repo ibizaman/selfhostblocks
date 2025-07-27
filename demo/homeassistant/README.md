@@ -29,7 +29,7 @@ first time.
 ### Deploy with nixos-rebuild {#demo-homeassistant-deploy-nixosrebuild}
 
 Assuming your current working directory is the one where this Readme file is located, the one-liner
-command which builds and starts the VM configured to run Self Host Blocks' Nextcloud is:
+command which builds and starts the VM configured to run Self Host Blocks' Home-Assistant is:
 
 ```nix
 rm nixos.qcow2; \
@@ -42,7 +42,7 @@ This will deploy the `basic` demo. If you want to deploy the `ldap` demo, use th
 uris.
 
 You can even test the demos from any directory without cloning this repository by using the GitHub
-uri like `github:ibizaman/selfhostblocks?path=demo/nextcloud`
+uri like `github:ibizaman/selfhostblocks?path=demo/home-assistant`
 
 It is very important to remove leftover `nixos.qcow2` files, if any.
 
@@ -112,7 +112,7 @@ ssh -F ssh_config example
 <!--
 :::: {.note}
 This section corresponds to the `basic` section of the [Home Assistant
-manual](services-nextcloud.html#services-homeassistant-server-usage-basic).
+manual](services-homeassitant.html#services-homeassistant-server-usage-basic).
 ::::
 -->
 
@@ -142,7 +142,7 @@ And that's the end of the demo
 <!--
 :::: {.note}
 This section corresponds to the `ldap` section of the [Home Assistant
-manual](services-nextcloud.html#services-homeassistant-server-usage-ldap).
+manual](services-homeassistant.html#services-homeassistant-server-usage-ldap).
 ::::
 -->
 

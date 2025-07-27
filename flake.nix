@@ -26,15 +26,19 @@
         #   hash = "sha256-hoLrqV7XtR1hP/m0rV9hjYUBtrSjay0qcPUYlKKuVWk=";
         # })
       ];
+
+      # The .src attribute is important to get back to the top-level
+      # and be able to access the .lib attribute.
       patchNixpkgs = {
         nixpkgs,
         patches,
         system,
-      }: nixpkgs.legacyPackages.${system}.applyPatches {
+      }: (nixpkgs.legacyPackages.${system}.applyPatches {
         name = "nixpkgs-patched";
         src = nixpkgs;
         inherit patches;
-      };
+      }).src;
+
       patchedNixpkgs = (patchNixpkgs {
         nixpkgs = inputs.nixpkgs;
         patches = shbPatches;
