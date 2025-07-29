@@ -557,6 +557,36 @@
   "blocks-lldap-troubleshooting": [
     "blocks-lldap.html#blocks-lldap-troubleshooting"
   ],
+  "blocks-mitmdump": [
+    "blocks-mitmdump.html#blocks-mitmdump"
+  ],
+  "blocks-mitmdump-example": [
+    "blocks-mitmdump.html#blocks-mitmdump-example"
+  ],
+  "blocks-mitmdump-options": [
+    "blocks-mitmdump.html#blocks-mitmdump-options"
+  ],
+  "blocks-mitmdump-options-shb.mitmdump.instances": [
+    "blocks-mitmdump.html#blocks-mitmdump-options-shb.mitmdump.instances"
+  ],
+  "blocks-mitmdump-options-shb.mitmdump.instances._name_.after": [
+    "blocks-mitmdump.html#blocks-mitmdump-options-shb.mitmdump.instances._name_.after"
+  ],
+  "blocks-mitmdump-options-shb.mitmdump.instances._name_.listenPort": [
+    "blocks-mitmdump.html#blocks-mitmdump-options-shb.mitmdump.instances._name_.listenPort"
+  ],
+  "blocks-mitmdump-options-shb.mitmdump.instances._name_.upstreamHost": [
+    "blocks-mitmdump.html#blocks-mitmdump-options-shb.mitmdump.instances._name_.upstreamHost"
+  ],
+  "blocks-mitmdump-options-shb.mitmdump.instances._name_.upstreamPort": [
+    "blocks-mitmdump.html#blocks-mitmdump-options-shb.mitmdump.instances._name_.upstreamPort"
+  ],
+  "blocks-mitmdump-tests": [
+    "blocks-mitmdump.html#blocks-mitmdump-tests"
+  ],
+  "blocks-mitmdump-usage": [
+    "blocks-mitmdump.html#blocks-mitmdump-usage"
+  ],
   "blocks-monitoring": [
     "blocks-monitoring.html#blocks-monitoring"
   ],

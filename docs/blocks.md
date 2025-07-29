@@ -5,7 +5,7 @@ Blocks help you self-host apps or services. They implement a specific function l
 access through a subdomain. Each block is designed to be usable on its own and to fit nicely with
 others.
 
-In practice, a block implements a [contract](contracts.html) that must be followed to implement a
+In practice, most blocks implement a [contract](contracts.html) that must be followed to implement a
 specific self-hosting function. It also comes with a unit test and NixOS VM test suite to ensure any
 implementation follows the contract.
 
@@ -23,7 +23,7 @@ It defines no outputs but has one major side effect:
 Anything that provides the inputs and expected outputs and side effects defined by the block can be
 used to fulfill its contract. In this example, we could use any of Nginx, Caddy, Haproxy or others.
 
-Self Host Blocks provides at least one implementation for each block and allows you to use your own
+Self Host Blocks provides at least one implementation for each contract and allows you to use your own
 implementation if you want to, as long as it passes the tests. You can then use blocks to improve
 services you already have deployed.
 
@@ -37,6 +37,10 @@ modules/blocks/authelia/docs/default.md
 
 ```{=include=} chapters html:into-file=//blocks-lldap.html
 modules/blocks/lldap/docs/default.md
+```
+
+```{=include=} chapters html:into-file=//blocks-mitmdump.html
+modules/blocks/mitmdump/docs/default.md
 ```
 
 ```{=include=} chapters html:into-file=//blocks-sops.html

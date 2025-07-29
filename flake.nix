@@ -61,6 +61,7 @@
             self.nixosModules.${system}.davfs
             self.nixosModules.${system}.hardcodedsecret
             self.nixosModules.${system}.lldap
+            self.nixosModules.${system}.mitmdump
             self.nixosModules.${system}.monitoring
             self.nixosModules.${system}.nginx
             self.nixosModules.${system}.postgresql
@@ -94,6 +95,7 @@
         nixosModules.davfs = modules/blocks/davfs.nix;
         nixosModules.hardcodedsecret = modules/blocks/hardcodedsecret.nix;
         nixosModules.lldap = modules/blocks/lldap.nix;
+        nixosModules.mitmdump = modules/blocks/mitmdump.nix;
         nixosModules.monitoring = modules/blocks/monitoring.nix;
         nixosModules.nginx = modules/blocks/nginx.nix;
         nixosModules.postgresql = modules/blocks/postgresql.nix;
@@ -128,6 +130,7 @@
             "blocks/authelia" = ./modules/blocks/authelia.nix;
             "blocks/lldap" = ./modules/blocks/lldap.nix;
             "blocks/ssl" = ./modules/blocks/ssl.nix;
+            "blocks/mitmdump" = ./modules/blocks/mitmdump.nix;
             "blocks/monitoring" = ./modules/blocks/monitoring.nix;
             "blocks/postgresql" = ./modules/blocks/postgresql.nix;
             "blocks/restic" = ./modules/blocks/restic.nix;
@@ -261,6 +264,7 @@
           // (vm_test "authelia" ./test/blocks/authelia.nix)
           // (vm_test "lldap" ./test/blocks/lldap.nix)
           // (vm_test "lib" ./test/blocks/lib.nix)
+          // (vm_test "mitmdump" ./test/blocks/mitmdump.nix)
           // (vm_test "postgresql" ./test/blocks/postgresql.nix)
           // (vm_test "restic" ./test/blocks/restic.nix)
           // (vm_test "ssl" ./test/blocks/ssl.nix)
