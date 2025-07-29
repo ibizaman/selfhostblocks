@@ -101,6 +101,9 @@
   "blocks-authelia-options-shb.authelia.oidcClients._.authorization_policy": [
     "blocks-authelia.html#blocks-authelia-options-shb.authelia.oidcClients._.authorization_policy"
   ],
+  "blocks-authelia-options-shb.authelia.oidcClients._.claims_policy": [
+    "blocks-authelia.html#blocks-authelia-options-shb.authelia.oidcClients._.claims_policy"
+  ],
   "blocks-authelia-options-shb.authelia.oidcClients._.client_id": [
     "blocks-authelia.html#blocks-authelia-options-shb.authelia.oidcClients._.client_id"
   ],
