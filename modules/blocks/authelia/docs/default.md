@@ -6,6 +6,11 @@ This block sets up an [Authelia][] service for Single-Sign On integration.
 
 [Authelia]: https://www.authelia.com/
 
+Compared to the upstream nixpkgs module, this module is tightly integrated
+with SHB which allows easy configuration of SSO with [OIDC integration](#blocks-authelia-shb-oidc)
+or with [forward auth integration](#blocks-authelia-shb-forward-auth)
+as well as some extensive [troubleshooting](#blocks-authelia-troubleshooting) features.
+
 ## Global Setup {#blocks-authelia-global-setup}
 
 Authelia cannot work without SSL and LDAP.
@@ -220,6 +225,19 @@ shb.nginx.vhosts = [
 ```
 
 This configuration assumes usage of the [SSL block][].
+
+## Troubleshooting {#blocks-authelia-troubleshooting}
+
+Set the [debug][opt-debug] option to `true` to:
+
+[opt-debug]: #blocks-authelia-options-shb.authelia.debug
+
+- Set logging level to `"debug"`.
+- Add an [shb.mitmdump][] instance in front of Authelia
+  which prints all requests and responses headers and body
+  to the systemd service `mitmdump-authelia-${config.shb.authelia.subdomain}.${config.shb.authelia.domain}.service`.
+
+[shb.mitmdump]: ./blocks-mitmdump.html
 
 ## Tests {#blocks-authelia-tests}
 

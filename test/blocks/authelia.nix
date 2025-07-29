@@ -15,6 +15,7 @@ in
         ../../modules/blocks/authelia.nix
         ../../modules/blocks/hardcodedsecret.nix
         ../../modules/blocks/lldap.nix
+        ../../modules/blocks/mitmdump.nix
         ../../modules/blocks/postgresql.nix
       ];
 
@@ -109,48 +110,79 @@ in
           ${pkgs.openssl}/bin/openssl genrsa -out $out/private.pem 4096
         '') + "/private.pem";
       };
+
+      specialisation = {
+        withDebug.configuration = {
+          shb.authelia.debug = true;
+        };
+      };
     };
 
-    testScript = { nodes, ... }: ''
+    testScript = { nodes, ... }:
+    let
+      specializations = "${nodes.machine.system.build.toplevel}/specialisation";
+    in
+    ''
     import json
 
     start_all()
-    machine.wait_for_unit("lldap.service")
-    machine.wait_for_unit("authelia-authelia.machine.com.service")
-    machine.wait_for_open_port(9091)
 
-    endpoints = json.loads(machine.succeed("curl -s http://machine.com/.well-known/openid-configuration"))
-    auth_endpoint = endpoints['authorization_endpoint']
+    def tests():
+        machine.wait_for_unit("lldap.service")
+        machine.wait_for_unit("authelia-authelia.machine.com.service")
+        machine.wait_for_open_port(9091)
 
-    machine.succeed(
-        "curl -f -s '"
-        + auth_endpoint
-        + "?client_id=other"
-        + "&redirect_uri=http://client1.machine.com/redirect"
-        + "&scope=openid%20profile%20email"
-        + "&response_type=code"
-        + "&state=99999999'"
-    )
+        endpoints = json.loads(machine.succeed("curl -s http://machine.com/.well-known/openid-configuration"))
+        auth_endpoint = endpoints['authorization_endpoint']
+        print(f"auth_endpoint: {auth_endpoint}")
+        if auth_endpoint != "http://machine.com/api/oidc/authorization":
+            raise Exception("Unexpected auth_endpoint")
 
-    machine.succeed(
-        "curl -f -s '"
-        + auth_endpoint
-        + "?client_id=client1"
-        + "&redirect_uri=http://client1.machine.com/redirect"
-        + "&scope=openid%20profile%20email"
-        + "&response_type=code"
-        + "&state=11111111'"
-    )
+        resp = machine.succeed(
+            "curl -f -s '"
+            + auth_endpoint
+            + "?client_id=other"
+            + "&redirect_uri=http://client1.machine.com/redirect"
+            + "&scope=openid%20profile%20email"
+            + "&response_type=code"
+            + "&state=99999999'"
+        )
+        print(resp)
+        if resp != "":
+            raise Exception("unexpected response")
 
-    machine.succeed(
-        "curl -f -s '"
-        + auth_endpoint
-        + "?client_id=client2"
-        + "&redirect_uri=http://client2.machine.com/redirect"
-        + "&scope=openid%20profile%20email"
-        + "&response_type=code"
-        + "&state=22222222'"
-    )
+        resp = machine.succeed(
+            "curl -f -s '"
+            + auth_endpoint
+            + "?client_id=client1"
+            + "&redirect_uri=http://client1.machine.com/redirect"
+            + "&scope=openid%20profile%20email"
+            + "&response_type=code"
+            + "&state=11111111'"
+        )
+        print(resp)
+        if "Found" not in resp:
+            raise Exception("unexpected response")
+
+        resp = machine.succeed(
+            "curl -f -s '"
+            + auth_endpoint
+            + "?client_id=client2"
+            + "&redirect_uri=http://client2.machine.com/redirect"
+            + "&scope=openid%20profile%20email"
+            + "&response_type=code"
+            + "&state=22222222'"
+        )
+        print(resp)
+        if "Found" not in resp:
+            raise Exception("unexpected response")
+
+    with subtest("no debug"):
+        tests()
+
+    with subtest("with debug"):
+        machine.succeed('${specializations}/withDebug/bin/switch-to-configuration test')
+        tests()
     '';
   };
 }

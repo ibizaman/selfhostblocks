@@ -68,6 +68,9 @@
   "blocks-authelia-options-shb.authelia.dcdomain": [
     "blocks-authelia.html#blocks-authelia-options-shb.authelia.dcdomain"
   ],
+  "blocks-authelia-options-shb.authelia.debug": [
+    "blocks-authelia.html#blocks-authelia-options-shb.authelia.debug"
+  ],
   "blocks-authelia-options-shb.authelia.domain": [
     "blocks-authelia.html#blocks-authelia-options-shb.authelia.domain"
   ],
@@ -304,6 +307,9 @@
   ],
   "blocks-authelia-tests": [
     "blocks-authelia.html#blocks-authelia-tests"
+  ],
+  "blocks-authelia-troubleshooting": [
+    "blocks-authelia.html#blocks-authelia-troubleshooting"
   ],
   "blocks-lldap": [
     "blocks-lldap.html#blocks-lldap"

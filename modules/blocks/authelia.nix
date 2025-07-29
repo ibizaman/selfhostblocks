@@ -13,6 +13,8 @@ let
   autheliaCfg = config.services.authelia.instances.${fqdn};
 
   inherit (lib) hasPrefix;
+
+  listenPort = if cfg.debug then 9090 else 9091;
 in
 {
   options.shb.authelia = {
@@ -303,6 +305,15 @@ in
       readOnly = true;
       default = { path = "/var/lib/redis-authelia"; };
     };
+
+    debug = lib.mkOption {
+      type = lib.types.bool;
+      default = false;
+      description = ''
+        Set logging level to debug and add a mitmdump instance
+        to see exactly what Authelia receives and sends back.
+      '';
+    };
   };
 
   config = lib.mkIf cfg.enable {
@@ -347,7 +358,7 @@ in
         AUTHELIA_NOTIFIER_SMTP_PASSWORD_FILE = lib.mkIf (!(builtins.isString cfg.smtp)) (toString cfg.smtp.password.result.path);
       };
       settings = {
-        server.address = "tcp://127.0.0.1:9091";
+        server.address = "tcp://127.0.0.1:${toString listenPort}";
 
         # Inspired from https://github.com/lldap/lldap/blob/7d1f5abc137821c500de99c94f7579761fc949d8/example_configs/authelia_config.yml
         authentication_backend = {
@@ -446,6 +457,8 @@ in
             address = "tcp://127.0.0.1:9959";
           };
         };
+
+        log.level = if cfg.debug then "debug" else "info";
       };
 
       settingsFiles = [ "/var/lib/authelia-${fqdn}/oidc_clients.yaml" ];
@@ -485,6 +498,8 @@ in
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header X-Forwarded-Host $http_host;
+        proxy_set_header X-Forwarded-Uri $request_uri;
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection "upgrade";
@@ -511,6 +526,19 @@ in
         proxy_set_header Host $http_x_forwarded_host;
         proxy_pass http://127.0.0.1:9091;
         '';
+    };
+
+    # I would like this to live outside of the Authelia module.
+    # This will require a reverse proxy contract.
+    # Actually, not sure a full reverse proxy contract is needed.
+    shb.mitmdump.instances."authelia-${fqdn}" = lib.mkIf cfg.debug {
+      listenPort = 9091;
+      upstreamPort = 9090;
+      after = [ "authelia-${fqdn}.service" ];
+      enabledAddons = [ config.shb.mitmdump.addons.logger ];
+      extraArgs = [
+        "--set" "verbose_pattern=/api"
+      ];
     };
 
     services.redis.servers.authelia = {
