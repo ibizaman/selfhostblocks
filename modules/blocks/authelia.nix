@@ -209,6 +209,17 @@ in
             example = [ "openid" "profile" "email" "groups" ];
             default = [];
           };
+
+          claims_policy = lib.mkOption {
+            type = lib.types.str;
+            description = ''
+              Claim policy.
+
+              Defaults to 'default' to provide a backwards compatible experience.
+              Read [this document](https://www.authelia.com/integration/openid-connect/openid-connect-1.0-claims/#restore-functionality-prior-to-claims-parameter) for more information.
+            '';
+            default = "default";
+          };
         };
       });
     };
@@ -367,24 +378,19 @@ in
             disable = "false";
           };
           ldap = {
-            implementation = "custom";
+            implementation = "lldap";
             address = "ldap://${cfg.ldapHostname}:${toString cfg.ldapPort}";
             timeout = "5s";
             start_tls = "false";
             base_dn = cfg.dcdomain;
-            additional_users_dn = "ou=people";
-            # Sign in with username or email.
-            users_filter = "(&(|({username_attribute}={input})({mail_attribute}={input}))(objectClass=person))";
-            additional_groups_dn = "ou=groups";
-            groups_filter = "(member={dn})";
+            # TODO: use user with less privilege and with lldap_password_manager group to be able to change passwords.
             user = "uid=admin,ou=people,${cfg.dcdomain}";
-            attributes = {
-              username = "uid";
-              group_name = "cn";
-              mail = "mail";
-              display_name = "displayName";
-            };
           };
+        };
+        # This should go away at some point.
+        # https://www.authelia.com/integration/openid-connect/openid-connect-1.0-claims/#restore-functionality-prior-to-claims-parameter
+        identity_providers.oidc = {
+          claims_policies.default.id_token = [ "email" "preferred_username" "name" "groups" ];
         };
         totp = {
           disable = "false";
