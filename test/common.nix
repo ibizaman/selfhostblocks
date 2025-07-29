@@ -188,10 +188,11 @@ in
     };
     imports = [
       baseImports
-      ../modules/blocks/postgresql.nix
       ../modules/blocks/authelia.nix
-      ../modules/blocks/nginx.nix
       ../modules/blocks/hardcodedsecret.nix
+      ../modules/blocks/mitmdump.nix
+      ../modules/blocks/nginx.nix
+      ../modules/blocks/postgresql.nix
     ];
     config = {
       # HTTP(s) server port.
