@@ -342,7 +342,7 @@ in
             allow ${cfg.restrictAccessIPRange};
             deny all;
           '');
-          proxyPass = "http://${toString config.services.lldap.settings.http_host}:${toString config.services.lldap.settings.http_port}/";
+          proxyPass = "http://${toString config.services.lldap.settings.http_host}:${toString config.shb.lldap.webUIListenPort}/";
         };
       };
     };
@@ -366,10 +366,10 @@ in
       settings = {
         http_url = "https://${fqdn}";
         http_host = "127.0.0.1";
-        http_port = cfg.webUIListenPort;
+        http_port = if !cfg.debug then cfg.webUIListenPort else cfg.webUIListenPort + 1;
 
         ldap_host = "127.0.0.1";
-        ldap_port = cfg.ldapPort;
+        ldap_port = cfg.ldapPort; # Would be great to be able to inspect this but it requires tcpdump instead of mitmproxy.
         ldap_base_dn = cfg.dcdomain;
 
         ldap_user_pass_file = toString cfg.ldapUserPassword.result.path;
@@ -383,6 +383,16 @@ in
       ensureUsers = lib.mapAttrs (n: v: (lib.removeAttrs v [ "password" ]) // {
         "password_file" = toString v.password.result.path;
       }) cfg.ensureUsers;
+    };
+
+    shb.mitmdump.instances."lldap-web" = lib.mkIf cfg.debug {
+      listenPort = config.shb.lldap.webUIListenPort;
+      upstreamPort = config.shb.lldap.webUIListenPort + 1;
+      after = [ "lldap.service" ];
+      enabledAddons = [ config.shb.mitmdump.addons.logger ];
+      extraArgs = [
+        "--set" "verbose_pattern=/api"
+      ];
     };
   };
 }
