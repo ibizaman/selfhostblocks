@@ -168,6 +168,15 @@ so you will want to revert this at some point.
 
 To see the logs, then run `journalctl -u lldap.service`.
 
+Setting the `debug` option to `true` will also
+add an [shb.mitmdump][] instance in front of the LLDAP [web UI port](#blocks-lldap-options-shb.lldap.webUIListenPort)
+which prints all requests and responses headers and body
+to the systemd service `mitmdump-lldap.service`. Note the you won't
+see the query done using something like `ldapsearch` since those
+go through the [`LDAP` port](#blocks-lldap-options-shb.lldap.ldapPort).
+
+[shb.mitmdump]: ./blocks-mitmdump.html
+
 ## Tests {#blocks-lldap-tests}
 
 Specific integration tests are defined in [`/test/blocks/lldap.nix`](@REPO@/test/blocks/lldap.nix).
