@@ -1,6 +1,6 @@
 # Mitmdump Block {#blocks-mitmdump}
 
-Defined in [`/modules/blocks/authelia.nix`](@REPO@/modules/blocks/authelia.nix).
+Defined in [`/modules/blocks/mitmdump.nix`](@REPO@/modules/blocks/mitmdump.nix).
 
 This block sets up an [Mitmdump][] service in [reverse proxy][] mode.
 In other words, you can put this block between a client and a server to inspect all the network traffic.
@@ -27,7 +27,7 @@ shb.mitmdump.instances."my-instance" = {
 };
 ```
 
-`upstreamHost` is the default here and can be left out.
+`upstreamHost` has its default value here and can be left out.
 
 Put mitmdump in front of a HTTP server listening on port 8000 on another machine:
 
