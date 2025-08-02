@@ -560,11 +560,20 @@
   "blocks-mitmdump": [
     "blocks-mitmdump.html#blocks-mitmdump"
   ],
+  "blocks-mitmdump-addons": [
+    "blocks-mitmdump.html#blocks-mitmdump-addons"
+  ],
+  "blocks-mitmdump-addons-logger": [
+    "blocks-mitmdump.html#blocks-mitmdump-addons-logger"
+  ],
   "blocks-mitmdump-example": [
     "blocks-mitmdump.html#blocks-mitmdump-example"
   ],
   "blocks-mitmdump-options": [
     "blocks-mitmdump.html#blocks-mitmdump-options"
+  ],
+  "blocks-mitmdump-options-shb.mitmdump.addons": [
+    "blocks-mitmdump.html#blocks-mitmdump-options-shb.mitmdump.addons"
   ],
   "blocks-mitmdump-options-shb.mitmdump.instances": [
     "blocks-mitmdump.html#blocks-mitmdump-options-shb.mitmdump.instances"
@@ -572,8 +581,23 @@
   "blocks-mitmdump-options-shb.mitmdump.instances._name_.after": [
     "blocks-mitmdump.html#blocks-mitmdump-options-shb.mitmdump.instances._name_.after"
   ],
+  "blocks-mitmdump-options-shb.mitmdump.instances._name_.enabledAddons": [
+    "blocks-mitmdump.html#blocks-mitmdump-options-shb.mitmdump.instances._name_.enabledAddons"
+  ],
+  "blocks-mitmdump-options-shb.mitmdump.instances._name_.extraArgs": [
+    "blocks-mitmdump.html#blocks-mitmdump-options-shb.mitmdump.instances._name_.extraArgs"
+  ],
+  "blocks-mitmdump-options-shb.mitmdump.instances._name_.listenHost": [
+    "blocks-mitmdump.html#blocks-mitmdump-options-shb.mitmdump.instances._name_.listenHost"
+  ],
   "blocks-mitmdump-options-shb.mitmdump.instances._name_.listenPort": [
     "blocks-mitmdump.html#blocks-mitmdump-options-shb.mitmdump.instances._name_.listenPort"
+  ],
+  "blocks-mitmdump-options-shb.mitmdump.instances._name_.package": [
+    "blocks-mitmdump.html#blocks-mitmdump-options-shb.mitmdump.instances._name_.package"
+  ],
+  "blocks-mitmdump-options-shb.mitmdump.instances._name_.serviceName": [
+    "blocks-mitmdump.html#blocks-mitmdump-options-shb.mitmdump.instances._name_.serviceName"
   ],
   "blocks-mitmdump-options-shb.mitmdump.instances._name_.upstreamHost": [
     "blocks-mitmdump.html#blocks-mitmdump-options-shb.mitmdump.instances._name_.upstreamHost"
@@ -586,6 +610,15 @@
   ],
   "blocks-mitmdump-usage": [
     "blocks-mitmdump.html#blocks-mitmdump-usage"
+  ],
+  "blocks-mitmdump-usage-anywhere": [
+    "blocks-mitmdump.html#blocks-mitmdump-usage-anywhere"
+  ],
+  "blocks-mitmdump-usage-https": [
+    "blocks-mitmdump.html#blocks-mitmdump-usage-https"
+  ],
+  "blocks-mitmdump-usage-logging": [
+    "blocks-mitmdump.html#blocks-mitmdump-usage-logging"
   ],
   "blocks-monitoring": [
     "blocks-monitoring.html#blocks-monitoring"

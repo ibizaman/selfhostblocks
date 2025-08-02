@@ -16,12 +16,13 @@ let
 
       class HardcodedHandler(BaseHTTPRequestHandler):
           def do_GET(self):
+              reponse = content + self.path.encode('utf-8')
               self.send_response(200)
               self.send_header("Content-Type", "text/plain")
-              self.send_header("Content-Length", str(len(content)))
+              self.send_header("Content-Length", str(len(reponse)))
               self.end_headers()
               print("answering to GET request")
-              self.wfile.write(content)
+              self.wfile.write(reponse)
 
           def log_message(self, format, *args):
               pass  # optional: suppress logging
@@ -76,6 +77,10 @@ in
         listenPort = 8003;
         upstreamPort = 8002;
         after = [ "test2.service" ];
+        enabledAddons = [ config.shb.mitmdump.addons.logger ];
+        extraArgs = [
+          "--set" "verbose_pattern=/verbose"
+        ];
       };
     };
 
@@ -89,35 +94,44 @@ in
 
     resp = machine.succeed("curl http://127.0.0.1:8000")
     print(resp)
-    if resp != "test1":
+    if resp != "test1/":
         raise Exception("wanted 'test1'")
 
     resp = machine.succeed("curl -v http://127.0.0.1:8001")
     print(resp)
-    if resp != "test1":
+    if resp != "test1/":
         raise Exception("wanted 'test1'")
 
     resp = machine.succeed("curl http://127.0.0.1:8002")
     print(resp)
-    if resp != "test2":
+    if resp != "test2/":
         raise Exception("wanted 'test2'")
 
-    resp = machine.succeed("curl http://127.0.0.1:8003")
+    resp = machine.succeed("curl http://127.0.0.1:8003/notverbose")
     print(resp)
-    if resp != "test2":
-        raise Exception("wanted 'test2'")
+    if resp != "test2/notverbose":
+        raise Exception("wanted 'test2/notverbose'")
+
+    resp = machine.succeed("curl http://127.0.0.1:8003/verbose")
+    print(resp)
+    if resp != "test2/verbose":
+        raise Exception("wanted 'test2/verbose'")
 
     dump = machine.succeed("journalctl -b -u mitmdump-test1.service")
+    print(dump)
     if "HTTP/1.0 200 OK" not in dump:
         raise Exception("expected to see HTTP/1.0 200 OK")
     if "test1" not in dump:
         raise Exception("expected to see test1")
 
     dump = machine.succeed("journalctl -b -u mitmdump-test2.service")
+    print(dump)
     if "HTTP/1.0 200 OK" not in dump:
         raise Exception("expected to see HTTP/1.0 200 OK")
-    if "test2" not in dump:
-        raise Exception("expected to see test2")
+    if "test2/notverbose" in dump:
+        raise Exception("expected not to see test2/notverbose")
+    if "test2/verbose" not in dump:
+        raise Exception("expected to see test2/verbose")
     '';
   };
 }

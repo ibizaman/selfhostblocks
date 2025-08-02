@@ -14,6 +14,8 @@ and proxying to different upstream servers can be created.
 The systemd service is made so it is started only when the mitmdump instance
 has started listening on the expected port.
 
+Also, addons can be enabled with the `enabledAddons` option.
+
 ## Usage {#blocks-mitmdump-usage}
 
 Put mitmdump in front of a HTTP server listening on port 8000 on the same machine:
@@ -40,7 +42,88 @@ shb.mitmdump.instances."my-instance" = {
 };
 ```
 
+### Handle Upstream TLS {#blocks-mitmdump-usage-https}
+
 Replace `http` with `https` if the server expects an HTTPS connection.
+
+### Accept Connections from Anywhere {#blocks-mitmdump-usage-anywhere}
+
+By default, `mitmdump` is configured to listen only for connections from localhost.
+Add `listenHost=0.0.0.0` to make `mitmdump` accept connections from anywhere.
+
+### Extra Logging {#blocks-mitmdump-usage-logging}
+
+To print request and response bodies and more, increase the logging with:
+
+```nix
+extraArgs = [
+    "--set" "flow_detail=3"
+    "--set" "content_view_lines_cutoff=2000"
+];
+```
+
+The default `flow_details` is 1. See the [manual][] for more explanations on the option.
+
+[manual]: (https://docs.mitmproxy.org/stable/concepts/options/#flow_detail)
+
+This will change the verbosity for all requests and responses.
+If you need more fine grained logging, configure instead the [Logger Addon][].
+
+[Logger Addon]: #blocks-mitmdump-addons-logger
+
+## Addons {#blocks-mitmdump-addons}
+
+All provided addons can be found under the `shb.mitmproxy.addons` option.
+
+To enable one for an instance, add it to the `enabledAddons` option. For example:
+
+```nix
+shb.mitmdump.instances."my-instance" = {
+    enabledAddons = [ config.shb.mitmdump.addons.logger ]
+}
+```
+
+### Fine Grained Logger {#blocks-mitmdump-addons-logger}
+
+The Fine Grained Logger addon is found under `shb.mitmproxy.addons.logger`.
+Enabling this addon will add the `mitmdump` option `verbose_pattern` which takes a regex and if it matches,
+prints the request and response headers and body.
+If it does not match, it will just print the response status.
+
+For example, with the `extraArgs`:
+
+```nix
+extraArgs = [
+  "--set" "verbose_pattern=/verbose"
+];
+```
+
+A `GET` request to `/notverbose` will print something similar to:
+
+```
+mitmdump[972]: 127.0.0.1:53586: GET http://127.0.0.1:8000/notverbose HTTP/1.1
+mitmdump[972]:      << HTTP/1.0 200 OK 16b
+```
+
+While a `GET` request to `/verbose` will print something similar to:
+
+```
+mitmdump[972]: [22:42:58.840]
+mitmdump[972]: RequestHeaders:
+mitmdump[972]:     Host: 127.0.0.1:8000
+mitmdump[972]:     User-Agent: curl/8.14.1
+mitmdump[972]:     Accept: */*
+mitmdump[972]: RequestBody:
+mitmdump[972]: Status:          200
+mitmdump[972]: ResponseHeaders:
+mitmdump[972]:     Server: BaseHTTP/0.6 Python/3.13.4
+mitmdump[972]:     Date: Sun, 03 Aug 2025 22:42:58 GMT
+mitmdump[972]:     Content-Type: text/plain
+mitmdump[972]:     Content-Length: 13
+mitmdump[972]: ResponseBody:    test2/verbose
+mitmdump[972]: 127.0.0.1:53602: GET http://127.0.0.1:8000/verbose HTTP/1.1
+mitmdump[972]:      << HTTP/1.0 200 OK 13b
+```
 
 ## Example {#blocks-mitmdump-example}
 
@@ -56,6 +139,10 @@ shb.mitmdump.instances."test1" = {
   listenPort = 8001;
   upstreamPort = 8000;
   after = [ "test1.service" ];
+  extraArgs = [
+    "--set" "flow_detail=3"
+    "--set" "content_view_lines_cutoff=2000"
+  ];
 };
 ```
 
