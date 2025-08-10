@@ -5,7 +5,7 @@ Defined in [`/modules/blocks/sops.nix`](@REPO@/modules/blocks/sops.nix).
 This block sets up a [sops-nix][] secret.
 
 It is only a small layer on top of `sops-nix` options
-to adapt it to the [secret contract](./contract-secret.html).
+to adapt it to the [secret contract](./contracts-secret.html).
 
 [sops-nix]: https://github.com/Mic92/sops-nix
 
