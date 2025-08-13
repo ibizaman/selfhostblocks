@@ -163,7 +163,7 @@ in
       description = ''
         Create the users defined here on service startup.
 
-        If `enforceEnsure` option is `true`, the groups
+        If `enforceUsers` option is `true`, the groups
         users belong to must be present in the `ensureGroups` option.
 
         Non-default options must be added to the `ensureGroupFields` option.
@@ -302,6 +302,24 @@ in
         )
       );
     };
+
+    enforceUsers = mkOption {
+      description = "Delete users not set declaratively.";
+      type = types.bool;
+      default = false;
+    };
+
+    enforceUserMemberships = mkOption {
+      description = "Remove users from groups not set declaratively.";
+      type = types.bool;
+      default = false;
+    };
+
+    enforceGroups = mkOption {
+      description = "Remove groups not set declaratively.";
+      type = types.bool;
+      default = true;
+    };
   };
 
   imports = [
@@ -339,7 +357,7 @@ in
     services.lldap = {
       enable = true;
 
-      enforceEnsure = true;
+      inherit (cfg) enforceUsers enforceUserMemberships enforceGroups;
 
       environment = {
         RUST_LOG = lib.mkIf cfg.debug "debug";

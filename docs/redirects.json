@@ -365,6 +365,15 @@
   "blocks-lldap-options-shb.lldap.enable": [
     "blocks-lldap.html#blocks-lldap-options-shb.lldap.enable"
   ],
+  "blocks-lldap-options-shb.lldap.enforceGroups": [
+    "blocks-lldap.html#blocks-lldap-options-shb.lldap.enforceGroups"
+  ],
+  "blocks-lldap-options-shb.lldap.enforceUserMemberships": [
+    "blocks-lldap.html#blocks-lldap-options-shb.lldap.enforceUserMemberships"
+  ],
+  "blocks-lldap-options-shb.lldap.enforceUsers": [
+    "blocks-lldap.html#blocks-lldap-options-shb.lldap.enforceUsers"
+  ],
   "blocks-lldap-options-shb.lldap.ensureGroupFields": [
     "blocks-lldap.html#blocks-lldap-options-shb.lldap.ensureGroupFields"
   ],
