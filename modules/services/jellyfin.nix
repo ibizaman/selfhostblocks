@@ -91,6 +91,7 @@ in
 
     admin = lib.mkOption {
       description = "Default admin user info. Only needed if LDAP or SSO is not configured.";
+      default = null;
       type = types.nullOr (types.submodule {
         options = {
           username = lib.mkOption {
@@ -253,7 +254,18 @@ in
     };
   };
 
+  imports = [
+    (lib.mkRenamedOptionModule [ "shb" "jellyfin" "adminPassword" ] [ "shb" "jellyfin" "admin" "password" ])
+  ];
+
   config = lib.mkIf cfg.enable {
+    assertions = [
+      {
+        assertion = (!cfg.ldap.enable && !cfg.sso.enable) -> cfg.admin != null;
+        message = "Jellyfin admin user must be configured with shb.jellyfin.admin if LDAP or SSO integration are not configured.";
+      }
+    ];
+
     services.jellyfin.enable = true;
 
     networking.firewall = {

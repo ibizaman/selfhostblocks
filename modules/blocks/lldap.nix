@@ -304,6 +304,9 @@ in
     };
   };
 
+  imports = [
+    (lib.mkRenamedOptionModule [ "shb" "ldap" ] [ "shb" "lldap" ])
+  ];
   
   config = lib.mkIf cfg.enable {
 
