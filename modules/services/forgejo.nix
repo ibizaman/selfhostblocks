@@ -346,6 +346,18 @@ in
     };
   };
 
+  imports = [
+    (lib.mkRemovedOptionModule [ "shb" "forgejo" "adminPassword" ] ''Instead, define an admin user in shb.forgejo.users and give it the same password, like so:
+      shb.forgejo.users = {
+        "forgejoadmin" = {
+          isAdmin = true;
+          email = "forgejoadmin@example.com";
+          password.result = <path/to/password>;
+        };
+      };
+    '')
+  ];
+
   config = mkMerge [
     (mkIf cfg.enable {
       services.forgejo = {
