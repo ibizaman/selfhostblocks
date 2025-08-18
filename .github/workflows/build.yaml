@@ -24,7 +24,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - uses: tj-actions/changed-files@v46
         id: filter
@@ -51,7 +51,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: Install Nix
         uses: DeterminateSystems/nix-installer-action@main
         with:
@@ -78,7 +78,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: Install Nix
         uses: DeterminateSystems/nix-installer-action@main
         with:
@@ -105,7 +105,7 @@ jobs:
         check: ${{ fromJson(needs.build-matrix.outputs.check) }}
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: Install Nix
         uses: DeterminateSystems/nix-installer-action@main
         with:
