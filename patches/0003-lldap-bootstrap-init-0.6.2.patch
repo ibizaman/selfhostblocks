@@ -1,0 +1,76 @@
+From f22a61651199cc6030b0e3ede64fd52996bbe3eb Mon Sep 17 00:00:00 2001
+From: ibizaman <ibizaman@tiserbox.com>
+Date: Wed, 13 Aug 2025 08:14:38 +0200
+Subject: [PATCH 3/4] lldap-bootstrap: init 0.6.2
+
+---
+ pkgs/by-name/ll/lldap-bootstrap/package.nix | 57 +++++++++++++++++++++
+ 1 file changed, 57 insertions(+)
+ create mode 100644 pkgs/by-name/ll/lldap-bootstrap/package.nix
+
+diff --git a/pkgs/by-name/ll/lldap-bootstrap/package.nix b/pkgs/by-name/ll/lldap-bootstrap/package.nix
+new file mode 100644
+index 000000000000..b48099c10e84
+--- /dev/null
++++ b/pkgs/by-name/ll/lldap-bootstrap/package.nix
+@@ -0,0 +1,57 @@
++{
++  curl,
++  fetchFromGitHub,
++  jq,
++  jo,
++  lib,
++  lldap,
++  lldap-bootstrap,
++  makeWrapper,
++  stdenv,
++}:
++let
++  version = "0.6.2";
++in
++stdenv.mkDerivation {
++  pname = "lldap-bootstrap";
++  inherit version;
++
++  src = fetchFromGitHub {
++    owner = "ibizaman";
++    repo = "lldap";
++    rev = "v${version}";
++    hash = "sha256-UBQWOrHika8X24tYdFfY8ETPh9zvI7/HV5j4aK8Uq+Y=";
++  };
++
++  dontBuild = true;
++
++  nativeBuildInputs = [ makeWrapper ];
++
++  installPhase = ''
++    mkdir -p $out/bin
++    cp ./scripts/bootstrap.sh $out/bin/lldap-bootstrap
++
++    wrapProgram $out/bin/lldap-bootstrap \
++      --set LLDAP_SET_PASSWORD_PATH ${lldap}/bin/lldap_set_password \
++      --prefix PATH : ${
++        lib.makeBinPath [
++          curl
++          jq
++          jo
++        ]
++      }
++  '';
++
++  meta = {
++    description = "Bootstrap script for LLDAP";
++    homepage = "https://github.com/lldap/lldap";
++    changelog = "https://github.com/lldap/lldap/blob/v${lldap-bootstrap.version}/CHANGELOG.md";
++    license = lib.licenses.gpl3Only;
++    platforms = lib.platforms.linux;
++    maintainers = with lib.maintainers; [
++      bendlas
++      ibizaman
++    ];
++    mainProgram = "lldap-bootstrap";
++  };
++}
+-- 
+2.49.0
+
