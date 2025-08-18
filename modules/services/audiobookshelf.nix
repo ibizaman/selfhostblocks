@@ -47,42 +47,71 @@ in
       '';
     };
 
-    oidcProvider = lib.mkOption {
-      type = lib.types.str;
-      description = "OIDC provider name";
-      default = "Authelia";
-    };
-
-    authEndpoint = lib.mkOption {
-      type = lib.types.str;
-      description = "OIDC endpoint for SSO";
-      example = "https://authelia.example.com";
-    };
-
-    oidcClientID = lib.mkOption {
-      type = lib.types.str;
-      description = "Client ID for the OIDC endpoint";
-      default = "audiobookshelf";
-    };
-
-    oidcAdminUserGroup = lib.mkOption {
-      type = lib.types.str;
-      description = "OIDC admin group";
-      default = "audiobookshelf_admin";
-    };
-
-    oidcUserGroup = lib.mkOption {
-      type = lib.types.str;
-      description = "OIDC user group";
-      default = "audiobookshelf_user";
-    };
-
-    ssoSecret = lib.mkOption {
-      description = "SSO shared secret.";
+    sso = lib.mkOption {
+      description = "SSO configuration.";
+      default = {};
       type = lib.types.submodule {
-        options = contracts.secret.mkRequester {
-          owner = "audiobookshelf";
-          restartUnits = [ "audiobookshelfd.service" ];
+        options = {
+          enable = lib.mkEnableOption "SSO";
+
+          provider = lib.mkOption {
+            type = lib.types.str;
+            description = "OIDC provider name";
+            default = "Authelia";
+          };
+
+          endpoint = lib.mkOption {
+            type = lib.types.str;
+            description = "OIDC endpoint for SSO";
+            example = "https://authelia.example.com";
+          };
+
+          clientID = lib.mkOption {
+            type = lib.types.str;
+            description = "Client ID for the OIDC endpoint";
+            default = "audiobookshelf";
+          };
+
+          adminUserGroup = lib.mkOption {
+            type = lib.types.str;
+            description = "OIDC admin group";
+            default = "audiobookshelf_admin";
+          };
+
+          userGroup = lib.mkOption {
+            type = lib.types.str;
+            description = "OIDC user group";
+            default = "audiobookshelf_user";
+          };
+
+          authorization_policy = lib.mkOption {
+            type = lib.types.enum [ "one_factor" "two_factor" ];
+            description = "Require one factor (password) or two factor (device) authentication.";
+            default = "one_factor";
+          };
+
+          sharedSecret = lib.mkOption {
+            description = "OIDC shared secret for Audiobookshelf.";
+            type = lib.types.submodule {
+              options = contracts.secret.mkRequester {
+                mode = "0440";
+                owner = "audiobookshelf";
+                group = "audiobookshelf";
+                restartUnits = [ "audiobookshelfd.service" ];
+              };
+            };
+          };
+
+          sharedSecretForAuthelia = lib.mkOption {
+            description = "OIDC shared secret for Authelia.";
+            type = lib.types.submodule {
+              options = contracts.secret.mkRequester {
+                mode = "0400";
+                ownerText = "config.shb.authelia.autheliaUser";
+                owner = config.shb.authelia.autheliaUser;
+              };
+            };
+          };
         };
       };
     };
@@ -144,17 +173,21 @@ in
       '';
     };
 
-    shb.authelia.oidcClients = [
+    shb.authelia.oidcClients = lib.lists.optionals cfg.sso.enable [
       {
-        client_id = cfg.oidcClientID;
+        client_id = cfg.sso.clientID;
         client_name = "Audiobookshelf";
-        client_secret.source = cfg.ssoSecret.result.path;
+        client_secret.source = cfg.sso.sharedSecretForAuthelia.result.path;
         public = false;
-        authorization_policy = "one_factor";
+        authorization_policy = cfg.sso.authorization_policy;
         redirect_uris = [ 
-        "https://${cfg.subdomain}.${cfg.domain}/auth/openid/callback" 
-        "https://${cfg.subdomain}.${cfg.domain}/auth/openid/mobile-redirect" 
+          "https://${cfg.subdomain}.${cfg.domain}/auth/openid/callback" 
+          "https://${cfg.subdomain}.${cfg.domain}/auth/openid/mobile-redirect" 
         ];
+        require_pkce = true;
+        pkce_challenge_method = "S256";
+        userinfo_signed_response_alg = "none";
+        token_endpoint_auth_method = "client_secret_basic";
       }
     ];
   } {

@@ -69,13 +69,22 @@ let
 
   sso = { config, ... }: {
     shb.audiobookshelf = {
-      authEndpoint = "https://${config.shb.authelia.subdomain}.${config.shb.authelia.domain}";
-      ssoSecret.result = config.shb.hardcodedsecret.ssoSecret.result;
+      sso = {
+        enable = true;
+        endpoint = "https://${config.shb.authelia.subdomain}.${config.shb.authelia.domain}";
+        sharedSecret.result = config.shb.hardcodedsecret.audiobookshelfSSOPassword.result;
+        sharedSecretForAuthelia.result = config.shb.hardcodedsecret.audiobookshelfSSOPasswordAuthelia.result;
+      };
     };
 
-    shb.hardcodedsecret.ssoSecret = {
-      request = config.shb.audiobookshelf.ssoSecret.request;
-      settings.content = "ssoSecret";
+    shb.hardcodedsecret.audiobookshelfSSOPassword = {
+      request = config.shb.audiobookshelf.sso.sharedSecret.request;
+      settings.content = "ssoPassword";
+    };
+
+    shb.hardcodedsecret.audiobookshelfSSOPasswordAuthelia = {
+      request = config.shb.audiobookshelf.sso.sharedSecretForAuthelia.request;
+      settings.content = "ssoPassword";
     };
   };
 in
