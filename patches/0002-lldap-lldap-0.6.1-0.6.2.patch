@@ -1,14 +1,14 @@
-From ac7fcd01a20cfd93e2ac2b558f38bfa500e5f28a Mon Sep 17 00:00:00 2001
+From 995413b11fb7a453ecf1a0c30a64b4a550f1aca3 Mon Sep 17 00:00:00 2001
 From: ibizaman <ibizaman@tiserbox.com>
 Date: Tue, 15 Jul 2025 18:42:42 +0200
-Subject: [PATCH 2/3] lldap: lldap 0.6.1 -> unstable-2025-07-16
+Subject: [PATCH 2/4] lldap: lldap 0.6.1 -> 0.6.2
 
 ---
  nixos/modules/services/databases/lldap.nix    | 43 ++++++++++---
  nixos/tests/lldap.nix                         |  8 ++-
  .../0001-parameterize-frontend-location.patch | 64 -------------------
- pkgs/by-name/ll/lldap/package.nix             | 30 +++++----
- 4 files changed, 55 insertions(+), 90 deletions(-)
+ pkgs/by-name/ll/lldap/package.nix             | 31 +++++----
+ 4 files changed, 56 insertions(+), 90 deletions(-)
  delete mode 100644 pkgs/by-name/ll/lldap/0001-parameterize-frontend-location.patch
 
 diff --git a/nixos/modules/services/databases/lldap.nix b/nixos/modules/services/databases/lldap.nix
@@ -193,10 +193,10 @@ index c33f5a7afa10..000000000000
 -2.45.2
 -
 diff --git a/pkgs/by-name/ll/lldap/package.nix b/pkgs/by-name/ll/lldap/package.nix
-index 6931256080b2..41e4a332018e 100644
+index c335ffa727bf..11f14fdab871 100644
 --- a/pkgs/by-name/ll/lldap/package.nix
 +++ b/pkgs/by-name/ll/lldap/package.nix
-@@ -3,29 +3,30 @@
+@@ -3,30 +3,31 @@
    fetchFromGitHub,
    lib,
    lldap,
@@ -211,29 +211,30 @@ index 6931256080b2..41e4a332018e 100644
  }:
  
  let
++  version = "0.6.2";
  
 -  commonDerivationAttrs = rec {
 +  commonDerivationAttrs = {
      pname = "lldap";
 -    version = "0.6.1";
-+    version = "unstable-2025-07-16";
++    inherit version;
  
      src = fetchFromGitHub {
        owner = "lldap";
        repo = "lldap";
--      rev = "v${version}";
+       rev = "v${version}";
 -      hash = "sha256-iQ+Vv9kx/pWHoa/WZChBK+FD2r1avzWWz57bnnzRjUg=";
-+      rev = "78337bce722c3573d9fc6eafe345a3dbce4b9119";
-+      hash = "sha256-/djLboAQwK/KQ0u9vzoOdDHwh/BQSvMa8lQkABn10Cw=";
++      hash = "sha256-UBQWOrHika8X24tYdFfY8ETPh9zvI7/HV5j4aK8Uq+Y=";
      };
  
      useFetchCargoVendor = true;
 -    cargoHash = "sha256-qXYgr9uRswuo9hwVROUX9KUKpkzR0VEcXImbdyOgxsY=";
-+    cargoHash = "sha256-/dyrtX2FUHSGkJ6AkCM81iPqI03IWA0tecR4KHSx8gA=";
- 
+-
++    cargoHash = "sha256-SO7+HiiXNB/KF3fjzSMeiTPjRQq/unEfsnplx4kZv9c=";
    };
  
-@@ -36,7 +37,7 @@ let
+   frontend = rustPlatform.buildRustPackage (
+@@ -35,7 +37,7 @@ let
  
        nativeBuildInputs = [
          wasm-pack
@@ -242,7 +243,7 @@ index 6931256080b2..41e4a332018e 100644
          binaryen
          which
          rustc
-@@ -69,12 +70,10 @@ rustPlatform.buildRustPackage (
+@@ -68,12 +70,10 @@ rustPlatform.buildRustPackage (
        "lldap_set_password"
      ];
  
@@ -259,7 +260,7 @@ index 6931256080b2..41e4a332018e 100644
      '';
  
      passthru = {
-@@ -90,7 +89,10 @@ rustPlatform.buildRustPackage (
+@@ -89,7 +89,10 @@ rustPlatform.buildRustPackage (
        changelog = "https://github.com/lldap/lldap/blob/v${lldap.version}/CHANGELOG.md";
        license = licenses.gpl3Only;
        platforms = platforms.linux;

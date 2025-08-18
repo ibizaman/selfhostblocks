@@ -17,8 +17,9 @@
       shbPatches = originPkgs.lib.optionals (system == "x86_64-linux") [
         # Get rid of lldap patches when https://github.com/NixOS/nixpkgs/pull/425923 is merged.
         ./patches/0001-lldap-add-options-to-set-important-secrets.patch
-        ./patches/0002-lldap-lldap-0.6.1-unstable-2025-07-16.patch
-        ./patches/0003-lldap-bootstrap-init-unstable-2025-07-17-lldap-add-e.patch
+        ./patches/0002-lldap-lldap-0.6.1-0.6.2.patch
+        ./patches/0003-lldap-bootstrap-init-0.6.2.patch
+        ./patches/0004-lldap-add-ensure-options.patch
 
         # Leaving commented out as an example.
         # (originPkgs.fetchpatch {

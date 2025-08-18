@@ -1,19 +1,15 @@
-From 7f30b1ad931cf9af3a1fa3caded057f9b71672bc Mon Sep 17 00:00:00 2001
+From 714063011540d5ea5f172475cc7db2a4e1c25fa6 Mon Sep 17 00:00:00 2001
 From: ibizaman <ibizaman@tiserbox.com>
-Date: Wed, 16 Jul 2025 17:51:57 +0200
-Subject: [PATCH 3/3] lldap-bootstrap: init unstable-2025-07-17, lldap: add
- ensure options
+Date: Wed, 13 Aug 2025 08:15:12 +0200
+Subject: [PATCH 4/4] lldap: add ensure options
 
 ---
- nixos/modules/services/databases/lldap.nix  | 339 +++++++++++++++++++-
- nixos/tests/lldap.nix                       | 137 +++++++-
- pkgs/by-name/ll/lldap-bootstrap/package.nix |  54 ++++
- pkgs/by-name/ll/lldap/package.nix           |   6 +-
- 4 files changed, 525 insertions(+), 11 deletions(-)
- create mode 100644 pkgs/by-name/ll/lldap-bootstrap/package.nix
+ nixos/modules/services/databases/lldap.nix | 355 ++++++++++++++++++++-
+ nixos/tests/lldap.nix                      | 143 ++++++++-
+ 2 files changed, 490 insertions(+), 8 deletions(-)
 
 diff --git a/nixos/modules/services/databases/lldap.nix b/nixos/modules/services/databases/lldap.nix
-index 1095021b3f35..b23e89ba6794 100644
+index 1095021b3f35..6b5d2be44f43 100644
 --- a/nixos/modules/services/databases/lldap.nix
 +++ b/nixos/modules/services/databases/lldap.nix
 @@ -8,6 +8,84 @@
@@ -110,7 +106,7 @@ index 1095021b3f35..b23e89ba6794 100644
      environment = mkOption {
        type = with types; attrsOf str;
        default = { };
-@@ -169,6 +249,186 @@ in
+@@ -169,6 +249,198 @@ in
          If that is okay for you and you want to silence the warning, set this option to `true`.
        '';
      };
@@ -289,15 +285,27 @@ index 1095021b3f35..b23e89ba6794 100644
 +      '';
 +    };
 +
-+    enforceEnsure = mkOption {
-+      description = "Delete users, groups and fields not in their respective ensure options and remove users from groups they do not belong to.";
++    enforceUsers = mkOption {
++      description = "Delete users not managed declaratively.";
++      type = types.bool;
++      default = false;
++    };
++
++    enforceUserMemberships = mkOption {
++      description = "Remove users from groups they do not belong to declaratively.";
++      type = types.bool;
++      default = false;
++    };
++
++    enforceGroups = mkOption {
++      description = "Delete groups not managed declaratively.";
 +      type = types.bool;
 +      default = false;
 +    };
    };
  
    config = lib.mkIf cfg.enable {
-@@ -183,15 +443,58 @@ in
+@@ -183,15 +455,60 @@ in
            (cfg.settings.ldap_user_pass_file or null) == null || (cfg.settings.ldap_user_pass or null) == null;
          message = "lldap: Both `ldap_user_pass` and `ldap_user_pass_file` settings should not be set at the same time. Set one to `null`.";
        }
@@ -307,7 +315,9 @@ index 1095021b3f35..b23e89ba6794 100644
 +          || cfg.ensureGroups != { }
 +          || cfg.ensureUserFields != { }
 +          || cfg.ensureGroupFields != { }
-+          || cfg.enforceEnsure
++          || cfg.enforceUsers
++          || cfg.enforceUserMemberships
++          || cfg.enforceGroups
 +          -> cfg.ensureAdminPassword != null || cfg.ensureAdminPasswordFile != null;
 +        message = ''
 +          lldap: Some ensure options are set but no admin user password is set.
@@ -316,7 +326,7 @@ index 1095021b3f35..b23e89ba6794 100644
 +        '';
 +      }
 +      {
-+        assertion = cfg.enforceEnsure -> !someUsersBelongToNonEnsuredGroup;
++        assertion = cfg.enforceUserMemberships -> !someUsersBelongToNonEnsuredGroup;
 +        message = ''
 +          lldap: Some users belong to groups not present in the ensureGroups attr,
 +          add the following groups or remove them from the groups a user belong to:
@@ -359,14 +369,14 @@ index 1095021b3f35..b23e89ba6794 100644
          (cfg.settings.force_ldap_user_pass_reset == false && cfg.silenceForceUserPassResetWarning == false)
          [
            ''
-@@ -200,7 +503,15 @@ in
+@@ -200,7 +517,15 @@ in
              It also means changing the setting `ldap_user_pass` or `ldap_user_pass_file` will have no effect on the admin password.
              Either set `force_ldap_user_pass_reset` to `"always"` or silence this warning by setting the option `services.lldap.silenceForceUserPassResetWarning` to `true`.
            ''
 -        ];
 +        ]
 +      )
-+      ++ (lib.optionals (!cfg.enforceEnsure && someUsersBelongToNonEnsuredGroup) [
++      ++ (lib.optionals (!cfg.enforceUserMemberships && someUsersBelongToNonEnsuredGroup) [
 +        ''
 +          Some users belong to groups not managed by the configuration here,
 +          make sure the following groups exist or the service will not start properly:
@@ -376,7 +386,7 @@ index 1095021b3f35..b23e89ba6794 100644
  
      systemd.services.lldap = {
        description = "Lightweight LDAP server (lldap)";
-@@ -223,6 +534,26 @@ in
+@@ -223,6 +548,28 @@ in
          + ''
            ${lib.getExe cfg.package} run --config-file ${format.generate "lldap_config.toml" cfg.settings}
          '';
@@ -397,14 +407,16 @@ index 1095021b3f35..b23e89ba6794 100644
 +        export GROUP_SCHEMAS_DIR=${
 +          generateEnsureConfigDir "groupFields" (lib.mapAttrs (n: v: [ v ]) cfg.ensureGroupFields)
 +        }
-+        export DO_CLEANUP=${if cfg.enforceEnsure then "true" else "false"}
++        export DO_CLEANUP_USERS=${if cfg.enforceUsers then "true" else "false"}
++        export DO_CLEANUP_USER_MEMBERSHIPS=${if cfg.enforceUserMemberships then "true" else "false"}
++        export DO_CLEANUP_GROUPS=${if cfg.enforceGroups then "true" else "false"}
 +        ${lib.getExe cfg.bootstrap-package}
 +      '';
        serviceConfig = {
          StateDirectory = "lldap";
          StateDirectoryMode = "0750";
 diff --git a/nixos/tests/lldap.nix b/nixos/tests/lldap.nix
-index 8e38d4bdefa3..e0bc2fdf07fd 100644
+index 8e38d4bdefa3..47d32c7a2a7b 100644
 --- a/nixos/tests/lldap.nix
 +++ b/nixos/tests/lldap.nix
 @@ -1,6 +1,9 @@
@@ -426,7 +438,7 @@ index 8e38d4bdefa3..e0bc2fdf07fd 100644
                force_ldap_user_pass_reset = "always";
              };
            };
-@@ -40,13 +43,104 @@ in
+@@ -40,13 +43,110 @@ in
                force_ldap_user_pass_reset = false;
              };
            };
@@ -435,7 +447,9 @@ index 8e38d4bdefa3..e0bc2fdf07fd 100644
 +          { ... }:
 +          {
 +            services.lldap = {
-+              enforceEnsure = true;
++              enforceUsers = true;
++              enforceUserMemberships = true;
++              enforceGroups = true;
 +
 +              # This password was set in the "differentAdminPassword" specialisation.
 +              ensureAdminPasswordFile = toString (pkgs.writeText "adminPasswordFile" adminPassword);
@@ -458,7 +472,9 @@ index 8e38d4bdefa3..e0bc2fdf07fd 100644
 +          { ... }:
 +          {
 +            services.lldap = {
-+              enforceEnsure = true;
++              enforceUsers = true;
++              enforceUserMemberships = true;
++              enforceGroups = true;
 +
 +              # This time we check that ensureAdminPasswordFile correctly defaults to `settings.ldap_user_pass_file`
 +              settings = {
@@ -485,7 +501,9 @@ index 8e38d4bdefa3..e0bc2fdf07fd 100644
 +          { ... }:
 +          {
 +            services.lldap = {
-+              enforceEnsure = true;
++              enforceUsers = true;
++              enforceUserMemberships = true;
++              enforceGroups = true;
 +
 +              settings = {
 +                ldap_user_pass = lib.mkForce adminPassword;
@@ -532,7 +550,7 @@ index 8e38d4bdefa3..e0bc2fdf07fd 100644
      in
      ''
        machine.wait_for_unit("lldap.service")
-@@ -56,6 +150,9 @@ in
+@@ -56,6 +156,9 @@ in
        machine.succeed("curl --location --fail http://localhost:17170/")
  
        adminPassword="${adminPassword}"
@@ -542,7 +560,7 @@ index 8e38d4bdefa3..e0bc2fdf07fd 100644
  
        def try_login(user, password, expect_success=True):
            cmd = f'ldapsearch -H ldap://localhost:3890 -D uid={user},ou=people,dc=example,dc=com -b "ou=people,dc=example,dc=com" -w {password}'
-@@ -70,18 +167,50 @@ in
+@@ -70,18 +173,50 @@ in
                    raise Exception("Expected failure, had success")
            return response
  
@@ -595,84 +613,6 @@ index 8e38d4bdefa3..e0bc2fdf07fd 100644
 +              raise Exception(f'Unexpected value for attribute "mygroupattribute": {othergroup.get('mygroupattribute')}')
      '';
  }
-diff --git a/pkgs/by-name/ll/lldap-bootstrap/package.nix b/pkgs/by-name/ll/lldap-bootstrap/package.nix
-new file mode 100644
-index 000000000000..d31bad79ce67
---- /dev/null
-+++ b/pkgs/by-name/ll/lldap-bootstrap/package.nix
-@@ -0,0 +1,54 @@
-+{
-+  curl,
-+  fetchFromGitHub,
-+  jq,
-+  jo,
-+  lib,
-+  lldap,
-+  lldap-bootstrap,
-+  makeWrapper,
-+  stdenv,
-+}:
-+stdenv.mkDerivation {
-+  pname = "lldap-bootstrap";
-+  version = "unstable-2025-07-17";
-+
-+  src = fetchFromGitHub {
-+    owner = "ibizaman";
-+    repo = "lldap";
-+    rev = "649a7023da17df70df88152844d2aa1ba0b64440";
-+    hash = "sha256-89SoFqSm3dwVcPQM3lulY26o411NbdS6gTuolw2+e+U=";
-+  };
-+
-+  dontBuild = true;
-+
-+  nativeBuildInputs = [ makeWrapper ];
-+
-+  installPhase = ''
-+    mkdir -p $out/bin
-+    cp ./scripts/bootstrap.sh $out/bin/lldap-bootstrap
-+
-+    wrapProgram $out/bin/lldap-bootstrap \
-+      --set LLDAP_SET_PASSWORD_PATH ${lldap}/bin/lldap_set_password \
-+      --prefix PATH : ${
-+        lib.makeBinPath [
-+          curl
-+          jq
-+          jo
-+        ]
-+      }
-+  '';
-+
-+  meta = {
-+    description = "Bootstrap script for LLDAP";
-+    homepage = "https://github.com/lldap/lldap";
-+    changelog = "https://github.com/lldap/lldap/blob/v${lldap-bootstrap.version}/CHANGELOG.md";
-+    license = lib.licenses.gpl3Only;
-+    platforms = lib.platforms.linux;
-+    maintainers = with lib.maintainers; [
-+      bendlas
-+      ibizaman
-+    ];
-+    mainProgram = "lldap-bootstrap";
-+  };
-+}
-diff --git a/pkgs/by-name/ll/lldap/package.nix b/pkgs/by-name/ll/lldap/package.nix
-index 41e4a332018e..dc145bbb3fa5 100644
---- a/pkgs/by-name/ll/lldap/package.nix
-+++ b/pkgs/by-name/ll/lldap/package.nix
-@@ -19,10 +19,10 @@ let
-     version = "unstable-2025-07-16";
- 
-     src = fetchFromGitHub {
--      owner = "lldap";
-+      owner = "ibizaman";
-       repo = "lldap";
--      rev = "78337bce722c3573d9fc6eafe345a3dbce4b9119";
--      hash = "sha256-/djLboAQwK/KQ0u9vzoOdDHwh/BQSvMa8lQkABn10Cw=";
-+      rev = "93922b7b0f7f8ac294151ec61b9b21e50e504ab5";
-+      hash = "sha256-p2PUaaD6OrQ+eCkcDZd6x61gERQFQSDEkxwl2s6y8rY=";
-     };
- 
-     useFetchCargoVendor = true;
 -- 
 2.49.0
 
