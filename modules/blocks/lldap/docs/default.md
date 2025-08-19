@@ -60,6 +60,9 @@ Also, all other groups will be deleted and only the "family" group will remain.
 
 Note that the `lldap_admin`, `lldap_password_manager` and `lldap_strict_readonly` groups, which are internal to LLDAP, will always exist.
 
+If you want existing groups not declared in the `shb.lldap.ensureGroups` to be deleted,
+set [`shb.lldap.enforceGroups`](#blocks-lldap-options-shb.lldap.enforceGroups) to `false`.
+
 ```nix
 {
   shb.lldap.ensureGroups = {
@@ -110,6 +113,20 @@ shb.lldap = {
 ## Manage Users {#blocks-lldap-manage-users}
 
 The following snippet creates a user and makes it a member of the "family" group.
+
+Note the following behavior:
+
+- New users will be created following the `shb.lldap.ensureUsers` option.
+- Existing users will be updated, their password included, if they are mentioned in the `shb.lldap.ensureUsers` option.
+- Existing users not declared in the `shb.lldap.ensureUsers` will be left as-is.
+- User memberships to groups not declared in their respective `shb.lldap.ensureUsers.<name>.groups`.
+
+If you want existing users not declared in the `shb.lldap.ensureUsers` to be deleted,
+set [`shb.lldap.enforceUsers`](#blocks-lldap-options-shb.lldap.enforceUsers) to `true`.
+
+If you want memberships to groups not declared in the respective
+`shb.lldap.ensureUsers.<name>.groups` option to be deleted,
+set [`shb.lldap.enforceUserMemberships`](#blocks-lldap-options-shb.lldap.enforceUserMemberships) `true`.
 
 ```nix
 {
