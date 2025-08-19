@@ -133,7 +133,7 @@ let
 
       adminUser = adminUser;
       adminPass.result = config.shb.hardcodedsecret.adminPass.result;
-      debug = true;
+      debug = false; # Enable this if needed, but beware it is _very_ verbose.
     };
 
     shb.hardcodedsecret.adminPass = {
