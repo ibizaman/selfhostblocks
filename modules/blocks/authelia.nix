@@ -140,6 +140,24 @@ in
       };
     };
 
+    extraOidcClaimsPolicies = lib.mkOption {
+      description = "Extra OIDC claims policies.";
+      type = lib.types.attrsOf lib.types.attrs;
+      default = {};
+    };
+
+    extraOidcScopes = lib.mkOption {
+      description = "Extra OIDC scopes.";
+      type = lib.types.attrsOf lib.types.attrs;
+      default = {};
+    };
+
+    extraDefinitions = lib.mkOption {
+      description = "Extra definitions.";
+      type = lib.types.attrsOf lib.types.attrs;
+      default = {};
+    };
+
     oidcClients = lib.mkOption {
       description = "OIDC clients";
       default = [
@@ -205,13 +223,13 @@ in
 
           scopes = lib.mkOption {
             type = lib.types.listOf lib.types.str;
-            description = "Scopes to ask for";
+            description = "Scopes to ask for. See https://www.authelia.com/integration/openid-connect/openid-connect-1.0-claims";
             example = [ "openid" "profile" "email" "groups" ];
             default = [];
           };
 
           claims_policy = lib.mkOption {
-            type = lib.types.str;
+            type = lib.types.nullOr lib.types.str;
             description = ''
               Claim policy.
 
@@ -387,11 +405,6 @@ in
             user = "uid=admin,ou=people,${cfg.dcdomain}";
           };
         };
-        # This should go away at some point.
-        # https://www.authelia.com/integration/openid-connect/openid-connect-1.0-claims/#restore-functionality-prior-to-claims-parameter
-        identity_providers.oidc = {
-          claims_policies.default.id_token = [ "email" "preferred_username" "name" "groups" ];
-        };
         totp = {
           disable = "false";
           issuer = fqdnWithPort;
@@ -465,6 +478,17 @@ in
         };
 
         log.level = if cfg.debug then "debug" else "info";
+      } // {
+        identity_providers.oidc = {
+          claims_policies = {
+            # This default claim should go away at some point.
+            # https://www.authelia.com/integration/openid-connect/openid-connect-1.0-claims/#restore-functionality-prior-to-claims-parameter
+            default.id_token = [ "email" "preferred_username" "name" "groups" ];
+          } // cfg.extraOidcClaimsPolicies;
+          scopes = cfg.extraOidcScopes;
+        };
+      } // lib.optionalAttrs (cfg.extraDefinitions != {}) {
+        definitions = cfg.extraDefinitions;
       };
 
       settingsFiles = [ "/var/lib/authelia-${fqdn}/oidc_clients.yaml" ];

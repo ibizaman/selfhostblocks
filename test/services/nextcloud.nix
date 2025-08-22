@@ -151,6 +151,91 @@ let
     };
   };
 
+  clientLdapLogin = { config, ... }: {
+    imports = [
+      testLib.baseModule
+      testLib.clientLoginModule
+    ];
+    virtualisation.memorySize = 4096;
+
+    test = {
+      subdomain = "n";
+    };
+
+    test.login = {
+      startUrl = "http://${config.test.fqdn}";
+      usernameFieldLabelRegex = "Account name";
+      passwordFieldLabelRegex = "^ *[Pp]assword";
+      loginButtonNameRegex = "[Ll]og [Ii]n";
+      testLoginWith = [
+        { username = "alice"; password = "AlicePassword"; nextPageExpect = [
+            "expect(page.get_by_text('Wrong login or password')).not_to_be_visible()"
+            "expect(page.get_by_role('button', name=re.compile('[Ll]og [Ii]n'))).not_to_be_visible()"
+            "expect(page).to_have_title(re.compile('Dashboard'))"
+          ]; }
+        { username = "alice"; password = "NotAlicePassword"; nextPageExpect = [
+            "expect(page.get_by_text('Wrong login or password')).to_be_visible()"
+          ]; }
+        { username = "bob"; password = "BobPassword"; nextPageExpect = [
+            "expect(page.get_by_text('Wrong login or password')).not_to_be_visible()"
+            "expect(page.get_by_role('button', name=re.compile('[Ll]og [Ii]n'))).not_to_be_visible()"
+            "expect(page).to_have_title(re.compile('Dashboard'))"
+          ]; }
+        { username = "bob"; password = "NotBobPassword"; nextPageExpect = [
+            "expect(page.get_by_text('Wrong login or password')).to_be_visible()"
+          ]; }
+      ];
+    };
+  };
+
+  clientSsoLogin = { config, ... }: {
+    imports = [
+      testLib.baseModule
+      testLib.clientLoginModule
+    ];
+    virtualisation.memorySize = 4096;
+
+    test = {
+      subdomain = "n";
+    };
+
+    networking.hosts = {
+      "192.168.1.2" = [ "auth.example.com" ];
+    };
+
+    test.login = {
+      startUrl = "http://${config.test.fqdn}";
+      usernameFieldLabelRegex = "Username";
+      passwordFieldSelector = "get_by_label(\"Password *\")";
+      loginButtonNameRegex = "[sS]ign [iI]n";
+      testLoginWith = [
+        { username = "alice"; password = "AlicePassword"; nextPageExpect = [
+            "page.get_by_role('button', name=re.compile('Accept')).click()"
+            "expect(page).to_have_title(re.compile('Dashboard'))"
+            "page.goto('https://${config.test.fqdn}/settings/admin')"
+            "expect(page.get_by_text('Access forbidden')).to_be_visible()"
+          ]; }
+        { username = "alice"; password = "NotAlicePassword"; nextPageExpect = [
+            "expect(page.get_by_text('Incorrect username or password')).to_be_visible()"
+          ]; }
+        { username = "bob"; password = "BobPassword"; nextPageExpect = [
+            "page.get_by_role('button', name=re.compile('Accept')).click()"
+            "expect(page).to_have_title(re.compile('Dashboard'))"
+            "page.goto('https://${config.test.fqdn}/settings/admin')"
+            "expect(page.get_by_text('Access forbidden')).not_to_be_visible()"
+          ]; }
+        { username = "bob"; password = "NotBobPassword"; nextPageExpect = [
+            "expect(page.get_by_text('Incorrect username or password')).to_be_visible()"
+          ]; }
+        # TODO: charlie has no groups, which makes lldap return a 'null' value instead of an empty array and Authelia does not like that.
+        # { username = "charlie"; password = "CharliePassword"; nextPageExpect = [
+        #     "page.get_by_role('button', name=re.compile('Accept')).click()"
+        #     "expect(page).to_have_title(re.compile('Dashboard'))"
+        #   ]; }
+      ];
+    };
+  };
+
   https = { config, ...}: {
     shb.nextcloud = {
       ssl = config.shb.certs.certs.selfsigned.n;
@@ -168,7 +253,7 @@ let
         dcdomain = config.shb.lldap.dcdomain;
         adminName = "admin";
         adminPassword.result = config.shb.hardcodedsecret.nextcloudLdapUserPassword.result;
-        userGroup = "nextcloud_user";
+        userGroup = "user_group";
       };
     };
     shb.hardcodedsecret.nextcloudLdapUserPassword = {
@@ -184,7 +269,7 @@ let
           enable = true;
           endpoint = "https://${config.shb.authelia.subdomain}.${config.shb.authelia.domain}";
           clientID = "nextcloud";
-          # adminUserGroup = "nextcloud_admin";
+          adminGroup = "admin_group";
 
           secret.result = config.shb.hardcodedsecret.oidcSecret.result;
           secretForAuthelia.result = config.shb.hardcodedsecret.oidcAutheliaSecret.result;
@@ -192,6 +277,10 @@ let
           fallbackDefaultAuth = false;
         };
       };
+      # Needed because OIDC somehow does not like self-signed certificates
+      # which we do use in tests.
+      # See https://github.com/pulsejet/nextcloud-oidc-login/issues/267
+      services.nextcloud.settings.oidc_login_tls_verify = lib.mkForce false;
 
       shb.hardcodedsecret.oidcSecret = {
         request = config.shb.nextcloud.apps.sso.secret.request;
@@ -436,13 +525,19 @@ in
       ];
     };
   
-    nodes.client = {};
+    nodes.client = {
+      imports = [
+        clientLdapLogin
+      ];
+    };
   
     testScript = commonTestScript.access;
   };
 
   sso = pkgs.testers.runNixOSTest {
     name = "nextcloud_sso";
+
+    interactive.sshBackdoor.enable = true;
   
     nodes.server = { config, ... }: {
       imports = [
@@ -453,10 +548,24 @@ in
         ldap
         (testLib.sso config.shb.certs.certs.selfsigned.n)
         sso
+        ({ config, ... }: {
+          networking.hosts = {
+            "127.0.0.1" = [ config.test.fqdn ];
+          };
+        })
       ];
     };
   
-    nodes.client = {};
+    nodes.client = {
+      imports = [
+        clientSsoLogin
+        ({ config, ... }: {
+          networking.hosts = {
+            "192.168.1.2" = [ config.test.fqdn ];
+          };
+        })
+      ];
+    };
   
     testScript = commonTestScript.access;
   };

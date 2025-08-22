@@ -198,6 +198,10 @@ in
       # HTTP(s) server port.
       networking.firewall.allowedTCPPorts = [ 80 443 ];
       shb.nginx.accessLog = true;
+
+      networking.hosts = {
+        "192.168.1.2" = [ config.test.fqdn ];
+      };
     };
   };
 
@@ -415,6 +419,11 @@ in
           groups = [ "user_group" "admin_group" ];
           password.result.path = pkgs.writeText "bobPassword" "BobPassword";
         };
+        # charlie = {
+        #   email = "charlie@example.com";
+        #   groups = [ ];
+        #   password.result.path = pkgs.writeText "charliePassword" "CharliePassword";
+        # };
       };
 
       ensureGroups = {
@@ -430,7 +439,7 @@ in
     ];
 
     networking.hosts = {
-      "127.0.0.1" = [ "auth.${config.test.domain}" ];
+      "127.0.0.1" = [ "${config.shb.authelia.subdomain}.${config.shb.authelia.domain}" ];
     };
 
     shb.authelia = {

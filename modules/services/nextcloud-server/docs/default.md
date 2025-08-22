@@ -179,10 +179,9 @@ to do that with SOPS we use the `key` option so that both
 and `sops.secrets."nextcloud/ldapUserPassword"`
 secrets have the same content.
 
-Creating LDAP users and groups is not declarative yet,
-so go to the LDAP server at `http://ldap.example.com`,
-create the `nextcloud_user` group,
-create a user and add it to the group.
+The LDAP [user group](#services-nextcloudserver-options-shb.nextcloud.apps.ldap.userGroup) is created automatically.
+Add your user to it by going to `http://ldap.example.com`,
+create a user if needed and add it to the group.
 When that's done, go back to the Nextcloud server at
 `https://nextcloud.example.com` and login with that user.
 
@@ -190,6 +189,7 @@ Note that we cannot create an admin user from the LDAP server,
 so you need to create a normal user like above,
 login with it once so it is known to Nextcloud, then logout,
 login with the admin Nextcloud user and promote that new user to admin level.
+This limitation does not exist with the [SSO integration](#services-nextcloudserver-usage-oidc).
 
 ### With SSO Support {#services-nextcloudserver-usage-oidc}
 
@@ -230,6 +230,12 @@ to do that with SOPS we use the `key` option so that both
 `sops.secrets."nextcloud/sso/secret"`
 and `sops.secrets."nextcloud/sso/secretForAuthelia"`
 secrets have the same content.
+
+The LDAP [user group](#services-nextcloudserver-options-shb.nextcloud.apps.ldap.userGroup) and [admin group](#services-nextcloudserver-options-shb.nextcloud.apps.sso.adminGroup) are created automatically.
+Add your user to one or both by going to `http://ldap.example.com`,
+create a user if needed and add it to the groups.
+When that's done, go back to the Nextcloud server at
+`https://nextcloud.example.com` and login with that user.
 
 Setting the `fallbackDefaultAuth` to `false` means the only way to login is through Authelia.
 If this does not work for any reason, you can let users login through Nextcloud directly by setting this option to `true`.

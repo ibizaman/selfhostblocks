@@ -414,7 +414,6 @@ in
                   };
                 };
 
-
                 userGroup = lib.mkOption {
                   type = lib.types.str;
                   description = "Group users must belong to to be able to login to Nextcloud.";
@@ -424,8 +423,8 @@ in
                 configID = lib.mkOption {
                   type = lib.types.int;
                   description = ''
-                    Multiple LDAP configs can co-exist with only one active at a time.This option
-                    sets the config ID used by Self Host Blocks.
+                    Multiple LDAP configs can co-exist with only one active at a time.
+                    This option sets the config ID used by Self Host Blocks.
                   '';
                   default = 50;
                 };
@@ -473,6 +472,12 @@ in
                   type = lib.types.enum [ "one_factor" "two_factor" ];
                   description = "Require one factor (password) or two factor (device) authentication.";
                   default = "one_factor";
+                };
+
+                adminGroup = lib.mkOption {
+                  type = lib.types.str;
+                  description = "Group admins must belong to to be able to login to Nextcloud.";
+                  default = "nextcloud_admin";
                 };
 
                 secret = lib.mkOption {
@@ -1022,7 +1027,7 @@ in
         ${occ} ldap:set-config "${cID}" 'ldapLoginFilterAttributes' \
                   'mail;objectclass'
         ${occ} ldap:set-config "${cID}" 'ldapUserDisplayName' \
-                  'displayname'
+                  'givenname'
         ${occ} ldap:set-config "${cID}" 'ldapUserFilter' \
                   '(&(objectclass=person)(memberOf=cn=${cfg'.userGroup},ou=groups,${cfg'.dcdomain}))'
         ${occ} ldap:set-config "${cID}" 'ldapUserFilterMode' \
@@ -1033,7 +1038,7 @@ in
         # Nextcloud is compatible with the one returned by a (possibly added in the future) SSO
         # provider.
         ${occ} ldap:set-config "${cID}" 'ldapExpertUsernameAttr' \
-                  'user_id'
+                  'uid'
 
         ${occ} ldap:test-config -- "${cID}"
 
@@ -1057,6 +1062,7 @@ in
           "profile"
           "email"
           "groups"
+          "nextcloud_userinfo"
         ];
     in lib.mkIf (cfg.enable && cfg.apps.sso.enable) {
       assertions = [
@@ -1070,11 +1076,9 @@ in
         }
       ];
 
-      systemd.services.nextcloud-setup.script =
-        ''
-        ${occ} app:install oidc_login || :
-        ${occ} app:enable  oidc_login
-        '';
+      services.nextcloud.extraApps = {
+        inherit (nextcloudApps) oidc_login;
+      };
 
       systemd.services.nextcloud-setup-pre = {
         wantedBy = [ "multi-user.target" ];
@@ -1096,6 +1100,12 @@ in
         secretFile = "${cfg.dataDir}/config/secretFile";
 
         # See all options at https://github.com/pulsejet/nextcloud-oidc-login
+        # Other important url/links are:
+        #   ${fqdn}/.well-known/openid-configuration
+        #   https://www.authelia.com/reference/guides/attributes/#custom-attributes
+        #   https://github.com/lldap/lldap/blob/main/example_configs/nextcloud_oidc_authelia.md
+        #   https://www.authelia.com/integration/openid-connect/nextcloud/#authelia
+        #   https://www.openidconnect.net/
         settings = {
           allow_user_to_change_display_name = false;
           lost_password_link = "disabled";
@@ -1110,12 +1120,14 @@ in
           oidc_login_logout_url = ssoFqdnWithPort;
           oidc_login_button_text = "Log in with ${cfg.apps.sso.provider}";
           oidc_login_hide_password_form = false;
-          oidc_login_use_id_token = true;
+          # Now, Authelia provides the info using the UserInfo request.
+          oidc_login_use_id_token = false;
           oidc_login_attributes = {
             id = "preferred_username";
             name = "name";
             mail = "email";
             groups = "groups";
+            is_admin = "is_nextcloud_admin";
           };
           oidc_login_default_group = "oidc";
           oidc_login_use_external_storage = false;
@@ -1136,8 +1148,7 @@ in
           # they are not already existing, Default is `false`. This creates groups for all groups
           # the user is associated with in LDAP. It's too much.
           oidc_create_groups = false;
-          # Enable use of WebDAV via OIDC bearer token.
-          oidc_login_webdav_enabled = true;
+          oidc_login_webdav_enabled = false;
           oidc_login_password_authentication = false;
           oidc_login_public_key_caching_time = 86400;
           oidc_login_min_time_between_jwks_requests = 10;
@@ -1145,7 +1156,20 @@ in
           # If true, nextcloud will download user avatars on login. This may lead to security issues
           # as the server does not control which URLs will be requested. Use with care.
           oidc_login_update_avatar = false;
+          oidc_login_code_challenge_method = "S256";
         };
+      };
+
+      shb.authelia.extraDefinitions = {
+        user_attributes."is_nextcloud_admin".expression = ''type(groups) == list && "${cfg.apps.sso.adminGroup}" in groups'';
+      };
+      shb.authelia.extraOidcClaimsPolicies."nextcloud_userinfo" = {
+        custom_claims = {
+          is_nextcloud_admin = {};
+        };
+      };
+      shb.authelia.extraOidcScopes."nextcloud_userinfo" = {
+        claims = [ "is_nextcloud_admin" ];
       };
 
       shb.authelia.oidcClients = lib.mkIf (cfg.apps.sso.provider == "Authelia") [
@@ -1153,11 +1177,18 @@ in
           client_id = cfg.apps.sso.clientID;
           client_name = "Nextcloud";
           client_secret.source = cfg.apps.sso.secretForAuthelia.result.path;
+          claims_policy = "nextcloud_userinfo";
           public = false;
           authorization_policy = cfg.apps.sso.authorization_policy;
+          require_pkce = "true";
+          pkce_challenge_method = "S256";
           redirect_uris = [ "${protocol}://${fqdnWithPort}/apps/oidc_login/oidc" ];
           inherit scopes;
-          userinfo_signing_algorithm = "none";
+          response_types = [ "code" ];
+          grant_types = [ "authorization_code" ];
+          access_token_signed_response_alg = "none";
+          userinfo_signed_response_alg = "none";
+          token_endpoint_auth_method = "client_secret_basic";
         }
       ];
     })
