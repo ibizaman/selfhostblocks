@@ -392,9 +392,9 @@ in
         # Inspired from https://github.com/lldap/lldap/blob/7d1f5abc137821c500de99c94f7579761fc949d8/example_configs/authelia_config.yml
         authentication_backend = {
           refresh_interval = "5m";
-          password_reset = {
-            disable = "false";
-          };
+          # We allow password reset and change because the ldap user we use allows it.
+          password_reset.disable = "false";
+          password_change.disable = "false";
           ldap = {
             implementation = "lldap";
             address = "ldap://${cfg.ldapHostname}:${toString cfg.ldapPort}";
