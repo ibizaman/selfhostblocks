@@ -78,6 +78,7 @@
             self.nixosModules.${system}.forgejo
             self.nixosModules.${system}.grocy
             self.nixosModules.${system}.hledger
+            self.nixosModules.${system}.immich
             self.nixosModules.${system}.assistant
             self.nixosModules.${system}.jellyfin
             self.nixosModules.${system}.nextcloud-server
@@ -112,6 +113,7 @@
         nixosModules.forgejo = modules/services/forgejo.nix;
         nixosModules.grocy = modules/services/grocy.nix;
         nixosModules.hledger = modules/services/hledger.nix;
+        nixosModules.immich = modules/services/immich.nix;
         nixosModules.assistant = modules/services/home-assistant.nix;
         nixosModules.jellyfin = modules/services/jellyfin.nix;
         nixosModules.nextcloud-server = modules/services/nextcloud-server.nix;
@@ -256,6 +258,7 @@
           // (vm_test "forgejo" ./test/services/forgejo.nix)
           // (vm_test "grocy" ./test/services/grocy.nix)
           // (vm_test "hledger" ./test/services/hledger.nix)
+          // (vm_test "immich" ./test/services/immich.nix)
           // (vm_test "homeassistant" ./test/services/home-assistant.nix)
           // (vm_test "jellyfin" ./test/services/jellyfin.nix)
           // (vm_test "monitoring" ./test/services/monitoring.nix)
