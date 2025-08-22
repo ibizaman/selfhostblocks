@@ -254,6 +254,10 @@ in
         type = str;
         default = "http://${config.test.fqdn}";
       };
+      beforeHook = mkOption {
+        type = str;
+        default = "";
+      };
     };
     config = {
       networking.hosts = {
@@ -306,6 +310,9 @@ in
                         page = context.new_page()
                         print(f"Going to {testCfg['startUrl']}")
                         page.goto(testCfg['startUrl'])
+
+                        if testCfg.get("beforeHook") is not None:
+                            exec(testCfg.get("beforeHook"))
       
                         if u['username'] is not None:
                             print(f"Filling field username with {u['username']}")
