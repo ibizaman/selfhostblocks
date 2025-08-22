@@ -414,6 +414,7 @@ in
       dcdomain = "dc=example,dc=com";
       ldapUserPassword.result = config.shb.hardcodedsecret.ldapUserPassword.result;
       jwtSecret.result = config.shb.hardcodedsecret.jwtSecret.result;
+      debug = false; # Enable this if needed, but beware it is _very_ verbose.
 
       ensureUsers = {
         alice = {
