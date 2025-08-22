@@ -454,6 +454,7 @@ in
       inherit (config.test) domain;
       subdomain = "auth";
       ssl = config.shb.certs.certs.selfsigned.n;
+      debug = true;
 
       ldapHostname = "127.0.0.1";
       ldapPort = config.shb.lldap.ldapPort;
