@@ -129,7 +129,7 @@ in
 
     def tests():
         machine.wait_for_unit("lldap.service")
-        machine.wait_for_unit("authelia-authelia.machine.com.service")
+        machine.wait_for_unit("authelia-authelia.machine.com.target")
         machine.wait_for_open_port(9091)
 
         endpoints = json.loads(machine.succeed("curl -s http://machine.com/.well-known/openid-configuration"))

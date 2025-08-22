@@ -597,5 +597,18 @@ in
         ];
       }
     ];
+
+    systemd.targets."authelia-${fqdn}" = let
+      services = [
+        "authelia-${fqdn}.service"
+      ] ++ lib.optionals cfg.debug [
+        config.shb.mitmdump.instances."authelia-${fqdn}".serviceName
+      ];
+    in {
+      after = services;
+      requires = services;
+
+      wantedBy = [ "multi-user.target" ];
+    };
   };
 }
