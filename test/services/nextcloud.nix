@@ -16,15 +16,6 @@ let
       node.config.services.phpfpm.pools.nextcloud.socket
     ];
     extraScript = { node, fqdn, proto_fqdn, ... }: ''
-    import time
-
-    def find_in_logs(unit, text):
-        return server.systemctl("status {}".format(unit))[1].find(text) != -1
-
-    with subtest("cron job starts"):
-        # This call does not block until the service is done.
-        server.succeed("systemctl start nextcloud-cron.service&")
-
     with subtest("fails with incorrect authentication"):
         client.fail(
             "curl -f -s --location -X PROPFIND"
@@ -95,18 +86,6 @@ let
         )
         if content != "hello\n":
             raise Exception("Got incorrect content for file, expected 'hello\n' but got:\n{}".format(content))
-
-    with subtest("cron job succeeds"):
-        # If the service failed, then we're not happy.
-        status = "active"
-        while status == "active":
-            status = server.get_unit_info("nextcloud-cron")["ActiveState"]
-            time.sleep(5)
-        if status != "inactive":
-            raise Exception("Cron job did not finish correctly")
-
-        if not find_in_logs("nextcloud-cron", "nextcloud-cron.service: Deactivated successfully."):
-            raise Exception("Nextcloud cron job did not finish successfully.")
     '';
   };
 
@@ -302,9 +281,43 @@ in
       ];
     };
 
+    testScript = commonTestScript.access;
+  };
+
+  cron = pkgs.testers.runNixOSTest {
+    name = "nextcloud_cron";
+
+    nodes.server = {
+      imports = [
+        basic
+      ];
+    };
+
     nodes.client = {};
 
-    testScript = commonTestScript.access;
+    testScript = commonTestScript.access.override {
+      extraScript = { node, fqdn, proto_fqdn, ... }: ''
+      import time
+
+      def find_in_logs(unit, text):
+          return server.systemctl("status {}".format(unit))[1].find(text) != -1
+
+      with subtest("cron job succeeds"):
+          # This call does not block until the service is done.
+          server.succeed("systemctl start nextcloud-cron.service&")
+
+          # If the service failed, then we're not happy.
+          status = "active"
+          while status == "active":
+              status = server.get_unit_info("nextcloud-cron")["ActiveState"]
+              time.sleep(5)
+          if status != "inactive":
+              raise Exception("Cron job did not finish correctly")
+
+          if not find_in_logs("nextcloud-cron", "nextcloud-cron.service: Deactivated successfully."):
+              raise Exception("Nextcloud cron job did not finish successfully.")
+      '';
+    };
   };
 
   backup = pkgs.testers.runNixOSTest {
