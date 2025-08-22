@@ -205,6 +205,10 @@ let
 
     test.login = {
       startUrl = "http://${config.test.fqdn}";
+      # No need since Nextcloud is auto-redirecting to the SSO sign in page.
+      # beforeHook = ''
+      #   page.get_by_role("link", name="Sign in with SHB-Authelia").click()
+      # '';
       usernameFieldLabelRegex = "Username";
       passwordFieldSelector = "get_by_label(\"Password *\")";
       loginButtonNameRegex = "[sS]ign [iI]n";
