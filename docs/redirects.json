@@ -77,6 +77,15 @@
   "blocks-authelia-options-shb.authelia.enable": [
     "blocks-authelia.html#blocks-authelia-options-shb.authelia.enable"
   ],
+  "blocks-authelia-options-shb.authelia.extraDefinitions": [
+    "blocks-authelia.html#blocks-authelia-options-shb.authelia.extraDefinitions"
+  ],
+  "blocks-authelia-options-shb.authelia.extraOidcClaimsPolicies": [
+    "blocks-authelia.html#blocks-authelia-options-shb.authelia.extraOidcClaimsPolicies"
+  ],
+  "blocks-authelia-options-shb.authelia.extraOidcScopes": [
+    "blocks-authelia.html#blocks-authelia-options-shb.authelia.extraOidcScopes"
+  ],
   "blocks-authelia-options-shb.authelia.ldapHostname": [
     "blocks-authelia.html#blocks-authelia-options-shb.authelia.ldapHostname"
   ],
@@ -3040,6 +3049,9 @@
   ],
   "services-nextcloudserver-options-shb.nextcloud.apps.sso": [
     "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.apps.sso"
+  ],
+  "services-nextcloudserver-options-shb.nextcloud.apps.sso.adminGroup": [
+    "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.apps.sso.adminGroup"
   ],
   "services-nextcloudserver-options-shb.nextcloud.apps.sso.authorization_policy": [
     "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.apps.sso.authorization_policy"
