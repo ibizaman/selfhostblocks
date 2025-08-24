@@ -62,7 +62,7 @@ let
             "page.get_by_label(re.compile('Confirm password')).fill('adminpassword')"
             "page.get_by_role('button', name=re.compile('Create account')).click()"
 
-            "expect(page.get_by_text('We found compatible devices')).to_be_visible()"
+            "expect(page.get_by_text('All set!')).to_be_visible()"
             "page.get_by_role('button', name=re.compile('Finish')).click()"
 
             "expect(page).to_have_title(re.compile('Overview'), timeout=15000)"
