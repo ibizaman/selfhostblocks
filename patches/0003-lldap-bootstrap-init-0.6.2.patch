@@ -33,7 +33,7 @@ index 000000000000..b48099c10e84
 +  inherit version;
 +
 +  src = fetchFromGitHub {
-+    owner = "ibizaman";
++    owner = "lldap";
 +    repo = "lldap";
 +    rev = "v${version}";
 +    hash = "sha256-UBQWOrHika8X24tYdFfY8ETPh9zvI7/HV5j4aK8Uq+Y=";

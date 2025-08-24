@@ -196,7 +196,7 @@ diff --git a/pkgs/by-name/ll/lldap/package.nix b/pkgs/by-name/ll/lldap/package.n
 index c335ffa727bf..11f14fdab871 100644
 --- a/pkgs/by-name/ll/lldap/package.nix
 +++ b/pkgs/by-name/ll/lldap/package.nix
-@@ -3,30 +3,31 @@
+@@ -3,29 +3,30 @@
    fetchFromGitHub,
    lib,
    lldap,
@@ -227,7 +227,6 @@ index c335ffa727bf..11f14fdab871 100644
 +      hash = "sha256-UBQWOrHika8X24tYdFfY8ETPh9zvI7/HV5j4aK8Uq+Y=";
      };
  
-     useFetchCargoVendor = true;
 -    cargoHash = "sha256-qXYgr9uRswuo9hwVROUX9KUKpkzR0VEcXImbdyOgxsY=";
 -
 +    cargoHash = "sha256-SO7+HiiXNB/KF3fjzSMeiTPjRQq/unEfsnplx4kZv9c=";
