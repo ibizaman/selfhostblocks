@@ -131,8 +131,8 @@ in
       };
 
       pwdConfig = ensureCfgs: {
-        systemd.services.postgresql.postStart =
-          let
+        systemd.services.postgresql-setup.script = lib.mkAfter
+          (let
             prefix = ''
             psql -tA <<'EOF'
               DO $$
@@ -150,7 +150,7 @@ in
             cfgsWithPasswords = builtins.filter (cfg: cfg.passwordFile != null) ensureCfgs;
           in
             if (builtins.length cfgsWithPasswords) == 0 then "" else
-              prefix + (lib.concatStrings (map exec cfgsWithPasswords)) + suffix;
+              prefix + (lib.concatStrings (map exec cfgsWithPasswords)) + suffix);
       };
 
       debugConfig = enableDebug: lib.mkIf enableDebug {
