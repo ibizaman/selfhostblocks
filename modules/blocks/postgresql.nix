@@ -134,7 +134,7 @@ in
         systemd.services.postgresql.postStart =
           let
             prefix = ''
-            $PSQL -tA <<'EOF'
+            psql -tA <<'EOF'
               DO $$
               DECLARE password TEXT;
               BEGIN
