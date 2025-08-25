@@ -240,7 +240,6 @@
                   # TODO: Make this not use IFD
                   ./test/modules/lib.nix
                   ./test/modules/nginx.nix
-                  ./test/modules/postgresql.nix
                 ]);
             };
 
