@@ -104,7 +104,7 @@ in
         settings = commonSettings;
       };
       systemd.services.postgresql.postStart = ''
-      $PSQL -tA <<'EOF'
+      psql -tA <<'EOF'
         DO $$
         DECLARE password TEXT;
         BEGIN
@@ -190,7 +190,7 @@ in
         settings = commonSettings;
       };
       systemd.services.postgresql.postStart = ''
-      $PSQL -tA <<'EOF'
+      psql -tA <<'EOF'
         DO $$
         DECLARE password TEXT;
         BEGIN
@@ -243,7 +243,7 @@ in
         settings = commonSettings;
       };
       systemd.services.postgresql.postStart = ''
-      $PSQL -tA <<'EOF'
+      psql -tA <<'EOF'
         DO $$
         DECLARE password TEXT;
         BEGIN
