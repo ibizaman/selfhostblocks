@@ -1,6 +1,13 @@
 <!-- Read these docs at https://shb.skarabox.com -->
 # Contracts {#contracts}
 
+::: {.note}
+An [RFC][] has been created which is the most up-to-date version of contracts.
+The text here is still relevant although the implementation itself has changed a little bit.
+
+[RFC]: https://github.com/NixOS/rfcs/pull/189
+:::
+
 A contract decouples modules that use a functionality from modules that provide it. A first
 intuition for contracts is they are generally related to accessing a shared resource.
 
