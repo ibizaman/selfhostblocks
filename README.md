@@ -270,7 +270,7 @@ This lets you choose, for example,
 any reverse proxy you want or any database you want,
 without requiring work from maintainers of the services you want to self host.
 
-A [pre-RFC][] exists to upstream this concept into `nixpkgs`.
+An [RFC][] exists to upstream this concept into `nixpkgs`.
 The [manual][contracts] also provides an explanation of the why and how of contracts.
 
 Also, two videos exist of me presenting the topic,
@@ -278,7 +278,7 @@ the first at [NixCon North America in spring of 2024][NixConNA2024]
 and the second at [NixCon in Berlin in fall of 2024][NixConBerlin2024].
 
 [contracts]: https://shb.skarabox.com/contracts.html
-[pre-RFC]: https://discourse.nixos.org/t/pre-rfc-decouple-services-using-structured-typing/58257
+[RFC]: https://github.com/NixOS/rfcs/pull/189
 [NixConNA2024]: https://www.youtube.com/watch?v=lw7PgphB9qM
 [NixConBerlin2024]: https://www.youtube.com/watch?v=CP0hR6w1csc
 
@@ -286,7 +286,7 @@ and the second at [NixCon in Berlin in fall of 2024][NixConBerlin2024].
 
 Thanks to [contracts](#contracts), one can interface NixOS
 with systems on other OSes.
-The [pre-RFC][] explains how that works.
+The [RFC][] explains how that works.
 
 ### Sitting on the Shoulders of a Giant
 
