@@ -1670,6 +1670,18 @@
   "recipes-exposeService-zfs": [
     "recipes-exposeService.html#recipes-exposeService-zfs"
   ],
+  "recipes-serveStaticPages": [
+    "recipes-serveStaticPages.html#recipes-serveStaticPages"
+  ],
+  "recipes-serveStaticPages-nginx": [
+    "recipes-serveStaticPages.html#recipes-serveStaticPages-nginx"
+  ],
+  "recipes-serveStaticPages-ssl": [
+    "recipes-serveStaticPages.html#recipes-serveStaticPages-ssl"
+  ],
+  "recipes-serveStaticPages-zfs": [
+    "recipes-serveStaticPages.html#recipes-serveStaticPages-zfs"
+  ],
   "redirect-management": [
     "service-implementation-guide.html#redirect-management"
   ],
