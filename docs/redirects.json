@@ -1643,6 +1643,33 @@
   "quick-reference": [
     "service-implementation-guide.html#quick-reference"
   ],
+  "recipes": [
+    "recipes.html#recipes"
+  ],
+  "recipes-exposeService": [
+    "recipes-exposeService.html#recipes-exposeService"
+  ],
+  "recipes-exposeService-backup": [
+    "recipes-exposeService.html#recipes-exposeService-backup"
+  ],
+  "recipes-exposeService-debug": [
+    "recipes-exposeService.html#recipes-exposeService-debug"
+  ],
+  "recipes-exposeService-ldap": [
+    "recipes-exposeService.html#recipes-exposeService-ldap"
+  ],
+  "recipes-exposeService-nginx": [
+    "recipes-exposeService.html#recipes-exposeService-nginx"
+  ],
+  "recipes-exposeService-service": [
+    "recipes-exposeService.html#recipes-exposeService-service"
+  ],
+  "recipes-exposeService-ssl": [
+    "recipes-exposeService.html#recipes-exposeService-ssl"
+  ],
+  "recipes-exposeService-zfs": [
+    "recipes-exposeService.html#recipes-exposeService-zfs"
+  ],
   "redirect-management": [
     "service-implementation-guide.html#redirect-management"
   ],

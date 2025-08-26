@@ -24,6 +24,10 @@ contracts.md
 blocks.md
 ```
 
+```{=include=} chapters html:into-file=//recipes.html
+recipes.md
+```
+
 ```{=include=} chapters html:into-file=//demos.html
 demos.md
 ```
