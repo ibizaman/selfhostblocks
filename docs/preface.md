@@ -92,13 +92,6 @@ To achieve this, Self Host Blocks provides building blocks
 which each provide part of what a self hosted app should do (SSO, HTTPS, etc.).
 It also provides some services that are already integrated with all those building blocks.
 
-- You are new to self hosting and want pre-configured services to deploy easily.
-  Look at the [services section](services.html).
-- You are a seasoned self-hoster but want to enhance some services you deploy already.
-  Go to the [blocks section](blocks.html).
-- You are a user of Self Host Blocks but would like to use your own implementation for a block.
-  Go to the [contracts section](https://shb.skarabox.com/contracts.html).
-
 Self Host Blocks uses the full power of NixOS modules to achieve these goals.
 Blocks and service are both NixOS modules.
 
@@ -114,9 +107,14 @@ and also goes over secrets management with [SOPS][].
 [deploy-rs]: https://shb.skarabox.com/usage.html#usage-example-deployrs
 [SOPS]: https://shb.skarabox.com/usage.html#usage-secrets
 
-Then, to actually configure services, you can choose which one interests you in
-[the services section](https://shb.skarabox.com/services.html) of the manual.
-Not all services have a corresponding manual page yet.
+Then, depending on what you want to do:
+
+- You are new to self hosting and want pre-configured services to deploy easily.
+  Look at the [services section](services.html).
+- You are a seasoned self-hoster but want to enhance some services you deploy already.
+  Go to the [blocks section](blocks.html) and the [recipes section](recipes.html).
+- You are a user of Self Host Blocks but would like to use your own implementation for a block.
+  Go to the [contracts section](https://shb.skarabox.com/contracts.html).
 
 Head over to the [matrix channel](https://matrix.to/#/#selfhostblocks:matrix.org)
 for any remaining question, or just to say hi :)

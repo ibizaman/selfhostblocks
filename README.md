@@ -171,8 +171,6 @@ is to go to the [All Options][] section of the manual.
 
 The services above rely on the following [common blocks][]:
 
-[common blocks]: https://shb.skarabox.com/blocks.html
-
 - Authelia
 - BorgBackup
 - Davfs
@@ -188,11 +186,11 @@ The services above rely on the following [common blocks][]:
 - ZFS
 
 Those blocks can be used with services
-not provided by SelfHostBlocks.
+not provided by SelfHostBlocks as shows [in the manual][common blocks].
 
-Some blocks do not have an entry yet in the manual.
-To know options for those, the only way for now
-is to go to the [All Options][] section of the manual.
+[common blocks]: https://shb.skarabox.com/blocks.html
+
+The manual also provides documentation for each individual blocks.
 
 ### Unified Interfaces
 
