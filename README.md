@@ -79,6 +79,12 @@ that fit together to build their server.
 > production server, this is really just a one person effort for now and there are most certainly
 > bugs that I didn't discover yet.
 
+### At a Glance
+
+Head over to the [recipes section](https://shb.skarabox.com/recipes.html) of the manual to see how SelfHostBlocks can help you quickly setup common use cases.
+
+The [services section](https://shb.skarabox.com/services.html) lists all integrated services you can quickly spin up using SelfHostBlocks.
+
 ### Existing Installation
 
 To get started using SelfHostBlocks,
@@ -112,12 +118,6 @@ which bootstraps a new server and sets up a few tools:
 - [deploy-rs](https://github.com/serokell/deploy-rs) to deploy updates.
 
 [Skarabox]:  https://github.com/ibizaman/skarabox
-
-### Full Example
-
-See [full example][] in the manual.
-
-[full example]: https://shb.skarabox.com/usage.html#usage-complete-example
 
 ## Features
 
