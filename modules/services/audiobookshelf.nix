@@ -6,6 +6,8 @@ let
   contracts = pkgs.callPackage ../contracts {};
 
   fqdn = "${cfg.subdomain}.${cfg.domain}";
+
+  roleClaim = "audiobookshelf_groups";
 in
 {
   options.shb.audiobookshelf = {
@@ -173,17 +175,35 @@ in
       '';
     };
 
+
+    shb.authelia.extraDefinitions = {
+      user_attributes.${roleClaim}.expression = 
+          ''"${cfg.sso.adminUserGroup}" in groups ? ["admin"] : ("${cfg.sso.userGroup}" in groups ? ["user"] : [""])'';
+    };
+
+    shb.authelia.extraOidcClaimsPolicies.${roleClaim} = {
+      custom_claims = {
+        "${roleClaim}" = {};
+      };
+    };
+
+    shb.authelia.extraOidcScopes."${roleClaim}" = {
+      claims = [ "${roleClaim}" ];
+    };
+
     shb.authelia.oidcClients = lib.lists.optionals cfg.sso.enable [
       {
         client_id = cfg.sso.clientID;
         client_name = "Audiobookshelf";
         client_secret.source = cfg.sso.sharedSecretForAuthelia.result.path;
+        claims_policy = "${roleClaim}";
         public = false;
         authorization_policy = cfg.sso.authorization_policy;
         redirect_uris = [ 
           "https://${cfg.subdomain}.${cfg.domain}/auth/openid/callback" 
           "https://${cfg.subdomain}.${cfg.domain}/auth/openid/mobile-redirect" 
         ];
+        scopes = [ "openid" "profile" "email" "groups" "${roleClaim}" ];
         require_pkce = true;
         pkce_challenge_method = "S256";
         userinfo_signed_response_alg = "none";
