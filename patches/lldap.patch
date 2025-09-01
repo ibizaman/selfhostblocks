@@ -1,4 +1,4 @@
-From 75d2190cde1df122027496bbfcb9eda7d5aab102 Mon Sep 17 00:00:00 2001
+From e5a1bf4cb019933621eb059cc6cdd1f8af8df71d Mon Sep 17 00:00:00 2001
 From: ibizaman <ibizaman@tiserbox.com>
 Date: Wed, 13 Aug 2025 08:14:38 +0200
 Subject: [PATCH 1/2] lldap-bootstrap: init 0.6.2
@@ -72,7 +72,7 @@ index 00000000000000..8b9a915b18f4d9
 +  };
 +}
 
-From 6d55fbc42a2d71b6d7ad29c84c1c0774971f9f6a Mon Sep 17 00:00:00 2001
+From 850339f833113255afca5c6038e9fafa5b59bbb8 Mon Sep 17 00:00:00 2001
 From: ibizaman <ibizaman@tiserbox.com>
 Date: Wed, 13 Aug 2025 08:15:12 +0200
 Subject: [PATCH 2/2] lldap: add ensure options
@@ -83,7 +83,7 @@ Subject: [PATCH 2/2] lldap: add ensure options
  2 files changed, 498 insertions(+), 17 deletions(-)
 
 diff --git a/nixos/modules/services/databases/lldap.nix b/nixos/modules/services/databases/lldap.nix
-index 3738dba506a707..6b5d2be44f4373 100644
+index e21deef91f3366..03f321996a3c99 100644
 --- a/nixos/modules/services/databases/lldap.nix
 +++ b/nixos/modules/services/databases/lldap.nix
 @@ -8,6 +8,84 @@
@@ -379,7 +379,7 @@ index 3738dba506a707..6b5d2be44f4373 100644
    };
  
    config = lib.mkIf cfg.enable {
-@@ -183,25 +455,77 @@ in
+@@ -185,25 +457,77 @@ in
            (cfg.settings.ldap_user_pass_file or null) == null || (cfg.settings.ldap_user_pass or null) == null;
          message = "lldap: Both `ldap_user_pass` and `ldap_user_pass_file` settings should not be set at the same time. Set one to `null`.";
        }
@@ -470,7 +470,7 @@ index 3738dba506a707..6b5d2be44f4373 100644
  
      systemd.services.lldap = {
        description = "Lightweight LDAP server (lldap)";
-@@ -224,6 +548,28 @@ in
+@@ -226,6 +550,28 @@ in
          + ''
            ${lib.getExe cfg.package} run --config-file ${format.generate "lldap_config.toml" cfg.settings}
          '';
