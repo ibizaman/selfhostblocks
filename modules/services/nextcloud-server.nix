@@ -952,7 +952,6 @@ in
       systemd.services.nextcloud-cron-previewgenerator = {
         environment.NEXTCLOUD_CONFIG_DIR = "${config.services.nextcloud.datadir}/config";
         serviceConfig.Type = "oneshot";
-        serviceConfig.User = "nextcloud";
         serviceConfig.ExecStart =
           let
             debug = if cfg.debug or cfg.apps.previewgenerator.debug then "-vvv" else "";
