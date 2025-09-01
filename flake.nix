@@ -17,6 +17,7 @@
       shbPatches = originPkgs.lib.optionals (system == "x86_64-linux") [
         # Get rid of lldap patches when https://github.com/NixOS/nixpkgs/pull/425923 is merged.
         ./patches/lldap.patch
+        ./patches/use-regex-2025.7.34.patch
 
         # Leaving commented out as an example.
         # (originPkgs.fetchpatch {
