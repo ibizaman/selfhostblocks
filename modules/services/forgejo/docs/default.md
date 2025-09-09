@@ -165,6 +165,10 @@ twice with a future secrets SHB block.
 
 ### Backup {#services-forgejo-usage-backup}
 
+Every hour, Forgejo takes a backup using the [built-in `dump` command](https://forgejo.org/docs/latest/admin/command-line/#dump).
+This backup is ephemeral and should be moved in a permanent location.
+This can be accomplished using the following config.
+
 Backing up Forgejo using the [Restic block](blocks-restic.html) is done like so:
 
 ```nix

@@ -408,6 +408,7 @@ in
         type = "tar.gz";
         interval = "hourly";
       };
+      systemd.services.forgejo-dump.preStart = "rm -f ${config.services.forgejo.dump.backupDir}/*.tar.gz";
     })
 
     # For Forgejo setup: https://github.com/lldap/lldap/blob/main/example_configs/gitea.md
