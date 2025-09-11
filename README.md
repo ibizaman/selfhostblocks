@@ -15,8 +15,19 @@
 
 # SelfHostBlocks
 
-*SelfHostBlocks is a NixOS based server management for self-hosting
-using building blocks and promoting best practices.*
+SelfHostBlocks is:
+
+- Your escape from the cloud, for privacy and data sovereignty enthusiast. [Why?](#why-self-hosting)
+- A groupware to self-host [all your data](#services): documents, pictures, calendars, contacts, etc.
+- An opinionated NixOS server management OS for a [safe self-hosting experience](#features).
+- A NixOS distribution making sure all services build and work correctly thanks to NixOS VM tests.
+- A collection of NixOS modules standardizing options so configuring services [look the same](#unified-interfaces).
+- A testing ground for [contracts](#contracts) which intents to make nixpkgs modules more modular.
+- [Upstreaming][] as much as possible.
+
+[upstreaming]: https://github.com/pulls?page=1&q=created%3A%3E2023-06-01+is%3Apr+author%3Aibizaman+archived%3Afalse+-repo%3Aibizaman%2Fselfhostblocks+-repo%3Aibizaman%2Fskarabox
+
+## Why Self-Hosting
 
 It is obvious by now that
 a deep dependency on proprietary service providers - "the cloud" -
@@ -55,9 +66,9 @@ that fit together to build their server.
 
 <!--toc:start-->
 - [Usage](#usage)
+  - [At a Glance](#at-a-glance)
   - [Existing Installation](#existing-installation)
   - [Installation From Scratch](#installation-from-scratch)
-  - [Full Example](#full-example)
 - [Features](#features)
   - [Services](#services)
   - [Blocks](#blocks)
@@ -169,7 +180,8 @@ is to go to the [All Options][] section of the manual.
 
 ### Blocks
 
-The services above rely on the following [common blocks][]:
+The services above rely on the following [common blocks][]
+which altogether provides a solid foundation for self-hosting services:
 
 - Authelia
 - BorgBackup
@@ -186,7 +198,7 @@ The services above rely on the following [common blocks][]:
 - ZFS
 
 Those blocks can be used with services
-not provided by SelfHostBlocks as shows [in the manual][common blocks].
+not provided by SelfHostBlocks as shown [in the manual][common blocks].
 
 [common blocks]: https://shb.skarabox.com/blocks.html
 
