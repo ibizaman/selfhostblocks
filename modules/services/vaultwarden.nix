@@ -195,7 +195,7 @@ in
           SMTP_PASSWORD.source = cfg.smtp.password.result.path;
         };
         resultPath = "${dataFolder}/vaultwarden.env";
-        generator = name: v: pkgs.writeText "template" (lib.generators.toINIWithGlobalSection {} { globalSection = v; });
+        generator = shblib.toEnvVar;
       };
 
     shb.nginx.vhosts = [

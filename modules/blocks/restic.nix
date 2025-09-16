@@ -314,7 +314,7 @@ in
                       script = shblib.genConfigOutOfBandSystemd {
                         config = instance.settings.repository.secrets;
                         configLocation = "/run/secrets_restic/${serviceName}";
-                        generator = name: v: pkgs.writeText "template" (generators.toINIWithGlobalSection {} { globalSection = v; });
+                        generator = shblib.toEnvVar;
                         user = instance.request.user;
                       };
                     in
@@ -340,7 +340,7 @@ in
                   RESTIC_REPOSITORY = instance.settings.repository.path;
                 };
                 resultPath = "/run/secrets_restic_env/${fullName name instance.settings.repository}";
-                generator = name: v: pkgs.writeText (fullName name instance.settings.repository) (generators.toINIWithGlobalSection {} { globalSection = v; });
+                generator = shblib.toEnvVar;
                 user = instance.request.user;
               });
             };

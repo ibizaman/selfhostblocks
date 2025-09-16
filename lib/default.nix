@@ -1,7 +1,7 @@
 { pkgs, lib }:
 let
   inherit (builtins) isAttrs hasAttr;
-  inherit (lib) any concatMapStringsSep concatStringsSep mapAttrsToList;
+  inherit (lib) any concatMapStringsSep concatStringsSep;
 in
 rec {
   # Replace secrets in a file.
@@ -25,6 +25,7 @@ rec {
 
   replaceSecretsFormatAdapter = format: format.generate;
   replaceSecretsGeneratorAdapter = generator: name: value: pkgs.writeText "generator " (generator value);
+  toEnvVar = replaceSecretsGeneratorAdapter (v: (lib.generators.toINIWithGlobalSection {} { globalSection = v; }));
 
   template = file: newPath: replacements: replaceSecretsScript {
     inherit file replacements;
