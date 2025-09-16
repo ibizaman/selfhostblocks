@@ -3320,6 +3320,129 @@
   "services-nextcloudserver-usage-version": [
     "services-nextcloud.html#services-nextcloudserver-usage-version"
   ],
+  "services-pinchflat": [
+    "services-pinchflat.html#services-pinchflat"
+  ],
+  "services-pinchflat-options": [
+    "services-pinchflat.html#services-pinchflat-options"
+  ],
+  "services-pinchflat-options-shb.pinchflat.backup": [
+    "services-pinchflat.html#services-pinchflat-options-shb.pinchflat.backup"
+  ],
+  "services-pinchflat-options-shb.pinchflat.backup.request": [
+    "services-pinchflat.html#services-pinchflat-options-shb.pinchflat.backup.request"
+  ],
+  "services-pinchflat-options-shb.pinchflat.backup.request.excludePatterns": [
+    "services-pinchflat.html#services-pinchflat-options-shb.pinchflat.backup.request.excludePatterns"
+  ],
+  "services-pinchflat-options-shb.pinchflat.backup.request.hooks": [
+    "services-pinchflat.html#services-pinchflat-options-shb.pinchflat.backup.request.hooks"
+  ],
+  "services-pinchflat-options-shb.pinchflat.backup.request.hooks.afterBackup": [
+    "services-pinchflat.html#services-pinchflat-options-shb.pinchflat.backup.request.hooks.afterBackup"
+  ],
+  "services-pinchflat-options-shb.pinchflat.backup.request.hooks.beforeBackup": [
+    "services-pinchflat.html#services-pinchflat-options-shb.pinchflat.backup.request.hooks.beforeBackup"
+  ],
+  "services-pinchflat-options-shb.pinchflat.backup.request.sourceDirectories": [
+    "services-pinchflat.html#services-pinchflat-options-shb.pinchflat.backup.request.sourceDirectories"
+  ],
+  "services-pinchflat-options-shb.pinchflat.backup.request.user": [
+    "services-pinchflat.html#services-pinchflat-options-shb.pinchflat.backup.request.user"
+  ],
+  "services-pinchflat-options-shb.pinchflat.backup.result": [
+    "services-pinchflat.html#services-pinchflat-options-shb.pinchflat.backup.result"
+  ],
+  "services-pinchflat-options-shb.pinchflat.backup.result.backupService": [
+    "services-pinchflat.html#services-pinchflat-options-shb.pinchflat.backup.result.backupService"
+  ],
+  "services-pinchflat-options-shb.pinchflat.backup.result.restoreScript": [
+    "services-pinchflat.html#services-pinchflat-options-shb.pinchflat.backup.result.restoreScript"
+  ],
+  "services-pinchflat-options-shb.pinchflat.domain": [
+    "services-pinchflat.html#services-pinchflat-options-shb.pinchflat.domain"
+  ],
+  "services-pinchflat-options-shb.pinchflat.enable": [
+    "services-pinchflat.html#services-pinchflat-options-shb.pinchflat.enable"
+  ],
+  "services-pinchflat-options-shb.pinchflat.ldap": [
+    "services-pinchflat.html#services-pinchflat-options-shb.pinchflat.ldap"
+  ],
+  "services-pinchflat-options-shb.pinchflat.ldap.enable": [
+    "services-pinchflat.html#services-pinchflat-options-shb.pinchflat.ldap.enable"
+  ],
+  "services-pinchflat-options-shb.pinchflat.ldap.userGroup": [
+    "services-pinchflat.html#services-pinchflat-options-shb.pinchflat.ldap.userGroup"
+  ],
+  "services-pinchflat-options-shb.pinchflat.mediaDir": [
+    "services-pinchflat.html#services-pinchflat-options-shb.pinchflat.mediaDir"
+  ],
+  "services-pinchflat-options-shb.pinchflat.port": [
+    "services-pinchflat.html#services-pinchflat-options-shb.pinchflat.port"
+  ],
+  "services-pinchflat-options-shb.pinchflat.secretKeyBase": [
+    "services-pinchflat.html#services-pinchflat-options-shb.pinchflat.secretKeyBase"
+  ],
+  "services-pinchflat-options-shb.pinchflat.secretKeyBase.request": [
+    "services-pinchflat.html#services-pinchflat-options-shb.pinchflat.secretKeyBase.request"
+  ],
+  "services-pinchflat-options-shb.pinchflat.secretKeyBase.request.group": [
+    "services-pinchflat.html#services-pinchflat-options-shb.pinchflat.secretKeyBase.request.group"
+  ],
+  "services-pinchflat-options-shb.pinchflat.secretKeyBase.request.mode": [
+    "services-pinchflat.html#services-pinchflat-options-shb.pinchflat.secretKeyBase.request.mode"
+  ],
+  "services-pinchflat-options-shb.pinchflat.secretKeyBase.request.owner": [
+    "services-pinchflat.html#services-pinchflat-options-shb.pinchflat.secretKeyBase.request.owner"
+  ],
+  "services-pinchflat-options-shb.pinchflat.secretKeyBase.request.restartUnits": [
+    "services-pinchflat.html#services-pinchflat-options-shb.pinchflat.secretKeyBase.request.restartUnits"
+  ],
+  "services-pinchflat-options-shb.pinchflat.secretKeyBase.result": [
+    "services-pinchflat.html#services-pinchflat-options-shb.pinchflat.secretKeyBase.result"
+  ],
+  "services-pinchflat-options-shb.pinchflat.secretKeyBase.result.path": [
+    "services-pinchflat.html#services-pinchflat-options-shb.pinchflat.secretKeyBase.result.path"
+  ],
+  "services-pinchflat-options-shb.pinchflat.ssl": [
+    "services-pinchflat.html#services-pinchflat-options-shb.pinchflat.ssl"
+  ],
+  "services-pinchflat-options-shb.pinchflat.ssl.paths": [
+    "services-pinchflat.html#services-pinchflat-options-shb.pinchflat.ssl.paths"
+  ],
+  "services-pinchflat-options-shb.pinchflat.ssl.paths.cert": [
+    "services-pinchflat.html#services-pinchflat-options-shb.pinchflat.ssl.paths.cert"
+  ],
+  "services-pinchflat-options-shb.pinchflat.ssl.paths.key": [
+    "services-pinchflat.html#services-pinchflat-options-shb.pinchflat.ssl.paths.key"
+  ],
+  "services-pinchflat-options-shb.pinchflat.ssl.systemdService": [
+    "services-pinchflat.html#services-pinchflat-options-shb.pinchflat.ssl.systemdService"
+  ],
+  "services-pinchflat-options-shb.pinchflat.sso": [
+    "services-pinchflat.html#services-pinchflat-options-shb.pinchflat.sso"
+  ],
+  "services-pinchflat-options-shb.pinchflat.sso.authEndpoint": [
+    "services-pinchflat.html#services-pinchflat-options-shb.pinchflat.sso.authEndpoint"
+  ],
+  "services-pinchflat-options-shb.pinchflat.sso.authorization_policy": [
+    "services-pinchflat.html#services-pinchflat-options-shb.pinchflat.sso.authorization_policy"
+  ],
+  "services-pinchflat-options-shb.pinchflat.sso.enable": [
+    "services-pinchflat.html#services-pinchflat-options-shb.pinchflat.sso.enable"
+  ],
+  "services-pinchflat-options-shb.pinchflat.subdomain": [
+    "services-pinchflat.html#services-pinchflat-options-shb.pinchflat.subdomain"
+  ],
+  "services-pinchflat-options-shb.pinchflat.timeZone": [
+    "services-pinchflat.html#services-pinchflat-options-shb.pinchflat.timeZone"
+  ],
+  "services-pinchflat-usage": [
+    "services-pinchflat.html#services-pinchflat-usage"
+  ],
+  "services-pinchflat-usage-backup": [
+    "services-pinchflat.html#services-pinchflat-usage-backup"
+  ],
   "services-vaultwarden": [
     "services-vaultwarden.html#services-vaultwarden"
   ],

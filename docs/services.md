@@ -11,14 +11,15 @@ Not all services are yet documented. You can find all available services [in the
 The following table summarizes for each documented service what features it provides. More
 information is provided in the respective manual sections.
 
-| Service               | Backup | Reverse Proxy | SSO | LDAP  | Monitoring | Profiling |
-|-----------------------|--------|---------------|-----|-------|------------|-----------|
-| [*Arr][]              | Y (1)  | Y             | Y   | Y (4) | Y (2)      | N         |
-| [Forgejo][]           | Y (1)  | Y             | Y   | Y     | Y (2)      | N         |
-| [Jellyfin][]          | Y (1)  | Y             | Y   | Y     | Y (2)      | N         |
-| [Home-Assistant][]    | Y (1)  | Y             | N   | Y     | Y (2)      | N         |
-| [Nextcloud Server][]  | Y (1)  | Y             | Y   | Y     | Y (2)      | P (3)     |
-| [Vaultwarden][]       | Y (1)  | Y             | Y   | Y     | Y (2)      | N         |
+| Service              | Backup | Reverse Proxy | SSO | LDAP  | Monitoring | Profiling |
+|----------------------|--------|---------------|-----|-------|------------|-----------|
+| [*Arr][]             | Y (1)  | Y             | Y   | Y (4) | Y (2)      | N         |
+| [Forgejo][]          | Y (1)  | Y             | Y   | Y     | Y (2)      | N         |
+| [Jellyfin][]         | Y (1)  | Y             | Y   | Y     | Y (2)      | N         |
+| [Home-Assistant][]   | Y (1)  | Y             | N   | Y     | Y (2)      | N         |
+| [Nextcloud Server][] | Y (1)  | Y             | Y   | Y     | Y (2)      | P (3)     |
+| [Pinchflat][]        | Y      | Y             | Y   | Y (4) | Y (5)      | N         |
+| [Vaultwarden][]      | Y (1)  | Y             | Y   | Y     | Y (2)      | N         |
 
 Legend: **N**: no but WIP; **P**: partial; **Y**: yes
 
@@ -34,6 +35,7 @@ Legend: **N**: no but WIP; **P**: partial; **Y**: yes
 [Home-Assistant]: services-home-assistant.html
 [Jellyfin]: services-jellyfin.html
 [Nextcloud Server]: services-nextcloud.html
+[Pinchflat]: services-pinchflat.html
 [Vaultwarden]: services-vaultwarden.html
 
 ```{=include=} chapters html:into-file=//services-arr.html
@@ -54,6 +56,10 @@ modules/services/home-assistant/docs/default.md
 
 ```{=include=} chapters html:into-file=//services-nextcloud.html
 modules/services/nextcloud-server/docs/default.md
+```
+
+```{=include=} chapters html:into-file=//services-pinchflat.html
+modules/services/pinchflat/docs/default.md
 ```
 
 ```{=include=} chapters html:into-file=//services-vaultwarden.html
