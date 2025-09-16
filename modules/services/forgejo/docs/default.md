@@ -34,20 +34,20 @@ shb.forgejo = {
     "theadmin" = {
       isAdmin = true;
       email = "theadmin@example.com";
-      password.result = config.shb.hardcodedsecret.forgejoAdminPassword.result;
+      password.result = config.shb.sops.secrets.forgejoAdminPassword.result;
     };
     "theuser" = {
       email = "theuser@example.com";
-      password.result = config.shb.hardcodedsecret.forgejoUserPassword.result;
+      password.result = config.shb.sops.secrets.forgejoUserPassword.result;
     };
   };
 };
 
-shb.hardcodedsecret."forgejo/admin/password" = {
+shb.sops.secrets."forgejo/admin/password" = {
   request = config.shb.forgejo.users."theadmin".password.request;
 };
 
-shb.hardcodedsecret."forgejo/user/password" = {
+shb.sops.secrets."forgejo/user/password" = {
   request = config.shb.forgejo.users."theuser".password.request;
 };
 ```
@@ -180,7 +180,7 @@ shb.restic.instances."forgejo" = {
 };
 ```
 
-The name `"forgjo"` in the `instances` can be anything.
+The name `"forgejo"` in the `instances` can be anything.
 The `config.shb.forgejo.backup` option provides what directories to backup.
 You can define any number of Restic instances to backup Forgejo multiple times.
 
