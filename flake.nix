@@ -310,9 +310,6 @@
               [[ -f result/redirects.json ]] || { echo "Error: Generated redirects file not found" >&2; exit 1; }
               
               echo "Generated $(jq 'keys | length' result/redirects.json) redirects"
-              echo
-              read -p "Update docs/redirects.json? This will backup the current file [y/N] " -r response
-              [[ "$response" =~ ^[Yy] ]] || { echo "Aborted - no changes made"; exit 0; }
               
               [[ -f docs/redirects.json ]] && cp docs/redirects.json docs/redirects.json.backup && echo "Created backup"
               cp result/redirects.json docs/redirects.json
