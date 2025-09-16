@@ -81,6 +81,7 @@
             self.nixosModules.${system}.assistant
             self.nixosModules.${system}.jellyfin
             self.nixosModules.${system}.nextcloud-server
+            self.nixosModules.${system}.pinchflat
             self.nixosModules.${system}.vaultwarden
           ];
         };
@@ -114,6 +115,7 @@
         nixosModules.assistant = modules/services/home-assistant.nix;
         nixosModules.jellyfin = modules/services/jellyfin.nix;
         nixosModules.nextcloud-server = modules/services/nextcloud-server.nix;
+        nixosModules.pinchflat = modules/services/pinchflat.nix;
         nixosModules.vaultwarden = modules/services/vaultwarden.nix;
 
         packages.manualHtml = pkgs.callPackage ./docs {
@@ -142,6 +144,7 @@
             "services/home-assistant" = ./modules/services/home-assistant.nix;
             "services/jellyfin" = ./modules/services/jellyfin.nix;
             "services/nextcloud-server" = ./modules/services/nextcloud-server.nix;
+            "services/pinchflat" = ./modules/services/pinchflat.nix;
             "services/vaultwarden" = ./modules/services/vaultwarden.nix;
             "contracts/backup" = ./modules/contracts/backup/dummyModule.nix;
             "contracts/databasebackup" = ./modules/contracts/databasebackup/dummyModule.nix;
@@ -257,6 +260,7 @@
           // (vm_test "jellyfin" ./test/services/jellyfin.nix)
           // (vm_test "monitoring" ./test/services/monitoring.nix)
           // (vm_test "nextcloud" ./test/services/nextcloud.nix)
+          // (vm_test "pinchflat" ./test/services/pinchflat.nix)
           // (vm_test "vaultwarden" ./test/services/vaultwarden.nix)
 
           // (vm_test "authelia" ./test/blocks/authelia.nix)
