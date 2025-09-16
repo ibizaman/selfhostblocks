@@ -200,7 +200,7 @@ in
       shb.nginx.accessLog = true;
 
       networking.hosts = {
-        "192.168.1.2" = [ config.test.fqdn ];
+        "192.168.1.2" = [ config.test.fqdn "auth.${config.test.domain}" ];
       };
     };
   };
@@ -261,7 +261,7 @@ in
     };
     config = {
       networking.hosts = {
-        "192.168.1.2" = [ config.test.fqdn ];
+        "192.168.1.2" = [ config.test.fqdn "auth.${config.test.domain}" ];
       };
 
       environment.variables = {
