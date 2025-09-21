@@ -79,7 +79,7 @@
             self.nixosModules.${system}.grocy
             self.nixosModules.${system}.hledger
             self.nixosModules.${system}.immich
-            self.nixosModules.${system}.assistant
+            self.nixosModules.${system}.home-assistant
             self.nixosModules.${system}.jellyfin
             self.nixosModules.${system}.nextcloud-server
             self.nixosModules.${system}.pinchflat
@@ -114,7 +114,7 @@
         nixosModules.grocy = modules/services/grocy.nix;
         nixosModules.hledger = modules/services/hledger.nix;
         nixosModules.immich = modules/services/immich.nix;
-        nixosModules.assistant = modules/services/home-assistant.nix;
+        nixosModules.home-assistant = modules/services/home-assistant.nix;
         nixosModules.jellyfin = modules/services/jellyfin.nix;
         nixosModules.nextcloud-server = modules/services/nextcloud-server.nix;
         nixosModules.pinchflat = modules/services/pinchflat.nix;
