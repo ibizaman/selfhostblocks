@@ -1,0 +1,29 @@
+From 6897dd86a41b336c7c03a466990f7e981c5c649c Mon Sep 17 00:00:00 2001
+From: ibizaman <ibizaman@tiserbox.com>
+Date: Tue, 23 Sep 2025 11:36:24 +0200
+Subject: [PATCH] selfhostblocks: never onboard
+
+---
+ backend/open_webui/main.py | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
+
+diff --git a/backend/open_webui/main.py b/backend/open_webui/main.py
+index 5630a5883..5c7c88a64 100644
+--- a/backend/open_webui/main.py
++++ b/backend/open_webui/main.py
+@@ -1654,11 +1654,9 @@ async def get_app_config(request: Request):
+             user = Users.get_user_by_id(data["id"])
+ 
+     user_count = Users.get_num_users()
++    # Never onboard
+     onboarding = False
+ 
+-    if user is None:
+-        onboarding = user_count == 0
+-
+     return {
+         **({"onboarding": True} if onboarding else {}),
+         "status": True,
+-- 
+2.50.1
+

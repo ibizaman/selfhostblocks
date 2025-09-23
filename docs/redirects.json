@@ -3320,6 +3320,159 @@
   "services-nextcloudserver-usage-version": [
     "services-nextcloud.html#services-nextcloudserver-usage-version"
   ],
+  "services-open-webui": [
+    "services-open-webui.html#services-open-webui"
+  ],
+  "services-open-webui-features": [
+    "services-open-webui.html#services-open-webui-features"
+  ],
+  "services-open-webui-ollama": [
+    "services-open-webui.html#services-open-webui-ollama"
+  ],
+  "services-open-webui-options": [
+    "services-open-webui.html#services-open-webui-options"
+  ],
+  "services-open-webui-options-shb.open-webui.backup": [
+    "services-open-webui.html#services-open-webui-options-shb.open-webui.backup"
+  ],
+  "services-open-webui-options-shb.open-webui.backup.request": [
+    "services-open-webui.html#services-open-webui-options-shb.open-webui.backup.request"
+  ],
+  "services-open-webui-options-shb.open-webui.backup.request.excludePatterns": [
+    "services-open-webui.html#services-open-webui-options-shb.open-webui.backup.request.excludePatterns"
+  ],
+  "services-open-webui-options-shb.open-webui.backup.request.hooks": [
+    "services-open-webui.html#services-open-webui-options-shb.open-webui.backup.request.hooks"
+  ],
+  "services-open-webui-options-shb.open-webui.backup.request.hooks.afterBackup": [
+    "services-open-webui.html#services-open-webui-options-shb.open-webui.backup.request.hooks.afterBackup"
+  ],
+  "services-open-webui-options-shb.open-webui.backup.request.hooks.beforeBackup": [
+    "services-open-webui.html#services-open-webui-options-shb.open-webui.backup.request.hooks.beforeBackup"
+  ],
+  "services-open-webui-options-shb.open-webui.backup.request.sourceDirectories": [
+    "services-open-webui.html#services-open-webui-options-shb.open-webui.backup.request.sourceDirectories"
+  ],
+  "services-open-webui-options-shb.open-webui.backup.request.user": [
+    "services-open-webui.html#services-open-webui-options-shb.open-webui.backup.request.user"
+  ],
+  "services-open-webui-options-shb.open-webui.backup.result": [
+    "services-open-webui.html#services-open-webui-options-shb.open-webui.backup.result"
+  ],
+  "services-open-webui-options-shb.open-webui.backup.result.backupService": [
+    "services-open-webui.html#services-open-webui-options-shb.open-webui.backup.result.backupService"
+  ],
+  "services-open-webui-options-shb.open-webui.backup.result.restoreScript": [
+    "services-open-webui.html#services-open-webui-options-shb.open-webui.backup.result.restoreScript"
+  ],
+  "services-open-webui-options-shb.open-webui.domain": [
+    "services-open-webui.html#services-open-webui-options-shb.open-webui.domain"
+  ],
+  "services-open-webui-options-shb.open-webui.enable": [
+    "services-open-webui.html#services-open-webui-options-shb.open-webui.enable"
+  ],
+  "services-open-webui-options-shb.open-webui.environment": [
+    "services-open-webui.html#services-open-webui-options-shb.open-webui.environment"
+  ],
+  "services-open-webui-options-shb.open-webui.ldap": [
+    "services-open-webui.html#services-open-webui-options-shb.open-webui.ldap"
+  ],
+  "services-open-webui-options-shb.open-webui.ldap.adminGroup": [
+    "services-open-webui.html#services-open-webui-options-shb.open-webui.ldap.adminGroup"
+  ],
+  "services-open-webui-options-shb.open-webui.ldap.userGroup": [
+    "services-open-webui.html#services-open-webui-options-shb.open-webui.ldap.userGroup"
+  ],
+  "services-open-webui-options-shb.open-webui.port": [
+    "services-open-webui.html#services-open-webui-options-shb.open-webui.port"
+  ],
+  "services-open-webui-options-shb.open-webui.ssl": [
+    "services-open-webui.html#services-open-webui-options-shb.open-webui.ssl"
+  ],
+  "services-open-webui-options-shb.open-webui.ssl.paths": [
+    "services-open-webui.html#services-open-webui-options-shb.open-webui.ssl.paths"
+  ],
+  "services-open-webui-options-shb.open-webui.ssl.paths.cert": [
+    "services-open-webui.html#services-open-webui-options-shb.open-webui.ssl.paths.cert"
+  ],
+  "services-open-webui-options-shb.open-webui.ssl.paths.key": [
+    "services-open-webui.html#services-open-webui-options-shb.open-webui.ssl.paths.key"
+  ],
+  "services-open-webui-options-shb.open-webui.ssl.systemdService": [
+    "services-open-webui.html#services-open-webui-options-shb.open-webui.ssl.systemdService"
+  ],
+  "services-open-webui-options-shb.open-webui.sso": [
+    "services-open-webui.html#services-open-webui-options-shb.open-webui.sso"
+  ],
+  "services-open-webui-options-shb.open-webui.sso.authEndpoint": [
+    "services-open-webui.html#services-open-webui-options-shb.open-webui.sso.authEndpoint"
+  ],
+  "services-open-webui-options-shb.open-webui.sso.authorization_policy": [
+    "services-open-webui.html#services-open-webui-options-shb.open-webui.sso.authorization_policy"
+  ],
+  "services-open-webui-options-shb.open-webui.sso.clientID": [
+    "services-open-webui.html#services-open-webui-options-shb.open-webui.sso.clientID"
+  ],
+  "services-open-webui-options-shb.open-webui.sso.enable": [
+    "services-open-webui.html#services-open-webui-options-shb.open-webui.sso.enable"
+  ],
+  "services-open-webui-options-shb.open-webui.sso.sharedSecret": [
+    "services-open-webui.html#services-open-webui-options-shb.open-webui.sso.sharedSecret"
+  ],
+  "services-open-webui-options-shb.open-webui.sso.sharedSecret.request": [
+    "services-open-webui.html#services-open-webui-options-shb.open-webui.sso.sharedSecret.request"
+  ],
+  "services-open-webui-options-shb.open-webui.sso.sharedSecret.request.group": [
+    "services-open-webui.html#services-open-webui-options-shb.open-webui.sso.sharedSecret.request.group"
+  ],
+  "services-open-webui-options-shb.open-webui.sso.sharedSecret.request.mode": [
+    "services-open-webui.html#services-open-webui-options-shb.open-webui.sso.sharedSecret.request.mode"
+  ],
+  "services-open-webui-options-shb.open-webui.sso.sharedSecret.request.owner": [
+    "services-open-webui.html#services-open-webui-options-shb.open-webui.sso.sharedSecret.request.owner"
+  ],
+  "services-open-webui-options-shb.open-webui.sso.sharedSecret.request.restartUnits": [
+    "services-open-webui.html#services-open-webui-options-shb.open-webui.sso.sharedSecret.request.restartUnits"
+  ],
+  "services-open-webui-options-shb.open-webui.sso.sharedSecret.result": [
+    "services-open-webui.html#services-open-webui-options-shb.open-webui.sso.sharedSecret.result"
+  ],
+  "services-open-webui-options-shb.open-webui.sso.sharedSecret.result.path": [
+    "services-open-webui.html#services-open-webui-options-shb.open-webui.sso.sharedSecret.result.path"
+  ],
+  "services-open-webui-options-shb.open-webui.sso.sharedSecretForAuthelia": [
+    "services-open-webui.html#services-open-webui-options-shb.open-webui.sso.sharedSecretForAuthelia"
+  ],
+  "services-open-webui-options-shb.open-webui.sso.sharedSecretForAuthelia.request": [
+    "services-open-webui.html#services-open-webui-options-shb.open-webui.sso.sharedSecretForAuthelia.request"
+  ],
+  "services-open-webui-options-shb.open-webui.sso.sharedSecretForAuthelia.request.group": [
+    "services-open-webui.html#services-open-webui-options-shb.open-webui.sso.sharedSecretForAuthelia.request.group"
+  ],
+  "services-open-webui-options-shb.open-webui.sso.sharedSecretForAuthelia.request.mode": [
+    "services-open-webui.html#services-open-webui-options-shb.open-webui.sso.sharedSecretForAuthelia.request.mode"
+  ],
+  "services-open-webui-options-shb.open-webui.sso.sharedSecretForAuthelia.request.owner": [
+    "services-open-webui.html#services-open-webui-options-shb.open-webui.sso.sharedSecretForAuthelia.request.owner"
+  ],
+  "services-open-webui-options-shb.open-webui.sso.sharedSecretForAuthelia.request.restartUnits": [
+    "services-open-webui.html#services-open-webui-options-shb.open-webui.sso.sharedSecretForAuthelia.request.restartUnits"
+  ],
+  "services-open-webui-options-shb.open-webui.sso.sharedSecretForAuthelia.result": [
+    "services-open-webui.html#services-open-webui-options-shb.open-webui.sso.sharedSecretForAuthelia.result"
+  ],
+  "services-open-webui-options-shb.open-webui.sso.sharedSecretForAuthelia.result.path": [
+    "services-open-webui.html#services-open-webui-options-shb.open-webui.sso.sharedSecretForAuthelia.result.path"
+  ],
+  "services-open-webui-options-shb.open-webui.subdomain": [
+    "services-open-webui.html#services-open-webui-options-shb.open-webui.subdomain"
+  ],
+  "services-open-webui-usage": [
+    "services-open-webui.html#services-open-webui-usage"
+  ],
+  "services-open-webui-usage-backup": [
+    "services-open-webui.html#services-open-webui-usage-backup"
+  ],
   "services-pinchflat": [
     "services-pinchflat.html#services-pinchflat"
   ],
