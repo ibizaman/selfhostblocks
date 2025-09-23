@@ -20,6 +20,14 @@ modules/blocks/lldap/docs/default.md
 modules/blocks/mitmdump/docs/default.md
 ```
 
+```{=include=} chapters html:into-file=//blocks-monitoring.html
+modules/blocks/monitoring/docs/default.md
+```
+
+```{=include=} chapters html:into-file=//blocks-postgresql.html
+modules/blocks/postgresql/docs/default.md
+```
+
 ```{=include=} chapters html:into-file=//blocks-sops.html
 modules/blocks/sops/docs/default.md
 ```
@@ -28,14 +36,6 @@ modules/blocks/sops/docs/default.md
 modules/blocks/ssl/docs/default.md
 ```
 
-```{=include=} chapters html:into-file=//blocks-postgresql.html
-modules/blocks/postgresql/docs/default.md
-```
-
 ```{=include=} chapters html:into-file=//blocks-restic.html
 modules/blocks/restic/docs/default.md
-```
-
-```{=include=} chapters html:into-file=//blocks-monitoring.html
-modules/blocks/monitoring/docs/default.md
 ```
