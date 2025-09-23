@@ -41,6 +41,7 @@
       });
       pkgs = import patchedNixpkgs {
         inherit system;
+        config.allowUnfree = true;
       };
 
       # The contract dummies are used to show options for contracts.
@@ -82,6 +83,7 @@
             self.nixosModules.${system}.home-assistant
             self.nixosModules.${system}.jellyfin
             self.nixosModules.${system}.nextcloud-server
+            self.nixosModules.${system}.open-webui
             self.nixosModules.${system}.pinchflat
             self.nixosModules.${system}.vaultwarden
           ];
@@ -117,6 +119,7 @@
         nixosModules.home-assistant = modules/services/home-assistant.nix;
         nixosModules.jellyfin = modules/services/jellyfin.nix;
         nixosModules.nextcloud-server = modules/services/nextcloud-server.nix;
+        nixosModules.open-webui = modules/services/open-webui.nix;
         nixosModules.pinchflat = modules/services/pinchflat.nix;
         nixosModules.vaultwarden = modules/services/vaultwarden.nix;
 
@@ -146,6 +149,7 @@
             "services/home-assistant" = ./modules/services/home-assistant.nix;
             "services/jellyfin" = ./modules/services/jellyfin.nix;
             "services/nextcloud-server" = ./modules/services/nextcloud-server.nix;
+            "services/open-webui" = ./modules/services/open-webui.nix;
             "services/pinchflat" = ./modules/services/pinchflat.nix;
             "services/vaultwarden" = ./modules/services/vaultwarden.nix;
             "contracts/backup" = ./modules/contracts/backup/dummyModule.nix;
@@ -263,6 +267,7 @@
           // (vm_test "jellyfin" ./test/services/jellyfin.nix)
           // (vm_test "monitoring" ./test/services/monitoring.nix)
           // (vm_test "nextcloud" ./test/services/nextcloud.nix)
+          // (vm_test "open-webui" ./test/services/open-webui.nix)
           // (vm_test "pinchflat" ./test/services/pinchflat.nix)
           // (vm_test "vaultwarden" ./test/services/vaultwarden.nix)
 
