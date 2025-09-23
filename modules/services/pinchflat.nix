@@ -123,14 +123,14 @@ in
 
   config = lib.mkIf cfg.enable {
     systemd.tmpfiles.rules = [
-      "d '/etc/pinchflat' 0750 root root - -"
+      "d '/run/pinchflat' 0750 root root - -"
     ];
 
     # Pinchflat relies on the global value so for now this is the only way to pass the option in.
     time.timeZone = lib.mkDefault cfg.timeZone;
     services.pinchflat = {
       inherit (cfg) enable port mediaDir;
-      secretsFile = "/etc/pinchflat/secrets.env";
+      secretsFile = "/run/pinchflat/secrets.env";
       extraConfig = {
         ENABLE_PROMETHEUS = true;
         # TZ = "as"; # I consider where you live to be sensible so it should be passed as a secret.
@@ -148,7 +148,7 @@ in
           SECRET_KEY_BASE.source = cfg.secretKeyBase.result.path;
           # TZ = cfg.secretKeyBase.result.path; # Uncomment when PR is merged.
         };
-        resultPath = "/etc/pinchflat/secrets.env";
+        resultPath = "/run/pinchflat/secrets.env";
         generator = shblib.toEnvVar;
       };
       serviceConfig.Type = "oneshot";
