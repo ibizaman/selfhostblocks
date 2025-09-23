@@ -32,7 +32,6 @@ shb.pinchflat = {
 
   ldap = {
     enable = true;
-    userGroup = "pinchflat_user";
   };
   sso = {
     enable = true;
@@ -43,6 +42,9 @@ shb.sops.secret."pinchflat/secretKeyBase".request = config.shb.pinchflat.secretK
 ```
 
 Secrets can be randomly generated with `nix run nixpkgs#openssl -- rand -hex 64`.
+
+The [user](#services-pinchflat-options-shb.pinchflat.ldap.userGroup)
+LDAP group is created automatically.
 
 ## Backup {#services-pinchflat-usage-backup}
 
