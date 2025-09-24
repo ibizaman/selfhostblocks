@@ -138,7 +138,7 @@ in
     };
 
     # This should be using a contract instead of setting the option directly.
-    shb.lldap = lib.mkIf config.shb.ldap.enable {
+    shb.lldap = lib.mkIf config.shb.lldap.enable {
       ensureGroups = { ${cfg.ldap.userGroup} = {}; };
     };
 

@@ -92,8 +92,8 @@ Assuming it [has been set already][LLDAP block setup], add the following configu
 shb.jellyfin.ldap
   enable = true;
   host = "127.0.0.1";
-  port = config.shb.ldap.ldapPort;
-  dcdomain = config.shb.ldap.dcdomain;
+  port = config.shb.lldap.ldapPort;
+  dcdomain = config.shb.lldap.dcdomain;
   adminPassword.result = config.shb.sops.secrets."jellyfin/ldap/adminPassword".result
 };
 
@@ -104,7 +104,7 @@ shb.sops.secrets."jellyfin/ldap/adminPassword" = {
 ```
 
 The `shb.jellyfin.ldap.adminPasswordFile` must be the same
-as the `shb.ldap.ldapUserPasswordFile` which is achieved
+as the `shb.lldap.ldapUserPasswordFile` which is achieved
 with the `key` option.
 The other secrets can be randomly generated with
 `nix run nixpkgs#openssl -- rand -hex 64`.
