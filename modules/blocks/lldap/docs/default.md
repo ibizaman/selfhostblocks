@@ -22,8 +22,8 @@ shb.lldap = {
   jwtSecret.result = config.shb.sops.secret."lldap/jwt_secret".result;
   ldapUserPassword.result = config.shb.sops.secret."lldap/user_password".result;
 };
-shb.sops.secret."lldap/jwt_secret".request = config.shb.ldap.jwtSecret.request;
-shb.sops.secret."lldap/user_password".request = config.shb.ldap.ldapUserPassword.request;
+shb.sops.secret."lldap/jwt_secret".request = config.shb.lldap.jwtSecret.request;
+shb.sops.secret."lldap/user_password".request = config.shb.lldap.ldapUserPassword.request;
 ```
 
 This assumes secrets are setup with SOPS
@@ -41,7 +41,7 @@ shb.certs.certs.letsencrypt.${domain}.extraDomains = [
   "${config.shb.lldap.subdomain}.${config.shb.lldap.domain}"
 ];
 
-shb.ldap.ssl = config.shb.certs.certs.letsencrypt.${config.shb.lldap.domain};
+shb.lldap.ssl = config.shb.certs.certs.letsencrypt.${config.shb.lldap.domain};
 ```
 
 ## Restrict Access By IP {#blocks-lldap-restrict-access-by-ip}
@@ -142,7 +142,7 @@ set [`shb.lldap.enforceUserMemberships`](#blocks-lldap-options-shb.lldap.enforce
   };
 
   shb.sops.secret."dad".request =
-    shb.ldap.ensureUsers.dad.password.request;
+    shb.lldap.ensureUsers.dad.password.request;
 }
 ```
 
