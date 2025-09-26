@@ -61,6 +61,13 @@ MaxFileSec=day
 '';
 ```
 
+Other options are accessible through the upstream services modules.
+You might for example want to update the metrics retention time with:
+
+```nix
+services.prometheus.retentionTime = "60d";
+```
+
 ## Provisioning {#blocks-monitoring-provisioning}
 
 Self Host Blocks will create automatically the following resources:
