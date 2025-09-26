@@ -20,20 +20,8 @@ shb.monitoring = {
   secretKey.result = config.sops.secrets."monitoring/secret_key".result;
 };
 
-sops.secrets."monitoring/admin_password" = {
-  sopsFile = ./secrets.yaml;
-  mode = "0400";
-  owner = "grafana";
-  group = "grafana";
-  restartUnits = [ "grafana.service" ];
-};
-sops.secrets."monitoring/secret_key" = {
-  sopsFile = ./secrets.yaml;
-  mode = "0400";
-  owner = "grafana";
-  group = "grafana";
-  restartUnits = [ "grafana.service" ];
-};
+shb.sops.secret."monitoring/admin_password".request = config.shb.monitoring.adminPassword.request;
+shb.sops.secret."monitoring/secret_key".request = config.shb.monitoring.secretKey.request;
 ```
 
 With that, Grafana, Prometheus, Loki and Promtail are setup! You can access `Grafana` at
