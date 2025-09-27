@@ -231,11 +231,13 @@ let
         { username = "bob"; password = "NotBobPassword"; nextPageExpect = [
             "expect(page.get_by_text('Incorrect username or password')).to_be_visible()"
           ]; }
-        # TODO: charlie has no groups, which makes lldap return a 'null' value instead of an empty array and Authelia does not like that.
-        # { username = "charlie"; password = "CharliePassword"; nextPageExpect = [
-        #     "page.get_by_role('button', name=re.compile('Accept')).click()"
-        #     "expect(page).to_have_title(re.compile('Dashboard'))"
-        #   ]; }
+        { username = "charlie"; password = "NotCharliePassword"; nextPageExpect = [
+            "expect(page.get_by_text('Incorrect username or password')).to_be_visible()"
+          ]; }
+        { username = "charlie"; password = "CharliePassword"; nextPageExpect = [
+            "page.get_by_role('button', name=re.compile('Accept')).click()"
+            "expect(page.get_by_text('not member of the allowed groups')).to_be_visible()"
+          ]; }
       ];
     };
   };
@@ -269,6 +271,9 @@ let
   sso = { config, ... }:
     {
       shb.nextcloud = {
+        apps.ldap = {
+          userGroup = "user_group";
+        };
         apps.sso = {
           enable = true;
           endpoint = "https://${config.shb.authelia.subdomain}.${config.shb.authelia.domain}";
@@ -549,7 +554,6 @@ in
         testLib.certs
         https
         testLib.ldap
-        ldap
         (testLib.sso config.shb.certs.certs.selfsigned.n)
         sso
         ({ config, ... }: {
