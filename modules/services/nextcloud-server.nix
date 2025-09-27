@@ -1066,10 +1066,6 @@ in
     in lib.mkIf (cfg.enable && cfg.apps.sso.enable) {
       assertions = [
         {
-          assertion = cfg.apps.ldap.enable;
-          message = "SSO app requires LDAP app to work correctly.";
-        }
-        {
           assertion = cfg.ssl != null;
           message = "To integrate SSO, SSL must be enabled, set the shb.nextcloud.ssl option.";
         }
@@ -1128,6 +1124,7 @@ in
             groups = "groups";
             is_admin = "is_nextcloud_admin";
           };
+          oidc_login_allowed_groups = [ cfg.apps.ldap.userGroup ];
           oidc_login_default_group = "oidc";
           oidc_login_use_external_storage = false;
           oidc_login_scope = lib.concatStringsSep " " scopes;
