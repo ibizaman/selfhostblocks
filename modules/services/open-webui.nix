@@ -11,13 +11,13 @@ in
 
     subdomain = lib.mkOption {
       type = lib.types.str;
-      description = "Subdomain under which Karakeep will be served.";
-      default = "pinchflat";
+      description = "Subdomain under which Open-WebUI will be served.";
+      default = "open-webui";
     };
 
     domain = lib.mkOption {
       type = lib.types.str;
-      description = "domain under which Karakeep will be served.";
+      description = "domain under which Open-WebUI will be served.";
       example = "mydomain.com";
     };
 
@@ -29,7 +29,7 @@ in
 
     port = lib.mkOption {
       type = lib.types.port;
-      description = "Port Karakeep listens to incoming requests.";
+      description = "Port Open-WebUI listens to incoming requests.";
       default = 12444;
     };
 
@@ -102,7 +102,7 @@ in
           };
 
           sharedSecret = lib.mkOption {
-            description = "OIDC shared secret for Audiobookshelf.";
+            description = "OIDC shared secret for Open-WebUI.";
             type = lib.types.submodule {
               options = contracts.secret.mkRequester {
                 owner = "open-webui";
