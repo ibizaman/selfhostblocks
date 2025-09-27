@@ -11,6 +11,7 @@ This service sets up [Open WebUI][] which provides a frontend to various LLMs.
 ## Features {#services-open-webui-features}
 
 - Telemetry disabled.
+- Skip onboarding.
 - Declarative [LDAP](#services-open-webui-options-shb.open-webui.ldap) Configuration.
   Needed LDAP groups are created automatically.
 - Declarative [SSO](#services-open-webui-options-shb.open-webui.sso) Configuration.
