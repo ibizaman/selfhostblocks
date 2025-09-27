@@ -247,6 +247,12 @@ in
                   "expect(page.get_by_role('button', name=re.compile('Sign In'))).not_to_be_visible()"
                   "expect(page).to_have_title(re.compile('Dashboard'))"
                 ]; }
+              { username = "charlie"; password = "NotCharliePassword"; nextPageExpect = [
+                  "expect(page.get_by_text('Username or password is incorrect.')).to_be_visible()"
+                ]; }
+              { username = "charlie"; password = "CharliePassword"; nextPageExpect = [
+                  "expect(page.get_by_text('Username or password is incorrect.')).to_be_visible()"
+                ]; }
             ];
           };
         })

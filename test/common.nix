@@ -427,16 +427,17 @@ in
           groups = [ "user_group" "admin_group" ];
           password.result.path = pkgs.writeText "bobPassword" "BobPassword";
         };
-        # charlie = {
-        #   email = "charlie@example.com";
-        #   groups = [ ];
-        #   password.result.path = pkgs.writeText "charliePassword" "CharliePassword";
-        # };
+        charlie = {
+          email = "charlie@example.com";
+          groups = [ "other_group" ];
+          password.result.path = pkgs.writeText "charliePassword" "CharliePassword";
+        };
       };
 
       ensureGroups = {
         user_group = {};
         admin_group = {};
+        other_group = {};
       };
     };
   };
