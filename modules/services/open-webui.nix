@@ -195,6 +195,7 @@ in
           client_id = cfg.sso.clientID;
           client_secret.source = cfg.sso.sharedSecretForAuthelia.result.path;
           scopes = [ "openid" "email" "profile" ];
+          authorization_policy = cfg.sso.authorization_policy;
           redirect_uris = [
             "https://${cfg.subdomain}.${cfg.domain}/oauth/oidc/callback"
           ];
