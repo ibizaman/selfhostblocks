@@ -49,7 +49,10 @@ The following snippet assumes a few blocks have been setup already:
   };
 
   shb.sops.secret.oidcSecret.request = config.shb.open-webui.sso.sharedSecret.request;
-  shb.sops.secret.oidcAutheliaSecret.request = config.shb.open-webui.sso.sharedSecretForAuthelia.request;
+  shb.sops.secret.oidcAutheliaSecret = {
+    request = config.shb.open-webui.sso.sharedSecretForAuthelia.request;
+    settings.key = oidcSecret;
+  };
 }
 ```
 
