@@ -157,6 +157,12 @@ in
       default = {};
     };
 
+    extraOidcAuthorizationPolicies = lib.mkOption {
+      description = "Extra OIDC authorization policies.";
+      type = lib.types.attrsOf lib.types.attrs;
+      default = {};
+    };
+
     extraDefinitions = lib.mkOption {
       description = "Extra definitions.";
       type = lib.types.attrsOf lib.types.attrs;
@@ -216,7 +222,7 @@ in
           };
 
           authorization_policy = lib.mkOption {
-            type = lib.types.enum [ "one_factor" "two_factor" ];
+            type = lib.types.enum ([ "one_factor" "two_factor" ] ++ lib.attrNames cfg.extraOidcAuthorizationPolicies);
             description = "Require one factor (password) or two factor (device) authentication.";
             default = "one_factor";
           };
@@ -491,6 +497,7 @@ in
             default.id_token = [ "email" "preferred_username" "name" "groups" ];
           } // cfg.extraOidcClaimsPolicies;
           scopes = cfg.extraOidcScopes;
+          authorization_policies = cfg.extraOidcAuthorizationPolicies;
         };
       } // lib.optionalAttrs (cfg.extraDefinitions != {}) {
         definitions = cfg.extraDefinitions;
