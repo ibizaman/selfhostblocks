@@ -92,6 +92,7 @@
             ];
             "services/home-assistant" = ./modules/services/home-assistant.nix;
             "services/jellyfin" = ./modules/services/jellyfin.nix;
+            "services/karakeep" = ./modules/services/karakeep.nix;
             "services/nextcloud-server" = {
               module = ./modules/services/nextcloud-server.nix;
               optionRoot = [ "shb" "nextcloud" ];
@@ -218,6 +219,7 @@
           // (vm_test "immich" ./test/services/immich.nix)
           // (vm_test "homeassistant" ./test/services/home-assistant.nix)
           // (vm_test "jellyfin" ./test/services/jellyfin.nix)
+          // (vm_test "karakeep" ./test/services/karakeep.nix)
           // (vm_test "monitoring" ./test/services/monitoring.nix)
           // (vm_test "nextcloud" ./test/services/nextcloud.nix)
           // (vm_test "open-webui" ./test/services/open-webui.nix)
@@ -312,6 +314,7 @@
         self.nixosModules.immich
         self.nixosModules.home-assistant
         self.nixosModules.jellyfin
+        self.nixosModules.karakeep
         self.nixosModules.nextcloud-server
         self.nixosModules.open-webui
         self.nixosModules.pinchflat
@@ -343,6 +346,7 @@
     nixosModules.immich = modules/services/immich.nix;
     nixosModules.home-assistant = modules/services/home-assistant.nix;
     nixosModules.jellyfin = modules/services/jellyfin.nix;
+    nixosModules.karakeep = modules/services/karakeep.nix;
     nixosModules.nextcloud-server = modules/services/nextcloud-server.nix;
     nixosModules.open-webui = modules/services/open-webui.nix;
     nixosModules.pinchflat = modules/services/pinchflat.nix;
