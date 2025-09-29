@@ -62,7 +62,6 @@ let
       testLib.baseModule
       testLib.clientLoginModule
     ];
-    virtualisation.memorySize = 4096;
     test = {
       subdomain = "o";
     };
@@ -179,6 +178,8 @@ in
       imports = [
         clientLoginSso
       ];
+
+      virtualisation.memorySize = 4096;
     };
     nodes.server = { config, pkgs, ... }: {
       imports = [
@@ -190,6 +191,8 @@ in
         (testLib.sso config.shb.certs.certs.selfsigned.n)
         sso
       ];
+
+      virtualisation.memorySize = 4096;
     };
 
     testScript = commonTestScript.access;
