@@ -80,6 +80,9 @@
   "blocks-authelia-options-shb.authelia.extraDefinitions": [
     "blocks-authelia.html#blocks-authelia-options-shb.authelia.extraDefinitions"
   ],
+  "blocks-authelia-options-shb.authelia.extraOidcAuthorizationPolicies": [
+    "blocks-authelia.html#blocks-authelia-options-shb.authelia.extraOidcAuthorizationPolicies"
+  ],
   "blocks-authelia-options-shb.authelia.extraOidcClaimsPolicies": [
     "blocks-authelia.html#blocks-authelia-options-shb.authelia.extraOidcClaimsPolicies"
   ],
