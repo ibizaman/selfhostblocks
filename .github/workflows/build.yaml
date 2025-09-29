@@ -129,6 +129,7 @@ jobs:
           name: ${{ matrix.check }}
           path: ${{ env.resultPath }}/trace/*
           overwrite: true
+          if-no-files-found: ignore
 
   results:
     name: Final Results
