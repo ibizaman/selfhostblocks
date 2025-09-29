@@ -49,7 +49,10 @@ The following snippet assumes a few blocks have been setup already:
   };
 
   shb.sops.secret.oidcSecret.request = config.shb.open-webui.sso.sharedSecret.request;
-  shb.sops.secret.oidcAutheliaSecret.request = config.shb.open-webui.sso.sharedSecretForAuthelia.request;
+  shb.sops.secret.oidcAutheliaSecret = {
+    request = config.shb.open-webui.sso.sharedSecretForAuthelia.request;
+    settings.key = oidcSecret;
+  };
 }
 ```
 
@@ -88,13 +91,11 @@ Integrating with the ollama service is done with:
 
 ```nix
 {
-  services.open-webui = {
+  shb.open-webui = {
     environment.OLLAMA_BASE_URL = "http://127.0.0.1:${toString config.services.ollama.port}";
   };
 }
 ```
-
-Notice we're using the upstream service here `services.open-webui`, not `shb.open-webui`.
 
 ## Backup {#services-open-webui-usage-backup}
 
