@@ -30,6 +30,9 @@ let
         node.config = nodes.server;
         inherit fqdn proto_fqdn;
       };
+
+      autheliaEnabled = (hasAttr "authelia" nodes.server.shb) && nodes.server.shb.authelia.enable;
+      lldapEnabled = (hasAttr "lldap" nodes.server.shb) && nodes.server.shb.lldap.enable;
     in
     ''
     import json
@@ -63,12 +66,13 @@ let
     ''
     + lib.strings.concatMapStrings (s: ''server.wait_for_unit("${s}")'' + "\n") (
       waitForServices args
-      ++ (lib.optionals redirectSSO [ "authelia-auth.${cfg.domain}.service" ])
+      ++ (lib.optionals autheliaEnabled [ "authelia-auth.${cfg.domain}.service" ])
+      ++ (lib.optionals lldapEnabled [ "lldap.service" ])
     )
     + lib.strings.concatMapStrings (p: ''server.wait_for_open_port(${toString p})'' + "\n") (
       waitForPorts args
       # TODO: when the SSO block exists, replace this hardcoded port.
-      ++ (lib.optionals redirectSSO [ 9091 /* nodes.server.services.authelia.instances."auth.${domain}".settings.server.port */ ] )
+      ++ (lib.optionals autheliaEnabled [ 9091 /* nodes.server.services.authelia.instances."auth.${domain}".settings.server.port */ ])
     )
     + lib.strings.concatMapStrings (u: ''server.wait_for_open_unix_socket("${u}")'' + "\n") (waitForUnixSocket args)
     + ''
