@@ -36,6 +36,7 @@ in
     environment = lib.mkOption {
       type = lib.types.attrsOf lib.types.str;
       description = "Extra environment variables. See https://docs.openwebui.com/getting-started/env-configuration";
+      default = {};
       example = ''
       {
         WEBUI_NAME = "SelfHostBlocks";
@@ -166,7 +167,7 @@ in
           SCARF_NO_ANALYTICS = "True";
 
           ENABLE_VERSION_UPDATE_CHECK = "False";
-        };
+        } // cfg.environment;
       };
 
       systemd.services.open-webui.path = [

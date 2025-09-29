@@ -88,13 +88,11 @@ Integrating with the ollama service is done with:
 
 ```nix
 {
-  services.open-webui = {
+  shb.open-webui = {
     environment.OLLAMA_BASE_URL = "http://127.0.0.1:${toString config.services.ollama.port}";
   };
 }
 ```
-
-Notice we're using the upstream service here `services.open-webui`, not `shb.open-webui`.
 
 ## Backup {#services-open-webui-usage-backup}
 
