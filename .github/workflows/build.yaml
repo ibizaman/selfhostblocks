@@ -126,7 +126,7 @@ jobs:
         if: always()
         with:
           name: ${{ matrix.check }}
-          path: ${{ env.resultPath }}/**/*
+          path: ${{ env.resultPath }}/trace/*
           overwrite: true
 
   results:
