@@ -123,7 +123,7 @@ jobs:
           nix build --print-build-logs --show-trace --keep-outputs --keep-failed .#checks.x86_64-linux.${{ matrix.check }}
       - name: Upload Build Result
         uses: actions/upload-artifact@v4
-        if: always()
+        if: startsWith(matrix.check, 'vm_')
         with:
           name: ${{ matrix.check }}
           path: ${{ env.resultPath }}/trace/*
