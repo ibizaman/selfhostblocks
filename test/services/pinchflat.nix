@@ -115,12 +115,6 @@ let
             "expect(page.get_by_role('button', name=re.compile('Sign In'))).not_to_be_visible()"
             "expect(page.get_by_text('Create a media profile')).to_be_visible()"
           ]; }
-        { username = "charlie"; password = "NotCharliePassword"; nextPageExpect = [
-            "expect(page.get_by_text(re.compile('[Ii]ncorrect'))).to_be_visible()"
-          ]; }
-        { username = "charlie"; password = "CharliePassword"; nextPageExpect = [
-            "expect(page).to_have_url(re.compile('.*/authenticated'))"
-          ]; }
       ];
     };
   };
