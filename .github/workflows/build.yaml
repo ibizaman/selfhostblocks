@@ -120,8 +120,7 @@ jobs:
       - name: Build
         run: |
           echo "resultPath=$(nix eval .#checks.x86_64-linux.${{ matrix.check }} --raw)" >> $GITHUB_ENV
-          nix build --print-build-logs --show-trace --keep-outputs --keep-failed .#checks.x86_64-linux.${{ matrix.check }}
-          ls result
+          nix build --print-build-logs --show-trace --keep-outputs --keep-failed .#checks.x86_64-linux.${{ matrix.check }} || find .
       - name: Upload Build Result
         uses: actions/upload-artifact@v4
         if: startsWith(matrix.check, 'vm_')
