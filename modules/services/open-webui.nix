@@ -4,6 +4,9 @@ let
 
   contracts = pkgs.callPackage ../contracts {};
   shblib = pkgs.callPackage ../../lib {};
+
+  roleClaim = "openwebui_groups";
+  oauthScopes = [ "openid" "email" "profile" "groups" "${roleClaim}" ];
 in
 {
   options.shb.open-webui = {
@@ -191,21 +194,11 @@ in
         ${cfg.ldap.adminGroup} = {};
       };
 
-      shb.authelia.oidcClients = [
-        {
-          client_id = cfg.sso.clientID;
-          client_secret.source = cfg.sso.sharedSecretForAuthelia.result.path;
-          scopes = [ "openid" "email" "profile" ];
-          authorization_policy = cfg.sso.authorization_policy;
-          redirect_uris = [
-            "https://${cfg.subdomain}.${cfg.domain}/oauth/oidc/callback"
-          ];
-        }
-      ];
       services.open-webui = {
         package = pkgs.open-webui.overrideAttrs (finalAttrs: {
           patches = [
             ../../patches/0001-selfhostblocks-never-onboard.patch
+            ../../patches/0002-selfhostblocks-do-not-allow-unauthorized-roles.patch
           ];
         });
         environment = {
@@ -217,12 +210,42 @@ in
           OAUTH_CLIENT_ID = cfg.sso.clientID;
           OPENID_PROVIDER_URL = "${cfg.sso.authEndpoint}/.well-known/openid-configuration";
           OAUTH_PROVIDER_NAME = "Single Sign-On";
-          OAUTH_SCOPES = "openid email profile";
-          OAUTH_ALLOWED_ROLES = cfg.ldap.userGroup;
-          OAUTH_ADMIN_ROLES = cfg.ldap.adminGroup;
+          OAUTH_USERNAME_CLAIM = "preferred_username";
           ENABLE_OAUTH_ROLE_MANAGEMENT = "True";
+          OAUTH_ALLOWED_ROLES = "user,admin";
+          OAUTH_ADMIN_ROLES = "admin";
+          OAUTH_ROLES_CLAIM = roleClaim;
+          OAUTH_SCOPES = lib.concatStringsSep " " oauthScopes;
         };
       };
+
+      shb.authelia.extraDefinitions = {
+        user_attributes.${roleClaim}.expression =
+          ''"${cfg.ldap.adminGroup}" in groups ? ["admin"] : ("${cfg.ldap.userGroup}" in groups ? ["user"] : [""])'';
+      };
+      shb.authelia.extraOidcClaimsPolicies.${roleClaim} = {
+        custom_claims = {
+          "${roleClaim}" = {};
+        };
+      };
+      shb.authelia.extraOidcScopes."${roleClaim}" = {
+        claims = [ "${roleClaim}" ];
+      };
+
+      shb.authelia.oidcClients = [
+        {
+          client_id = cfg.sso.clientID;
+          client_name = "Open WebUI";
+          client_secret.source = cfg.sso.sharedSecretForAuthelia.result.path;
+          claims_policy = "${roleClaim}";
+          public = false;
+          authorization_policy = cfg.sso.authorization_policy;
+          redirect_uris = [
+            "https://${cfg.subdomain}.${cfg.domain}/oauth/oidc/callback"
+          ];
+          scopes = oauthScopes;
+        }
+      ];
 
       systemd.services.open-webui.serviceConfig.EnvironmentFile = "/run/open-webui/secrets.env";
       systemd.tmpfiles.rules = [

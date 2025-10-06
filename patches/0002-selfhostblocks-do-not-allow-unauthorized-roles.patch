@@ -1,0 +1,48 @@
+From fed4cfab1f66e6a2a46dbdd20ad52aee664f06b1 Mon Sep 17 00:00:00 2001
+From: ibizaman <ibizaman@tiserbox.com>
+Date: Thu, 9 Oct 2025 01:37:43 +0200
+Subject: [PATCH] selfhostblocks: do not allow unauthorized roles
+
+---
+ backend/open_webui/constants.py   | 2 +-
+ backend/open_webui/utils/oauth.py | 5 +++--
+ 2 files changed, 4 insertions(+), 3 deletions(-)
+
+diff --git a/backend/open_webui/constants.py b/backend/open_webui/constants.py
+index 59ee6aaac..5a42f1805 100644
+--- a/backend/open_webui/constants.py
++++ b/backend/open_webui/constants.py
+@@ -51,7 +51,7 @@ class ERROR_MESSAGES(str, Enum):
+ 
+     EXISTING_USERS = "You can't turn off authentication because there are existing users. If you want to disable WEBUI_AUTH, make sure your web interface doesn't have any existing users and is a fresh installation."
+ 
+-    UNAUTHORIZED = "401 Unauthorized"
++    UNAUTHORIZED = "Unauthorized"
+     ACCESS_PROHIBITED = "You do not have permission to access this resource. Please contact your administrator for assistance."
+     ACTION_PROHIBITED = (
+         "The requested action has been restricted as a security measure."
+diff --git a/backend/open_webui/utils/oauth.py b/backend/open_webui/utils/oauth.py
+index 9090c38ce..3c68dead4 100644
+--- a/backend/open_webui/utils/oauth.py
++++ b/backend/open_webui/utils/oauth.py
+@@ -336,8 +336,7 @@ class OAuthManager:
+             oauth_allowed_roles = auth_manager_config.OAUTH_ALLOWED_ROLES
+             oauth_admin_roles = auth_manager_config.OAUTH_ADMIN_ROLES
+             oauth_roles = []
+-            # Default/fallback role if no matching roles are found
+-            role = auth_manager_config.DEFAULT_USER_ROLE
++            role = None
+ 
+             # Next block extracts the roles from the user data, accepting nested claims of any depth
+             if oauth_claim and oauth_allowed_roles and oauth_admin_roles:
+@@ -373,6 +372,8 @@ class OAuthManager:
+                         log.debug("Assigned user the admin role")
+                         role = "admin"
+                         break
++            if role is None:
++                raise HTTPException(403, detail=ERROR_MESSAGES.UNAUTHORIZED)
+         else:
+             if not user:
+                 # If role management is disabled, use the default role for new users
+-- 
+2.50.1
