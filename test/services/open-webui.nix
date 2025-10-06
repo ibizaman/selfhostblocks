@@ -94,6 +94,13 @@ let
             "expect(page.get_by_role('button', name=re.compile('Sign In'))).not_to_be_visible()"
             "expect(page.get_by_text('logged in')).to_be_visible()"
           ]; }
+        { username = "charlie"; password = "NotCharliePassword"; nextPageExpect = [
+            "expect(page.get_by_text(re.compile('[Ii]ncorrect'))).to_be_visible()"
+          ]; }
+        { username = "charlie"; password = "CharliePassword"; nextPageExpect = [
+            "page.get_by_role('button', name=re.compile('Accept')).click()"
+            "expect(page.get_by_text('unauthorized')).to_be_visible()"
+          ]; }
       ];
     };
   };
