@@ -63,6 +63,8 @@
       ];
     in
       {
+        formatter = pkgs.nixfmt-tree;
+
         packages.manualHtml = pkgs.callPackage ./docs {
           inherit nmdsrc;
           allModules = self.nixosModules.default.imports
