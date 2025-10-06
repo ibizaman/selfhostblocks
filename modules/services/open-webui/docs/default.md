@@ -11,12 +11,13 @@ This service sets up [Open WebUI][] which provides a frontend to various LLMs.
 ## Features {#services-open-webui-features}
 
 - Telemetry disabled.
-- Skip onboarding.
+- Skip onboarding through custom patch.
 - Declarative [LDAP](#services-open-webui-options-shb.open-webui.ldap) Configuration.
   Needed LDAP groups are created automatically.
 - Declarative [SSO](#services-open-webui-options-shb.open-webui.sso) Configuration.
   When SSO is enabled, login with user and password is disabled.
   Registration is enabled through SSO.
+  Correct error message for unauthorized user through custom patch.
 - Access through [subdomain](#services-open-webui-options-shb.open-webui.subdomain) using reverse proxy.
 - Access through [HTTPS](#services-open-webui-options-shb.open-webui.ssl) using reverse proxy.
 - [Backup](#services-open-webui-options-shb.open-webui.sso) through the [backup block](./blocks-backup.html).
