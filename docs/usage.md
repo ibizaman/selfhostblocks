@@ -13,7 +13,7 @@ Then, in your `nixosConfigurations`, you can import all modules with:
 
 ```nix
 imports = [
-  inputs.selfhostblocks.nixosModules.x86_64-linux.default
+  inputs.selfhostblocks.default
 ];
 ```
 
@@ -21,9 +21,9 @@ or selectively import some with, for example:
 
 ```nix
 imports = [
-  inputs.selfhostblocks.nixosModules.x86_64-linux.authelia
-  inputs.selfhostblocks.nixosModules.x86_64-linux.lldap
-  inputs.selfhostblocks.nixosModules.x86_64-linux.nextcloud
+  inputs.selfhostblocks.authelia
+  inputs.selfhostblocks.lldap
+  inputs.selfhostblocks.nextcloud
 ];
 ```
 
@@ -133,7 +133,7 @@ The following snippets show how to deploy Self Host Blocks using the standard de
         machine = nixosSystem' {
           inherit system;
           modules = [
-            selfhostblocks.nixosModules.${system}.default
+            selfhostblocks.nixosModules.default
           ];
         };
       };
@@ -172,7 +172,7 @@ some not using Self Host Blocks, then you can do the following:
         machine2 = shbNixpkgs.lib.nixosSystem {
           system = "x86_64-linux";
           modules = [
-            selfhostblocks.nixosModules.${system}.default
+            selfhostblocks.nixosModules.default
           ];
         };
       };
@@ -212,7 +212,7 @@ The following snippets show how to deploy Self Host Blocks using the deployment 
 
         machine = { selfhostblocks, ... }: {
           imports = [
-            selfhostblocks.nixosModules.${system}.default
+            selfhostblocks.nixosModules.default
           ];
         };
       };
@@ -258,7 +258,7 @@ in this case you can use the `colmena.meta.nodeNixpkgs` option:
 
         machine2 = { selfhostblocks, ... }: {
           imports = [
-            selfhostblocks.nixosModules.${system}.default
+            selfhostblocks.nixosModules.default
           ];
 
           # Machine specific configuration goes here.
@@ -307,7 +307,7 @@ The following snippets show how to deploy Self Host Blocks using the deployment 
     in
       nixosModules.machine = {
         imports = [
-          selfhostblocks.nixosModules.${system}.default
+          selfhostblocks.nixosModules.default
         ];
       };
 
@@ -378,7 +378,7 @@ in this case you can do:
 
       nixosModules.machine2 = {
         imports = [
-          selfhostblocks.nixosModules.${system}.default
+          selfhostblocks.nixosModules.default
         ];
       };
 
@@ -578,7 +578,7 @@ as well as [Skarabox][], my sibling project used to bootstrap a server.
       nixosModules.skarabox = {
         imports = [
           skarabox.nixosModules.skarabox
-          selfhostblocks.nixosModules.${system}.default
+          selfhostblocks.nixosModules.default
           sops-nix.nixosModules.default
           ({ config, ... }: {
             skarabox.hostname = "skarabox";

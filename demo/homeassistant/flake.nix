@@ -15,7 +15,9 @@
       basic = { config, ...  }: {
         imports = [
           ./configuration.nix
-          selfhostblocks.nixosModules.x86_64-linux.default
+          selfhostblocks.nixosModules.authelia
+          selfhostblocks.nixosModules.home-assistant
+          selfhostblocks.nixosModules.sops
           sops-nix.nixosModules.default
         ];
 

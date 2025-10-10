@@ -1,4 +1,4 @@
-{ pkgs, lib, ... }:
+{ pkgs, ... }:
 let
   pkgs' = pkgs;
 in
@@ -130,7 +130,6 @@ in
         multi = nodes.server.shb.certs.certs.selfsigned.multi;
         cert1 = nodes.server.shb.certs.certs.selfsigned.cert1;
         cert2 = nodes.server.shb.certs.certs.selfsigned.cert2;
-        cert3 = nodes.server.shb.certs.certs.selfsigned.cert3;
       in
         ''
         start_all()

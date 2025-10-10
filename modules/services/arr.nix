@@ -336,6 +336,10 @@ let
   });
 in
 {
+  imports = [
+    ../blocks/nginx.nix
+  ];
+
   options.shb.arr = lib.listToAttrs (lib.mapAttrsToList appOption apps);
 
   config = lib.mkMerge [

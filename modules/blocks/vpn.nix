@@ -197,8 +197,6 @@ let
     echo "Running route-down DONE"
     '';
   };
-
-  someEnabled = lib.any (lib.mapAttrsToList (name: c: c.enable) cfg);
 in
 {
   options =

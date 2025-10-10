@@ -19,7 +19,6 @@ let
     imports = [
       testLib.baseModule
       ../../modules/blocks/hardcodedsecret.nix
-      ../../modules/blocks/lldap.nix
       ../../modules/services/open-webui.nix
     ];
 

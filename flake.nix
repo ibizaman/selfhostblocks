@@ -51,81 +51,9 @@
       ];
     in
       {
-        nixosModules.default = self.nixosModules.${system}.all;
-        nixosModules.all = {
-          imports = [
-            self.nixosModules.${system}.insecure
-
-            # blocks
-            self.nixosModules.${system}.authelia
-            self.nixosModules.${system}.davfs
-            self.nixosModules.${system}.hardcodedsecret
-            self.nixosModules.${system}.lldap
-            self.nixosModules.${system}.mitmdump
-            self.nixosModules.${system}.monitoring
-            self.nixosModules.${system}.nginx
-            self.nixosModules.${system}.postgresql
-            self.nixosModules.${system}.restic
-            self.nixosModules.${system}.ssl
-            self.nixosModules.${system}.sops
-            self.nixosModules.${system}.tinyproxy
-            self.nixosModules.${system}.vpn
-            self.nixosModules.${system}.zfs
-
-            # services
-            self.nixosModules.${system}.arr
-            self.nixosModules.${system}.audiobookshelf
-            self.nixosModules.${system}.deluge
-            self.nixosModules.${system}.forgejo
-            self.nixosModules.${system}.grocy
-            self.nixosModules.${system}.hledger
-            self.nixosModules.${system}.immich
-            self.nixosModules.${system}.home-assistant
-            self.nixosModules.${system}.jellyfin
-            self.nixosModules.${system}.nextcloud-server
-            self.nixosModules.${system}.open-webui
-            self.nixosModules.${system}.pinchflat
-            self.nixosModules.${system}.vaultwarden
-          ];
-        };
-
-        nixosModules.insecure = {
-          nixpkgs.config.permittedInsecurePackages = [
-          ];
-        };
-
-        nixosModules.authelia = modules/blocks/authelia.nix;
-        nixosModules.davfs = modules/blocks/davfs.nix;
-        nixosModules.hardcodedsecret = modules/blocks/hardcodedsecret.nix;
-        nixosModules.lldap = modules/blocks/lldap.nix;
-        nixosModules.mitmdump = modules/blocks/mitmdump.nix;
-        nixosModules.monitoring = modules/blocks/monitoring.nix;
-        nixosModules.nginx = modules/blocks/nginx.nix;
-        nixosModules.postgresql = modules/blocks/postgresql.nix;
-        nixosModules.restic = modules/blocks/restic.nix;
-        nixosModules.ssl = modules/blocks/ssl.nix;
-        nixosModules.sops = modules/blocks/sops.nix;
-        nixosModules.tinyproxy = modules/blocks/tinyproxy.nix;
-        nixosModules.vpn = modules/blocks/vpn.nix;
-        nixosModules.zfs = modules/blocks/zfs.nix;
-
-        nixosModules.arr = modules/services/arr.nix;
-        nixosModules.audiobookshelf = modules/services/audiobookshelf.nix;
-        nixosModules.deluge = modules/services/deluge.nix;
-        nixosModules.forgejo = modules/services/forgejo.nix;
-        nixosModules.grocy = modules/services/grocy.nix;
-        nixosModules.hledger = modules/services/hledger.nix;
-        nixosModules.immich = modules/services/immich.nix;
-        nixosModules.home-assistant = modules/services/home-assistant.nix;
-        nixosModules.jellyfin = modules/services/jellyfin.nix;
-        nixosModules.nextcloud-server = modules/services/nextcloud-server.nix;
-        nixosModules.open-webui = modules/services/open-webui.nix;
-        nixosModules.pinchflat = modules/services/pinchflat.nix;
-        nixosModules.vaultwarden = modules/services/vaultwarden.nix;
-
         packages.manualHtml = pkgs.callPackage ./docs {
           inherit nmdsrc;
-          allModules = self.nixosModules.${system}.all.imports ++ contractDummyModules;
+          allModules = self.nixosModules.all.imports ++ contractDummyModules;
           release = builtins.readFile ./VERSION;
 
           substituteVersionIn = [
@@ -329,5 +257,72 @@
       }
   ) // {
     herculesCI.ciSystems = [ "x86_64-linux" ];
+
+    nixosModules.default = self.nixosModules.all;
+    nixosModules.all = {
+      imports = [
+        self.nixosModules.insecure
+
+        # blocks
+        self.nixosModules.authelia
+        self.nixosModules.davfs
+        self.nixosModules.hardcodedsecret
+        self.nixosModules.lldap
+        self.nixosModules.mitmdump
+        self.nixosModules.monitoring
+        self.nixosModules.nginx
+        self.nixosModules.postgresql
+        self.nixosModules.restic
+        self.nixosModules.ssl
+        self.nixosModules.sops
+        self.nixosModules.tinyproxy
+        self.nixosModules.vpn
+        self.nixosModules.zfs
+
+        # services
+        self.nixosModules.arr
+        self.nixosModules.audiobookshelf
+        self.nixosModules.deluge
+        self.nixosModules.forgejo
+        self.nixosModules.grocy
+        self.nixosModules.hledger
+        self.nixosModules.immich
+        self.nixosModules.home-assistant
+        self.nixosModules.jellyfin
+        self.nixosModules.nextcloud-server
+        self.nixosModules.open-webui
+        self.nixosModules.pinchflat
+        self.nixosModules.vaultwarden
+      ];
+    };
+
+    nixosModules.authelia = modules/blocks/authelia.nix;
+    nixosModules.davfs = modules/blocks/davfs.nix;
+    nixosModules.hardcodedsecret = modules/blocks/hardcodedsecret.nix;
+    nixosModules.lldap = modules/blocks/lldap.nix;
+    nixosModules.mitmdump = modules/blocks/mitmdump.nix;
+    nixosModules.monitoring = modules/blocks/monitoring.nix;
+    nixosModules.nginx = modules/blocks/nginx.nix;
+    nixosModules.postgresql = modules/blocks/postgresql.nix;
+    nixosModules.restic = modules/blocks/restic.nix;
+    nixosModules.ssl = modules/blocks/ssl.nix;
+    nixosModules.sops = modules/blocks/sops.nix;
+    nixosModules.tinyproxy = modules/blocks/tinyproxy.nix;
+    nixosModules.vpn = modules/blocks/vpn.nix;
+    nixosModules.zfs = modules/blocks/zfs.nix;
+
+    nixosModules.arr = modules/services/arr.nix;
+    nixosModules.audiobookshelf = modules/services/audiobookshelf.nix;
+    nixosModules.deluge = modules/services/deluge.nix;
+    nixosModules.forgejo = modules/services/forgejo.nix;
+    nixosModules.grocy = modules/services/grocy.nix;
+    nixosModules.hledger = modules/services/hledger.nix;
+    nixosModules.immich = modules/services/immich.nix;
+    nixosModules.home-assistant = modules/services/home-assistant.nix;
+    nixosModules.jellyfin = modules/services/jellyfin.nix;
+    nixosModules.nextcloud-server = modules/services/nextcloud-server.nix;
+    nixosModules.open-webui = modules/services/open-webui.nix;
+    nixosModules.pinchflat = modules/services/pinchflat.nix;
+    nixosModules.vaultwarden = modules/services/vaultwarden.nix;
   };
 }
