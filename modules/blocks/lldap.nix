@@ -48,6 +48,13 @@ let
   };
 in
 {
+  imports = [
+    ./hardcodedsecret.nix
+    ./mitmdump.nix
+
+    (lib.mkRenamedOptionModule [ "shb" "ldap" ] [ "shb" "lldap" ])
+  ];
+
   options.shb.lldap = {
     enable = lib.mkEnableOption "the LDAP service";
 
@@ -321,10 +328,6 @@ in
       default = true;
     };
   };
-
-  imports = [
-    (lib.mkRenamedOptionModule [ "shb" "ldap" ] [ "shb" "lldap" ])
-  ];
   
   config = lib.mkIf cfg.enable {
 

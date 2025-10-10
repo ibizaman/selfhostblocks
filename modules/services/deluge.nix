@@ -18,6 +18,10 @@ let
       lib.concatStringsSep "\n" lines;
 in
 {
+  imports = [
+    ../blocks/nginx.nix
+  ];
+
   options.shb.deluge = {
     enable = lib.mkEnableOption "selfhostblocks.deluge";
 

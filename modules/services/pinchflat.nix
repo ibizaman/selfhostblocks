@@ -8,6 +8,10 @@ let
   shblib = pkgs.callPackage ../../lib {};
 in
 {
+  imports = [
+    ../blocks/nginx.nix
+  ];
+
   options.shb.pinchflat = {
     enable = lib.mkEnableOption "the Pinchflat service.";
 

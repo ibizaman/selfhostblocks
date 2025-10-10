@@ -30,7 +30,7 @@ let
 
   ghRoot = (gitHubDeclaration "ibizaman" "selfhostblocks" "").url;
 
-  buildOptionsDocs = args@{ modules, ... }:
+  buildOptionsDocs = { modules, filterOptionPath ? null }: args:
     let
       config = {
         _module.check = false;
@@ -51,7 +51,7 @@ let
         };
       };
 
-      options = lib.filterAttrs (name: v: name == "shb") eval.options;
+      options = lib.setAttrByPath filterOptionPath (lib.getAttrFromPath filterOptionPath eval.options);
     in buildPackages.nixosOptionsDoc ({
       inherit options;
 
@@ -63,22 +63,30 @@ let
             gitHubDeclaration "ibizaman" "selfhostblocks"
               (lib.removePrefix "/" (lib.removePrefix shbPath (toString decl)))) opt.declarations;
         };
-    } // builtins.removeAttrs args [ "modules" "includeModuleSystemOptions" ]);
+    } // builtins.removeAttrs args [ "includeModuleSystemOptions" ]);
 
   scrubbedModule = {
     _module.args.pkgs = lib.mkForce (nmd.scrubDerivations "pkgs" pkgs);
     _module.check = false;
   };
 
-  allOptionsDocs = paths: (buildOptionsDocs {
-    modules = paths ++ allModules ++ [ scrubbedModule ];
-    variablelistId = "selfhostblocks-options";
-  }).optionsJSON;
+  allOptionsDocs = paths: (buildOptionsDocs
+    {
+      modules = paths ++ allModules ++ [ scrubbedModule ];
+      filterOptionPath = [ "shb" ];
+    }
+    {
+      variablelistId = "selfhostblocks-options";
+    }).optionsJSON;
 
-  individualModuleOptionsDocs = paths: (buildOptionsDocs {
-    modules = paths ++ [ scrubbedModule ];
-    variablelistId = "selfhostblocks-options";
-  }).optionsJSON;
+  individualModuleOptionsDocs = filterOptionPath: paths: (buildOptionsDocs
+    {
+      modules = paths ++ [ scrubbedModule ];
+      inherit filterOptionPath;
+    }
+    {
+      variablelistId = "selfhostblocks-options";
+    }).optionsJSON;
 
   nmd = import nmdsrc {
     inherit lib;
@@ -138,11 +146,16 @@ in stdenv.mkDerivation {
           (pkgs.path + "/nixos/modules/services/misc/forgejo.nix")
         ]}/share/doc/nixos/options.json
   ''
-  + lib.concatStringsSep "\n" (lib.mapAttrsToList (name: path: ''
+  + lib.concatStringsSep "\n" (lib.mapAttrsToList (name: cfg':
+    let
+      cfg = if builtins.isAttrs cfg' then cfg' else { module = cfg'; };
+      module = if builtins.isList cfg.module then cfg.module else [ cfg.module ];
+      optionRoot = cfg.optionRoot or [ "shb" (lib.last (lib.splitString "/" name)) ];
+    in ''
     substituteInPlace ./modules/${name}/docs/default.md \
       --replace-fail \
         '@OPTIONS_JSON@' \
-        ${individualModuleOptionsDocs (if builtins.isList path then path else [ path ])}/share/doc/nixos/options.json
+        ${individualModuleOptionsDocs optionRoot module}/share/doc/nixos/options.json
   '') modules)
   + ''
     find . -name "*.md" -print0 | \

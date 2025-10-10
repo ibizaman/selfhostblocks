@@ -9,6 +9,10 @@ let
   oauthScopes = [ "openid" "email" "profile" "groups" "${roleClaim}" ];
 in
 {
+  imports = [
+    ../blocks/nginx.nix
+  ];
+
   options.shb.open-webui = {
     enable = lib.mkEnableOption "the Open-WebUI service";
 

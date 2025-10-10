@@ -74,6 +74,10 @@ let
   inherit (lib.types) attrs attrsOf bool enum listOf nullOr port submodule str path;
 in
 {
+  imports = [
+    ../blocks/nginx.nix
+  ];
+
   options.shb.immich = {
     enable = mkEnableOption "selfhostblocks.immich";
 

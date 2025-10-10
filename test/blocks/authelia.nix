@@ -1,4 +1,4 @@
-{ pkgs, lib, ... }:
+{ pkgs, ... }:
 let
   pkgs' = pkgs;
 
@@ -14,9 +14,6 @@ in
         (pkgs'.path + "/nixos/modules/profiles/qemu-guest.nix")
         ../../modules/blocks/authelia.nix
         ../../modules/blocks/hardcodedsecret.nix
-        ../../modules/blocks/lldap.nix
-        ../../modules/blocks/mitmdump.nix
-        ../../modules/blocks/postgresql.nix
       ];
 
       networking.hosts = {
