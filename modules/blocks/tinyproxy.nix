@@ -25,8 +25,6 @@ let
   });
 
   configFile = name: cfg: settingsFormat.generate "tinyproxy-${name}.conf" cfg.settings;
-
-  someEnabled = any (mapAttrsToList (name: c: c.enable) cfg);
 in
 {
   options =

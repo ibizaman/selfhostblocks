@@ -1,4 +1,4 @@
-{ pkgs, lib, ... }:
+{ pkgs, ... }:
 let
   testLib = pkgs.callPackage ../common.nix {};
 

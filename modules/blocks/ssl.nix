@@ -38,7 +38,7 @@ in
               This option implements the SSL Generator contract.
             '';
             type = contracts.ssl.certs-paths;
-            default = rec {
+            default = {
               key = "/var/lib/certs/cas/${config._module.args.name}.key";
               cert = "/var/lib/certs/cas/${config._module.args.name}.cert";
             };
@@ -110,7 +110,7 @@ in
               This option implements the SSL Generator contract.
             '';
             type = contracts.ssl.certs-paths;
-            default = rec {
+            default = {
               key = "/var/lib/certs/selfsigned/${config._module.args.name}.key";
               cert = "/var/lib/certs/selfsigned/${config._module.args.name}.cert";
             };
@@ -306,8 +306,6 @@ in
 
   config =
     let
-      filterProvider = provider: lib.attrsets.filterAttrs (k: i: i.provider == provider);
-
       serviceName = lib.strings.removeSuffix ".service";
     in
       lib.mkMerge [

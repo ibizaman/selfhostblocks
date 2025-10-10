@@ -2,8 +2,6 @@
 let
   testLib = pkgs.callPackage ../common.nix {};
 
-  adminPassword = "AdminPassword";
-
   commonTestScript = testLib.mkScripts {
     hasSSL = { node, ... }: !(isNull node.config.shb.hledger.ssl);
     waitForServices = { ... }: [
