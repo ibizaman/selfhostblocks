@@ -11,6 +11,10 @@ let
   dataFolder = if lib.versionOlder (config.system.stateVersion or "24.11") "24.11" then "/var/lib/bitwarden_rs" else "/var/lib/vaultwarden";
 in
 {
+  imports = [
+    ../blocks/nginx.nix
+  ];
+
   options.shb.vaultwarden = {
     enable = lib.mkEnableOption "selfhostblocks.vaultwarden";
 

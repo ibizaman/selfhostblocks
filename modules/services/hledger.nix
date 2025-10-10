@@ -8,6 +8,10 @@ let
   fqdn = "${cfg.subdomain}.${cfg.domain}";
 in
 {
+  imports = [
+    ../blocks/nginx.nix
+  ];
+
   options.shb.hledger = {
     enable = lib.mkEnableOption "selfhostblocks.hledger";
 

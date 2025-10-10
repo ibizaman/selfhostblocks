@@ -9,6 +9,20 @@ let
   inherit (lib.types) attrsOf bool enum listOf nullOr package port submodule str;
 in
 {
+  imports = [
+    ../blocks/nginx.nix
+
+    (lib.mkRemovedOptionModule [ "shb" "forgejo" "adminPassword" ] ''Instead, define an admin user in shb.forgejo.users and give it the same password, like so:
+      shb.forgejo.users = {
+        "forgejoadmin" = {
+          isAdmin = true;
+          email = "forgejoadmin@example.com";
+          password.result = <path/to/password>;
+        };
+      };
+    '')
+  ];
+
   options.shb.forgejo = {
     enable = mkEnableOption "selfhostblocks.forgejo";
 
@@ -345,18 +359,6 @@ in
       default = false;
     };
   };
-
-  imports = [
-    (lib.mkRemovedOptionModule [ "shb" "forgejo" "adminPassword" ] ''Instead, define an admin user in shb.forgejo.users and give it the same password, like so:
-      shb.forgejo.users = {
-        "forgejoadmin" = {
-          isAdmin = true;
-          email = "forgejoadmin@example.com";
-          password.result = <path/to/password>;
-        };
-      };
-    '')
-  ];
 
   config = mkMerge [
     (mkIf cfg.enable {

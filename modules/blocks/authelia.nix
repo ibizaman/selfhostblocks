@@ -17,6 +17,13 @@ let
   listenPort = if cfg.debug then 9090 else 9091;
 in
 {
+  imports = [
+    ./hardcodedsecret.nix
+    ./lldap.nix
+    ./mitmdump.nix
+    ./postgresql.nix
+  ];
+
   options.shb.authelia = {
     enable = lib.mkEnableOption "selfhostblocks.authelia";
 

@@ -7,7 +7,7 @@ let
   contracts = pkgs.callPackage ../contracts {};
 
   inherit (lib) concatStringsSep filterAttrs flatten literalExpression optionals listToAttrs mapAttrsToList mkEnableOption mkOption mkMerge;
-  inherit (lib) generators hasPrefix mkIf nameValuePair optionalAttrs removePrefix;
+  inherit (lib) hasPrefix mkIf nameValuePair optionalAttrs removePrefix;
   inherit (lib.types) attrsOf enum int ints oneOf nonEmptyStr nullOr str submodule;
 
   commonOptions = { name, prefix, config, ... }: {
@@ -106,6 +106,10 @@ let
   fullName = name: repository: "restic-backups-${name}_${repoSlugName repository.path}";
 in
 {
+  imports = [
+    ./hardcodedsecret.nix
+  ];
+
   options.shb.restic = {
     instances = mkOption {
       description = "Files to backup following the [backup contract](./contracts-backup.html).";

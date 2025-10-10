@@ -15,7 +15,10 @@
       basic = { config, ... }: {
         imports = [
           ./configuration.nix
-          selfhostblocks.nixosModules.x86_64-linux.default
+          selfhostblocks.nixosModules.authelia
+          selfhostblocks.nixosModules.nextcloud-server
+          selfhostblocks.nixosModules.nginx
+          selfhostblocks.nixosModules.sops
           sops-nix.nixosModules.default
         ];
 
