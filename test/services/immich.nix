@@ -1,11 +1,9 @@
 { pkgs, lib }:
 let
-  testLib = pkgs.callPackage ../common.nix {};
-
   subdomain = "i";
   domain = "example.com";
 
-  commonTestScript = testLib.accessScript {
+  commonTestScript = lib.shb.accessScript {
     hasSSL = { node, ... }: !(isNull node.config.shb.immich.ssl);
     waitForServices = { ... }: [ "immich-server.service" "postgresql.service" "nginx.service" ];
     waitForPorts = { ... }: [ 2283 80 ];
@@ -14,7 +12,7 @@ let
 
   base = { config, ... }: {
     imports = [
-      testLib.baseModule
+      lib.shb.baseModule
       ../../modules/services/immich.nix
     ];
 
@@ -45,7 +43,7 @@ let
   https = { config, ... }: {
     imports = [
       base
-      testLib.certs
+      lib.shb.certs
     ];
 
     test.hasSSL = true;
@@ -55,15 +53,15 @@ let
   backup = { config, ... }: {
     imports = [
       https
-      (testLib.backup config.shb.immich.backup)
+      (lib.shb.backup config.shb.immich.backup)
     ];
   };
 
   sso = { config, ... }: {
     imports = [
       https
-      testLib.ldap
-      (testLib.sso config.shb.certs.certs.selfsigned.n)
+      lib.shb.ldap
+      (lib.shb.sso config.shb.certs.certs.selfsigned.n)
     ];
 
     shb.immich.sso = {
@@ -137,7 +135,7 @@ in
     nodes.server = backup;
     nodes.client = {};
 
-    testScript = (testLib.mkScripts { 
+    testScript = (lib.shb.mkScripts { 
       hasSSL = args: !(isNull args.node.config.shb.immich.ssl);
       waitForServices = args: [ "immich-server.service" "postgresql.service" "nginx.service" ];
       waitForPorts = args: [ 2283 80 ];

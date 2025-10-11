@@ -39,7 +39,7 @@ let
   );
 in
 {
-  default = pkgs.testers.runNixOSTest {
+  default = lib.shb.runNixOSTest {
     name = "mitmdump-default";
 
     nodes.machine = { config, pkgs, ... }: {

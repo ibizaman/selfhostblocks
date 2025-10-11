@@ -296,12 +296,12 @@ let
   
 in {
   # Test variants (all 6 required)
-  basic = pkgs.testers.runNixOSTest { ... };
-  backup = pkgs.testers.runNixOSTest { ... };
-  https = pkgs.testers.runNixOSTest { ... };
-  ldap = pkgs.testers.runNixOSTest { ... };
-  monitoring = pkgs.testers.runNixOSTest { ... };
-  sso = pkgs.testers.runNixOSTest { ... };
+  basic = lib.shb.runNixOSTest { ... };
+  backup = lib.shb.runNixOSTest { ... };
+  https = lib.shb.runNixOSTest { ... };
+  ldap = lib.shb.runNixOSTest { ... };
+  monitoring = lib.shb.runNixOSTest { ... };
+  sso = lib.shb.runNixOSTest { ... };
 }
 ```
 

@@ -1,4 +1,4 @@
-{ pkgs, lib, ... }:
+{ pkgs, ... }:
 let
   contracts = pkgs.callPackage ../../modules/contracts {};
 in

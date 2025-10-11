@@ -54,7 +54,7 @@ in
         generator = shblib.replaceSecretsFormatAdapter (shblib.formatXML {enclosingRoot = "Root";});
       };
     in
-      pkgs.testers.runNixOSTest {
+      lib.shb.runNixOSTest {
         name = "lib-template";
         nodes.machine = { config, pkgs, ... }:
           {

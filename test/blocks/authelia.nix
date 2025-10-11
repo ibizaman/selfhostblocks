@@ -1,11 +1,11 @@
-{ pkgs, ... }:
+{ pkgs, lib, ... }:
 let
   pkgs' = pkgs;
 
   ldapAdminPassword = "ldapAdminPassword";
 in
 {
-  basic = pkgs.testers.runNixOSTest {
+  basic = lib.shb.runNixOSTest {
     name = "authelia-basic";
 
     nodes.machine = { config, pkgs, ... }: {

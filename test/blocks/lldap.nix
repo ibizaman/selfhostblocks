@@ -6,7 +6,7 @@ let
   charliePassword = "CharliePassword";
 in
 {
-  auth = pkgs.testers.runNixOSTest {
+  auth = lib.shb.runNixOSTest {
     name = "ldap-auth";
 
     nodes.server = { config, pkgs, ... }: {

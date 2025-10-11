@@ -1,8 +1,6 @@
 { pkgs, lib, ... }:
 let
-  testLib = pkgs.callPackage ../common.nix {};
-
-  commonTestScript = testLib.mkScripts {
+  commonTestScript = lib.shb.mkScripts {
     hasSSL = { node, ... }: !(isNull node.config.shb.grocy.ssl);
     waitForServices = { ... }: [
       "phpfpm-grocy.service"
@@ -15,7 +13,7 @@ let
 
   basic = { config, ... }: {
     imports = [
-      testLib.baseModule
+      lib.shb.baseModule
       ../../modules/services/grocy.nix
     ];
 
@@ -31,8 +29,8 @@ let
 
   clientLogin = { config, ... }: {
     imports = [
-      testLib.baseModule
-      testLib.clientLoginModule
+      lib.shb.baseModule
+      lib.shb.clientLoginModule
     ];
     virtualisation.memorySize = 4096;
 
@@ -65,7 +63,7 @@ let
   };
 in
 {
-  basic = pkgs.testers.runNixOSTest {
+  basic = lib.shb.runNixOSTest {
     name = "grocy_basic";
 
     nodes.client = {
@@ -82,13 +80,13 @@ in
     testScript = commonTestScript.access;
   };
 
-  https = pkgs.testers.runNixOSTest {
+  https = lib.shb.runNixOSTest {
     name = "grocy_https";
 
     nodes.server = {
       imports = [
         basic
-        testLib.certs
+        lib.shb.certs
         https
       ];
     };
