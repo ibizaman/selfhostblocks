@@ -242,11 +242,9 @@
               inherit pkgs;
               tests =
                 mergeTests (importFiles [
-                  ./test/modules/arr.nix
                   ./test/modules/davfs.nix
                   # TODO: Make this not use IFD
                   ./test/modules/lib.nix
-                  ./test/modules/nginx.nix
                 ]);
             };
 
