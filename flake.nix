@@ -178,7 +178,9 @@
             vm_test = name: path: flattenAttrs "vm_${name}" (
               import path {
                 inherit pkgs;
-                inherit (pkgs) lib;
+                lib = pkgs.lib // {
+                  shb = pkgs.callPackage ./test/common.nix {};
+                };
               }
             );
 

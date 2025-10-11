@@ -1,12 +1,10 @@
-{ pkgs, lib, ... }:
+{ lib, ... }:
 let
   adminUser = "root";
   adminPass = "rootpw";
   oidcSecret = "oidcSecret";
 
-  testLib = pkgs.callPackage ../common.nix {};
-
-  commonTestScript = testLib.mkScripts {
+  commonTestScript = lib.shb.mkScripts {
     hasSSL = { node, ... }: !(isNull node.config.shb.nextcloud.ssl);
     waitForServices = { ... }: [
       "phpfpm-nextcloud.service"
@@ -91,7 +89,7 @@ let
 
   basic = { config, ... }: {
     imports = [
-      testLib.baseModule
+      lib.shb.baseModule
       ../../modules/services/nextcloud-server.nix
     ];
 
@@ -123,8 +121,8 @@ let
 
   clientLogin = { config, ... }: {
     imports = [
-      testLib.baseModule
-      testLib.clientLoginModule
+      lib.shb.baseModule
+      lib.shb.clientLoginModule
     ];
     virtualisation.memorySize = 4096;
 
@@ -153,8 +151,8 @@ let
 
   clientLdapLogin = { config, ... }: {
     imports = [
-      testLib.baseModule
-      testLib.clientLoginModule
+      lib.shb.baseModule
+      lib.shb.clientLoginModule
     ];
     virtualisation.memorySize = 4096;
 
@@ -190,8 +188,8 @@ let
 
   clientSsoLogin = { config, ... }: {
     imports = [
-      testLib.baseModule
-      testLib.clientLoginModule
+      lib.shb.baseModule
+      lib.shb.clientLoginModule
     ];
     virtualisation.memorySize = 4096;
 
@@ -365,7 +363,7 @@ let
     '';
 in
 {
-  basic = pkgs.testers.runNixOSTest {
+  basic = lib.shb.runNixOSTest {
     name = "nextcloud_basic";
 
     nodes.client = {
@@ -382,7 +380,7 @@ in
     testScript = commonTestScript.access;
   };
 
-  cron = pkgs.testers.runNixOSTest {
+  cron = lib.shb.runNixOSTest {
     name = "nextcloud_cron";
 
     nodes.server = {
@@ -418,13 +416,13 @@ in
     };
   };
 
-  backup = pkgs.testers.runNixOSTest {
+  backup = lib.shb.runNixOSTest {
     name = "nextcloud_backup";
 
     nodes.server = { config, ... }: {
       imports = [
         basic
-        (testLib.backup config.shb.nextcloud.backup)
+        (lib.shb.backup config.shb.nextcloud.backup)
       ];
     };
 
@@ -433,13 +431,13 @@ in
     testScript = commonTestScript.backup;
   };
 
-  https = pkgs.testers.runNixOSTest {
+  https = lib.shb.runNixOSTest {
     name = "nextcloud_https";
 
     nodes.server = {
       imports = [
         basic
-        testLib.certs
+        lib.shb.certs
         https
       ];
     };
@@ -450,13 +448,13 @@ in
     testScript = commonTestScript.access;
   };
 
-  previewGenerator = pkgs.testers.runNixOSTest {
+  previewGenerator = lib.shb.runNixOSTest {
     name = "nextcloud_previewGenerator";
 
     nodes.server = {
       imports = [
         basic
-        testLib.certs
+        lib.shb.certs
         https
         previewgenerator
       ];
@@ -467,13 +465,13 @@ in
     testScript = commonTestScript.access;
   };
 
-  externalStorage = pkgs.testers.runNixOSTest {
+  externalStorage = lib.shb.runNixOSTest {
     name = "nextcloud_externalStorage";
 
     nodes.server = {
       imports = [
         basic
-        testLib.certs
+        lib.shb.certs
         https
         externalstorage
       ];
@@ -487,13 +485,13 @@ in
   # TODO: fix memories app
   # See https://github.com/ibizaman/selfhostblocks/issues/476
 
-  # memories = pkgs.testers.runNixOSTest {
+  # memories = lib.shb.runNixOSTest {
   #   name = "nextcloud_memories";
 
   #   nodes.server = {
   #     imports = [
   #       basic
-  #       testLib.certs
+  #       lib.shb.certs
   #       https
   #       memories
   #     ];
@@ -504,13 +502,13 @@ in
   #   testScript = commonTestScript.access;
   # };
 
-  recognize = pkgs.testers.runNixOSTest {
+  recognize = lib.shb.runNixOSTest {
     name = "nextcloud_recognize";
 
     nodes.server = {
       imports = [
         basic
-        testLib.certs
+        lib.shb.certs
         https
         recognize
       ];
@@ -521,15 +519,15 @@ in
     testScript = commonTestScript.access;
   };
 
-  ldap = pkgs.testers.runNixOSTest {
+  ldap = lib.shb.runNixOSTest {
     name = "nextcloud_ldap";
   
     nodes.server = { config, ... }: {
       imports = [
         basic
-        testLib.certs
+        lib.shb.certs
         https
-        testLib.ldap
+        lib.shb.ldap
         ldap
       ];
     };
@@ -543,18 +541,16 @@ in
     testScript = commonTestScript.access;
   };
 
-  sso = pkgs.testers.runNixOSTest {
+  sso = lib.shb.runNixOSTest {
     name = "nextcloud_sso";
 
-    interactive.sshBackdoor.enable = true;
-  
     nodes.server = { config, ... }: {
       imports = [
         basic
-        testLib.certs
+        lib.shb.certs
         https
-        testLib.ldap
-        (testLib.sso config.shb.certs.certs.selfsigned.n)
+        lib.shb.ldap
+        (lib.shb.sso config.shb.certs.certs.selfsigned.n)
         sso
         ({ config, ... }: {
           networking.hosts = {
@@ -578,7 +574,7 @@ in
     testScript = commonTestScript.access;
   };
 
-  prometheus = pkgs.testers.runNixOSTest {
+  prometheus = lib.shb.runNixOSTest {
     name = "nextcloud_prometheus";
 
     nodes.server = { config, ... }: {

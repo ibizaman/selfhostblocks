@@ -1,9 +1,9 @@
-{ pkgs, ... }:
+{ pkgs, lib, ... }:
 let
   pkgs' = pkgs;
 in
 {
-  peerWithoutUser = pkgs.testers.runNixOSTest {
+  peerWithoutUser = lib.shb.runNixOSTest {
     name = "postgresql-peerWithoutUser";
 
     nodes.machine = { config, pkgs, ... }: {
@@ -40,7 +40,7 @@ in
     '';
   };
 
-  peerAuth = pkgs.testers.runNixOSTest {
+  peerAuth = lib.shb.runNixOSTest {
     name = "postgresql-peerAuth";
 
     nodes.machine = { config, pkgs, ... }: {
@@ -90,7 +90,7 @@ in
     '';
   };
 
-  tcpIPWithoutPasswordAuth = pkgs.testers.runNixOSTest {
+  tcpIPWithoutPasswordAuth = lib.shb.runNixOSTest {
     name = "postgresql-tcpIpWithoutPasswordAuth";
 
     nodes.machine = { config, pkgs, ... }: {
@@ -128,7 +128,7 @@ in
     '';
   };
 
-  tcpIPPasswordAuth = pkgs.testers.runNixOSTest {
+  tcpIPPasswordAuth = lib.shb.runNixOSTest {
     name = "postgresql-tcpIPPasswordAuth";
 
     nodes.machine = { config, pkgs, ... }: {

@@ -1,10 +1,8 @@
-{ pkgs, ... }:
+{ lib, ... }:
 let
   oidcSecret = "oidcSecret";
 
-  testLib = pkgs.callPackage ../common.nix {};
-
-  commonTestScript = testLib.mkScripts {
+  commonTestScript = lib.shb.mkScripts {
     hasSSL = { node, ... }: !(isNull node.config.shb.open-webui.ssl);
     waitForServices = { ... }: [
       "open-webui.service"
@@ -17,7 +15,7 @@ let
 
   basic = { config, ... }: {
     imports = [
-      testLib.baseModule
+      lib.shb.baseModule
       ../../modules/blocks/hardcodedsecret.nix
       ../../modules/services/open-webui.nix
     ];
@@ -58,8 +56,8 @@ let
 
   clientLoginSso = { config, ... }: {
     imports = [
-      testLib.baseModule
-      testLib.clientLoginModule
+      lib.shb.baseModule
+      lib.shb.clientLoginModule
     ];
     virtualisation.memorySize = 4096;
     test = {
@@ -127,7 +125,7 @@ let
   };
 in
 {
-  basic = pkgs.testers.runNixOSTest {
+  basic = lib.shb.runNixOSTest {
     name = "open-webui_basic";
 
     nodes.client = {};
@@ -140,13 +138,13 @@ in
     testScript = commonTestScript.access;
   };
 
-  backup = pkgs.testers.runNixOSTest {
+  backup = lib.shb.runNixOSTest {
     name = "open-webui_backup";
 
     nodes.server = { config, ... }: {
       imports = [
         basic
-        (testLib.backup config.shb.open-webui.backup)
+        (lib.shb.backup config.shb.open-webui.backup)
       ];
     };
 
@@ -155,14 +153,14 @@ in
     testScript = commonTestScript.backup;
   };
 
-  https = pkgs.testers.runNixOSTest {
+  https = lib.shb.runNixOSTest {
     name = "open-webui_https";
 
     nodes.client = {};
     nodes.server = {
       imports = [
         basic
-        testLib.certs
+        lib.shb.certs
         https
       ];
     };
@@ -170,9 +168,8 @@ in
     testScript = commonTestScript.access;
   };
 
-  sso = pkgs.testers.runNixOSTest {
+  sso = lib.shb.runNixOSTest {
     name = "open-webui_sso";
-    interactive.sshBackdoor.enable = true;
 
     nodes.client = {
       imports = [
@@ -182,11 +179,11 @@ in
     nodes.server = { config, pkgs, ... }: {
       imports = [
         basic
-        testLib.certs
+        lib.shb.certs
         https
-        testLib.ldap
+        lib.shb.ldap
         ldap
-        (testLib.sso config.shb.certs.certs.selfsigned.n)
+        (lib.shb.sso config.shb.certs.certs.selfsigned.n)
         sso
       ];
     };

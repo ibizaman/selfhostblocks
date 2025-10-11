@@ -1,8 +1,6 @@
-{ pkgs, ... }:
+{ lib, ... }:
 let
-  testLib = pkgs.callPackage ../common.nix {};
-
-  commonTestScript = testLib.mkScripts {
+  commonTestScript = lib.shb.mkScripts {
     hasSSL = { node, ... }: !(isNull node.config.shb.vaultwarden.ssl);
     waitForServices = { ... }: [
       "vaultwarden.service"
@@ -87,12 +85,12 @@ let
   };
 in
 {
-  basic = pkgs.testers.runNixOSTest {
+  basic = lib.shb.runNixOSTest {
     name = "vaultwarden_basic";
 
     nodes.server = {
       imports = [
-        testLib.baseModule
+        lib.shb.baseModule
         ../../modules/blocks/hardcodedsecret.nix
         ../../modules/services/vaultwarden.nix
         basic
@@ -104,15 +102,15 @@ in
     testScript = commonTestScript.access;
   };
 
-  https = pkgs.testers.runNixOSTest {
+  https = lib.shb.runNixOSTest {
     name = "vaultwarden_https";
 
     nodes.server = {
       imports = [
-        testLib.baseModule
+        lib.shb.baseModule
         ../../modules/blocks/hardcodedsecret.nix
         ../../modules/services/vaultwarden.nix
-        testLib.certs
+        lib.shb.certs
         basic
         https
       ];
@@ -125,11 +123,11 @@ in
 
   # Not yet supported
   #
-  # ldap = pkgs.testers.runNixOSTest {
+  # ldap = lib.shb.runNixOSTest {
   #   name = "vaultwarden_ldap";
   #
   #   nodes.server = lib.mkMerge [ 
-  #     testLib.baseModule
+  #     lib.shb.baseModule
   #     ../../modules/blocks/hardcodedsecret.nix
   #     ../../modules/services/vaultwarden.nix
   #     basic
@@ -141,19 +139,19 @@ in
   #   testScript = commonTestScript.access;
   # };
 
-  sso = pkgs.testers.runNixOSTest {
+  sso = lib.shb.runNixOSTest {
     name = "vaultwarden_sso";
 
     nodes.server = { config, ... }: {
       imports = [
-        testLib.baseModule
+        lib.shb.baseModule
         ../../modules/blocks/hardcodedsecret.nix
         ../../modules/services/vaultwarden.nix
-        testLib.certs
+        lib.shb.certs
         basic
         https
-        testLib.ldap
-        (testLib.sso config.shb.certs.certs.selfsigned.n)
+        lib.shb.ldap
+        (lib.shb.sso config.shb.certs.certs.selfsigned.n)
         sso
       ];
     };
@@ -180,16 +178,16 @@ in
     };
   };
 
-  backup = pkgs.testers.runNixOSTest {
+  backup = lib.shb.runNixOSTest {
     name = "vaultwarden_backup";
 
     nodes.server = { config, ... }: {
       imports = [
-        testLib.baseModule
+        lib.shb.baseModule
         ../../modules/blocks/hardcodedsecret.nix
         ../../modules/services/vaultwarden.nix
         basic
-        (testLib.backup config.shb.vaultwarden.backup)
+        (lib.shb.backup config.shb.vaultwarden.backup)
       ];
     };
 

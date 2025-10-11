@@ -151,6 +151,10 @@ in
 {
   inherit baseImports accessScript;
 
+  runNixOSTest = args: pkgs.testers.runNixOSTest ({
+    interactive.sshBackdoor.enable = true;
+  } // args);
+
   mkScripts = args:
     {
       access = accessScript args;

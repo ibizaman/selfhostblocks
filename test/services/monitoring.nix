@@ -1,10 +1,8 @@
-{ pkgs, ... }:
+{ lib, ... }:
 let
-  testLib = pkgs.callPackage ../common.nix {};
-
   password = "securepw";
 
-  commonTestScript = testLib.accessScript {
+  commonTestScript = lib.shb.accessScript {
     hasSSL = { node, ... }: !(isNull node.config.shb.monitoring.ssl);
     waitForServices = { ... }: [
       "grafana.service"
@@ -45,12 +43,12 @@ let
   };
 in
 {
-  basic = pkgs.testers.runNixOSTest {
+  basic = lib.shb.runNixOSTest {
     name = "monitoring_basic";
 
     nodes.server = {
       imports = [
-        testLib.baseModule
+        lib.shb.baseModule
         ../../modules/blocks/monitoring.nix
         basic
       ];
@@ -61,14 +59,14 @@ in
     testScript = commonTestScript;
   };
 
-  https = pkgs.testers.runNixOSTest {
+  https = lib.shb.runNixOSTest {
     name = "monitoring_https";
 
     nodes.server = {
       imports = [
-        testLib.baseModule
+        lib.shb.baseModule
         ../../modules/blocks/monitoring.nix
-        testLib.certs
+        lib.shb.certs
         basic
         https
       ];

@@ -1,8 +1,6 @@
-{ pkgs, ... }:
+{ lib, ... }:
 let
-  testLib = pkgs.callPackage ../common.nix {};
-
-  commonTestScript = testLib.accessScript {
+  commonTestScript = lib.shb.accessScript {
     hasSSL = { node, ... }: !(isNull node.config.shb.audiobookshelf.ssl);
     waitForServices = { ... }: [
       "audiobookshelf.service"
@@ -18,7 +16,7 @@ let
 
   basic = { config, ... }: {
     imports = [
-      testLib.baseModule
+      lib.shb.baseModule
       ../../modules/services/audiobookshelf.nix
     ];
 
@@ -33,8 +31,8 @@ let
 
   clientLogin = { config, ... }: {
     imports = [
-      testLib.baseModule
-      testLib.clientLoginModule
+      lib.shb.baseModule
+      lib.shb.clientLoginModule
     ];
     virtualisation.memorySize = 4096;
 
@@ -89,7 +87,7 @@ let
   };
 in
 {
-  basic = pkgs.testers.runNixOSTest {
+  basic = lib.shb.runNixOSTest {
     name = "audiobookshelf-basic";
 
     nodes.client = {
@@ -107,13 +105,13 @@ in
     testScript = commonTestScript;
   };
 
-  https = pkgs.testers.runNixOSTest {
+  https = lib.shb.runNixOSTest {
     name = "audiobookshelf-https";
 
     nodes.server = {
       imports = [
         basic
-        testLib.certs
+        lib.shb.certs
         https
       ];
     };
@@ -123,16 +121,16 @@ in
     testScript = commonTestScript;
   };
 
-  sso = pkgs.testers.runNixOSTest {
+  sso = lib.shb.runNixOSTest {
     name = "audiobookshelf-sso";
 
     nodes.server = { config, ... }: {
       imports = [
         basic
-        testLib.certs
+        lib.shb.certs
         https
-        testLib.ldap
-        (testLib.sso config.shb.certs.certs.selfsigned.n)
+        lib.shb.ldap
+        (lib.shb.sso config.shb.certs.certs.selfsigned.n)
         sso
       ];
     };

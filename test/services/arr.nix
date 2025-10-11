@@ -3,10 +3,8 @@ let
   healthUrl = "/health";
   loginUrl = "/UI/Login";
 
-  testLib = pkgs.callPackage ../common.nix {};
-
   # TODO: Test login
-  commonTestScript = appname: cfgPathFn: testLib.mkScripts {
+  commonTestScript = appname: cfgPathFn: lib.shb.mkScripts {
     hasSSL = { node, ... }: !(isNull node.config.shb.arr.${appname}.ssl);
     waitForServices = { ... }: [
       "${appname}.service"
@@ -44,7 +42,7 @@ let
 
   basic = appname: { config, ... }: {
     imports = [
-      testLib.baseModule
+      lib.shb.baseModule
       ../../modules/services/arr.nix
     ];
 
@@ -62,8 +60,8 @@ let
 
   clientLogin = appname: { config, ... }: {
     imports = [
-      testLib.baseModule
-      testLib.clientLoginModule
+      lib.shb.baseModule
+      lib.shb.clientLoginModule
     ];
 
     test = {
@@ -83,7 +81,7 @@ let
     };
   };
 
-  basicTest = appname: cfgPathFn: pkgs.testers.runNixOSTest {
+  basicTest = appname: cfgPathFn: lib.shb.runNixOSTest {
     name = "arr_${appname}_basic";
 
     nodes.client = {
@@ -100,13 +98,13 @@ let
     testScript = (commonTestScript appname cfgPathFn).access;
   };
 
-  backupTest = appname: cfgPathFn: pkgs.testers.runNixOSTest {
+  backupTest = appname: cfgPathFn: lib.shb.runNixOSTest {
     name = "arr_${appname}_backup";
 
     nodes.server = { config, ... }: {
       imports = [
         (basic appname)
-        (testLib.backup config.shb.arr.${appname}.backup)
+        (lib.shb.backup config.shb.arr.${appname}.backup)
       ];
     };
 
@@ -121,13 +119,13 @@ let
     };
   };
 
-  httpsTest = appname: cfgPathFn: pkgs.testers.runNixOSTest {
+  httpsTest = appname: cfgPathFn: lib.shb.runNixOSTest {
     name = "arr_${appname}_https";
 
     nodes.server = { config, pkgs, ... }: {
       imports = [
         (basic appname)
-        testLib.certs
+        lib.shb.certs
         (https appname)
       ];
     };
@@ -143,16 +141,16 @@ let
     };
   };
 
-  ssoTest = appname: cfgPathFn: pkgs.testers.runNixOSTest {
+  ssoTest = appname: cfgPathFn: lib.shb.runNixOSTest {
     name = "arr_${appname}_sso";
 
     nodes.server = { config, pkgs, ... }: {
       imports = [
         (basic appname)
-        testLib.certs
+        lib.shb.certs
         (https appname)
-        testLib.ldap
-        (testLib.sso config.shb.certs.certs.selfsigned.n)
+        lib.shb.ldap
+        (lib.shb.sso config.shb.certs.certs.selfsigned.n)
         (sso appname)
       ];
     };

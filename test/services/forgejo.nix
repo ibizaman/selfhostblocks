@@ -1,10 +1,8 @@
-{ pkgs, ... }:
+{ lib, ... }:
 let
-  testLib = pkgs.callPackage ../common.nix {};
-
   adminPassword = "AdminPassword";
 
-  commonTestScript = testLib.mkScripts {
+  commonTestScript = lib.shb.mkScripts {
     hasSSL = { node, ... }: !(isNull node.config.shb.forgejo.ssl);
     waitForServices = { ... }: [
       "forgejo.service"
@@ -21,7 +19,7 @@ let
 
   basic = { config, ... }: {
     imports = [
-      testLib.baseModule
+      lib.shb.baseModule
       ../../modules/blocks/hardcodedsecret.nix
       ../../modules/services/forgejo.nix
     ];
@@ -71,8 +69,8 @@ let
 
   clientLogin = { config, ... }: {
     imports = [
-      testLib.baseModule
-      testLib.clientLoginModule
+      lib.shb.baseModule
+      lib.shb.clientLoginModule
     ];
     test = {
       subdomain = "f";
@@ -152,7 +150,7 @@ let
   };
 in
 {
-  basic = pkgs.testers.runNixOSTest {
+  basic = lib.shb.runNixOSTest {
     name = "forgejo_basic";
 
     nodes.client = {
@@ -169,13 +167,13 @@ in
     testScript = commonTestScript.access;
   };
 
-  backup = pkgs.testers.runNixOSTest {
+  backup = lib.shb.runNixOSTest {
     name = "forgejo_backup";
 
     nodes.server = { config, ... }: {
       imports = [
         basic
-        (testLib.backup config.shb.forgejo.backup)
+        (lib.shb.backup config.shb.forgejo.backup)
       ];
     };
 
@@ -184,13 +182,13 @@ in
     testScript = commonTestScript.backup;
   };
 
-  https = pkgs.testers.runNixOSTest {
+  https = lib.shb.runNixOSTest {
     name = "forgejo_https";
 
     nodes.server = {
       imports = [
         basic
-        testLib.certs
+        lib.shb.certs
         https
       ];
     };
@@ -200,15 +198,13 @@ in
     testScript = commonTestScript.access;
   };
 
-  ldap = pkgs.testers.runNixOSTest {
+  ldap = lib.shb.runNixOSTest {
     name = "forgejo_ldap";
-
-    interactive.sshBackdoor.enable = true;
 
     nodes.server = {
       imports = [
         basic
-        testLib.ldap
+        lib.shb.ldap
         ldap
       ];
     };
@@ -217,8 +213,8 @@ in
       imports = [
         ({ config, ... }: {
           imports = [
-            testLib.baseModule
-            testLib.clientLoginModule
+            lib.shb.baseModule
+            lib.shb.clientLoginModule
           ];
 
           test = {
@@ -262,16 +258,16 @@ in
     testScript = commonTestScript.access;
   };
 
-  sso = pkgs.testers.runNixOSTest {
+  sso = lib.shb.runNixOSTest {
     name = "forgejo_sso";
 
     nodes.server = { config, pkgs, ... }: {
       imports = [
         basic
-        testLib.certs
+        lib.shb.certs
         https
-        testLib.ldap
-        (testLib.sso config.shb.certs.certs.selfsigned.n)
+        lib.shb.ldap
+        (lib.shb.sso config.shb.certs.certs.selfsigned.n)
         sso
       ];
     };

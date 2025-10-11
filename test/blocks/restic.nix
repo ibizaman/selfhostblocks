@@ -1,8 +1,8 @@
-{ pkgs, ... }:
+{ pkgs, lib, ... }:
 let
   testLib = pkgs.callPackage ../common.nix {};
 
-  commonTest = user: pkgs.testers.runNixOSTest {
+  commonTest = user: lib.shb.runNixOSTest {
     name = "restic_backupAndRestore_${user}";
 
     nodes.machine = { config, ... }: {

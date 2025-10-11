@@ -1,10 +1,8 @@
-{ pkgs, ... }:
+{ pkgs, lib, ... }:
 let
-  testLib = pkgs.callPackage ../common.nix {};
-
   port = 9096;
 
-  commonTestScript = testLib.mkScripts {
+  commonTestScript = lib.shb.mkScripts {
     hasSSL = { node, ... }: !(isNull node.config.shb.jellyfin.ssl);
     waitForServices = { ... }: [
       "jellyfin.service"
@@ -39,7 +37,7 @@ let
 
   basic = { config, ... }: {
     imports = [
-      testLib.baseModule
+      lib.shb.baseModule
       ../../modules/services/jellyfin.nix
     ];
     test = {
@@ -69,7 +67,7 @@ let
 
   clientLogin = { config, ... }: {
     imports = [
-      testLib.clientLoginModule
+      lib.shb.clientLoginModule
     ];
     virtualisation.memorySize = 4096;
 
@@ -152,10 +150,9 @@ let
     };
   };
 
-  jellyfinTest = name: { nodes, testScript }: pkgs.testers.runNixOSTest {
+  jellyfinTest = name: { nodes, testScript }: lib.shb.runNixOSTest {
     name = "jellyfin_${name}";
 
-    interactive.sshBackdoor.enable = true;
     interactive.nodes.server = {
       environment.systemPackages = [
         pkgs.sqlite
@@ -186,7 +183,7 @@ in
     nodes.server = { config, ... }: {
       imports = [
         basic
-        (testLib.backup config.shb.jellyfin.backup)
+        (lib.shb.backup config.shb.jellyfin.backup)
       ];
     };
 
@@ -199,14 +196,14 @@ in
     nodes.server = {
       imports = [
         basic
-        testLib.certs
+        lib.shb.certs
         https
       ];
     };
 
     nodes.client = { config, lib, ... }: {
       imports = [
-        testLib.baseModule
+        lib.shb.baseModule
         clientLogin
       ];
     };
@@ -218,7 +215,7 @@ in
     nodes.server = {
       imports = [
         basic
-        testLib.ldap
+        lib.shb.ldap
         ldap
       ];
     };
@@ -232,10 +229,10 @@ in
     nodes.server = { config, pkgs, ... }: {
       imports = [
         basic
-        testLib.certs
+        lib.shb.certs
         https
-        testLib.ldap
-        (testLib.sso config.shb.certs.certs.selfsigned.n)
+        lib.shb.ldap
+        (lib.shb.sso config.shb.certs.certs.selfsigned.n)
         sso
       ];
     };

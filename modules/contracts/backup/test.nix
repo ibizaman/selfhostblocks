@@ -1,7 +1,5 @@
-{ pkgs, lib, ... }:
+{ pkgs, lib }:
 let
-  testLib = pkgs.callPackage ../../../test/common.nix {};
-
   inherit (lib) concatMapStringsSep getAttrFromPath mkIf optionalAttrs setAttrByPath;
 in
 { name,
@@ -14,11 +12,11 @@ in
   ],
   settings, # { repository, config } -> attrset
   extraConfig ? null, # { username, config } -> attrset
-}: pkgs.testers.runNixOSTest {
+}: lib.shb.runNixOSTest {
   inherit name;
 
   nodes.machine = { config, ... }: {
-    imports = [ testLib.baseImports ] ++ modules;
+    imports = [ lib.shb.baseImports ] ++ modules;
 
     config = lib.mkMerge [
       (setAttrByPath providerRoot {

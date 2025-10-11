@@ -1,7 +1,5 @@
-{ pkgs, lib, ... }:
+{ pkgs, lib }:
 let
-  testLib = pkgs.callPackage ../../../test/common.nix {};
-
   inherit (lib) getAttrFromPath setAttrByPath;
   inherit (lib) mkIf;
 in
@@ -13,11 +11,11 @@ in
     group ? "root",
     mode ? "0400",
     restartUnits ? [ "myunit.service" ],
-  }: pkgs.testers.runNixOSTest {
+  }: lib.shb.runNixOSTest {
     name = "secret_${name}_${owner}_${group}_${mode}";
 
     nodes.machine = { config, ... }: {
-      imports = [ testLib.baseImports ] ++ modules;
+      imports = [ lib.shb.baseImports ] ++ modules;
       config = lib.mkMerge [
         (setAttrByPath configRoot {
           A = {
