@@ -1,10 +1,8 @@
-{ pkgs, lib, ... }:
+{ lib, ... }:
 let
   inherit (lib) mkOption literalExpression literalMD optionalAttrs optionalString;
   inherit (lib.types) submodule str;
-
-  shblib = pkgs.callPackage ../../lib {};
-  inherit (shblib) anyNotNull;
+  inherit (lib.shb) anyNotNull;
 in
 {
   mkRequest =

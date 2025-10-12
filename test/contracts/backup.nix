@@ -1,6 +1,6 @@
-{ pkgs, ... }:
+{ pkgs, lib, ... }:
 let
-  contracts = pkgs.callPackage ../../modules/contracts {};
+  contracts = pkgs.callPackage ../../modules/contracts { inherit lib; };
 in
 {
   restic_root = contracts.test.backup {

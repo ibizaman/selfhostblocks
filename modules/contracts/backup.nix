@@ -1,10 +1,8 @@
-{ pkgs, lib, ... }:
+{ lib, ... }:
 let
   inherit (lib) concatStringsSep literalMD mkOption optionalAttrs optionalString;
   inherit (lib.types) listOf nonEmptyListOf submodule str;
-
-  shblib = pkgs.callPackage ../../lib {};
-  inherit (shblib) anyNotNull;
+  inherit (lib.shb) anyNotNull;
 in
 {
   mkRequest =

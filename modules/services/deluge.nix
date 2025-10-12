@@ -4,7 +4,6 @@ let
   cfg = config.shb.deluge;
 
   contracts = pkgs.callPackage ../contracts {};
-  shblib = pkgs.callPackage ../../lib {};
 
   fqdn = "${cfg.subdomain}.${cfg.domain}";
 
@@ -180,7 +179,7 @@ in
       type = lib.types.attrsOf (lib.types.submodule {
         options = {
           password = lib.mkOption {
-            type = shblib.secretFileType;
+            type = lib.shb.secretFileType;
             description = "File containing the user password.";
           };
         };
@@ -328,7 +327,7 @@ in
       web.port = cfg.webPort;
     };
 
-    systemd.services.deluged.preStart = lib.mkBefore (shblib.replaceSecrets {
+    systemd.services.deluged.preStart = lib.mkBefore (lib.shb.replaceSecrets {
       userConfig = cfg.extraUsers // {
         localclient.password.source = config.shb.deluge.localclientPassword.result.path;
       } // (lib.optionalAttrs (config.shb.deluge.prometheusScraperPassword != null) {

@@ -4,7 +4,6 @@ let
   cfg = config.shb.vaultwarden;
 
   contracts = pkgs.callPackage ../contracts {};
-  shblib = pkgs.callPackage ../../lib {};
 
   fqdn = "${cfg.subdomain}.${cfg.domain}";
 
@@ -191,7 +190,7 @@ in
     # Needed to be able to write template config.
     systemd.services.vaultwarden.serviceConfig.ProtectHome = lib.mkForce false;
     systemd.services.vaultwarden.preStart =
-      shblib.replaceSecrets {
+      lib.shb.replaceSecrets {
         userConfig = {
           DATABASE_URL.source = cfg.databasePassword.result.path;
           DATABASE_URL.transform = v: "postgresql://vaultwarden:${v}@127.0.0.1:5432/vaultwarden";
@@ -199,7 +198,7 @@ in
           SMTP_PASSWORD.source = cfg.smtp.password.result.path;
         };
         resultPath = "${dataFolder}/vaultwarden.env";
-        generator = shblib.toEnvVar;
+        generator = lib.shb.toEnvVar;
       };
 
     shb.nginx.vhosts = [

@@ -4,7 +4,6 @@ let
   cfg = config.shb.home-assistant;
 
   contracts = pkgs.callPackage ../contracts {};
-  shblib = pkgs.callPackage ../../lib {};
 
   fqdn = "${cfg.subdomain}.${cfg.domain}";
 
@@ -57,23 +56,23 @@ in
         freeformType = lib.types.attrsOf lib.types.str;
         options = {
           name = lib.mkOption {
-            type = lib.types.oneOf [ lib.types.str shblib.secretFileType ];
+            type = lib.types.oneOf [ lib.types.str lib.shb.secretFileType ];
             description = "Name of the Home Assistant instance.";
           };
           country = lib.mkOption {
-            type = lib.types.oneOf [ lib.types.str shblib.secretFileType ];
+            type = lib.types.oneOf [ lib.types.str lib.shb.secretFileType ];
             description = "Two letter country code where this instance is located.";
           };
           latitude = lib.mkOption {
-            type = lib.types.oneOf [ lib.types.str shblib.secretFileType ];
+            type = lib.types.oneOf [ lib.types.str lib.shb.secretFileType ];
             description = "Latitude where this instance is located.";
           };
           longitude = lib.mkOption {
-            type = lib.types.oneOf [ lib.types.str shblib.secretFileType ];
+            type = lib.types.oneOf [ lib.types.str lib.shb.secretFileType ];
             description = "Longitude where this instance is located.";
           };
           time_zone = lib.mkOption {
-            type = lib.types.oneOf [ lib.types.str shblib.secretFileType ];
+            type = lib.types.oneOf [ lib.types.str lib.shb.secretFileType ];
             description = "Timezone of this instance.";
             example = "America/Los_Angeles";
           };
@@ -348,10 +347,10 @@ in
           mkdir -p ''$(dirname ${file}) && cp ${onboarding} ${file}
         fi
       '')
-      + (shblib.replaceSecrets {
+      + (lib.shb.replaceSecrets {
         userConfig = cfg.config;
         resultPath = "${config.services.home-assistant.configDir}/secrets.yaml";
-        generator = shblib.replaceSecretsGeneratorAdapter (lib.generators.toYAML {});
+        generator = lib.shb.replaceSecretsGeneratorAdapter (lib.generators.toYAML {});
       });
 
     systemd.tmpfiles.rules = [

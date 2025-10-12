@@ -54,9 +54,9 @@ following code instead wherever you import `nixpkgs`:
 
   outputs = { selfhostblocks, ... }: let
     system = "x86_64-linux";
-    shbLib = selfhostblocks.lib.${system};
+    lib = selfhostblocks.lib.${system};
 
-    nixpkgs' = shbLib.patchedNixpkgs;
+    nixpkgs' = lib.shb.patchedNixpkgs;
 
     shbNixpkgs = import nixpkgs' {
       inherit system;
@@ -98,10 +98,10 @@ Access any functions exposed by the [lib][] with this snippet:
   };
   outputs = { selfhostblocks, ... }:
     let
-      shblib = selfhostblocks.lib.${system};
+      lib = selfhostblocks.lib.${system};
     in
       {
-        // Use shblib.replaceSecrets for example.
+        // Use lib.shb.replaceSecrets for example.
       }
 }
 ```
@@ -123,9 +123,9 @@ The following snippets show how to deploy Self Host Blocks using the standard de
   outputs = { self, selfhostblocks }: {
     let
       system = "x86_64-linux";
-      shbLib = selfhostblocks.lib.${system};
+      lib = selfhostblocks.lib.${system};
 
-      nixpkgs' = shbLib.patchedNixpkgs;
+      nixpkgs' = lib.shb.patchedNixpkgs;
 
       nixosSystem' = import "${nixpkgs'}/nixos/lib/eval-config.nix";
     in
@@ -157,9 +157,9 @@ some not using Self Host Blocks, then you can do the following:
   outputs = { self, selfhostblocks }: {
     let
       system = "x86_64-linux";
-      shbLib = selfhostblocks.lib.${system};
+      lib = selfhostblocks.lib.${system};
 
-      nixpkgs' = shbLib.patchedNixpkgs;
+      nixpkgs' = lib.shb.patchedNixpkgs;
 
       shbNixpkgs = import nixpkgs' {
         inherit system;
@@ -197,9 +197,9 @@ The following snippets show how to deploy Self Host Blocks using the deployment 
   outputs = { self, selfhostblocks }: {
     let
       system = "x86_64-linux";
-      shbLib = selfhostblocks.lib.${system};
+      lib = selfhostblocks.lib.${system};
 
-      nixpkgs' = shbLib.patchedNixpkgs;
+      nixpkgs' = lib.shb.patchedNixpkgs;
 
       shbNixpkgs = import nixpkgs' {
         inherit system;
@@ -237,9 +237,9 @@ in this case you can use the `colmena.meta.nodeNixpkgs` option:
   outputs = { self, selfhostblocks }: {
     let
       system = "x86_64-linux";
-      shbLib = selfhostblocks.lib.${system};
+      lib = selfhostblocks.lib.${system};
 
-      nixpkgs' = shbLib.patchedNixpkgs;
+      nixpkgs' = lib.shb.patchedNixpkgs;
 
       shbNixpkgs = import nixpkgs' {
         inherit system;
@@ -286,9 +286,9 @@ The following snippets show how to deploy Self Host Blocks using the deployment 
   outputs = { self, selfhostblocks }: {
     let
       system = "x86_64-linux";
-      shbLib = selfhostblocks.lib.${system};
+      lib = selfhostblocks.lib.${system};
 
-      nixpkgs' = shbLib.patchedNixpkgs;
+      nixpkgs' = lib.shb.patchedNixpkgs;
 
       shbPkgs = import shbNixpkgs { inherit system; };
 
@@ -353,9 +353,9 @@ in this case you can do:
   outputs = { self, selfhostblocks }: {
     let
       system = "x86_64-linux";
-      shbLib = selfhostblocks.lib.${system};
+      lib = selfhostblocks.lib.${system};
 
-      nixpkgs' = shbLib.patchedNixpkgs;
+      nixpkgs' = lib.shb.patchedNixpkgs;
 
       shbPkgs = import nixpkgs' { inherit system; };
 
@@ -552,9 +552,9 @@ as well as [Skarabox][], my sibling project used to bootstrap a server.
   outputs = { self, skarabox, selfhostblocks, sops-nix, deploy-rs }:
     let
       system = "x86_64-linux";
-      shbLib = selfhostblocks.lib.${system};
+      lib = selfhostblocks.lib.${system};
 
-      nixpkgs' = shbLib.patchedNixpkgs;
+      nixpkgs' = lib.shb.patchedNixpkgs;
 
       shbPkgs = import nixpkgs' { inherit system; };
 

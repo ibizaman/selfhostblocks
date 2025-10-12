@@ -5,7 +5,6 @@ let
   inherit (lib) types;
 
   contracts = pkgs.callPackage ../contracts {};
-  shblib = pkgs.callPackage ../../lib {};
 in
 {
   imports = [
@@ -58,7 +57,7 @@ in
     };
 
     timeZone = lib.mkOption {
-      type = lib.types.oneOf [ lib.types.str shblib.secretFileType ];
+      type = lib.types.oneOf [ lib.types.str lib.shb.secretFileType ];
       description = "Timezone of this instance.";
       example = "America/Los_Angeles";
     };
@@ -147,13 +146,13 @@ in
     };
 
     systemd.services.pinchflat-pre = {
-      script = shblib.replaceSecrets {
+      script = lib.shb.replaceSecrets {
         userConfig = {
           SECRET_KEY_BASE.source = cfg.secretKeyBase.result.path;
           # TZ = cfg.secretKeyBase.result.path; # Uncomment when PR is merged.
         };
         resultPath = "/run/pinchflat/secrets.env";
-        generator = shblib.toEnvVar;
+        generator = lib.shb.toEnvVar;
       };
       serviceConfig.Type = "oneshot";
       wantedBy = [ "multi-user.target" ];

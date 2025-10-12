@@ -71,7 +71,6 @@ Location: `modules/services/servicename.nix`
 let
   cfg = config.shb.servicename;
   contracts = pkgs.callPackage ../contracts {};
-  shblib = pkgs.callPackage ../../lib {};
   fqdn = "${cfg.subdomain}.${cfg.domain}";
   
   # Choose appropriate format based on service config
