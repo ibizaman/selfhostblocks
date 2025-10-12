@@ -1,7 +1,5 @@
-{ pkgs, lib, ... }:
+{ lib, ... }:
 let
-  shblib = pkgs.callPackage ../../lib {};
-
   inherit (lib) nameValuePair;
 in
 {
@@ -35,7 +33,7 @@ in
           c.other = "other";
         };
       in
-        shblib.withReplacements (
+        lib.shb.withReplacements (
           item // {
             nestedAttr = item;
             nestedList = [ item ];
@@ -70,7 +68,7 @@ in
           c.other = "other";
         };
       in
-        shblib.withReplacements [
+        lib.shb.withReplacements [
           item
           item
           [ item ]
@@ -101,7 +99,7 @@ in
           c.other = "other";
         };
       in
-        map shblib.genReplacement (shblib.getReplacements (
+        map lib.shb.genReplacement (lib.shb.getReplacements (
           item // {
             nestedAttr = item;
             nestedList = [ item ];
@@ -120,7 +118,7 @@ in
       };
     };
 
-    expr = shblib.parseXML ''
+    expr = lib.shb.parseXML ''
     <a>
       <b>1</b>
       <c><d>1</d></c>

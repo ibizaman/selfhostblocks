@@ -3,7 +3,6 @@
 let
   cfg = config.shb.restic;
 
-  shblib = pkgs.callPackage ../../lib {};
   contracts = pkgs.callPackage ../contracts {};
 
   inherit (lib) concatStringsSep filterAttrs flatten literalExpression optionals listToAttrs mapAttrsToList mkEnableOption mkOption mkMerge;
@@ -41,7 +40,7 @@ let
           };
 
           secrets = mkOption {
-            type = attrsOf shblib.secretFileType;
+            type = attrsOf lib.shb.secretFileType;
             default = {};
             description = ''
               Secrets needed to access the repository where the backups will be stored.
@@ -315,10 +314,10 @@ in
 
                   "${serviceName}-pre" = mkIf (instance.settings.repository.secrets != {})
                     (let
-                      script = shblib.genConfigOutOfBandSystemd {
+                      script = lib.shb.genConfigOutOfBandSystemd {
                         config = instance.settings.repository.secrets;
                         configLocation = "/run/secrets_restic/${serviceName}";
-                        generator = shblib.toEnvVar;
+                        generator = lib.shb.toEnvVar;
                         user = instance.request.user;
                       };
                     in
@@ -338,13 +337,13 @@ in
               enable = true;
               wantedBy = [ "multi-user.target" ];
               serviceConfig.Type = "oneshot";
-              script = (shblib.replaceSecrets {
+              script = (lib.shb.replaceSecrets {
                 userConfig = instance.settings.repository.secrets // {
                   RESTIC_PASSWORD_FILE = toString instance.settings.passphrase.result.path;
                   RESTIC_REPOSITORY = instance.settings.repository.path;
                 };
                 resultPath = "/run/secrets_restic_env/${fullName name instance.settings.repository}";
-                generator = shblib.toEnvVar;
+                generator = lib.shb.toEnvVar;
                 user = instance.request.user;
               });
             };

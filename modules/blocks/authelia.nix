@@ -5,7 +5,6 @@ let
   opt = options.shb.authelia;
 
   contracts = pkgs.callPackage ../contracts {};
-  shblib = pkgs.callPackage ../../lib {};
 
   fqdn = "${cfg.subdomain}.${cfg.domain}";
   fqdnWithPort = if isNull cfg.port then fqdn else "${fqdn}:${toString cfg.port}";
@@ -192,7 +191,7 @@ in
           };
 
           client_secret = lib.mkOption {
-            type = shblib.secretFileType;
+            type = lib.shb.secretFileType;
             description = ''
             File containing the shared secret with the OIDC client.
 
@@ -503,12 +502,12 @@ in
     systemd.services."authelia-${fqdn}".preStart =
       let
         mkCfg = clients:
-          shblib.replaceSecrets {
+          lib.shb.replaceSecrets {
             userConfig = {
               identity_providers.oidc.clients = clients;
             };
             resultPath = "/var/lib/authelia-${fqdn}/oidc_clients.yaml";
-            generator = shblib.replaceSecretsGeneratorAdapter (lib.generators.toYAML {});
+            generator = lib.shb.replaceSecretsGeneratorAdapter (lib.generators.toYAML {});
           };
       in
         lib.mkBefore (mkCfg cfg.oidcClients + ''

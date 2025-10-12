@@ -1,9 +1,7 @@
-{ config, pkgs, lib, ... }:
+{ config, lib, ... }:
 
 let
   cfg = config.shb.davfs;
-
-  shblib = pkgs.callPackage ../../lib {};
 in
 {
   options.shb.davfs = {

@@ -42,6 +42,19 @@
       pkgs = import patchedNixpkgs {
         inherit system;
         config.allowUnfree = true;
+        overlays = [
+          (final: prev: {
+            lib = prev.lib // {
+              shb = self.lib.${system};
+              evalModules = args: ((prev.lib.makeOverridable prev.lib.evalModules) args).override (prevAttrs: {
+                specialArgs = (prevAttrs.specialArgs or {}) // { inherit (pkgs) lib; };
+              });
+            };
+            nixosSystem = args: ((prev.lib.makeOverridable (import "${patchedNixpkgs}/nixos/lib/eval-config.nix")) args).override (prevAttrs: {
+              inherit (pkgs) lib;
+            });
+          })
+        ];
       };
 
       # The contract dummies are used to show options for contracts.
@@ -156,15 +169,16 @@
 
         lib =
           (pkgs.callPackage ./lib {})
+          // (pkgs.callPackage ./test/common.nix {})
           // {
             contracts = pkgs.callPackage ./modules/contracts {};
             patches = shbPatches;
-            inherit patchNixpkgs patchedNixpkgs;
+            inherit patchNixpkgs patchedNixpkgs pkgs;
           };
 
         checks =
           let
-            inherit (pkgs.lib) foldl foldlAttrs mergeAttrs optionalAttrs;
+            inherit (pkgs.lib) foldl foldlAttrs removeAttrs mergeAttrs optionalAttrs;
 
             importFiles = files:
               map (m: pkgs.callPackage m {}) files;
@@ -176,17 +190,10 @@
             }) {} attrset;
 
             vm_test = name: path: flattenAttrs "vm_${name}" (
-              import path {
-                inherit pkgs;
-                lib = pkgs.lib // {
-                  shb = pkgs.callPackage ./test/common.nix {};
-                };
-              }
+              removeAttrs (pkgs.callPackage path {}) [ "override" "overrideDerivation" ]
             );
-
-            shblib = pkgs.callPackage ./lib {};
           in (optionalAttrs (system == "x86_64-linux") ({
-            modules = shblib.check {
+            modules = pkgs.lib.shb.check {
               inherit pkgs;
               tests =
                 mergeTests (importFiles [

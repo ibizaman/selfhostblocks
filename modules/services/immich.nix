@@ -4,7 +4,6 @@ let
   cfg = config.shb.immich;
 
   contracts = pkgs.callPackage ../contracts {};
-  shblib = pkgs.callPackage ../../lib {};
 
   fqdn = "${cfg.subdomain}.${cfg.domain}";
   protocol = if !(isNull cfg.ssl) then "https" else "http";
@@ -62,10 +61,10 @@ let
   
   # Use SHB's replaceSecrets function for loading secrets at runtime
   configSetupScript = lib.optionalString (cfg.sso.enable || cfg.smtp != null) (
-    shblib.replaceSecrets {
+    lib.shb.replaceSecrets {
       userConfig = shbManagedSettings;
       resultPath = configFile;
-      generator = shblib.replaceSecretsFormatAdapter (pkgs.formats.json {});
+      generator = lib.shb.replaceSecretsFormatAdapter (pkgs.formats.json {});
       user = "immich";
       permissions = "u=r,g=,o=";
     }

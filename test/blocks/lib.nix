@@ -1,8 +1,6 @@
 { pkgs, lib, ... }:
 let
   pkgs' = pkgs;
-
-  shblib = pkgs.callPackage ../../lib {};
 in
 {
   template =
@@ -24,34 +22,34 @@ in
         d.d = "not secret D";
       };
 
-      configWithTemplates = shblib.withReplacements userConfig;
+      configWithTemplates = lib.shb.withReplacements userConfig;
 
       nonSecretConfigFile = pkgs.writeText "config.yaml.template" (lib.generators.toJSON {} configWithTemplates);
 
-      replacements = shblib.getReplacements userConfig;
+      replacements = lib.shb.getReplacements userConfig;
 
-      replaceInTemplate = shblib.replaceSecretsScript {
+      replaceInTemplate = lib.shb.replaceSecretsScript {
         file = nonSecretConfigFile;
         resultPath = "/var/lib/config.yaml";
         inherit replacements;
       };
 
-      replaceInTemplateJSON = shblib.replaceSecrets {
+      replaceInTemplateJSON = lib.shb.replaceSecrets {
         inherit userConfig;
         resultPath = "/var/lib/config.json";
-        generator = shblib.replaceSecretsFormatAdapter (pkgs.formats.json {});
+        generator = lib.shb.replaceSecretsFormatAdapter (pkgs.formats.json {});
       };
 
-      replaceInTemplateJSONGen = shblib.replaceSecrets {
+      replaceInTemplateJSONGen = lib.shb.replaceSecrets {
         inherit userConfig;
         resultPath = "/var/lib/config_gen.json";
-        generator = shblib.replaceSecretsGeneratorAdapter (lib.generators.toJSON {});
+        generator = lib.shb.replaceSecretsGeneratorAdapter (lib.generators.toJSON {});
       };
 
-      replaceInTemplateXML = shblib.replaceSecrets {
+      replaceInTemplateXML = lib.shb.replaceSecrets {
         inherit userConfig;
         resultPath = "/var/lib/config.xml";
-        generator = shblib.replaceSecretsFormatAdapter (shblib.formatXML {enclosingRoot = "Root";});
+        generator = lib.shb.replaceSecretsFormatAdapter (lib.shb.formatXML {enclosingRoot = "Root";});
       };
     in
       lib.shb.runNixOSTest {
@@ -64,7 +62,7 @@ in
               {
                 options = {
                   libtest.config = lib.mkOption {
-                    type = lib.types.attrsOf (lib.types.oneOf [ lib.types.str shblib.secretFileType ]);
+                    type = lib.types.attrsOf (lib.types.oneOf [ lib.types.str lib.secretFileType ]);
                   };
                 };
               }

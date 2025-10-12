@@ -3,7 +3,6 @@ let
   cfg = config.shb.open-webui;
 
   contracts = pkgs.callPackage ../contracts {};
-  shblib = pkgs.callPackage ../../lib {};
 
   roleClaim = "openwebui_groups";
   oauthScopes = [ "openid" "email" "profile" "groups" "${roleClaim}" ];
@@ -256,12 +255,12 @@ in
         "d '/run/open-webui' 0750 root root - -"
       ];
       systemd.services.open-webui-pre = {
-        script = shblib.replaceSecrets {
+        script = lib.shb.replaceSecrets {
           userConfig = {
             OAUTH_CLIENT_SECRET.source = cfg.sso.sharedSecret.result.path;
           };
           resultPath = "/run/open-webui/secrets.env";
-          generator = shblib.toEnvVar;
+          generator = lib.shb.toEnvVar;
         };
         serviceConfig.Type = "oneshot";
         wantedBy = [ "multi-user.target" ];
