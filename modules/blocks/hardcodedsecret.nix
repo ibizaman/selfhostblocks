@@ -2,7 +2,7 @@
 let
   cfg = config.shb.hardcodedsecret;
 
-  contracts = pkgs.callPackage ../contracts { inherit lib; };
+  contracts = pkgs.callPackage ../contracts {};
 
   inherit (lib) mapAttrs' mkOption nameValuePair;
   inherit (lib.types) attrsOf nullOr str submodule;
