@@ -47,12 +47,12 @@ in
 {
   databasebackup = importContract ./databasebackup.nix;
   backup = importContract ./backup.nix;
-  mount = import ./mount.nix { inherit lib; };
+  mount = pkgs.callPackage ./mount.nix {};
   secret = importContract ./secret.nix;
-  ssl = import ./ssl.nix { inherit lib; };
+  ssl = pkgs.callPackage ./ssl.nix {};
   test = {
-    secret = import ./secret/test.nix { inherit pkgs lib; };
-    databasebackup = import ./databasebackup/test.nix { inherit pkgs lib; };
-    backup = import ./backup/test.nix { inherit pkgs lib; };
+    secret = pkgs.callPackage ./secret/test.nix {};
+    databasebackup = pkgs.callPackage ./databasebackup/test.nix {};
+    backup = pkgs.callPackage ./backup/test.nix {};
   };
 }
