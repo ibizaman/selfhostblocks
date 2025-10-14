@@ -164,6 +164,12 @@ $ nix run nixpkgs#nvd -- diff \
 $ nix run nixpkgs#openssl -- rand -hex 64
 ```
 
+## Write code {#contributing-code}
+
+```{=include=} chapters html:into-file=//service-implementation-guide.html
+service-implementation-guide.md
+```
+
 ## Links that helped {#contributing-links}
 
 While creating NixOS tests:
