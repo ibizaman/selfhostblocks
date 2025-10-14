@@ -1463,6 +1463,9 @@
   "contributing-chat": [
     "contributing.html#contributing-chat"
   ],
+  "contributing-code": [
+    "contributing.html#contributing-code"
+  ],
   "contributing-deploy-colmena": [
     "contributing.html#contributing-deploy-colmena"
   ],
