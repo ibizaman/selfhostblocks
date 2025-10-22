@@ -16,6 +16,89 @@ Template:
 
 # Upcoming Release
 
+# v0.5.1
+
+## New Features
+
+- Added Karakeep service with SSO integration.
+- Add SelfHostBlocks' `lib` into `pkgs.lib.shb`. Integrates with [Skarabox](https://github.com/ibizaman/skarabox/blob/631ff5af0b5c850bb63a3b3df451df9707c0af4e/template/flake.nix#L42-L43) too.
+
+## Other Changes
+
+- Moved implementation guide under contributing section.
+
+# v0.5.0
+
+## Breaking Changes
+
+- Modules in the `nixosModules` output field do not anymore have the `system` in their path.
+  `selfhostblocks.nixosModules.x86_64-linux.home-assistant` becomes `selfhostblocks.nixosModules.home-assistant`
+  like it always should have been.
+
+## Fixes
+
+- Added test case making sure a user belonging to a not authorized LDAP group cannot login.
+  Fixed Open WebUI module.
+- Now importing a single module, like `selfhostblocks.nixosModules.home-assistant`, will
+  import all needed block modules at the same time.
+
+## Other Changes
+
+- Nextcloud module can now setup SSO integration without setting up LDAP integration.
+
+# v0.4.4
+
+## New Features
+
+- Added Pinchflat service with SSO integration. Declarative user creation only supported through SSO integration.
+- Added Immich service with SSO integration.
+- Added Open WebUI service with SSO integration.
+
+# v0.4.3
+
+## New Features
+
+- Allow user to change their SSO password in Authelia.
+- Make Audiobookshelf SSO integration respect admin users.
+
+## Fixes
+
+- Fix permission on Nextcloud systemd service.
+- Delete Forgejo backups correctly to avoid them piling up.
+
+## Other Changes
+
+- Add recipes section to the documentation.
+
+# v0.4.2
+
+## New Features
+
+- The LLDAP and Authelia modules gain a debug mode where a mitmdump instance is added so all traffic is printed.
+
+## Fixes
+
+- By default, LLDAP module only enforces groups declaratively. Users that are not defined declaratively
+  are not anymore deleted by inadvertence.
+- SSO integration with most services got fixed. A recent incompatible change in upstream Authelia broke most of them.
+- Fixed PostgreSQL and Home Assistant modules after nixpkgs updates.
+- Fixed Nextcloud module SSO integration with Authelia.
+- Make Nextcloud SSO integration respect admin users.
+
+# v0.4.1
+
+## New Features
+
+- LLDAP now manages users, groups, user attributes and group attributes declaratively.
+- Individual modules are exposed in the flake output for each block and service.
+- A mitmdump block is added that can be placed between two services and print all requests and responses.
+- The SSO setup for Audiobookshelf is now a bit more declarative.
+
+## Other Changes
+
+- Forgejo got a new playwright test to check the LDAP integration.
+- Some renaming options have been added retroactively for jellyfin and forgejo.
+
 # v0.4.0
 
 ## Breaking Changes
