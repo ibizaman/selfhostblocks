@@ -15,8 +15,9 @@ information is provided in the respective manual sections.
 |----------------------|--------|---------------|-----|-------|------------|-----------|
 | [*Arr][]             | Y (1)  | Y             | Y   | Y (4) | Y (2)      | N         |
 | [Forgejo][]          | Y (1)  | Y             | Y   | Y     | Y (2)      | N         |
-| [Jellyfin][]         | Y (1)  | Y             | Y   | Y     | Y (2)      | N         |
 | [Home-Assistant][]   | Y (1)  | Y             | N   | Y     | Y (2)      | N         |
+| [Jellyfin][]         | Y (1)  | Y             | Y   | Y     | Y (2)      | N         |
+| [Karakeep][]         | Y (1)  | Y             | Y   | Y     | Y (2)      | N         |
 | [Nextcloud Server][] | Y (1)  | Y             | Y   | Y     | Y (2)      | P (3)     |
 | [Open WebUI][]       | Y (1)  | Y             | Y   | Y     | Y (2)      | N         |
 | [Pinchflat][]        | Y      | Y             | Y   | Y (4) | Y (5)      | N         |
@@ -35,6 +36,7 @@ Legend: **N**: no but WIP; **P**: partial; **Y**: yes
 [Forgejo]: services-forgejo.html
 [Home-Assistant]: services-home-assistant.html
 [Jellyfin]: services-jellyfin.html
+[Karakeep]: services-karakeep.html
 [Nextcloud Server]: services-nextcloud.html
 [Open WebUI]: services-open-webui.html
 [Pinchflat]: services-pinchflat.html
@@ -48,12 +50,16 @@ modules/services/arr/docs/default.md
 modules/services/forgejo/docs/default.md
 ```
 
+```{=include=} chapters html:into-file=//services-home-assistant.html
+modules/services/home-assistant/docs/default.md
+```
+
 ```{=include=} chapters html:into-file=//services-jellyfin.html
 modules/services/jellyfin/docs/default.md
 ```
 
-```{=include=} chapters html:into-file=//services-home-assistant.html
-modules/services/home-assistant/docs/default.md
+```{=include=} chapters html:into-file=//services-karakeep.html
+modules/services/karakeep/docs/default.md
 ```
 
 ```{=include=} chapters html:into-file=//services-nextcloud.html

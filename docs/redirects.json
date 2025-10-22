@@ -2918,6 +2918,177 @@
   "services-jellyfin-usage-sso": [
     "services-jellyfin.html#services-jellyfin-usage-sso"
   ],
+  "services-karakeep": [
+    "services-karakeep.html#services-karakeep"
+  ],
+  "services-karakeep-features": [
+    "services-karakeep.html#services-karakeep-features"
+  ],
+  "services-karakeep-ollama": [
+    "services-karakeep.html#services-karakeep-ollama"
+  ],
+  "services-karakeep-options": [
+    "services-karakeep.html#services-karakeep-options"
+  ],
+  "services-karakeep-options-shb.karakeep.backup": [
+    "services-karakeep.html#services-karakeep-options-shb.karakeep.backup"
+  ],
+  "services-karakeep-options-shb.karakeep.backup.request": [
+    "services-karakeep.html#services-karakeep-options-shb.karakeep.backup.request"
+  ],
+  "services-karakeep-options-shb.karakeep.backup.request.excludePatterns": [
+    "services-karakeep.html#services-karakeep-options-shb.karakeep.backup.request.excludePatterns"
+  ],
+  "services-karakeep-options-shb.karakeep.backup.request.hooks": [
+    "services-karakeep.html#services-karakeep-options-shb.karakeep.backup.request.hooks"
+  ],
+  "services-karakeep-options-shb.karakeep.backup.request.hooks.afterBackup": [
+    "services-karakeep.html#services-karakeep-options-shb.karakeep.backup.request.hooks.afterBackup"
+  ],
+  "services-karakeep-options-shb.karakeep.backup.request.hooks.beforeBackup": [
+    "services-karakeep.html#services-karakeep-options-shb.karakeep.backup.request.hooks.beforeBackup"
+  ],
+  "services-karakeep-options-shb.karakeep.backup.request.sourceDirectories": [
+    "services-karakeep.html#services-karakeep-options-shb.karakeep.backup.request.sourceDirectories"
+  ],
+  "services-karakeep-options-shb.karakeep.backup.request.user": [
+    "services-karakeep.html#services-karakeep-options-shb.karakeep.backup.request.user"
+  ],
+  "services-karakeep-options-shb.karakeep.backup.result": [
+    "services-karakeep.html#services-karakeep-options-shb.karakeep.backup.result"
+  ],
+  "services-karakeep-options-shb.karakeep.backup.result.backupService": [
+    "services-karakeep.html#services-karakeep-options-shb.karakeep.backup.result.backupService"
+  ],
+  "services-karakeep-options-shb.karakeep.backup.result.restoreScript": [
+    "services-karakeep.html#services-karakeep-options-shb.karakeep.backup.result.restoreScript"
+  ],
+  "services-karakeep-options-shb.karakeep.domain": [
+    "services-karakeep.html#services-karakeep-options-shb.karakeep.domain"
+  ],
+  "services-karakeep-options-shb.karakeep.enable": [
+    "services-karakeep.html#services-karakeep-options-shb.karakeep.enable"
+  ],
+  "services-karakeep-options-shb.karakeep.environment": [
+    "services-karakeep.html#services-karakeep-options-shb.karakeep.environment"
+  ],
+  "services-karakeep-options-shb.karakeep.ldap": [
+    "services-karakeep.html#services-karakeep-options-shb.karakeep.ldap"
+  ],
+  "services-karakeep-options-shb.karakeep.ldap.userGroup": [
+    "services-karakeep.html#services-karakeep-options-shb.karakeep.ldap.userGroup"
+  ],
+  "services-karakeep-options-shb.karakeep.port": [
+    "services-karakeep.html#services-karakeep-options-shb.karakeep.port"
+  ],
+  "services-karakeep-options-shb.karakeep.ssl": [
+    "services-karakeep.html#services-karakeep-options-shb.karakeep.ssl"
+  ],
+  "services-karakeep-options-shb.karakeep.ssl.paths": [
+    "services-karakeep.html#services-karakeep-options-shb.karakeep.ssl.paths"
+  ],
+  "services-karakeep-options-shb.karakeep.ssl.paths.cert": [
+    "services-karakeep.html#services-karakeep-options-shb.karakeep.ssl.paths.cert"
+  ],
+  "services-karakeep-options-shb.karakeep.ssl.paths.key": [
+    "services-karakeep.html#services-karakeep-options-shb.karakeep.ssl.paths.key"
+  ],
+  "services-karakeep-options-shb.karakeep.ssl.systemdService": [
+    "services-karakeep.html#services-karakeep-options-shb.karakeep.ssl.systemdService"
+  ],
+  "services-karakeep-options-shb.karakeep.sso": [
+    "services-karakeep.html#services-karakeep-options-shb.karakeep.sso"
+  ],
+  "services-karakeep-options-shb.karakeep.sso.authEndpoint": [
+    "services-karakeep.html#services-karakeep-options-shb.karakeep.sso.authEndpoint"
+  ],
+  "services-karakeep-options-shb.karakeep.sso.authorization_policy": [
+    "services-karakeep.html#services-karakeep-options-shb.karakeep.sso.authorization_policy"
+  ],
+  "services-karakeep-options-shb.karakeep.sso.clientID": [
+    "services-karakeep.html#services-karakeep-options-shb.karakeep.sso.clientID"
+  ],
+  "services-karakeep-options-shb.karakeep.sso.enable": [
+    "services-karakeep.html#services-karakeep-options-shb.karakeep.sso.enable"
+  ],
+  "services-karakeep-options-shb.karakeep.sso.nextauthSecret": [
+    "services-karakeep.html#services-karakeep-options-shb.karakeep.sso.nextauthSecret"
+  ],
+  "services-karakeep-options-shb.karakeep.sso.nextauthSecret.request": [
+    "services-karakeep.html#services-karakeep-options-shb.karakeep.sso.nextauthSecret.request"
+  ],
+  "services-karakeep-options-shb.karakeep.sso.nextauthSecret.request.group": [
+    "services-karakeep.html#services-karakeep-options-shb.karakeep.sso.nextauthSecret.request.group"
+  ],
+  "services-karakeep-options-shb.karakeep.sso.nextauthSecret.request.mode": [
+    "services-karakeep.html#services-karakeep-options-shb.karakeep.sso.nextauthSecret.request.mode"
+  ],
+  "services-karakeep-options-shb.karakeep.sso.nextauthSecret.request.owner": [
+    "services-karakeep.html#services-karakeep-options-shb.karakeep.sso.nextauthSecret.request.owner"
+  ],
+  "services-karakeep-options-shb.karakeep.sso.nextauthSecret.request.restartUnits": [
+    "services-karakeep.html#services-karakeep-options-shb.karakeep.sso.nextauthSecret.request.restartUnits"
+  ],
+  "services-karakeep-options-shb.karakeep.sso.nextauthSecret.result": [
+    "services-karakeep.html#services-karakeep-options-shb.karakeep.sso.nextauthSecret.result"
+  ],
+  "services-karakeep-options-shb.karakeep.sso.nextauthSecret.result.path": [
+    "services-karakeep.html#services-karakeep-options-shb.karakeep.sso.nextauthSecret.result.path"
+  ],
+  "services-karakeep-options-shb.karakeep.sso.sharedSecret": [
+    "services-karakeep.html#services-karakeep-options-shb.karakeep.sso.sharedSecret"
+  ],
+  "services-karakeep-options-shb.karakeep.sso.sharedSecret.request": [
+    "services-karakeep.html#services-karakeep-options-shb.karakeep.sso.sharedSecret.request"
+  ],
+  "services-karakeep-options-shb.karakeep.sso.sharedSecret.request.group": [
+    "services-karakeep.html#services-karakeep-options-shb.karakeep.sso.sharedSecret.request.group"
+  ],
+  "services-karakeep-options-shb.karakeep.sso.sharedSecret.request.mode": [
+    "services-karakeep.html#services-karakeep-options-shb.karakeep.sso.sharedSecret.request.mode"
+  ],
+  "services-karakeep-options-shb.karakeep.sso.sharedSecret.request.owner": [
+    "services-karakeep.html#services-karakeep-options-shb.karakeep.sso.sharedSecret.request.owner"
+  ],
+  "services-karakeep-options-shb.karakeep.sso.sharedSecret.request.restartUnits": [
+    "services-karakeep.html#services-karakeep-options-shb.karakeep.sso.sharedSecret.request.restartUnits"
+  ],
+  "services-karakeep-options-shb.karakeep.sso.sharedSecret.result": [
+    "services-karakeep.html#services-karakeep-options-shb.karakeep.sso.sharedSecret.result"
+  ],
+  "services-karakeep-options-shb.karakeep.sso.sharedSecret.result.path": [
+    "services-karakeep.html#services-karakeep-options-shb.karakeep.sso.sharedSecret.result.path"
+  ],
+  "services-karakeep-options-shb.karakeep.sso.sharedSecretForAuthelia": [
+    "services-karakeep.html#services-karakeep-options-shb.karakeep.sso.sharedSecretForAuthelia"
+  ],
+  "services-karakeep-options-shb.karakeep.sso.sharedSecretForAuthelia.request": [
+    "services-karakeep.html#services-karakeep-options-shb.karakeep.sso.sharedSecretForAuthelia.request"
+  ],
+  "services-karakeep-options-shb.karakeep.sso.sharedSecretForAuthelia.request.group": [
+    "services-karakeep.html#services-karakeep-options-shb.karakeep.sso.sharedSecretForAuthelia.request.group"
+  ],
+  "services-karakeep-options-shb.karakeep.sso.sharedSecretForAuthelia.request.mode": [
+    "services-karakeep.html#services-karakeep-options-shb.karakeep.sso.sharedSecretForAuthelia.request.mode"
+  ],
+  "services-karakeep-options-shb.karakeep.sso.sharedSecretForAuthelia.request.owner": [
+    "services-karakeep.html#services-karakeep-options-shb.karakeep.sso.sharedSecretForAuthelia.request.owner"
+  ],
+  "services-karakeep-options-shb.karakeep.sso.sharedSecretForAuthelia.request.restartUnits": [
+    "services-karakeep.html#services-karakeep-options-shb.karakeep.sso.sharedSecretForAuthelia.request.restartUnits"
+  ],
+  "services-karakeep-options-shb.karakeep.sso.sharedSecretForAuthelia.result": [
+    "services-karakeep.html#services-karakeep-options-shb.karakeep.sso.sharedSecretForAuthelia.result"
+  ],
+  "services-karakeep-options-shb.karakeep.sso.sharedSecretForAuthelia.result.path": [
+    "services-karakeep.html#services-karakeep-options-shb.karakeep.sso.sharedSecretForAuthelia.result.path"
+  ],
+  "services-karakeep-options-shb.karakeep.subdomain": [
+    "services-karakeep.html#services-karakeep-options-shb.karakeep.subdomain"
+  ],
+  "services-karakeep-usage": [
+    "services-karakeep.html#services-karakeep-usage"
+  ],
   "services-nextcloudserver": [
     "services-nextcloud.html#services-nextcloudserver"
   ],
