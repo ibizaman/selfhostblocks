@@ -8,6 +8,8 @@ let
   commonTestScript = testLib.mkScripts {
     hasSSL = { node, ... }: !(isNull node.config.shb.karakeep.ssl);
     waitForServices = { ... }: [
+      "karakeep-init.service"
+      "karakeep-browser.service"
       "karakeep-web.service"
       "karakeep-workers.service"
       "nginx.service"
@@ -32,6 +34,18 @@ let
     shb.karakeep = {
       enable = true;
       inherit (config.test) subdomain domain;
+
+      nextauthSecret.result = config.shb.hardcodedsecret.nextauthSecret.result;
+      meilisearchMasterKey.result = config.shb.hardcodedsecret.meilisearchMasterKey.result;
+    };
+
+    shb.hardcodedsecret.nextauthSecret = {
+      request = config.shb.karakeep.nextauthSecret.request;
+      settings.content = nextauthSecret;
+    };
+    shb.hardcodedsecret.meilisearchMasterKey = {
+      request = config.shb.karakeep.meilisearchMasterKey.request;
+      settings.content = "meilisearch-master-key";
     };
 
     networking.hosts = {
@@ -107,16 +121,11 @@ let
         authEndpoint = "https://${config.shb.authelia.subdomain}.${config.shb.authelia.domain}";
         clientID = "karakeep";
 
-        nextauthSecret.result = config.shb.hardcodedsecret.nextauthSecret.result;
         sharedSecret.result = config.shb.hardcodedsecret.oidcSecret.result;
         sharedSecretForAuthelia.result = config.shb.hardcodedsecret.oidcAutheliaSecret.result;
       };
     };
 
-    shb.hardcodedsecret.nextauthSecret = {
-      request = config.shb.karakeep.sso.nextauthSecret.request;
-      settings.content = nextauthSecret;
-    };
     shb.hardcodedsecret.oidcSecret = {
       request = config.shb.karakeep.sso.sharedSecret.request;
       settings.content = oidcSecret;

@@ -96,22 +96,13 @@ in
             default = "one_factor";
           };
 
-          nextauthSecret = lib.mkOption {
-            description = "NextAuth secret.";
-            type = lib.types.submodule {
-              options = contracts.secret.mkRequester {
-                owner = "karakeep";
-                restartUnits = [ "karakeep.service" ];
-              };
-            };
-          };
-
           sharedSecret = lib.mkOption {
             description = "OIDC shared secret for Karakeep.";
             type = lib.types.submodule {
               options = contracts.secret.mkRequester {
                 owner = "karakeep";
-                restartUnits = [ "karakeep.service" ];
+                # These services are the ones relying on the environment file containing the secrets.
+                restartUnits = [ "karakeep-init.service" "karakeep-workers.service" "karakeep-workers.service" ];
               };
             };
           };
@@ -144,12 +135,35 @@ in
         };
       };
     };
+
+    nextauthSecret = lib.mkOption {
+      description = "NextAuth secret.";
+      type = lib.types.submodule {
+        options = contracts.secret.mkRequester {
+          owner = "karakeep";
+          # These services are the ones relying on the environment file containing the secrets.
+          restartUnits = [ "karakeep-init.service" "karakeep-workers.service" "karakeep-workers.service" ];
+        };
+      };
+    };
+
+    meilisearchMasterKey = lib.mkOption {
+      description = "Master key used to secure communication with Meilisearch.";
+      type = lib.types.submodule {
+        options = contracts.secret.mkRequester {
+          owner = "karakeep";
+          # These services are the ones relying on the environment file containing the secrets.
+          restartUnits = [ "karakeep-init.service" "karakeep-workers.service" "karakeep-workers.service" ];
+        };
+      };
+    };
   };
 
   config = (lib.mkMerge [
     (lib.mkIf cfg.enable {
       services.karakeep = {
         enable = true;
+        meilisearch.enable = true;
 
         extraEnvironment = {
           PORT = toString cfg.port;
@@ -163,6 +177,32 @@ in
           upstream = "http://127.0.0.1:${toString cfg.port}/";
         }
       ];
+
+      # Piggybacking onto the upstream karakeep-init and replacing its script by ours.
+      # This is needed otherwise the MEILI_MASTER_KEY is generated randomly on first start
+      # instead of using the value from the cfg.meilisearchMasterKey option.
+      systemd.services.karakeep-init = {
+        script = lib.mkForce ((lib.shb.replaceSecrets {
+          userConfig = {
+            MEILI_MASTER_KEY = cfg.meilisearchMasterKey.result.path;
+            NEXTAUTH_SECRET.source = cfg.nextauthSecret.result.path;
+          } // lib.optionalAttrs cfg.sso.enable {
+            OAUTH_CLIENT_SECRET.source = cfg.sso.sharedSecret.result.path;
+          };
+          resultPath = "/var/lib/karakeep/settings.env";
+          generator = lib.shb.toEnvVar;
+        }) + ''
+        export DATA_DIR="$STATE_DIRECTORY"
+        exec ${config.services.karakeep.package}/lib/karakeep/migrate
+        '');
+      };
+    })
+    (lib.mkIf cfg.enable {
+      services.meilisearch = {
+        dumplessUpgrade = true;
+        environment = "production";
+        masterKeyFile = cfg.meilisearchMasterKey.result.path;
+      };
     })
     (lib.mkIf (cfg.enable && cfg.sso.enable) {
       shb.lldap.ensureGroups = {
@@ -199,25 +239,6 @@ in
           OAUTH_CLIENT_ID = cfg.sso.clientID;
           OAUTH_SCOPE = "openid email profile";
         };
-        environmentFile = "/run/karakeep/secrets.env";
-      };
-
-      systemd.tmpfiles.rules = [
-        "d '/run/karakeep' 0750 root root - -"
-      ];
-      systemd.services.karakeep-pre = {
-        script = lib.shb.replaceSecrets {
-          userConfig = {
-            NEXTAUTH_SECRET.source = cfg.sso.nextauthSecret.result.path;
-            OAUTH_CLIENT_SECRET.source = cfg.sso.sharedSecret.result.path;
-          };
-          resultPath = "/run/karakeep/secrets.env";
-          generator = lib.shb.toEnvVar;
-        };
-        serviceConfig.Type = "oneshot";
-        wantedBy = [ "multi-user.target" ];
-        before = [ "karakeep-web.service" "karakeep-workers.service" ];
-        requiredBy = [ "karakeep-web.service" "karakeep-workers.service" ];
       };
     })
   ]);
