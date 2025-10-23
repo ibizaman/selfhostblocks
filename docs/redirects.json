@@ -2978,6 +2978,54 @@
   "services-karakeep-options-shb.karakeep.ldap.userGroup": [
     "services-karakeep.html#services-karakeep-options-shb.karakeep.ldap.userGroup"
   ],
+  "services-karakeep-options-shb.karakeep.meilisearchMasterKey": [
+    "services-karakeep.html#services-karakeep-options-shb.karakeep.meilisearchMasterKey"
+  ],
+  "services-karakeep-options-shb.karakeep.meilisearchMasterKey.request": [
+    "services-karakeep.html#services-karakeep-options-shb.karakeep.meilisearchMasterKey.request"
+  ],
+  "services-karakeep-options-shb.karakeep.meilisearchMasterKey.request.group": [
+    "services-karakeep.html#services-karakeep-options-shb.karakeep.meilisearchMasterKey.request.group"
+  ],
+  "services-karakeep-options-shb.karakeep.meilisearchMasterKey.request.mode": [
+    "services-karakeep.html#services-karakeep-options-shb.karakeep.meilisearchMasterKey.request.mode"
+  ],
+  "services-karakeep-options-shb.karakeep.meilisearchMasterKey.request.owner": [
+    "services-karakeep.html#services-karakeep-options-shb.karakeep.meilisearchMasterKey.request.owner"
+  ],
+  "services-karakeep-options-shb.karakeep.meilisearchMasterKey.request.restartUnits": [
+    "services-karakeep.html#services-karakeep-options-shb.karakeep.meilisearchMasterKey.request.restartUnits"
+  ],
+  "services-karakeep-options-shb.karakeep.meilisearchMasterKey.result": [
+    "services-karakeep.html#services-karakeep-options-shb.karakeep.meilisearchMasterKey.result"
+  ],
+  "services-karakeep-options-shb.karakeep.meilisearchMasterKey.result.path": [
+    "services-karakeep.html#services-karakeep-options-shb.karakeep.meilisearchMasterKey.result.path"
+  ],
+  "services-karakeep-options-shb.karakeep.nextauthSecret": [
+    "services-karakeep.html#services-karakeep-options-shb.karakeep.nextauthSecret"
+  ],
+  "services-karakeep-options-shb.karakeep.nextauthSecret.request": [
+    "services-karakeep.html#services-karakeep-options-shb.karakeep.nextauthSecret.request"
+  ],
+  "services-karakeep-options-shb.karakeep.nextauthSecret.request.group": [
+    "services-karakeep.html#services-karakeep-options-shb.karakeep.nextauthSecret.request.group"
+  ],
+  "services-karakeep-options-shb.karakeep.nextauthSecret.request.mode": [
+    "services-karakeep.html#services-karakeep-options-shb.karakeep.nextauthSecret.request.mode"
+  ],
+  "services-karakeep-options-shb.karakeep.nextauthSecret.request.owner": [
+    "services-karakeep.html#services-karakeep-options-shb.karakeep.nextauthSecret.request.owner"
+  ],
+  "services-karakeep-options-shb.karakeep.nextauthSecret.request.restartUnits": [
+    "services-karakeep.html#services-karakeep-options-shb.karakeep.nextauthSecret.request.restartUnits"
+  ],
+  "services-karakeep-options-shb.karakeep.nextauthSecret.result": [
+    "services-karakeep.html#services-karakeep-options-shb.karakeep.nextauthSecret.result"
+  ],
+  "services-karakeep-options-shb.karakeep.nextauthSecret.result.path": [
+    "services-karakeep.html#services-karakeep-options-shb.karakeep.nextauthSecret.result.path"
+  ],
   "services-karakeep-options-shb.karakeep.port": [
     "services-karakeep.html#services-karakeep-options-shb.karakeep.port"
   ],
@@ -3010,30 +3058,6 @@
   ],
   "services-karakeep-options-shb.karakeep.sso.enable": [
     "services-karakeep.html#services-karakeep-options-shb.karakeep.sso.enable"
-  ],
-  "services-karakeep-options-shb.karakeep.sso.nextauthSecret": [
-    "services-karakeep.html#services-karakeep-options-shb.karakeep.sso.nextauthSecret"
-  ],
-  "services-karakeep-options-shb.karakeep.sso.nextauthSecret.request": [
-    "services-karakeep.html#services-karakeep-options-shb.karakeep.sso.nextauthSecret.request"
-  ],
-  "services-karakeep-options-shb.karakeep.sso.nextauthSecret.request.group": [
-    "services-karakeep.html#services-karakeep-options-shb.karakeep.sso.nextauthSecret.request.group"
-  ],
-  "services-karakeep-options-shb.karakeep.sso.nextauthSecret.request.mode": [
-    "services-karakeep.html#services-karakeep-options-shb.karakeep.sso.nextauthSecret.request.mode"
-  ],
-  "services-karakeep-options-shb.karakeep.sso.nextauthSecret.request.owner": [
-    "services-karakeep.html#services-karakeep-options-shb.karakeep.sso.nextauthSecret.request.owner"
-  ],
-  "services-karakeep-options-shb.karakeep.sso.nextauthSecret.request.restartUnits": [
-    "services-karakeep.html#services-karakeep-options-shb.karakeep.sso.nextauthSecret.request.restartUnits"
-  ],
-  "services-karakeep-options-shb.karakeep.sso.nextauthSecret.result": [
-    "services-karakeep.html#services-karakeep-options-shb.karakeep.sso.nextauthSecret.result"
-  ],
-  "services-karakeep-options-shb.karakeep.sso.nextauthSecret.result.path": [
-    "services-karakeep.html#services-karakeep-options-shb.karakeep.sso.nextauthSecret.result.path"
   ],
   "services-karakeep-options-shb.karakeep.sso.sharedSecret": [
     "services-karakeep.html#services-karakeep-options-shb.karakeep.sso.sharedSecret"

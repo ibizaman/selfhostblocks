@@ -17,6 +17,7 @@ It integrates well with [Ollama][].
 - Declarative [SSO](#services-karakeep-options-shb.karakeep.sso) Configuration.
   - When SSO is enabled, login with user and password is disabled.
   - Registration is enabled through SSO.
+- Meilisearch configured with production environment and master key.
 - Access through [subdomain](#services-karakeep-options-shb.karakeep.subdomain) using reverse proxy.
 - Access through [HTTPS](#services-karakeep-options-shb.karakeep.ssl) using reverse proxy.
 - [Backup](#services-karakeep-options-shb.karakeep.sso) through the [backup block](./blocks-backup.html).
@@ -39,17 +40,18 @@ The following snippet assumes a few blocks have been setup already:
 
     ssl = config.shb.certs.certs.letsencrypt.${domain};
 
+    nextauthSecret.result = config.shb.sops.secret.nextauthSecret.result;
+
     sso = {
       enable = true;
       authEndpoint = "https://${config.shb.authelia.subdomain}.${config.shb.authelia.domain}";
 
-      nextauthSecret.result = config.shb.sops.secret.nextauthSecret.result;
       sharedSecret.result = config.shb.sops.secret.oidcSecret.result;
       sharedSecretForAuthelia.result = config.shb.sops.secret.oidcAutheliaSecret.result;
     };
   };
 
-  shb.sops.secret.nextauthSecret.request = config.shb.karakeep.sso.sharedSecret.request;
+  shb.sops.secret.nextauthSecret.request = config.shb.karakeep.nextauthSecret.request;
   shb.sops.secret.oidcSecret.request = config.shb.karakeep.sso.sharedSecret.request;
   shb.sops.secret.oidcAutheliaSecret = {
     request = config.shb.karakeep.sso.sharedSecretForAuthelia.request;
