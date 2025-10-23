@@ -16,6 +16,12 @@ Template:
 
 # Upcoming Release
 
+# v0.6.0
+
+## Breaking Changes
+
+- Removed Nextcloud 30, update to Nextcloud 31 then after to 32.
+
 # v0.5.1
 
 ## New Features
