@@ -184,7 +184,7 @@ in
       systemd.services.karakeep-init = {
         script = lib.mkForce ((lib.shb.replaceSecrets {
           userConfig = {
-            MEILI_MASTER_KEY = cfg.meilisearchMasterKey.result.path;
+            MEILI_MASTER_KEY.source = cfg.meilisearchMasterKey.result.path;
             NEXTAUTH_SECRET.source = cfg.nextauthSecret.result.path;
           } // lib.optionalAttrs cfg.sso.enable {
             OAUTH_CLIENT_SECRET.source = cfg.sso.sharedSecret.result.path;
