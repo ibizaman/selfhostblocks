@@ -18,6 +18,7 @@ in
             shb.ssl.enable = lib.mkEnableOption "ssl";
           };
         }
+        ../../modules/blocks/hardcodedsecret.nix
         ../../modules/blocks/lldap.nix
       ];
 

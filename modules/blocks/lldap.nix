@@ -49,7 +49,6 @@ let
 in
 {
   imports = [
-    ./hardcodedsecret.nix
     ./mitmdump.nix
 
     (lib.mkRenamedOptionModule [ "shb" "ldap" ] [ "shb" "lldap" ])

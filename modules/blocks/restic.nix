@@ -105,10 +105,6 @@ let
   fullName = name: repository: "restic-backups-${name}_${repoSlugName repository.path}";
 in
 {
-  imports = [
-    ./hardcodedsecret.nix
-  ];
-
   options.shb.restic = {
     instances = mkOption {
       description = "Files to backup following the [backup contract](./contracts-backup.html).";

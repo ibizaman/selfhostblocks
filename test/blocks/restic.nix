@@ -8,6 +8,8 @@ let
     nodes.machine = { config, ... }: {
       imports = [
         testLib.baseImports
+
+        ../../modules/blocks/hardcodedsecret.nix
         ../../modules/blocks/restic.nix
       ];
 
