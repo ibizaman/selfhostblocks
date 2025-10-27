@@ -4010,8 +4010,8 @@
   "usage-flake-autoupdate": [
     "usage.html#usage-flake-autoupdate"
   ],
-  "usage-flake-nixpkgs": [
-    "usage.html#usage-flake-nixpkgs"
+  "usage-flake-lib": [
+    "usage.html#usage-flake-lib"
   ],
   "usage-flake-substituter": [
     "usage.html#usage-flake-substituter"
