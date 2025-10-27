@@ -27,6 +27,57 @@ imports = [
 ];
 ```
 
+Self Host Blocks provides its own `pkgs.lib` and `nixpkgs`.
+It is required to use the provided ones as input for your deployments,
+otherwise you might end up blocked when Self Host Blocks patches a module, function or package.
+You need the following code wherever you would usually import `nixpkgs`:
+
+```nix
+{
+  inputs.selfhostblocks.url = "github:ibizaman/selfhostblocks";
+
+  outputs = { selfhostblocks, ... }: let
+    system = "x86_64-linux";
+
+    shb = selfhostblocks.lib.${system};
+
+    nixpkgs' = import shb.nixpkgs {
+      inherit system;
+    };
+  in
+    nixosConfigurations = {
+      myserver = shb.pkgs.nixosSystem {
+        system = "x86_64-linux";
+        modules = [
+          ./configuration.nix
+        ];
+      };
+    };
+
+    // elsewhere where nixpkgs is needed:
+}
+```
+
+### SHB Lib {#usage-flake-lib}
+
+Providing patches to downstream users is finicky, to say the least.
+For example, using `selfhostblocks.inputs.nixpkgs` directly will _not_ work.
+So Self Host Blocks provides a few attributes under the `selfhostblocks.lib.${system}` flake output:
+
+- At the top-level, all functions defined by SHB under [`./lib/default.nix`](@REPO@/lib/default.nix) and [`./test/common.nix`](@REPO@/test/common.nix).
+- `patches`: the list of patches applied by SHB [`./patches`](@REPO@/patches) to nixpkgs.
+- `contracts`: all contract modules.
+- `patchNixpkgs`: a re-export of `nixpkgs.legacyPackages.${system}.applyPatches` with the arguments made a bit more explicit.
+- `patchedNixpkgs`: nixpkgs with `patches` applied.
+- `pkgs`: `nixpkgs.legacyPackages.${system}` with `patches` applied and also:
+   - `config.allowUnfree` set to `true`
+   - `lib.shb` holds functions defined by [`./lib/default.nix`](@REPO@/lib/default.nix)
+   - `lib.evalModules` is patched to include patches provided by nixpkgs
+   - `nixosSystem` is patched to include patches provided by nixpkgs
+
+For normal usage, one should only need `selfhostblocks.lib.${system}.pkgs`
+and in some cases `selfhostblocks.lib.${system}.nixpkgs`.
+
 ### Substituter {#usage-flake-substituter}
 
 You can also use the public cache as a substituter with:
@@ -40,32 +91,6 @@ nix.settings.substituters = [
   "https://selfhostblocks.cachix.org"
 ];
 ```
-
-### Follow Nixpkgs {#usage-flake-nixpkgs}
-
-Self Host Blocks provides its own `nixpkgs` input so both can be updated in lock step, ensuring
-maximum compatibility. It is recommended to use the following `nixpkgs` as input for your
-deployments. Also, patches can be applied by Self Host Blocks. To handle all this, you need the
-following code instead wherever you import `nixpkgs`:
-
-```nix
-{
-  inputs.selfhostblocks.url = "github:ibizaman/selfhostblocks";
-
-  outputs = { selfhostblocks, ... }: let
-    system = "x86_64-linux";
-    lib = selfhostblocks.lib.${system};
-
-    nixpkgs' = lib.shb.patchedNixpkgs;
-
-    shbNixpkgs = import nixpkgs' {
-      inherit system;
-    };
-  in
-```
-
-Advanced users can if they wish use a version of `nixpkgs` of their choosing but then we cannot
-guarantee Self Host Block won't use a non-existing option from `nixpkgs`.
 
 ### Tag Updates {#usage-flake-tag}
 
