@@ -131,7 +131,7 @@ jobs:
           echo "resultPath=$(nix eval .#checks.x86_64-linux.${{ matrix.check }} --raw)" >> $GITHUB_ENV
           nix build --print-build-logs --show-trace .#checks.x86_64-linux.${{ matrix.check }}
       - name: Upload Build Result
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         if: always() && startsWith(matrix.check, 'vm_')
         with:
           name: ${{ matrix.check }}
