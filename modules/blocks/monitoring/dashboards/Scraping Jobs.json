@@ -29,7 +29,8 @@
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "palette-classic"
+            "fixedColor": "red",
+            "mode": "shades"
           },
           "custom": {
             "axisBorderShow": false,
@@ -55,6 +56,7 @@
               "type": "linear"
             },
             "showPoints": "auto",
+            "showValues": false,
             "spanNulls": false,
             "stacking": {
               "group": "A",
@@ -70,7 +72,7 @@
             "steps": [
               {
                 "color": "green",
-                "value": null
+                "value": 0
               },
               {
                 "color": "red",
@@ -96,11 +98,12 @@
           "showLegend": true
         },
         "tooltip": {
+          "hideZeros": false,
           "mode": "single",
           "sort": "none"
         }
       },
-      "pluginVersion": "11.4.0",
+      "pluginVersion": "12.2.0",
       "targets": [
         {
           "datasource": {
@@ -127,9 +130,10 @@
         "defaults": {
           "color": {
             "fixedColor": "red",
-            "mode": "fixed"
+            "mode": "thresholds"
           },
           "custom": {
+            "axisPlacement": "auto",
             "fillOpacity": 70,
             "hideFrom": {
               "legend": false,
@@ -146,11 +150,11 @@
             "steps": [
               {
                 "color": "green",
-                "value": null
+                "value": 0
               },
               {
                 "color": "red",
-                "value": 80
+                "value": 1
               }
             ]
           }
@@ -175,11 +179,12 @@
         "rowHeight": 0.9,
         "showValue": "never",
         "tooltip": {
+          "hideZeros": false,
           "mode": "single",
           "sort": "none"
         }
       },
-      "pluginVersion": "11.4.0",
+      "pluginVersion": "12.2.0",
       "targets": [
         {
           "datasource": {
@@ -200,7 +205,7 @@
             "uid": "df80f9f5-97d7-4112-91d8-72f523a02b09"
           },
           "editorMode": "code",
-          "expr": "label_replace(increase((sum by(dialer_name) (net_conntrack_dialer_conn_failed_total{hostname=~\"$hostname\"}))[15m:1m]), \"config\", \"$1\", \"dialer_name\", \"(.*)\") > 10",
+          "expr": "label_replace(increase((sum by(dialer_name) (net_conntrack_dialer_conn_failed_total{hostname=~\"$hostname\"}))[15m:1m]), \"config\", \"$1\", \"dialer_name\", \"(.*)\")",
           "hide": false,
           "instant": false,
           "legendFormat": "{{dialer_name}}",
@@ -249,7 +254,7 @@
   ],
   "preload": false,
   "refresh": "",
-  "schemaVersion": 40,
+  "schemaVersion": 42,
   "tags": [],
   "templating": {
     "list": [
@@ -281,6 +286,5 @@
   "timezone": "",
   "title": "Scraping Jobs",
   "uid": "debb763d-77aa-47bd-9290-2e02583c8ed2",
-  "version": 15,
-  "weekStart": ""
+  "version": 22
 }

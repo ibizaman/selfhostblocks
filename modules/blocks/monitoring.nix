@@ -559,7 +559,42 @@ in
     services.prometheus.exporters.node = {
       enable = true;
       # https://github.com/prometheus/node_exporter#collectors
-      enabledCollectors = [ "ethtool" ];
+      enabledCollectors = [
+        "arp"
+        "cpu"
+        "cpufreq"
+        "diskstats"
+        "dmi"
+        "edac"
+        "entropy"
+        "filefd"
+        "filesystem"
+        "hwmon"
+        "loadavg"
+        "meminfo"
+        "netclass"
+        "netdev"
+        "netstat"
+        "nvme"
+        "os"
+        "pressure"
+        "rapl"
+        "schedstat"
+        "stat"
+        "thermal_zone"
+        "time"
+        "uname"
+        "vmstat"
+        "zfs"
+
+        # Disabled by default
+        "cgroups"
+        "drm"
+        "ethtool"
+        "logind"
+        "systemd"
+        "wifi"
+      ];
       port = 9112;
       listenAddress = "127.0.0.1";
     };
