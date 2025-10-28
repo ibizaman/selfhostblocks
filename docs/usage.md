@@ -3,38 +3,15 @@
 
 ## Flake {#usage-flake}
 
-Self Host Blocks is available as a flake. To use it in your project, add the following flake input:
+::: {.note}
+A complete minimal and buildable example can be found at
+[`./demo/minimal/flake.nix`](@REPO@/demo/minimal/flake.nix).
+:::
 
-```nix
-inputs.selfhostblocks.url = "github:ibizaman/selfhostblocks";
-```
-
-Then, in your `nixosConfigurations`, you can import all modules with:
-
-```nix
-imports = [
-  inputs.selfhostblocks.default
-];
-```
-
-or selectively import some with, for example:
-
-```nix
-imports = [
-  inputs.selfhostblocks.authelia
-  inputs.selfhostblocks.lldap
-  inputs.selfhostblocks.nextcloud
-];
-```
-
-If you use `sops-nix` for secrets, SHB provides an additional module,
-not imported in the `default` module. It can be added by importing
-`inputs.selfhostblocks.sops`.
-
-Self Host Blocks provides its own `pkgs.lib` and `nixpkgs`.
-It is required to use the provided ones as input for your deployments,
+Self Host Blocks is available as a flake. It also uses its own `pkgs.lib` and `nixpkgs`
+and it is required to use the provided ones as input for your deployments,
 otherwise you might end up blocked when Self Host Blocks patches a module, function or package.
-You need the following code wherever you would usually import `nixpkgs`:
+The following snippet is thus required to use Self Host Blocks:
 
 ```nix
 {
@@ -42,25 +19,23 @@ You need the following code wherever you would usually import `nixpkgs`:
 
   outputs = { selfhostblocks, ... }: let
     system = "x86_64-linux";
-
     shb = selfhostblocks.lib.${system};
-
-    nixpkgs' = import shb.nixpkgs {
-      inherit system;
-    };
   in
     nixosConfigurations = {
       myserver = shb.pkgs.nixosSystem {
-        system = "x86_64-linux";
+        inherit system;
         modules = [
+          selfhostblocks.nixosModules.default
           ./configuration.nix
         ];
       };
     };
-
-    // elsewhere where nixpkgs is needed:
 }
 ```
+
+If you use `sops-nix` for secrets, SHB provides an additional module,
+not imported in the `default` module. It can be added by importing
+`inputs.selfhostblocks.sops`.
 
 ### SHB Lib {#usage-flake-lib}
 
@@ -79,8 +54,8 @@ So Self Host Blocks provides a few attributes under the `selfhostblocks.lib.${sy
    - `lib.evalModules` is patched to include patches provided by nixpkgs
    - `nixosSystem` is patched to include patches provided by nixpkgs
 
-For normal usage, one should only need `selfhostblocks.lib.${system}.pkgs`
-and in some cases `selfhostblocks.lib.${system}.nixpkgs`.
+For normal usage, one should only need the provided `.nixosSystem`, `.pkgs`
+and in some cases `.nixpkgs`.
 
 ### Substituter {#usage-flake-substituter}
 

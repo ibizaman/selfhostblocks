@@ -54,6 +54,13 @@ jobs:
           - name:  nextcloud
             flake: sso
 
+          - name:  minimal
+            flake: minimal
+          - name:  minimal
+            flake: lowlevel
+          - name:  minimal
+            flake: sops
+
     runs-on: ubuntu-latest
 
     steps:
@@ -78,6 +85,11 @@ jobs:
         run: |
           cd demo/${{ matrix.demo.name }}
           nix flake update --override-input selfhostblocks ../.. selfhostblocks
+          nix \
+            --print-build-logs \
+            --option keep-going true \
+            --show-trace \
+            build .#nixosConfigurations.${{ matrix.demo.flake }}.config.system.build.toplevel
           nix \
             --print-build-logs \
             --option keep-going true \
