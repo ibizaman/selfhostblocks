@@ -65,7 +65,10 @@
       {
         packages.manualHtml = pkgs.callPackage ./docs {
           inherit nmdsrc;
-          allModules = self.nixosModules.all.imports ++ contractDummyModules;
+          allModules = self.nixosModules.default.imports
+                       ++ [
+                         self.nixosModules.sops
+                       ] ++ contractDummyModules;
           release = builtins.readFile ./VERSION;
 
           substituteVersionIn = [
@@ -284,8 +287,7 @@
   ) // {
     herculesCI.ciSystems = [ "x86_64-linux" ];
 
-    nixosModules.default = self.nixosModules.all;
-    nixosModules.all = {
+    nixosModules.default = {
       imports = [
         # blocks
         self.nixosModules.authelia
@@ -298,7 +300,6 @@
         self.nixosModules.postgresql
         self.nixosModules.restic
         self.nixosModules.ssl
-        self.nixosModules.sops
         self.nixosModules.tinyproxy
         self.nixosModules.vpn
         self.nixosModules.zfs
