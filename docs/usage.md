@@ -27,6 +27,10 @@ imports = [
 ];
 ```
 
+If you use `sops-nix` for secrets, SHB provides an additional module,
+not imported in the `default` module. It can be added by importing
+`inputs.selfhostblocks.sops`.
+
 Self Host Blocks provides its own `pkgs.lib` and `nixpkgs`.
 It is required to use the provided ones as input for your deployments,
 otherwise you might end up blocked when Self Host Blocks patches a module, function or package.
