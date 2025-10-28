@@ -21,6 +21,18 @@ Template:
 ## Breaking Changes
 
 - Removed Nextcloud 30, update to Nextcloud 31 then after to 32.
+- Removed the `sops` module in the `default` NixOS module. Removed the `all` NixOS module.
+
+## New Features
+
+- Meilisearch configured with production environment and master key.
+
+## Other Changes
+
+- Only import hardcodedsecret module in tests.
+- Better usage section in manual.
+- Added new demo for minimal SelfHostBlocks setup, which is tested in CI.
+- Format all files in repo and make sure they are formatted in CI.
 
 # v0.5.1
 
