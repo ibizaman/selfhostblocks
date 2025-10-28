@@ -84,9 +84,9 @@ Updating Self Host Blocks to a new version can be done the same way.
 ### Auto Updates {#usage-flake-autoupdate}
 
 To avoid burden on the maintainers to keep `nixpkgs` input updated with upstream,
-the [GitHub repository][1] for Self Host Blocks updates the `nixpkgs` input every couple days,
+the [GitHub repository][repo] for Self Host Blocks updates the `nixpkgs` input every couple days,
 and verifies all tests pass before automatically merging the new `nixpkgs` version.
-The setup is explained in [this blog post][2].
+The setup is explained in [this blog post][automerge].
 
 [repo]: https://github.com/ibizaman/selfhostblocks
 [automerge]: https://blog.tiserbox.com/posts/2023-12-25-automated-flake-lock-update-pull-requests-and-merging.html
