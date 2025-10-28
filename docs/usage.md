@@ -1,9 +1,11 @@
 <!-- Read these docs at https://shb.skarabox.com -->
+
 # Usage {#usage}
 
 ## Flake {#usage-flake}
 
-Self Host Blocks is available as a flake. To use it in your project, add the following flake input:
+Self Host Blocks is available as a flake. To use it in your project, add the
+following flake input:
 
 ```nix
 inputs.selfhostblocks.url = "github:ibizaman/selfhostblocks";
@@ -43,10 +45,11 @@ nix.settings.substituters = [
 
 ### Follow Nixpkgs {#usage-flake-nixpkgs}
 
-Self Host Blocks provides its own `nixpkgs` input so both can be updated in lock step, ensuring
-maximum compatibility. It is recommended to use the following `nixpkgs` as input for your
-deployments. Also, patches can be applied by Self Host Blocks. To handle all this, you need the
-following code instead wherever you import `nixpkgs`:
+Self Host Blocks provides its own `nixpkgs` input so both can be updated in lock
+step, ensuring maximum compatibility. It is recommended to use the following
+`nixpkgs` as input for your deployments. Also, patches can be applied by Self
+Host Blocks. To handle all this, you need the following code instead wherever
+you import `nixpkgs`:
 
 ```nix
 {
@@ -64,8 +67,9 @@ following code instead wherever you import `nixpkgs`:
   in
 ```
 
-Advanced users can if they wish use a version of `nixpkgs` of their choosing but then we cannot
-guarantee Self Host Block won't use a non-existing option from `nixpkgs`.
+Advanced users can if they wish use a version of `nixpkgs` of their choosing but
+then we cannot guarantee Self Host Block won't use a non-existing option from
+`nixpkgs`.
 
 ### Tag Updates {#usage-flake-tag}
 
@@ -79,17 +83,18 @@ Updating Self Host Blocks to a new version can be done the same way.
 
 ### Auto Updates {#usage-flake-autoupdate}
 
-To avoid burden on the maintainers to keep `nixpkgs` input updated with upstream,
-the [GitHub repository][1] for Self Host Blocks updates the `nixpkgs` input every couple days,
-and verifies all tests pass before automatically merging the new `nixpkgs` version.
-The setup is explained in [this blog post][2].
+To avoid burden on the maintainers to keep `nixpkgs` input updated with
+upstream, the [GitHub repository][1] for Self Host Blocks updates the `nixpkgs`
+input every couple days, and verifies all tests pass before automatically
+merging the new `nixpkgs` version. The setup is explained in [this blog
+post][2].
 
 [repo]: https://github.com/ibizaman/selfhostblocks
 [automerge]: https://blog.tiserbox.com/posts/2023-12-25-automated-flake-lock-update-pull-requests-and-merging.html
 
 ### Use SelfHostBlocks' lib {#usage-lib}
 
-Access any functions exposed by the [lib][] with this snippet:
+Access any functions exposed by the [lib][lib] with this snippet:
 
 ```nix
 {
@@ -110,9 +115,10 @@ Access any functions exposed by the [lib][] with this snippet:
 
 ## Example Deployment with Nixos-Rebuild {#usage-example-nixosrebuild}
 
-The following snippets show how to deploy Self Host Blocks using the standard deployment system [nixos-rebuild][].
+The following snippets show how to deploy Self Host Blocks using the standard
+deployment system [nixos-rebuild][nixos-rebuild].
 
-[nixos-rebuild]:https://nixos.org/manual/nixos/stable/#sec-changing-config
+[nixos-rebuild]: https://nixos.org/manual/nixos/stable/#sec-changing-config
 
 ```nix
 {
@@ -120,31 +126,33 @@ The following snippets show how to deploy Self Host Blocks using the standard de
     selfhostblocks.url = "github:ibizaman/selfhostblocks";
   };
 
-  outputs = { self, selfhostblocks }: {
-    let
-      system = "x86_64-linux";
-      lib = selfhostblocks.lib.${system};
+  outputs = {
+    self,
+    selfhostblocks,
+  }: let
+    system = "x86_64-linux";
+    lib = selfhostblocks.lib.${system};
 
-      nixpkgs' = lib.shb.patchedNixpkgs;
+    nixpkgs' = lib.shb.patchedNixpkgs;
 
-      nixosSystem' = import "${nixpkgs'}/nixos/lib/eval-config.nix";
-    in
-      nixosConfigurations = {
-        machine = nixosSystem' {
-          inherit system;
-          modules = [
-            selfhostblocks.nixosModules.default
-          ];
-        };
+    nixosSystem' = import "${nixpkgs'}/nixos/lib/eval-config.nix";
+  in {
+    nixosConfigurations = {
+      machine = nixosSystem' {
+        inherit system;
+        modules = [
+          selfhostblocks.nixosModules.default
+        ];
       };
+    };
   };
 }
 ```
 
-The above snippet assumes one machine to deploy to,
-so `nixpkgs` is defined exclusively by the `selfhostblocks` input.
-It is more likely that you have multiple machines,
-some not using Self Host Blocks, then you can do the following:
+The above snippet assumes one machine to deploy to, so `nixpkgs` is defined
+exclusively by the `selfhostblocks` input. It is more likely that you have
+multiple machines, some not using Self Host Blocks, then you can do the
+following:
 
 ```nix
 {
@@ -179,12 +187,14 @@ some not using Self Host Blocks, then you can do the following:
   };
 }
 ```
+
 In the above snippet, `machine1` will use the `nixpkgs` version from your inputs
 while `machine2` will use the `nixpkgs` version from `selfhostblocks`.
 
 ## Example Deployment With Colmena {#usage-example-colmena}
 
-The following snippets show how to deploy Self Host Blocks using the deployment system [Colmena][].
+The following snippets show how to deploy Self Host Blocks using the deployment
+system [Colmena][Colmena].
 
 [colmena]: https://colmena.cli.rs
 
@@ -220,11 +230,10 @@ The following snippets show how to deploy Self Host Blocks using the deployment 
 }
 ```
 
-The above snippet assumes one machine to deploy to,
-so `nixpkgs` is defined exclusively by the `selfhostblocks` input.
-It is more likely that you have multiple machines,
-some not using Self Host Blocks,
-in this case you can use the `colmena.meta.nodeNixpkgs` option:
+The above snippet assumes one machine to deploy to, so `nixpkgs` is defined
+exclusively by the `selfhostblocks` input. It is more likely that you have
+multiple machines, some not using Self Host Blocks, in this case you can use the
+`colmena.meta.nodeNixpkgs` option:
 
 ```nix
 {
@@ -273,7 +282,8 @@ while `machine2` will use the `nixpkgs` version from `selfhostblocks`.
 
 ## Example Deployment with deploy-rs {#usage-example-deployrs}
 
-The following snippets show how to deploy Self Host Blocks using the deployment system [deploy-rs][].
+The following snippets show how to deploy Self Host Blocks using the deployment
+system [deploy-rs][deploy-rs].
 
 [deploy-rs]: https://github.com/serokell/deploy-rs
 
@@ -336,11 +346,9 @@ The following snippets show how to deploy Self Host Blocks using the deployment 
 }
 ```
 
-The above snippet assumes one machine to deploy to,
-so `nixpkgs` is defined exclusively by the `selfhostblocks` input.
-It is more likely that you have multiple machines,
-some not using Self Host Blocks,
-in this case you can do:
+The above snippet assumes one machine to deploy to, so `nixpkgs` is defined
+exclusively by the `selfhostblocks` input. It is more likely that you have
+multiple machines, some not using Self Host Blocks, in this case you can do:
 
 ```nix
 {
@@ -416,40 +424,44 @@ in this case you can do:
 }
 ```
 
-In the above snippet, `machine1` will use the `nixpkgs` version from your inputs while `machine2`
-will use the `nixpkgs` version from `selfhostblocks`.
-
+In the above snippet, `machine1` will use the `nixpkgs` version from your inputs
+while `machine2` will use the `nixpkgs` version from `selfhostblocks`.
 
 ## Secrets with sops-nix {#usage-secrets}
 
-This section complements the official [sops-nix](https://github.com/Mic92/sops-nix) guide.
+This section complements the official
+[sops-nix](https://github.com/Mic92/sops-nix) guide.
 
-Managing secrets is an important aspect of deploying. You cannot store your secrets in nix directly
-because they get stored unencrypted and you don't want that. We need to use another system that
-encrypts secrets when storing in the nix store and then decrypts them on the target host upon system
-activation. `sops-nix` is one of such system.
+Managing secrets is an important aspect of deploying. You cannot store your
+secrets in nix directly because they get stored unencrypted and you don't want
+that. We need to use another system that encrypts secrets when storing in the
+nix store and then decrypts them on the target host upon system activation.
+`sops-nix` is one of such system.
 
-Sops-nix works by encrypting the secrets file with at least 2 keys. Your private key and a private
-key from the target host. This way, you can edit the secrets and the target host can decrypt the
-secrets. Separating the keys this way is good practice because it reduces the impact of having one
-being compromised.
+Sops-nix works by encrypting the secrets file with at least 2 keys. Your private
+key and a private key from the target host. This way, you can edit the secrets
+and the target host can decrypt the secrets. Separating the keys this way is
+good practice because it reduces the impact of having one being compromised.
 
 One way to setup secrets management using `sops-nix`:
 
-1. Create your own private key that will be located in `keys.txt`. The public key will be printed on stdout.
+1. Create your own private key that will be located in `keys.txt`. The public
+   key will be printed on stdout.
    ```bash
    $ nix shell nixpkgs#age --command age-keygen -o keys.txt
    Public key: age1algdv9xwjre3tm7969eyremfw2ftx4h8qehmmjzksrv7f2qve9dqg8pug7
    ```
-2. Get the target host's public key. We will use the key derived from the ssh key of the host.
+2. Get the target host's public key. We will use the key derived from the ssh
+   key of the host.
    ```bash
    $ nix shell nixpkgs#ssh-to-age --command \
        sh -c 'ssh-keyscan -t ed25519 -4 <target_host> | ssh-to-age'
    # localhost:2222 SSH-2.0-OpenSSH_9.6
    age13wgyyae8epyw894ugd0rjjljh0rm98aurvzmsapcv7d852g9r5lq0pqfx8
    ```
-3. Create a `sops.yaml` file that explains how sops-nix should encrypt the - yet to be created -
-   `secrets.yaml` file. You can be creative here, but a basic snippet is:
+3. Create a `sops.yaml` file that explains how sops-nix should encrypt the - yet
+   to be created - `secrets.yaml` file. You can be creative here, but a basic
+   snippet is:
    ```bash
    keys:
      - &me age1algdv9xwjre3tm7969eyremfw2ftx4h8qehmmjzksrv7f2qve9dqg8pug7
@@ -461,45 +473,47 @@ One way to setup secrets management using `sops-nix`:
          - *me
          - *target
    ```
-4. Create a `secrets.yaml` file that will contain the encrypted secrets as a Yaml file:
+4. Create a `secrets.yaml` file that will contain the encrypted secrets as a
+   Yaml file:
    ```bash
    $ SOPS_AGE_KEY_FILE=keys.txt nix run --impure nixpkgs#sops -- \
      secrets.yaml
    ```
-   This will open your preferred editor. An example of yaml file is the following (secrets are elided for brevity):
+   This will open your preferred editor. An example of yaml file is the
+   following (secrets are elided for brevity):
    ```yaml
    nextcloud:
-       adminpass: 43bb4b...
-       onlyoffice:
-           jwt_secret: 3a10fce3...
+     adminpass: 43bb4b...
+     onlyoffice:
+       jwt_secret: 3a10fce3...
    ```
    The actual file on your filesystem will look like so, again with data elided:
    ```yaml
    nextcloud:
-       adminpass: ENC[AES256_GCM,data:Tt99...GY=,tag:XlAqRYidkOMRZAPBsoeEMw==,type:str]
-       onlyoffice:
-           jwt_secret: ENC[AES256_GCM,data:f87a...Yg=,tag:Y1Vg2WqDnJbl1Xg2B6W1Hg==,type:str]
+     adminpass: ENC[AES256_GCM,data:Tt99...GY=,tag:XlAqRYidkOMRZAPBsoeEMw==,type:str]
+     onlyoffice:
+       jwt_secret: ENC[AES256_GCM,data:f87a...Yg=,tag:Y1Vg2WqDnJbl1Xg2B6W1Hg==,type:str]
    sops:
-       kms: []
-       gcp_kms: []
-       azure_kv: []
-       hc_vault: []
-       age:
-           - recipient: age1algdv9xwjre3tm7969eyremfw2ftx4h8qehmmjzksrv7f2qve9dqg8pug7
-             enc: |
-               -----BEGIN AGE ENCRYPTED FILE-----
-               YWdl...6g==
-               -----END AGE ENCRYPTED FILE-----
-           - recipient: age13wgyyae8epyw894ugd0rjjljh0rm98aurvzmsapcv7d852g9r5lq0pqfx8
-             enc: |
-               -----BEGIN AGE ENCRYPTED FILE-----
-               YWdl...RA==
-               -----END AGE ENCRYPTED FILE-----
-       lastmodified: "2024-01-28T06:07:02Z"
-       mac: ENC[AES256_GCM,data:lDJh...To=,tag:Opon9lMZBv5S7rRhkGFuQQ==,type:str]
-       pgp: []
-       unencrypted_suffix: _unencrypted
-       version: 3.8.1
+     kms: []
+     gcp_kms: []
+     azure_kv: []
+     hc_vault: []
+     age:
+       - recipient: age1algdv9xwjre3tm7969eyremfw2ftx4h8qehmmjzksrv7f2qve9dqg8pug7
+         enc: |
+           -----BEGIN AGE ENCRYPTED FILE-----
+           YWdl...6g==
+           -----END AGE ENCRYPTED FILE-----
+       - recipient: age13wgyyae8epyw894ugd0rjjljh0rm98aurvzmsapcv7d852g9r5lq0pqfx8
+         enc: |
+           -----BEGIN AGE ENCRYPTED FILE-----
+           YWdl...RA==
+           -----END AGE ENCRYPTED FILE-----
+     lastmodified: "2024-01-28T06:07:02Z"
+     mac: ENC[AES256_GCM,data:lDJh...To=,tag:Opon9lMZBv5S7rRhkGFuQQ==,type:str]
+     pgp: []
+     unencrypted_suffix: _unencrypted
+     version: 3.8.1
    ```
 
    To actually create random secrets, you can use:
@@ -522,15 +536,15 @@ One way to setup secrets management using `sops-nix`:
    shb.sops.secrets."nextcloud/adminpass".request = config.shb.nextcloud.adminPass.request;
    shb.nextcloud.adminPass.result = config.shb.sops.secrets."nextcloud/adminpass".result;
    ```
-   The above snippet uses the [secrets contract](./contracts-secret.html)
-   and [sops block](./blocks-sops.html) to ease the configuration.
+   The above snippet uses the [secrets contract](./contracts-secret.html) and
+   [sops block](./blocks-sops.html) to ease the configuration.
 
 ## Complete Example {#usage-complete-example}
 
-This is my own config, which is using Self Host Blocks
-as well as [Skarabox][], my sibling project used to bootstrap a server.
+This is my own config, which is using Self Host Blocks as well as
+[Skarabox][Skarabox], my sibling project used to bootstrap a server.
 
-[Skarabox]:  https://github.com/ibizaman/skarabox
+[Skarabox]: https://github.com/ibizaman/skarabox
 
 `flake.nix`
 
