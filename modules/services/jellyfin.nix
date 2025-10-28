@@ -1,11 +1,16 @@
-{ config, lib, pkgs, ...}:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 
 let
   inherit (lib) types;
 
   cfg = config.shb.jellyfin;
 
-  contracts = pkgs.callPackage ../contracts {};
+  contracts = pkgs.callPackage ../contracts { };
 
   fqdn = "${cfg.subdomain}.${cfg.domain}";
 
@@ -91,31 +96,33 @@ in
     admin = lib.mkOption {
       description = "Default admin user info. Only needed if LDAP or SSO is not configured.";
       default = null;
-      type = types.nullOr (types.submodule {
-        options = {
-          username = lib.mkOption {
-            description = "Username of the default admin user.";
-            type = types.str;
-            default = "jellyfin";
-          };
-          password = lib.mkOption {
-            description = "Password of the default admin user.";
-            type = types.submodule {
-              options = contracts.secret.mkRequester {
-                mode = "0440";
-                owner = "jellyfin";
-                group = "jellyfin";
-                restartUnits = [ "jellyfin.service" ];
+      type = types.nullOr (
+        types.submodule {
+          options = {
+            username = lib.mkOption {
+              description = "Username of the default admin user.";
+              type = types.str;
+              default = "jellyfin";
+            };
+            password = lib.mkOption {
+              description = "Password of the default admin user.";
+              type = types.submodule {
+                options = contracts.secret.mkRequester {
+                  mode = "0440";
+                  owner = "jellyfin";
+                  group = "jellyfin";
+                  restartUnits = [ "jellyfin.service" ];
+                };
               };
             };
           };
-        };
-      });
+        }
+      );
     };
 
     ldap = lib.mkOption {
       description = "LDAP configuration.";
-      default = {};
+      default = { };
       type = types.submodule {
         options = {
           enable = lib.mkEnableOption "LDAP";
@@ -167,7 +174,7 @@ in
 
     sso = lib.mkOption {
       description = "SSO configuration.";
-      default = {};
+      default = { };
       type = types.submodule {
         options = {
           enable = lib.mkEnableOption "SSO";
@@ -203,7 +210,10 @@ in
           };
 
           authorization_policy = lib.mkOption {
-            type = types.enum [ "one_factor" "two_factor" ];
+            type = types.enum [
+              "one_factor"
+              "two_factor"
+            ];
             description = "Require one factor (password) or two factor (device) authentication.";
             default = "one_factor";
           };
@@ -238,23 +248,27 @@ in
       description = ''
         Backup configuration.
       '';
-      default = {};
+      default = { };
       type = types.submodule {
         options = contracts.backup.mkRequester {
           user = "jellyfin";
           sourceDirectories = [
             config.services.jellyfin.dataDir
           ];
-          sourceDirectoriesText = ''[
-            "services.jellyfin.dataDir"
-          ]'';
+          sourceDirectoriesText = ''
+            [
+                        "services.jellyfin.dataDir"
+                      ]'';
         };
       };
     };
   };
 
   imports = [
-    (lib.mkRenamedOptionModule [ "shb" "jellyfin" "adminPassword" ] [ "shb" "jellyfin" "admin" "password" ])
+    (lib.mkRenamedOptionModule
+      [ "shb" "jellyfin" "adminPassword" ]
+      [ "shb" "jellyfin" "admin" "password" ]
+    )
   ];
 
   config = lib.mkIf cfg.enable {
@@ -269,7 +283,10 @@ in
 
     networking.firewall = {
       # from https://jellyfin.org/docs/general/networking/index.html, for auto-discovery
-      allowedUDPPorts = [ 1900 7359 ];
+      allowedUDPPorts = [
+        1900
+        7359
+      ];
     };
 
     services.nginx.enable = true;
@@ -380,21 +397,23 @@ in
             proxy_set_header X-Forwarded-Protocol $scheme;
             proxy_set_header X-Forwarded-Host $http_host;
         }
-        '';
+      '';
     };
 
-    services.prometheus.scrapeConfigs = [{
-      job_name = "jellyfin";
-      static_configs = [
-        {
-          targets = ["127.0.0.1:${toString cfg.port}"];
-          labels = {
-            "hostname" = config.networking.hostName;
-            "domain" = cfg.domain;
-          };
-        }
-      ];
-    }];
+    services.prometheus.scrapeConfigs = [
+      {
+        job_name = "jellyfin";
+        static_configs = [
+          {
+            targets = [ "127.0.0.1:${toString cfg.port}" ];
+            labels = {
+              "hostname" = config.networking.hostName;
+              "domain" = cfg.domain;
+            };
+          }
+        ];
+      }
+    ];
 
     # LDAP config but you need to install the plugin by hand
 
@@ -427,7 +446,7 @@ in
             <EnabledFolders />
             <PasswordResetUrl />
           </PluginConfiguration>
-          '';
+        '';
 
         # SchemeOverride is needed because of
         # https://github.com/9p4/jellyfin-plugin-sso/issues/264
@@ -560,23 +579,23 @@ in
           </NetworkConfiguration>
         '';
       in
-        lib.strings.optionalString cfg.debug
-          ''
-          if [ -f "${config.services.jellyfin.configDir}/logging.json" ] && [ ! -L "${config.services.jellyfin.configDir}/logging.json" ]; then
-            echo "A ${config.services.jellyfin.configDir}/logging.json file exists already, this indicates probably an existing installation. Please remove it before continuing."
-            exit 1
-          fi
-          ln -fs "${debugLogging}" "${config.services.jellyfin.configDir}/logging.json"
-          ''
-        + (lib.shb.replaceSecretsScript {
-          file = networkConfig;
-          # Write permissions are needed otherwise the jellyfin-cli tool will not work correctly.
-          permissions = "u=rw,g=rw,o=";
-          resultPath = "${config.services.jellyfin.dataDir}/config/network.xml";
-          replacements = [
-          ];
-        })
-        + lib.strings.optionalString cfg.ldap.enable (lib.shb.replaceSecretsScript {
+      lib.strings.optionalString cfg.debug ''
+        if [ -f "${config.services.jellyfin.configDir}/logging.json" ] && [ ! -L "${config.services.jellyfin.configDir}/logging.json" ]; then
+          echo "A ${config.services.jellyfin.configDir}/logging.json file exists already, this indicates probably an existing installation. Please remove it before continuing."
+          exit 1
+        fi
+        ln -fs "${debugLogging}" "${config.services.jellyfin.configDir}/logging.json"
+      ''
+      + (lib.shb.replaceSecretsScript {
+        file = networkConfig;
+        # Write permissions are needed otherwise the jellyfin-cli tool will not work correctly.
+        permissions = "u=rw,g=rw,o=";
+        resultPath = "${config.services.jellyfin.dataDir}/config/network.xml";
+        replacements = [
+        ];
+      })
+      + lib.strings.optionalString cfg.ldap.enable (
+        lib.shb.replaceSecretsScript {
           file = ldapConfig;
           resultPath = "${config.services.jellyfin.dataDir}/plugins/configurations/LDAP-Auth.xml";
           replacements = [
@@ -585,8 +604,10 @@ in
               source = cfg.ldap.adminPassword.result.path;
             }
           ];
-        })
-        + lib.strings.optionalString cfg.sso.enable (lib.shb.replaceSecretsScript {
+        }
+      )
+      + lib.strings.optionalString cfg.sso.enable (
+        lib.shb.replaceSecretsScript {
           file = ssoConfig;
           resultPath = "${config.services.jellyfin.dataDir}/plugins/configurations/SSO-Auth.xml";
           replacements = [
@@ -595,92 +616,96 @@ in
               source = cfg.sso.sharedSecret.result.path;
             }
           ];
-        })
-        + lib.strings.optionalString cfg.sso.enable (lib.shb.replaceSecretsScript {
+        }
+      )
+      + lib.strings.optionalString cfg.sso.enable (
+        lib.shb.replaceSecretsScript {
           file = brandingConfig;
           resultPath = "${config.services.jellyfin.dataDir}/config/branding.xml";
           replacements = [
           ];
-        });
+        }
+      );
 
-    systemd.services.jellyfin.serviceConfig.ExecStartPost = let
-      # We must always wait for the service to be fully initialized,
-      # even if we're planning on changing the config and restarting.
-      waitForCurl = pkgs.writeShellApplication {
-        name = "waitForCurl";
-        runtimeInputs = [ pkgs.curl ];
-        text = ''
-          URL="http://127.0.0.1:${toString cfg.port}/System/Info/Public"
-          SLEEP_INTERVAL_SEC=2
-          TIMEOUT=60
+    systemd.services.jellyfin.serviceConfig.ExecStartPost =
+      let
+        # We must always wait for the service to be fully initialized,
+        # even if we're planning on changing the config and restarting.
+        waitForCurl = pkgs.writeShellApplication {
+          name = "waitForCurl";
+          runtimeInputs = [ pkgs.curl ];
+          text = ''
+            URL="http://127.0.0.1:${toString cfg.port}/System/Info/Public"
+            SLEEP_INTERVAL_SEC=2
+            TIMEOUT=60
 
-          start_time=$(date +%s)
+            start_time=$(date +%s)
 
-          echo "Waiting for $URL to return HTTP 200..."
+            echo "Waiting for $URL to return HTTP 200..."
 
-          while true; do
-              status_code=$(curl -s -o /dev/null -w "%{http_code}" "$URL" || true)
-              if [ "$status_code" = "200" ]; then
-                  echo "Service is up (HTTP 200 received)."
-                  exit 0
-              fi
+            while true; do
+                status_code=$(curl -s -o /dev/null -w "%{http_code}" "$URL" || true)
+                if [ "$status_code" = "200" ]; then
+                    echo "Service is up (HTTP 200 received)."
+                    exit 0
+                fi
 
-              now=$(date +%s)
-              elapsed=$(( now - start_time ))
+                now=$(date +%s)
+                elapsed=$(( now - start_time ))
 
-              if [ $elapsed -ge $TIMEOUT ]; then
-                  echo "Timeout reached ($TIMEOUT seconds). Exiting with failure."
-                  exit 1
-              fi
+                if [ $elapsed -ge $TIMEOUT ]; then
+                    echo "Timeout reached ($TIMEOUT seconds). Exiting with failure."
+                    exit 1
+                fi
 
-              echo "Waiting for service... (status: $status_code), elapsed: ''${elapsed}s"
-              sleep "$SLEEP_INTERVAL_SEC"
-          done
+                echo "Waiting for service... (status: $status_code), elapsed: ''${elapsed}s"
+                sleep "$SLEEP_INTERVAL_SEC"
+            done
 
-          echo "Finished waiting, curl returned a 200."
-        '';
-      };
+            echo "Finished waiting, curl returned a 200."
+          '';
+        };
 
-      # This file is used to know if the jellyfin service has been restarted
-      # because a new config just got written to.
-      #
-      # If the file does not exist, write the config, create the file then restart.
-      # If the file exists, do nothing and remove the file, resetting the state for the next time.
-      restartedFile="${config.services.jellyfin.dataDir}/.jellyfin-restarted";
+        # This file is used to know if the jellyfin service has been restarted
+        # because a new config just got written to.
+        #
+        # If the file does not exist, write the config, create the file then restart.
+        # If the file exists, do nothing and remove the file, resetting the state for the next time.
+        restartedFile = "${config.services.jellyfin.dataDir}/.jellyfin-restarted";
 
-      writeConfig = pkgs.writeShellApplication {
-        name = "writeConfig";
-        runtimeInputs = [ pkgs.systemd ];
-        text = ''
-          if ! [ -f "${restartedFile}" ]; then
-            ${lib.getExe jellyfin-cli} wizard \
-              --datadir='${config.services.jellyfin.dataDir}' \
-              --configdir='${config.services.jellyfin.configDir}' \
-              --cachedir='${config.services.jellyfin.cacheDir}' \
-              --logdir='${config.services.jellyfin.logDir}' \
-              --username=${cfg.admin.username} \
-              --password-file=${cfg.admin.password.result.path} \
-              --enable-remote-access=true \
-              --write
-          fi
-        '';
-      };
+        writeConfig = pkgs.writeShellApplication {
+          name = "writeConfig";
+          runtimeInputs = [ pkgs.systemd ];
+          text = ''
+            if ! [ -f "${restartedFile}" ]; then
+              ${lib.getExe jellyfin-cli} wizard \
+                --datadir='${config.services.jellyfin.dataDir}' \
+                --configdir='${config.services.jellyfin.configDir}' \
+                --cachedir='${config.services.jellyfin.cacheDir}' \
+                --logdir='${config.services.jellyfin.logDir}' \
+                --username=${cfg.admin.username} \
+                --password-file=${cfg.admin.password.result.path} \
+                --enable-remote-access=true \
+                --write
+            fi
+          '';
+        };
 
-      restartJellyfinOnce = pkgs.writeShellApplication {
-        name = "restartJellyfin";
-        runtimeInputs = [ pkgs.systemd ];
-        text = ''
-          if [ -f "${restartedFile}" ]; then
-            echo "jellyfin.service has been restarted"
-            rm "${restartedFile}"
-          else
-            echo "Restarting jellyfin.service"
-            touch "${restartedFile}"
-            systemctl reload-or-restart jellyfin.service
-          fi
-        '';
-      };
-    in
+        restartJellyfinOnce = pkgs.writeShellApplication {
+          name = "restartJellyfin";
+          runtimeInputs = [ pkgs.systemd ];
+          text = ''
+            if [ -f "${restartedFile}" ]; then
+              echo "jellyfin.service has been restarted"
+              rm "${restartedFile}"
+            else
+              echo "Restarting jellyfin.service"
+              touch "${restartedFile}"
+              systemctl reload-or-restart jellyfin.service
+            fi
+          '';
+        };
+      in
       lib.optionals (cfg.admin != null) [
         (lib.getExe waitForCurl)
 

@@ -1,11 +1,22 @@
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 let
   cfg = config.shb.open-webui;
 
-  contracts = pkgs.callPackage ../contracts {};
+  contracts = pkgs.callPackage ../contracts { };
 
   roleClaim = "openwebui_groups";
-  oauthScopes = [ "openid" "email" "profile" "groups" "${roleClaim}" ];
+  oauthScopes = [
+    "openid"
+    "email"
+    "profile"
+    "groups"
+    "${roleClaim}"
+  ];
 in
 {
   imports = [
@@ -42,19 +53,19 @@ in
     environment = lib.mkOption {
       type = lib.types.attrsOf lib.types.str;
       description = "Extra environment variables. See https://docs.openwebui.com/getting-started/env-configuration";
-      default = {};
+      default = { };
       example = ''
-      {
-        WEBUI_NAME = "SelfHostBlocks";
+        {
+          WEBUI_NAME = "SelfHostBlocks";
 
-        OLLAMA_BASE_URL = "http://127.0.0.1:''${toString config.services.ollama.port}";
-        RAG_EMBEDDING_MODEL = "nomic-embed-text:v1.5";
+          OLLAMA_BASE_URL = "http://127.0.0.1:''${toString config.services.ollama.port}";
+          RAG_EMBEDDING_MODEL = "nomic-embed-text:v1.5";
 
-        ENABLE_OPENAI_API = "True";
-        OPENAI_API_BASE_URL = "http://127.0.0.1:''${toString config.services.llama-cpp.port}";
-        ENABLE_WEB_SEARCH = "True";
-        RAG_EMBEDDING_ENGINE = "openai";
-      }
+          ENABLE_OPENAI_API = "True";
+          OPENAI_API_BASE_URL = "http://127.0.0.1:''${toString config.services.llama-cpp.port}";
+          ENABLE_WEB_SEARCH = "True";
+          RAG_EMBEDDING_ENGINE = "openai";
+        }
       '';
     };
 
@@ -62,7 +73,7 @@ in
       description = ''
         Setup LDAP integration.
       '';
-      default = {};
+      default = { };
       type = lib.types.submodule {
         options = {
           userGroup = lib.mkOption {
@@ -84,7 +95,7 @@ in
       description = ''
         Setup SSO integration.
       '';
-      default = {};
+      default = { };
       type = lib.types.submodule {
         options = {
           enable = lib.mkEnableOption "SSO integration.";
@@ -103,7 +114,10 @@ in
           };
 
           authorization_policy = lib.mkOption {
-            type = lib.types.enum [ "one_factor" "two_factor" ];
+            type = lib.types.enum [
+              "one_factor"
+              "two_factor"
+            ];
             description = "Require one factor (password) or two factor (device) authentication.";
             default = "one_factor";
           };
@@ -136,7 +150,7 @@ in
       description = ''
         Backup state directory.
       '';
-      default = {};
+      default = { };
       type = lib.types.submodule {
         options = contracts.backup.mkRequester {
           user = "open-webui";
@@ -149,124 +163,127 @@ in
     };
   };
 
-  config = (lib.mkMerge [
-    (lib.mkIf cfg.enable {
-      users.users.open-webui = {
-        isSystemUser = true;
-        group = "open-webui";
-      };
-      users.groups.open-webui = {};
-
-      services.open-webui = {
-        enable = true;
-
-        host = "127.0.0.1";
-        inherit (cfg) port;
-
-        environment = {
-          WEBUI_URL = "https://${cfg.subdomain}.${cfg.domain}";
-
-          ENABLE_PERSISTENT_CONFIG = "False";
-
-          ANONYMIZED_TELEMETRY = "False";
-          DO_NOT_TRACK = "True";
-          SCARF_NO_ANALYTICS = "True";
-
-          ENABLE_VERSION_UPDATE_CHECK = "False";
-        } // cfg.environment;
-      };
-
-      systemd.services.open-webui.path = [
-        pkgs.ffmpeg-headless
-      ];
-
-      shb.nginx.vhosts = [
-        {
-          inherit (cfg) subdomain domain ssl;
-          upstream = "http://127.0.0.1:${toString cfg.port}/";
-          extraConfig = ''
-          proxy_read_timeout 300s;
-          proxy_send_timeout 300s;
-          '';
-        }
-      ];
-    })
-    (lib.mkIf (cfg.enable && cfg.sso.enable) {
-      shb.lldap.ensureGroups = {
-        ${cfg.ldap.userGroup} = {};
-        ${cfg.ldap.adminGroup} = {};
-      };
-
-      services.open-webui = {
-        package = pkgs.open-webui.overrideAttrs (finalAttrs: {
-          patches = [
-            ../../patches/0001-selfhostblocks-never-onboard.patch
-            ../../patches/0002-selfhostblocks-do-not-allow-unauthorized-roles.patch
-          ];
-        });
-        environment = {
-          ENABLE_SIGNUP = "False";
-          WEBUI_AUTH = "True";
-          ENABLE_FORWARD_USER_INFO_HEADERS = "True";
-          ENABLE_OAUTH_SIGNUP = "True";
-          OAUTH_UPDATE_PICTURE_ON_LOGIN = "True";
-          OAUTH_CLIENT_ID = cfg.sso.clientID;
-          OPENID_PROVIDER_URL = "${cfg.sso.authEndpoint}/.well-known/openid-configuration";
-          OAUTH_PROVIDER_NAME = "Single Sign-On";
-          OAUTH_USERNAME_CLAIM = "preferred_username";
-          ENABLE_OAUTH_ROLE_MANAGEMENT = "True";
-          OAUTH_ALLOWED_ROLES = "user,admin";
-          OAUTH_ADMIN_ROLES = "admin";
-          OAUTH_ROLES_CLAIM = roleClaim;
-          OAUTH_SCOPES = lib.concatStringsSep " " oauthScopes;
+  config = (
+    lib.mkMerge [
+      (lib.mkIf cfg.enable {
+        users.users.open-webui = {
+          isSystemUser = true;
+          group = "open-webui";
         };
-      };
+        users.groups.open-webui = { };
 
-      shb.authelia.extraDefinitions = {
-        user_attributes.${roleClaim}.expression =
-          ''"${cfg.ldap.adminGroup}" in groups ? ["admin"] : ("${cfg.ldap.userGroup}" in groups ? ["user"] : [""])'';
-      };
-      shb.authelia.extraOidcClaimsPolicies.${roleClaim} = {
-        custom_claims = {
-          "${roleClaim}" = {};
+        services.open-webui = {
+          enable = true;
+
+          host = "127.0.0.1";
+          inherit (cfg) port;
+
+          environment = {
+            WEBUI_URL = "https://${cfg.subdomain}.${cfg.domain}";
+
+            ENABLE_PERSISTENT_CONFIG = "False";
+
+            ANONYMIZED_TELEMETRY = "False";
+            DO_NOT_TRACK = "True";
+            SCARF_NO_ANALYTICS = "True";
+
+            ENABLE_VERSION_UPDATE_CHECK = "False";
+          }
+          // cfg.environment;
         };
-      };
-      shb.authelia.extraOidcScopes."${roleClaim}" = {
-        claims = [ "${roleClaim}" ];
-      };
 
-      shb.authelia.oidcClients = [
-        {
-          client_id = cfg.sso.clientID;
-          client_name = "Open WebUI";
-          client_secret.source = cfg.sso.sharedSecretForAuthelia.result.path;
-          claims_policy = "${roleClaim}";
-          public = false;
-          authorization_policy = cfg.sso.authorization_policy;
-          redirect_uris = [
-            "https://${cfg.subdomain}.${cfg.domain}/oauth/oidc/callback"
-          ];
-          scopes = oauthScopes;
-        }
-      ];
+        systemd.services.open-webui.path = [
+          pkgs.ffmpeg-headless
+        ];
 
-      systemd.services.open-webui.serviceConfig.EnvironmentFile = "/run/open-webui/secrets.env";
-      systemd.tmpfiles.rules = [
-        "d '/run/open-webui' 0750 root root - -"
-      ];
-      systemd.services.open-webui-pre = {
-        script = lib.shb.replaceSecrets {
-          userConfig = {
-            OAUTH_CLIENT_SECRET.source = cfg.sso.sharedSecret.result.path;
+        shb.nginx.vhosts = [
+          {
+            inherit (cfg) subdomain domain ssl;
+            upstream = "http://127.0.0.1:${toString cfg.port}/";
+            extraConfig = ''
+              proxy_read_timeout 300s;
+              proxy_send_timeout 300s;
+            '';
+          }
+        ];
+      })
+      (lib.mkIf (cfg.enable && cfg.sso.enable) {
+        shb.lldap.ensureGroups = {
+          ${cfg.ldap.userGroup} = { };
+          ${cfg.ldap.adminGroup} = { };
+        };
+
+        services.open-webui = {
+          package = pkgs.open-webui.overrideAttrs (finalAttrs: {
+            patches = [
+              ../../patches/0001-selfhostblocks-never-onboard.patch
+              ../../patches/0002-selfhostblocks-do-not-allow-unauthorized-roles.patch
+            ];
+          });
+          environment = {
+            ENABLE_SIGNUP = "False";
+            WEBUI_AUTH = "True";
+            ENABLE_FORWARD_USER_INFO_HEADERS = "True";
+            ENABLE_OAUTH_SIGNUP = "True";
+            OAUTH_UPDATE_PICTURE_ON_LOGIN = "True";
+            OAUTH_CLIENT_ID = cfg.sso.clientID;
+            OPENID_PROVIDER_URL = "${cfg.sso.authEndpoint}/.well-known/openid-configuration";
+            OAUTH_PROVIDER_NAME = "Single Sign-On";
+            OAUTH_USERNAME_CLAIM = "preferred_username";
+            ENABLE_OAUTH_ROLE_MANAGEMENT = "True";
+            OAUTH_ALLOWED_ROLES = "user,admin";
+            OAUTH_ADMIN_ROLES = "admin";
+            OAUTH_ROLES_CLAIM = roleClaim;
+            OAUTH_SCOPES = lib.concatStringsSep " " oauthScopes;
           };
-          resultPath = "/run/open-webui/secrets.env";
-          generator = lib.shb.toEnvVar;
         };
-        serviceConfig.Type = "oneshot";
-        wantedBy = [ "multi-user.target" ];
-        before = [ "open-webui.service" ];
-        requiredBy = [ "open-webui.service" ];
-      };
-    })
-  ]);
+
+        shb.authelia.extraDefinitions = {
+          user_attributes.${roleClaim}.expression =
+            ''"${cfg.ldap.adminGroup}" in groups ? ["admin"] : ("${cfg.ldap.userGroup}" in groups ? ["user"] : [""])'';
+        };
+        shb.authelia.extraOidcClaimsPolicies.${roleClaim} = {
+          custom_claims = {
+            "${roleClaim}" = { };
+          };
+        };
+        shb.authelia.extraOidcScopes."${roleClaim}" = {
+          claims = [ "${roleClaim}" ];
+        };
+
+        shb.authelia.oidcClients = [
+          {
+            client_id = cfg.sso.clientID;
+            client_name = "Open WebUI";
+            client_secret.source = cfg.sso.sharedSecretForAuthelia.result.path;
+            claims_policy = "${roleClaim}";
+            public = false;
+            authorization_policy = cfg.sso.authorization_policy;
+            redirect_uris = [
+              "https://${cfg.subdomain}.${cfg.domain}/oauth/oidc/callback"
+            ];
+            scopes = oauthScopes;
+          }
+        ];
+
+        systemd.services.open-webui.serviceConfig.EnvironmentFile = "/run/open-webui/secrets.env";
+        systemd.tmpfiles.rules = [
+          "d '/run/open-webui' 0750 root root - -"
+        ];
+        systemd.services.open-webui-pre = {
+          script = lib.shb.replaceSecrets {
+            userConfig = {
+              OAUTH_CLIENT_SECRET.source = cfg.sso.sharedSecret.result.path;
+            };
+            resultPath = "/run/open-webui/secrets.env";
+            generator = lib.shb.toEnvVar;
+          };
+          serviceConfig.Type = "oneshot";
+          wantedBy = [ "multi-user.target" ];
+          before = [ "open-webui.service" ];
+          requiredBy = [ "open-webui.service" ];
+        };
+      })
+    ]
+  );
 }

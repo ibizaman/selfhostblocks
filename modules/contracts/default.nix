@@ -4,55 +4,61 @@ let
   inherit (lib.types) anything;
 
   mkContractFunctions =
-    { mkRequest,
+    {
+      mkRequest,
       mkResult,
-    }: {
+    }:
+    {
       mkRequester = requestCfg: {
         request = mkRequest requestCfg;
 
-        result = mkResult {};
+        result = mkResult { };
       };
 
       mkProvider =
-        { resultCfg,
-          settings ? {},
-        }: {
-          request = mkRequest {};
+        {
+          resultCfg,
+          settings ? { },
+        }:
+        {
+          request = mkRequest { };
 
           result = mkResult resultCfg;
-        } // optionalAttrs (settings != {}) { inherit settings; };
+        }
+        // optionalAttrs (settings != { }) { inherit settings; };
 
       contract = {
-        request = mkRequest {};
+        request = mkRequest { };
 
-        result = mkResult {};
+        result = mkResult { };
 
         settings = mkOption {
           description = ''
-          Optional attribute set with options specific to the provider.
+            Optional attribute set with options specific to the provider.
           '';
           type = anything;
         };
       };
     };
 
-  importContract = module:
+  importContract =
+    module:
     let
-      importedModule = pkgs.callPackage module {};
+      importedModule = pkgs.callPackage module { };
     in
-      mkContractFunctions {
-        inherit (importedModule) mkRequest mkResult;
-      };
+    mkContractFunctions {
+      inherit (importedModule) mkRequest mkResult;
+    };
 in
 {
   databasebackup = importContract ./databasebackup.nix;
   backup = importContract ./backup.nix;
-  mount = pkgs.callPackage ./mount.nix {};
+  mount = pkgs.callPackage ./mount.nix { };
   secret = importContract ./secret.nix;
-  ssl = pkgs.callPackage ./ssl.nix {};
+  ssl = pkgs.callPackage ./ssl.nix { };
   test = {
-    secret = pkgs.callPackage ./secret/test.nix {};
-    databasebackup = pkgs.callPackage ./databasebackup/test.nix {};
-    backup = pkgs.callPackage ./backup/test.nix {};
+    secret = pkgs.callPackage ./secret/test.nix { };
+    databasebackup = pkgs.callPackage ./databasebackup/test.nix { };
+    backup = pkgs.callPackage ./backup/test.nix { };
   };
 }

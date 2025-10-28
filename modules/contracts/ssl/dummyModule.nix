@@ -1,6 +1,6 @@
 { pkgs, lib, ... }:
 let
-  contracts = pkgs.callPackage ../. {};
+  contracts = pkgs.callPackage ../. { };
 in
 {
   options.shb.contracts.ssl = lib.mkOption {

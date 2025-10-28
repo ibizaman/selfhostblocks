@@ -5,17 +5,17 @@ let
   targetPort = 2222;
 in
 {
-  imports =
-    [ # Include the results of the hardware scan.
-      ./hardware-configuration.nix
-    ];
+  imports = [
+    # Include the results of the hardware scan.
+    ./hardware-configuration.nix
+  ];
 
   boot.loader.grub.enable = true;
   boot.kernelModules = [ "kvm-intel" ];
   system.stateVersion = "22.11";
 
   # Options above are generate by running nixos-generate-config on the VM.
-  
+
   # Needed otherwise deploy will say system won't be able to boot.
   boot.loader.grub.device = "/dev/vdb";
   # Needed to avoid getting into not available disk space in /boot.
@@ -27,7 +27,10 @@ in
 
   # Options above are needed to deploy in a VM.
 
-  nix.settings.experimental-features = [ "nix-command" "flakes" ];
+  nix.settings.experimental-features = [
+    "nix-command"
+    "flakes"
+  ];
 
   # We need to create the user we will deploy with.
   users.users.${targetUser} = {
@@ -42,9 +45,11 @@ in
 
   # The user we're deploying with must be able to run sudo without password.
   security.sudo.extraRules = [
-    { users = [ targetUser ];
+    {
+      users = [ targetUser ];
       commands = [
-        { command = "ALL";
+        {
+          command = "ALL";
           options = [ "NOPASSWD" ];
         }
       ];

@@ -1,32 +1,45 @@
-{ config, pkgs, lib, ... }:
+{
+  config,
+  pkgs,
+  lib,
+  ...
+}:
 
 let
   cfg = config.shb.immich;
 
-  contracts = pkgs.callPackage ../contracts {};
+  contracts = pkgs.callPackage ../contracts { };
 
   fqdn = "${cfg.subdomain}.${cfg.domain}";
   protocol = if !(isNull cfg.ssl) then "https" else "http";
 
   roleClaim = "immich_user";
 
-  # TODO: Quota management, see https://github.com/ibizaman/selfhostblocks/pull/523#discussion_r2309421694 
+  # TODO: Quota management, see https://github.com/ibizaman/selfhostblocks/pull/523#discussion_r2309421694
   #quotaClaim = "immich_quota";
-  scopes = [ "openid" "email" "profile" "groups" "immich_scope"];
+  scopes = [
+    "openid"
+    "email"
+    "profile"
+    "groups"
+    "immich_scope"
+  ];
 
   dataFolder = cfg.mediaLocation;
-  ssoFqdnWithPort = if isNull cfg.sso.port 
-                    then cfg.sso.endpoint 
-                    else "${cfg.sso.endpoint}:${toString cfg.sso.port}";
+  ssoFqdnWithPort =
+    if isNull cfg.sso.port then cfg.sso.endpoint else "${cfg.sso.endpoint}:${toString cfg.sso.port}";
   # Generate Immich configuration file only for SHB-managed settings
-  shbManagedSettings = lib.optionalAttrs (cfg.settings != {}) cfg.settings
+  shbManagedSettings =
+    lib.optionalAttrs (cfg.settings != { }) cfg.settings
     // lib.optionalAttrs (cfg.sso.enable) {
       oauth = {
         enabled = true;
         issuerUrl = "${ssoFqdnWithPort}";
         clientId = cfg.sso.clientID;
         roleClaim = roleClaim;
-        clientSecret = { source = cfg.sso.sharedSecret.result.path; };
+        clientSecret = {
+          source = cfg.sso.sharedSecret.result.path;
+        };
         scope = builtins.concatStringsSep " " scopes;
         storageLabelClaim = cfg.sso.storageLabelClaim;
         #storageQuotaClaim = quotaClaim; # TODO (commented out, otherwise defaults to 0 bytes!)
@@ -49,7 +62,9 @@ let
             host = cfg.smtp.host;
             port = cfg.smtp.port;
             username = cfg.smtp.username;
-            password = { source = cfg.smtp.password.result.path; };
+            password = {
+              source = cfg.smtp.password.result.path;
+            };
             ignoreTLS = cfg.smtp.ignoreTLS;
             secure = cfg.smtp.secure;
           };
@@ -58,19 +73,36 @@ let
     };
 
   configFile = "/var/lib/immich/config.json";
-  
+
   # Use SHB's replaceSecrets function for loading secrets at runtime
   configSetupScript = lib.optionalString (cfg.sso.enable || cfg.smtp != null) (
     lib.shb.replaceSecrets {
       userConfig = shbManagedSettings;
       resultPath = configFile;
-      generator = lib.shb.replaceSecretsFormatAdapter (pkgs.formats.json {});
+      generator = lib.shb.replaceSecretsFormatAdapter (pkgs.formats.json { });
       user = "immich";
       permissions = "u=r,g=,o=";
     }
   );
-  inherit (lib) mkEnableOption mkIf lists mkOption optionals;
-  inherit (lib.types) attrs attrsOf bool enum listOf nullOr port submodule str path;
+  inherit (lib)
+    mkEnableOption
+    mkIf
+    lists
+    mkOption
+    optionals
+    ;
+  inherit (lib.types)
+    attrs
+    attrsOf
+    bool
+    enum
+    listOf
+    nullOr
+    port
+    submodule
+    str
+    path
+    ;
 in
 {
   imports = [
@@ -154,14 +186,16 @@ in
         ```
       '';
       readOnly = true;
-      default = { path = dataFolder; };
+      default = {
+        path = dataFolder;
+      };
     };
 
     backup = mkOption {
       description = ''
         Backup configuration for Immich media files and database.
       '';
-      default = {};
+      default = { };
       type = submodule {
         options = contracts.backup.mkRequester {
           user = "immich";
@@ -190,7 +224,7 @@ in
 
     machineLearning = mkOption {
       description = "Machine learning configuration.";
-      default = {};
+      default = { };
       type = submodule {
         options = {
           enable = mkOption {
@@ -202,7 +236,7 @@ in
           environment = mkOption {
             description = "Extra environment variables for machine learning service.";
             type = attrsOf str;
-            default = {};
+            default = { };
             example = {
               MACHINE_LEARNING_WORKERS = "2";
               MACHINE_LEARNING_WORKER_TIMEOUT = "180";
@@ -216,13 +250,17 @@ in
       description = ''
         Setup SSO integration.
       '';
-      default = {};
+      default = { };
       type = submodule {
         options = {
           enable = mkEnableOption "SSO integration.";
 
           provider = mkOption {
-            type = enum [ "Authelia" "Keycloak" "Generic" ];
+            type = enum [
+              "Authelia"
+              "Keycloak"
+              "Generic"
+            ];
             description = "OIDC provider name, used for display.";
             default = "Authelia";
           };
@@ -311,7 +349,10 @@ in
           };
 
           authorization_policy = mkOption {
-            type = enum [ "one_factor" "two_factor" ];
+            type = enum [
+              "one_factor"
+              "two_factor"
+            ];
             description = "Require one factor (password) or two factor (device) authentication.";
             default = "one_factor";
           };
@@ -325,10 +366,10 @@ in
         Immich configuration settings.
         Only specify settings that you want SHB to manage declaratively.
         Other settings can be configured through Immich's admin UI.
-        
+
         See https://immich.app/docs/install/config-file/ for available options.
       '';
-      default = {};
+      default = { };
       example = {
         ffmpeg.crf = 23;
         job.backgroundTask.concurrency = 5;
@@ -351,31 +392,31 @@ in
             description = "SMTP address from which the emails originate.";
             example = "noreply@example.com";
           };
-          
+
           replyTo = mkOption {
             type = str;
             description = "Reply-to address for emails.";
             example = "support@example.com";
           };
-          
+
           host = mkOption {
             type = str;
             description = "SMTP host to send the emails to.";
             example = "smtp.example.com";
           };
-          
+
           port = mkOption {
             type = port;
             description = "SMTP port to send the emails to.";
             default = 587;
           };
-          
+
           username = mkOption {
             type = str;
             description = "Username to connect to the SMTP host.";
             example = "smtp-user";
           };
-          
+
           password = mkOption {
             description = "File containing the password to connect to the SMTP host.";
             type = submodule {
@@ -386,13 +427,13 @@ in
               };
             };
           };
-          
+
           ignoreTLS = mkOption {
             type = bool;
             description = "Ignore TLS certificate errors.";
             default = false;
           };
-          
+
           secure = mkOption {
             type = bool;
             description = "Use secure connection (SSL/TLS).";
@@ -428,7 +469,7 @@ in
       host = "127.0.0.1";
       port = cfg.port;
       mediaLocation = cfg.mediaLocation;
-      
+
       # Hardware acceleration configuration
       accelerationDevices = cfg.accelerationDevices;
 
@@ -436,7 +477,7 @@ in
 
       # Database configuration
       database = {
-        # Disable pgvecto.rs, as it was deprecated before SHB integration  
+        # Disable pgvecto.rs, as it was deprecated before SHB integration
         enableVectors = false;
       };
 
@@ -452,9 +493,11 @@ in
         REDIS_HOSTNAME = "127.0.0.1";
         REDIS_PORT = "6379";
         REDIS_DBINDEX = "0";
-      } // lib.optionalAttrs (cfg.jwtSecretFile != null) {
+      }
+      // lib.optionalAttrs (cfg.jwtSecretFile != null) {
         JWT_SECRET_FILE = cfg.jwtSecretFile.result.path;
-      } // lib.optionalAttrs (cfg.settings != {} || cfg.sso.enable || cfg.smtp != null) {
+      }
+      // lib.optionalAttrs (cfg.settings != { } || cfg.sso.enable || cfg.smtp != null) {
         IMMICH_CONFIG_FILE = configFile;
       };
     };
@@ -464,27 +507,32 @@ in
       "d /var/lib/immich 0700 immich immich"
     ];
 
-    # Configuration setup service - generates config only for SHB-managed settings  
-    systemd.services.immich-setup-config = mkIf (cfg.enable && (cfg.settings != {} || cfg.sso.enable || cfg.smtp != null)) {
-      description = "Setup Immich configuration for SHB-managed settings";
-      wantedBy = [ "multi-user.target" ];
-      before = [ "immich-server.service" ];
-      after = [ "network.target" ];
-      serviceConfig = {
-        Type = "oneshot";
-        User = "immich";
-        Group = "immich";
-      };
-      script = ''
-        mkdir -p ${dataFolder}
-        
-        # Generate config file with only SHB-managed settings
-        ${configSetupScript}
-      '';
-    };
+    # Configuration setup service - generates config only for SHB-managed settings
+    systemd.services.immich-setup-config =
+      mkIf (cfg.enable && (cfg.settings != { } || cfg.sso.enable || cfg.smtp != null))
+        {
+          description = "Setup Immich configuration for SHB-managed settings";
+          wantedBy = [ "multi-user.target" ];
+          before = [ "immich-server.service" ];
+          after = [ "network.target" ];
+          serviceConfig = {
+            Type = "oneshot";
+            User = "immich";
+            Group = "immich";
+          };
+          script = ''
+            mkdir -p ${dataFolder}
+
+            # Generate config file with only SHB-managed settings
+            ${configSetupScript}
+          '';
+        };
 
     # Add immich user to video and render groups for hardware acceleration
-    users.users.immich.extraGroups = optionals (cfg.accelerationDevices != []) [ "video" "render" ];
+    users.users.immich.extraGroups = optionals (cfg.accelerationDevices != [ ]) [
+      "video"
+      "render"
+    ];
 
     # PostgreSQL extensions are automatically handled by the Immich service
 
@@ -499,7 +547,10 @@ in
           {
             domain = fqdn;
             policy = cfg.sso.authorization_policy;
-            subject = ["group:immich_user" "group:immich_admin"];
+            subject = [
+              "group:immich_user"
+              "group:immich_admin"
+            ];
           }
         ];
         authEndpoint = lib.mkIf (cfg.sso.enable) cfg.sso.endpoint;
@@ -515,10 +566,20 @@ in
 
     # Ensure services start in correct order
     systemd.services.immich-server = {
-      after = [ "postgresql.service" "redis-immich.service" ] 
-        ++ optionals (cfg.settings != {} || cfg.sso.enable || cfg.smtp != null) [ "immich-setup-config.service" ];
-      requires = [ "postgresql.service" "redis-immich.service" ]
-        ++ optionals (cfg.settings != {} || cfg.sso.enable || cfg.smtp != null) [ "immich-setup-config.service" ];
+      after = [
+        "postgresql.service"
+        "redis-immich.service"
+      ]
+      ++ optionals (cfg.settings != { } || cfg.sso.enable || cfg.smtp != null) [
+        "immich-setup-config.service"
+      ];
+      requires = [
+        "postgresql.service"
+        "redis-immich.service"
+      ]
+      ++ optionals (cfg.settings != { } || cfg.sso.enable || cfg.smtp != null) [
+        "immich-setup-config.service"
+      ];
     };
 
     systemd.services.immich-machine-learning = mkIf cfg.machineLearning.enable {
@@ -527,20 +588,20 @@ in
 
     # Authelia integration for SSO
     shb.authelia.extraDefinitions = {
-      # Immich expects all users that get a token to be granted access. So users can either be part of the 
-      # "admin" group or the "user" group. Users that are not part of either should be blocked by 
+      # Immich expects all users that get a token to be granted access. So users can either be part of the
+      # "admin" group or the "user" group. Users that are not part of either should be blocked by
       # the ID provider (Authelia).
-      user_attributes.${roleClaim}.expression = ''"${cfg.sso.adminUserGroup}" in groups ? "admin" : "user"'';
+      user_attributes.${roleClaim}.expression =
+        ''"${cfg.sso.adminUserGroup}" in groups ? "admin" : "user"'';
     };
     shb.authelia.extraOidcClaimsPolicies.immich_policy = {
       custom_claims = {
-        ${roleClaim} = {};
+        ${roleClaim} = { };
       };
     };
     shb.authelia.extraOidcScopes.immich_scope = {
       claims = [ roleClaim ];
     };
-
 
     shb.authelia.oidcClients = lists.optionals (cfg.sso.enable && cfg.sso.provider == "Authelia") [
       {

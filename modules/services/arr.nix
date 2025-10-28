@@ -1,9 +1,14 @@
-{ config, pkgs, lib, ... }:
+{
+  config,
+  pkgs,
+  lib,
+  ...
+}:
 
 let
   cfg = config.shb.arr;
 
-  contracts = pkgs.callPackage ../contracts {};
+  contracts = pkgs.callPackage ../contracts { };
 
   apps = {
     radarr = {
@@ -11,7 +16,7 @@ let
       moreOptions = {
         settings = lib.mkOption {
           description = "Specific options for radarr.";
-          default = {};
+          default = { };
           type = lib.types.submodule {
             freeformType = apps.radarr.settingsFormat.type;
             options = {
@@ -20,7 +25,10 @@ let
                 description = "Path to api key secret file.";
               };
               LogLevel = lib.mkOption {
-                type = lib.types.enum ["debug" "info"];
+                type = lib.types.enum [
+                  "debug"
+                  "info"
+                ];
                 description = "Log level.";
                 default = "info";
               };
@@ -69,7 +77,7 @@ let
       moreOptions = {
         settings = lib.mkOption {
           description = "Specific options for sonarr.";
-          default = {};
+          default = { };
           type = lib.types.submodule {
             freeformType = apps.sonarr.settingsFormat.type;
             options = {
@@ -78,7 +86,10 @@ let
                 description = "Path to api key secret file.";
               };
               LogLevel = lib.mkOption {
-                type = lib.types.enum ["debug" "info"];
+                type = lib.types.enum [
+                  "debug"
+                  "info"
+                ];
                 description = "Log level.";
                 default = "info";
               };
@@ -122,12 +133,15 @@ let
       moreOptions = {
         settings = lib.mkOption {
           description = "Specific options for bazarr.";
-          default = {};
+          default = { };
           type = lib.types.submodule {
             freeformType = apps.bazarr.settingsFormat.type;
             options = {
               LogLevel = lib.mkOption {
-                type = lib.types.enum ["debug" "info"];
+                type = lib.types.enum [
+                  "debug"
+                  "info"
+                ];
                 description = "Log level.";
                 default = "info";
               };
@@ -147,12 +161,15 @@ let
       moreOptions = {
         settings = lib.mkOption {
           description = "Specific options for readarr.";
-          default = {};
+          default = { };
           type = lib.types.submodule {
             freeformType = apps.readarr.settingsFormat.type;
             options = {
               LogLevel = lib.mkOption {
-                type = lib.types.enum ["debug" "info"];
+                type = lib.types.enum [
+                  "debug"
+                  "info"
+                ];
                 description = "Log level.";
                 default = "info";
               };
@@ -171,12 +188,15 @@ let
       moreOptions = {
         settings = lib.mkOption {
           description = "Specific options for lidarr.";
-          default = {};
+          default = { };
           type = lib.types.submodule {
             freeformType = apps.lidarr.settingsFormat.type;
             options = {
               LogLevel = lib.mkOption {
-                type = lib.types.enum ["debug" "info"];
+                type = lib.types.enum [
+                  "debug"
+                  "info"
+                ];
                 description = "Log level.";
                 default = "info";
               };
@@ -191,11 +211,11 @@ let
       };
     };
     jackett = {
-      settingsFormat = pkgs.formats.json {};
+      settingsFormat = pkgs.formats.json { };
       moreOptions = {
         settings = lib.mkOption {
           description = "Specific options for jackett.";
-          default = {};
+          default = { };
           type = lib.types.submodule {
             freeformType = apps.jackett.settingsFormat.type;
             options = {
@@ -214,13 +234,18 @@ let
                 default = null;
               };
               ProxyType = lib.mkOption {
-                type = lib.types.enum [ "-1" "0" "1" "2" ];
+                type = lib.types.enum [
+                  "-1"
+                  "0"
+                  "1"
+                  "2"
+                ];
                 default = "-1";
                 description = ''
-                -1 = disabled
-                0 = HTTP
-                1 = SOCKS4
-                2 = SOCKS5
+                  -1 = disabled
+                  0 = HTTP
+                  1 = SOCKS4
+                  2 = SOCKS5
                 '';
               };
               ProxyUrl = lib.mkOption {
@@ -256,83 +281,101 @@ let
     };
   };
 
-  vhosts = { extraBypassResources ? [] }: c: {
-    inherit (c) subdomain domain authEndpoint ssl;
+  vhosts =
+    {
+      extraBypassResources ? [ ],
+    }:
+    c: {
+      inherit (c)
+        subdomain
+        domain
+        authEndpoint
+        ssl
+        ;
 
-    upstream = "http://127.0.0.1:${toString c.settings.Port}";
-    autheliaRules = lib.optionals (!(isNull c.authEndpoint)) [
-      {
-        domain = "${c.subdomain}.${c.domain}";
-        policy = "bypass";
-        resources = extraBypassResources ++ [
-          "^/api.*"
-          "^/feed.*"
-        ];
-      }
-      {
-        domain = "${c.subdomain}.${c.domain}";
-        policy = "two_factor";
-        subject = ["group:arr_user"];
-      }
-    ];
-  };
-
-  appOption = name: c: lib.nameValuePair name (lib.mkOption {
-    description = "Configuration for ${name}";
-    default = {};
-    type = lib.types.submodule {
-      options = {
-        enable = lib.mkEnableOption name;
-
-        subdomain = lib.mkOption {
-          type = lib.types.str;
-          description = "Subdomain under which ${name} will be served.";
-          example = name;
-        };
-
-        domain = lib.mkOption {
-          type = lib.types.str;
-          description = "Domain under which ${name} will be served.";
-          example = "example.com";
-        };
-
-        dataDir = lib.mkOption {
-          type = lib.types.str;
-          description = "Directory where ${name} stores data.";
-          default = "/var/lib/${name}";
-        };
-
-        ssl = lib.mkOption {
-          description = "Path to SSL files";
-          type = lib.types.nullOr contracts.ssl.certs;
-          default = null;
-        };
-
-        authEndpoint = lib.mkOption {
-          type = lib.types.nullOr lib.types.str;
-          default = null;
-          description = "Endpoint to the SSO provider. Leave null to not have SSO configured.";
-          example = "https://authelia.example.com";
-        };
-
-        backup = lib.mkOption {
-          description = ''
-            Backup configuration.
-          '';
-          default = {};
-          type = lib.types.submodule {
-            options = contracts.backup.mkRequester {
-              user = name;
-              sourceDirectories = [
-                cfg.${name}.dataDir
-              ];
-              excludePatterns = [".db-shm" ".db-wal" ".mono"];
-            };
-          };
-        };
-      } // (c.moreOptions or {});
+      upstream = "http://127.0.0.1:${toString c.settings.Port}";
+      autheliaRules = lib.optionals (!(isNull c.authEndpoint)) [
+        {
+          domain = "${c.subdomain}.${c.domain}";
+          policy = "bypass";
+          resources = extraBypassResources ++ [
+            "^/api.*"
+            "^/feed.*"
+          ];
+        }
+        {
+          domain = "${c.subdomain}.${c.domain}";
+          policy = "two_factor";
+          subject = [ "group:arr_user" ];
+        }
+      ];
     };
-  });
+
+  appOption =
+    name: c:
+    lib.nameValuePair name (
+      lib.mkOption {
+        description = "Configuration for ${name}";
+        default = { };
+        type = lib.types.submodule {
+          options = {
+            enable = lib.mkEnableOption name;
+
+            subdomain = lib.mkOption {
+              type = lib.types.str;
+              description = "Subdomain under which ${name} will be served.";
+              example = name;
+            };
+
+            domain = lib.mkOption {
+              type = lib.types.str;
+              description = "Domain under which ${name} will be served.";
+              example = "example.com";
+            };
+
+            dataDir = lib.mkOption {
+              type = lib.types.str;
+              description = "Directory where ${name} stores data.";
+              default = "/var/lib/${name}";
+            };
+
+            ssl = lib.mkOption {
+              description = "Path to SSL files";
+              type = lib.types.nullOr contracts.ssl.certs;
+              default = null;
+            };
+
+            authEndpoint = lib.mkOption {
+              type = lib.types.nullOr lib.types.str;
+              default = null;
+              description = "Endpoint to the SSO provider. Leave null to not have SSO configured.";
+              example = "https://authelia.example.com";
+            };
+
+            backup = lib.mkOption {
+              description = ''
+                Backup configuration.
+              '';
+              default = { };
+              type = lib.types.submodule {
+                options = contracts.backup.mkRequester {
+                  user = name;
+                  sourceDirectories = [
+                    cfg.${name}.dataDir
+                  ];
+                  excludePatterns = [
+                    ".db-shm"
+                    ".db-wal"
+                    ".mono"
+                  ];
+                };
+              };
+            };
+          }
+          // (c.moreOptions or { });
+        };
+      }
+    );
 in
 {
   imports = [
@@ -343,155 +386,167 @@ in
 
   config = lib.mkMerge [
     (lib.mkIf cfg.radarr.enable (
-    let
-      cfg' = cfg.radarr;
-      isSSOEnabled = !(isNull cfg'.authEndpoint);
-    in
-    {
-      services.nginx.enable = true;
+      let
+        cfg' = cfg.radarr;
+        isSSOEnabled = !(isNull cfg'.authEndpoint);
+      in
+      {
+        services.nginx.enable = true;
 
-      services.radarr = {
-        enable = true;
-        dataDir = "/var/lib/radarr";
-      };
+        services.radarr = {
+          enable = true;
+          dataDir = "/var/lib/radarr";
+        };
 
-      systemd.services.radarr.preStart = lib.shb.replaceSecrets {
-        userConfig = cfg'.settings
-                     // (lib.optionalAttrs isSSOEnabled {
-                       AuthenticationRequired = "DisabledForLocalAddresses";
-                       AuthenticationMethod = "External";
-                     });
-        resultPath = "${config.services.radarr.dataDir}/config.xml";
-        generator = lib.shb.replaceSecretsFormatAdapter apps.radarr.settingsFormat;
-      };
+        systemd.services.radarr.preStart = lib.shb.replaceSecrets {
+          userConfig =
+            cfg'.settings
+            // (lib.optionalAttrs isSSOEnabled {
+              AuthenticationRequired = "DisabledForLocalAddresses";
+              AuthenticationMethod = "External";
+            });
+          resultPath = "${config.services.radarr.dataDir}/config.xml";
+          generator = lib.shb.replaceSecretsFormatAdapter apps.radarr.settingsFormat;
+        };
 
-      shb.nginx.vhosts = [ (vhosts {} cfg') ];
-    }))
+        shb.nginx.vhosts = [ (vhosts { } cfg') ];
+      }
+    ))
 
     (lib.mkIf cfg.sonarr.enable (
-    let
-      cfg' = cfg.sonarr;
-      isSSOEnabled = !(isNull cfg'.authEndpoint);
-    in
-    {
-      services.nginx.enable = true;
+      let
+        cfg' = cfg.sonarr;
+        isSSOEnabled = !(isNull cfg'.authEndpoint);
+      in
+      {
+        services.nginx.enable = true;
 
-      services.sonarr = {
-        enable = true;
-        dataDir = "/var/lib/sonarr";
-      };
-      users.users.sonarr = {
-        extraGroups = [ "media" ];
-      };
+        services.sonarr = {
+          enable = true;
+          dataDir = "/var/lib/sonarr";
+        };
+        users.users.sonarr = {
+          extraGroups = [ "media" ];
+        };
 
-      systemd.services.sonarr.preStart = lib.shb.replaceSecrets {
-        userConfig = cfg'.settings
-                     // (lib.optionalAttrs isSSOEnabled {
-                       AuthenticationRequired = "DisabledForLocalAddresses";
-                       AuthenticationMethod = "External";
-                     });
-        resultPath = "${config.services.sonarr.dataDir}/config.xml";
-        generator = apps.sonarr.settingsFormat.generate;
-      };
+        systemd.services.sonarr.preStart = lib.shb.replaceSecrets {
+          userConfig =
+            cfg'.settings
+            // (lib.optionalAttrs isSSOEnabled {
+              AuthenticationRequired = "DisabledForLocalAddresses";
+              AuthenticationMethod = "External";
+            });
+          resultPath = "${config.services.sonarr.dataDir}/config.xml";
+          generator = apps.sonarr.settingsFormat.generate;
+        };
 
-      shb.nginx.vhosts = [ (vhosts {} cfg') ];
-    }))
+        shb.nginx.vhosts = [ (vhosts { } cfg') ];
+      }
+    ))
 
     (lib.mkIf cfg.bazarr.enable (
-    let
-      cfg' = cfg.bazarr;
-      isSSOEnabled = !(isNull cfg'.authEndpoint);
-    in
-    {
-      services.bazarr = {
-        enable = true;
-        listenPort = cfg'.settings.Port;
-      };
-      users.users.bazarr = {
-        extraGroups = [ "media" ];
-      };
-      systemd.services.bazarr.preStart = lib.shb.replaceSecrets {
-        userConfig = cfg'.settings
-                     // (lib.optionalAttrs isSSOEnabled {
-                       AuthenticationRequired = "DisabledForLocalAddresses";
-                       AuthenticationMethod = "External";
-                     });
-        resultPath = "/var/lib/bazarr/config.xml";
-        generator = apps.bazarr.settingsFormat.generate;
-      };
+      let
+        cfg' = cfg.bazarr;
+        isSSOEnabled = !(isNull cfg'.authEndpoint);
+      in
+      {
+        services.bazarr = {
+          enable = true;
+          listenPort = cfg'.settings.Port;
+        };
+        users.users.bazarr = {
+          extraGroups = [ "media" ];
+        };
+        systemd.services.bazarr.preStart = lib.shb.replaceSecrets {
+          userConfig =
+            cfg'.settings
+            // (lib.optionalAttrs isSSOEnabled {
+              AuthenticationRequired = "DisabledForLocalAddresses";
+              AuthenticationMethod = "External";
+            });
+          resultPath = "/var/lib/bazarr/config.xml";
+          generator = apps.bazarr.settingsFormat.generate;
+        };
 
-      shb.nginx.vhosts = [ (vhosts {} cfg') ];
-    }))
+        shb.nginx.vhosts = [ (vhosts { } cfg') ];
+      }
+    ))
 
     (lib.mkIf cfg.readarr.enable (
-    let
-      cfg' = cfg.readarr;
-    in
-    {
-      services.readarr = {
-        enable = true;
-        dataDir = "/var/lib/readarr";
-      };
-      users.users.readarr = {
-        extraGroups = [ "media" ];
-      };
-      systemd.services.readarr.preStart = lib.shb.replaceSecrets {
-        userConfig = cfg'.settings;
-        resultPath = "${config.services.readarr.dataDir}/config.xml";
-        generator = apps.readarr.settingsFormat.generate;
-      };
+      let
+        cfg' = cfg.readarr;
+      in
+      {
+        services.readarr = {
+          enable = true;
+          dataDir = "/var/lib/readarr";
+        };
+        users.users.readarr = {
+          extraGroups = [ "media" ];
+        };
+        systemd.services.readarr.preStart = lib.shb.replaceSecrets {
+          userConfig = cfg'.settings;
+          resultPath = "${config.services.readarr.dataDir}/config.xml";
+          generator = apps.readarr.settingsFormat.generate;
+        };
 
-      shb.nginx.vhosts = [ (vhosts {} cfg') ];
-    }))
+        shb.nginx.vhosts = [ (vhosts { } cfg') ];
+      }
+    ))
 
     (lib.mkIf cfg.lidarr.enable (
-    let
-      cfg' = cfg.lidarr;
-      isSSOEnabled = !(isNull cfg'.authEndpoint);
-    in
-    {
-      services.lidarr = {
-        enable = true;
-        dataDir = "/var/lib/lidarr";
-      };
-      users.users.lidarr = {
-        extraGroups = [ "media" ];
-      };
-      systemd.services.lidarr.preStart = lib.shb.replaceSecrets {
-        userConfig = cfg'.settings
-                     // (lib.optionalAttrs isSSOEnabled {
-                       AuthenticationRequired = "DisabledForLocalAddresses";
-                       AuthenticationMethod = "External";
-                     });
-        resultPath = "${config.services.lidarr.dataDir}/config.xml";
-        generator = apps.lidarr.settingsFormat.generate;
-      };
+      let
+        cfg' = cfg.lidarr;
+        isSSOEnabled = !(isNull cfg'.authEndpoint);
+      in
+      {
+        services.lidarr = {
+          enable = true;
+          dataDir = "/var/lib/lidarr";
+        };
+        users.users.lidarr = {
+          extraGroups = [ "media" ];
+        };
+        systemd.services.lidarr.preStart = lib.shb.replaceSecrets {
+          userConfig =
+            cfg'.settings
+            // (lib.optionalAttrs isSSOEnabled {
+              AuthenticationRequired = "DisabledForLocalAddresses";
+              AuthenticationMethod = "External";
+            });
+          resultPath = "${config.services.lidarr.dataDir}/config.xml";
+          generator = apps.lidarr.settingsFormat.generate;
+        };
 
-      shb.nginx.vhosts = [ (vhosts {} cfg') ];
-    }))
+        shb.nginx.vhosts = [ (vhosts { } cfg') ];
+      }
+    ))
 
     (lib.mkIf cfg.jackett.enable (
-    let
-      cfg' = cfg.jackett;
-    in
-    {
-      services.jackett = {
-        enable = true;
-        dataDir = "/var/lib/jackett";
-      };
-      # TODO: avoid implicitly relying on the media group
-      users.users.jackett = {
-        extraGroups = [ "media" ];
-      };
-      systemd.services.jackett.preStart = lib.shb.replaceSecrets {
-        userConfig = lib.shb.renameAttrName cfg'.settings "ApiKey" "APIKey";
-        resultPath = "${config.services.jackett.dataDir}/ServerConfig.json";
-        generator = apps.jackett.settingsFormat.generate;
-      };
+      let
+        cfg' = cfg.jackett;
+      in
+      {
+        services.jackett = {
+          enable = true;
+          dataDir = "/var/lib/jackett";
+        };
+        # TODO: avoid implicitly relying on the media group
+        users.users.jackett = {
+          extraGroups = [ "media" ];
+        };
+        systemd.services.jackett.preStart = lib.shb.replaceSecrets {
+          userConfig = lib.shb.renameAttrName cfg'.settings "ApiKey" "APIKey";
+          resultPath = "${config.services.jackett.dataDir}/ServerConfig.json";
+          generator = apps.jackett.settingsFormat.generate;
+        };
 
-      shb.nginx.vhosts = [ (vhosts {
-        extraBypassResources = [ "^/dl.*" ];
-      } cfg') ];
-    }))
+        shb.nginx.vhosts = [
+          (vhosts {
+            extraBypassResources = [ "^/dl.*" ];
+          } cfg')
+        ];
+      }
+    ))
   ];
 }

@@ -1,25 +1,60 @@
-{ config, options, pkgs, lib, ... }:
+{
+  config,
+  options,
+  pkgs,
+  lib,
+  ...
+}:
 
 let
   cfg = config.shb.forgejo;
 
-  contracts = pkgs.callPackage ../contracts {};
+  contracts = pkgs.callPackage ../contracts { };
 
-  inherit (lib) all attrNames concatMapStringsSep getExe lists literalExpression mapAttrsToList mkBefore mkEnableOption mkForce mkIf mkMerge mkOption mkOverride nameValuePair optionalString optionals;
-  inherit (lib.types) attrsOf bool enum listOf nullOr package port submodule str;
+  inherit (lib)
+    all
+    attrNames
+    concatMapStringsSep
+    getExe
+    lists
+    literalExpression
+    mapAttrsToList
+    mkBefore
+    mkEnableOption
+    mkForce
+    mkIf
+    mkMerge
+    mkOption
+    mkOverride
+    nameValuePair
+    optionalString
+    optionals
+    ;
+  inherit (lib.types)
+    attrsOf
+    bool
+    enum
+    listOf
+    nullOr
+    package
+    port
+    submodule
+    str
+    ;
 in
 {
   imports = [
     ../blocks/nginx.nix
 
-    (lib.mkRemovedOptionModule [ "shb" "forgejo" "adminPassword" ] ''Instead, define an admin user in shb.forgejo.users and give it the same password, like so:
-      shb.forgejo.users = {
-        "forgejoadmin" = {
-          isAdmin = true;
-          email = "forgejoadmin@example.com";
-          password.result = <path/to/password>;
-        };
-      };
+    (lib.mkRemovedOptionModule [ "shb" "forgejo" "adminPassword" ] ''
+      Instead, define an admin user in shb.forgejo.users and give it the same password, like so:
+            shb.forgejo.users = {
+              "forgejoadmin" = {
+                isAdmin = true;
+                email = "forgejoadmin@example.com";
+                password.result = <path/to/password>;
+              };
+            };
     '')
   ];
 
@@ -60,7 +95,7 @@ in
       description = ''
         LDAP Integration.
       '';
-      default = {};
+      default = { };
       type = nullOr (submodule {
         options = {
           enable = mkEnableOption "LDAP integration.";
@@ -125,7 +160,7 @@ in
 
           waitForSystemdServices = mkOption {
             type = listOf str;
-            default = [];
+            default = [ ];
             description = ''
               List of systemd services to wait on before starting.
               This is needed because forgejo will try a lookup on the LDAP instance
@@ -140,7 +175,7 @@ in
       description = ''
         Setup SSO integration.
       '';
-      default = {};
+      default = { };
       type = submodule {
         options = {
           enable = mkEnableOption "SSO integration.";
@@ -164,7 +199,10 @@ in
           };
 
           authorization_policy = mkOption {
-            type = enum [ "one_factor" "two_factor" ];
+            type = enum [
+              "one_factor"
+              "two_factor"
+            ];
             description = "Require one factor (password) or two factor (device) authentication.";
             default = "one_factor";
           };
@@ -205,9 +243,10 @@ in
           };
 
           email = mkOption {
-            description = ''Email of user.
+            description = ''
+              Email of user.
 
-            This is only set when the user is created, changing this later on will have no effect.
+                          This is only set when the user is created, changing this later on will have no effect.
             '';
             type = str;
           };
@@ -254,7 +293,6 @@ in
       '';
     };
 
-
     hostPackages = mkOption {
       type = listOf package;
       default = with pkgs; [
@@ -289,13 +327,14 @@ in
       description = ''
         Backup configuration.
       '';
-      default = {};
+      default = { };
       type = lib.types.submodule {
         options = contracts.backup.mkRequester {
           user = options.services.forgejo.user.value;
           sourceDirectories = [
             options.services.forgejo.dump.backupDir.value
-          ] ++ optionals (cfg.repositoryRoot != null) [
+          ]
+          ++ optionals (cfg.repositoryRoot != null) [
             cfg.repositoryRoot
           ];
         };
@@ -317,7 +356,9 @@ in
         ```
       '';
       readOnly = true;
-      default = { path = config.services.forgejo.stateDir; };
+      default = {
+        path = config.services.forgejo.stateDir;
+      };
     };
 
     smtp = mkOption {
@@ -390,10 +431,12 @@ in
       # https://github.com/NixOS/nixpkgs/issues/258371#issuecomment-2271967113
       systemd.services.forgejo.serviceConfig.Type = mkForce "exec";
 
-      shb.nginx.vhosts = [{
-        inherit (cfg) domain subdomain ssl;
-        upstream = "http://unix:${config.services.forgejo.settings.server.HTTP_ADDR}";
-      }];
+      shb.nginx.vhosts = [
+        {
+          inherit (cfg) domain subdomain ssl;
+          upstream = "http://unix:${config.services.forgejo.settings.server.HTTP_ADDR}";
+        }
+      ];
     })
 
     (mkIf cfg.enable {
@@ -420,58 +463,60 @@ in
       systemd.services.forgejo.wants = cfg.ldap.waitForSystemdServices;
       systemd.services.forgejo.after = cfg.ldap.waitForSystemdServices;
       # The delimiter in the `cut` command is a TAB!
-      systemd.services.forgejo.preStart = let
-        provider = "SHB-${cfg.ldap.provider}";
-      in ''
-        auth="${getExe config.services.forgejo.package} admin auth"
+      systemd.services.forgejo.preStart =
+        let
+          provider = "SHB-${cfg.ldap.provider}";
+        in
+        ''
+          auth="${getExe config.services.forgejo.package} admin auth"
 
-        echo "Trying to find existing ldap configuration for ${provider}"...
-        set +e -o pipefail
-        id="$($auth list | grep "${provider}.*LDAP" |  cut -d'	' -f1)"
-        found=$?
-        set -e +o pipefail
+          echo "Trying to find existing ldap configuration for ${provider}"...
+          set +e -o pipefail
+          id="$($auth list | grep "${provider}.*LDAP" |  cut -d'	' -f1)"
+          found=$?
+          set -e +o pipefail
 
-        if [[ $found = 0 ]]; then
-          echo Found ldap configuration at id=$id, updating it if needed.
-          $auth update-ldap \
-            --id                  $id \
-            --name                ${provider} \
-            --host                ${cfg.ldap.host} \
-            --port                ${toString cfg.ldap.port} \
-            --bind-dn             uid=${cfg.ldap.adminName},ou=people,${cfg.ldap.dcdomain} \
-            --bind-password       $(tr -d '\n' < ${cfg.ldap.adminPassword.result.path}) \
-            --security-protocol   Unencrypted \
-            --user-search-base    ou=people,${cfg.ldap.dcdomain} \
-            --user-filter         '(&(memberof=cn=${cfg.ldap.userGroup},ou=groups,${cfg.ldap.dcdomain})(|(uid=%[1]s)(mail=%[1]s)))' \
-            --admin-filter        '(memberof=cn=${cfg.ldap.adminGroup},ou=groups,${cfg.ldap.dcdomain})' \
-            --username-attribute  uid \
-            --firstname-attribute givenName \
-            --surname-attribute   sn \
-            --email-attribute     mail \
-            --avatar-attribute    jpegPhoto \
-            --synchronize-users
-          echo "Done updating LDAP configuration."
-        else
-          echo Did not find any ldap configuration, creating one with name ${provider}.
-          $auth add-ldap \
-            --name                ${provider} \
-            --host                ${cfg.ldap.host} \
-            --port                ${toString cfg.ldap.port} \
-            --bind-dn             uid=${cfg.ldap.adminName},ou=people,${cfg.ldap.dcdomain} \
-            --bind-password       $(tr -d '\n' < ${cfg.ldap.adminPassword.result.path}) \
-            --security-protocol   Unencrypted \
-            --user-search-base    ou=people,${cfg.ldap.dcdomain} \
-            --user-filter         '(&(memberof=cn=${cfg.ldap.userGroup},ou=groups,${cfg.ldap.dcdomain})(|(uid=%[1]s)(mail=%[1]s)))' \
-            --admin-filter        '(memberof=cn=${cfg.ldap.adminGroup},ou=groups,${cfg.ldap.dcdomain})' \
-            --username-attribute  uid \
-            --firstname-attribute givenName \
-            --surname-attribute   sn \
-            --email-attribute     mail \
-            --avatar-attribute    jpegPhoto \
-            --synchronize-users
-          echo "Done adding LDAP configuration."
-        fi
-      '';
+          if [[ $found = 0 ]]; then
+            echo Found ldap configuration at id=$id, updating it if needed.
+            $auth update-ldap \
+              --id                  $id \
+              --name                ${provider} \
+              --host                ${cfg.ldap.host} \
+              --port                ${toString cfg.ldap.port} \
+              --bind-dn             uid=${cfg.ldap.adminName},ou=people,${cfg.ldap.dcdomain} \
+              --bind-password       $(tr -d '\n' < ${cfg.ldap.adminPassword.result.path}) \
+              --security-protocol   Unencrypted \
+              --user-search-base    ou=people,${cfg.ldap.dcdomain} \
+              --user-filter         '(&(memberof=cn=${cfg.ldap.userGroup},ou=groups,${cfg.ldap.dcdomain})(|(uid=%[1]s)(mail=%[1]s)))' \
+              --admin-filter        '(memberof=cn=${cfg.ldap.adminGroup},ou=groups,${cfg.ldap.dcdomain})' \
+              --username-attribute  uid \
+              --firstname-attribute givenName \
+              --surname-attribute   sn \
+              --email-attribute     mail \
+              --avatar-attribute    jpegPhoto \
+              --synchronize-users
+            echo "Done updating LDAP configuration."
+          else
+            echo Did not find any ldap configuration, creating one with name ${provider}.
+            $auth add-ldap \
+              --name                ${provider} \
+              --host                ${cfg.ldap.host} \
+              --port                ${toString cfg.ldap.port} \
+              --bind-dn             uid=${cfg.ldap.adminName},ou=people,${cfg.ldap.dcdomain} \
+              --bind-password       $(tr -d '\n' < ${cfg.ldap.adminPassword.result.path}) \
+              --security-protocol   Unencrypted \
+              --user-search-base    ou=people,${cfg.ldap.dcdomain} \
+              --user-filter         '(&(memberof=cn=${cfg.ldap.userGroup},ou=groups,${cfg.ldap.dcdomain})(|(uid=%[1]s)(mail=%[1]s)))' \
+              --admin-filter        '(memberof=cn=${cfg.ldap.adminGroup},ou=groups,${cfg.ldap.dcdomain})' \
+              --username-attribute  uid \
+              --firstname-attribute givenName \
+              --surname-attribute   sn \
+              --email-attribute     mail \
+              --avatar-attribute    jpegPhoto \
+              --synchronize-users
+            echo "Done adding LDAP configuration."
+          fi
+        '';
     })
 
     # For Authelia to Forgejo integration: https://www.authelia.com/integration/openid-connect/gitea/
@@ -488,7 +533,7 @@ in
           ENABLE_OPENID_SIGNUP = true;
           WHITELISTED_URIS = cfg.sso.endpoint;
         };
-        
+
         service = {
           # DISABLE_REGISTRATION = mkForce false;
           # ALLOW_ONLY_EXTERNAL_REGISTRATION = false;
@@ -497,48 +542,53 @@ in
       };
 
       # The delimiter in the `cut` command is a TAB!
-      systemd.services.forgejo.preStart = let
-        provider = "SHB-${cfg.sso.provider}";
-      in ''
-        auth="${getExe config.services.forgejo.package} admin auth"
+      systemd.services.forgejo.preStart =
+        let
+          provider = "SHB-${cfg.sso.provider}";
+        in
+        ''
+          auth="${getExe config.services.forgejo.package} admin auth"
 
-        echo "Trying to find existing sso configuration for ${provider}"...
-        set +e -o pipefail
-        id="$($auth list | grep "${provider}.*OAuth2" |  cut -d'	' -f1)"
-        found=$?
-        set -e +o pipefail
+          echo "Trying to find existing sso configuration for ${provider}"...
+          set +e -o pipefail
+          id="$($auth list | grep "${provider}.*OAuth2" |  cut -d'	' -f1)"
+          found=$?
+          set -e +o pipefail
 
-        if [[ $found = 0 ]]; then
-          echo Found sso configuration at id=$id, updating it if needed.
-          $auth update-oauth \
-            --id       $id \
-            --name     ${provider} \
-            --provider openidConnect \
-            --key      forgejo \
-            --secret   $(tr -d '\n' < ${cfg.sso.sharedSecret.result.path}) \
-            --auto-discover-url ${cfg.sso.endpoint}/.well-known/openid-configuration
-        else
-          echo Did not find any sso configuration, creating one with name ${provider}.
-          $auth add-oauth \
-            --name     ${provider} \
-            --provider openidConnect \
-            --key      forgejo \
-            --secret   $(tr -d '\n' < ${cfg.sso.sharedSecret.result.path}) \
-            --auto-discover-url ${cfg.sso.endpoint}/.well-known/openid-configuration
-        fi
-      '';
+          if [[ $found = 0 ]]; then
+            echo Found sso configuration at id=$id, updating it if needed.
+            $auth update-oauth \
+              --id       $id \
+              --name     ${provider} \
+              --provider openidConnect \
+              --key      forgejo \
+              --secret   $(tr -d '\n' < ${cfg.sso.sharedSecret.result.path}) \
+              --auto-discover-url ${cfg.sso.endpoint}/.well-known/openid-configuration
+          else
+            echo Did not find any sso configuration, creating one with name ${provider}.
+            $auth add-oauth \
+              --name     ${provider} \
+              --provider openidConnect \
+              --key      forgejo \
+              --secret   $(tr -d '\n' < ${cfg.sso.sharedSecret.result.path}) \
+              --auto-discover-url ${cfg.sso.endpoint}/.well-known/openid-configuration
+          fi
+        '';
 
       shb.authelia.oidcClients = lists.optionals (!(isNull cfg.sso)) [
-        (let
-          provider = "SHB-${cfg.sso.provider}";
-        in {
-          client_id = cfg.sso.clientID;
-          client_name = "Forgejo";
-          client_secret.source = cfg.sso.sharedSecretForAuthelia.result.path;
-          public = false;
-          authorization_policy = cfg.sso.authorization_policy;
-          redirect_uris = [ "https://${cfg.subdomain}.${cfg.domain}/user/oauth2/${provider}/callback" ];
-        })
+        (
+          let
+            provider = "SHB-${cfg.sso.provider}";
+          in
+          {
+            client_id = cfg.sso.clientID;
+            client_name = "Forgejo";
+            client_secret.source = cfg.sso.sharedSecretForAuthelia.result.path;
+            public = false;
+            authorization_policy = cfg.sso.authorization_policy;
+            redirect_uris = [ "https://${cfg.subdomain}.${cfg.domain}/user/oauth2/${provider}/callback" ];
+          }
+        )
       ];
     })
 
@@ -552,13 +602,14 @@ in
 
       systemd.services.forgejo.preStart = ''
         admin="${getExe config.services.forgejo.package} admin user"
-      '' + concatMapStringsSep "\n" (u: ''
+      ''
+      + concatMapStringsSep "\n" (u: ''
         if ! $admin list | grep "${u.name}"; then
           $admin create ${optionalString u.value.isAdmin "--admin"} --email "${u.value.email}" --must-change-password=false --username "${u.name}" --password "$(tr -d '\n' < ${u.value.password.result.path})"
         else
           $admin change-password --must-change-password=false --username "${u.name}" --password "$(tr -d '\n' < ${u.value.password.result.path})"
         fi
-'') (mapAttrsToList nameValuePair cfg.users);
+      '') (mapAttrsToList nameValuePair cfg.users);
     })
 
     (mkIf (cfg.enable && cfg.smtp != null) {
@@ -584,15 +635,17 @@ in
         instances.local = {
           enable = true;
           name = "local";
-          url = let
-            protocol = if cfg.ssl != null then "https" else "http";
-          in "${protocol}://${cfg.subdomain}.${cfg.domain}";
+          url =
+            let
+              protocol = if cfg.ssl != null then "https" else "http";
+            in
+            "${protocol}://${cfg.subdomain}.${cfg.domain}";
           tokenFile = ""; # Empty variable to satisfy an assertion.
           labels = [
             # "ubuntu-latest:docker://node:16-bullseye"
             # "ubuntu-22.04:docker://node:16-bullseye"
             # "ubuntu-20.04:docker://node:16-bullseye"
-            # "ubuntu-18.04:docker://node:16-buster"     
+            # "ubuntu-18.04:docker://node:16-buster"
             "native:host"
           ];
           inherit (cfg) hostPackages;

@@ -1,4 +1,9 @@
-{ config, pkgs, lib, ... }:
+{
+  config,
+  pkgs,
+  lib,
+  ...
+}:
 
 let
   cfg = config.shb.zfs;
@@ -21,38 +26,43 @@ in
         This block implements the following contracts:
           - mount
       '';
-      default = {};
+      default = { };
       example = lib.literalExpression ''
         shb.zfs."safe/postgresql".path = "/var/lib/postgresql";
       '';
-      type = lib.types.attrsOf (lib.types.submodule {
-        options = {
-          enable = lib.mkEnableOption "shb.zfs.datasets";
+      type = lib.types.attrsOf (
+        lib.types.submodule {
+          options = {
+            enable = lib.mkEnableOption "shb.zfs.datasets";
 
-          poolName = lib.mkOption {
-            type = lib.types.nullOr lib.types.str;
-            default = null;
-            description = "ZFS pool name this dataset should be created on. Overrides the defaultPoolName.";
-          };
+            poolName = lib.mkOption {
+              type = lib.types.nullOr lib.types.str;
+              default = null;
+              description = "ZFS pool name this dataset should be created on. Overrides the defaultPoolName.";
+            };
 
-          path = lib.mkOption {
-            type = lib.types.str;
-            description = "Path this dataset should be mounted on.";
+            path = lib.mkOption {
+              type = lib.types.str;
+              description = "Path this dataset should be mounted on.";
+            };
           };
-        };
-      });
+        }
+      );
     };
   };
 
   config = {
     assertions = [
       {
-        assertion = lib.any (x: x.poolName == null) (lib.mapAttrsToList (n: v: v) cfg.datasets) -> cfg.defaultPoolName != null;
+        assertion =
+          lib.any (x: x.poolName == null) (lib.mapAttrsToList (n: v: v) cfg.datasets)
+          -> cfg.defaultPoolName != null;
         message = "Cannot have both datasets.poolName and defaultPoolName set to null";
       }
     ];
 
-    system.activationScripts = lib.mapAttrs' (name: cfg':
+    system.activationScripts = lib.mapAttrs' (
+      name: cfg':
       let
         dataset = (if cfg'.poolName != null then cfg'.poolName else cfg.defaultPoolName) + "/" + name;
       in
@@ -68,6 +78,7 @@ in
                mountpoint=${cfg'.path} \
                ${dataset}
         '';
-      }) cfg.datasets;
+      }
+    ) cfg.datasets;
   };
 }

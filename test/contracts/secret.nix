@@ -1,12 +1,15 @@
 { pkgs, ... }:
 let
-  contracts = pkgs.callPackage ../../modules/contracts {};
+  contracts = pkgs.callPackage ../../modules/contracts { };
 in
 {
   hardcoded_root_root = contracts.test.secret {
     name = "hardcoded";
     modules = [ ../../modules/blocks/hardcodedsecret.nix ];
-    configRoot = [ "shb" "hardcodedsecret" ];
+    configRoot = [
+      "shb"
+      "hardcodedsecret"
+    ];
     settingsCfg = secret: {
       content = secret;
     };
@@ -15,7 +18,10 @@ in
   hardcoded_user_group = contracts.test.secret {
     name = "hardcoded";
     modules = [ ../../modules/blocks/hardcodedsecret.nix ];
-    configRoot = [ "shb" "hardcodedsecret" ];
+    configRoot = [
+      "shb"
+      "hardcodedsecret"
+    ];
     settingsCfg = secret: {
       content = secret;
     };

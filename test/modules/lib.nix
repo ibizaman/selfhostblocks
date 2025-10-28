@@ -17,11 +17,12 @@ in
           c = "%SECRET_${root}C%";
         };
       in
-        (item "") // {
-          nestedAttr = item "NESTEDATTR_";
-          nestedList = [ (item "NESTEDLIST_0_") ];
-          doubleNestedList = [ { n = (item "DOUBLENESTEDLIST_0_N_"); } ];
-        };
+      (item "")
+      // {
+        nestedAttr = item "NESTEDATTR_";
+        nestedList = [ (item "NESTEDLIST_0_") ];
+        doubleNestedList = [ { n = (item "DOUBLENESTEDLIST_0_N_"); } ];
+      };
     expr =
       let
         item = {
@@ -33,13 +34,14 @@ in
           c.other = "other";
         };
       in
-        lib.shb.withReplacements (
-          item // {
-            nestedAttr = item;
-            nestedList = [ item ];
-            doubleNestedList = [ { n = item; } ];
-          }
-        );
+      lib.shb.withReplacements (
+        item
+        // {
+          nestedAttr = item;
+          nestedList = [ item ];
+          doubleNestedList = [ { n = item; } ];
+        }
+      );
   };
 
   testLibWithReplacementsRootList = {
@@ -51,12 +53,12 @@ in
           c = "%SECRET_${root}C%";
         };
       in
-        [
-          (item "0_")
-          (item "1_")
-          [ (item "2_0_") ]
-          [ { n = (item "3_0_N_"); } ]
-        ];
+      [
+        (item "0_")
+        (item "1_")
+        [ (item "2_0_") ]
+        [ { n = (item "3_0_N_"); } ]
+      ];
     expr =
       let
         item = {
@@ -68,12 +70,12 @@ in
           c.other = "other";
         };
       in
-        lib.shb.withReplacements [
-          item
-          item
-          [ item ]
-          [ { n = item; } ]
-        ];
+      lib.shb.withReplacements [
+        item
+        item
+        [ item ]
+        [ { n = item; } ]
+      ];
   };
 
   testLibGetReplacements = {
@@ -84,10 +86,10 @@ in
           (nameValuePair "%SECRET_${root}C%" "prefix-$(cat /path/C)-suffix")
         ];
       in
-        (secrets "") ++
-        (secrets "DOUBLENESTEDLIST_0_N_") ++
-        (secrets "NESTEDATTR_") ++
-        (secrets "NESTEDLIST_0_");
+      (secrets "")
+      ++ (secrets "DOUBLENESTEDLIST_0_N_")
+      ++ (secrets "NESTEDATTR_")
+      ++ (secrets "NESTEDLIST_0_");
     expr =
       let
         item = {
@@ -99,13 +101,16 @@ in
           c.other = "other";
         };
       in
-        map lib.shb.genReplacement (lib.shb.getReplacements (
-          item // {
+      map lib.shb.genReplacement (
+        lib.shb.getReplacements (
+          item
+          // {
             nestedAttr = item;
             nestedList = [ item ];
             doubleNestedList = [ { n = item; } ];
           }
-        ));
+        )
+      );
   };
 
   testParseXML = {
@@ -119,10 +124,10 @@ in
     };
 
     expr = lib.shb.parseXML ''
-    <a>
-      <b>1</b>
-      <c><d>1</d></c>
-    </a>
+      <a>
+        <b>1</b>
+        <c><d>1</d></c>
+      </a>
     '';
   };
 }

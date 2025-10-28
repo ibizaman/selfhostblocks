@@ -1,6 +1,6 @@
 { pkgs, lib, ... }:
 let
-  contracts = pkgs.callPackage ../. {};
+  contracts = pkgs.callPackage ../. { };
 
   inherit (lib) mkOption;
   inherit (lib.types) submodule;

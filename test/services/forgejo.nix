@@ -4,150 +4,182 @@ let
 
   commonTestScript = lib.shb.mkScripts {
     hasSSL = { node, ... }: !(isNull node.config.shb.forgejo.ssl);
-    waitForServices = { ... }: [
-      "forgejo.service"
-      "nginx.service"
-    ];
-    waitForUnixSocket = { node, ... }: [
-      node.config.services.forgejo.settings.server.HTTP_ADDR
-    ];
-    extraScript = { node, ... }: ''
-    server.wait_for_unit("gitea-runner-local.service", timeout=10)
-    server.succeed("journalctl -o cat -u gitea-runner-local.service | grep -q 'Runner registered successfully'")
-    '';
-  };
-
-  basic = { config, ... }: {
-    imports = [
-      lib.shb.baseModule
-      ../../modules/blocks/hardcodedsecret.nix
-      ../../modules/services/forgejo.nix
-    ];
-
-    test = {
-      subdomain = "f";
-    };
-
-    shb.forgejo = {
-      enable = true;
-      inherit (config.test) subdomain domain;
-
-      users = {
-        "theadmin" = {
-          isAdmin = true;
-          email = "theadmin@example.com";
-          password.result = config.shb.hardcodedsecret.forgejoAdminPassword.result;
-        };
-        "theuser" = {
-          email = "theuser@example.com";
-          password.result = config.shb.hardcodedsecret.forgejoUserPassword.result;
-        };
-      };
-      databasePassword.result = config.shb.hardcodedsecret.forgejoDatabasePassword.result;
-    };
-
-    # Needed for gitea-runner-local to be able to ping forgejo.
-    networking.hosts = {
-      "127.0.0.1" = [ "${config.test.subdomain}.${config.test.domain}" ];
-    };
-
-    shb.hardcodedsecret.forgejoAdminPassword = {
-      request = config.shb.forgejo.users."theadmin".password.request;
-      settings.content = adminPassword;
-    };
-
-    shb.hardcodedsecret.forgejoUserPassword = {
-      request = config.shb.forgejo.users."theuser".password.request;
-      settings.content = "userPassword";
-    };
-
-    shb.hardcodedsecret.forgejoDatabasePassword = {
-      request = config.shb.forgejo.databasePassword.request;
-      settings.content = "databasePassword";
-    };
-  };
-
-  clientLogin = { config, ... }: {
-    imports = [
-      lib.shb.baseModule
-      lib.shb.clientLoginModule
-    ];
-    test = {
-      subdomain = "f";
-    };
-
-    test.login = {
-      startUrl = "http://${config.test.fqdn}/user/login";
-      usernameFieldLabelRegex = "Username or email address";
-      passwordFieldLabelRegex = "Password";
-      loginButtonNameRegex = "[sS]ign [iI]n";
-      testLoginWith = [
-        { username = "theadmin"; password = adminPassword + "oops"; nextPageExpect = [
-            "expect(page.get_by_text('Username or password is incorrect.')).to_be_visible()"
-          ]; }
-        { username = "theadmin"; password = adminPassword; nextPageExpect = [
-            "expect(page.get_by_text('Username or password is incorrect.')).not_to_be_visible()"
-            "expect(page.get_by_role('button', name=re.compile('Sign In'))).not_to_be_visible()"
-            "expect(page).to_have_title(re.compile('Dashboard'))"
-          ]; }
-        { username = "theuser"; password = "userPasswordOops"; nextPageExpect = [
-            "expect(page.get_by_text('Username or password is incorrect.')).to_be_visible()"
-          ]; }
-        { username = "theuser"; password = "userPassword"; nextPageExpect = [
-            "expect(page.get_by_text('Username or password is incorrect.')).not_to_be_visible()"
-            "expect(page.get_by_role('button', name=re.compile('Sign In'))).not_to_be_visible()"
-            "expect(page).to_have_title(re.compile('Dashboard'))"
-          ]; }
+    waitForServices =
+      { ... }:
+      [
+        "forgejo.service"
+        "nginx.service"
       ];
-    };
+    waitForUnixSocket =
+      { node, ... }:
+      [
+        node.config.services.forgejo.settings.server.HTTP_ADDR
+      ];
+    extraScript =
+      { node, ... }:
+      ''
+        server.wait_for_unit("gitea-runner-local.service", timeout=10)
+        server.succeed("journalctl -o cat -u gitea-runner-local.service | grep -q 'Runner registered successfully'")
+      '';
   };
 
-  https = { config, ... }: {
-    shb.forgejo = {
-      ssl = config.shb.certs.certs.selfsigned.n;
-    };
-  };
+  basic =
+    { config, ... }:
+    {
+      imports = [
+        lib.shb.baseModule
+        ../../modules/blocks/hardcodedsecret.nix
+        ../../modules/services/forgejo.nix
+      ];
 
-  ldap = { config, ... }: {
-    shb.forgejo = {
-      ldap = {
+      test = {
+        subdomain = "f";
+      };
+
+      shb.forgejo = {
         enable = true;
-        host = "127.0.0.1";
-        port = config.shb.lldap.ldapPort;
-        dcdomain = config.shb.lldap.dcdomain;
-        adminPassword.result = config.shb.hardcodedsecret.forgejoLdapUserPassword.result;
-        waitForSystemdServices = [ "lldap.service" ];
+        inherit (config.test) subdomain domain;
 
-        userGroup = "user_group";
+        users = {
+          "theadmin" = {
+            isAdmin = true;
+            email = "theadmin@example.com";
+            password.result = config.shb.hardcodedsecret.forgejoAdminPassword.result;
+          };
+          "theuser" = {
+            email = "theuser@example.com";
+            password.result = config.shb.hardcodedsecret.forgejoUserPassword.result;
+          };
+        };
+        databasePassword.result = config.shb.hardcodedsecret.forgejoDatabasePassword.result;
+      };
+
+      # Needed for gitea-runner-local to be able to ping forgejo.
+      networking.hosts = {
+        "127.0.0.1" = [ "${config.test.subdomain}.${config.test.domain}" ];
+      };
+
+      shb.hardcodedsecret.forgejoAdminPassword = {
+        request = config.shb.forgejo.users."theadmin".password.request;
+        settings.content = adminPassword;
+      };
+
+      shb.hardcodedsecret.forgejoUserPassword = {
+        request = config.shb.forgejo.users."theuser".password.request;
+        settings.content = "userPassword";
+      };
+
+      shb.hardcodedsecret.forgejoDatabasePassword = {
+        request = config.shb.forgejo.databasePassword.request;
+        settings.content = "databasePassword";
       };
     };
 
-    shb.hardcodedsecret.forgejoLdapUserPassword = {
-      request = config.shb.forgejo.ldap.adminPassword.request;
-      settings.content = "ldapUserPassword";
-    };
-  };
+  clientLogin =
+    { config, ... }:
+    {
+      imports = [
+        lib.shb.baseModule
+        lib.shb.clientLoginModule
+      ];
+      test = {
+        subdomain = "f";
+      };
 
-  sso = { config, ... }: {
-    shb.forgejo = {
-      sso = {
-        enable = true;
-        endpoint = "https://${config.shb.authelia.subdomain}.${config.shb.authelia.domain}";
-        sharedSecret.result = config.shb.hardcodedsecret.forgejoSSOPassword.result;
-        sharedSecretForAuthelia.result = config.shb.hardcodedsecret.forgejoSSOPasswordAuthelia.result;
+      test.login = {
+        startUrl = "http://${config.test.fqdn}/user/login";
+        usernameFieldLabelRegex = "Username or email address";
+        passwordFieldLabelRegex = "Password";
+        loginButtonNameRegex = "[sS]ign [iI]n";
+        testLoginWith = [
+          {
+            username = "theadmin";
+            password = adminPassword + "oops";
+            nextPageExpect = [
+              "expect(page.get_by_text('Username or password is incorrect.')).to_be_visible()"
+            ];
+          }
+          {
+            username = "theadmin";
+            password = adminPassword;
+            nextPageExpect = [
+              "expect(page.get_by_text('Username or password is incorrect.')).not_to_be_visible()"
+              "expect(page.get_by_role('button', name=re.compile('Sign In'))).not_to_be_visible()"
+              "expect(page).to_have_title(re.compile('Dashboard'))"
+            ];
+          }
+          {
+            username = "theuser";
+            password = "userPasswordOops";
+            nextPageExpect = [
+              "expect(page.get_by_text('Username or password is incorrect.')).to_be_visible()"
+            ];
+          }
+          {
+            username = "theuser";
+            password = "userPassword";
+            nextPageExpect = [
+              "expect(page.get_by_text('Username or password is incorrect.')).not_to_be_visible()"
+              "expect(page.get_by_role('button', name=re.compile('Sign In'))).not_to_be_visible()"
+              "expect(page).to_have_title(re.compile('Dashboard'))"
+            ];
+          }
+        ];
       };
     };
 
-    shb.hardcodedsecret.forgejoSSOPassword = {
-      request = config.shb.forgejo.sso.sharedSecret.request;
-      settings.content = "ssoPassword";
+  https =
+    { config, ... }:
+    {
+      shb.forgejo = {
+        ssl = config.shb.certs.certs.selfsigned.n;
+      };
     };
 
-    shb.hardcodedsecret.forgejoSSOPasswordAuthelia = {
-      request = config.shb.forgejo.sso.sharedSecretForAuthelia.request;
-      settings.content = "ssoPassword";
+  ldap =
+    { config, ... }:
+    {
+      shb.forgejo = {
+        ldap = {
+          enable = true;
+          host = "127.0.0.1";
+          port = config.shb.lldap.ldapPort;
+          dcdomain = config.shb.lldap.dcdomain;
+          adminPassword.result = config.shb.hardcodedsecret.forgejoLdapUserPassword.result;
+          waitForSystemdServices = [ "lldap.service" ];
+
+          userGroup = "user_group";
+        };
+      };
+
+      shb.hardcodedsecret.forgejoLdapUserPassword = {
+        request = config.shb.forgejo.ldap.adminPassword.request;
+        settings.content = "ldapUserPassword";
+      };
     };
-  };
+
+  sso =
+    { config, ... }:
+    {
+      shb.forgejo = {
+        sso = {
+          enable = true;
+          endpoint = "https://${config.shb.authelia.subdomain}.${config.shb.authelia.domain}";
+          sharedSecret.result = config.shb.hardcodedsecret.forgejoSSOPassword.result;
+          sharedSecretForAuthelia.result = config.shb.hardcodedsecret.forgejoSSOPasswordAuthelia.result;
+        };
+      };
+
+      shb.hardcodedsecret.forgejoSSOPassword = {
+        request = config.shb.forgejo.sso.sharedSecret.request;
+        settings.content = "ssoPassword";
+      };
+
+      shb.hardcodedsecret.forgejoSSOPasswordAuthelia = {
+        request = config.shb.forgejo.sso.sharedSecretForAuthelia.request;
+        settings.content = "ssoPassword";
+      };
+    };
 in
 {
   basic = lib.shb.runNixOSTest {
@@ -170,14 +202,16 @@ in
   backup = lib.shb.runNixOSTest {
     name = "forgejo_backup";
 
-    nodes.server = { config, ... }: {
-      imports = [
-        basic
-        (lib.shb.backup config.shb.forgejo.backup)
-      ];
-    };
+    nodes.server =
+      { config, ... }:
+      {
+        imports = [
+          basic
+          (lib.shb.backup config.shb.forgejo.backup)
+        ];
+      };
 
-    nodes.client = {};
+    nodes.client = { };
 
     testScript = commonTestScript.backup;
   };
@@ -193,7 +227,7 @@ in
       ];
     };
 
-    nodes.client = {};
+    nodes.client = { };
 
     testScript = commonTestScript.access;
   };
@@ -208,71 +242,100 @@ in
         ldap
       ];
     };
-  
+
     nodes.client = {
       imports = [
-        ({ config, ... }: {
-          imports = [
-            lib.shb.baseModule
-            lib.shb.clientLoginModule
-          ];
-
-          test = {
-            subdomain = "f";
-          };
-
-          test.login = {
-            startUrl = "http://${config.test.fqdn}/user/login";
-            usernameFieldLabelRegex = "Username or email address";
-            passwordFieldLabelRegex = "Password";
-            loginButtonNameRegex = "[sS]ign [iI]n";
-            testLoginWith = [
-              { username = "alice"; password = "NotAlicePassword"; nextPageExpect = [
-                  "expect(page.get_by_text('Username or password is incorrect.')).to_be_visible()"
-                ]; }
-              { username = "alice"; password = "AlicePassword"; nextPageExpect = [
-                  "expect(page.get_by_text('Username or password is incorrect.')).not_to_be_visible()"
-                  "expect(page.get_by_role('button', name=re.compile('Sign In'))).not_to_be_visible()"
-                  "expect(page).to_have_title(re.compile('Dashboard'))"
-                ]; }
-              { username = "bob"; password = "NotBobPassword"; nextPageExpect = [
-                  "expect(page.get_by_text('Username or password is incorrect.')).to_be_visible()"
-                ]; }
-              { username = "bob"; password = "BobPassword"; nextPageExpect = [
-                  "expect(page.get_by_text('Username or password is incorrect.')).not_to_be_visible()"
-                  "expect(page.get_by_role('button', name=re.compile('Sign In'))).not_to_be_visible()"
-                  "expect(page).to_have_title(re.compile('Dashboard'))"
-                ]; }
-              { username = "charlie"; password = "NotCharliePassword"; nextPageExpect = [
-                  "expect(page.get_by_text('Username or password is incorrect.')).to_be_visible()"
-                ]; }
-              { username = "charlie"; password = "CharliePassword"; nextPageExpect = [
-                  "expect(page.get_by_text('Username or password is incorrect.')).to_be_visible()"
-                ]; }
+        (
+          { config, ... }:
+          {
+            imports = [
+              lib.shb.baseModule
+              lib.shb.clientLoginModule
             ];
-          };
-        })
+
+            test = {
+              subdomain = "f";
+            };
+
+            test.login = {
+              startUrl = "http://${config.test.fqdn}/user/login";
+              usernameFieldLabelRegex = "Username or email address";
+              passwordFieldLabelRegex = "Password";
+              loginButtonNameRegex = "[sS]ign [iI]n";
+              testLoginWith = [
+                {
+                  username = "alice";
+                  password = "NotAlicePassword";
+                  nextPageExpect = [
+                    "expect(page.get_by_text('Username or password is incorrect.')).to_be_visible()"
+                  ];
+                }
+                {
+                  username = "alice";
+                  password = "AlicePassword";
+                  nextPageExpect = [
+                    "expect(page.get_by_text('Username or password is incorrect.')).not_to_be_visible()"
+                    "expect(page.get_by_role('button', name=re.compile('Sign In'))).not_to_be_visible()"
+                    "expect(page).to_have_title(re.compile('Dashboard'))"
+                  ];
+                }
+                {
+                  username = "bob";
+                  password = "NotBobPassword";
+                  nextPageExpect = [
+                    "expect(page.get_by_text('Username or password is incorrect.')).to_be_visible()"
+                  ];
+                }
+                {
+                  username = "bob";
+                  password = "BobPassword";
+                  nextPageExpect = [
+                    "expect(page.get_by_text('Username or password is incorrect.')).not_to_be_visible()"
+                    "expect(page.get_by_role('button', name=re.compile('Sign In'))).not_to_be_visible()"
+                    "expect(page).to_have_title(re.compile('Dashboard'))"
+                  ];
+                }
+                {
+                  username = "charlie";
+                  password = "NotCharliePassword";
+                  nextPageExpect = [
+                    "expect(page.get_by_text('Username or password is incorrect.')).to_be_visible()"
+                  ];
+                }
+                {
+                  username = "charlie";
+                  password = "CharliePassword";
+                  nextPageExpect = [
+                    "expect(page.get_by_text('Username or password is incorrect.')).to_be_visible()"
+                  ];
+                }
+              ];
+            };
+          }
+        )
       ];
     };
-  
+
     testScript = commonTestScript.access;
   };
 
   sso = lib.shb.runNixOSTest {
     name = "forgejo_sso";
 
-    nodes.server = { config, pkgs, ... }: {
-      imports = [
-        basic
-        lib.shb.certs
-        https
-        lib.shb.ldap
-        (lib.shb.sso config.shb.certs.certs.selfsigned.n)
-        sso
-      ];
-    };
+    nodes.server =
+      { config, pkgs, ... }:
+      {
+        imports = [
+          basic
+          lib.shb.certs
+          https
+          lib.shb.ldap
+          (lib.shb.sso config.shb.certs.certs.selfsigned.n)
+          sso
+        ];
+      };
 
-    nodes.client = {};
+    nodes.client = { };
 
     testScript = commonTestScript.access;
   };
