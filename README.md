@@ -90,18 +90,33 @@ that fit together to build their server.
 > production server, this is really just a one person effort for now and there are most certainly
 > bugs that I didn't discover yet.
 
-### At a Glance
+To get started using SelfHostBlocks, the following snippet is enough:
 
-Head over to the [recipes section](https://shb.skarabox.com/recipes.html) of the manual to see how SelfHostBlocks can help you quickly setup common use cases.
+```nix
+{
+  inputs.selfhostblocks.url = "github:ibizaman/selfhostblocks";
 
-The [services section](https://shb.skarabox.com/services.html) lists all integrated services you can quickly spin up using SelfHostBlocks.
+  outputs = { selfhostblocks, ... }: let
+    system = "x86_64-linux";
+    shb = selfhostblocks.lib.${system};
+  in
+    nixosConfigurations = {
+      myserver = shb.pkgs.nixosSystem {
+        inherit system;
+        modules = [
+          selfhostblocks.nixosModules.default
+          ./configuration.nix
+        ];
+      };
+    };
+}
+```
 
-### Existing Installation
-
-To get started using SelfHostBlocks,
-follow [the usage section](https://shb.skarabox.com/usage.html) of the manual.
-It goes over how to deploy with [Colmena][], [nixos-rebuild][] and [deploy-rs][]
-and also goes over secrets management with [SOPS][].
+SelfHostBlocks provides its own patched nixpkgs, so you are required to use it
+otherwise evaluation can quickly break.
+[The usage section](https://shb.skarabox.com/usage.html) of the manual has
+more details and goes over how to deploy with [Colmena][], [nixos-rebuild][] and [deploy-rs][]
+and also how to handle secrets management with [SOPS][].
 
 [Colmena]: https://shb.skarabox.com/usage.html#usage-example-colmena
 [nixos-rebuild]: https://shb.skarabox.com/usage.html#usage-example-nixosrebuild
@@ -109,8 +124,10 @@ and also goes over secrets management with [SOPS][].
 [SOPS]: https://shb.skarabox.com/usage.html#usage-secrets
 
 Then, to actually configure services, you can choose which one interests you in
-[the services section](https://shb.skarabox.com/services.html) of the manual.
+the [services section](https://shb.skarabox.com/services.html) of the manual.
 Not all services have a corresponding manual page yet.
+
+The [recipes section](https://shb.skarabox.com/recipes.html) of the manual shows some other common use cases.
 
 Head over to the [matrix channel](https://matrix.to/#/#selfhostblocks:matrix.org)
 for any remaining question, or just to say hi :)
