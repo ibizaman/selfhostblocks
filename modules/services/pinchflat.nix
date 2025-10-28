@@ -1,10 +1,15 @@
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 let
   cfg = config.shb.pinchflat;
 
   inherit (lib) types;
 
-  contracts = pkgs.callPackage ../contracts {};
+  contracts = pkgs.callPackage ../contracts { };
 in
 {
   imports = [
@@ -57,7 +62,10 @@ in
     };
 
     timeZone = lib.mkOption {
-      type = lib.types.oneOf [ lib.types.str lib.shb.secretFileType ];
+      type = lib.types.oneOf [
+        lib.types.str
+        lib.shb.secretFileType
+      ];
       description = "Timezone of this instance.";
       example = "America/Los_Angeles";
     };
@@ -66,7 +74,7 @@ in
       description = ''
         Setup LDAP integration.
       '';
-      default = {};
+      default = { };
       type = types.submodule {
         options = {
           enable = lib.mkEnableOption "LDAP integration." // {
@@ -86,7 +94,7 @@ in
       description = ''
         Setup SSO integration.
       '';
-      default = {};
+      default = { };
       type = types.submodule {
         options = {
           enable = lib.mkEnableOption "SSO integration.";
@@ -99,7 +107,10 @@ in
           };
 
           authorization_policy = lib.mkOption {
-            type = types.enum [ "one_factor" "two_factor" ];
+            type = types.enum [
+              "one_factor"
+              "two_factor"
+            ];
             description = "Require one factor (password) or two factor (device) authentication.";
             default = "one_factor";
           };
@@ -111,7 +122,7 @@ in
       description = ''
         Backup media directory `shb.mediaDir`.
       '';
-      default = {};
+      default = { };
       type = lib.types.submodule {
         options = contracts.backup.mkRequester {
           user = "pinchflat";
@@ -142,7 +153,9 @@ in
 
     # This should be using a contract instead of setting the option directly.
     shb.lldap = lib.mkIf config.shb.lldap.enable {
-      ensureGroups = { ${cfg.ldap.userGroup} = {}; };
+      ensureGroups = {
+        ${cfg.ldap.userGroup} = { };
+      };
     };
 
     systemd.services.pinchflat-pre = {
@@ -160,7 +173,7 @@ in
       requiredBy = [ "pinchflat.service" ];
     };
 
-    shb.nginx.vhosts = [ 
+    shb.nginx.vhosts = [
       {
         inherit (cfg) subdomain domain ssl;
         inherit (cfg.sso) authEndpoint;
@@ -181,7 +194,7 @@ in
         job_name = "pinchflat";
         static_configs = [
           {
-            targets = ["127.0.0.1:${toString cfg.port}"];
+            targets = [ "127.0.0.1:${toString cfg.port}" ];
             labels = {
               "hostname" = config.networking.hostName;
               "domain" = cfg.domain;

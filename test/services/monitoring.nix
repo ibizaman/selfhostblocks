@@ -4,43 +4,51 @@ let
 
   commonTestScript = lib.shb.accessScript {
     hasSSL = { node, ... }: !(isNull node.config.shb.monitoring.ssl);
-    waitForServices = { ... }: [
-      "grafana.service"
-    ];
-    waitForPorts = { node, ... }: [
-      node.config.shb.monitoring.grafanaPort
-    ];
+    waitForServices =
+      { ... }:
+      [
+        "grafana.service"
+      ];
+    waitForPorts =
+      { node, ... }:
+      [
+        node.config.shb.monitoring.grafanaPort
+      ];
   };
 
-  basic = { config, ... }: {
-    test = {
-      subdomain = "g";
+  basic =
+    { config, ... }:
+    {
+      test = {
+        subdomain = "g";
+      };
+
+      shb.monitoring = {
+        enable = true;
+        inherit (config.test) subdomain domain;
+
+        grafanaPort = 3000;
+        adminPassword.result = config.shb.hardcodedsecret."admin_password".result;
+        secretKey.result = config.shb.hardcodedsecret."secret_key".result;
+      };
+
+      shb.hardcodedsecret."admin_password" = {
+        request = config.shb.monitoring.adminPassword.request;
+        settings.content = password;
+      };
+      shb.hardcodedsecret."secret_key" = {
+        request = config.shb.monitoring.secretKey.request;
+        settings.content = "secret_key_pw";
+      };
     };
 
-    shb.monitoring = {
-      enable = true;
-      inherit (config.test) subdomain domain;
-
-      grafanaPort = 3000;
-      adminPassword.result = config.shb.hardcodedsecret."admin_password".result;
-      secretKey.result = config.shb.hardcodedsecret."secret_key".result;
+  https =
+    { config, ... }:
+    {
+      shb.monitoring = {
+        ssl = config.shb.certs.certs.selfsigned.n;
+      };
     };
-
-    shb.hardcodedsecret."admin_password" = {
-      request = config.shb.monitoring.adminPassword.request;
-      settings.content = password;
-    };
-    shb.hardcodedsecret."secret_key" = {
-      request = config.shb.monitoring.secretKey.request;
-      settings.content = "secret_key_pw";
-    };
-  };
-
-  https = { config, ...}: {
-    shb.monitoring = {
-      ssl = config.shb.certs.certs.selfsigned.n;
-    };
-  };
 in
 {
   basic = lib.shb.runNixOSTest {
@@ -54,7 +62,7 @@ in
       ];
     };
 
-    nodes.client = {};
+    nodes.client = { };
 
     testScript = commonTestScript;
   };
@@ -72,7 +80,7 @@ in
       ];
     };
 
-    nodes.client = {};
+    nodes.client = { };
 
     testScript = commonTestScript;
   };

@@ -4,163 +4,206 @@ let
   loginUrl = "/UI/Login";
 
   # TODO: Test login
-  commonTestScript = appname: cfgPathFn: lib.shb.mkScripts {
-    hasSSL = { node, ... }: !(isNull node.config.shb.arr.${appname}.ssl);
-    waitForServices = { ... }: [
-      "${appname}.service"
-      "nginx.service"
-    ];
-    waitForPorts = { node, ... }: [
-      node.config.shb.arr.${appname}.settings.Port
-    ];
-    extraScript = { node, fqdn, proto_fqdn, ... }: let
-      shbapp = node.config.shb.arr.${appname};
-      cfgPath = cfgPathFn shbapp;
-      apiKey = if (shbapp.settings ? ApiKey) then "01234567890123456789" else null;
-    in ''
-      # These curl requests still return a 200 even with sso redirect.
-      with subtest("health"):
-          response = curl(client, """{"code":%{response_code}}""", "${fqdn}${healthUrl}")
-          print("response =", response)
+  commonTestScript =
+    appname: cfgPathFn:
+    lib.shb.mkScripts {
+      hasSSL = { node, ... }: !(isNull node.config.shb.arr.${appname}.ssl);
+      waitForServices =
+        { ... }:
+        [
+          "${appname}.service"
+          "nginx.service"
+        ];
+      waitForPorts =
+        { node, ... }:
+        [
+          node.config.shb.arr.${appname}.settings.Port
+        ];
+      extraScript =
+        {
+          node,
+          fqdn,
+          proto_fqdn,
+          ...
+        }:
+        let
+          shbapp = node.config.shb.arr.${appname};
+          cfgPath = cfgPathFn shbapp;
+          apiKey = if (shbapp.settings ? ApiKey) then "01234567890123456789" else null;
+        in
+        ''
+          # These curl requests still return a 200 even with sso redirect.
+          with subtest("health"):
+              response = curl(client, """{"code":%{response_code}}""", "${fqdn}${healthUrl}")
+              print("response =", response)
 
-          if response['code'] != 200:
-              raise Exception(f"Code is {response['code']}")
+              if response['code'] != 200:
+                  raise Exception(f"Code is {response['code']}")
 
-      with subtest("login"):
-          response = curl(client, """{"code":%{response_code}}""", "${fqdn}${loginUrl}")
+          with subtest("login"):
+              response = curl(client, """{"code":%{response_code}}""", "${fqdn}${loginUrl}")
 
-          if response['code'] != 200:
-              raise Exception(f"Code is {response['code']}")
-    '' + lib.optionalString (apiKey != null) ''
+              if response['code'] != 200:
+                  raise Exception(f"Code is {response['code']}")
+        ''
+        + lib.optionalString (apiKey != null) ''
 
-      with subtest("apikey"):
-          config = server.succeed("cat ${cfgPath}")
-          if "${apiKey}" not in config:
-              raise Exception(f"Unexpected API Key. Want '${apiKey}', got '{config}'")
-    '';
-  };
-
-  basic = appname: { config, ... }: {
-    imports = [
-      lib.shb.baseModule
-      ../../modules/services/arr.nix
-    ];
-
-    test = {
-      subdomain = appname;
+          with subtest("apikey"):
+              config = server.succeed("cat ${cfgPath}")
+              if "${apiKey}" not in config:
+                  raise Exception(f"Unexpected API Key. Want '${apiKey}', got '{config}'")
+        '';
     };
 
-    shb.arr.${appname} = {
-      enable = true;
-      inherit (config.test) subdomain domain;
-
-      settings.ApiKey.source = pkgs.writeText "APIKey" "01234567890123456789"; # Needs to be >=20 characters.
-    };
-  };
-
-  clientLogin = appname: { config, ... }: {
-    imports = [
-      lib.shb.baseModule
-      lib.shb.clientLoginModule
-    ];
-
-    test = {
-      subdomain = appname;
-    };
-
-    test.login = {
-      startUrl = "http://${config.test.fqdn}";
-      usernameFieldLabelRegex = "[Uu]sername";
-      passwordFieldLabelRegex = "^ *[Pp]assword";
-      loginButtonNameRegex = "[Ll]og [Ii]n";
-      testLoginWith = [
-        { nextPageExpect = [
-            "expect(page).to_have_title(re.compile('${appname}', re.IGNORECASE))"
-          ]; }
-      ];
-    };
-  };
-
-  basicTest = appname: cfgPathFn: lib.shb.runNixOSTest {
-    name = "arr_${appname}_basic";
-
-    nodes.client = {
+  basic =
+    appname:
+    { config, ... }:
+    {
       imports = [
-        (clientLogin appname)
+        lib.shb.baseModule
+        ../../modules/services/arr.nix
       ];
+
+      test = {
+        subdomain = appname;
+      };
+
+      shb.arr.${appname} = {
+        enable = true;
+        inherit (config.test) subdomain domain;
+
+        settings.ApiKey.source = pkgs.writeText "APIKey" "01234567890123456789"; # Needs to be >=20 characters.
+      };
     };
-    nodes.server = {
+
+  clientLogin =
+    appname:
+    { config, ... }:
+    {
       imports = [
-        (basic appname)
+        lib.shb.baseModule
+        lib.shb.clientLoginModule
       ];
+
+      test = {
+        subdomain = appname;
+      };
+
+      test.login = {
+        startUrl = "http://${config.test.fqdn}";
+        usernameFieldLabelRegex = "[Uu]sername";
+        passwordFieldLabelRegex = "^ *[Pp]assword";
+        loginButtonNameRegex = "[Ll]og [Ii]n";
+        testLoginWith = [
+          {
+            nextPageExpect = [
+              "expect(page).to_have_title(re.compile('${appname}', re.IGNORECASE))"
+            ];
+          }
+        ];
+      };
     };
 
-    testScript = (commonTestScript appname cfgPathFn).access;
-  };
+  basicTest =
+    appname: cfgPathFn:
+    lib.shb.runNixOSTest {
+      name = "arr_${appname}_basic";
 
-  backupTest = appname: cfgPathFn: lib.shb.runNixOSTest {
-    name = "arr_${appname}_backup";
+      nodes.client = {
+        imports = [
+          (clientLogin appname)
+        ];
+      };
+      nodes.server = {
+        imports = [
+          (basic appname)
+        ];
+      };
 
-    nodes.server = { config, ... }: {
-      imports = [
-        (basic appname)
-        (lib.shb.backup config.shb.arr.${appname}.backup)
-      ];
+      testScript = (commonTestScript appname cfgPathFn).access;
     };
 
-    nodes.client = {};
+  backupTest =
+    appname: cfgPathFn:
+    lib.shb.runNixOSTest {
+      name = "arr_${appname}_backup";
 
-    testScript = (commonTestScript appname cfgPathFn).backup;
-  };
+      nodes.server =
+        { config, ... }:
+        {
+          imports = [
+            (basic appname)
+            (lib.shb.backup config.shb.arr.${appname}.backup)
+          ];
+        };
 
-  https = appname: { config, ...}: {
-    shb.arr.${appname} = {
-      ssl = config.shb.certs.certs.selfsigned.n;
-    };
-  };
+      nodes.client = { };
 
-  httpsTest = appname: cfgPathFn: lib.shb.runNixOSTest {
-    name = "arr_${appname}_https";
-
-    nodes.server = { config, pkgs, ... }: {
-      imports = [
-        (basic appname)
-        lib.shb.certs
-        (https appname)
-      ];
+      testScript = (commonTestScript appname cfgPathFn).backup;
     };
 
-    nodes.client = {};
-
-    testScript = (commonTestScript appname cfgPathFn).access;
-  };
-
-  sso = appname: { config, ...}: {
-    shb.arr.${appname} = {
-      authEndpoint = "https://${config.shb.authelia.subdomain}.${config.shb.authelia.domain}";
-    };
-  };
-
-  ssoTest = appname: cfgPathFn: lib.shb.runNixOSTest {
-    name = "arr_${appname}_sso";
-
-    nodes.server = { config, pkgs, ... }: {
-      imports = [
-        (basic appname)
-        lib.shb.certs
-        (https appname)
-        lib.shb.ldap
-        (lib.shb.sso config.shb.certs.certs.selfsigned.n)
-        (sso appname)
-      ];
+  https =
+    appname:
+    { config, ... }:
+    {
+      shb.arr.${appname} = {
+        ssl = config.shb.certs.certs.selfsigned.n;
+      };
     };
 
-    nodes.client = {};
+  httpsTest =
+    appname: cfgPathFn:
+    lib.shb.runNixOSTest {
+      name = "arr_${appname}_https";
 
-    testScript = (commonTestScript appname cfgPathFn).access.override {
-      redirectSSO = true;
+      nodes.server =
+        { config, pkgs, ... }:
+        {
+          imports = [
+            (basic appname)
+            lib.shb.certs
+            (https appname)
+          ];
+        };
+
+      nodes.client = { };
+
+      testScript = (commonTestScript appname cfgPathFn).access;
     };
-  };
+
+  sso =
+    appname:
+    { config, ... }:
+    {
+      shb.arr.${appname} = {
+        authEndpoint = "https://${config.shb.authelia.subdomain}.${config.shb.authelia.domain}";
+      };
+    };
+
+  ssoTest =
+    appname: cfgPathFn:
+    lib.shb.runNixOSTest {
+      name = "arr_${appname}_sso";
+
+      nodes.server =
+        { config, pkgs, ... }:
+        {
+          imports = [
+            (basic appname)
+            lib.shb.certs
+            (https appname)
+            lib.shb.ldap
+            (lib.shb.sso config.shb.certs.certs.selfsigned.n)
+            (sso appname)
+          ];
+        };
+
+      nodes.client = { };
+
+      testScript = (commonTestScript appname cfgPathFn).access.override {
+        redirectSSO = true;
+      };
+    };
 
   radarrCfgFn = cfg: "${cfg.dataDir}/config.xml";
   sonarrCfgFn = cfg: "${cfg.dataDir}/config.xml";
@@ -170,33 +213,33 @@ let
   jackettCfgFn = cfg: "${cfg.dataDir}/ServerConfig.json";
 in
 {
-  radarr_basic  = basicTest "radarr" radarrCfgFn;
+  radarr_basic = basicTest "radarr" radarrCfgFn;
   radarr_backup = backupTest "radarr" radarrCfgFn;
-  radarr_https  = httpsTest "radarr" radarrCfgFn;
-  radarr_sso    = ssoTest   "radarr" radarrCfgFn;
+  radarr_https = httpsTest "radarr" radarrCfgFn;
+  radarr_sso = ssoTest "radarr" radarrCfgFn;
 
-  sonarr_basic  = basicTest "sonarr" sonarrCfgFn;
+  sonarr_basic = basicTest "sonarr" sonarrCfgFn;
   sonarr_backup = backupTest "sonarr" sonarrCfgFn;
-  sonarr_https  = httpsTest "sonarr" sonarrCfgFn;
-  sonarr_sso    = ssoTest   "sonarr" sonarrCfgFn;
+  sonarr_https = httpsTest "sonarr" sonarrCfgFn;
+  sonarr_sso = ssoTest "sonarr" sonarrCfgFn;
 
-  bazarr_basic  = basicTest "bazarr" bazarrCfgFn;
+  bazarr_basic = basicTest "bazarr" bazarrCfgFn;
   bazarr_backup = backupTest "bazarr" bazarrCfgFn;
-  bazarr_https  = httpsTest "bazarr" bazarrCfgFn;
-  bazarr_sso    = ssoTest   "bazarr" bazarrCfgFn;
+  bazarr_https = httpsTest "bazarr" bazarrCfgFn;
+  bazarr_sso = ssoTest "bazarr" bazarrCfgFn;
 
-  readarr_basic  = basicTest "readarr" readarrCfgFn;
+  readarr_basic = basicTest "readarr" readarrCfgFn;
   readarr_backup = backupTest "readarr" readarrCfgFn;
-  readarr_https  = httpsTest "readarr" readarrCfgFn;
-  readarr_sso    = ssoTest   "readarr" readarrCfgFn;
+  readarr_https = httpsTest "readarr" readarrCfgFn;
+  readarr_sso = ssoTest "readarr" readarrCfgFn;
 
-  lidarr_basic  = basicTest "lidarr" lidarrCfgFn;
+  lidarr_basic = basicTest "lidarr" lidarrCfgFn;
   lidarr_backup = backupTest "lidarr" lidarrCfgFn;
-  lidarr_https  = httpsTest "lidarr" lidarrCfgFn;
-  lidarr_sso    = ssoTest   "lidarr" lidarrCfgFn;
+  lidarr_https = httpsTest "lidarr" lidarrCfgFn;
+  lidarr_sso = ssoTest "lidarr" lidarrCfgFn;
 
-  jackett_basic  = basicTest "jackett" jackettCfgFn;
+  jackett_basic = basicTest "jackett" jackettCfgFn;
   jackett_backup = backupTest "jackett" jackettCfgFn;
-  jackett_https  = httpsTest "jackett" jackettCfgFn;
-  jackett_sso    = ssoTest   "jackett" jackettCfgFn;
+  jackett_https = httpsTest "jackett" jackettCfgFn;
+  jackett_sso = ssoTest "jackett" jackettCfgFn;
 }

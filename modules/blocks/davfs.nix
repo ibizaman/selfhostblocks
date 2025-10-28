@@ -7,66 +7,68 @@ in
   options.shb.davfs = {
     mounts = lib.mkOption {
       description = "List of mounts.";
-      default = [];
-      type = lib.types.listOf (lib.types.submodule {
-        options = {
-          remoteUrl = lib.mkOption {
-            type = lib.types.str;
-            description = "Webdav endpoint to connect to.";
-            example = "https://my.domain.com/dav";
-          };
+      default = [ ];
+      type = lib.types.listOf (
+        lib.types.submodule {
+          options = {
+            remoteUrl = lib.mkOption {
+              type = lib.types.str;
+              description = "Webdav endpoint to connect to.";
+              example = "https://my.domain.com/dav";
+            };
 
-          mountPoint = lib.mkOption {
-            type = lib.types.str;
-            description = "Mount point to mount the webdav endpoint on.";
-            example = "/mnt";
-          };
+            mountPoint = lib.mkOption {
+              type = lib.types.str;
+              description = "Mount point to mount the webdav endpoint on.";
+              example = "/mnt";
+            };
 
-          username = lib.mkOption {
-            type = lib.types.str;
-            description = "Username to connect to the webdav endpoint.";
-          };
+            username = lib.mkOption {
+              type = lib.types.str;
+              description = "Username to connect to the webdav endpoint.";
+            };
 
-          passwordFile = lib.mkOption {
-            type = lib.types.str;
-            description = "Password to connect to the webdav endpoint.";
-          };
+            passwordFile = lib.mkOption {
+              type = lib.types.str;
+              description = "Password to connect to the webdav endpoint.";
+            };
 
-          uid = lib.mkOption {
-            type = lib.types.nullOr lib.types.int;
-            description = "User owner of the mount point.";
-            example = 1000;
-            default = null;
-          };
+            uid = lib.mkOption {
+              type = lib.types.nullOr lib.types.int;
+              description = "User owner of the mount point.";
+              example = 1000;
+              default = null;
+            };
 
-          gid = lib.mkOption {
-            type = lib.types.nullOr lib.types.int;
-            description = "Group owner of the mount point.";
-            example = 1000;
-            default = null;
-          };
+            gid = lib.mkOption {
+              type = lib.types.nullOr lib.types.int;
+              description = "Group owner of the mount point.";
+              example = 1000;
+              default = null;
+            };
 
-          fileMode = lib.mkOption {
-            type = lib.types.nullOr lib.types.str;
-            description = "File creation mode";
-            example = "0664";
-            default = null;
-          };
+            fileMode = lib.mkOption {
+              type = lib.types.nullOr lib.types.str;
+              description = "File creation mode";
+              example = "0664";
+              default = null;
+            };
 
-          directoryMode = lib.mkOption {
-            type = lib.types.nullOr lib.types.str;
-            description = "Directory creation mode";
-            example = "2775";
-            default = null;
-          };
+            directoryMode = lib.mkOption {
+              type = lib.types.nullOr lib.types.str;
+              description = "Directory creation mode";
+              example = "2775";
+              default = null;
+            };
 
-          automount = lib.mkOption {
-            type = lib.types.bool;
-            description = "Create a systemd automount unit";
-            default = true;
+            automount = lib.mkOption {
+              type = lib.types.bool;
+              description = "Create a systemd automount unit";
+              default = true;
+            };
           };
-        };
-      });
+        }
+      );
     };
   };
 
@@ -93,6 +95,6 @@ in
           mountConfig.TimeoutSec = 15;
         };
       in
-        map mkMountCfg cfg.mounts;
+      map mkMountCfg cfg.mounts;
   };
 }

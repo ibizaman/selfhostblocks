@@ -1,4 +1,10 @@
-{ config, pkgs, lib, utils, ... }:
+{
+  config,
+  pkgs,
+  lib,
+  utils,
+  ...
+}:
 
 let
   cfg = config.shb.borgbackup;
@@ -17,7 +23,9 @@ let
       type = lib.types.path;
     };
 
-    encryption_passcommand = "cat /run/secrets/borgmatic/passphrases/${if isNull instance.secretName then name else instance.secretName}";
+    encryption_passcommand = "cat /run/secrets/borgmatic/passphrases/${
+      if isNull instance.secretName then name else instance.secretName
+    }";
     borg_keys_directory = "/run/secrets/borgmatic/keys";
 
     sourceDirectories = lib.mkOption {
@@ -28,7 +36,7 @@ let
     excludePatterns = lib.mkOption {
       description = "Exclude patterns.";
       type = lib.types.listOf lib.types.str;
-      default = [];
+      default = [ ];
     };
 
     secretName = lib.mkOption {
@@ -39,33 +47,40 @@ let
 
     repositories = lib.mkOption {
       description = "Repositories to back this instance to.";
-      type = lib.types.nonEmptyListOf (lib.types.submodule {
-        options = {
-          path = lib.mkOption {
-            type = lib.types.str;
-            description = "Repository location";
-          };
+      type = lib.types.nonEmptyListOf (
+        lib.types.submodule {
+          options = {
+            path = lib.mkOption {
+              type = lib.types.str;
+              description = "Repository location";
+            };
 
-          timerConfig = lib.mkOption {
-            type = lib.types.attrsOf utils.systemdUtils.unitOptions.unitOption;
-            default = {
-              OnCalendar = "daily";
-              Persistent = true;
-            };
-            description = ''When to run the backup. See {manpage}`systemd.timer(5)` for details.'';
-            example = {
-              OnCalendar = "00:05";
-              RandomizedDelaySec = "5h";
-              Persistent = true;
+            timerConfig = lib.mkOption {
+              type = lib.types.attrsOf utils.systemdUtils.unitOptions.unitOption;
+              default = {
+                OnCalendar = "daily";
+                Persistent = true;
+              };
+              description = ''When to run the backup. See {manpage}`systemd.timer(5)` for details.'';
+              example = {
+                OnCalendar = "00:05";
+                RandomizedDelaySec = "5h";
+                Persistent = true;
+              };
             };
           };
-        };
-      });
+        }
+      );
     };
 
     retention = lib.mkOption {
       description = "Retention options.";
-      type = lib.types.attrsOf (lib.types.oneOf [ lib.types.int lib.types.nonEmptyStr ]);
+      type = lib.types.attrsOf (
+        lib.types.oneOf [
+          lib.types.int
+          lib.types.nonEmptyStr
+        ]
+      );
       default = {
         keep_within = "1d";
         keep_hourly = 24;
@@ -78,7 +93,7 @@ let
     consistency = lib.mkOption {
       description = "Consistency frequency options.";
       type = lib.types.attrsOf lib.types.nonEmptyStr;
-      default = {};
+      default = { };
       example = {
         repository = "2 weeks";
         archives = "1 month";
@@ -87,19 +102,19 @@ let
 
     hooks = lib.mkOption {
       description = "Hooks to run before or after the backup.";
-      default = {};
+      default = { };
       type = lib.types.submodule {
         options = {
           beforeBackup = lib.mkOption {
             description = "Hooks to run before backup";
             type = lib.types.listOf lib.types.str;
-            default = [];
+            default = [ ];
           };
 
           afterBackup = lib.mkOption {
             description = "Hooks to run after backup";
             type = lib.types.listOf lib.types.str;
-            default = [];
+            default = [ ];
           };
         };
       };
@@ -113,7 +128,8 @@ let
     };
   };
 
-  repoSlugName = name: builtins.replaceStrings ["/" ":"] ["_" "_"] (lib.strings.removePrefix "/" name);
+  repoSlugName =
+    name: builtins.replaceStrings [ "/" ":" ] [ "_" "_" ] (lib.strings.removePrefix "/" name);
 
 in
 {
@@ -132,10 +148,12 @@ in
 
     instances = lib.mkOption {
       description = "Each instance is a backup setting";
-      default = {};
-      type = lib.types.attrsOf (lib.types.submodule {
-        options = instanceOptions;
-      });
+      default = { };
+      type = lib.types.attrsOf (
+        lib.types.submodule {
+          options = instanceOptions;
+        }
+      );
     };
 
     borgServer = lib.mkOption {
@@ -148,7 +166,7 @@ in
     # Taken from https://github.com/HubbeKing/restic-kubernetes/blob/73bfbdb0ba76939a4c52173fa2dbd52070710008/README.md?plain=1#L23
     performance = lib.mkOption {
       description = "Reduce performance impact of backup jobs.";
-      default = {};
+      default = { };
       type = lib.types.submodule {
         options = {
           niceness = lib.mkOption {
@@ -157,7 +175,11 @@ in
             default = 15;
           };
           ioSchedulingClass = lib.mkOption {
-            type = lib.types.enum [ "idle" "best-effort" "realtime" ];
+            type = lib.types.enum [
+              "idle"
+              "best-effort"
+              "realtime"
+            ];
             description = "ionice scheduling class, defaults to best-effort IO.";
             default = "best-effort";
           };
@@ -171,10 +193,11 @@ in
     };
   };
 
-  config = lib.mkIf (cfg.instances != {}) (
+  config = lib.mkIf (cfg.instances != { }) (
     let
       enabledInstances = lib.attrsets.filterAttrs (k: i: i.enable) cfg.instances;
-    in lib.mkMerge [
+    in
+    lib.mkMerge [
       # Secrets configuration
       {
         users.users = {
@@ -195,74 +218,101 @@ in
 
         sops.secrets =
           let
-            mkSopsSecret = name: instance: (
-              [
-                {
-                  "${instance.backend}/passphrases/${if isNull instance.secretName then name else instance.secretName}" = {
-                    sopsFile = instance.keySopsFile;
-                    mode = "0440";
-                    owner = cfg.user;
-                    group = cfg.group;
-                  };
-                }
-              ] ++ lib.optional ((lib.filter ({path, ...}: lib.strings.hasPrefix "s3" path) instance.repositories) != []) {
-                "${instance.backend}/environmentfiles/${if isNull instance.secretName then name else instance.secretName}" = {
-                  sopsFile = instance.keySopsFile;
-                  mode = "0440";
-                  owner = cfg.user;
-                  group = cfg.group;
-                };
-              } ++ lib.optionals (instance.backend == "borgmatic") (lib.flatten (map ({path, ...}: {
-                "${instance.backend}/keys/${repoSlugName path}" = {
-                  key = "${instance.backend}/keys/${if isNull instance.secretName then name else instance.secretName}";
-                  sopsFile = instance.keySopsFile;
-                  mode = "0440";
-                  owner = cfg.user;
-                  group = cfg.group;
-                };
-              }) instance.repositories))
-            );
+            mkSopsSecret =
+              name: instance:
+              (
+                [
+                  {
+                    "${instance.backend}/passphrases/${
+                      if isNull instance.secretName then name else instance.secretName
+                    }" =
+                      {
+                        sopsFile = instance.keySopsFile;
+                        mode = "0440";
+                        owner = cfg.user;
+                        group = cfg.group;
+                      };
+                  }
+                ]
+                ++
+                  lib.optional
+                    ((lib.filter ({ path, ... }: lib.strings.hasPrefix "s3" path) instance.repositories) != [ ])
+                    {
+                      "${instance.backend}/environmentfiles/${
+                        if isNull instance.secretName then name else instance.secretName
+                      }" =
+                        {
+                          sopsFile = instance.keySopsFile;
+                          mode = "0440";
+                          owner = cfg.user;
+                          group = cfg.group;
+                        };
+                    }
+                ++ lib.optionals (instance.backend == "borgmatic") (
+                  lib.flatten (
+                    map (
+                      { path, ... }:
+                      {
+                        "${instance.backend}/keys/${repoSlugName path}" = {
+                          key = "${instance.backend}/keys/${
+                            if isNull instance.secretName then name else instance.secretName
+                          }";
+                          sopsFile = instance.keySopsFile;
+                          mode = "0440";
+                          owner = cfg.user;
+                          group = cfg.group;
+                        };
+                      }
+                    ) instance.repositories
+                  )
+                )
+              );
           in
-            lib.mkMerge (lib.flatten (lib.attrsets.mapAttrsToList mkSopsSecret enabledInstances));
+          lib.mkMerge (lib.flatten (lib.attrsets.mapAttrsToList mkSopsSecret enabledInstances));
       }
       # Borgmatic configuration
       {
-        systemd.timers.borgmatic = lib.mkIf (enabledInstances != {}) {
+        systemd.timers.borgmatic = lib.mkIf (enabledInstances != { }) {
           timerConfig = {
             OnCalendar = "hourly";
           };
         };
 
-        systemd.services.borgmatic = lib.mkIf (enabledInstances != {}) {
+        systemd.services.borgmatic = lib.mkIf (enabledInstances != { }) {
           serviceConfig = {
             User = cfg.user;
             Group = cfg.group;
             ExecStartPre = [ "" ]; # Do not sleep before starting.
-            ExecStart = [ "" "${pkgs.borgmatic}/bin/borgmatic --verbosity -1 --syslog-verbosity 1" ];
+            ExecStart = [
+              ""
+              "${pkgs.borgmatic}/bin/borgmatic --verbosity -1 --syslog-verbosity 1"
+            ];
             # For borgmatic, since we have only one service, we need to merge all environmentFile
             # from all instances.
             EnvironmentFile = lib.mapAttrsToList (name: value: value.environmentFile) enabledInstances;
           };
         };
 
-        systemd.packages = lib.mkIf (enabledInstances != {}) [ pkgs.borgmatic ];
+        systemd.packages = lib.mkIf (enabledInstances != { }) [ pkgs.borgmatic ];
         environment.systemPackages = (
           lib.optionals cfg.borgServer [ pkgs.borgbackup ]
-          ++ lib.optionals (enabledInstances != {}) [ pkgs.borgbackup pkgs.borgmatic ]
+          ++ lib.optionals (enabledInstances != { }) [
+            pkgs.borgbackup
+            pkgs.borgmatic
+          ]
         );
 
         environment.etc =
           let
             mkSettings = name: instance: {
-              "borgmatic.d/${name}.yaml".text = lib.generators.toYAML {} {
-                location =
-                  {
-                    source_directories = instance.sourceDirectories;
-                    repositories = map ({path, ...}: path) instance.repositories;
-                  }
-                  // (lib.attrsets.optionalAttrs (builtins.length instance.excludePatterns > 0) {
-                    excludePatterns = instance.excludePatterns;
-                  });
+              "borgmatic.d/${name}.yaml".text = lib.generators.toYAML { } {
+                location = {
+                  source_directories = instance.sourceDirectories;
+                  repositories = map ({ path, ... }: path) instance.repositories;
+                }
+                // (lib.attrsets.optionalAttrs (builtins.length instance.excludePatterns > 0) {
+                  excludePatterns = instance.excludePatterns;
+                });
 
                 storage = {
                   encryption_passcommand = "cat ${instance.encryptionKeyFile}";
@@ -276,7 +326,7 @@ in
                       inherit name frequency;
                     };
                   in
-                    lib.attrsets.mapAttrsToList mkCheck instance.consistency;
+                  lib.attrsets.mapAttrsToList mkCheck instance.consistency;
 
                 # hooks = lib.mkMerge [
                 #   lib.optionalAttrs (builtins.length instance.hooks.beforeBackup > 0) {
@@ -289,7 +339,8 @@ in
               };
             };
           in
-            lib.mkMerge (lib.attrsets.mapAttrsToList mkSettings enabledInstances);
+          lib.mkMerge (lib.attrsets.mapAttrsToList mkSettings enabledInstances);
       }
-    ]);
+    ]
+  );
 }

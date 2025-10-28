@@ -1,13 +1,22 @@
-{ config, pkgs, lib, ... }:
+{
+  config,
+  pkgs,
+  lib,
+  ...
+}:
 
 let
   cfg = config.shb.vaultwarden;
 
-  contracts = pkgs.callPackage ../contracts {};
+  contracts = pkgs.callPackage ../contracts { };
 
   fqdn = "${cfg.subdomain}.${cfg.domain}";
 
-  dataFolder = if lib.versionOlder (config.system.stateVersion or "24.11") "24.11" then "/var/lib/bitwarden_rs" else "/var/lib/vaultwarden";
+  dataFolder =
+    if lib.versionOlder (config.system.stateVersion or "24.11") "24.11" then
+      "/var/lib/bitwarden_rs"
+    else
+      "/var/lib/vaultwarden";
 in
 {
   imports = [
@@ -55,7 +64,10 @@ in
           mode = "0440";
           owner = "vaultwarden";
           group = "postgres";
-          restartUnits = [ "vaultwarden.service" "postgresql.service" ];
+          restartUnits = [
+            "vaultwarden.service"
+            "postgresql.service"
+          ];
         };
       };
     };
@@ -63,53 +75,59 @@ in
     smtp = lib.mkOption {
       description = "SMTP options.";
       default = null;
-      type = lib.types.nullOr (lib.types.submodule {
-        options = {
-          from_address = lib.mkOption {
-            type = lib.types.str;
-            description = "SMTP address from which the emails originate.";
-            example = "vaultwarden@mydomain.com";
-          };
-          from_name = lib.mkOption {
-            type = lib.types.str;
-            description = "SMTP name from which the emails originate.";
-            default = "Vaultwarden";
-          };
-          host = lib.mkOption {
-            type = lib.types.str;
-            description = "SMTP host to send the emails to.";
-          };
-          security = lib.mkOption {
-            type = lib.types.enum [ "starttls" "force_tls" "off" ];
-            description = "Security expected by SMTP host.";
-            default = "starttls";
-          };
-          port = lib.mkOption {
-            type = lib.types.port;
-            description = "SMTP port to send the emails to.";
-            default = 25;
-          };
-          username = lib.mkOption {
-            type = lib.types.str;
-            description = "Username to connect to the SMTP host.";
-          };
-          auth_mechanism = lib.mkOption {
-            type = lib.types.enum [ "Login" ];
-            description = "Auth mechanism.";
-            default = "Login";
-          };
-          password = lib.mkOption {
-            description = "File containing the password to connect to the SMTP host.";
-            type = lib.types.submodule {
-              options = contracts.secret.mkRequester {
-                mode = "0400";
-                owner = "vaultwarden";
-                restartUnits = [ "vaultwarden.service" ];
+      type = lib.types.nullOr (
+        lib.types.submodule {
+          options = {
+            from_address = lib.mkOption {
+              type = lib.types.str;
+              description = "SMTP address from which the emails originate.";
+              example = "vaultwarden@mydomain.com";
+            };
+            from_name = lib.mkOption {
+              type = lib.types.str;
+              description = "SMTP name from which the emails originate.";
+              default = "Vaultwarden";
+            };
+            host = lib.mkOption {
+              type = lib.types.str;
+              description = "SMTP host to send the emails to.";
+            };
+            security = lib.mkOption {
+              type = lib.types.enum [
+                "starttls"
+                "force_tls"
+                "off"
+              ];
+              description = "Security expected by SMTP host.";
+              default = "starttls";
+            };
+            port = lib.mkOption {
+              type = lib.types.port;
+              description = "SMTP port to send the emails to.";
+              default = 25;
+            };
+            username = lib.mkOption {
+              type = lib.types.str;
+              description = "Username to connect to the SMTP host.";
+            };
+            auth_mechanism = lib.mkOption {
+              type = lib.types.enum [ "Login" ];
+              description = "Auth mechanism.";
+              default = "Login";
+            };
+            password = lib.mkOption {
+              description = "File containing the password to connect to the SMTP host.";
+              type = lib.types.submodule {
+                options = contracts.secret.mkRequester {
+                  mode = "0400";
+                  owner = "vaultwarden";
+                  restartUnits = [ "vaultwarden.service" ];
+                };
               };
             };
           };
-        };
-      });
+        }
+      );
     };
 
     mount = lib.mkOption {
@@ -127,14 +145,16 @@ in
         ```
       '';
       readOnly = true;
-      default = { path = dataFolder; };
+      default = {
+        path = dataFolder;
+      };
     };
 
     backup = lib.mkOption {
       description = ''
         Backup configuration.
       '';
-      default = {};
+      default = { };
       type = lib.types.submodule {
         options = contracts.backup.mkRequester {
           user = "vaultwarden";
@@ -170,7 +190,8 @@ in
         ROCKET_LOG = if cfg.debug then "trace" else "info";
         ROCKET_ADDRESS = "127.0.0.1";
         ROCKET_PORT = cfg.port;
-      } // lib.optionalAttrs (cfg.smtp != null) {
+      }
+      // lib.optionalAttrs (cfg.smtp != null) {
         SMTP_FROM = cfg.smtp.from_address;
         SMTP_FROM_NAME = cfg.smtp.from_name;
         SMTP_HOST = cfg.smtp.host;
@@ -189,27 +210,32 @@ in
     ];
     # Needed to be able to write template config.
     systemd.services.vaultwarden.serviceConfig.ProtectHome = lib.mkForce false;
-    systemd.services.vaultwarden.preStart =
-      lib.shb.replaceSecrets {
-        userConfig = {
-          DATABASE_URL.source = cfg.databasePassword.result.path;
-          DATABASE_URL.transform = v: "postgresql://vaultwarden:${v}@127.0.0.1:5432/vaultwarden";
-        } // lib.optionalAttrs (cfg.smtp != null) {
-          SMTP_PASSWORD.source = cfg.smtp.password.result.path;
-        };
-        resultPath = "${dataFolder}/vaultwarden.env";
-        generator = lib.shb.toEnvVar;
+    systemd.services.vaultwarden.preStart = lib.shb.replaceSecrets {
+      userConfig = {
+        DATABASE_URL.source = cfg.databasePassword.result.path;
+        DATABASE_URL.transform = v: "postgresql://vaultwarden:${v}@127.0.0.1:5432/vaultwarden";
+      }
+      // lib.optionalAttrs (cfg.smtp != null) {
+        SMTP_PASSWORD.source = cfg.smtp.password.result.path;
       };
+      resultPath = "${dataFolder}/vaultwarden.env";
+      generator = lib.shb.toEnvVar;
+    };
 
     shb.nginx.vhosts = [
       {
-        inherit (cfg) subdomain domain authEndpoint ssl;
+        inherit (cfg)
+          subdomain
+          domain
+          authEndpoint
+          ssl
+          ;
         upstream = "http://127.0.0.1:${toString config.services.vaultwarden.config.ROCKET_PORT}";
         autheliaRules = lib.mkIf (cfg.authEndpoint != null) [
           {
             domain = "${fqdn}";
             policy = "two_factor";
-            subject = ["group:vaultwarden_admin"];
+            subject = [ "group:vaultwarden_admin" ];
             resources = [
               "^/admin"
             ];

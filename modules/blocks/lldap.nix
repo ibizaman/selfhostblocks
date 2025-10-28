@@ -1,9 +1,14 @@
-{ config, pkgs, lib, ... }:
+{
+  config,
+  pkgs,
+  lib,
+  ...
+}:
 
 let
   cfg = config.shb.lldap;
 
-  contracts = pkgs.callPackage ../contracts {};
+  contracts = pkgs.callPackage ../contracts { };
 
   fqdn = "${cfg.subdomain}.${cfg.domain}";
 
@@ -145,7 +150,9 @@ in
         ```
       '';
       readOnly = true;
-      default = { path = "/var/lib/lldap"; };
+      default = {
+        path = "/var/lib/lldap";
+      };
     };
 
     backup = lib.mkOption {
@@ -327,7 +334,7 @@ in
       default = true;
     };
   };
-  
+
   config = lib.mkIf cfg.enable {
 
     services.nginx = {
@@ -340,10 +347,16 @@ in
         locations."/" = {
           extraConfig = ''
             proxy_set_header Host $host;
-          '' + (if isNull cfg.restrictAccessIPRange then "" else ''
-            allow ${cfg.restrictAccessIPRange};
-            deny all;
-          '');
+          ''
+          + (
+            if isNull cfg.restrictAccessIPRange then
+              ""
+            else
+              ''
+                allow ${cfg.restrictAccessIPRange};
+                deny all;
+              ''
+          );
           proxyPass = "http://${toString config.services.lldap.settings.http_host}:${toString config.shb.lldap.webUIListenPort}/";
         };
       };
@@ -354,7 +367,7 @@ in
       group = "lldap";
       isSystemUser = true;
     };
-    users.groups.lldap = {};
+    users.groups.lldap = { };
 
     services.lldap = {
       enable = true;
@@ -382,9 +395,13 @@ in
       };
 
       inherit (cfg) ensureGroups ensureUserFields ensureGroupFields;
-      ensureUsers = lib.mapAttrs (n: v: (lib.removeAttrs v [ "password" ]) // {
-        "password_file" = toString v.password.result.path;
-      }) cfg.ensureUsers;
+      ensureUsers = lib.mapAttrs (
+        n: v:
+        (lib.removeAttrs v [ "password" ])
+        // {
+          "password_file" = toString v.password.result.path;
+        }
+      ) cfg.ensureUsers;
     };
 
     shb.mitmdump.instances."lldap-web" = lib.mkIf cfg.debug {
@@ -393,7 +410,8 @@ in
       after = [ "lldap.service" ];
       enabledAddons = [ config.shb.mitmdump.addons.logger ];
       extraArgs = [
-        "--set" "verbose_pattern=/api"
+        "--set"
+        "verbose_pattern=/api"
       ];
     };
   };

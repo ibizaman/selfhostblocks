@@ -6,95 +6,100 @@ in
   test = lib.shb.runNixOSTest {
     name = "ssl-test";
 
-    nodes.server = { config, pkgs, ... }: {
-      imports = [
-        (pkgs'.path + "/nixos/modules/profiles/headless.nix")
-        (pkgs'.path + "/nixos/modules/profiles/qemu-guest.nix")
-        ../../modules/blocks/ssl.nix
-      ];
+    nodes.server =
+      { config, pkgs, ... }:
+      {
+        imports = [
+          (pkgs'.path + "/nixos/modules/profiles/headless.nix")
+          (pkgs'.path + "/nixos/modules/profiles/qemu-guest.nix")
+          ../../modules/blocks/ssl.nix
+        ];
 
-      users.users = {
-        user1 = {
-          group = "group1";
-          isSystemUser = true;
-        };
-        user2 = {
-          group = "group2";
-          isSystemUser = true;
-        };
-      };
-      users.groups = {
-        group1 = {};
-        group2 = {};
-      };
-
-      shb.certs = {
-        cas.selfsigned = {
-          myca = {
-            name = "My CA";
+        users.users = {
+          user1 = {
+            group = "group1";
+            isSystemUser = true;
           };
-          myotherca = {
-            name = "My Other CA";
-          };
-        };
-        certs.selfsigned = {
-          top = {
-            ca = config.shb.certs.cas.selfsigned.myca;
-
-            domain = "example.com";
-            group = "nginx";
-          };
-          subdomain = {
-            ca = config.shb.certs.cas.selfsigned.myca;
-
-            domain = "subdomain.example.com";
-            group = "nginx";
-          };
-          multi = {
-            ca = config.shb.certs.cas.selfsigned.myca;
-
-            domain = "multi1.example.com";
-            extraDomains = [ "multi2.example.com" "multi3.example.com" ];
-            group = "nginx";
-          };
-
-          cert1 = {
-            ca = config.shb.certs.cas.selfsigned.myca;
-
-            domain = "cert1.example.com";
-          };
-          cert2 = {
-            ca = config.shb.certs.cas.selfsigned.myca;
-
-            domain = "cert2.example.com";
+          user2 = {
             group = "group2";
+            isSystemUser = true;
           };
         };
-      };
+        users.groups = {
+          group1 = { };
+          group2 = { };
+        };
 
-      # The configuration below is to create a webserver that uses the server certificate.
-      networking.hosts."127.0.0.1" = [
-        "example.com"
-        "subdomain.example.com"
-        "wrong.example.com"
-        "multi1.example.com"
-        "multi2.example.com"
-        "multi3.example.com"
-      ];
-
-      services.nginx.enable = true;
-      services.nginx.virtualHosts =
-        let
-          mkVirtualHost = response: cert: {
-            onlySSL = true;
-            sslCertificate = cert.paths.cert;
-            sslCertificateKey = cert.paths.key;
-            locations."/".extraConfig = ''
-              add_header Content-Type text/plain;
-              return 200 '${response}';
-            '';
+        shb.certs = {
+          cas.selfsigned = {
+            myca = {
+              name = "My CA";
+            };
+            myotherca = {
+              name = "My Other CA";
+            };
           };
-        in
+          certs.selfsigned = {
+            top = {
+              ca = config.shb.certs.cas.selfsigned.myca;
+
+              domain = "example.com";
+              group = "nginx";
+            };
+            subdomain = {
+              ca = config.shb.certs.cas.selfsigned.myca;
+
+              domain = "subdomain.example.com";
+              group = "nginx";
+            };
+            multi = {
+              ca = config.shb.certs.cas.selfsigned.myca;
+
+              domain = "multi1.example.com";
+              extraDomains = [
+                "multi2.example.com"
+                "multi3.example.com"
+              ];
+              group = "nginx";
+            };
+
+            cert1 = {
+              ca = config.shb.certs.cas.selfsigned.myca;
+
+              domain = "cert1.example.com";
+            };
+            cert2 = {
+              ca = config.shb.certs.cas.selfsigned.myca;
+
+              domain = "cert2.example.com";
+              group = "group2";
+            };
+          };
+        };
+
+        # The configuration below is to create a webserver that uses the server certificate.
+        networking.hosts."127.0.0.1" = [
+          "example.com"
+          "subdomain.example.com"
+          "wrong.example.com"
+          "multi1.example.com"
+          "multi2.example.com"
+          "multi3.example.com"
+        ];
+
+        services.nginx.enable = true;
+        services.nginx.virtualHosts =
+          let
+            mkVirtualHost = response: cert: {
+              onlySSL = true;
+              sslCertificate = cert.paths.cert;
+              sslCertificateKey = cert.paths.key;
+              locations."/".extraConfig = ''
+                add_header Content-Type text/plain;
+                return 200 '${response}';
+              '';
+            };
+          in
           {
             "example.com" = mkVirtualHost "Top domain" config.shb.certs.certs.selfsigned.top;
             "subdomain.example.com" = mkVirtualHost "Subdomain" config.shb.certs.certs.selfsigned.subdomain;
@@ -102,26 +107,27 @@ in
             "multi2.example.com" = mkVirtualHost "multi2" config.shb.certs.certs.selfsigned.multi;
             "multi3.example.com" = mkVirtualHost "multi3" config.shb.certs.certs.selfsigned.multi;
           };
-      systemd.services.nginx = {
-        after = [
-          config.shb.certs.certs.selfsigned.top.systemdService
-          config.shb.certs.certs.selfsigned.subdomain.systemdService
-          config.shb.certs.certs.selfsigned.multi.systemdService
-          config.shb.certs.certs.selfsigned.cert1.systemdService
-          config.shb.certs.certs.selfsigned.cert2.systemdService
-        ];
-        requires = [
-          config.shb.certs.certs.selfsigned.top.systemdService
-          config.shb.certs.certs.selfsigned.subdomain.systemdService
-          config.shb.certs.certs.selfsigned.multi.systemdService
-          config.shb.certs.certs.selfsigned.cert1.systemdService
-          config.shb.certs.certs.selfsigned.cert2.systemdService
-        ];
+        systemd.services.nginx = {
+          after = [
+            config.shb.certs.certs.selfsigned.top.systemdService
+            config.shb.certs.certs.selfsigned.subdomain.systemdService
+            config.shb.certs.certs.selfsigned.multi.systemdService
+            config.shb.certs.certs.selfsigned.cert1.systemdService
+            config.shb.certs.certs.selfsigned.cert2.systemdService
+          ];
+          requires = [
+            config.shb.certs.certs.selfsigned.top.systemdService
+            config.shb.certs.certs.selfsigned.subdomain.systemdService
+            config.shb.certs.certs.selfsigned.multi.systemdService
+            config.shb.certs.certs.selfsigned.cert1.systemdService
+            config.shb.certs.certs.selfsigned.cert2.systemdService
+          ];
+        };
       };
-    };
 
     # Taken from https://github.com/NixOS/nixpkgs/blob/7f311dd9226bbd568a43632c977f4992cfb2b5c8/nixos/tests/custom-ca.nix
-    testScript = { nodes, ... }:
+    testScript =
+      { nodes, ... }:
       let
         myca = nodes.server.shb.certs.cas.selfsigned.myca;
         myotherca = nodes.server.shb.certs.cas.selfsigned.myotherca;
@@ -131,7 +137,7 @@ in
         cert1 = nodes.server.shb.certs.certs.selfsigned.cert1;
         cert2 = nodes.server.shb.certs.certs.selfsigned.cert2;
       in
-        ''
+      ''
         start_all()
 
         # Make sure certs are generated.
@@ -203,6 +209,6 @@ in
             server.fail("curl --cacert /etc/static/ssl/certs/ca-bundle.crt --fail-with-body -v https://subdomain.example.com")
             server.fail("curl --cacert /etc/static/ssl/certs/ca-certificates.crt --fail-with-body -v https://example.com")
             server.fail("curl --cacert /etc/static/ssl/certs/ca-certificates.crt --fail-with-body -v https://subdomain.example.com")
-        '';
+      '';
   };
 }

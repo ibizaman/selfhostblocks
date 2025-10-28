@@ -1,9 +1,14 @@
-{ config, pkgs, lib, ... }:
+{
+  config,
+  pkgs,
+  lib,
+  ...
+}:
 
 let
   cfg = config.shb.monitoring;
 
-  contracts = pkgs.callPackage ../contracts {};
+  contracts = pkgs.callPackage ../contracts { };
 
   fqdn = "${cfg.subdomain}.${cfg.domain}";
 
@@ -53,7 +58,10 @@ in
     };
 
     lokiMajorVersion = lib.mkOption {
-      type = lib.types.enum [ 2 3 ];
+      type = lib.types.enum [
+        2
+        3
+      ];
       description = ''
         Switching from version 2 to 3 requires manual intervention
         https://grafana.com/docs/loki/latest/setup/upgrade/#main--unreleased. So this let's the user
@@ -84,7 +92,7 @@ in
     contactPoints = lib.mkOption {
       type = lib.types.listOf lib.types.str;
       description = "List of email addresses to send alerts to";
-      default = [];
+      default = [ ];
     };
 
     adminPassword = lib.mkOption {
@@ -114,37 +122,39 @@ in
     smtp = lib.mkOption {
       description = "SMTP options.";
       default = null;
-      type = lib.types.nullOr (lib.types.submodule {
-        options = {
-          from_address = lib.mkOption {
-            type = lib.types.str;
-            description = "SMTP address from which the emails originate.";
-            example = "vaultwarden@mydomain.com";
+      type = lib.types.nullOr (
+        lib.types.submodule {
+          options = {
+            from_address = lib.mkOption {
+              type = lib.types.str;
+              description = "SMTP address from which the emails originate.";
+              example = "vaultwarden@mydomain.com";
+            };
+            from_name = lib.mkOption {
+              type = lib.types.str;
+              description = "SMTP name from which the emails originate.";
+              default = "Grafana";
+            };
+            host = lib.mkOption {
+              type = lib.types.str;
+              description = "SMTP host to send the emails to.";
+            };
+            port = lib.mkOption {
+              type = lib.types.port;
+              description = "SMTP port to send the emails to.";
+              default = 25;
+            };
+            username = lib.mkOption {
+              type = lib.types.str;
+              description = "Username to connect to the SMTP host.";
+            };
+            passwordFile = lib.mkOption {
+              type = lib.types.str;
+              description = "File containing the password to connect to the SMTP host.";
+            };
           };
-          from_name = lib.mkOption {
-            type = lib.types.str;
-            description = "SMTP name from which the emails originate.";
-            default = "Grafana";
-          };
-          host = lib.mkOption {
-            type = lib.types.str;
-            description = "SMTP host to send the emails to.";
-          };
-          port = lib.mkOption {
-            type = lib.types.port;
-            description = "SMTP port to send the emails to.";
-            default = 25;
-          };
-          username = lib.mkOption {
-            type = lib.types.str;
-            description = "Username to connect to the SMTP host.";
-          };
-          passwordFile = lib.mkOption {
-            type = lib.types.str;
-            description = "File containing the password to connect to the SMTP host.";
-          };
-        };
-      });
+        }
+      );
     };
   };
 
@@ -204,12 +214,14 @@ in
     services.grafana.provision = {
       dashboards.settings = lib.mkIf cfg.provisionDashboards {
         apiVersion = 1;
-        providers = [{
-          folder = "Self Host Blocks";
-          options.path = ./monitoring/dashboards;
-          allowUiUpdates = true;
-          disableDeletion = true;
-        }];
+        providers = [
+          {
+            folder = "Self Host Blocks";
+            options.path = ./monitoring/dashboards;
+            allowUiUpdates = true;
+            disableDeletion = true;
+          }
+        ];
       };
       datasources.settings = {
         apiVersion = 1;
@@ -245,26 +257,35 @@ in
       };
       alerting.contactPoints.settings = {
         apiVersion = 1;
-        contactPoints = [{
-          inherit (cfg) orgId;
-          name = "grafana-default-email";
-          receivers = lib.optionals ((builtins.length cfg.contactPoints) > 0) [{
-            uid = "sysadmin";
-            type = "email";
-            settings.addresses = lib.concatStringsSep ";" cfg.contactPoints;
-          }];
-        }];
+        contactPoints = [
+          {
+            inherit (cfg) orgId;
+            name = "grafana-default-email";
+            receivers = lib.optionals ((builtins.length cfg.contactPoints) > 0) [
+              {
+                uid = "sysadmin";
+                type = "email";
+                settings.addresses = lib.concatStringsSep ";" cfg.contactPoints;
+              }
+            ];
+          }
+        ];
       };
       alerting.policies.settings = {
         apiVersion = 1;
-        policies = [{
-          inherit (cfg) orgId;
-          receiver = "grafana-default-email";
-          group_by = [ "grafana_folder" "alertname" ];
-          group_wait = "30s";
-          group_interval = "5m";
-          repeat_interval = "4h";
-        }];
+        policies = [
+          {
+            inherit (cfg) orgId;
+            receiver = "grafana-default-email";
+            group_by = [
+              "grafana_folder"
+              "alertname"
+            ];
+            group_wait = "30s";
+            group_interval = "5m";
+            repeat_interval = "4h";
+          }
+        ];
         # resetPolicies seems to happen after setting the above policies, effectively rolling back
         # any updates.
       };
@@ -273,18 +294,20 @@ in
           rules = builtins.fromJSON (builtins.readFile ./monitoring/rules.json);
           ruleIds = map (r: r.uid) rules;
         in
-          {
-            apiVersion = 1;
-            groups = [{
+        {
+          apiVersion = 1;
+          groups = [
+            {
               inherit (cfg) orgId;
               name = "SysAdmin";
               folder = "Self Host Blocks";
               interval = "10m";
               inherit rules;
-            }];
-            # deleteRules seems to happen after creating the above rules, effectively rolling back
-            # any updates.
-          };
+            }
+          ];
+          # deleteRules seems to happen after creating the above rules, effectively rolling back
+          # any updates.
+        };
     };
 
     services.prometheus = {
@@ -295,36 +318,45 @@ in
     services.loki = {
       enable = true;
       dataDir = "/var/lib/loki";
-      package = if cfg.lokiMajorVersion == 3 then pkgs.grafana-loki else
-        # Comes from https://github.com/NixOS/nixpkgs/commit/8f95320f39d7e4e4a29ee70b8718974295a619f4
-        (pkgs.grafana-loki.overrideAttrs (finalAttrs: previousAttrs: rec {
-          version = "2.9.6";
+      package =
+        if cfg.lokiMajorVersion == 3 then
+          pkgs.grafana-loki
+        else
+          # Comes from https://github.com/NixOS/nixpkgs/commit/8f95320f39d7e4e4a29ee70b8718974295a619f4
+          (pkgs.grafana-loki.overrideAttrs (
+            finalAttrs: previousAttrs: rec {
+              version = "2.9.6";
 
-          src = pkgs.fetchFromGitHub {
-            owner = "grafana";
-            repo = "loki";
-            rev = "v${version}";
-            hash = "sha256-79hK7axHf6soku5DvdXkE/0K4WKc4pnS9VMbVc1FS2I=";
-          };
+              src = pkgs.fetchFromGitHub {
+                owner = "grafana";
+                repo = "loki";
+                rev = "v${version}";
+                hash = "sha256-79hK7axHf6soku5DvdXkE/0K4WKc4pnS9VMbVc1FS2I=";
+              };
 
-          subPackages = [
-            "cmd/loki"
-            "cmd/loki-canary"
-            "clients/cmd/promtail"
-            "cmd/logcli"
-            # Removes "cmd/lokitool"
-          ];
+              subPackages = [
+                "cmd/loki"
+                "cmd/loki-canary"
+                "clients/cmd/promtail"
+                "cmd/logcli"
+                # Removes "cmd/lokitool"
+              ];
 
-          ldflags = let t = "github.com/grafana/loki/pkg/util/build"; in [
-            "-s"
-            "-w"
-            "-X ${t}.Version=${version}"
-            "-X ${t}.BuildUser=nix@nixpkgs"
-            "-X ${t}.BuildDate=unknown"
-            "-X ${t}.Branch=unknown"
-            "-X ${t}.Revision=unknown"
-          ];
-        }));
+              ldflags =
+                let
+                  t = "github.com/grafana/loki/pkg/util/build";
+                in
+                [
+                  "-s"
+                  "-w"
+                  "-X ${t}.Version=${version}"
+                  "-X ${t}.BuildUser=nix@nixpkgs"
+                  "-X ${t}.BuildDate=unknown"
+                  "-X ${t}.Branch=unknown"
+                  "-X ${t}.Revision=unknown"
+                ];
+            }
+          ));
       configuration = {
         auth_enabled = false;
 
@@ -439,7 +471,7 @@ in
           proxyPass = "http://${toString config.services.grafana.settings.server.http_addr}:${toString config.services.grafana.settings.server.http_port}";
           proxyWebsockets = true;
           extraConfig = ''
-          proxy_set_header Host $host;
+            proxy_set_header Host $host;
           '';
         };
       };
@@ -448,61 +480,75 @@ in
     services.prometheus.scrapeConfigs = [
       {
         job_name = "node";
-        static_configs = [{
-          targets = ["127.0.0.1:${toString config.services.prometheus.exporters.node.port}"];
-          labels = commonLabels;
-        }];
+        static_configs = [
+          {
+            targets = [ "127.0.0.1:${toString config.services.prometheus.exporters.node.port}" ];
+            labels = commonLabels;
+          }
+        ];
       }
       {
         job_name = "netdata";
         metrics_path = "/api/v1/allmetrics";
         params.format = [ "prometheus" ];
         honor_labels = true;
-        static_configs = [{
-          targets = [ "127.0.0.1:19999" ];
-          labels = commonLabels;
-        }];
+        static_configs = [
+          {
+            targets = [ "127.0.0.1:19999" ];
+            labels = commonLabels;
+          }
+        ];
       }
       {
         job_name = "smartctl";
-        static_configs = [{
-          targets = ["127.0.0.1:${toString config.services.prometheus.exporters.smartctl.port}"];
-          labels = commonLabels;
-        }];
+        static_configs = [
+          {
+            targets = [ "127.0.0.1:${toString config.services.prometheus.exporters.smartctl.port}" ];
+            labels = commonLabels;
+          }
+        ];
       }
       {
         job_name = "prometheus_internal";
-        static_configs = [{
-          targets = ["127.0.0.1:${toString config.services.prometheus.port}"];
-          labels = commonLabels;
-        }];
+        static_configs = [
+          {
+            targets = [ "127.0.0.1:${toString config.services.prometheus.port}" ];
+            labels = commonLabels;
+          }
+        ];
       }
-    ] ++ (lib.lists.optional config.services.nginx.enable {
-        job_name = "nginx";
-        static_configs = [{
-          targets = ["127.0.0.1:${toString config.services.prometheus.exporters.nginx.port}"];
+    ]
+    ++ (lib.lists.optional config.services.nginx.enable {
+      job_name = "nginx";
+      static_configs = [
+        {
+          targets = [ "127.0.0.1:${toString config.services.prometheus.exporters.nginx.port}" ];
           labels = commonLabels;
-        }];
-    # }) ++ (lib.optional (builtins.length (lib.attrNames config.services.redis.servers) > 0) {
-    #     job_name = "redis";
-    #     static_configs = [
-    #       {
-    #         targets = ["127.0.0.1:${toString config.services.prometheus.exporters.redis.port}"];
-    #       }
-    #     ];
-    # }) ++ (lib.optional (builtins.length (lib.attrNames config.services.openvpn.servers) > 0) {
-    #     job_name = "openvpn";
-    #     static_configs = [
-    #       {
-    #         targets = ["127.0.0.1:${toString config.services.prometheus.exporters.openvpn.port}"];
-    #       }
-    #     ];
-    }) ++ (lib.optional config.services.dnsmasq.enable {
-        job_name = "dnsmasq";
-        static_configs = [{
-          targets = ["127.0.0.1:${toString config.services.prometheus.exporters.dnsmasq.port}"];
+        }
+      ];
+      # }) ++ (lib.optional (builtins.length (lib.attrNames config.services.redis.servers) > 0) {
+      #     job_name = "redis";
+      #     static_configs = [
+      #       {
+      #         targets = ["127.0.0.1:${toString config.services.prometheus.exporters.redis.port}"];
+      #       }
+      #     ];
+      # }) ++ (lib.optional (builtins.length (lib.attrNames config.services.openvpn.servers) > 0) {
+      #     job_name = "openvpn";
+      #     static_configs = [
+      #       {
+      #         targets = ["127.0.0.1:${toString config.services.prometheus.exporters.openvpn.port}"];
+      #       }
+      #     ];
+    })
+    ++ (lib.optional config.services.dnsmasq.enable {
+      job_name = "dnsmasq";
+      static_configs = [
+        {
+          targets = [ "127.0.0.1:${toString config.services.prometheus.exporters.dnsmasq.port}" ];
           labels = commonLabels;
-        }];
+        }
+      ];
     });
     services.prometheus.exporters.nginx = lib.mkIf config.services.nginx.enable {
       enable = true;
@@ -513,7 +559,7 @@ in
     services.prometheus.exporters.node = {
       enable = true;
       # https://github.com/prometheus/node_exporter#collectors
-      enabledCollectors = ["ethtool"];
+      enabledCollectors = [ "ethtool" ];
       port = 9112;
       listenAddress = "127.0.0.1";
     };

@@ -1,9 +1,14 @@
-{ config, pkgs, lib, ... }:
+{
+  config,
+  pkgs,
+  lib,
+  ...
+}:
 
 let
   cfg = config.shb.grocy;
 
-  contracts = pkgs.callPackage ../contracts {};
+  contracts = pkgs.callPackage ../contracts { };
 
   fqdn = "${cfg.subdomain}.${cfg.domain}";
 in
@@ -37,7 +42,24 @@ in
     };
 
     culture = lib.mkOption {
-      type = lib.types.enum [ "de" "en" "da" "en_GB" "es" "fr" "hu" "it" "nl" "no" "pl" "pt_BR" "ru" "sk_SK" "sv_SE" "tr" ];
+      type = lib.types.enum [
+        "de"
+        "en"
+        "da"
+        "en_GB"
+        "es"
+        "fr"
+        "hu"
+        "it"
+        "nl"
+        "no"
+        "pl"
+        "pt_BR"
+        "ru"
+        "sk_SK"
+        "sv_SE"
+        "tr"
+      ];
       default = "en";
       description = ''
         Display language of the frontend.
@@ -53,12 +75,12 @@ in
     extraServiceConfig = lib.mkOption {
       type = lib.types.attrsOf lib.types.str;
       description = "Extra configuration given to the systemd service file.";
-      default = {};
+      default = { };
       example = lib.literalExpression ''
-      {
-        MemoryHigh = "512M";
-        MemoryMax = "900M";
-      }
+        {
+          MemoryHigh = "512M";
+          MemoryMax = "900M";
+        }
       '';
     };
 
@@ -78,34 +100,47 @@ in
     };
 
     logLevel = lib.mkOption {
-      type = lib.types.nullOr (lib.types.enum ["critical" "error" "warning" "info" "debug"]);
+      type = lib.types.nullOr (
+        lib.types.enum [
+          "critical"
+          "error"
+          "warning"
+          "info"
+          "debug"
+        ]
+      );
       description = "Enable logging.";
       default = false;
       example = true;
     };
   };
 
-  config = lib.mkIf cfg.enable (lib.mkMerge [{
-    services.grocy = {
-      enable = true;
-      hostName = fqdn;
-      nginx.enableSSL = !(isNull cfg.ssl);
-      dataDir = cfg.dataDir;
-      settings.currency = cfg.currency;
-      settings.culture = cfg.culture;
-    };
+  config = lib.mkIf cfg.enable (
+    lib.mkMerge [
+      {
+        services.grocy = {
+          enable = true;
+          hostName = fqdn;
+          nginx.enableSSL = !(isNull cfg.ssl);
+          dataDir = cfg.dataDir;
+          settings.currency = cfg.currency;
+          settings.culture = cfg.culture;
+        };
 
-    services.phpfpm.pools.grocy.group = lib.mkForce "grocy";
+        services.phpfpm.pools.grocy.group = lib.mkForce "grocy";
 
-    users.groups.grocy = {};
-    users.users.grocy.group = lib.mkForce "grocy";
+        users.groups.grocy = { };
+        users.users.grocy.group = lib.mkForce "grocy";
 
-    services.nginx.virtualHosts."${fqdn}" = {
-      enableACME = lib.mkForce false;
-      sslCertificate = lib.mkIf (!(isNull cfg.ssl)) cfg.ssl.paths.cert;
-      sslCertificateKey = lib.mkIf (!(isNull cfg.ssl)) cfg.ssl.paths.key;
-    };
-  } {
-    systemd.services.grocyd.serviceConfig = cfg.extraServiceConfig;
-  }]);
+        services.nginx.virtualHosts."${fqdn}" = {
+          enableACME = lib.mkForce false;
+          sslCertificate = lib.mkIf (!(isNull cfg.ssl)) cfg.ssl.paths.cert;
+          sslCertificateKey = lib.mkIf (!(isNull cfg.ssl)) cfg.ssl.paths.key;
+        };
+      }
+      {
+        systemd.services.grocyd.serviceConfig = cfg.extraServiceConfig;
+      }
+    ]
+  );
 }

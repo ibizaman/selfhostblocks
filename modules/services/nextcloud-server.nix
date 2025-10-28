@@ -1,4 +1,9 @@
-{ config, pkgs, lib, ... }:
+{
+  config,
+  pkgs,
+  lib,
+  ...
+}:
 
 let
   cfg = config.shb.nextcloud;
@@ -7,12 +12,17 @@ let
   fqdnWithPort = if isNull cfg.port then fqdn else "${fqdn}:${toString cfg.port}";
   protocol = if !(isNull cfg.ssl) then "https" else "http";
 
-  ssoFqdnWithPort = if isNull cfg.apps.sso.port then cfg.apps.sso.endpoint else "${cfg.apps.sso.endpoint}:${toString cfg.apps.sso.port}";
+  ssoFqdnWithPort =
+    if isNull cfg.apps.sso.port then
+      cfg.apps.sso.endpoint
+    else
+      "${cfg.apps.sso.endpoint}:${toString cfg.apps.sso.port}";
 
-  contracts = pkgs.callPackage ../contracts {};
+  contracts = pkgs.callPackage ../contracts { };
 
   nextcloudPkg = builtins.getAttr ("nextcloud" + builtins.toString cfg.version) pkgs;
-  nextcloudApps = (builtins.getAttr ("nextcloud" + builtins.toString cfg.version + "Packages") pkgs).apps;
+  nextcloudApps =
+    (builtins.getAttr ("nextcloud" + builtins.toString cfg.version + "Packages") pkgs).apps;
 
   occ = "${config.services.nextcloud.occ}/bin/nextcloud-occ";
 in
@@ -71,7 +81,10 @@ in
 
     version = lib.mkOption {
       description = "Nextcloud version to choose from.";
-      type = lib.types.enum [ 31 32 ];
+      type = lib.types.enum [
+        31
+        32
+      ];
       default = 31;
     };
 
@@ -84,7 +97,7 @@ in
     mountPointServices = lib.mkOption {
       description = "If given, all the systemd services and timers will depend on the specified mount point systemd services.";
       type = lib.types.listOf lib.types.str;
-      default = [];
+      default = [ ];
       example = lib.literalExpression ''["var.mount"]'';
     };
 
@@ -104,7 +117,6 @@ in
         };
       };
     };
-
 
     maxUploadSize = lib.mkOption {
       default = "4G";
@@ -132,35 +144,35 @@ in
         Go to https://pgtune.leopard.in.ua/ and copy the generated configuration here.
       '';
       example = lib.literalExpression ''
-      {
-        # From https://pgtune.leopard.in.ua/ with:
+        {
+          # From https://pgtune.leopard.in.ua/ with:
 
-        # DB Version: 14
-        # OS Type: linux
-        # DB Type: dw
-        # Total Memory (RAM): 7 GB
-        # CPUs num: 4
-        # Connections num: 100
-        # Data Storage: ssd
+          # DB Version: 14
+          # OS Type: linux
+          # DB Type: dw
+          # Total Memory (RAM): 7 GB
+          # CPUs num: 4
+          # Connections num: 100
+          # Data Storage: ssd
 
-        max_connections = "100";
-        shared_buffers = "1792MB";
-        effective_cache_size = "5376MB";
-        maintenance_work_mem = "896MB";
-        checkpoint_completion_target = "0.9";
-        wal_buffers = "16MB";
-        default_statistics_target = "500";
-        random_page_cost = "1.1";
-        effective_io_concurrency = "200";
-        work_mem = "4587kB";
-        huge_pages = "off";
-        min_wal_size = "4GB";
-        max_wal_size = "16GB";
-        max_worker_processes = "4";
-        max_parallel_workers_per_gather = "2";
-        max_parallel_workers = "4";
-        max_parallel_maintenance_workers = "2";
-      }
+          max_connections = "100";
+          shared_buffers = "1792MB";
+          effective_cache_size = "5376MB";
+          maintenance_work_mem = "896MB";
+          checkpoint_completion_target = "0.9";
+          wal_buffers = "16MB";
+          default_statistics_target = "500";
+          random_page_cost = "1.1";
+          effective_io_concurrency = "200";
+          work_mem = "4587kB";
+          huge_pages = "off";
+          min_wal_size = "4GB";
+          max_wal_size = "16GB";
+          max_worker_processes = "4";
+          max_parallel_workers_per_gather = "2";
+          max_parallel_workers = "4";
+          max_parallel_maintenance_workers = "2";
+        }
       '';
     };
 
@@ -173,22 +185,22 @@ in
         "pm.start_servers" = 5;
       };
       example = lib.literalExpression ''
-      {
-        "pm" = "dynamic";
-        "pm.max_children" = 50;
-        "pm.start_servers" = 25;
-        "pm.min_spare_servers" = 10;
-        "pm.max_spare_servers" = 20;
-        "pm.max_spawn_rate" = 50;
-        "pm.max_requests" = 50;
-        "pm.process_idle_timeout" = "20s";
-      }
+        {
+          "pm" = "dynamic";
+          "pm.max_children" = 50;
+          "pm.start_servers" = 25;
+          "pm.min_spare_servers" = 10;
+          "pm.max_spare_servers" = 20;
+          "pm.max_spawn_rate" = 50;
+          "pm.max_requests" = 50;
+          "pm.process_idle_timeout" = "20s";
+        }
       '';
     };
 
     phpFpmPrometheusExporter = lib.mkOption {
       description = "Settings for exporting";
-      default = {};
+      default = { };
 
       type = lib.types.submodule {
         options = {
@@ -216,7 +228,7 @@ in
         through the UI. You can still make changes but they will be overridden on next deploy. You
         can still install and configure other apps through the UI.
       '';
-      default = {};
+      default = { };
       type = lib.types.submodule {
         options = {
           onlyoffice = lib.mkOption {
@@ -226,7 +238,7 @@ in
               Enabling this app will also start an OnlyOffice instance accessible at the given
               subdomain from the given network range.
             '';
-            default = {};
+            default = { };
             type = lib.types.submodule {
               options = {
                 enable = lib.mkEnableOption "Nextcloud OnlyOffice App";
@@ -275,7 +287,7 @@ in
               nextcloud-occ -vvv preview:generate-all
               ```
             '';
-            default = {};
+            default = { };
             type = lib.types.submodule {
               options = {
                 enable = lib.mkEnableOption "Nextcloud Preview Generator App";
@@ -330,34 +342,39 @@ in
               other side, a spinning hard drive can store more data which is well suited for storing
               user data.
             '';
-            default = {};
+            default = { };
             type = lib.types.submodule {
               options = {
                 enable = lib.mkEnableOption "Nextcloud External Storage App";
                 userLocalMount = lib.mkOption {
                   default = null;
                   description = "If set, adds a local mount as external storage.";
-                  type = lib.types.nullOr (lib.types.submodule {
-                    options = {
-                      directory = lib.mkOption {
-                        type = lib.types.str;
-                        description = ''
-                          Local directory on the filesystem to mount. Use `$user` and/or `$home`
-                          which will be replaced by the user's name and home directory.
-                        '';
-                        example = "/srv/nextcloud/$user";
-                      };
+                  type = lib.types.nullOr (
+                    lib.types.submodule {
+                      options = {
+                        directory = lib.mkOption {
+                          type = lib.types.str;
+                          description = ''
+                            Local directory on the filesystem to mount. Use `$user` and/or `$home`
+                            which will be replaced by the user's name and home directory.
+                          '';
+                          example = "/srv/nextcloud/$user";
+                        };
 
-                      mountName = lib.mkOption {
-                        type = lib.types.str;
-                        description = ''
-                          Path of the mount in Nextcloud. Use `/` to mount as the root.
-                        '';
-                        default = "";
-                        example = [ "home" "/" ];
+                        mountName = lib.mkOption {
+                          type = lib.types.str;
+                          description = ''
+                            Path of the mount in Nextcloud. Use `/` to mount as the root.
+                          '';
+                          default = "";
+                          example = [
+                            "home"
+                            "/"
+                          ];
+                        };
                       };
-                    };
-                  });
+                    }
+                  );
                 };
               };
             };
@@ -370,66 +387,68 @@ in
               Enabling this app will create a new LDAP configuration or update one that exists with
               the given host.
             '';
-            default = {};
-            type = lib.types.nullOr (lib.types.submodule {
-              options = {
-                enable = lib.mkEnableOption "LDAP app.";
+            default = { };
+            type = lib.types.nullOr (
+              lib.types.submodule {
+                options = {
+                  enable = lib.mkEnableOption "LDAP app.";
 
-                host = lib.mkOption {
-                  type = lib.types.str;
-                  description = ''
-                    Host serving the LDAP server.
-                  '';
-                  default = "127.0.0.1";
-                };
+                  host = lib.mkOption {
+                    type = lib.types.str;
+                    description = ''
+                      Host serving the LDAP server.
+                    '';
+                    default = "127.0.0.1";
+                  };
 
-                port = lib.mkOption {
-                  type = lib.types.port;
-                  description = ''
-                    Port of the service serving the LDAP server.
-                  '';
-                  default = 389;
-                };
+                  port = lib.mkOption {
+                    type = lib.types.port;
+                    description = ''
+                      Port of the service serving the LDAP server.
+                    '';
+                    default = 389;
+                  };
 
-                dcdomain = lib.mkOption {
-                  type = lib.types.str;
-                  description = "dc domain for ldap.";
-                  example = "dc=mydomain,dc=com";
-                };
+                  dcdomain = lib.mkOption {
+                    type = lib.types.str;
+                    description = "dc domain for ldap.";
+                    example = "dc=mydomain,dc=com";
+                  };
 
-                adminName = lib.mkOption {
-                  type = lib.types.str;
-                  description = "Admin user of the LDAP server.";
-                  default = "admin";
-                };
+                  adminName = lib.mkOption {
+                    type = lib.types.str;
+                    description = "Admin user of the LDAP server.";
+                    default = "admin";
+                  };
 
-                adminPassword = lib.mkOption {
-                  description = "LDAP server admin password.";
-                  type = lib.types.submodule {
-                    options = contracts.secret.mkRequester {
-                      mode = "0400";
-                      owner = "nextcloud";
-                      restartUnits = [ "phpfpm-nextcloud.service" ];
+                  adminPassword = lib.mkOption {
+                    description = "LDAP server admin password.";
+                    type = lib.types.submodule {
+                      options = contracts.secret.mkRequester {
+                        mode = "0400";
+                        owner = "nextcloud";
+                        restartUnits = [ "phpfpm-nextcloud.service" ];
+                      };
                     };
                   };
-                };
 
-                userGroup = lib.mkOption {
-                  type = lib.types.str;
-                  description = "Group users must belong to to be able to login to Nextcloud.";
-                  default = "nextcloud_user";
-                };
+                  userGroup = lib.mkOption {
+                    type = lib.types.str;
+                    description = "Group users must belong to to be able to login to Nextcloud.";
+                    default = "nextcloud_user";
+                  };
 
-                configID = lib.mkOption {
-                  type = lib.types.int;
-                  description = ''
-                    Multiple LDAP configs can co-exist with only one active at a time.
-                    This option sets the config ID used by Self Host Blocks.
-                  '';
-                  default = 50;
+                  configID = lib.mkOption {
+                    type = lib.types.int;
+                    description = ''
+                      Multiple LDAP configs can co-exist with only one active at a time.
+                      This option sets the config ID used by Self Host Blocks.
+                    '';
+                    default = 50;
+                  };
                 };
-              };
-            });
+              }
+            );
           };
 
           sso = lib.mkOption {
@@ -439,7 +458,7 @@ in
               Enabling this app will create a new LDAP configuration or update one that exists with
               the given host.
             '';
-            default = {};
+            default = { };
             type = lib.types.submodule {
               options = {
                 enable = lib.mkEnableOption "SSO app.";
@@ -469,7 +488,10 @@ in
                 };
 
                 authorization_policy = lib.mkOption {
-                  type = lib.types.enum [ "one_factor" "two_factor" ];
+                  type = lib.types.enum [
+                    "one_factor"
+                    "two_factor"
+                  ];
                   description = "Require one factor (password) or two factor (device) authentication.";
                   default = "one_factor";
                 };
@@ -491,7 +513,6 @@ in
                   };
                 };
 
-
                 secretForAuthelia = lib.mkOption {
                   description = "OIDC shared secret. Content must be the same as `secretFile` option.";
                   type = lib.types.submodule {
@@ -501,7 +522,6 @@ in
                     };
                   };
                 };
-
 
                 fallbackDefaultAuth = lib.mkOption {
                   type = lib.types.bool;
@@ -528,7 +548,7 @@ in
               nextcloud-occ memories:index
               ```
             '';
-            default = {};
+            default = { };
             type = lib.types.submodule {
               options = {
                 enable = lib.mkEnableOption "Memories app.";
@@ -561,7 +581,7 @@ in
 
               Enabling this app will set up the Recognize app and configure all its dependencies.
             '';
-            default = {};
+            default = { };
             type = lib.types.submodule {
               options = {
                 enable = lib.mkEnableOption "Recognize app.";
@@ -599,19 +619,18 @@ in
       '';
     };
 
-
     backup = lib.mkOption {
       description = ''
         Backup configuration.
       '';
-      default = {};
+      default = { };
       type = lib.types.submodule {
         options = contracts.backup.mkRequester {
           user = "nextcloud";
           sourceDirectories = [
             cfg.dataDir
           ];
-          excludePatterns = [".rnd"];
+          excludePatterns = [ ".rnd" ];
         };
       };
     };
@@ -722,34 +741,36 @@ in
         # Very important for a bunch of scripts to load correctly. Otherwise you get Content-Security-Policy errors. See https://docs.nextcloud.com/server/13/admin_manual/configuration_server/harden_server.html#enable-http-strict-transport-security
         https = !(isNull cfg.ssl);
 
-        extraApps = if isNull cfg.extraApps then {} else cfg.extraApps nextcloudApps;
+        extraApps = if isNull cfg.extraApps then { } else cfg.extraApps nextcloudApps;
         extraAppsEnable = true;
         appstoreEnable = true;
 
-        settings = let
-          protocol = if !(isNull cfg.ssl) then "https" else "http";
-        in {
-          "default_phone_region" = cfg.defaultPhoneRegion;
+        settings =
+          let
+            protocol = if !(isNull cfg.ssl) then "https" else "http";
+          in
+          {
+            "default_phone_region" = cfg.defaultPhoneRegion;
 
-          "overwrite.cli.url" = "${protocol}://${fqdn}";
-          "overwritehost" = fqdnWithPort;
-          # 'trusted_domains' needed otherwise we get this issue https://help.nextcloud.com/t/the-polling-url-does-not-start-with-https-despite-the-login-url-started-with-https/137576/2
-          # TODO: could instead set extraTrustedDomains
-          "trusted_domains" = [ fqdn ];
-          "trusted_proxies" = [ "127.0.0.1" ];
-          # TODO: could instead set overwriteProtocol
-          "overwriteprotocol" = protocol; # Needed if behind a reverse_proxy
-          "overwritecondaddr" = ""; # We need to set it to empty otherwise overwriteprotocol does not work.
-          "debug" = cfg.debug;
-          "loglevel" = if !cfg.debug then 2 else 0;
-          "filelocking.debug" = cfg.debug;
+            "overwrite.cli.url" = "${protocol}://${fqdn}";
+            "overwritehost" = fqdnWithPort;
+            # 'trusted_domains' needed otherwise we get this issue https://help.nextcloud.com/t/the-polling-url-does-not-start-with-https-despite-the-login-url-started-with-https/137576/2
+            # TODO: could instead set extraTrustedDomains
+            "trusted_domains" = [ fqdn ];
+            "trusted_proxies" = [ "127.0.0.1" ];
+            # TODO: could instead set overwriteProtocol
+            "overwriteprotocol" = protocol; # Needed if behind a reverse_proxy
+            "overwritecondaddr" = ""; # We need to set it to empty otherwise overwriteprotocol does not work.
+            "debug" = cfg.debug;
+            "loglevel" = if !cfg.debug then 2 else 0;
+            "filelocking.debug" = cfg.debug;
 
-          # Use persistent SQL connections.
-          "dbpersistent" = "true";
+            # Use persistent SQL connections.
+            "dbpersistent" = "true";
 
-          # https://help.nextcloud.com/t/very-slow-sync-for-small-files/11064/13
-          "chunkSize" = "5120MB";
-        };
+            # https://help.nextcloud.com/t/very-slow-sync-for-small-files/11064/13
+            "chunkSize" = "5120MB";
+          };
 
         phpOptions = {
           # The OPcache interned strings buffer is nearly full with 8, bump to 16.
@@ -773,7 +794,8 @@ in
           "redis.session.locking_enabled" = "1";
           "redis.session.lock_retries" = "-1";
           "redis.session.lock_wait_time" = "10000";
-        } // lib.optionalAttrs (! (isNull cfg.tracing)) {
+        }
+        // lib.optionalAttrs (!(isNull cfg.tracing)) {
           # "xdebug.remote_enable" = "on";
           # "xdebug.remote_host" = "127.0.0.1";
           # "xdebug.remote_port" = "9000";
@@ -785,7 +807,7 @@ in
           "xdebug.start_with_request" = "trigger";
         };
 
-        poolSettings = lib.mkIf (! (isNull cfg.phpFpmPoolSettings)) cfg.phpFpmPoolSettings;
+        poolSettings = lib.mkIf (!(isNull cfg.phpFpmPoolSettings)) cfg.phpFpmPoolSettings;
 
         phpExtraExtensions = all: [ all.xdebug ];
       };
@@ -801,7 +823,7 @@ in
         # [1]: https://help.nextcloud.com/t/download-aborts-after-time-or-large-file/25044/6
         # [2]: https://stackoverflow.com/a/50891625/1013628
         extraConfig = ''
-        proxy_buffering off;
+          proxy_buffering off;
         '';
       };
 
@@ -810,10 +832,10 @@ in
         pkgs.ffmpeg-headless
       ];
 
-      services.postgresql.settings = lib.mkIf (! (isNull cfg.postgresSettings)) cfg.postgresSettings;
+      services.postgresql.settings = lib.mkIf (!(isNull cfg.postgresSettings)) cfg.postgresSettings;
 
       systemd.services.phpfpm-nextcloud.preStart = ''
-      mkdir -p /var/log/xdebug; chown -R nextcloud: /var/log/xdebug
+        mkdir -p /var/log/xdebug; chown -R nextcloud: /var/log/xdebug
       '';
       systemd.services.phpfpm-nextcloud.requires = cfg.mountPointServices;
       systemd.services.phpfpm-nextcloud.after = cfg.mountPointServices;
@@ -837,7 +859,9 @@ in
         port = cfg.phpFpmPrometheusExporter.port;
         listenAddress = "127.0.0.1";
         extraFlags = [
-          "--phpfpm.scrape-uri=tcp://127.0.0.1:${toString (cfg.phpFpmPrometheusExporter.port -1)}/status?full"
+          "--phpfpm.scrape-uri=tcp://127.0.0.1:${
+            toString (cfg.phpFpmPrometheusExporter.port - 1)
+          }/status?full"
         ];
       };
 
@@ -849,20 +873,22 @@ in
           #
           # I also tried to server the status page at /status.php
           # but fcgi doesn't like the returned headers.
-          "pm.status_listen" = "127.0.0.1:${toString (cfg.phpFpmPrometheusExporter.port -1)}";
+          "pm.status_listen" = "127.0.0.1:${toString (cfg.phpFpmPrometheusExporter.port - 1)}";
         };
       };
 
       services.prometheus.scrapeConfigs = [
         {
           job_name = "phpfpm-nextcloud";
-          static_configs = [{
-            targets = ["127.0.0.1:${toString cfg.phpFpmPrometheusExporter.port}"];
-            labels = {
-              "hostname" = config.networking.hostName;
-              "domain" = cfg.domain;
-            };
-          }];
+          static_configs = [
+            {
+              targets = [ "127.0.0.1:${toString cfg.phpFpmPrometheusExporter.port}" ];
+              labels = {
+                "hostname" = config.networking.hostName;
+                "domain" = cfg.domain;
+              };
+            }
+          ];
         }
       ];
     })
@@ -896,7 +922,7 @@ in
 
         locations."/" = {
           extraConfig = ''
-          allow ${cfg.apps.onlyoffice.localNetworkIPRange};
+            allow ${cfg.apps.onlyoffice.localNetworkIPRange};
           '';
         };
       };
@@ -956,7 +982,7 @@ in
           let
             debug = if cfg.debug or cfg.apps.previewgenerator.debug then "-vvv" else "";
           in
-            "${occ} ${debug} preview:pre-generate";
+          "${occ} ${debug} preview:pre-generate";
       };
     })
 
@@ -964,13 +990,14 @@ in
       systemd.services.nextcloud-setup.script = ''
         ${occ} app:install files_external || :
         ${occ} app:enable  files_external
-      '' + lib.optionalString (cfg.apps.externalStorage.userLocalMount != null) (
+      ''
+      + lib.optionalString (cfg.apps.externalStorage.userLocalMount != null) (
         let
           cfg' = cfg.apps.externalStorage.userLocalMount;
           jq = "${pkgs.jq}/bin/jq";
         in
-          # sh
-          ''
+        # sh
+        ''
           exists=$(${occ} files_external:list --output=json | ${jq} 'any(.[]; .mount_point == "${cfg'.mountName}" and .configuration.datadir == "${cfg'.directory}")')
           if [[ "$exists" == "false" ]]; then
             ${occ} files_external:create \
@@ -979,7 +1006,8 @@ in
                     null::null \
                     --config datadir='${cfg'.directory}'
           fi
-          '');
+        ''
+      );
     })
 
     (lib.mkIf (cfg.enable && cfg.apps.ldap.enable) {
@@ -988,74 +1016,76 @@ in
         let
           cfg' = cfg.apps.ldap;
           cID = "s" + toString cfg'.configID;
-        in ''
-        ${occ} app:install user_ldap || :
-        ${occ} app:enable  user_ldap
+        in
+        ''
+          ${occ} app:install user_ldap || :
+          ${occ} app:enable  user_ldap
 
-        ${occ} config:app:set user_ldap ${cID}ldap_configuration_active --value=0
+          ${occ} config:app:set user_ldap ${cID}ldap_configuration_active --value=0
 
-        # The following CLI commands follow
-        # https://github.com/lldap/lldap/blob/main/example_configs/nextcloud.md#nextcloud-config--the-cli-way
+          # The following CLI commands follow
+          # https://github.com/lldap/lldap/blob/main/example_configs/nextcloud.md#nextcloud-config--the-cli-way
 
-        ${occ} ldap:set-config "${cID}" 'ldapHost' \
-                  '${cfg'.host}'
-        ${occ} ldap:set-config "${cID}" 'ldapPort' \
-                  '${toString cfg'.port}'
-        ${occ} ldap:set-config "${cID}" 'ldapAgentName' \
-                  'uid=${cfg'.adminName},ou=people,${cfg'.dcdomain}'
-        ${occ} ldap:set-config "${cID}" 'ldapAgentPassword'  \
-                  "$(cat ${cfg'.adminPassword.result.path})"
-        ${occ} ldap:set-config "${cID}" 'ldapBase' \
-                  '${cfg'.dcdomain}'
-        ${occ} ldap:set-config "${cID}" 'ldapBaseGroups' \
-                  '${cfg'.dcdomain}'
-        ${occ} ldap:set-config "${cID}" 'ldapBaseUsers' \
-                  '${cfg'.dcdomain}'
-        ${occ} ldap:set-config "${cID}" 'ldapEmailAttribute' \
-                  'mail'
-        ${occ} ldap:set-config "${cID}" 'ldapGroupFilter' \
-                  '(&(|(objectclass=groupOfUniqueNames))(|(cn=${cfg'.userGroup})))'
-        ${occ} ldap:set-config "${cID}" 'ldapGroupFilterGroups' \
-                  '${cfg'.userGroup}'
-        ${occ} ldap:set-config "${cID}" 'ldapGroupFilterObjectclass' \
-                  'groupOfUniqueNames'
-        ${occ} ldap:set-config "${cID}" 'ldapGroupMemberAssocAttr' \
-                  'uniqueMember'
-        ${occ} ldap:set-config "${cID}" 'ldapLoginFilter' \
-                  '(&(&(objectclass=person)(memberOf=cn=${cfg'.userGroup},ou=groups,${cfg'.dcdomain}))(|(uid=%uid)(|(mail=%uid)(objectclass=%uid))))'
-        ${occ} ldap:set-config "${cID}" 'ldapLoginFilterAttributes' \
-                  'mail;objectclass'
-        ${occ} ldap:set-config "${cID}" 'ldapUserDisplayName' \
-                  'givenname'
-        ${occ} ldap:set-config "${cID}" 'ldapUserFilter' \
-                  '(&(objectclass=person)(memberOf=cn=${cfg'.userGroup},ou=groups,${cfg'.dcdomain}))'
-        ${occ} ldap:set-config "${cID}" 'ldapUserFilterMode' \
-                  '1'
-        ${occ} ldap:set-config "${cID}" 'ldapUserFilterObjectclass' \
-                  'person'
-        # Makes the user_id used when creating a user through LDAP which means the ID used in
-        # Nextcloud is compatible with the one returned by a (possibly added in the future) SSO
-        # provider.
-        ${occ} ldap:set-config "${cID}" 'ldapExpertUsernameAttr' \
-                  'uid'
+          ${occ} ldap:set-config "${cID}" 'ldapHost' \
+                    '${cfg'.host}'
+          ${occ} ldap:set-config "${cID}" 'ldapPort' \
+                    '${toString cfg'.port}'
+          ${occ} ldap:set-config "${cID}" 'ldapAgentName' \
+                    'uid=${cfg'.adminName},ou=people,${cfg'.dcdomain}'
+          ${occ} ldap:set-config "${cID}" 'ldapAgentPassword'  \
+                    "$(cat ${cfg'.adminPassword.result.path})"
+          ${occ} ldap:set-config "${cID}" 'ldapBase' \
+                    '${cfg'.dcdomain}'
+          ${occ} ldap:set-config "${cID}" 'ldapBaseGroups' \
+                    '${cfg'.dcdomain}'
+          ${occ} ldap:set-config "${cID}" 'ldapBaseUsers' \
+                    '${cfg'.dcdomain}'
+          ${occ} ldap:set-config "${cID}" 'ldapEmailAttribute' \
+                    'mail'
+          ${occ} ldap:set-config "${cID}" 'ldapGroupFilter' \
+                    '(&(|(objectclass=groupOfUniqueNames))(|(cn=${cfg'.userGroup})))'
+          ${occ} ldap:set-config "${cID}" 'ldapGroupFilterGroups' \
+                    '${cfg'.userGroup}'
+          ${occ} ldap:set-config "${cID}" 'ldapGroupFilterObjectclass' \
+                    'groupOfUniqueNames'
+          ${occ} ldap:set-config "${cID}" 'ldapGroupMemberAssocAttr' \
+                    'uniqueMember'
+          ${occ} ldap:set-config "${cID}" 'ldapLoginFilter' \
+                    '(&(&(objectclass=person)(memberOf=cn=${cfg'.userGroup},ou=groups,${cfg'.dcdomain}))(|(uid=%uid)(|(mail=%uid)(objectclass=%uid))))'
+          ${occ} ldap:set-config "${cID}" 'ldapLoginFilterAttributes' \
+                    'mail;objectclass'
+          ${occ} ldap:set-config "${cID}" 'ldapUserDisplayName' \
+                    'givenname'
+          ${occ} ldap:set-config "${cID}" 'ldapUserFilter' \
+                    '(&(objectclass=person)(memberOf=cn=${cfg'.userGroup},ou=groups,${cfg'.dcdomain}))'
+          ${occ} ldap:set-config "${cID}" 'ldapUserFilterMode' \
+                    '1'
+          ${occ} ldap:set-config "${cID}" 'ldapUserFilterObjectclass' \
+                    'person'
+          # Makes the user_id used when creating a user through LDAP which means the ID used in
+          # Nextcloud is compatible with the one returned by a (possibly added in the future) SSO
+          # provider.
+          ${occ} ldap:set-config "${cID}" 'ldapExpertUsernameAttr' \
+                    'uid'
 
-        ${occ} ldap:test-config -- "${cID}"
+          ${occ} ldap:test-config -- "${cID}"
 
-        # Only one active at the same time
+          # Only one active at the same time
 
-        ALL_CONFIG="$(${occ} ldap:show-config --output=json)"
-        for configid in $(echo "$ALL_CONFIG" | jq --raw-output "keys[]"); do
-          echo "Deactivating $configid"
-          ${occ} ldap:set-config "$configid" 'ldapConfigurationActive' \
-                    '0'
-        done
+          ALL_CONFIG="$(${occ} ldap:show-config --output=json)"
+          for configid in $(echo "$ALL_CONFIG" | jq --raw-output "keys[]"); do
+            echo "Deactivating $configid"
+            ${occ} ldap:set-config "$configid" 'ldapConfigurationActive' \
+                      '0'
+          done
 
-        ${occ} ldap:set-config "${cID}" 'ldapConfigurationActive' \
-                  '1'
-      '';
+          ${occ} ldap:set-config "${cID}" 'ldapConfigurationActive' \
+                    '1'
+        '';
     })
 
-    (let
+    (
+      let
         scopes = [
           "openid"
           "profile"
@@ -1063,235 +1093,238 @@ in
           "groups"
           "nextcloud_userinfo"
         ];
-    in lib.mkIf (cfg.enable && cfg.apps.sso.enable) {
-      assertions = [
-        {
-          assertion = cfg.ssl != null;
-          message = "To integrate SSO, SSL must be enabled, set the shb.nextcloud.ssl option.";
-        }
-      ];
-
-      services.nextcloud.extraApps = {
-        inherit (nextcloudApps) oidc_login;
-      };
-
-      systemd.services.nextcloud-setup-pre = {
-        wantedBy = [ "multi-user.target" ];
-        before = [ "nextcloud-setup.service" ];
-        serviceConfig.Type = "oneshot";
-        serviceConfig.User = "nextcloud";
-        script =
-          ''
-          mkdir -p ${cfg.dataDir}/config
-          cat <<EOF > "${cfg.dataDir}/config/secretFile"
+      in
+      lib.mkIf (cfg.enable && cfg.apps.sso.enable) {
+        assertions = [
           {
-            "oidc_login_client_secret": "$(cat ${cfg.apps.sso.secret.result.path})"
+            assertion = cfg.ssl != null;
+            message = "To integrate SSO, SSL must be enabled, set the shb.nextcloud.ssl option.";
           }
-          EOF
+        ];
+
+        services.nextcloud.extraApps = {
+          inherit (nextcloudApps) oidc_login;
+        };
+
+        systemd.services.nextcloud-setup-pre = {
+          wantedBy = [ "multi-user.target" ];
+          before = [ "nextcloud-setup.service" ];
+          serviceConfig.Type = "oneshot";
+          serviceConfig.User = "nextcloud";
+          script = ''
+            mkdir -p ${cfg.dataDir}/config
+            cat <<EOF > "${cfg.dataDir}/config/secretFile"
+            {
+              "oidc_login_client_secret": "$(cat ${cfg.apps.sso.secret.result.path})"
+            }
+            EOF
           '';
-      };
+        };
 
-      services.nextcloud = {
-        secretFile = "${cfg.dataDir}/config/secretFile";
+        services.nextcloud = {
+          secretFile = "${cfg.dataDir}/config/secretFile";
 
-        # See all options at https://github.com/pulsejet/nextcloud-oidc-login
-        # Other important url/links are:
-        #   ${fqdn}/.well-known/openid-configuration
-        #   https://www.authelia.com/reference/guides/attributes/#custom-attributes
-        #   https://github.com/lldap/lldap/blob/main/example_configs/nextcloud_oidc_authelia.md
-        #   https://www.authelia.com/integration/openid-connect/nextcloud/#authelia
-        #   https://www.openidconnect.net/
-        settings = {
-          allow_user_to_change_display_name = false;
-          lost_password_link = "disabled";
-          oidc_login_provider_url = ssoFqdnWithPort;
-          oidc_login_client_id = cfg.apps.sso.clientID;
+          # See all options at https://github.com/pulsejet/nextcloud-oidc-login
+          # Other important url/links are:
+          #   ${fqdn}/.well-known/openid-configuration
+          #   https://www.authelia.com/reference/guides/attributes/#custom-attributes
+          #   https://github.com/lldap/lldap/blob/main/example_configs/nextcloud_oidc_authelia.md
+          #   https://www.authelia.com/integration/openid-connect/nextcloud/#authelia
+          #   https://www.openidconnect.net/
+          settings = {
+            allow_user_to_change_display_name = false;
+            lost_password_link = "disabled";
+            oidc_login_provider_url = ssoFqdnWithPort;
+            oidc_login_client_id = cfg.apps.sso.clientID;
 
-          # Automatically redirect the login page to the provider.
-          oidc_login_auto_redirect = !cfg.apps.sso.fallbackDefaultAuth;
-          # Authelia at least does not support this.
-          oidc_login_end_session_redirect = false;
-          # Redirect to this page after logging out the user
-          oidc_login_logout_url = ssoFqdnWithPort;
-          oidc_login_button_text = "Log in with ${cfg.apps.sso.provider}";
-          oidc_login_hide_password_form = false;
-          # Now, Authelia provides the info using the UserInfo request.
-          oidc_login_use_id_token = false;
-          oidc_login_attributes = {
-            id = "preferred_username";
-            name = "name";
-            mail = "email";
-            groups = "groups";
-            is_admin = "is_nextcloud_admin";
+            # Automatically redirect the login page to the provider.
+            oidc_login_auto_redirect = !cfg.apps.sso.fallbackDefaultAuth;
+            # Authelia at least does not support this.
+            oidc_login_end_session_redirect = false;
+            # Redirect to this page after logging out the user
+            oidc_login_logout_url = ssoFqdnWithPort;
+            oidc_login_button_text = "Log in with ${cfg.apps.sso.provider}";
+            oidc_login_hide_password_form = false;
+            # Now, Authelia provides the info using the UserInfo request.
+            oidc_login_use_id_token = false;
+            oidc_login_attributes = {
+              id = "preferred_username";
+              name = "name";
+              mail = "email";
+              groups = "groups";
+              is_admin = "is_nextcloud_admin";
+            };
+            oidc_login_allowed_groups = [ cfg.apps.ldap.userGroup ];
+            oidc_login_default_group = "oidc";
+            oidc_login_use_external_storage = false;
+            oidc_login_scope = lib.concatStringsSep " " scopes;
+            oidc_login_proxy_ldap = false;
+            # Enable creation of users new to Nextcloud from OIDC login. A user may be known to the
+            # IdP but not (yet) known to Nextcloud. This setting controls what to do in this case.
+            # * 'true' (default): if the user authenticates to the IdP but is not known to Nextcloud,
+            #     then they will be returned to the login screen and not allowed entry;
+            # * 'false': if the user authenticates but is not yet known to Nextcloud, then the user
+            #     will be automatically created; note that with this setting, you will be allowing (or
+            #     relying on) a third-party (the IdP) to create new users
+            oidc_login_disable_registration = false;
+            oidc_login_redir_fallback = cfg.apps.sso.fallbackDefaultAuth;
+            # oidc_login_alt_login_page = "assets/login.php";
+            oidc_login_tls_verify = true;
+            # If you get your groups from the oidc_login_attributes, you might want to create them if
+            # they are not already existing, Default is `false`. This creates groups for all groups
+            # the user is associated with in LDAP. It's too much.
+            oidc_create_groups = false;
+            oidc_login_webdav_enabled = false;
+            oidc_login_password_authentication = false;
+            oidc_login_public_key_caching_time = 86400;
+            oidc_login_min_time_between_jwks_requests = 10;
+            oidc_login_well_known_caching_time = 86400;
+            # If true, nextcloud will download user avatars on login. This may lead to security issues
+            # as the server does not control which URLs will be requested. Use with care.
+            oidc_login_update_avatar = false;
+            oidc_login_code_challenge_method = "S256";
           };
-          oidc_login_allowed_groups = [ cfg.apps.ldap.userGroup ];
-          oidc_login_default_group = "oidc";
-          oidc_login_use_external_storage = false;
-          oidc_login_scope = lib.concatStringsSep " " scopes;
-          oidc_login_proxy_ldap = false;
-          # Enable creation of users new to Nextcloud from OIDC login. A user may be known to the
-          # IdP but not (yet) known to Nextcloud. This setting controls what to do in this case.
-          # * 'true' (default): if the user authenticates to the IdP but is not known to Nextcloud,
-          #     then they will be returned to the login screen and not allowed entry;
-          # * 'false': if the user authenticates but is not yet known to Nextcloud, then the user
-          #     will be automatically created; note that with this setting, you will be allowing (or
-          #     relying on) a third-party (the IdP) to create new users
-          oidc_login_disable_registration = false;
-          oidc_login_redir_fallback = cfg.apps.sso.fallbackDefaultAuth;
-          # oidc_login_alt_login_page = "assets/login.php";
-          oidc_login_tls_verify = true;
-          # If you get your groups from the oidc_login_attributes, you might want to create them if
-          # they are not already existing, Default is `false`. This creates groups for all groups
-          # the user is associated with in LDAP. It's too much.
-          oidc_create_groups = false;
-          oidc_login_webdav_enabled = false;
-          oidc_login_password_authentication = false;
-          oidc_login_public_key_caching_time = 86400;
-          oidc_login_min_time_between_jwks_requests = 10;
-          oidc_login_well_known_caching_time = 86400;
-          # If true, nextcloud will download user avatars on login. This may lead to security issues
-          # as the server does not control which URLs will be requested. Use with care.
-          oidc_login_update_avatar = false;
-          oidc_login_code_challenge_method = "S256";
         };
-      };
 
-      shb.authelia.extraDefinitions = {
-        user_attributes."is_nextcloud_admin".expression = ''type(groups) == list && "${cfg.apps.sso.adminGroup}" in groups'';
-      };
-      shb.authelia.extraOidcClaimsPolicies."nextcloud_userinfo" = {
-        custom_claims = {
-          is_nextcloud_admin = {};
+        shb.authelia.extraDefinitions = {
+          user_attributes."is_nextcloud_admin".expression =
+            ''type(groups) == list && "${cfg.apps.sso.adminGroup}" in groups'';
         };
-      };
-      shb.authelia.extraOidcScopes."nextcloud_userinfo" = {
-        claims = [ "is_nextcloud_admin" ];
-      };
+        shb.authelia.extraOidcClaimsPolicies."nextcloud_userinfo" = {
+          custom_claims = {
+            is_nextcloud_admin = { };
+          };
+        };
+        shb.authelia.extraOidcScopes."nextcloud_userinfo" = {
+          claims = [ "is_nextcloud_admin" ];
+        };
 
-      shb.authelia.oidcClients = lib.mkIf (cfg.apps.sso.provider == "Authelia") [
-        {
-          client_id = cfg.apps.sso.clientID;
-          client_name = "Nextcloud";
-          client_secret.source = cfg.apps.sso.secretForAuthelia.result.path;
-          claims_policy = "nextcloud_userinfo";
-          public = false;
-          authorization_policy = cfg.apps.sso.authorization_policy;
-          require_pkce = "true";
-          pkce_challenge_method = "S256";
-          redirect_uris = [ "${protocol}://${fqdnWithPort}/apps/oidc_login/oidc" ];
-          inherit scopes;
-          response_types = [ "code" ];
-          grant_types = [ "authorization_code" ];
-          access_token_signed_response_alg = "none";
-          userinfo_signed_response_alg = "none";
-          token_endpoint_auth_method = "client_secret_basic";
-        }
-      ];
-    })
+        shb.authelia.oidcClients = lib.mkIf (cfg.apps.sso.provider == "Authelia") [
+          {
+            client_id = cfg.apps.sso.clientID;
+            client_name = "Nextcloud";
+            client_secret.source = cfg.apps.sso.secretForAuthelia.result.path;
+            claims_policy = "nextcloud_userinfo";
+            public = false;
+            authorization_policy = cfg.apps.sso.authorization_policy;
+            require_pkce = "true";
+            pkce_challenge_method = "S256";
+            redirect_uris = [ "${protocol}://${fqdnWithPort}/apps/oidc_login/oidc" ];
+            inherit scopes;
+            response_types = [ "code" ];
+            grant_types = [ "authorization_code" ];
+            access_token_signed_response_alg = "none";
+            userinfo_signed_response_alg = "none";
+            token_endpoint_auth_method = "client_secret_basic";
+          }
+        ];
+      }
+    )
 
     (lib.mkIf (cfg.enable && cfg.autoDisableMaintenanceModeOnStart) {
-      systemd.services.nextcloud-setup.preStart =
-        lib.mkBefore ''
+      systemd.services.nextcloud-setup.preStart = lib.mkBefore ''
         if [[ -e /var/lib/nextcloud/config/config.php ]]; then
             ${occ} maintenance:mode --no-interaction --quiet --off
         fi
-        '';
+      '';
     })
 
     (lib.mkIf (cfg.enable && cfg.alwaysApplyExpensiveMigrations) {
-      systemd.services.nextcloud-setup.script =
-        ''
+      systemd.services.nextcloud-setup.script = ''
         if [[ -e /var/lib/nextcloud/config/config.php ]]; then
             ${occ} maintenance:repair --include-expensive
         fi
-        '';
+      '';
     })
 
     # Great source of inspiration:
     # https://github.com/Shawn8901/nix-configuration/blob/538c18d9ecbf7c7e649b1540c0d40881bada6690/modules/nixos/private/nextcloud/memories.nix#L226
-    (lib.mkIf cfg.apps.memories.enable
-      (let
+    (lib.mkIf cfg.apps.memories.enable (
+      let
         cfg' = cfg.apps.memories;
 
-        exiftool = pkgs.exiftool.overrideAttrs (f: p: {
-          version = "12.70";
-          src = pkgs.fetchurl {
-            url = "https://exiftool.org/Image-ExifTool-12.70.tar.gz";
-            hash = "sha256-TLJSJEXMPj870TkExq6uraX8Wl4kmNerrSlX3LQsr/4=";
-          };
-        });
-      in
-        {
-          assertions = [
-            {
-              assertion = true;
-              message = "Memories app has an issue for now, see https://github.com/ibizaman/selfhostblocks/issues/476.";
-            }
-          ];
-
-          services.nextcloud.extraApps = {
-            inherit (nextcloudApps) memories;
-          };
-
-          systemd.services.nextcloud-cron = {
-            # required for memories
-            # see https://github.com/pulsejet/memories/blob/master/docs/troubleshooting.md#issues-with-nixos
-            path = [ pkgs.perl ];
-          };
-
-          services.nextcloud = {
-            # See all options at https://memories.gallery/system-config/
-            settings = {
-              "memories.exiftool" = "${exiftool}/bin/exiftool";
-              "memories.exiftool_no_local" = false;
-              "memories.index.mode" = "3";
-              "memories.index.path" = cfg'.photosPath;
-              "memories.timeline.default_path" = cfg'.photosPath;
-
-              "memories.vod.disable" = !cfg'.vaapi;
-              "memories.vod.vaapi" = cfg'.vaapi;
-              "memories.vod.ffmpeg" = "${pkgs.ffmpeg-headless}/bin/ffmpeg";
-              "memories.vod.ffprobe" = "${pkgs.ffmpeg-headless}/bin/ffprobe";
-              "memories.vod.use_transpose" = true;
-              "memories.vod.use_transpose.force_sw" = cfg'.vaapi; # AMD and old Intel can't use hardware here.
-
-              "memories.db.triggers.fcu" = true;
-              "memories.readonly" = true;
-              "preview_ffmpeg_path" = "${pkgs.ffmpeg-headless}/bin/ffmpeg";
+        exiftool = pkgs.exiftool.overrideAttrs (
+          f: p: {
+            version = "12.70";
+            src = pkgs.fetchurl {
+              url = "https://exiftool.org/Image-ExifTool-12.70.tar.gz";
+              hash = "sha256-TLJSJEXMPj870TkExq6uraX8Wl4kmNerrSlX3LQsr/4=";
             };
-          };
+          }
+        );
+      in
+      {
+        assertions = [
+          {
+            assertion = true;
+            message = "Memories app has an issue for now, see https://github.com/ibizaman/selfhostblocks/issues/476.";
+          }
+        ];
 
-          systemd.services.phpfpm-nextcloud.serviceConfig = lib.mkIf cfg'.vaapi {
-            DeviceAllow = [ "/dev/dri/renderD128 rwm" ];
-            PrivateDevices = lib.mkForce false;
-          };
-        }))
+        services.nextcloud.extraApps = {
+          inherit (nextcloudApps) memories;
+        };
 
-    (lib.mkIf cfg.apps.recognize.enable
-      (let
+        systemd.services.nextcloud-cron = {
+          # required for memories
+          # see https://github.com/pulsejet/memories/blob/master/docs/troubleshooting.md#issues-with-nixos
+          path = [ pkgs.perl ];
+        };
+
+        services.nextcloud = {
+          # See all options at https://memories.gallery/system-config/
+          settings = {
+            "memories.exiftool" = "${exiftool}/bin/exiftool";
+            "memories.exiftool_no_local" = false;
+            "memories.index.mode" = "3";
+            "memories.index.path" = cfg'.photosPath;
+            "memories.timeline.default_path" = cfg'.photosPath;
+
+            "memories.vod.disable" = !cfg'.vaapi;
+            "memories.vod.vaapi" = cfg'.vaapi;
+            "memories.vod.ffmpeg" = "${pkgs.ffmpeg-headless}/bin/ffmpeg";
+            "memories.vod.ffprobe" = "${pkgs.ffmpeg-headless}/bin/ffprobe";
+            "memories.vod.use_transpose" = true;
+            "memories.vod.use_transpose.force_sw" = cfg'.vaapi; # AMD and old Intel can't use hardware here.
+
+            "memories.db.triggers.fcu" = true;
+            "memories.readonly" = true;
+            "preview_ffmpeg_path" = "${pkgs.ffmpeg-headless}/bin/ffmpeg";
+          };
+        };
+
+        systemd.services.phpfpm-nextcloud.serviceConfig = lib.mkIf cfg'.vaapi {
+          DeviceAllow = [ "/dev/dri/renderD128 rwm" ];
+          PrivateDevices = lib.mkForce false;
+        };
+      }
+    ))
+
+    (lib.mkIf cfg.apps.recognize.enable (
+      let
         cfg' = cfg.apps.recognize;
       in
-        {
-          services.nextcloud.extraApps = {
-            inherit (nextcloudApps) recognize;
-          };
+      {
+        services.nextcloud.extraApps = {
+          inherit (nextcloudApps) recognize;
+        };
 
-          systemd.services.nextcloud-setup.script =
-            ''
-            ${occ} config:app:set recognize nice_binary --value ${pkgs.coreutils}/bin/nice
-            ${occ} config:app:set recognize node_binary --value ${pkgs.nodejs}/bin/node
-            ${occ} config:app:set recognize faces.enabled --value true
-            ${occ} config:app:set recognize faces.batchSize --value 50
-            ${occ} config:app:set recognize imagenet.enabled --value true
-            ${occ} config:app:set recognize imagenet.batchSize --value 100
-            ${occ} config:app:set recognize landmarks.batchSize --value 100
-            ${occ} config:app:set recognize landmarks.enabled --value true
-            ${occ} config:app:set recognize tensorflow.cores --value 1
-            ${occ} config:app:set recognize tensorflow.gpu --value false
-            ${occ} config:app:set recognize tensorflow.purejs --value false
-            ${occ} config:app:set recognize musicnn.enabled --value true
-            ${occ} config:app:set recognize musicnn.batchSize --value 100
-            '';
-        }))
+        systemd.services.nextcloud-setup.script = ''
+          ${occ} config:app:set recognize nice_binary --value ${pkgs.coreutils}/bin/nice
+          ${occ} config:app:set recognize node_binary --value ${pkgs.nodejs}/bin/node
+          ${occ} config:app:set recognize faces.enabled --value true
+          ${occ} config:app:set recognize faces.batchSize --value 50
+          ${occ} config:app:set recognize imagenet.enabled --value true
+          ${occ} config:app:set recognize imagenet.batchSize --value 100
+          ${occ} config:app:set recognize landmarks.batchSize --value 100
+          ${occ} config:app:set recognize landmarks.enabled --value true
+          ${occ} config:app:set recognize tensorflow.cores --value 1
+          ${occ} config:app:set recognize tensorflow.gpu --value false
+          ${occ} config:app:set recognize tensorflow.purejs --value false
+          ${occ} config:app:set recognize musicnn.enabled --value true
+          ${occ} config:app:set recognize musicnn.batchSize --value 100
+        '';
+      }
+    ))
   ];
 }

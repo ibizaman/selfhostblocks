@@ -1,9 +1,14 @@
-{ config, pkgs, lib, ... }:
+{
+  config,
+  pkgs,
+  lib,
+  ...
+}:
 
 let
   cfg = config.shb.home-assistant;
 
-  contracts = pkgs.callPackage ../contracts {};
+  contracts = pkgs.callPackage ../contracts { };
 
   fqdn = "${cfg.subdomain}.${cfg.domain}";
 
@@ -24,9 +29,7 @@ let
 
   nonSecrets = (lib.attrsets.filterAttrs (k: v: !(builtins.isAttrs v)) cfg.config);
 
-  configWithSecretsIncludes =
-    nonSecrets
-    // (lib.attrsets.mapAttrs (k: v: "!secret ${k}") secrets);
+  configWithSecretsIncludes = nonSecrets // (lib.attrsets.mapAttrs (k: v: "!secret ${k}") secrets);
 in
 {
   options.shb.home-assistant = {
@@ -56,28 +59,49 @@ in
         freeformType = lib.types.attrsOf lib.types.str;
         options = {
           name = lib.mkOption {
-            type = lib.types.oneOf [ lib.types.str lib.shb.secretFileType ];
+            type = lib.types.oneOf [
+              lib.types.str
+              lib.shb.secretFileType
+            ];
             description = "Name of the Home Assistant instance.";
           };
           country = lib.mkOption {
-            type = lib.types.oneOf [ lib.types.str lib.shb.secretFileType ];
+            type = lib.types.oneOf [
+              lib.types.str
+              lib.shb.secretFileType
+            ];
             description = "Two letter country code where this instance is located.";
           };
           latitude = lib.mkOption {
-            type = lib.types.oneOf [ lib.types.str lib.shb.secretFileType ];
+            type = lib.types.oneOf [
+              lib.types.str
+              lib.shb.secretFileType
+            ];
             description = "Latitude where this instance is located.";
           };
           longitude = lib.mkOption {
-            type = lib.types.oneOf [ lib.types.str lib.shb.secretFileType ];
+            type = lib.types.oneOf [
+              lib.types.str
+              lib.shb.secretFileType
+            ];
             description = "Longitude where this instance is located.";
           };
           time_zone = lib.mkOption {
-            type = lib.types.oneOf [ lib.types.str lib.shb.secretFileType ];
+            type = lib.types.oneOf [
+              lib.types.str
+              lib.shb.secretFileType
+            ];
             description = "Timezone of this instance.";
             example = "America/Los_Angeles";
           };
           unit_system = lib.mkOption {
-            type = lib.types.oneOf [ lib.types.str (lib.types.enum [ "metric" "us_customary" ]) ];
+            type = lib.types.oneOf [
+              lib.types.str
+              (lib.types.enum [
+                "metric"
+                "us_customary"
+              ])
+            ];
             description = "Unit system of this instance.";
             example = "metric";
           };
@@ -95,7 +119,7 @@ in
         Also, enabling LDAP will skip onboarding
         otherwise Home Assistant gets into a cyclic lock.
       '';
-      default = {};
+      default = { };
       type = lib.types.submodule {
         options = {
           enable = lib.mkEnableOption "LDAP app.";
@@ -140,7 +164,7 @@ in
 
     voice = lib.mkOption {
       description = "Options related to voice service.";
-      default = {};
+      default = { };
       type = lib.types.submodule {
         options = {
           speech-to-text = lib.mkOption {
@@ -150,7 +174,7 @@ in
               https://search.nixos.org/options?channel=23.11&from=0&size=50&sort=relevance&type=packages&query=services.wyoming.piper.servers
             '';
             type = lib.types.attrsOf lib.types.anything;
-            default = {};
+            default = { };
           };
           text-to-speech = lib.mkOption {
             description = ''
@@ -159,7 +183,7 @@ in
               https://search.nixos.org/options?channel=23.11&from=0&size=50&sort=relevance&type=packages&query=services.wyoming.faster-whisper.servers
             '';
             type = lib.types.attrsOf lib.types.anything;
-            default = {};
+            default = { };
           };
           wakeword = lib.mkOption {
             description = ''
@@ -168,7 +192,9 @@ in
               https://search.nixos.org/options?channel=23.11&from=0&size=50&sort=relevance&type=packages&query=services.wyoming.openwakeword
             '';
             type = lib.types.anything;
-            default = { enable = false; };
+            default = {
+              enable = false;
+            };
           };
         };
       };
@@ -178,7 +204,7 @@ in
       description = ''
         Backup configuration.
       '';
-      default = {};
+      default = { };
       type = lib.types.submodule {
         options = contracts.backup.mkRequester {
           user = "hass";
@@ -219,7 +245,7 @@ in
       config = {
         # Includes dependencies for a basic setup
         # https://www.home-assistant.io/integrations/default_config/
-        default_config = {};
+        default_config = { };
         http = {
           use_x_forwarded_for = true;
           server_host = "127.0.0.1";
@@ -240,7 +266,10 @@ in
               {
                 type = "command_line";
                 command = ldap_auth_script + "/bin/ldap_auth.sh";
-                args = [ "http://${cfg.ldap.host}:${toString cfg.ldap.port}" cfg.ldap.userGroup ];
+                args = [
+                  "http://${cfg.ldap.host}:${toString cfg.ldap.port}"
+                  cfg.ldap.userGroup
+                ];
                 meta = true;
               }
             ]);
@@ -261,11 +290,11 @@ in
             action = [
               {
                 service = "shell_command.delete_backups";
-                data = {};
+                data = { };
               }
               {
                 service = "backup.create";
-                data = {};
+                data = { };
               }
             ];
             mode = "single";
@@ -286,7 +315,11 @@ in
           {
             name = "random_joke";
             platform = "rest";
-            json_attributes = ["joke" "id" "status"];
+            json_attributes = [
+              "joke"
+              "id"
+              "status"
+            ];
             value_template = "{{ value_json.joke }}";
             resource = "https://icanhazdadjoke.com/";
             scan_interval = "3600";
@@ -324,33 +357,36 @@ in
     };
 
     systemd.services.home-assistant.preStart =
-      (let
-        # TODO: this probably does not work anymore
-        onboarding = pkgs.writeText "onboarding" ''
-          {
-            "version": 4,
-            "minor_version": 1,
-            "key": "onboarding",
-            "data": {
-              "done": [
-                ${lib.optionalString cfg.ldap.enable ''"user",''}
-                "core_config",
-                "analytics"
-              ]
+      (
+        let
+          # TODO: this probably does not work anymore
+          onboarding = pkgs.writeText "onboarding" ''
+            {
+              "version": 4,
+              "minor_version": 1,
+              "key": "onboarding",
+              "data": {
+                "done": [
+                  ${lib.optionalString cfg.ldap.enable ''"user",''}
+                  "core_config",
+                  "analytics"
+                ]
+              }
             }
-          }
-        '';
-        storage = "${config.services.home-assistant.configDir}";
-        file = "${storage}/.storage/onboarding";
-      in ''
-        if [ ! -f ${file} ]; then
-          mkdir -p ''$(dirname ${file}) && cp ${onboarding} ${file}
-        fi
-      '')
+          '';
+          storage = "${config.services.home-assistant.configDir}";
+          file = "${storage}/.storage/onboarding";
+        in
+        ''
+          if [ ! -f ${file} ]; then
+            mkdir -p ''$(dirname ${file}) && cp ${onboarding} ${file}
+          fi
+        ''
+      )
       + (lib.shb.replaceSecrets {
         userConfig = cfg.config;
         resultPath = "${config.services.home-assistant.configDir}/secrets.yaml";
-        generator = lib.shb.replaceSecretsGeneratorAdapter (lib.generators.toYAML {});
+        generator = lib.shb.replaceSecretsGeneratorAdapter (lib.generators.toYAML { });
       });
 
     systemd.tmpfiles.rules = [

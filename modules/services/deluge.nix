@@ -1,20 +1,31 @@
-{ config, pkgs, lib, ... }:
+{
+  config,
+  pkgs,
+  lib,
+  ...
+}:
 
 let
   cfg = config.shb.deluge;
 
-  contracts = pkgs.callPackage ../contracts {};
+  contracts = pkgs.callPackage ../contracts { };
 
   fqdn = "${cfg.subdomain}.${cfg.domain}";
 
-  authGenerator = users:
+  authGenerator =
+    users:
     let
-      genLine = name: { password, priority ? 10 }:
+      genLine =
+        name:
+        {
+          password,
+          priority ? 10,
+        }:
         "${name}:${password}:${toString priority}";
 
       lines = lib.mapAttrsToList genLine users;
     in
-      lib.concatStringsSep "\n" lines;
+    lib.concatStringsSep "\n" lines;
 in
 {
   imports = [
@@ -57,7 +68,10 @@ in
     daemonListenPorts = lib.mkOption {
       type = lib.types.listOf lib.types.int;
       description = "Deluge daemon listen ports";
-      default = [ 6881 6889 ];
+      default = [
+        6881
+        6889
+      ];
     };
 
     webPort = lib.mkOption {
@@ -158,12 +172,12 @@ in
     extraServiceConfig = lib.mkOption {
       type = lib.types.attrsOf lib.types.str;
       description = "Extra configuration given to the systemd service file.";
-      default = {};
+      default = { };
       example = lib.literalExpression ''
-      {
-        MemoryHigh = "512M";
-        MemoryMax = "900M";
-      }
+        {
+          MemoryHigh = "512M";
+          MemoryMax = "900M";
+        }
       '';
     };
 
@@ -176,14 +190,16 @@ in
 
     extraUsers = lib.mkOption {
       description = "Users having access to this deluge instance. Attrset of username to user options.";
-      type = lib.types.attrsOf (lib.types.submodule {
-        options = {
-          password = lib.mkOption {
-            type = lib.shb.secretFileType;
-            description = "File containing the user password.";
+      type = lib.types.attrsOf (
+        lib.types.submodule {
+          options = {
+            password = lib.mkOption {
+              type = lib.shb.secretFileType;
+              description = "File containing the user password.";
+            };
           };
-        };
-      });
+        }
+      );
     };
 
     localclientPassword = lib.mkOption {
@@ -198,12 +214,17 @@ in
 
     prometheusScraperPassword = lib.mkOption {
       description = "Password for prometheus scraper. Setting this option will activate the prometheus deluge exporter.";
-      type = lib.types.nullOr (lib.types.submodule {
-        options = contracts.secret.mkRequester {
-          owner = "deluge";
-          restartUnits = [ "deluged.service" "prometheus.service" ];
-        };
-      });
+      type = lib.types.nullOr (
+        lib.types.submodule {
+          options = contracts.secret.mkRequester {
+            owner = "deluge";
+            restartUnits = [
+              "deluged.service"
+              "prometheus.service"
+            ];
+          };
+        }
+      );
       default = null;
     };
 
@@ -214,35 +235,35 @@ in
 
         Label is automatically enabled if any of the `shb.arr.*` service is enabled.
       '';
-      example = ["Label"];
-      default = [];
+      example = [ "Label" ];
+      default = [ ];
     };
 
     additionalPlugins = lib.mkOption {
       type = lib.types.listOf lib.types.path;
       description = "Location of additional plugins. Each item in the list must be the path to the directory containing the plugin .egg file.";
-      default = [];
+      default = [ ];
       example = lib.literalExpression ''
-      additionalPlugins = [
-        (pkgs.callPackage ({ python3, fetchFromGitHub }: python3.pkgs.buildPythonPackage {
-          name = "deluge-autotracker";
-          version = "1.0.0";
-          src = fetchFromGitHub {
-            owner = "ibizaman";
-            repo = "deluge-autotracker";
-            rev = "cc40d816a497bbf1c2ebeb3d8b1176210548a3e6";
-            sha256 = "sha256-0LpVdv1fak2a5eX4unjhUcN7nMAl9fgpr3X+7XnQE6c=";
-          } + "/autotracker";
-          doCheck = false;
-          format = "other";
-          nativeBuildInputs = [ python3.pkgs.setuptools ];
-          buildPhase = '''
-          mkdir "$out"
-          python3 setup.py install --install-lib "$out"
-          ''';
-          doInstallPhase = false;
-        }) {})
-      ];
+        additionalPlugins = [
+          (pkgs.callPackage ({ python3, fetchFromGitHub }: python3.pkgs.buildPythonPackage {
+            name = "deluge-autotracker";
+            version = "1.0.0";
+            src = fetchFromGitHub {
+              owner = "ibizaman";
+              repo = "deluge-autotracker";
+              rev = "cc40d816a497bbf1c2ebeb3d8b1176210548a3e6";
+              sha256 = "sha256-0LpVdv1fak2a5eX4unjhUcN7nMAl9fgpr3X+7XnQE6c=";
+            } + "/autotracker";
+            doCheck = false;
+            format = "other";
+            nativeBuildInputs = [ python3.pkgs.setuptools ];
+            buildPhase = '''
+            mkdir "$out"
+            python3 setup.py install --install-lib "$out"
+            ''';
+            doInstallPhase = false;
+          }) {})
+        ];
       '';
     };
 
@@ -250,7 +271,7 @@ in
       description = ''
         Backup configuration.
       '';
-      default = {};
+      default = { };
       type = lib.types.submodule {
         options = contracts.backup.mkRequester {
           user = "deluge";
@@ -262,146 +283,175 @@ in
     };
 
     logLevel = lib.mkOption {
-      type = lib.types.nullOr (lib.types.enum ["critical" "error" "warning" "info" "debug"]);
+      type = lib.types.nullOr (
+        lib.types.enum [
+          "critical"
+          "error"
+          "warning"
+          "info"
+          "debug"
+        ]
+      );
       description = "Enable logging.";
       default = null;
       example = "info";
     };
   };
 
-  config = lib.mkIf cfg.enable (lib.mkMerge [{
-    services.deluge = {
-      enable = true;
-      declarative = true;
-      openFirewall = true;
-      inherit (cfg) dataDir;
+  config = lib.mkIf cfg.enable (
+    lib.mkMerge [
+      {
+        services.deluge = {
+          enable = true;
+          declarative = true;
+          openFirewall = true;
+          inherit (cfg) dataDir;
 
-      config = {
-        download_location = cfg.settings.downloadLocation;
-        allow_remote = true;
-        daemon_port = cfg.daemonPort;
-        listen_ports = cfg.daemonListenPorts;
-        proxy = lib.optionalAttrs (cfg.proxyPort != null) {
-          force_proxy = true;
-          hostname = "127.0.0.1";
-          port = cfg.proxyPort;
-          proxy_hostnames = true;
-          proxy_peer_connections = true;
-          proxy_tracker_connections = true;
-          type = 4; # HTTP
+          config = {
+            download_location = cfg.settings.downloadLocation;
+            allow_remote = true;
+            daemon_port = cfg.daemonPort;
+            listen_ports = cfg.daemonListenPorts;
+            proxy = lib.optionalAttrs (cfg.proxyPort != null) {
+              force_proxy = true;
+              hostname = "127.0.0.1";
+              port = cfg.proxyPort;
+              proxy_hostnames = true;
+              proxy_peer_connections = true;
+              proxy_tracker_connections = true;
+              type = 4; # HTTP
+            };
+            outgoing_interface = cfg.outgoingInterface;
+
+            enabled_plugins =
+              cfg.enabledPlugins
+              ++ lib.optional (lib.any (x: x.enable) [
+                config.services.radarr
+                config.services.sonarr
+                config.services.bazarr
+                config.services.readarr
+                config.services.lidarr
+              ]) "Label";
+
+            inherit (cfg.settings)
+              max_active_limit
+              max_active_downloading
+              max_active_seeding
+              max_connections_global
+              max_connections_per_torrent
+
+              max_download_speed
+              max_download_speed_per_torrent
+
+              max_upload_slots_global
+              max_upload_slots_per_torrent
+              max_upload_speed
+              max_upload_speed_per_torrent
+
+              dont_count_slow_torrents
+              ;
+
+            new_release_check = false;
+          };
+
+          authFile = "${cfg.dataDir}/.config/deluge/authTemplate";
+
+          web.enable = true;
+          web.port = cfg.webPort;
         };
-        outgoing_interface = cfg.outgoingInterface;
 
-        enabled_plugins = cfg.enabledPlugins
-                          ++ lib.optional (lib.any (x: x.enable) [
-                              config.services.radarr
-                              config.services.sonarr
-                              config.services.bazarr
-                              config.services.readarr
-                              config.services.lidarr
-                          ]) "Label";
+        systemd.services.deluged.preStart = lib.mkBefore (
+          lib.shb.replaceSecrets {
+            userConfig =
+              cfg.extraUsers
+              // {
+                localclient.password.source = config.shb.deluge.localclientPassword.result.path;
+              }
+              // (lib.optionalAttrs (config.shb.deluge.prometheusScraperPassword != null) {
+                prometheus_scraper.password.source = config.shb.deluge.prometheusScraperPassword.result.path;
+              });
+            resultPath = "${cfg.dataDir}/.config/deluge/authTemplate";
+            generator = name: value: pkgs.writeText "delugeAuth" (authGenerator value);
+          }
+        );
 
-        inherit (cfg.settings)
-          max_active_limit
-          max_active_downloading
-          max_active_seeding
-          max_connections_global
-          max_connections_per_torrent
+        systemd.services.deluged.serviceConfig.ExecStart = lib.mkForce (
+          lib.concatStringsSep " \\\n    " (
+            [
+              "${config.services.deluge.package}/bin/deluged"
+              "--do-not-daemonize"
+              "--config ${cfg.dataDir}/.config/deluge"
+            ]
+            ++ (lib.optional (!(isNull cfg.logLevel)) "-L ${cfg.logLevel}")
+          )
+        );
 
-          max_download_speed
-          max_download_speed_per_torrent
+        systemd.tmpfiles.rules =
+          let
+            plugins = pkgs.symlinkJoin {
+              name = "deluge-plugins";
+              paths = cfg.additionalPlugins;
+            };
+          in
+          [
+            "L+ ${cfg.dataDir}/.config/deluge/plugins - - - - ${plugins}"
+          ];
 
-          max_upload_slots_global
-          max_upload_slots_per_torrent
-          max_upload_speed
-          max_upload_speed_per_torrent
-
-          dont_count_slow_torrents;
-
-        new_release_check = false;
-      };
-
-      authFile = "${cfg.dataDir}/.config/deluge/authTemplate";
-
-      web.enable = true;
-      web.port = cfg.webPort;
-    };
-
-    systemd.services.deluged.preStart = lib.mkBefore (lib.shb.replaceSecrets {
-      userConfig = cfg.extraUsers // {
-        localclient.password.source = config.shb.deluge.localclientPassword.result.path;
-      } // (lib.optionalAttrs (config.shb.deluge.prometheusScraperPassword != null) {
-        prometheus_scraper.password.source = config.shb.deluge.prometheusScraperPassword.result.path;
-      });
-      resultPath = "${cfg.dataDir}/.config/deluge/authTemplate";
-      generator = name: value: pkgs.writeText "delugeAuth" (authGenerator value);
-    });
-
-    systemd.services.deluged.serviceConfig.ExecStart = lib.mkForce (lib.concatStringsSep " \\\n    " ([
-      "${config.services.deluge.package}/bin/deluged"
-      "--do-not-daemonize"
-      "--config ${cfg.dataDir}/.config/deluge"
-    ] ++ (lib.optional (!(isNull cfg.logLevel)) "-L ${cfg.logLevel}")
-    ));
-    
-    systemd.tmpfiles.rules =
-      let
-        plugins = pkgs.symlinkJoin {
-          name = "deluge-plugins";
-          paths = cfg.additionalPlugins;
-        };
-      in
-        [
-          "L+ ${cfg.dataDir}/.config/deluge/plugins - - - - ${plugins}"
+        shb.nginx.vhosts = [
+          (
+            {
+              inherit (cfg) subdomain domain ssl;
+              upstream = "http://127.0.0.1:${toString config.services.deluge.web.port}";
+              autheliaRules = lib.mkIf (cfg.authEndpoint != null) [
+                {
+                  domain = fqdn;
+                  policy = "bypass";
+                  resources = [
+                    "^/json"
+                  ];
+                }
+                {
+                  domain = fqdn;
+                  policy = "two_factor";
+                  subject = [ "group:deluge_user" ];
+                }
+              ];
+            }
+            // (lib.optionalAttrs (cfg.authEndpoint != null) {
+              inherit (cfg) authEndpoint;
+            })
+          )
         ];
+      }
+      {
+        systemd.services.deluged.serviceConfig = cfg.extraServiceConfig;
+      }
+      (lib.mkIf (config.shb.deluge.prometheusScraperPassword != null) {
+        services.prometheus.exporters.deluge = {
+          enable = true;
 
-    shb.nginx.vhosts = [
-      ({
-        inherit (cfg) subdomain domain ssl;
-        upstream = "http://127.0.0.1:${toString config.services.deluge.web.port}";
-        autheliaRules = lib.mkIf (cfg.authEndpoint != null) [
+          delugeHost = "127.0.0.1";
+          delugePort = config.services.deluge.config.daemon_port;
+          delugeUser = "prometheus_scraper";
+          delugePasswordFile = config.shb.deluge.prometheusScraperPassword.result.path;
+          exportPerTorrentMetrics = true;
+        };
+
+        services.prometheus.scrapeConfigs = [
           {
-            domain = fqdn;
-            policy = "bypass";
-            resources = [
-              "^/json"
+            job_name = "deluge";
+            static_configs = [
+              {
+                targets = [ "127.0.0.1:${toString config.services.prometheus.exporters.deluge.port}" ];
+                labels = {
+                  "hostname" = config.networking.hostName;
+                  "domain" = cfg.domain;
+                };
+              }
             ];
           }
-          {
-            domain = fqdn;
-            policy = "two_factor";
-            subject = ["group:deluge_user"];
-          }
         ];
-      } // (lib.optionalAttrs (cfg.authEndpoint != null) {
-        inherit (cfg) authEndpoint;
-      }))
-    ];
-  } {
-    systemd.services.deluged.serviceConfig = cfg.extraServiceConfig;
-  } (lib.mkIf (config.shb.deluge.prometheusScraperPassword != null) {
-    services.prometheus.exporters.deluge = {
-      enable = true;
-
-      delugeHost = "127.0.0.1";
-      delugePort = config.services.deluge.config.daemon_port;
-      delugeUser = "prometheus_scraper";
-      delugePasswordFile = config.shb.deluge.prometheusScraperPassword.result.path;
-      exportPerTorrentMetrics = true;
-    };
-
-    services.prometheus.scrapeConfigs = [
-      {
-        job_name = "deluge";
-        static_configs = [{
-          targets = ["127.0.0.1:${toString config.services.prometheus.exporters.deluge.port}"];
-          labels = {
-            "hostname" = config.networking.hostName;
-            "domain" = cfg.domain;
-          };
-        }];
-      }
-    ];
-  })
-  ]);
+      })
+    ]
+  );
 }

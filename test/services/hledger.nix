@@ -2,59 +2,71 @@
 let
   commonTestScript = lib.shb.mkScripts {
     hasSSL = { node, ... }: !(isNull node.config.shb.hledger.ssl);
-    waitForServices = { ... }: [
-      "hledger-web.service"
-      "nginx.service"
-    ];
-  };
-
-  basic = { config, ... }: {
-    imports = [
-      lib.shb.baseModule
-      ../../modules/services/hledger.nix
-    ];
-
-    test = {
-      subdomain = "h";
-    };
-
-    shb.hledger = {
-      enable = true;
-      inherit (config.test) subdomain domain;
-    };
-  };
-
-  clientLogin = { config, ... }: {
-    imports = [
-      lib.shb.baseModule
-      lib.shb.clientLoginModule
-    ];
-
-    test = {
-      subdomain = "h";
-    };
-
-    test.login = {
-      startUrl = "http://${config.test.fqdn}";
-      testLoginWith = [
-        { nextPageExpect = [
-            "expect(page).to_have_title('journal - hledger-web')"
-          ]; }
+    waitForServices =
+      { ... }:
+      [
+        "hledger-web.service"
+        "nginx.service"
       ];
-    };
   };
 
-  https = { config, ... }: {
-    shb.hledger = {
-      ssl = config.shb.certs.certs.selfsigned.n;
-    };
-  };
+  basic =
+    { config, ... }:
+    {
+      imports = [
+        lib.shb.baseModule
+        ../../modules/services/hledger.nix
+      ];
 
-  sso = { config, ... }: {
-    shb.hledger = {
-      authEndpoint = "https://${config.shb.authelia.subdomain}.${config.shb.authelia.domain}";
+      test = {
+        subdomain = "h";
+      };
+
+      shb.hledger = {
+        enable = true;
+        inherit (config.test) subdomain domain;
+      };
     };
-  };
+
+  clientLogin =
+    { config, ... }:
+    {
+      imports = [
+        lib.shb.baseModule
+        lib.shb.clientLoginModule
+      ];
+
+      test = {
+        subdomain = "h";
+      };
+
+      test.login = {
+        startUrl = "http://${config.test.fqdn}";
+        testLoginWith = [
+          {
+            nextPageExpect = [
+              "expect(page).to_have_title('journal - hledger-web')"
+            ];
+          }
+        ];
+      };
+    };
+
+  https =
+    { config, ... }:
+    {
+      shb.hledger = {
+        ssl = config.shb.certs.certs.selfsigned.n;
+      };
+    };
+
+  sso =
+    { config, ... }:
+    {
+      shb.hledger = {
+        authEndpoint = "https://${config.shb.authelia.subdomain}.${config.shb.authelia.domain}";
+      };
+    };
 in
 {
   basic = lib.shb.runNixOSTest {
@@ -78,14 +90,16 @@ in
   backup = lib.shb.runNixOSTest {
     name = "hledger_backup";
 
-    nodes.server = { config, ... }: {
-      imports = [
-        basic
-        (lib.shb.backup config.shb.hledger.backup)
-      ];
-    };
+    nodes.server =
+      { config, ... }:
+      {
+        imports = [
+          basic
+          (lib.shb.backup config.shb.hledger.backup)
+        ];
+      };
 
-    nodes.client = {};
+    nodes.client = { };
 
     testScript = commonTestScript.backup;
   };
@@ -101,7 +115,7 @@ in
       ];
     };
 
-    nodes.client = {};
+    nodes.client = { };
 
     testScript = commonTestScript.access;
   };
@@ -109,18 +123,20 @@ in
   sso = lib.shb.runNixOSTest {
     name = "hledger_sso";
 
-    nodes.server = { config, pkgs, ... }: {
-      imports = [
-        basic
-        lib.shb.certs
-        https
-        lib.shb.ldap
-        (lib.shb.sso config.shb.certs.certs.selfsigned.n)
-        sso
-      ];
-    };
+    nodes.server =
+      { config, pkgs, ... }:
+      {
+        imports = [
+          basic
+          lib.shb.certs
+          https
+          lib.shb.ldap
+          (lib.shb.sso config.shb.certs.certs.selfsigned.n)
+          sso
+        ];
+      };
 
-    nodes.client = {};
+    nodes.client = { };
 
     testScript = commonTestScript.access.override {
       redirectSSO = true;

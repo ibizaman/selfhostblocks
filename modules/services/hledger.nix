@@ -1,9 +1,14 @@
-{ config, pkgs, lib, ... }:
+{
+  config,
+  pkgs,
+  lib,
+  ...
+}:
 
 let
   cfg = config.shb.hledger;
 
-  contracts = pkgs.callPackage ../contracts {};
+  contracts = pkgs.callPackage ../contracts { };
 
   fqdn = "${cfg.subdomain}.${cfg.domain}";
 in
@@ -63,7 +68,7 @@ in
       description = ''
         Backup configuration.
       '';
-      default = {};
+      default = { };
       type = lib.types.submodule {
         options = contracts.backup.mkRequester {
           user = "hledger";
@@ -76,7 +81,7 @@ in
 
     extraArguments = lib.mkOption {
       description = "Extra arguments append to the hledger command.";
-      default = ["--forecast"];
+      default = [ "--forecast" ];
       type = lib.types.listOf lib.types.str;
     };
   };
@@ -88,7 +93,7 @@ in
       baseUrl = "";
 
       stateDir = cfg.dataDir;
-      journalFiles = ["hledger.journal"];
+      journalFiles = [ "hledger.journal" ];
 
       host = "127.0.0.1";
       port = cfg.port;
@@ -101,20 +106,27 @@ in
       # If the hledger.journal file does not exist, hledger-web refuses to start, so we create an
       # empty one if it does not exist yet..
       preStart = ''
-      test -f /var/lib/hledger/hledger.journal || touch /var/lib/hledger/hledger.journal
+        test -f /var/lib/hledger/hledger.journal || touch /var/lib/hledger/hledger.journal
       '';
       serviceConfig.StateDirectory = "hledger";
     };
 
     shb.nginx.vhosts = [
       {
-        inherit (cfg) subdomain domain authEndpoint ssl;
+        inherit (cfg)
+          subdomain
+          domain
+          authEndpoint
+          ssl
+          ;
         upstream = "http://${toString config.services.hledger-web.host}:${toString config.services.hledger-web.port}";
-        autheliaRules = [{
-          domain = fqdn;
-          policy = "two_factor";
-          subject = ["group:hledger_user"];
-        }];
+        autheliaRules = [
+          {
+            domain = fqdn;
+            policy = "two_factor";
+            subject = [ "group:hledger_user" ];
+          }
+        ];
       }
     ];
   };

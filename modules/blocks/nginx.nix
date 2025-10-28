@@ -1,9 +1,14 @@
-{ config, pkgs, lib, ... }:
+{
+  config,
+  pkgs,
+  lib,
+  ...
+}:
 
 let
   cfg = config.shb.nginx;
 
-  contracts = pkgs.callPackage ../contracts {};
+  contracts = pkgs.callPackage ../contracts { };
 
   fqdn = c: "${c.subdomain}.${c.domain}";
 
@@ -42,12 +47,13 @@ let
 
       autheliaRules = lib.mkOption {
         type = lib.types.listOf (lib.types.attrsOf lib.types.anything);
-        default = [];
+        default = [ ];
         description = "Authelia rule configuration";
-        example = lib.literalExpression ''[{
-        policy = "two_factor";
-        subject = ["group:service_user"];
-        }]'';
+        example = lib.literalExpression ''
+          [{
+                  policy = "two_factor";
+                  subject = ["group:service_user"];
+                  }]'';
       };
 
       extraConfig = lib.mkOption {
@@ -77,41 +83,44 @@ in
     vhosts = lib.mkOption {
       description = "Endpoints to be protected by authelia.";
       type = lib.types.listOf vhostConfig;
-      default = [];
+      default = [ ];
     };
   };
 
   config = {
-    networking.firewall.allowedTCPPorts = [ 80 443 ];
+    networking.firewall.allowedTCPPorts = [
+      80
+      443
+    ];
 
     services.nginx.enable = true;
     services.nginx.logError = lib.mkIf cfg.debugLog "stderr warn";
     services.nginx.appendHttpConfig = lib.mkIf cfg.accessLog ''
-        log_format apm
-          '{'
-          '"remote_addr":"$remote_addr",'
-          '"remote_user":"$remote_user",'
-          '"time_local":"$time_local",'
-          '"request":"$request",'
-          '"request_length":"$request_length",'
-          '"server_name":"$server_name",'
-          '"status":"$status",'
-          '"bytes_sent":"$bytes_sent",'
-          '"body_bytes_sent":"$body_bytes_sent",'
-          '"referrer":"$http_referrer",'
-          '"user_agent":"$http_user_agent",'
-          '"gzip_ration":"$gzip_ratio",'
-          '"post":"$request_body",'
-          '"upstream_addr":"$upstream_addr",'
-          '"upstream_status":"$upstream_status",'
-          '"request_time":"$request_time",'
-          '"upstream_response_time":"$upstream_response_time",'
-          '"upstream_connect_time":"$upstream_connect_time",'
-          '"upstream_header_time":"$upstream_header_time"'
-          '}';
+      log_format apm
+        '{'
+        '"remote_addr":"$remote_addr",'
+        '"remote_user":"$remote_user",'
+        '"time_local":"$time_local",'
+        '"request":"$request",'
+        '"request_length":"$request_length",'
+        '"server_name":"$server_name",'
+        '"status":"$status",'
+        '"bytes_sent":"$bytes_sent",'
+        '"body_bytes_sent":"$body_bytes_sent",'
+        '"referrer":"$http_referrer",'
+        '"user_agent":"$http_user_agent",'
+        '"gzip_ration":"$gzip_ratio",'
+        '"post":"$request_body",'
+        '"upstream_addr":"$upstream_addr",'
+        '"upstream_status":"$upstream_status",'
+        '"request_time":"$request_time",'
+        '"upstream_response_time":"$upstream_response_time",'
+        '"upstream_connect_time":"$upstream_connect_time",'
+        '"upstream_header_time":"$upstream_header_time"'
+        '}';
 
-        access_log syslog:server=unix:/dev/log apm;
-      '';
+      access_log syslog:server=unix:/dev/log apm;
+    '';
 
     services.nginx.virtualHosts =
       let
@@ -189,13 +198,13 @@ in
           };
         };
       in
-        lib.mkMerge (map vhostCfg cfg.vhosts);
+      lib.mkMerge (map vhostCfg cfg.vhosts);
 
     shb.authelia.rules =
       let
         authConfig = c: map (r: r // { domain = fqdn c; }) c.autheliaRules;
       in
-        lib.flatten (map authConfig cfg.vhosts);
+      lib.flatten (map authConfig cfg.vhosts);
 
     security.acme.defaults.reloadServices = [
       "nginx.service"

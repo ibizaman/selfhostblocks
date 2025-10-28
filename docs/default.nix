@@ -1,40 +1,49 @@
 # Taken nearly verbatim from https://github.com/nix-community/home-manager/pull/4673
 # Read these docs online at https://shb.skarabox.com.
-{ pkgs
-, buildPackages
-, lib
-, nmdsrc
-, stdenv
-, documentation-highlighter
-, nixos-render-docs
+{
+  pkgs,
+  buildPackages,
+  lib,
+  nmdsrc,
+  stdenv,
+  documentation-highlighter,
+  nixos-render-docs,
 
-, release
-, allModules
+  release,
+  allModules,
 
-, version ? builtins.readFile ../VERSION
-, substituteVersionIn
+  version ? builtins.readFile ../VERSION,
+  substituteVersionIn,
 
-, modules
+  modules,
 }:
 
 let
   shbPath = toString ./..;
 
-  gitHubDeclaration = user: repo: subpath:
-    let urlRef = "main";
-        end = if subpath == "" then "" else "/" + subpath;
-    in {
+  gitHubDeclaration =
+    user: repo: subpath:
+    let
+      urlRef = "main";
+      end = if subpath == "" then "" else "/" + subpath;
+    in
+    {
       url = "https://github.com/${user}/${repo}/blob/${urlRef}${end}";
       name = "<${repo}${end}>";
     };
 
   ghRoot = (gitHubDeclaration "ibizaman" "selfhostblocks" "").url;
 
-  buildOptionsDocs = { modules, filterOptionPath ? null }: args:
+  buildOptionsDocs =
+    {
+      modules,
+      filterOptionPath ? null,
+    }:
+    args:
     let
       config = {
         _module.check = false;
-        _module.args = {};
+        _module.args = { };
         system.stateVersion = "22.11";
       };
 
@@ -52,41 +61,56 @@ let
       };
 
       options = lib.setAttrByPath filterOptionPath (lib.getAttrFromPath filterOptionPath eval.options);
-    in buildPackages.nixosOptionsDoc ({
-      inherit options;
+    in
+    buildPackages.nixosOptionsDoc (
+      {
+        inherit options;
 
-      transformOptions = opt:
-        opt // {
-          # Clean up declaration sites to not refer to the Home Manager
-          # source tree.
-          declarations = map (decl:
-            gitHubDeclaration "ibizaman" "selfhostblocks"
-              (lib.removePrefix "/" (lib.removePrefix shbPath (toString decl)))) opt.declarations;
-        };
-    } // builtins.removeAttrs args [ "includeModuleSystemOptions" ]);
+        transformOptions =
+          opt:
+          opt
+          // {
+            # Clean up declaration sites to not refer to the Home Manager
+            # source tree.
+            declarations = map (
+              decl:
+              gitHubDeclaration "ibizaman" "selfhostblocks" (
+                lib.removePrefix "/" (lib.removePrefix shbPath (toString decl))
+              )
+            ) opt.declarations;
+          };
+      }
+      // builtins.removeAttrs args [ "includeModuleSystemOptions" ]
+    );
 
   scrubbedModule = {
     _module.args.pkgs = lib.mkForce (nmd.scrubDerivations "pkgs" pkgs);
     _module.check = false;
   };
 
-  allOptionsDocs = paths: (buildOptionsDocs
-    {
-      modules = paths ++ allModules ++ [ scrubbedModule ];
-      filterOptionPath = [ "shb" ];
-    }
-    {
-      variablelistId = "selfhostblocks-options";
-    }).optionsJSON;
+  allOptionsDocs =
+    paths:
+    (buildOptionsDocs
+      {
+        modules = paths ++ allModules ++ [ scrubbedModule ];
+        filterOptionPath = [ "shb" ];
+      }
+      {
+        variablelistId = "selfhostblocks-options";
+      }
+    ).optionsJSON;
 
-  individualModuleOptionsDocs = filterOptionPath: paths: (buildOptionsDocs
-    {
-      modules = paths ++ [ scrubbedModule ];
-      inherit filterOptionPath;
-    }
-    {
-      variablelistId = "selfhostblocks-options";
-    }).optionsJSON;
+  individualModuleOptionsDocs =
+    filterOptionPath: paths:
+    (buildOptionsDocs
+      {
+        modules = paths ++ [ scrubbedModule ];
+        inherit filterOptionPath;
+      }
+      {
+        variablelistId = "selfhostblocks-options";
+      }
+    ).optionsJSON;
 
   nmd = import nmdsrc {
     inherit lib;
@@ -94,15 +118,15 @@ let
     # `nmd` uses to work around the broken stylesheets in
     # `docbook-xsl-ns`, so we restore the patched version here.
     pkgs = pkgs // {
-      docbook-xsl-ns =
-        pkgs.docbook-xsl-ns.override { withManOptDedupPatch = true; };
+      docbook-xsl-ns = pkgs.docbook-xsl-ns.override { withManOptDedupPatch = true; };
     };
   };
 
   outputPath = "share/doc/selfhostblocks";
 
   manpage-urls = pkgs.writeText "manpage-urls.json" ''{}'';
-in stdenv.mkDerivation {
+in
+stdenv.mkDerivation {
   name = "self-host-blocks-manual";
 
   nativeBuildInputs = [ nixos-render-docs ];
@@ -135,28 +159,41 @@ in stdenv.mkDerivation {
       ${nmdsrc}/static/highlightjs/highlight.load.js
 
   ''
-  + lib.concatStringsSep "\n" (map (m: ''
-    substituteInPlace ${m} --replace '@VERSION@' ${version}
-  '') substituteVersionIn)
+  + lib.concatStringsSep "\n" (
+    map (m: ''
+      substituteInPlace ${m} --replace '@VERSION@' ${version}
+    '') substituteVersionIn
+  )
   + ''
     substituteInPlace ./options.md \
       --replace \
         '@OPTIONS_JSON@' \
-        ${allOptionsDocs [
-          (pkgs.path + "/nixos/modules/services/misc/forgejo.nix")
-        ]}/share/doc/nixos/options.json
+        ${
+          allOptionsDocs [
+            (pkgs.path + "/nixos/modules/services/misc/forgejo.nix")
+          ]
+        }/share/doc/nixos/options.json
   ''
-  + lib.concatStringsSep "\n" (lib.mapAttrsToList (name: cfg':
-    let
-      cfg = if builtins.isAttrs cfg' then cfg' else { module = cfg'; };
-      module = if builtins.isList cfg.module then cfg.module else [ cfg.module ];
-      optionRoot = cfg.optionRoot or [ "shb" (lib.last (lib.splitString "/" name)) ];
-    in ''
-    substituteInPlace ./modules/${name}/docs/default.md \
-      --replace-fail \
-        '@OPTIONS_JSON@' \
-        ${individualModuleOptionsDocs optionRoot module}/share/doc/nixos/options.json
-  '') modules)
+  + lib.concatStringsSep "\n" (
+    lib.mapAttrsToList (
+      name: cfg':
+      let
+        cfg = if builtins.isAttrs cfg' then cfg' else { module = cfg'; };
+        module = if builtins.isList cfg.module then cfg.module else [ cfg.module ];
+        optionRoot =
+          cfg.optionRoot or [
+            "shb"
+            (lib.last (lib.splitString "/" name))
+          ];
+      in
+      ''
+        substituteInPlace ./modules/${name}/docs/default.md \
+          --replace-fail \
+            '@OPTIONS_JSON@' \
+            ${individualModuleOptionsDocs optionRoot module}/share/doc/nixos/options.json
+      ''
+    ) modules
+  )
   + ''
     find . -name "*.md" -print0 | \
       while IFS= read -r -d ''' f; do
