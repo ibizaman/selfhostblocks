@@ -35,7 +35,11 @@ Host Blocks:
 
 If you use `sops-nix` for secrets, SHB provides an additional module, not
 imported in the `default` module. It can be added by importing
-`inputs.selfhostblocks.sops`.
+
+```
+inputs.sops-nix.nixosModules.default
+inputs.selfhostblocks.nixosModules.sops
+```
 
 ### SHB Lib {#usage-flake-lib}
 
@@ -529,7 +533,10 @@ One way to setup secrets management using `sops-nix`:
 5. Use `sops-nix` module in nix:
    ```bash
    imports = [
-       selfhostblocks.inputs.sops-nix.nixosModules.default
+       
+    inputs.sops-nix.nixosModules.default
+    inputs.selfhostblocks.nixosModules.sops
+
    ];
    ```
 6. Set default sops file:
