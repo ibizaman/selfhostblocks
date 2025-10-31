@@ -51,7 +51,7 @@ let
     }:
     {
       enable = mkEnableOption ''
-        this backup intance.
+        SelfHostBlocks' Restic block
 
         A disabled instance will not backup data anymore
         but still provides the helper tool to restore snapshots
@@ -426,19 +426,39 @@ in
           let
             mkResticBinary =
               name: instance:
-              pkgs.writeShellScriptBin (fullName name instance.settings.repository) ''
-                set -euo pipefail
+              pkgs.writeShellApplication {
+                name = fullName name instance.settings.repository;
+                text = ''
+                  usage() {
+                    echo "$0 restore latest"
+                  }
 
-                export $(grep -v '^#' "/run/secrets_restic_env/${fullName name instance.settings.repository}" \
-                         | xargs -d '\n')
-
-                if ! [ "$1" = "restore" ]; then
-                  sudo --preserve-env -u ${instance.request.user} ${pkgs.restic}/bin/restic $@
-                else
+                  if ! [ "$1" = "restore" ]; then
+                    usage
+                    exit 1
+                  fi
                   shift
-                  sudo --preserve-env -u ${instance.request.user} sh -c "${pkgs.restic}/bin/restic restore $@ --target /"
-                fi
-              '';
+
+                  if ! [ "$1" = "latest" ]; then
+                    usage
+                    exit 1
+                  fi
+                  shift
+
+                  sudocmd() {
+                    sudo --preserve-env=RESTIC_REPOSITORY,RESTIC_PASSWORD_FILE -u ${instance.request.user} "$@"
+                  }
+
+                  set -a
+                  # shellcheck disable=SC1090
+                  source <(sudocmd cat "/run/secrets_restic_env/${fullName name instance.settings.repository}")
+                  set +a
+
+                  echo "Will restore archive 'latest'"
+
+                  sudocmd ${pkgs.restic}/bin/restic restore latest --target /
+                '';
+              };
           in
           flatten (mapAttrsToList mkResticBinary cfg.instances);
       }
@@ -447,19 +467,39 @@ in
           let
             mkResticBinary =
               name: instance:
-              pkgs.writeShellScriptBin (fullName name instance.settings.repository) ''
-                set -euo pipefail
+              pkgs.writeShellApplication {
+                name = fullName name instance.settings.repository;
+                text = ''
+                  usage() {
+                    echo "$0 restore latest"
+                  }
 
-                export $(grep -v '^#' "/run/secrets_restic_env/${fullName name instance.settings.repository}" \
-                         | xargs -d '\n')
-
-                if ! [ "$1" = "restore" ]; then
-                  sudo --preserve-env -u ${instance.request.user} ${pkgs.restic}/bin/restic $@
-                else
+                  if ! [ "$1" = "restore" ]; then
+                    usage
+                    exit 1
+                  fi
                   shift
-                  sudo --preserve-env -u ${instance.request.user} sh -c "${pkgs.restic}/bin/restic dump $@ ${instance.request.backupName} | ${instance.request.restoreCmd}"
-                fi
-              '';
+
+                  if ! [ "$1" = "latest" ]; then
+                    usage
+                    exit 1
+                  fi
+                  shift
+
+                  sudocmd() {
+                    sudo --preserve-env=RESTIC_REPOSITORY,RESTIC_PASSWORD_FILE -u ${instance.request.user} "$@"
+                  }
+
+                  set -a
+                  # shellcheck disable=SC1090
+                  source <(sudocmd cat "/run/secrets_restic_env/${fullName name instance.settings.repository}")
+                  set +a
+
+                  echo "Will restore archive 'latest'"
+
+                  sudocmd sh -c "${pkgs.restic}/bin/restic dump latest ${instance.request.backupName} | ${instance.request.restoreCmd}"
+                '';
+              };
           in
           flatten (mapAttrsToList mkResticBinary cfg.databases);
       }

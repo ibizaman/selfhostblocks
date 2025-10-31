@@ -1,0 +1,78 @@
+From dda895b551c7cf56476ac8892904e289a4d8b920 Mon Sep 17 00:00:00 2001
+From: ibizaman <ibizaman@tiserbox.com>
+Date: Sat, 1 Nov 2025 13:49:20 +0100
+Subject: [PATCH] nixos/borgbackup: add option to override state directory
+
+---
+ nixos/modules/services/backup/borgbackup.nix | 23 +++++++++++++++-----
+ 1 file changed, 18 insertions(+), 5 deletions(-)
+
+diff --git a/nixos/modules/services/backup/borgbackup.nix b/nixos/modules/services/backup/borgbackup.nix
+index adabb2ce0f8b..82baeb928398 100644
+--- a/nixos/modules/services/backup/borgbackup.nix
++++ b/nixos/modules/services/backup/borgbackup.nix
+@@ -136,7 +136,7 @@ let
+   mkBackupService =
+     name: cfg:
+     let
+-      userHome = config.users.users.${cfg.user}.home;
++      userHome = if cfg.stateDir != null then cfg.stateDir else config.users.users.${cfg.user}.home;
+       backupJobName = "borgbackup-job-${name}";
+       backupScript = mkBackupScript backupJobName cfg;
+     in
+@@ -177,6 +177,7 @@ let
+       environment = {
+         BORG_REPO = cfg.repo;
+       }
++      // (lib.optionalAttrs (cfg.stateDir != null) { BORG_BASE_DIR = cfg.stateDir; })
+       // (mkPassEnv cfg)
+       // cfg.environment;
+     };
+@@ -223,6 +224,7 @@ let
+       set = {
+         BORG_REPO = cfg.repo;
+       }
++      // (lib.optionalAttrs (cfg.stateDir != null) { BORG_BASE_DIR = cfg.stateDir; })
+       // (mkPassEnv cfg)
+       // cfg.environment;
+     });
+@@ -232,14 +234,15 @@ let
+     name: cfg:
+     let
+       settings = { inherit (cfg) user group; };
++      userHome = if cfg.stateDir != null then cfg.stateDir else config.users.users.${cfg.user}.home;
+     in
+     lib.nameValuePair "borgbackup-job-${name}" (
+       {
+         # Create parent dirs separately, to ensure correct ownership.
+-        "${config.users.users."${cfg.user}".home}/.config".d = settings;
+-        "${config.users.users."${cfg.user}".home}/.cache".d = settings;
+-        "${config.users.users."${cfg.user}".home}/.config/borg".d = settings;
+-        "${config.users.users."${cfg.user}".home}/.cache/borg".d = settings;
++        "${userHome}/.config".d = settings;
++        "${userHome}/.cache".d = settings;
++        "${userHome}/.config/borg".d = settings;
++        "${userHome}/.cache/borg".d = settings;
+       }
+       // lib.optionalAttrs (isLocalPath cfg.repo && !cfg.removableDevice) {
+         "${cfg.repo}".d = settings;
+@@ -487,6 +490,16 @@ in
+               default = "root";
+             };
+ 
++            stateDir = lib.mkOption {
++              type = lib.types.nullOr lib.types.str;
++              description = ''
++                Override the directory in which {command}`borg` stores its
++                configuration and cache. By default it uses the user's
++                home directory but is some cases this can cause conflicts.
++              '';
++              default = null;
++            };
++
+             wrapper = lib.mkOption {
+               type = with lib.types; nullOr str;
+               description = ''
+-- 
+2.50.1
+

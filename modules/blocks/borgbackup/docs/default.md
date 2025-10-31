@@ -1,29 +1,29 @@
-# Restic Block {#blocks-restic}
+# Borgbackup Block {#blocks-borgbackup}
 
-Defined in [`/modules/blocks/restic.nix`](@REPO@/modules/blocks/restic.nix).
+Defined in [`/modules/blocks/borgbackup.nix`](@REPO@/modules/blocks/borgbackup.nix).
 
-This block sets up a backup job using [Restic][].
+This block sets up a backup job using [BorgBackup][].
 
-[restic]: https://restic.net/
+[borgbackup]: https://www.borgbackup.org/
 
-## Provider Contracts {#blocks-restic-contract-provider}
+## Provider Contracts {#blocks-borgbackup-contract-provider}
 
 This block provides the following contracts:
 
-- [backup contract](contracts-backup.html) under the [`shb.restic.instances`][instances] option.
+- [backup contract](contracts-backup.html) under the [`shb.borgbackup.instances`][instances] option.
   It is tested with [contract tests][backup contract tests].
-- [database backup contract](contracts-databasebackup.html) under the [`shb.restic.databases`][databases] option.
+- [database backup contract](contracts-databasebackup.html) under the [`shb.borgbackup.databases`][databases] option.
   It is tested with [contract tests][database backup contract tests].
 
-[instances]: #blocks-restic-options-shb.restic.instances
-[databases]: #blocks-restic-options-shb.restic.databases
+[instances]: #blocks-borgbackup-options-shb.borgbackup.instances
+[databases]: #blocks-borgbackup-options-shb.borgbackup.databases
 [backup contract tests]: @REPO@/test/contracts/backup.nix
 [database backup contract tests]: @REPO@/test/contracts/databasebackup.nix
 
-As requested by those two contracts, when setting up a backup with Restic,
-a backup Systemd service and a [restore script](#blocks-restic-maintenance) are provided.
+As requested by those two contracts, when setting up a backup with BorgBackup,
+a backup Systemd service and a [restore script](#blocks-borgbackup-maintenance) are provided.
 
-## Usage {#blocks-restic-usage}
+## Usage {#blocks-borgbackup-usage}
 
 The following examples assume usage of the [sops block][] to provide secrets
 although any blocks providing the [secrets contract][] works too.
@@ -31,14 +31,14 @@ although any blocks providing the [secrets contract][] works too.
 [sops block]: ./blocks-sops.html
 [secrets contract]: ./contracts-secrets.html
 
-### One folder backed up manually {#blocks-restic-usage-provider-manual}
+### One folder backed up manually {#blocks-borgbackup-usage-provider-manual}
 
 The following snippet shows how to configure
 the backup of 1 folder to 1 repository.
 We assume that the folder `/var/lib/myfolder` of the service `myservice` must be backed up.
 
 ```nix
-shb.restic.instances."myservice" = {
+shb.borgbackup.instances."myservice" = {
   request = {
     user = "myservice";
 
@@ -61,27 +61,27 @@ shb.restic.instances."myservice" = {
     };
 
     retention = {
-      keep_within = "1d";
-      keep_hourly = 24;
-      keep_daily = 7;
-      keep_weekly = 4;
-      keep_monthly = 6;
+      within = "1d";
+      hourly = 24;
+      daily = 7;
+      weekly = 4;
+      monthly = 6;
     };
   };
 };
 
 shb.sops.secret."passphrase".request =
-  shb.restic.instances."myservice".settings.passphrase.request;
+  shb.borgbackup.instances."myservice".settings.passphrase.request;
 ```
 
-### One folder backed up with contract {#blocks-restic-usage-provider-contract}
+### One folder backed up with contract {#blocks-borgbackup-usage-provider-contract}
 
 With the same example as before but assuming the `myservice` service
 has a `myservice.backup` option that is a requester for the backup contract,
 the snippet above becomes:
 
 ```nix
-shb.restic.instances."myservice" = {
+shb.borgbackup.instances."myservice" = {
   request = config.myservice.backup;
 
   settings = {
@@ -98,20 +98,20 @@ shb.restic.instances."myservice" = {
     };
 
     retention = {
-      keep_within = "1d";
-      keep_hourly = 24;
-      keep_daily = 7;
-      keep_weekly = 4;
-      keep_monthly = 6;
+      within = "1d";
+      hourly = 24;
+      daily = 7;
+      weekly = 4;
+      monthly = 6;
     };
   };
 };
 
 shb.sops.secret."passphrase".request =
-  shb.restic.instances."myservice".settings.passphrase.request;
+  shb.borgbackup.instances."myservice".settings.passphrase.request;
 ```
 
-### One folder backed up to S3 {#blocks-restic-usage-provider-remote}
+### One folder backed up to S3 {#blocks-borgbackup-usage-provider-remote}
 
 Here we will only highlight the differences with the previous configuration.
 
@@ -136,7 +136,7 @@ This assumes you have access to such a remote S3 store, for example by using [Ba
   }
 ```
 
-### Multiple directories to multiple destinations {#blocks-restic-usage-multiple}
+### Multiple directories to multiple destinations {#blocks-borgbackup-usage-multiple}
 
 The following snippet shows how to configure backup of any number of folders to 3 repositories,
 each happening at different times to avoid I/O contention.
@@ -185,7 +185,7 @@ a name identifying the backup and a list of folders to back up.
 backupcfg = repositories: name: sourceDirectories {
   enable = true;
 
-  backend = "restic";
+  backend = "borgbackup";
 
   keySopsFile = ../secrets/backup.yaml;
 
@@ -197,11 +197,11 @@ backupcfg = repositories: name: sourceDirectories {
   inherit sourceDirectories;
 
   retention = {
-    keep_within = "1d";
-    keep_hourly = 24;
-    keep_daily = 7;
-    keep_weekly = 4;
-    keep_monthly = 6;
+    within = "1d";
+    hourly = 24;
+    daily = 7;
+    weekly = 4;
+    monthly = 6;
   };
 
   environmentFile = true;
@@ -222,11 +222,11 @@ below) is the former splits the backups into sub-folders on the repositories.
 shb.backup.instances.all = backupcfg repos ["/var/lib/myfolder1" "/var/lib/myfolder2"];
 ```
 
-## Monitoring {#blocks-restic-monitoring}
+## Monitoring {#blocks-borgbackup-monitoring}
 
 [WIP](https://github.com/ibizaman/selfhostblocks/issues/151)
 
-## Maintenance {#blocks-restic-maintenance}
+## Maintenance {#blocks-borgbackup-maintenance}
 
 One command-line helper is provided per backup instance and repository pair to automatically supply the needed secrets.
 
@@ -234,15 +234,15 @@ The restore script has all the secrets needed to access the repo,
 it will run `sudo` automatically
 and the user running it needs to have correct permissions for privilege escalation
 
-In the [multiple directories example](#blocks-restic-usage-multiple) above, the following 6 helpers are provided in the `$PATH`:
+In the [multiple directories example](#blocks-borgbackup-usage-multiple) above, the following 6 helpers are provided in the `$PATH`:
 
 ```bash
-restic-myfolder1_srv_pool1_backups
-restic-myfolder1_srv_pool2_backups
-restic-myfolder1_s3_s3.us-west-000.backblazeb2.com_backups
-restic-myfolder2_srv_pool1_backups
-restic-myfolder2_srv_pool2_backups
-restic-myfolder2_s3_s3.us-west-000.backblazeb2.com_backups
+borgbackup-job-myfolder1_srv_pool1_backups
+borgbackup-job-myfolder1_srv_pool2_backups
+borgbackup-job-myfolder1_s3_s3.us-west-000.backblazeb2.com_backups
+borgbackup-job-myfolder2_srv_pool1_backups
+borgbackup-job-myfolder2_srv_pool2_backups
+borgbackup-job-myfolder2_s3_s3.us-west-000.backblazeb2.com_backups
 ```
 
 Discovering those is easy thanks to tab-completion.
@@ -250,21 +250,21 @@ Discovering those is easy thanks to tab-completion.
 One can then restore a backup from a given repository with:
 
 ```bash
-restic-myfolder1_srv_pool1_backups restore latest
+borgbackup-job-myfolder1_srv_pool1_backups restore latest
 ```
 
-### Troubleshooting {#blocks-restic-maintenance-troubleshooting}
+### Troubleshooting {#blocks-borgbackup-maintenance-troubleshooting}
 
-In case something bad happens with a backup, the [official documentation](https://restic.readthedocs.io/en/stable/077_troubleshooting.html) has a lot of tips.
+In case something bad happens with a backup, the [official documentation](https://borgbackup.readthedocs.io/en/stable/077_troubleshooting.html) has a lot of tips.
 
-## Tests {#blocks-restic-tests}
+## Tests {#blocks-borgbackup-tests}
 
-Specific integration tests are defined in [`/test/blocks/restic.nix`](@REPO@/test/blocks/restic.nix).
+Specific integration tests are defined in [`/test/blocks/borgbackup.nix`](@REPO@/test/blocks/borgbackup.nix).
 
-## Options Reference {#blocks-restic-options}
+## Options Reference {#blocks-borgbackup-options}
 
 ```{=include=} options
-id-prefix: blocks-restic-options-
-list-id: selfhostblocks-block-restic-options
+id-prefix: blocks-borgbackup-options-
+list-id: selfhostblocks-block-borgbackup-options
 source: @OPTIONS_JSON@
 ```
