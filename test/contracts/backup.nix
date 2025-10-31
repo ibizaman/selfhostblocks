@@ -72,4 +72,74 @@ in
         };
       };
   };
+
+  borgbackup_root = contracts.test.backup {
+    name = "borgbackup_root";
+    username = "root";
+    providerRoot = [
+      "shb"
+      "borgbackup"
+      "instances"
+      "mytest"
+    ];
+    modules = [
+      ../../modules/blocks/borgbackup.nix
+      ../../modules/blocks/hardcodedsecret.nix
+    ];
+    settings =
+      { repository, config, ... }:
+      {
+        enable = true;
+        passphrase.result = config.shb.hardcodedsecret.passphrase.result;
+        repository = {
+          path = repository;
+          timerConfig = {
+            OnCalendar = "00:00:00";
+          };
+        };
+      };
+    extraConfig =
+      { username, config, ... }:
+      {
+        shb.hardcodedsecret.passphrase = {
+          request = config.shb.borgbackup.instances."mytest".settings.passphrase.request;
+          settings.content = "passphrase";
+        };
+      };
+  };
+
+  borgbackup_nonroot = contracts.test.backup {
+    name = "borgbackup_nonroot";
+    username = "me";
+    providerRoot = [
+      "shb"
+      "borgbackup"
+      "instances"
+      "mytest"
+    ];
+    modules = [
+      ../../modules/blocks/borgbackup.nix
+      ../../modules/blocks/hardcodedsecret.nix
+    ];
+    settings =
+      { repository, config, ... }:
+      {
+        enable = true;
+        passphrase.result = config.shb.hardcodedsecret.passphrase.result;
+        repository = {
+          path = repository;
+          timerConfig = {
+            OnCalendar = "00:00:00";
+          };
+        };
+      };
+    extraConfig =
+      { username, config, ... }:
+      {
+        shb.hardcodedsecret.passphrase = {
+          request = config.shb.borgbackup.instances."mytest".settings.passphrase.request;
+          settings.content = "passphrase";
+        };
+      };
+  };
 }

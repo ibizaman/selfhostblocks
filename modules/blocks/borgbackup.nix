@@ -9,54 +9,92 @@
 let
   cfg = config.shb.borgbackup;
 
-  instanceOptions = {
-    enable = lib.mkEnableOption "shb borgbackup";
+  contracts = pkgs.callPackage ../contracts { };
 
-    keySopsFile = lib.mkOption {
-      description = "Sops file that holds this instance's repository key and passphrase.";
-      type = lib.types.path;
-      example = "secrets/backup.yaml";
-    };
+  inherit (lib)
+    concatStringsSep
+    filterAttrs
+    flatten
+    literalExpression
+    optionals
+    listToAttrs
+    mapAttrsToList
+    mkOption
+    mkMerge
+    ;
+  inherit (lib)
+    mkIf
+    nameValuePair
+    optionalAttrs
+    removePrefix
+    ;
+  inherit (lib.types)
+    attrsOf
+    int
+    oneOf
+    nonEmptyStr
+    nullOr
+    str
+    submodule
+    ;
 
-    encryptionKeyFile = lib.mkOption {
-      description = "Encryption key for the backup.";
-      type = lib.types.path;
-    };
+  commonOptions =
+    {
+      name,
+      prefix,
+      config,
+      ...
+    }:
+    {
+      enable = lib.mkEnableOption ''
+        SelfHostBlocks' BorgBackup block;
 
-    encryption_passcommand = "cat /run/secrets/borgmatic/passphrases/${
-      if isNull instance.secretName then name else instance.secretName
-    }";
-    borg_keys_directory = "/run/secrets/borgmatic/keys";
+        A disabled instance will not backup data anymore
+        but still provides the helper tool to restore snapshots
+      '';
 
-    sourceDirectories = lib.mkOption {
-      description = "Source directories.";
-      type = lib.types.nonEmptyListOf lib.types.str;
-    };
+      passphrase = lib.mkOption {
+        description = "Encryption key for the backup repository.";
+        type = lib.types.submodule {
+          options = contracts.secret.mkRequester {
+            mode = "0400";
+            owner = config.request.user;
+            ownerText = "[shb.borgbackup.${prefix}.<name>.request.user](#blocks-borgbackup-options-shb.borgbackup.${prefix}._name_.request.user)";
+            restartUnits = [ (fullName name config.settings.repository) ];
+            restartUnitsText = "[ [shb.borgbackup.${prefix}.<name>.settings.repository](#blocks-borgbackup-options-shb.borgbackup.${prefix}._name_.settings.repository) ]";
+          };
+        };
+      };
 
-    excludePatterns = lib.mkOption {
-      description = "Exclude patterns.";
-      type = lib.types.listOf lib.types.str;
-      default = [ ];
-    };
-
-    secretName = lib.mkOption {
-      description = "Secret name, if null use the name of the backup instance.";
-      type = lib.types.nullOr lib.types.str;
-      default = null;
-    };
-
-    repositories = lib.mkOption {
-      description = "Repositories to back this instance to.";
-      type = lib.types.nonEmptyListOf (
-        lib.types.submodule {
+      repository = lib.mkOption {
+        description = "Repository to send the backups to.";
+        type = submodule {
           options = {
-            path = lib.mkOption {
-              type = lib.types.str;
+            path = mkOption {
+              type = str;
               description = "Repository location";
             };
 
-            timerConfig = lib.mkOption {
-              type = lib.types.attrsOf utils.systemdUtils.unitOptions.unitOption;
+            secrets = mkOption {
+              type = attrsOf lib.shb.secretFileType;
+              default = { };
+              description = ''
+                Secrets needed to access the repository where the backups will be stored.
+
+                See [s3 config](https://restic.readthedocs.io/en/latest/030_preparing_a_new_repo.html#amazon-s3) for an example
+                and [list](https://restic.readthedocs.io/en/latest/040_backup.html#environment-variables) for the list of all secrets.
+
+              '';
+              example = literalExpression ''
+                {
+                  AWS_ACCESS_KEY_ID.source = <path/to/secret>;
+                  AWS_SECRET_ACCESS_KEY.source = <path/to/secret>;
+                }
+              '';
+            };
+
+            timerConfig = mkOption {
+              type = attrsOf utils.systemdUtils.unitOptions.unitOption;
               default = {
                 OnCalendar = "daily";
                 Persistent = true;
@@ -69,95 +107,127 @@ let
               };
             };
           };
-        }
-      );
-    };
-
-    retention = lib.mkOption {
-      description = "Retention options.";
-      type = lib.types.attrsOf (
-        lib.types.oneOf [
-          lib.types.int
-          lib.types.nonEmptyStr
-        ]
-      );
-      default = {
-        keep_within = "1d";
-        keep_hourly = 24;
-        keep_daily = 7;
-        keep_weekly = 4;
-        keep_monthly = 6;
-      };
-    };
-
-    consistency = lib.mkOption {
-      description = "Consistency frequency options.";
-      type = lib.types.attrsOf lib.types.nonEmptyStr;
-      default = { };
-      example = {
-        repository = "2 weeks";
-        archives = "1 month";
-      };
-    };
-
-    hooks = lib.mkOption {
-      description = "Hooks to run before or after the backup.";
-      default = { };
-      type = lib.types.submodule {
-        options = {
-          beforeBackup = lib.mkOption {
-            description = "Hooks to run before backup";
-            type = lib.types.listOf lib.types.str;
-            default = [ ];
-          };
-
-          afterBackup = lib.mkOption {
-            description = "Hooks to run after backup";
-            type = lib.types.listOf lib.types.str;
-            default = [ ];
-          };
         };
       };
+
+      retention = lib.mkOption {
+        description = "Retention options. See {command}`borg help prune` for the available options.";
+        type = attrsOf (oneOf [
+          int
+          nonEmptyStr
+        ]);
+        default = {
+          within = "1d";
+          hourly = 24;
+          daily = 7;
+          weekly = 4;
+          monthly = 6;
+        };
+      };
+
+      consistency = lib.mkOption {
+        description = "Consistency frequency options.";
+        type = lib.types.attrsOf lib.types.nonEmptyStr;
+        default = { };
+        example = {
+          repository = "2 weeks";
+          archives = "1 month";
+        };
+      };
+
+      limitUploadKiBs = mkOption {
+        type = nullOr int;
+        description = "Limit upload bandwidth to the given KiB/s amount.";
+        default = null;
+        example = 8000;
+      };
+
+      stateDir = mkOption {
+        type = nullOr lib.types.str;
+        description = ''
+          Override the directory in which {command}`borg` stores its
+          configuration and cache. By default it uses the user's
+          home directory but is some cases this can cause conflicts.
+        '';
+        default = null;
+      };
     };
 
-    environmentFile = lib.mkOption {
-      type = lib.types.bool;
-      description = "Add environment file to be read by the systemd service.";
-      default = false;
-      example = true;
-    };
-  };
-
-  repoSlugName =
-    name: builtins.replaceStrings [ "/" ":" ] [ "_" "_" ] (lib.strings.removePrefix "/" name);
-
+  repoSlugName = name: builtins.replaceStrings [ "/" ":" ] [ "_" "_" ] (removePrefix "/" name);
+  fullName = name: repository: "borgbackup-job-${name}_${repoSlugName repository.path}";
 in
 {
   options.shb.borgbackup = {
-    user = lib.mkOption {
-      description = "Unix user doing the backups.";
-      type = lib.types.str;
-      default = "backup";
-    };
-
-    group = lib.mkOption {
-      description = "Unix group doing the backups.";
-      type = lib.types.str;
-      default = "backup";
-    };
-
-    instances = lib.mkOption {
-      description = "Each instance is a backup setting";
+    instances = mkOption {
+      description = "Files to backup following the [backup contract](./contracts-backup.html).";
       default = { };
-      type = lib.types.attrsOf (
-        lib.types.submodule {
-          options = instanceOptions;
-        }
+      type = attrsOf (
+        submodule (
+          { name, config, ... }:
+          {
+            options = contracts.backup.mkProvider {
+              settings = mkOption {
+                description = ''
+                  Settings specific to the BorgBackup provider.
+                '';
+
+                type = submodule {
+                  options = commonOptions {
+                    inherit name config;
+                    prefix = "instances";
+                  };
+                };
+              };
+
+              resultCfg = {
+                restoreScript = fullName name config.settings.repository;
+                restoreScriptText = "${fullName "<name>" { path = "path/to/repository"; }}";
+
+                backupService = "${fullName name config.settings.repository}.service";
+                backupServiceText = "${fullName "<name>" { path = "path/to/repository"; }}.service";
+              };
+            };
+          }
+        )
+      );
+    };
+
+    databases = mkOption {
+      description = "Databases to backup following the [database backup contract](./contracts-databasebackup.html).";
+      default = { };
+      type = attrsOf (
+        submodule (
+          { name, config, ... }:
+          {
+            options = contracts.databasebackup.mkProvider {
+              settings = mkOption {
+                description = ''
+                  Settings specific to the BorgBackup provider.
+                '';
+
+                type = submodule {
+                  options = commonOptions {
+                    inherit name config;
+                    prefix = "databases";
+                  };
+                };
+              };
+
+              resultCfg = {
+                restoreScript = fullName name config.settings.repository;
+                restoreScriptText = "${fullName "<name>" { path = "path/to/repository"; }}";
+
+                backupService = "${fullName name config.settings.repository}.service";
+                backupServiceText = "${fullName "<name>" { path = "path/to/repository"; }}.service";
+              };
+            };
+          }
+        )
       );
     };
 
     borgServer = lib.mkOption {
-      description = "Add borgbackup package so external backups can use this server as a remote.";
+      description = "Add borgbackup package to `environment.systemPackages` so external backups can use this server as a remote.";
       default = false;
       example = true;
       type = lib.types.bool;
@@ -193,153 +263,262 @@ in
     };
   };
 
-  config = lib.mkIf (cfg.instances != { }) (
+  config = lib.mkIf (cfg.instances != { } || cfg.databases != { }) (
     let
-      enabledInstances = lib.attrsets.filterAttrs (k: i: i.enable) cfg.instances;
+      enabledInstances = filterAttrs (k: i: i.settings.enable) cfg.instances;
+      enabledDatabases = filterAttrs (k: i: i.settings.enable) cfg.databases;
     in
     lib.mkMerge [
-      # Secrets configuration
       {
-        users.users = {
-          ${cfg.user} = {
-            name = cfg.user;
-            group = cfg.group;
-            home = "/var/lib/backup";
-            createHome = true;
-            isSystemUser = true;
-            extraGroups = [ "keys" ];
-          };
-        };
-        users.groups = {
-          ${cfg.group} = {
-            name = cfg.group;
-          };
-        };
-
-        sops.secrets =
-          let
-            mkSopsSecret =
-              name: instance:
-              (
-                [
-                  {
-                    "${instance.backend}/passphrases/${
-                      if isNull instance.secretName then name else instance.secretName
-                    }" =
-                      {
-                        sopsFile = instance.keySopsFile;
-                        mode = "0440";
-                        owner = cfg.user;
-                        group = cfg.group;
-                      };
-                  }
-                ]
-                ++
-                  lib.optional
-                    ((lib.filter ({ path, ... }: lib.strings.hasPrefix "s3" path) instance.repositories) != [ ])
-                    {
-                      "${instance.backend}/environmentfiles/${
-                        if isNull instance.secretName then name else instance.secretName
-                      }" =
-                        {
-                          sopsFile = instance.keySopsFile;
-                          mode = "0440";
-                          owner = cfg.user;
-                          group = cfg.group;
-                        };
-                    }
-                ++ lib.optionals (instance.backend == "borgmatic") (
-                  lib.flatten (
-                    map (
-                      { path, ... }:
-                      {
-                        "${instance.backend}/keys/${repoSlugName path}" = {
-                          key = "${instance.backend}/keys/${
-                            if isNull instance.secretName then name else instance.secretName
-                          }";
-                          sopsFile = instance.keySopsFile;
-                          mode = "0440";
-                          owner = cfg.user;
-                          group = cfg.group;
-                        };
-                      }
-                    ) instance.repositories
-                  )
-                )
-              );
-          in
-          lib.mkMerge (lib.flatten (lib.attrsets.mapAttrsToList mkSopsSecret enabledInstances));
-      }
-      # Borgmatic configuration
-      {
-        systemd.timers.borgmatic = lib.mkIf (enabledInstances != { }) {
-          timerConfig = {
-            OnCalendar = "hourly";
-          };
-        };
-
-        systemd.services.borgmatic = lib.mkIf (enabledInstances != { }) {
-          serviceConfig = {
-            User = cfg.user;
-            Group = cfg.group;
-            ExecStartPre = [ "" ]; # Do not sleep before starting.
-            ExecStart = [
-              ""
-              "${pkgs.borgmatic}/bin/borgmatic --verbosity -1 --syslog-verbosity 1"
+        environment.systemPackages =
+          optionals (cfg.borgServer || enabledInstances != { } || enabledDatabases != { })
+            [
+              pkgs.borgbackup
             ];
-            # For borgmatic, since we have only one service, we need to merge all environmentFile
-            # from all instances.
-            EnvironmentFile = lib.mapAttrsToList (name: value: value.environmentFile) enabledInstances;
-          };
-        };
-
-        systemd.packages = lib.mkIf (enabledInstances != { }) [ pkgs.borgmatic ];
-        environment.systemPackages = (
-          lib.optionals cfg.borgServer [ pkgs.borgbackup ]
-          ++ lib.optionals (enabledInstances != { }) [
-            pkgs.borgbackup
-            pkgs.borgmatic
-          ]
-        );
-
-        environment.etc =
+      }
+      {
+        services.borgbackup.jobs =
           let
-            mkSettings = name: instance: {
-              "borgmatic.d/${name}.yaml".text = lib.generators.toYAML { } {
-                location = {
-                  source_directories = instance.sourceDirectories;
-                  repositories = map ({ path, ... }: path) instance.repositories;
-                }
-                // (lib.attrsets.optionalAttrs (builtins.length instance.excludePatterns > 0) {
-                  excludePatterns = instance.excludePatterns;
-                });
+            mkJob = name: instance: {
+              "${name}_${repoSlugName instance.settings.repository.path}" = {
+                inherit (instance.request) user;
 
-                storage = {
-                  encryption_passcommand = "cat ${instance.encryptionKeyFile}";
-                  borg_keys_directory = "/run/secrets/borgmatic/keys";
-                };
+                repo = instance.settings.repository.path;
 
-                retention = instance.retention;
-                consistency.checks =
-                  let
-                    mkCheck = name: frequency: {
-                      inherit name frequency;
-                    };
-                  in
-                  lib.attrsets.mapAttrsToList mkCheck instance.consistency;
+                paths = instance.request.sourceDirectories;
 
-                # hooks = lib.mkMerge [
-                #   lib.optionalAttrs (builtins.length instance.hooks.beforeBackup > 0) {
-                #     inherit (instance.hooks) beforeBackup;
-                #   }
-                #   lib.optionalAttrs (builtins.length instance.hooks.afterBackup > 0) {
-                #     inherit (instance.hooks) afterBackup;
-                #   }
-                # ];
+                encryption.mode = "repokey-blake2";
+                # We do not set encryption.passphrase here, we set BORG_PASSPHRASE_FD further down.
+                encryption.passCommand = "cat ${instance.settings.passphrase.result.path}";
+
+                doInit = true;
+                failOnWarnings = true;
+                stateDir = instance.settings.stateDir;
+
+                persistentTimer = instance.settings.repository.timerConfig.Persistent or false;
+                startAt = ""; # Some non-empty string value tricks the upstream module in creating the systemd timer.
+
+                prune.keep = instance.settings.retention;
+
+                preHook = concatStringsSep "\n" instance.request.hooks.beforeBackup;
+
+                postHook = concatStringsSep "\n" instance.request.hooks.afterBackup;
+
+                extraArgs = (
+                  optionals (instance.settings.limitUploadKiBs != null) [
+                    "--upload-ratelimit=${toString instance.settings.limitUploadKiBs}"
+                  ]
+                );
+
+                exclude = instance.request.excludePatterns;
               };
             };
           in
-          lib.mkMerge (lib.attrsets.mapAttrsToList mkSettings enabledInstances);
+          mkMerge (mapAttrsToList mkJob enabledInstances);
+      }
+      {
+        services.borgbackup.jobs =
+          let
+            mkJob = name: instance: {
+              "${name}_${repoSlugName instance.settings.repository.path}" = {
+                inherit (instance.request) user;
+
+                repo = instance.settings.repository.path;
+
+                dumpCommand = lib.getExe (pkgs.writeShellApplication {
+                  name = "dump-command";
+                  text = instance.request.backupCmd;
+                });
+
+                encryption.mode = "repokey-blake2";
+                # We do not set encryption.passphrase here, we set BORG_PASSPHRASE_FD further down.
+                encryption.passCommand = "cat ${instance.settings.passphrase.result.path}";
+
+                doInit = true;
+                failOnWarnings = true;
+                stateDir = instance.settings.stateDir;
+
+                persistentTimer = instance.settings.repository.timerConfig.Persistent or false;
+                startAt = ""; # Some non-empty list value that tricks upstream in creating the systemd timer.
+
+                prune.keep = instance.settings.retention;
+
+                extraArgs = (
+                  optionals (instance.settings.limitUploadKiBs != null) [
+                    "--upload-ratelimit=${toString instance.settings.limitUploadKiBs}"
+                  ]
+                );
+              };
+            };
+          in
+          mkMerge (mapAttrsToList mkJob enabledDatabases);
+      }
+      {
+        systemd.timers =
+          let
+            mkTimer = name: instance: {
+              ${fullName name instance.settings.repository} = {
+                timerConfig = lib.mkForce instance.settings.repository.timerConfig;
+              };
+            };
+          in
+          mkMerge (mapAttrsToList mkTimer (enabledInstances // enabledDatabases));
+      }
+      {
+        systemd.services =
+          let
+            mkSettings =
+              name: instance:
+              let
+                serviceName = fullName name instance.settings.repository;
+              in
+              {
+                ${serviceName} = mkMerge [
+                  {
+                    serviceConfig = {
+                      # Makes the systemd service wait for the backup to be done before changing state to inactive.
+                      Type = "oneshot";
+                      Nice = lib.mkForce cfg.performance.niceness;
+                      IOSchedulingClass = lib.mkForce cfg.performance.ioSchedulingClass;
+                      IOSchedulingPriority = lib.mkForce cfg.performance.ioPriority;
+                      # BindReadOnlyPaths = instance.sourceDirectories;
+                    };
+                  }
+                  (optionalAttrs (instance.settings.repository.secrets != { }) {
+                    serviceConfig.EnvironmentFile = [
+                      "/run/secrets_borgbackup/${serviceName}"
+                    ];
+                    after = [ "${serviceName}-pre.service" ];
+                    requires = [ "${serviceName}-pre.service" ];
+                  })
+                ];
+
+                "${serviceName}-pre" = mkIf (instance.settings.repository.secrets != { }) (
+                  let
+                    script = lib.shb.genConfigOutOfBandSystemd {
+                      config = instance.settings.repository.secrets;
+                      configLocation = "/run/secrets_borgbackup/${serviceName}";
+                      generator = lib.shb.toEnvVar;
+                      user = instance.request.user;
+                    };
+                  in
+                  {
+                    script = script.preStart;
+                    serviceConfig.Type = "oneshot";
+                    serviceConfig.LoadCredential = script.loadCredentials;
+                  }
+                );
+              };
+          in
+          mkMerge (flatten (mapAttrsToList mkSettings (enabledInstances // enabledDatabases)));
+      }
+      {
+        systemd.services =
+          let
+            mkEnv =
+              name: instance:
+              nameValuePair "${fullName name instance.settings.repository}_restore_gen" {
+                enable = true;
+                wantedBy = [ "multi-user.target" ];
+                serviceConfig.Type = "oneshot";
+                script = (
+                  lib.shb.replaceSecrets {
+                    userConfig = instance.settings.repository.secrets // {
+                      BORG_PASSCOMMAND = ''"cat ${instance.settings.passphrase.result.path}"'';
+                      BORG_REPO = instance.settings.repository.path;
+                    };
+                    resultPath = "/run/secrets_borgbackup_env/${fullName name instance.settings.repository}";
+                    generator = lib.shb.toEnvVar;
+                    user = instance.request.user;
+                  }
+                );
+              };
+          in
+          listToAttrs (flatten (mapAttrsToList mkEnv (cfg.instances // cfg.databases)));
+      }
+      {
+        environment.systemPackages =
+          let
+            mkBorgBackupBinary =
+              name: instance:
+              pkgs.writeShellApplication {
+                name = fullName name instance.settings.repository;
+                text = ''
+                  usage() {
+                    echo "$0 restore latest"
+                  }
+
+                  if ! [ "$1" = "restore" ]; then
+                    usage
+                    exit 1
+                  fi
+                  shift
+
+                  if ! [ "$1" = "latest" ]; then
+                    usage
+                    exit 1
+                  fi
+                  shift
+
+                  sudocmd() {
+                    sudo --preserve-env=BORG_REPO,BORG_PASSCOMMAND -u ${instance.request.user} "$@"
+                  }
+
+                  set -a
+                  # shellcheck disable=SC1090
+                  source <(sudocmd cat "/run/secrets_borgbackup_env/${fullName name instance.settings.repository}")
+                  set +a
+
+                  archive="$(sudocmd borg list --short "$BORG_REPO" | tail -n 1)"
+                  echo "Will restore archive $archive"
+
+                  (cd / && sudocmd ${pkgs.borgbackup}/bin/borg extract "$BORG_REPO"::"$archive")
+                '';
+              };
+          in
+          flatten (mapAttrsToList mkBorgBackupBinary cfg.instances);
+      }
+      {
+        environment.systemPackages =
+          let
+            mkBorgBackupBinary =
+              name: instance:
+              pkgs.writeShellApplication {
+                name = fullName name instance.settings.repository;
+                text = ''
+                  usage() {
+                    echo "$0 restore latest"
+                  }
+
+                  if ! [ "$1" = "restore" ]; then
+                    usage
+                    exit 1
+                  fi
+                  shift
+
+                  if ! [ "$1" = "latest" ]; then
+                    usage
+                    exit 1
+                  fi
+                  shift
+
+                  sudocmd() {
+                    sudo --preserve-env=BORG_REPO,BORG_PASSCOMMAND -u ${instance.request.user} "$@"
+                  }
+
+                  set -a
+                  # shellcheck disable=SC1090
+                  source <(sudocmd cat "/run/secrets_borgbackup_env/${fullName name instance.settings.repository}")
+                  set +a
+
+                  archive="$(sudocmd borg list --short "$BORG_REPO" | tail -n 1)"
+                  echo "Will restore archive $archive"
+
+                  sudocmd sh -c "${pkgs.borgbackup}/bin/borg extract $BORG_REPO::$archive --stdout | ${instance.request.restoreCmd}"
+                '';
+              };
+          in
+          flatten (mapAttrsToList mkBorgBackupBinary cfg.databases);
       }
     ]
   );

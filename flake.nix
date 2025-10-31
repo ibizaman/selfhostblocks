@@ -27,6 +27,7 @@
         shbPatches = originPkgs.lib.optionals (system == "x86_64-linux") [
           # Get rid of lldap patches when https://github.com/NixOS/nixpkgs/pull/425923 is merged.
           ./patches/lldap.patch
+          ./patches/0001-nixos-borgbackup-add-option-to-override-state-direct.patch
 
           # Leaving commented out as an example.
           # (originPkgs.fetchpatch {
@@ -102,6 +103,7 @@
           ];
           modules = {
             "blocks/authelia" = ./modules/blocks/authelia.nix;
+            "blocks/borgbackup" = ./modules/blocks/borgbackup.nix;
             "blocks/lldap" = ./modules/blocks/lldap.nix;
             "blocks/ssl" = {
               module = ./modules/blocks/ssl.nix;
@@ -294,6 +296,7 @@
             // (vm_test "vaultwarden" ./test/services/vaultwarden.nix)
 
             // (vm_test "authelia" ./test/blocks/authelia.nix)
+            // (vm_test "borgbackup" ./test/blocks/borgbackup.nix)
             // (vm_test "lldap" ./test/blocks/lldap.nix)
             // (vm_test "lib" ./test/blocks/lib.nix)
             // (vm_test "mitmdump" ./test/blocks/mitmdump.nix)
@@ -368,6 +371,7 @@
         imports = [
           # blocks
           self.nixosModules.authelia
+          self.nixosModules.borgbackup
           self.nixosModules.davfs
           self.nixosModules.hardcodedsecret
           self.nixosModules.lldap
@@ -400,6 +404,7 @@
       };
 
       nixosModules.authelia = modules/blocks/authelia.nix;
+      nixosModules.borgbackup = modules/blocks/borgbackup.nix;
       nixosModules.davfs = modules/blocks/davfs.nix;
       nixosModules.hardcodedsecret = modules/blocks/hardcodedsecret.nix;
       nixosModules.lldap = modules/blocks/lldap.nix;

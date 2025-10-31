@@ -326,6 +326,255 @@
   "blocks-authelia-troubleshooting": [
     "blocks-authelia.html#blocks-authelia-troubleshooting"
   ],
+  "blocks-borgbackup": [
+    "blocks-borgbackup.html#blocks-borgbackup"
+  ],
+  "blocks-borgbackup-contract-provider": [
+    "blocks-borgbackup.html#blocks-borgbackup-contract-provider"
+  ],
+  "blocks-borgbackup-maintenance": [
+    "blocks-borgbackup.html#blocks-borgbackup-maintenance"
+  ],
+  "blocks-borgbackup-maintenance-troubleshooting": [
+    "blocks-borgbackup.html#blocks-borgbackup-maintenance-troubleshooting"
+  ],
+  "blocks-borgbackup-monitoring": [
+    "blocks-borgbackup.html#blocks-borgbackup-monitoring"
+  ],
+  "blocks-borgbackup-options": [
+    "blocks-borgbackup.html#blocks-borgbackup-options"
+  ],
+  "blocks-borgbackup-options-shb.borgbackup.borgServer": [
+    "blocks-borgbackup.html#blocks-borgbackup-options-shb.borgbackup.borgServer"
+  ],
+  "blocks-borgbackup-options-shb.borgbackup.databases": [
+    "blocks-borgbackup.html#blocks-borgbackup-options-shb.borgbackup.databases"
+  ],
+  "blocks-borgbackup-options-shb.borgbackup.databases._name_.request": [
+    "blocks-borgbackup.html#blocks-borgbackup-options-shb.borgbackup.databases._name_.request"
+  ],
+  "blocks-borgbackup-options-shb.borgbackup.databases._name_.request.backupCmd": [
+    "blocks-borgbackup.html#blocks-borgbackup-options-shb.borgbackup.databases._name_.request.backupCmd"
+  ],
+  "blocks-borgbackup-options-shb.borgbackup.databases._name_.request.backupName": [
+    "blocks-borgbackup.html#blocks-borgbackup-options-shb.borgbackup.databases._name_.request.backupName"
+  ],
+  "blocks-borgbackup-options-shb.borgbackup.databases._name_.request.restoreCmd": [
+    "blocks-borgbackup.html#blocks-borgbackup-options-shb.borgbackup.databases._name_.request.restoreCmd"
+  ],
+  "blocks-borgbackup-options-shb.borgbackup.databases._name_.request.user": [
+    "blocks-borgbackup.html#blocks-borgbackup-options-shb.borgbackup.databases._name_.request.user"
+  ],
+  "blocks-borgbackup-options-shb.borgbackup.databases._name_.result": [
+    "blocks-borgbackup.html#blocks-borgbackup-options-shb.borgbackup.databases._name_.result"
+  ],
+  "blocks-borgbackup-options-shb.borgbackup.databases._name_.result.backupService": [
+    "blocks-borgbackup.html#blocks-borgbackup-options-shb.borgbackup.databases._name_.result.backupService"
+  ],
+  "blocks-borgbackup-options-shb.borgbackup.databases._name_.result.restoreScript": [
+    "blocks-borgbackup.html#blocks-borgbackup-options-shb.borgbackup.databases._name_.result.restoreScript"
+  ],
+  "blocks-borgbackup-options-shb.borgbackup.databases._name_.settings": [
+    "blocks-borgbackup.html#blocks-borgbackup-options-shb.borgbackup.databases._name_.settings"
+  ],
+  "blocks-borgbackup-options-shb.borgbackup.databases._name_.settings.consistency": [
+    "blocks-borgbackup.html#blocks-borgbackup-options-shb.borgbackup.databases._name_.settings.consistency"
+  ],
+  "blocks-borgbackup-options-shb.borgbackup.databases._name_.settings.enable": [
+    "blocks-borgbackup.html#blocks-borgbackup-options-shb.borgbackup.databases._name_.settings.enable"
+  ],
+  "blocks-borgbackup-options-shb.borgbackup.databases._name_.settings.limitUploadKiBs": [
+    "blocks-borgbackup.html#blocks-borgbackup-options-shb.borgbackup.databases._name_.settings.limitUploadKiBs"
+  ],
+  "blocks-borgbackup-options-shb.borgbackup.databases._name_.settings.passphrase": [
+    "blocks-borgbackup.html#blocks-borgbackup-options-shb.borgbackup.databases._name_.settings.passphrase"
+  ],
+  "blocks-borgbackup-options-shb.borgbackup.databases._name_.settings.passphrase.request": [
+    "blocks-borgbackup.html#blocks-borgbackup-options-shb.borgbackup.databases._name_.settings.passphrase.request"
+  ],
+  "blocks-borgbackup-options-shb.borgbackup.databases._name_.settings.passphrase.request.group": [
+    "blocks-borgbackup.html#blocks-borgbackup-options-shb.borgbackup.databases._name_.settings.passphrase.request.group"
+  ],
+  "blocks-borgbackup-options-shb.borgbackup.databases._name_.settings.passphrase.request.mode": [
+    "blocks-borgbackup.html#blocks-borgbackup-options-shb.borgbackup.databases._name_.settings.passphrase.request.mode"
+  ],
+  "blocks-borgbackup-options-shb.borgbackup.databases._name_.settings.passphrase.request.owner": [
+    "blocks-borgbackup.html#blocks-borgbackup-options-shb.borgbackup.databases._name_.settings.passphrase.request.owner"
+  ],
+  "blocks-borgbackup-options-shb.borgbackup.databases._name_.settings.passphrase.request.restartUnits": [
+    "blocks-borgbackup.html#blocks-borgbackup-options-shb.borgbackup.databases._name_.settings.passphrase.request.restartUnits"
+  ],
+  "blocks-borgbackup-options-shb.borgbackup.databases._name_.settings.passphrase.result": [
+    "blocks-borgbackup.html#blocks-borgbackup-options-shb.borgbackup.databases._name_.settings.passphrase.result"
+  ],
+  "blocks-borgbackup-options-shb.borgbackup.databases._name_.settings.passphrase.result.path": [
+    "blocks-borgbackup.html#blocks-borgbackup-options-shb.borgbackup.databases._name_.settings.passphrase.result.path"
+  ],
+  "blocks-borgbackup-options-shb.borgbackup.databases._name_.settings.repository": [
+    "blocks-borgbackup.html#blocks-borgbackup-options-shb.borgbackup.databases._name_.settings.repository"
+  ],
+  "blocks-borgbackup-options-shb.borgbackup.databases._name_.settings.repository.path": [
+    "blocks-borgbackup.html#blocks-borgbackup-options-shb.borgbackup.databases._name_.settings.repository.path"
+  ],
+  "blocks-borgbackup-options-shb.borgbackup.databases._name_.settings.repository.secrets": [
+    "blocks-borgbackup.html#blocks-borgbackup-options-shb.borgbackup.databases._name_.settings.repository.secrets"
+  ],
+  "blocks-borgbackup-options-shb.borgbackup.databases._name_.settings.repository.secrets._name_.source": [
+    "blocks-borgbackup.html#blocks-borgbackup-options-shb.borgbackup.databases._name_.settings.repository.secrets._name_.source"
+  ],
+  "blocks-borgbackup-options-shb.borgbackup.databases._name_.settings.repository.secrets._name_.transform": [
+    "blocks-borgbackup.html#blocks-borgbackup-options-shb.borgbackup.databases._name_.settings.repository.secrets._name_.transform"
+  ],
+  "blocks-borgbackup-options-shb.borgbackup.databases._name_.settings.repository.timerConfig": [
+    "blocks-borgbackup.html#blocks-borgbackup-options-shb.borgbackup.databases._name_.settings.repository.timerConfig"
+  ],
+  "blocks-borgbackup-options-shb.borgbackup.databases._name_.settings.retention": [
+    "blocks-borgbackup.html#blocks-borgbackup-options-shb.borgbackup.databases._name_.settings.retention"
+  ],
+  "blocks-borgbackup-options-shb.borgbackup.databases._name_.settings.stateDir": [
+    "blocks-borgbackup.html#blocks-borgbackup-options-shb.borgbackup.databases._name_.settings.stateDir"
+  ],
+  "blocks-borgbackup-options-shb.borgbackup.instances": [
+    "blocks-borgbackup.html#blocks-borgbackup-options-shb.borgbackup.instances"
+  ],
+  "blocks-borgbackup-options-shb.borgbackup.instances._name_.request": [
+    "blocks-borgbackup.html#blocks-borgbackup-options-shb.borgbackup.instances._name_.request"
+  ],
+  "blocks-borgbackup-options-shb.borgbackup.instances._name_.request.excludePatterns": [
+    "blocks-borgbackup.html#blocks-borgbackup-options-shb.borgbackup.instances._name_.request.excludePatterns"
+  ],
+  "blocks-borgbackup-options-shb.borgbackup.instances._name_.request.hooks": [
+    "blocks-borgbackup.html#blocks-borgbackup-options-shb.borgbackup.instances._name_.request.hooks"
+  ],
+  "blocks-borgbackup-options-shb.borgbackup.instances._name_.request.hooks.afterBackup": [
+    "blocks-borgbackup.html#blocks-borgbackup-options-shb.borgbackup.instances._name_.request.hooks.afterBackup"
+  ],
+  "blocks-borgbackup-options-shb.borgbackup.instances._name_.request.hooks.beforeBackup": [
+    "blocks-borgbackup.html#blocks-borgbackup-options-shb.borgbackup.instances._name_.request.hooks.beforeBackup"
+  ],
+  "blocks-borgbackup-options-shb.borgbackup.instances._name_.request.sourceDirectories": [
+    "blocks-borgbackup.html#blocks-borgbackup-options-shb.borgbackup.instances._name_.request.sourceDirectories"
+  ],
+  "blocks-borgbackup-options-shb.borgbackup.instances._name_.request.user": [
+    "blocks-borgbackup.html#blocks-borgbackup-options-shb.borgbackup.instances._name_.request.user"
+  ],
+  "blocks-borgbackup-options-shb.borgbackup.instances._name_.result": [
+    "blocks-borgbackup.html#blocks-borgbackup-options-shb.borgbackup.instances._name_.result"
+  ],
+  "blocks-borgbackup-options-shb.borgbackup.instances._name_.result.backupService": [
+    "blocks-borgbackup.html#blocks-borgbackup-options-shb.borgbackup.instances._name_.result.backupService"
+  ],
+  "blocks-borgbackup-options-shb.borgbackup.instances._name_.result.restoreScript": [
+    "blocks-borgbackup.html#blocks-borgbackup-options-shb.borgbackup.instances._name_.result.restoreScript"
+  ],
+  "blocks-borgbackup-options-shb.borgbackup.instances._name_.settings": [
+    "blocks-borgbackup.html#blocks-borgbackup-options-shb.borgbackup.instances._name_.settings"
+  ],
+  "blocks-borgbackup-options-shb.borgbackup.instances._name_.settings.consistency": [
+    "blocks-borgbackup.html#blocks-borgbackup-options-shb.borgbackup.instances._name_.settings.consistency"
+  ],
+  "blocks-borgbackup-options-shb.borgbackup.instances._name_.settings.enable": [
+    "blocks-borgbackup.html#blocks-borgbackup-options-shb.borgbackup.instances._name_.settings.enable"
+  ],
+  "blocks-borgbackup-options-shb.borgbackup.instances._name_.settings.limitUploadKiBs": [
+    "blocks-borgbackup.html#blocks-borgbackup-options-shb.borgbackup.instances._name_.settings.limitUploadKiBs"
+  ],
+  "blocks-borgbackup-options-shb.borgbackup.instances._name_.settings.passphrase": [
+    "blocks-borgbackup.html#blocks-borgbackup-options-shb.borgbackup.instances._name_.settings.passphrase"
+  ],
+  "blocks-borgbackup-options-shb.borgbackup.instances._name_.settings.passphrase.request": [
+    "blocks-borgbackup.html#blocks-borgbackup-options-shb.borgbackup.instances._name_.settings.passphrase.request"
+  ],
+  "blocks-borgbackup-options-shb.borgbackup.instances._name_.settings.passphrase.request.group": [
+    "blocks-borgbackup.html#blocks-borgbackup-options-shb.borgbackup.instances._name_.settings.passphrase.request.group"
+  ],
+  "blocks-borgbackup-options-shb.borgbackup.instances._name_.settings.passphrase.request.mode": [
+    "blocks-borgbackup.html#blocks-borgbackup-options-shb.borgbackup.instances._name_.settings.passphrase.request.mode"
+  ],
+  "blocks-borgbackup-options-shb.borgbackup.instances._name_.settings.passphrase.request.owner": [
+    "blocks-borgbackup.html#blocks-borgbackup-options-shb.borgbackup.instances._name_.settings.passphrase.request.owner"
+  ],
+  "blocks-borgbackup-options-shb.borgbackup.instances._name_.settings.passphrase.request.restartUnits": [
+    "blocks-borgbackup.html#blocks-borgbackup-options-shb.borgbackup.instances._name_.settings.passphrase.request.restartUnits"
+  ],
+  "blocks-borgbackup-options-shb.borgbackup.instances._name_.settings.passphrase.result": [
+    "blocks-borgbackup.html#blocks-borgbackup-options-shb.borgbackup.instances._name_.settings.passphrase.result"
+  ],
+  "blocks-borgbackup-options-shb.borgbackup.instances._name_.settings.passphrase.result.path": [
+    "blocks-borgbackup.html#blocks-borgbackup-options-shb.borgbackup.instances._name_.settings.passphrase.result.path"
+  ],
+  "blocks-borgbackup-options-shb.borgbackup.instances._name_.settings.repository": [
+    "blocks-borgbackup.html#blocks-borgbackup-options-shb.borgbackup.instances._name_.settings.repository"
+  ],
+  "blocks-borgbackup-options-shb.borgbackup.instances._name_.settings.repository.path": [
+    "blocks-borgbackup.html#blocks-borgbackup-options-shb.borgbackup.instances._name_.settings.repository.path"
+  ],
+  "blocks-borgbackup-options-shb.borgbackup.instances._name_.settings.repository.secrets": [
+    "blocks-borgbackup.html#blocks-borgbackup-options-shb.borgbackup.instances._name_.settings.repository.secrets"
+  ],
+  "blocks-borgbackup-options-shb.borgbackup.instances._name_.settings.repository.secrets._name_.source": [
+    "blocks-borgbackup.html#blocks-borgbackup-options-shb.borgbackup.instances._name_.settings.repository.secrets._name_.source"
+  ],
+  "blocks-borgbackup-options-shb.borgbackup.instances._name_.settings.repository.secrets._name_.transform": [
+    "blocks-borgbackup.html#blocks-borgbackup-options-shb.borgbackup.instances._name_.settings.repository.secrets._name_.transform"
+  ],
+  "blocks-borgbackup-options-shb.borgbackup.instances._name_.settings.repository.timerConfig": [
+    "blocks-borgbackup.html#blocks-borgbackup-options-shb.borgbackup.instances._name_.settings.repository.timerConfig"
+  ],
+  "blocks-borgbackup-options-shb.borgbackup.instances._name_.settings.retention": [
+    "blocks-borgbackup.html#blocks-borgbackup-options-shb.borgbackup.instances._name_.settings.retention"
+  ],
+  "blocks-borgbackup-options-shb.borgbackup.instances._name_.settings.stateDir": [
+    "blocks-borgbackup.html#blocks-borgbackup-options-shb.borgbackup.instances._name_.settings.stateDir"
+  ],
+  "blocks-borgbackup-options-shb.borgbackup.performance": [
+    "blocks-borgbackup.html#blocks-borgbackup-options-shb.borgbackup.performance"
+  ],
+  "blocks-borgbackup-options-shb.borgbackup.performance.ioPriority": [
+    "blocks-borgbackup.html#blocks-borgbackup-options-shb.borgbackup.performance.ioPriority"
+  ],
+  "blocks-borgbackup-options-shb.borgbackup.performance.ioSchedulingClass": [
+    "blocks-borgbackup.html#blocks-borgbackup-options-shb.borgbackup.performance.ioSchedulingClass"
+  ],
+  "blocks-borgbackup-options-shb.borgbackup.performance.niceness": [
+    "blocks-borgbackup.html#blocks-borgbackup-options-shb.borgbackup.performance.niceness"
+  ],
+  "blocks-borgbackup-tests": [
+    "blocks-borgbackup.html#blocks-borgbackup-tests"
+  ],
+  "blocks-borgbackup-usage": [
+    "blocks-borgbackup.html#blocks-borgbackup-usage"
+  ],
+  "blocks-borgbackup-usage-multiple": [
+    "blocks-borgbackup.html#blocks-borgbackup-usage-multiple"
+  ],
+  "blocks-borgbackup-usage-provider-contract": [
+    "blocks-borgbackup.html#blocks-borgbackup-usage-provider-contract"
+  ],
+  "blocks-borgbackup-usage-provider-manual": [
+    "blocks-borgbackup.html#blocks-borgbackup-usage-provider-manual"
+  ],
+  "blocks-borgbackup-usage-provider-remote": [
+    "blocks-borgbackup.html#blocks-borgbackup-usage-provider-remote"
+  ],
+  "blocks-category-authentication": [
+    "blocks.html#blocks-category-authentication"
+  ],
+  "blocks-category-backup": [
+    "blocks.html#blocks-category-backup"
+  ],
+  "blocks-category-database": [
+    "blocks.html#blocks-category-database"
+  ],
+  "blocks-category-introspection": [
+    "blocks.html#blocks-category-introspection"
+  ],
+  "blocks-category-network": [
+    "blocks.html#blocks-category-network"
+  ],
+  "blocks-category-secrets": [
+    "blocks.html#blocks-category-secrets"
+  ],
   "blocks-lldap": [
     "blocks-lldap.html#blocks-lldap"
   ],
@@ -859,9 +1108,6 @@
   ],
   "blocks-restic-contract-provider": [
     "blocks-restic.html#blocks-restic-contract-provider"
-  ],
-  "blocks-restic-demo": [
-    "blocks-restic.html#blocks-restic-demo"
   ],
   "blocks-restic-maintenance": [
     "blocks-restic.html#blocks-restic-maintenance"
@@ -2215,6 +2461,24 @@
   ],
   "services-arr-options-shb.arr.sonarr.subdomain": [
     "services-arr.html#services-arr-options-shb.arr.sonarr.subdomain"
+  ],
+  "services-category-ai": [
+    "services.html#services-category-ai"
+  ],
+  "services-category-automation": [
+    "services.html#services-category-automation"
+  ],
+  "services-category-code": [
+    "services.html#services-category-code"
+  ],
+  "services-category-documents": [
+    "services.html#services-category-documents"
+  ],
+  "services-category-media": [
+    "services.html#services-category-media"
+  ],
+  "services-category-passwords": [
+    "services.html#services-category-passwords"
   ],
   "services-forgejo": [
     "services-forgejo.html#services-forgejo"

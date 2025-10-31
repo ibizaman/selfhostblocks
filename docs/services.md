@@ -1,8 +1,10 @@
 <!-- Read these docs at https://shb.skarabox.com -->
 # Services {#services}
 
-Services are usually web applications that SHB help you self-host. Configuration of those is
-purposely made opinionated and require as few nix options as can make sense. That is possible thanks to the extensive use of blocks provided by SHB.
+Services are usually web applications that SHB help you self-host.
+Configuration of those is purposely made more opinionated than the upstream nixpkgs modules
+in exchange for requiring less options to define.
+That is possible thanks to the extensive use of blocks provided by SHB.
 
 ::: {.note}
 Not all services are yet documented. You can find all available services [in the repository](@REPO@/modules/services).
@@ -42,38 +44,50 @@ Legend: **N**: no but WIP; **P**: partial; **Y**: yes
 [Pinchflat]: services-pinchflat.html
 [Vaultwarden]: services-vaultwarden.html
 
-```{=include=} chapters html:into-file=//services-arr.html
-modules/services/arr/docs/default.md
-```
-
-```{=include=} chapters html:into-file=//services-forgejo.html
-modules/services/forgejo/docs/default.md
-```
-
-```{=include=} chapters html:into-file=//services-home-assistant.html
-modules/services/home-assistant/docs/default.md
-```
-
-```{=include=} chapters html:into-file=//services-jellyfin.html
-modules/services/jellyfin/docs/default.md
-```
-
-```{=include=} chapters html:into-file=//services-karakeep.html
-modules/services/karakeep/docs/default.md
-```
+## Documents {#services-category-documents}
 
 ```{=include=} chapters html:into-file=//services-nextcloud.html
 modules/services/nextcloud-server/docs/default.md
 ```
 
-```{=include=} chapters html:into-file=//services-pinchflat.html
-modules/services/pinchflat/docs/default.md
+## Passwords {#services-category-passwords}
+
+```{=include=} chapters html:into-file=//services-vaultwarden.html
+modules/services/vaultwarden/docs/default.md
+```
+
+## Automation {#services-category-automation}
+
+```{=include=} chapters html:into-file=//services-home-assistant.html
+modules/services/home-assistant/docs/default.md
+```
+
+## AI {#services-category-ai}
+
+```{=include=} chapters html:into-file=//services-karakeep.html
+modules/services/karakeep/docs/default.md
 ```
 
 ```{=include=} chapters html:into-file=//services-open-webui.html
 modules/services/open-webui/docs/default.md
 ```
 
-```{=include=} chapters html:into-file=//services-vaultwarden.html
-modules/services/vaultwarden/docs/default.md
+## Code {#services-category-code}
+
+```{=include=} chapters html:into-file=//services-forgejo.html
+modules/services/forgejo/docs/default.md
+```
+
+## Media {#services-category-media}
+
+```{=include=} chapters html:into-file=//services-arr.html
+modules/services/arr/docs/default.md
+```
+
+```{=include=} chapters html:into-file=//services-jellyfin.html
+modules/services/jellyfin/docs/default.md
+```
+
+```{=include=} chapters html:into-file=//services-pinchflat.html
+modules/services/pinchflat/docs/default.md
 ```
