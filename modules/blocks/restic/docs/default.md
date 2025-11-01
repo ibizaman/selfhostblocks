@@ -142,7 +142,7 @@ This assumes you have access to such a remote S3 store, for example by using [Ba
   }
 ```
 
-## Multiple directories to multiple destinations {#blocks-restic-usage-multiple}
+### Multiple directories to multiple destinations {#blocks-restic-usage-multiple}
 
 The following snippet shows how to configure backup of any number of folders to 3 repositories,
 each happening at different times to avoid I/O contention.
