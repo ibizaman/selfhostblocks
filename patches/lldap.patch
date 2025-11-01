@@ -483,7 +483,7 @@ index e21deef91f3366..03f321996a3c99 100644
 +        export LLDAP_ADMIN_PASSWORD_FILE=${
 +          if cfg.ensureAdminPasswordFile != null then cfg.ensureAdminPasswordFile else ""
 +        }
-+        export USER_CONFIGS_DIR=${lib.traceVal (generateEnsureConfigDir "users" cfg.ensureUsers)}
++        export USER_CONFIGS_DIR=${generateEnsureConfigDir "users" cfg.ensureUsers}
 +        export GROUP_CONFIGS_DIR=${generateEnsureConfigDir "groups" cfg.ensureGroups}
 +        export USER_SCHEMAS_DIR=${
 +          generateEnsureConfigDir "userFields" (lib.mapAttrs (n: v: [ v ]) cfg.ensureUserFields)
