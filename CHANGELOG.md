@@ -16,6 +16,16 @@ Template:
 
 # Upcoming Release
 
+# v0.6.1
+
+## New Features
+
+- Implement backup and databasebackup contracts with BorgBackup block.
+
+## Fixes
+
+- Add back erroneously removed Prometheus collectors.
+
 # v0.6.0
 
 ## Breaking Changes
