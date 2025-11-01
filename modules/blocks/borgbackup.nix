@@ -325,10 +325,12 @@ in
 
                 repo = instance.settings.repository.path;
 
-                dumpCommand = lib.getExe (pkgs.writeShellApplication {
-                  name = "dump-command";
-                  text = instance.request.backupCmd;
-                });
+                dumpCommand = lib.getExe (
+                  pkgs.writeShellApplication {
+                    name = "dump-command";
+                    text = instance.request.backupCmd;
+                  }
+                );
 
                 encryption.mode = "repokey-blake2";
                 # We do not set encryption.passphrase here, we set BORG_PASSPHRASE_FD further down.
