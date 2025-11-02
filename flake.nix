@@ -74,6 +74,17 @@
                   (prevAttrs: {
                     inherit (pkgs) lib;
                   });
+              prometheus-systemd-exporter = prev.prometheus-systemd-exporter.overrideAttrs {
+                src = pkgs.fetchFromGitHub {
+                  owner = "ibizaman";
+                  repo = prev.prometheus-systemd-exporter.pname;
+                  # rev = "v${prev.prometheus-systemd-exporter.version}";
+                  rev = "next_timer";
+                  sha256 = "sha256-jzkh/616tsJbNxFtZ0xbdBQc16TMIYr9QOkPaeQw8xA=";
+                };
+
+                vendorHash = "sha256-4hsQ1417jLNOAqGkfCkzrmEtYR4YLLW2j0CiJtPg6GI=";
+              };
             })
           ];
         };
