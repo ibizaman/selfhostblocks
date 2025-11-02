@@ -23,6 +23,50 @@
   "panels": [
     {
       "datasource": {
+        "type": "loki",
+        "uid": "cd6cc53e-840c-484d-85f7-96fede324006"
+      },
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 0
+      },
+      "id": 5,
+      "options": {
+        "dedupStrategy": "none",
+        "enableInfiniteScrolling": false,
+        "enableLogDetails": true,
+        "prettifyLogMessage": false,
+        "showCommonLabels": false,
+        "showLabels": false,
+        "showTime": true,
+        "sortOrder": "Descending",
+        "wrapLogMessage": false
+      },
+      "pluginVersion": "12.2.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "loki",
+            "uid": "cd6cc53e-840c-484d-85f7-96fede324006"
+          },
+          "direction": "backward",
+          "editorMode": "code",
+          "expr": "{unit=~\"prometheus-.*-exporter.service\"}",
+          "queryType": "range",
+          "refId": "A"
+        }
+      ],
+      "title": "Exporter Logs",
+      "type": "logs"
+    },
+    {
+      "datasource": {
         "type": "prometheus",
         "uid": "df80f9f5-97d7-4112-91d8-72f523a02b09"
       },
@@ -286,5 +330,5 @@
   "timezone": "",
   "title": "Scraping Jobs",
   "uid": "debb763d-77aa-47bd-9290-2e02583c8ed2",
-  "version": 22
+  "version": 24
 }
