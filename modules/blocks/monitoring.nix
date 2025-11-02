@@ -293,7 +293,6 @@ in
         alerting.rules.settings =
           let
             rules = builtins.fromJSON (builtins.readFile ./monitoring/rules.json);
-            ruleIds = map (r: r.uid) rules;
           in
           {
             apiVersion = 1;
@@ -518,6 +517,15 @@ in
             }
           ];
         }
+        {
+          job_name = "systemd";
+          static_configs = [
+            {
+              targets = [ "127.0.0.1:${toString config.services.prometheus.exporters.systemd.port}" ];
+              labels = commonLabels;
+            }
+          ];
+        }
       ]
       ++ (lib.lists.optional config.services.nginx.enable {
         job_name = "nginx";
@@ -593,7 +601,6 @@ in
           "drm"
           "ethtool"
           "logind"
-          "systemd"
           "wifi"
         ];
         port = 9112;
@@ -623,6 +630,11 @@ in
       services.prometheus.exporters.dnsmasq = lib.mkIf config.services.dnsmasq.enable {
         enable = true;
         port = 9211;
+        listenAddress = "127.0.0.1";
+      };
+      services.prometheus.exporters.systemd = {
+        enable = true;
+        port = 9116;
         listenAddress = "127.0.0.1";
       };
       services.nginx.statusPage = lib.mkDefault config.services.nginx.enable;
