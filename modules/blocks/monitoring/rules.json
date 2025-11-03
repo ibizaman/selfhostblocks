@@ -254,5 +254,133 @@
       "role": "sysadmin"
     },
     "isPaused": false
+  },
+  {
+    "uid": "df4doj5pomhvkf",
+    "title": "Late Backups",
+    "condition": "C",
+    "data": [
+      {
+        "refId": "A",
+        "relativeTimeRange": {
+          "from": 10800,
+          "to": 0
+        },
+        "datasourceUid": "df80f9f5-97d7-4112-91d8-72f523a02b09",
+        "model": {
+          "adhocFilters": [],
+          "datasource": {
+            "type": "prometheus",
+            "uid": "df80f9f5-97d7-4112-91d8-72f523a02b09"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "(\n  # No run in the last 24 hours\n  systemd_timer_last_trigger_seconds{name=~\".*backup.*.timer\"}\n    ==\n  systemd_timer_last_trigger_seconds{name=~\".*backup.*.timer\"} offset 24h\n)\nOR\n(\n  # All runs in last 24 hours failed\n  label_replace((\n    time()\n      -\n    systemd_timer_last_trigger_seconds{name=~\".*backup.*.timer\"}\n  ) < 24*60*60, \"name\", \"$1.service\", \"name\", \"(.*).timer\")\n  AND on(name)\n  (\n    max_over_time(systemd_unit_state{name=~\".*backup.*.service\", state=\"failed\"}[24h]) > 0\n  )\n)",
+          "instant": false,
+          "interval": "",
+          "intervalMs": 15000,
+          "legendFormat": "{{name}}",
+          "maxDataPoints": 43200,
+          "range": true,
+          "refId": "A"
+        }
+      },
+      {
+        "refId": "B",
+        "relativeTimeRange": {
+          "from": 0,
+          "to": 0
+        },
+        "datasourceUid": "__expr__",
+        "model": {
+          "conditions": [
+            {
+              "evaluator": {
+                "params": [],
+                "type": "gt"
+              },
+              "operator": {
+                "type": "and"
+              },
+              "query": {
+                "params": [
+                  "B"
+                ]
+              },
+              "reducer": {
+                "params": [],
+                "type": "last"
+              },
+              "type": "query"
+            }
+          ],
+          "datasource": {
+            "type": "__expr__",
+            "uid": "__expr__"
+          },
+          "expression": "A",
+          "intervalMs": 1000,
+          "maxDataPoints": 43200,
+          "reducer": "last",
+          "refId": "B",
+          "type": "reduce"
+        }
+      },
+      {
+        "refId": "C",
+        "relativeTimeRange": {
+          "from": 0,
+          "to": 0
+        },
+        "datasourceUid": "__expr__",
+        "model": {
+          "conditions": [
+            {
+              "evaluator": {
+                "params": [
+                  0
+                ],
+                "type": "gt"
+              },
+              "operator": {
+                "type": "and"
+              },
+              "query": {
+                "params": [
+                  "C"
+                ]
+              },
+              "reducer": {
+                "params": [],
+                "type": "last"
+              },
+              "type": "query"
+            }
+          ],
+          "datasource": {
+            "type": "__expr__",
+            "uid": "__expr__"
+          },
+          "expression": "B",
+          "intervalMs": 1000,
+          "maxDataPoints": 43200,
+          "refId": "C",
+          "type": "threshold"
+        }
+      }
+    ],
+    "dashboardUid": "f05500d0-15ed-4719-b68d-fb898ca13cc8",
+    "panelId": 15,
+    "noDataState": "NoData",
+    "execErrState": "Error",
+    "annotations": {
+      "__dashboardUid__": "f05500d0-15ed-4719-b68d-fb898ca13cc8",
+      "__panelId__": "15",
+      "summary": "A backup for service {{name}} did not run in the last 24 hours."
+    },
+    "labels": {
+      "role": "sysadmin"
+    },
+    "isPaused": false
   }
 ]
