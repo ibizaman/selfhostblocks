@@ -546,6 +546,14 @@ in
         autheliaRules = lib.mkIf (cfg.sso.enable) [
           {
             domain = fqdn;
+            policy = "bypass";
+            resources = [
+              "^/api.*"
+              "^/.well-known/immich"
+            ];
+          }
+          {
+            domain = fqdn;
             policy = cfg.sso.authorization_policy;
             subject = [
               "group:immich_user"
