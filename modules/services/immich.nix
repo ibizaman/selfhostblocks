@@ -563,7 +563,6 @@ in
         ];
         authEndpoint = lib.mkIf (cfg.sso.enable) cfg.sso.endpoint;
         extraConfig = ''
-          client_max_body_size 50000M;
           proxy_read_timeout 600s;
           proxy_send_timeout 600s;
           send_timeout 600s;
@@ -571,6 +570,11 @@ in
         '';
       }
     ];
+
+    # Allow large uploads from mobile app
+    services.nginx.virtualHosts."${fqdn}".extraConfig = ''
+      client_max_body_size 50G;
+    '';
 
     # Ensure services start in correct order
     systemd.services.immich-server = {
