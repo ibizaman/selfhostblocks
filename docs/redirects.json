@@ -902,6 +902,12 @@
   "blocks-monitoring": [
     "blocks-monitoring.html#blocks-monitoring"
   ],
+  "blocks-monitoring-backup": [
+    "blocks-monitoring.html#blocks-monitoring-backup"
+  ],
+  "blocks-monitoring-backup-alerts": [
+    "blocks-monitoring.html#blocks-monitoring-backup-alerts"
+  ],
   "blocks-monitoring-backup-dashboard": [
     "blocks-monitoring.html#blocks-monitoring-backup-dashboard"
   ],
