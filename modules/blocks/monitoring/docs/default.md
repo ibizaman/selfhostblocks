@@ -118,17 +118,42 @@ This dashboard is used to monitor a [deluge](./services-deluge.html) instance.
 ![Deluge Dashboard Top Part](./assets/dashboards_Deluge_1.png)
 ![Deluge Dashboard Bottom Part](./assets/dashboards_Deluge_2.png)
 
-## Backup Dashboard and Alert {#blocks-monitoring-backup-dashboard}
+## Backups Dashboard and Alert {#blocks-monitoring-backup}
 
 This dashboard show Restic and BorgBackup backup jobs, or any job with "backup" in the systemd service name.
 
+### Dashboard {#blocks-monitoring-backup-dashboard}
+
+Variables:
+
+- The "Job" variable allows to select one or more backup jobs. "All" is the default.
+- The "mountpoints" variable allows to select only relevant mountpoints for backup. "All" is the default.
+
 The most important graphs are the first three:
 
-- "Backup Jobs in the Past Week"
+- "Backup Jobs in the Past Week": Shows stats on all backup jobs that ran in the past.
+  It is sorted by the "Failed" column in descending order.
+  This way, one can directly see when a job has failures.
+- "Schedule": Shows when a job will run.
+  The unit is "Datetime from Now" meaning it shows when a job ran or will run relative to the current time.
+  An annotation will show up when the "Late Backups" alert fired or resolved.
+- "Backup jobs": Shows when a backup job ran.
+  Normally, jobs running for less than 15 seconds will not show up in the graph.
+  We crafted a query that still shows them but the length is 15 seconds, even if the backup job
+  took less time to run.
 
-![Backup Dashboard Top Part](./assets/dashboards_Backups_1.png)
-![Backup Dashboard Middle Part](./assets/dashboards_Backups_2.png)
-![Backup Dashboard Bottom Part](./assets/dashboards_Backups_3.png)
+![Backups Dashboard Top Part](./assets/dashboards_Backups_1.png)
+![Backups Dashboard Middle Part](./assets/dashboards_Backups_2.png)
+![Backups Dashboard Bottom Part](./assets/dashboards_Backups_3.png)
+
+### Alerts {#blocks-monitoring-backup-alerts}
+
+- The "Late Backups" alert will fire if a backup job did not run at all in the last 24 hours
+  or if all runs were failures in the last 24 hours.
+  It will show up as annotations in the "Schedule" panel of the dashboard.
+
+![Late Backups Alert Firing](./assets/alert_rules_LateBackups_1.png)
+![Backups Alert Showing Up In Dashboard](./assets/dashboards_Backups_alert.png)
 
 ## Requests Error Budget Alert {#blocks-monitoring-budget-alerts}
 
