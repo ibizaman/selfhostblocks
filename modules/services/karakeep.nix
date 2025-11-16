@@ -225,9 +225,11 @@ in
       })
       (lib.mkIf cfg.enable {
         services.meilisearch = {
-          dumplessUpgrade = true;
-          environment = "production";
           masterKeyFile = cfg.meilisearchMasterKey.result.path;
+          settings = {
+            experimental_dumpless_upgrade = true;
+            env = "production";
+          };
         };
       })
       (lib.mkIf (cfg.enable && cfg.sso.enable) {
