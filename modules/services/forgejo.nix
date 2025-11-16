@@ -618,9 +618,8 @@ in
         SMTP_ADDR = "${cfg.smtp.host}:${toString cfg.smtp.port}";
         FROM = cfg.smtp.from_address;
         USER = cfg.smtp.username;
+        PASSWD = cfg.smtp.passwordFile;
       };
-
-      services.forgejo.mailerPasswordFile = cfg.smtp.passwordFile;
     })
 
     # https://wiki.nixos.org/wiki/Forgejo#Runner

@@ -118,6 +118,18 @@ This dashboard is used to monitor a [deluge](./services-deluge.html) instance.
 ![Deluge Dashboard Top Part](./assets/dashboards_Deluge_1.png)
 ![Deluge Dashboard Bottom Part](./assets/dashboards_Deluge_2.png)
 
+## Backup Dashboard and Alert {#blocks-monitoring-backup-dashboard}
+
+This dashboard show Restic and BorgBackup backup jobs, or any job with "backup" in the systemd service name.
+
+The most important graphs are the first three:
+
+- "Backup Jobs in the Past Week"
+
+![Backup Dashboard Top Part](./assets/dashboards_Backups_1.png)
+![Backup Dashboard Middle Part](./assets/dashboards_Backups_2.png)
+![Backup Dashboard Bottom Part](./assets/dashboards_Backups_3.png)
+
 ## Requests Error Budget Alert {#blocks-monitoring-budget-alerts}
 
 This alert will fire when the ratio between number of requests getting a 5XX response from a service
