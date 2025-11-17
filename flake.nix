@@ -302,6 +302,7 @@
             // (vm_test "karakeep" ./test/services/karakeep.nix)
             // (vm_test "nextcloud" ./test/services/nextcloud.nix)
             // (vm_test "open-webui" ./test/services/open-webui.nix)
+            // (vm_test "paperless" ./test/services/paperless.nix)
             // (vm_test "pinchflat" ./test/services/pinchflat.nix)
             // (vm_test "vaultwarden" ./test/services/vaultwarden.nix)
 
@@ -410,6 +411,7 @@
           self.nixosModules.nextcloud-server
           self.nixosModules.open-webui
           self.nixosModules.pinchflat
+          self.nixosModules.paperless
           self.nixosModules.vaultwarden
         ];
       };
@@ -442,6 +444,7 @@
       nixosModules.karakeep = modules/services/karakeep.nix;
       nixosModules.nextcloud-server = modules/services/nextcloud-server.nix;
       nixosModules.open-webui = modules/services/open-webui.nix;
+      nixosModules.paperless = modules/services/paperless.nix;
       nixosModules.pinchflat = modules/services/pinchflat.nix;
       nixosModules.vaultwarden = modules/services/vaultwarden.nix;
     };
