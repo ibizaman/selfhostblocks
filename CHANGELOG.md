@@ -16,6 +16,15 @@ Template:
 
 # Upcoming Release
 
+## New Features
+
+- Add a Grafana dashboard showing stats on backup jobs
+  and also an alert if a backup job did not run in the last 24 hours or never succeeded in the last 24 hours.
+
+## Fixes
+
+- Allow to upload big files in Immich.
+
 # v0.6.1
 
 ## New Features
