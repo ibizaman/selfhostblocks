@@ -1,7 +1,5 @@
-{ pkgs, lib, ... }:
+{ lib, ... }:
 let
-  testLib = pkgs.callPackage ../common.nix { };
-
   commonTest =
     user:
     lib.shb.runNixOSTest {
@@ -11,7 +9,7 @@ let
         { config, ... }:
         {
           imports = [
-            testLib.baseImports
+            lib.shb.baseImports
 
             ../../modules/blocks/hardcodedsecret.nix
             ../../modules/blocks/restic.nix

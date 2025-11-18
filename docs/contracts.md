@@ -455,7 +455,7 @@ in
     modules ? [],
     owner ? "root",
     content ? "secretPasswordA",
-  }: pkgs.testers.runNixOSTest {
+  }: lib.shb.runNixOSTest {
     inherit name;
     
     nodes.machine = { config, ... }: {
