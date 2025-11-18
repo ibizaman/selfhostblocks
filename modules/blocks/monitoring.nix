@@ -23,13 +23,13 @@ in
 
     subdomain = lib.mkOption {
       type = lib.types.str;
-      description = "Subdomain under which home-assistant will be served.";
+      description = "Subdomain under which Grafana will be served.";
       example = "grafana";
     };
 
     domain = lib.mkOption {
       type = lib.types.str;
-      description = "domain under which home-assistant will be served.";
+      description = "domain under which Grafana will be served.";
       example = "mydomain.com";
     };
 
