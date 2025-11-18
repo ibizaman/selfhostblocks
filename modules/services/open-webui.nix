@@ -101,9 +101,8 @@ in
           enable = lib.mkEnableOption "SSO integration.";
 
           authEndpoint = lib.mkOption {
-            type = lib.types.nullOr lib.types.str;
-            default = null;
-            description = "Endpoint to the SSO provider. Leave null to not have SSO configured.";
+            type = lib.types.str;
+            description = "Endpoint to the SSO provider.";
             example = "https://authelia.example.com";
           };
 
