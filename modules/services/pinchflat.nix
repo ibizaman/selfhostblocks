@@ -100,9 +100,8 @@ in
           enable = lib.mkEnableOption "SSO integration.";
 
           authEndpoint = lib.mkOption {
-            type = lib.types.nullOr lib.types.str;
-            default = null;
-            description = "Endpoint to the SSO provider. Leave null to not have SSO configured.";
+            type = lib.types.str;
+            description = "Endpoint to the SSO provider.";
             example = "https://authelia.example.com";
           };
 
@@ -174,19 +173,23 @@ in
     };
 
     shb.nginx.vhosts = [
-      {
-        inherit (cfg) subdomain domain ssl;
-        inherit (cfg.sso) authEndpoint;
+      (
+        {
+          inherit (cfg) subdomain domain ssl;
 
-        upstream = "http://127.0.0.1:${toString cfg.port}";
-        autheliaRules = lib.optionals (cfg.sso.enable) [
-          {
-            domain = "${cfg.subdomain}.${cfg.domain}";
-            policy = cfg.sso.authorization_policy;
-            subject = [ "group:${cfg.ldap.userGroup}" ];
-          }
-        ];
-      }
+          upstream = "http://127.0.0.1:${toString cfg.port}";
+          autheliaRules = lib.optionals (cfg.sso.enable) [
+            {
+              domain = "${cfg.subdomain}.${cfg.domain}";
+              policy = cfg.sso.authorization_policy;
+              subject = [ "group:${cfg.ldap.userGroup}" ];
+            }
+          ];
+        }
+        // lib.optionalAttrs cfg.sso.enable {
+          inherit (cfg.sso) authEndpoint;
+        }
+      )
     ];
 
     services.prometheus.scrapeConfigs = [
