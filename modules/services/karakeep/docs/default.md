@@ -52,10 +52,10 @@ The following snippet assumes a few blocks have been setup already:
   };
 
   shb.sops.secret.nextauthSecret.request = config.shb.karakeep.nextauthSecret.request;
-  shb.sops.secret.oidcSecret.request = config.shb.karakeep.sso.sharedSecret.request;
-  shb.sops.secret.oidcAutheliaSecret = {
+  shb.sops.secret."karakeep/oidcSecret".request = config.shb.karakeep.sso.sharedSecret.request;
+  shb.sops.secret."karakeep/oidcAutheliaSecret" = {
     request = config.shb.karakeep.sso.sharedSecretForAuthelia.request;
-    settings.key = oidcSecret;
+    settings.key = "karakeep/oidcSecret";
   };
 }
 ```
