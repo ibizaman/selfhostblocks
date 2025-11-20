@@ -16,8 +16,22 @@ let
     hostname = config.networking.hostName;
     domain = cfg.domain;
   };
+
+  roleClaim = "grafana_groups";
+  oauthScopes = [
+    "openid"
+    "email"
+    "profile"
+    "groups"
+    "${roleClaim}"
+  ];
 in
 {
+  imports = [
+    ../blocks/authelia.nix
+    ../blocks/lldap.nix
+  ];
+
   options.shb.monitoring = {
     enable = lib.mkEnableOption "selfhostblocks.monitoring";
 
@@ -155,6 +169,84 @@ in
           };
         }
       );
+    };
+
+    ldap = lib.mkOption {
+      description = ''
+        Setup LDAP integration.
+      '';
+      default = { };
+      type = lib.types.submodule {
+        options = {
+          userGroup = lib.mkOption {
+            type = lib.types.str;
+            description = "Group users must belong to to be able to login to Grafana.";
+            default = "monitoring_user";
+          };
+          adminGroup = lib.mkOption {
+            type = lib.types.str;
+            description = "Group users must belong to to be admins in Grafana.";
+            default = "monitoring_admin";
+          };
+        };
+      };
+    };
+
+    sso = lib.mkOption {
+      description = ''
+        Setup SSO integration.
+      '';
+      default = { };
+      type = lib.types.submodule {
+        options = {
+          enable = lib.mkEnableOption "SSO integration.";
+
+          authEndpoint = lib.mkOption {
+            type = lib.types.str;
+            default = null;
+            description = "Endpoint to the SSO provider.";
+            example = "https://authelia.example.com";
+          };
+
+          clientID = lib.mkOption {
+            type = lib.types.str;
+            description = "Client ID for the OIDC endpoint.";
+            default = "grafana";
+          };
+
+          authorization_policy = lib.mkOption {
+            type = lib.types.enum [
+              "one_factor"
+              "two_factor"
+            ];
+            description = "Require one factor (password) or two factor (device) authentication.";
+            default = "one_factor";
+          };
+
+          sharedSecret = lib.mkOption {
+            description = "OIDC shared secret for Grafana.";
+            type = lib.types.submodule {
+              options = contracts.secret.mkRequester {
+                owner = "grafana";
+                restartUnits = [
+                  "grafana.service"
+                ];
+              };
+            };
+          };
+
+          sharedSecretForAuthelia = lib.mkOption {
+            description = "OIDC shared secret for Authelia. Must be the same as `sharedSecret`";
+            type = lib.types.submodule {
+              options = contracts.secret.mkRequester {
+                mode = "0400";
+                ownerText = "config.shb.authelia.autheliaUser";
+                owner = config.shb.authelia.autheliaUser;
+              };
+            };
+          };
+        };
+      };
     };
   };
 
@@ -650,6 +742,66 @@ in
           };
         };
       };
+    })
+    (lib.mkIf (cfg.enable && cfg.sso.enable) {
+      shb.lldap.ensureGroups = {
+        ${cfg.ldap.userGroup} = { };
+      };
+
+      shb.authelia.extraDefinitions = {
+        user_attributes.${roleClaim}.expression =
+          # Roles are: None, Viewer, Editor, Admin, GrafanaAdmin
+          ''"${cfg.ldap.adminGroup}" in groups ? "Admin" : ("${cfg.ldap.userGroup}" in groups ? "Editor" : "Invalid")'';
+      };
+      shb.authelia.extraOidcClaimsPolicies.${roleClaim} = {
+        custom_claims = {
+          "${roleClaim}" = { };
+        };
+      };
+      shb.authelia.extraOidcScopes."${roleClaim}" = {
+        claims = [ "${roleClaim}" ];
+      };
+
+      services.grafana.settings."auth.generic_oauth" = {
+        enabled = true;
+        name = "Authelia";
+        icon = "signin";
+        client_id = cfg.sso.clientID;
+        client_secret = "$__file{${cfg.sso.sharedSecret.result.path}}";
+        scopes = oauthScopes;
+        empty_scopes = false;
+        allow_sign_up = true;
+        auto_login = true;
+        auth_url = "${cfg.sso.authEndpoint}/api/oidc/authorization";
+        token_url = "${cfg.sso.authEndpoint}/api/oidc/token";
+        # use_refresh_token = true; ?  # https://grafana.com/docs/grafana/latest/setup-grafana/configure-access/configure-authentication/generic-oauth/#configure-generic-oauth-authentication-client-using-the-grafana-configuration-file
+        api_url = "${cfg.sso.authEndpoint}/api/oidc/userinfo";
+        login_attribute_path = "preferred_username";
+        groups_attribute_path = "groups";
+        name_attribute_path = "name";
+        use_pkce = true;
+        allow_assign_grafana_admin = true;
+        skip_org_role_sync = false;
+        role_attribute_path = roleClaim;
+        role_attribute_strict = true;
+      };
+
+      shb.authelia.oidcClients = [
+        {
+          client_id = cfg.sso.clientID;
+          client_secret.source = cfg.sso.sharedSecretForAuthelia.result.path;
+          claims_policy = "${roleClaim}";
+          scopes = oauthScopes;
+          authorization_policy = cfg.sso.authorization_policy;
+          redirect_uris = [
+            "https://${cfg.subdomain}.${cfg.domain}/login/generic_oauth"
+          ];
+          require_pkce = true;
+          pkce_challenge_method = "S256";
+          response_types = [ "code" ];
+          token_endpoint_auth_method = "client_secret_basic";
+        }
+      ];
     })
   ];
 }
