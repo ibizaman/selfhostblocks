@@ -218,7 +218,6 @@ in
 
   sso = lib.shb.runNixOSTest {
     name = "karakeep_sso";
-    interactive.sshBackdoor.enable = true;
 
     nodes.client = {
       imports = [
