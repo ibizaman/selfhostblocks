@@ -20,6 +20,7 @@ Template:
 
 - Add a Grafana dashboard showing stats on backup jobs
   and also an alert if a backup job did not run in the last 24 hours or never succeeded in the last 24 hours.
+- Add SSO integration in Grafana.
 
 ## Fixes
 

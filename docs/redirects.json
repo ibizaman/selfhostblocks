@@ -914,9 +914,6 @@
   "blocks-monitoring-budget-alerts": [
     "blocks-monitoring.html#blocks-monitoring-budget-alerts"
   ],
-  "blocks-monitoring-configuration": [
-    "blocks-monitoring.html#blocks-monitoring-configuration"
-  ],
   "blocks-monitoring-deluge-dashboard": [
     "blocks-monitoring.html#blocks-monitoring-deluge-dashboard"
   ],
@@ -967,6 +964,15 @@
   ],
   "blocks-monitoring-options-shb.monitoring.grafanaPort": [
     "blocks-monitoring.html#blocks-monitoring-options-shb.monitoring.grafanaPort"
+  ],
+  "blocks-monitoring-options-shb.monitoring.ldap": [
+    "blocks-monitoring.html#blocks-monitoring-options-shb.monitoring.ldap"
+  ],
+  "blocks-monitoring-options-shb.monitoring.ldap.adminGroup": [
+    "blocks-monitoring.html#blocks-monitoring-options-shb.monitoring.ldap.adminGroup"
+  ],
+  "blocks-monitoring-options-shb.monitoring.ldap.userGroup": [
+    "blocks-monitoring.html#blocks-monitoring-options-shb.monitoring.ldap.userGroup"
   ],
   "blocks-monitoring-options-shb.monitoring.lokiMajorVersion": [
     "blocks-monitoring.html#blocks-monitoring-options-shb.monitoring.lokiMajorVersion"
@@ -1043,6 +1049,69 @@
   "blocks-monitoring-options-shb.monitoring.ssl.systemdService": [
     "blocks-monitoring.html#blocks-monitoring-options-shb.monitoring.ssl.systemdService"
   ],
+  "blocks-monitoring-options-shb.monitoring.sso": [
+    "blocks-monitoring.html#blocks-monitoring-options-shb.monitoring.sso"
+  ],
+  "blocks-monitoring-options-shb.monitoring.sso.authEndpoint": [
+    "blocks-monitoring.html#blocks-monitoring-options-shb.monitoring.sso.authEndpoint"
+  ],
+  "blocks-monitoring-options-shb.monitoring.sso.authorization_policy": [
+    "blocks-monitoring.html#blocks-monitoring-options-shb.monitoring.sso.authorization_policy"
+  ],
+  "blocks-monitoring-options-shb.monitoring.sso.clientID": [
+    "blocks-monitoring.html#blocks-monitoring-options-shb.monitoring.sso.clientID"
+  ],
+  "blocks-monitoring-options-shb.monitoring.sso.enable": [
+    "blocks-monitoring.html#blocks-monitoring-options-shb.monitoring.sso.enable"
+  ],
+  "blocks-monitoring-options-shb.monitoring.sso.sharedSecret": [
+    "blocks-monitoring.html#blocks-monitoring-options-shb.monitoring.sso.sharedSecret"
+  ],
+  "blocks-monitoring-options-shb.monitoring.sso.sharedSecret.request": [
+    "blocks-monitoring.html#blocks-monitoring-options-shb.monitoring.sso.sharedSecret.request"
+  ],
+  "blocks-monitoring-options-shb.monitoring.sso.sharedSecret.request.group": [
+    "blocks-monitoring.html#blocks-monitoring-options-shb.monitoring.sso.sharedSecret.request.group"
+  ],
+  "blocks-monitoring-options-shb.monitoring.sso.sharedSecret.request.mode": [
+    "blocks-monitoring.html#blocks-monitoring-options-shb.monitoring.sso.sharedSecret.request.mode"
+  ],
+  "blocks-monitoring-options-shb.monitoring.sso.sharedSecret.request.owner": [
+    "blocks-monitoring.html#blocks-monitoring-options-shb.monitoring.sso.sharedSecret.request.owner"
+  ],
+  "blocks-monitoring-options-shb.monitoring.sso.sharedSecret.request.restartUnits": [
+    "blocks-monitoring.html#blocks-monitoring-options-shb.monitoring.sso.sharedSecret.request.restartUnits"
+  ],
+  "blocks-monitoring-options-shb.monitoring.sso.sharedSecret.result": [
+    "blocks-monitoring.html#blocks-monitoring-options-shb.monitoring.sso.sharedSecret.result"
+  ],
+  "blocks-monitoring-options-shb.monitoring.sso.sharedSecret.result.path": [
+    "blocks-monitoring.html#blocks-monitoring-options-shb.monitoring.sso.sharedSecret.result.path"
+  ],
+  "blocks-monitoring-options-shb.monitoring.sso.sharedSecretForAuthelia": [
+    "blocks-monitoring.html#blocks-monitoring-options-shb.monitoring.sso.sharedSecretForAuthelia"
+  ],
+  "blocks-monitoring-options-shb.monitoring.sso.sharedSecretForAuthelia.request": [
+    "blocks-monitoring.html#blocks-monitoring-options-shb.monitoring.sso.sharedSecretForAuthelia.request"
+  ],
+  "blocks-monitoring-options-shb.monitoring.sso.sharedSecretForAuthelia.request.group": [
+    "blocks-monitoring.html#blocks-monitoring-options-shb.monitoring.sso.sharedSecretForAuthelia.request.group"
+  ],
+  "blocks-monitoring-options-shb.monitoring.sso.sharedSecretForAuthelia.request.mode": [
+    "blocks-monitoring.html#blocks-monitoring-options-shb.monitoring.sso.sharedSecretForAuthelia.request.mode"
+  ],
+  "blocks-monitoring-options-shb.monitoring.sso.sharedSecretForAuthelia.request.owner": [
+    "blocks-monitoring.html#blocks-monitoring-options-shb.monitoring.sso.sharedSecretForAuthelia.request.owner"
+  ],
+  "blocks-monitoring-options-shb.monitoring.sso.sharedSecretForAuthelia.request.restartUnits": [
+    "blocks-monitoring.html#blocks-monitoring-options-shb.monitoring.sso.sharedSecretForAuthelia.request.restartUnits"
+  ],
+  "blocks-monitoring-options-shb.monitoring.sso.sharedSecretForAuthelia.result": [
+    "blocks-monitoring.html#blocks-monitoring-options-shb.monitoring.sso.sharedSecretForAuthelia.result"
+  ],
+  "blocks-monitoring-options-shb.monitoring.sso.sharedSecretForAuthelia.result.path": [
+    "blocks-monitoring.html#blocks-monitoring-options-shb.monitoring.sso.sharedSecretForAuthelia.result.path"
+  ],
   "blocks-monitoring-options-shb.monitoring.subdomain": [
     "blocks-monitoring.html#blocks-monitoring-options-shb.monitoring.subdomain"
   ],
@@ -1051,6 +1120,15 @@
   ],
   "blocks-monitoring-provisioning": [
     "blocks-monitoring.html#blocks-monitoring-provisioning"
+  ],
+  "blocks-monitoring-usage": [
+    "blocks-monitoring.html#blocks-monitoring-usage"
+  ],
+  "blocks-monitoring-usage-log-optimization": [
+    "blocks-monitoring.html#blocks-monitoring-usage-log-optimization"
+  ],
+  "blocks-monitoring-usage-smtp": [
+    "blocks-monitoring.html#blocks-monitoring-usage-smtp"
   ],
   "blocks-postgresql": [
     "blocks-postgresql.html#blocks-postgresql"
@@ -3385,6 +3463,9 @@
   ],
   "services-karakeep-usage": [
     "services-karakeep.html#services-karakeep-usage"
+  ],
+  "services-monitoring-features": [
+    "blocks-monitoring.html#services-monitoring-features"
   ],
   "services-nextcloudserver": [
     "services-nextcloud.html#services-nextcloudserver"

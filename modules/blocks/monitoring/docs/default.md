@@ -8,24 +8,64 @@ This block sets up the monitoring stack for Self Host Blocks. It is composed of:
 - Prometheus as the database for metrics.
 - Loki as the database for logs.
 
-## Configuration {#blocks-monitoring-configuration}
+## Features {#services-monitoring-features}
+
+- Declarative [LDAP](#blocks-monitoring-options-shb.monitoring.ldap) Configuration.
+  - Needed LDAP groups are created automatically.
+- Declarative [SSO](#blocks-monitoring-options-shb.monitoring.sso) Configuration.
+  - When SSO is enabled, login with user and password is disabled.
+  - Registration is enabled through SSO.
+- Access through [subdomain](#blocks-monitoring-options-shb.monitoring.subdomain) using reverse proxy.
+- Access through [HTTPS](#blocks-monitoring-options-shb.monitoring.ssl) using reverse proxy.
+
+## Usage {#blocks-monitoring-usage}
+
+The following snippet assumes a few blocks have been setup already:
+
+- the [secrets block](usage.html#usage-secrets) with SOPS,
+- the [`shb.ssl` block](blocks-ssl.html#usage),
+- the [`shb.lldap` block](blocks-lldap.html#blocks-lldap-global-setup).
+- the [`shb.authelia` block](blocks-authelia.html#blocks-sso-global-setup).
 
 ```nix
-shb.monitoring = {
-  enable = true;
-  subdomain = "grafana";
-  inherit domain;
-  contactPoints = [ "me@example.com" ];
-  adminPassword.result = config.sops.secrets."monitoring/admin_password".result;
-  secretKey.result = config.sops.secrets."monitoring/secret_key".result;
+{
+  shb.monitoring = {
+    enable = true;
+    subdomain = "grafana";
+    inherit domain;
+    contactPoints = [ "me@example.com" ];
+    adminPassword.result = config.sops.secrets."monitoring/admin_password".result;
+    secretKey.result = config.sops.secrets."monitoring/secret_key".result;
+  
+      sso = {
+        enable = true;
+        authEndpoint = "https://${config.shb.authelia.subdomain}.${config.shb.authelia.domain}";
+  
+        sharedSecret.result = config.shb.sops.secret.oidcSecret.result;
+        sharedSecretForAuthelia.result = config.shb.sops.secret.oidcAutheliaSecret.result;
+      };
+  };
+  
+  shb.sops.secret."monitoring/admin_password".request = config.shb.monitoring.adminPassword.request;
+  shb.sops.secret."monitoring/secret_key".request = config.shb.monitoring.secretKey.request;
+  shb.sops.secret."monitoring/oidcSecret".request = config.shb.monitoring.sso.sharedSecret.request;
+  shb.sops.secret."monitoring/oidcAutheliaSecret" = {
+    request = config.shb.monitoring.sso.sharedSecretForAuthelia.request;
+    settings.key = "monitoring/oidcSecret";
+  };
 };
-
-shb.sops.secret."monitoring/admin_password".request = config.shb.monitoring.adminPassword.request;
-shb.sops.secret."monitoring/secret_key".request = config.shb.monitoring.secretKey.request;
 ```
 
+Secrets can be randomly generated with `nix run nixpkgs#openssl -- rand -hex 64`.
+
 With that, Grafana, Prometheus, Loki and Promtail are setup! You can access `Grafana` at
-`grafana.example.com` with user `admin` and password ``.
+`grafana.example.com` with user `admin` and the password from the sops key `monitoring/admin_password`.
+
+The [user](#services-open-webui-options-shb.open-webui.ldap.userGroup)
+and [admin](#services-open-webui-options-shb.open-webui.ldap.adminGroup)
+LDAP groups are created automatically.
+
+### SMTP {#blocks-monitoring-usage-smtp}
 
 I recommend adding a STMP server configuration so you receive alerts by email:
 
@@ -47,6 +87,8 @@ sops.secrets."monitoring/secret_key" = {
   restartUnits = [ "grafana.service" ];
 };
 ```
+
+### Log Optimization {#blocks-monitoring-usage-log-optimization}
 
 Since all logs are now stored in Loki, you can probably reduce the systemd journal retention
 time with:
