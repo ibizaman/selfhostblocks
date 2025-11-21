@@ -61,8 +61,8 @@ Secrets can be randomly generated with `nix run nixpkgs#openssl -- rand -hex 64`
 With that, Grafana, Prometheus, Loki and Promtail are setup! You can access `Grafana` at
 `grafana.example.com` with user `admin` and the password from the sops key `monitoring/admin_password`.
 
-The [user](#services-open-webui-options-shb.open-webui.ldap.userGroup)
-and [admin](#services-open-webui-options-shb.open-webui.ldap.adminGroup)
+The [user](#blocks-monitoring-options-shb.monitoring.ldap.userGroup)
+and [admin](#blocks-monitoring-options-shb.monitoring.ldap.adminGroup)
 LDAP groups are created automatically.
 
 ### SMTP {#blocks-monitoring-usage-smtp}
