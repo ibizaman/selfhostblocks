@@ -65,6 +65,10 @@ let
   };
 in
 {
+  imports = [
+    ./authelia.nix
+  ];
+
   options.shb.nginx = {
     accessLog = lib.mkOption {
       type = lib.types.bool;
