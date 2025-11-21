@@ -144,6 +144,15 @@ in
       default = 2283;
     };
 
+    host = mkOption {
+      description = ''
+        Host address Immich will listen on.
+        Set this to 0.0.0.0 for LAN access
+      '';
+      type = str;
+      default = "127.0.0.1";
+    };
+
     ssl = mkOption {
       description = "Path to SSL files";
       type = nullOr contracts.ssl.certs;
@@ -325,6 +334,15 @@ in
             default = true;
           };
 
+          extraRedirectUris = mkOption {
+            description = "Extra redirect URIs for Authelia. Can be used when using local IP connection on home network.";
+            type = listOf str;
+            default = [ ];
+            example = [
+              "http://192.168.0.5:2284/auth/login"
+            ];
+          };
+
           sharedSecret = mkOption {
             description = "OIDC shared secret for Immich.";
             type = submodule {
@@ -466,7 +484,7 @@ in
     # Configure Immich service
     services.immich = {
       enable = true;
-      host = "127.0.0.1";
+      host = cfg.host;
       port = cfg.port;
       mediaLocation = cfg.mediaLocation;
 
@@ -628,7 +646,9 @@ in
           "${protocol}://${fqdn}/auth/login"
           "${protocol}://${fqdn}/user-settings"
           "app.immich:///oauth-callback"
-        ];
+          "http://192.168.0.102:2284/auth/login"
+        ]
+        ++ cfg.sso.extraRedirectUris;
         inherit scopes;
       }
     ];
