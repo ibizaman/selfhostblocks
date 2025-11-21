@@ -746,6 +746,7 @@ in
     (lib.mkIf (cfg.enable && cfg.sso.enable) {
       shb.lldap.ensureGroups = {
         ${cfg.ldap.userGroup} = { };
+        ${cfg.ldap.adminGroup} = { };
       };
 
       shb.authelia.extraDefinitions = {
