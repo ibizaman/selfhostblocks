@@ -1,16 +1,15 @@
 {
   config,
   lib,
-  pkgs,
+  shb,
   ...
 }:
 let
   cfg = config.shb.karakeep;
-
-  contracts = pkgs.callPackage ../contracts { };
 in
 {
   imports = [
+    ../../lib/module.nix
     ../blocks/nginx.nix
   ];
 
@@ -31,7 +30,7 @@ in
 
     ssl = lib.mkOption {
       description = "Path to SSL files";
-      type = lib.types.nullOr contracts.ssl.certs;
+      type = lib.types.nullOr shb.contracts.ssl.certs;
       default = null;
     };
 
@@ -106,7 +105,7 @@ in
           sharedSecret = lib.mkOption {
             description = "OIDC shared secret for Karakeep.";
             type = lib.types.submodule {
-              options = contracts.secret.mkRequester {
+              options = shb.contracts.secret.mkRequester {
                 owner = "karakeep";
                 # These services are the ones relying on the environment file containing the secrets.
                 restartUnits = [
@@ -121,7 +120,7 @@ in
           sharedSecretForAuthelia = lib.mkOption {
             description = "OIDC shared secret for Authelia. Must be the same as `sharedSecret`";
             type = lib.types.submodule {
-              options = contracts.secret.mkRequester {
+              options = shb.contracts.secret.mkRequester {
                 mode = "0400";
                 ownerText = "config.shb.authelia.autheliaUser";
                 owner = config.shb.authelia.autheliaUser;
@@ -138,7 +137,7 @@ in
       '';
       default = { };
       type = lib.types.submodule {
-        options = contracts.backup.mkRequester {
+        options = shb.contracts.backup.mkRequester {
           user = "karakeep";
           sourceDirectories = [
             "/var/lib/karakeep"
@@ -150,7 +149,7 @@ in
     nextauthSecret = lib.mkOption {
       description = "NextAuth secret.";
       type = lib.types.submodule {
-        options = contracts.secret.mkRequester {
+        options = shb.contracts.secret.mkRequester {
           owner = "karakeep";
           # These services are the ones relying on the environment file containing the secrets.
           restartUnits = [
@@ -165,7 +164,7 @@ in
     meilisearchMasterKey = lib.mkOption {
       description = "Master key used to secure communication with Meilisearch.";
       type = lib.types.submodule {
-        options = contracts.secret.mkRequester {
+        options = shb.contracts.secret.mkRequester {
           owner = "karakeep";
           # These services are the ones relying on the environment file containing the secrets.
           restartUnits = [
@@ -204,7 +203,7 @@ in
         # instead of using the value from the cfg.meilisearchMasterKey option.
         systemd.services.karakeep-init = {
           script = lib.mkForce (
-            (lib.shb.replaceSecrets {
+            (shb.replaceSecrets {
               userConfig = {
                 MEILI_MASTER_KEY.source = cfg.meilisearchMasterKey.result.path;
                 NEXTAUTH_SECRET.source = cfg.nextauthSecret.result.path;
@@ -213,7 +212,7 @@ in
                 OAUTH_CLIENT_SECRET.source = cfg.sso.sharedSecret.result.path;
               };
               resultPath = "/var/lib/karakeep/settings.env";
-              generator = lib.shb.toEnvVar;
+              generator = shb.toEnvVar;
             })
             + ''
               export DATA_DIR="$STATE_DIRECTORY"

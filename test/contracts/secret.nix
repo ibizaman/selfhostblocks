@@ -1,9 +1,6 @@
-{ pkgs, ... }:
-let
-  contracts = pkgs.callPackage ../../modules/contracts { };
-in
+{ shb, ... }:
 {
-  hardcoded_root_root = contracts.test.secret {
+  hardcoded_root_root = shb.contracts.test.secret {
     name = "hardcoded";
     modules = [ ../../modules/blocks/hardcodedsecret.nix ];
     configRoot = [
@@ -15,7 +12,7 @@ in
     };
   };
 
-  hardcoded_user_group = contracts.test.secret {
+  hardcoded_user_group = shb.contracts.test.secret {
     name = "hardcoded";
     modules = [ ../../modules/blocks/hardcodedsecret.nix ];
     configRoot = [
@@ -31,7 +28,7 @@ in
   };
 
   # TODO: how to do this?
-  # sops = contracts.test.secret {
+  # sops = shb.contracts.test.secret {
   #   name = "sops";
   #   configRoot = cfg: name: cfg.sops.secrets.${name};
   #   createContent = content: {

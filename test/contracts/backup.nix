@@ -1,9 +1,6 @@
-{ pkgs, ... }:
-let
-  contracts = pkgs.callPackage ../../modules/contracts { };
-in
+{ shb, ... }:
 {
-  restic_root = contracts.test.backup {
+  restic_root = shb.contracts.test.backup {
     name = "restic_root";
     username = "root";
     providerRoot = [
@@ -38,7 +35,7 @@ in
       };
   };
 
-  restic_nonroot = contracts.test.backup {
+  restic_nonroot = shb.contracts.test.backup {
     name = "restic_nonroot";
     username = "me";
     providerRoot = [
@@ -73,7 +70,7 @@ in
       };
   };
 
-  borgbackup_root = contracts.test.backup {
+  borgbackup_root = shb.contracts.test.backup {
     name = "borgbackup_root";
     username = "root";
     providerRoot = [
@@ -108,7 +105,7 @@ in
       };
   };
 
-  borgbackup_nonroot = contracts.test.backup {
+  borgbackup_nonroot = shb.contracts.test.backup {
     name = "borgbackup_nonroot";
     username = "me";
     providerRoot = [

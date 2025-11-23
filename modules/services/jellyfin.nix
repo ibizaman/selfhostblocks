@@ -2,6 +2,7 @@
   config,
   lib,
   pkgs,
+  shb,
   ...
 }:
 
@@ -9,8 +10,6 @@ let
   inherit (lib) types;
 
   cfg = config.shb.jellyfin;
-
-  contracts = pkgs.callPackage ../contracts { };
 
   fqdn = "${cfg.subdomain}.${cfg.domain}";
 
@@ -83,7 +82,7 @@ in
 
     ssl = lib.mkOption {
       description = "Path to SSL files";
-      type = types.nullOr contracts.ssl.certs;
+      type = types.nullOr shb.contracts.ssl.certs;
       default = null;
     };
 
@@ -107,7 +106,7 @@ in
             password = lib.mkOption {
               description = "Password of the default admin user.";
               type = types.submodule {
-                options = contracts.secret.mkRequester {
+                options = shb.contracts.secret.mkRequester {
                   mode = "0440";
                   owner = "jellyfin";
                   group = "jellyfin";
@@ -160,7 +159,7 @@ in
           adminPassword = lib.mkOption {
             description = "LDAP admin password.";
             type = types.submodule {
-              options = contracts.secret.mkRequester {
+              options = shb.contracts.secret.mkRequester {
                 mode = "0440";
                 owner = "jellyfin";
                 group = "jellyfin";
@@ -221,7 +220,7 @@ in
           sharedSecret = lib.mkOption {
             description = "OIDC shared secret for Jellyfin.";
             type = types.submodule {
-              options = contracts.secret.mkRequester {
+              options = shb.contracts.secret.mkRequester {
                 mode = "0440";
                 owner = "jellyfin";
                 group = "jellyfin";
@@ -233,7 +232,7 @@ in
           sharedSecretForAuthelia = lib.mkOption {
             description = "OIDC shared secret for Authelia.";
             type = types.submodule {
-              options = contracts.secret.mkRequester {
+              options = shb.contracts.secret.mkRequester {
                 mode = "0400";
                 ownerText = "config.shb.authelia.autheliaUser";
                 owner = config.shb.authelia.autheliaUser;
@@ -250,7 +249,7 @@ in
       '';
       default = { };
       type = types.submodule {
-        options = contracts.backup.mkRequester {
+        options = shb.contracts.backup.mkRequester {
           user = "jellyfin";
           sourceDirectories = [
             config.services.jellyfin.dataDir
@@ -265,6 +264,8 @@ in
   };
 
   imports = [
+    ../../lib/module.nix
+
     (lib.mkRenamedOptionModule
       [ "shb" "jellyfin" "adminPassword" ]
       [ "shb" "jellyfin" "admin" "password" ]
@@ -586,7 +587,7 @@ in
         fi
         ln -fs "${debugLogging}" "${config.services.jellyfin.configDir}/logging.json"
       ''
-      + (lib.shb.replaceSecretsScript {
+      + (shb.replaceSecretsScript {
         file = networkConfig;
         # Write permissions are needed otherwise the jellyfin-cli tool will not work correctly.
         permissions = "u=rw,g=rw,o=";
@@ -595,7 +596,7 @@ in
         ];
       })
       + lib.strings.optionalString cfg.ldap.enable (
-        lib.shb.replaceSecretsScript {
+        shb.replaceSecretsScript {
           file = ldapConfig;
           resultPath = "${config.services.jellyfin.dataDir}/plugins/configurations/LDAP-Auth.xml";
           replacements = [
@@ -607,7 +608,7 @@ in
         }
       )
       + lib.strings.optionalString cfg.sso.enable (
-        lib.shb.replaceSecretsScript {
+        shb.replaceSecretsScript {
           file = ssoConfig;
           resultPath = "${config.services.jellyfin.dataDir}/plugins/configurations/SSO-Auth.xml";
           replacements = [
@@ -619,7 +620,7 @@ in
         }
       )
       + lib.strings.optionalString cfg.sso.enable (
-        lib.shb.replaceSecretsScript {
+        shb.replaceSecretsScript {
           file = brandingConfig;
           resultPath = "${config.services.jellyfin.dataDir}/config/branding.xml";
           replacements = [

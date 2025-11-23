@@ -1,9 +1,6 @@
-{ pkgs, ... }:
-let
-  contracts = pkgs.callPackage ../../modules/contracts { };
-in
+{ shb, ... }:
 {
-  restic_postgres = contracts.test.databasebackup {
+  restic_postgres = shb.contracts.test.databasebackup {
     name = "restic_postgres";
     requesterRoot = [
       "shb"
@@ -49,7 +46,7 @@ in
       };
   };
 
-  borgbackup_postgres = contracts.test.databasebackup {
+  borgbackup_postgres = shb.contracts.test.databasebackup {
     name = "borgbackup_postgres";
     requesterRoot = [
       "shb"

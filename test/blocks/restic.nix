@@ -1,15 +1,15 @@
-{ lib, ... }:
+{ lib, shb, ... }:
 let
   commonTest =
     user:
-    lib.shb.runNixOSTest {
+    shb.test.runNixOSTest {
       name = "restic_backupAndRestore_${user}";
 
       nodes.machine =
         { config, ... }:
         {
           imports = [
-            lib.shb.baseImports
+            shb.test.baseImports
 
             ../../modules/blocks/hardcodedsecret.nix
             ../../modules/blocks/restic.nix

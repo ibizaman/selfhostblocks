@@ -2,12 +2,11 @@
   config,
   lib,
   pkgs,
+  shb,
   ...
 }:
 let
   cfg = config.shb.open-webui;
-
-  contracts = pkgs.callPackage ../contracts { };
 
   roleClaim = "openwebui_groups";
   oauthScopes = [
@@ -20,6 +19,7 @@ let
 in
 {
   imports = [
+    ../../lib/module.nix
     ../blocks/nginx.nix
   ];
 
@@ -40,7 +40,7 @@ in
 
     ssl = lib.mkOption {
       description = "Path to SSL files";
-      type = lib.types.nullOr contracts.ssl.certs;
+      type = lib.types.nullOr shb.contracts.ssl.certs;
       default = null;
     };
 
@@ -124,7 +124,7 @@ in
           sharedSecret = lib.mkOption {
             description = "OIDC shared secret for Open-WebUI.";
             type = lib.types.submodule {
-              options = contracts.secret.mkRequester {
+              options = shb.contracts.secret.mkRequester {
                 owner = "open-webui";
                 restartUnits = [ "open-webui.service" ];
               };
@@ -134,7 +134,7 @@ in
           sharedSecretForAuthelia = lib.mkOption {
             description = "OIDC shared secret for Authelia. Must be the same as `sharedSecret`";
             type = lib.types.submodule {
-              options = contracts.secret.mkRequester {
+              options = shb.contracts.secret.mkRequester {
                 mode = "0400";
                 ownerText = "config.shb.authelia.autheliaUser";
                 owner = config.shb.authelia.autheliaUser;
@@ -151,7 +151,7 @@ in
       '';
       default = { };
       type = lib.types.submodule {
-        options = contracts.backup.mkRequester {
+        options = shb.contracts.backup.mkRequester {
           user = "open-webui";
           sourceDirectories = [
             config.services.open-webui.stateDir
@@ -270,12 +270,12 @@ in
           "d '/run/open-webui' 0750 root root - -"
         ];
         systemd.services.open-webui-pre = {
-          script = lib.shb.replaceSecrets {
+          script = shb.replaceSecrets {
             userConfig = {
               OAUTH_CLIENT_SECRET.source = cfg.sso.sharedSecret.result.path;
             };
             resultPath = "/run/open-webui/secrets.env";
-            generator = lib.shb.toEnvVar;
+            generator = shb.toEnvVar;
           };
           serviceConfig.Type = "oneshot";
           wantedBy = [ "multi-user.target" ];

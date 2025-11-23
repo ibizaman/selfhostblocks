@@ -3,14 +3,13 @@
   options,
   pkgs,
   lib,
+  shb,
   ...
 }:
 
 let
   cfg = config.shb.authelia;
   opt = options.shb.authelia;
-
-  contracts = pkgs.callPackage ../contracts { };
 
   fqdn = "${cfg.subdomain}.${cfg.domain}";
   fqdnWithPort = if isNull cfg.port then fqdn else "${fqdn}:${toString cfg.port}";
@@ -23,6 +22,7 @@ let
 in
 {
   imports = [
+    ../../lib/module.nix
     ./lldap.nix
     ./mitmdump.nix
     ./postgresql.nix
@@ -51,7 +51,7 @@ in
 
     ssl = lib.mkOption {
       description = "Path to SSL files";
-      type = lib.types.nullOr contracts.ssl.certs;
+      type = lib.types.nullOr shb.contracts.ssl.certs;
       default = null;
     };
 
@@ -86,7 +86,7 @@ in
           jwtSecret = lib.mkOption {
             description = "JWT secret.";
             type = lib.types.submodule {
-              options = contracts.secret.mkRequester {
+              options = shb.contracts.secret.mkRequester {
                 mode = "0400";
                 owner = cfg.autheliaUser;
                 restartUnits = [ "authelia-${opt.subdomain}.${opt.domain}" ];
@@ -96,7 +96,7 @@ in
           ldapAdminPassword = lib.mkOption {
             description = "LDAP admin user password.";
             type = lib.types.submodule {
-              options = contracts.secret.mkRequester {
+              options = shb.contracts.secret.mkRequester {
                 mode = "0400";
                 owner = cfg.autheliaUser;
                 restartUnits = [ "authelia-${opt.subdomain}.${opt.domain}" ];
@@ -106,7 +106,7 @@ in
           sessionSecret = lib.mkOption {
             description = "Session secret.";
             type = lib.types.submodule {
-              options = contracts.secret.mkRequester {
+              options = shb.contracts.secret.mkRequester {
                 mode = "0400";
                 owner = cfg.autheliaUser;
                 restartUnits = [ "authelia-${opt.subdomain}.${opt.domain}" ];
@@ -116,7 +116,7 @@ in
           storageEncryptionKey = lib.mkOption {
             description = "Storage encryption key.";
             type = lib.types.submodule {
-              options = contracts.secret.mkRequester {
+              options = shb.contracts.secret.mkRequester {
                 mode = "0400";
                 owner = cfg.autheliaUser;
                 restartUnits = [ "authelia-${opt.subdomain}.${opt.domain}" ];
@@ -126,7 +126,7 @@ in
           identityProvidersOIDCHMACSecret = lib.mkOption {
             description = "Identity provider OIDC HMAC secret.";
             type = lib.types.submodule {
-              options = contracts.secret.mkRequester {
+              options = shb.contracts.secret.mkRequester {
                 mode = "0400";
                 owner = cfg.autheliaUser;
                 restartUnits = [ "authelia-${opt.subdomain}.${opt.domain}" ];
@@ -140,7 +140,7 @@ in
               Generate one with `nix run nixpkgs#openssl -- genrsa -out keypair.pem 2048`
             '';
             type = lib.types.submodule {
-              options = contracts.secret.mkRequester {
+              options = shb.contracts.secret.mkRequester {
                 mode = "0400";
                 owner = cfg.autheliaUser;
                 restartUnits = [ "authelia-${opt.subdomain}.${opt.domain}" ];
@@ -204,7 +204,7 @@ in
             };
 
             client_secret = lib.mkOption {
-              type = lib.shb.secretFileType;
+              type = shb.secretFileType;
               description = ''
                 File containing the shared secret with the OIDC client.
 
@@ -311,7 +311,7 @@ in
               password = lib.mkOption {
                 description = "File containing the password to connect to the SMTP host.";
                 type = lib.types.submodule {
-                  options = contracts.secret.mkRequester {
+                  options = shb.contracts.secret.mkRequester {
                     mode = "0400";
                     owner = cfg.autheliaUser;
                     restartUnits = [ "authelia-${fqdn}" ];
@@ -331,7 +331,7 @@ in
     };
 
     mount = lib.mkOption {
-      type = contracts.mount;
+      type = shb.contracts.mount;
       description = ''
         Mount configuration. This is an output option.
 
@@ -354,7 +354,7 @@ in
     };
 
     mountRedis = lib.mkOption {
-      type = contracts.mount;
+      type = shb.contracts.mount;
       description = ''
         Mount configuration for Redis. This is an output option.
 
@@ -554,12 +554,12 @@ in
       let
         mkCfg =
           clients:
-          lib.shb.replaceSecrets {
+          shb.replaceSecrets {
             userConfig = {
               identity_providers.oidc.clients = clients;
             };
             resultPath = "/var/lib/authelia-${fqdn}/oidc_clients.yaml";
-            generator = lib.shb.replaceSecretsGeneratorAdapter (lib.generators.toYAML { });
+            generator = shb.replaceSecretsGeneratorAdapter (lib.generators.toYAML { });
           };
       in
       lib.mkBefore (

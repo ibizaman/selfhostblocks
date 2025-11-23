@@ -1,14 +1,12 @@
 {
   config,
-  pkgs,
   lib,
+  shb,
   ...
 }:
 
 let
   cfg = config.shb.hledger;
-
-  contracts = pkgs.callPackage ../contracts { };
 
   fqdn = "${cfg.subdomain}.${cfg.domain}";
 in
@@ -40,7 +38,7 @@ in
 
     ssl = lib.mkOption {
       description = "Path to SSL files";
-      type = lib.types.nullOr contracts.ssl.certs;
+      type = lib.types.nullOr shb.contracts.ssl.certs;
       default = null;
     };
 
@@ -70,7 +68,7 @@ in
       '';
       default = { };
       type = lib.types.submodule {
-        options = contracts.backup.mkRequester {
+        options = shb.contracts.backup.mkRequester {
           user = "hledger";
           sourceDirectories = [
             cfg.dataDir

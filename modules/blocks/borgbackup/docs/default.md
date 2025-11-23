@@ -118,7 +118,7 @@ Here we will only highlight the differences with the previous configuration.
 This assumes you have access to such a remote S3 store, for example by using [Backblaze](https://www.backblaze.com/).
 
 ```diff
-  shb.backup.instances.myservice = {
+  shb.test.backup.instances.myservice = {
 
     repository = {
 -     path = "/srv/pool1/backups/myfolder";
@@ -211,15 +211,15 @@ backupcfg = repositories: name: sourceDirectories {
 Now, we can define multiple backup jobs to backup different folders:
 
 ```nix
-shb.backup.instances.myfolder1 = backupcfg repos ["/var/lib/myfolder1"];
-shb.backup.instances.myfolder2 = backupcfg repos ["/var/lib/myfolder2"];
+shb.test.backup.instances.myfolder1 = backupcfg repos ["/var/lib/myfolder1"];
+shb.test.backup.instances.myfolder2 = backupcfg repos ["/var/lib/myfolder2"];
 ```
 
 The difference between the above snippet and putting all the folders into one configuration (shown
 below) is the former splits the backups into sub-folders on the repositories.
 
 ```nix
-shb.backup.instances.all = backupcfg repos ["/var/lib/myfolder1" "/var/lib/myfolder2"];
+shb.test.backup.instances.all = backupcfg repos ["/var/lib/myfolder1" "/var/lib/myfolder2"];
 ```
 
 ## Monitoring {#blocks-borgbackup-monitoring}

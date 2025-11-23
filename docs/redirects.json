@@ -4385,9 +4385,6 @@
   "usage-flake-tag": [
     "usage.html#usage-flake-tag"
   ],
-  "usage-lib": [
-    "usage.html#usage-lib"
-  ],
   "usage-secrets": [
     "usage.html#usage-secrets"
   ]

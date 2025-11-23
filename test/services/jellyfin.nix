@@ -1,8 +1,8 @@
-{ pkgs, lib, ... }:
+{ pkgs, shb, ... }:
 let
   port = 9096;
 
-  commonTestScript = lib.shb.mkScripts {
+  commonTestScript = shb.test.mkScripts {
     hasSSL = { node, ... }: !(isNull node.config.shb.jellyfin.ssl);
     waitForServices =
       { ... }:
@@ -47,7 +47,7 @@ let
     { config, ... }:
     {
       imports = [
-        lib.shb.baseModule
+        shb.test.baseModule
         ../../modules/services/jellyfin.nix
       ];
       test = {
@@ -79,7 +79,7 @@ let
     { config, ... }:
     {
       imports = [
-        lib.shb.clientLoginModule
+        shb.test.clientLoginModule
       ];
       virtualisation.memorySize = 4096;
 
@@ -171,7 +171,7 @@ let
   jellyfinTest =
     name:
     { nodes, testScript }:
-    lib.shb.runNixOSTest {
+    shb.test.runNixOSTest {
       name = "jellyfin_${name}";
 
       interactive.nodes.server = {
@@ -206,7 +206,7 @@ in
       {
         imports = [
           basic
-          (lib.shb.backup config.shb.jellyfin.backup)
+          (shb.test.backup config.shb.jellyfin.backup)
         ];
       };
 
@@ -219,7 +219,7 @@ in
     nodes.server = {
       imports = [
         basic
-        lib.shb.certs
+        shb.test.certs
         https
       ];
     };
@@ -228,7 +228,7 @@ in
       { config, lib, ... }:
       {
         imports = [
-          lib.shb.baseModule
+          shb.test.baseModule
           clientLogin
         ];
       };
@@ -240,7 +240,7 @@ in
     nodes.server = {
       imports = [
         basic
-        lib.shb.ldap
+        shb.test.ldap
         ldap
       ];
     };
@@ -256,10 +256,10 @@ in
       {
         imports = [
           basic
-          lib.shb.certs
+          shb.test.certs
           https
-          lib.shb.ldap
-          (lib.shb.sso config.shb.certs.certs.selfsigned.n)
+          shb.test.ldap
+          (shb.test.sso config.shb.certs.certs.selfsigned.n)
           sso
         ];
       };

@@ -1,4 +1,8 @@
-{ pkgs, lib }:
+{
+  pkgs,
+  lib,
+  shb,
+}:
 let
   inherit (lib) mkOption optionalAttrs;
   inherit (lib.types) anything;
@@ -44,7 +48,7 @@ let
   importContract =
     module:
     let
-      importedModule = pkgs.callPackage module { };
+      importedModule = pkgs.callPackage module { inherit shb; };
     in
     mkContractFunctions {
       inherit (importedModule) mkRequest mkResult;
@@ -57,8 +61,8 @@ in
   secret = importContract ./secret.nix;
   ssl = pkgs.callPackage ./ssl.nix { };
   test = {
-    secret = pkgs.callPackage ./secret/test.nix { };
-    databasebackup = pkgs.callPackage ./databasebackup/test.nix { };
-    backup = pkgs.callPackage ./backup/test.nix { };
+    secret = pkgs.callPackage ./secret/test.nix { inherit shb; };
+    databasebackup = pkgs.callPackage ./databasebackup/test.nix { inherit shb; };
+    backup = pkgs.callPackage ./backup/test.nix { inherit shb; };
   };
 }

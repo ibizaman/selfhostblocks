@@ -1,11 +1,13 @@
-{ pkgs, lib, ... }:
+{ lib, shb, ... }:
 let
-  contracts = pkgs.callPackage ../. { };
-
   inherit (lib) mkOption;
   inherit (lib.types) submodule;
 in
 {
+  imports = [
+    ../../../lib/module.nix
+  ];
+
   options.shb.contracts.secret = mkOption {
     description = ''
       Contract for secrets between a requester module
@@ -21,7 +23,7 @@ in
       through the `result.*` options.
     '';
     type = submodule {
-      options = contracts.secret.contract;
+      options = shb.contracts.secret.contract;
     };
   };
 }

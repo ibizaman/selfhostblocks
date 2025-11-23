@@ -1,11 +1,13 @@
-{ pkgs, lib, ... }:
+{ lib, shb, ... }:
 let
-  contracts = pkgs.callPackage ../. { };
-
   inherit (lib) mkOption;
   inherit (lib.types) submodule;
 in
 {
+  imports = [
+    ../../../lib/module.nix
+  ];
+
   options.shb.contracts.databasebackup = mkOption {
     description = ''
       Contract for database backup between a requester module
@@ -23,7 +25,7 @@ in
     '';
 
     type = submodule {
-      options = contracts.databasebackup.contract;
+      options = shb.contracts.databasebackup.contract;
     };
   };
 }

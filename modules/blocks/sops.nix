@@ -1,18 +1,20 @@
 {
   config,
   lib,
-  pkgs,
+  shb,
   ...
 }:
 let
   inherit (lib) mapAttrs mkOption;
   inherit (lib.types) attrsOf anything submodule;
 
-  contracts = pkgs.callPackage ../contracts { };
-
   cfg = config.shb.sops;
 in
 {
+  imports = [
+    ../../lib/module.nix
+  ];
+
   options.shb.sops = {
     secret = mkOption {
       description = "Secret following the [secret contract](./contracts-secret.html).";
@@ -21,7 +23,7 @@ in
         submodule (
           { name, options, ... }:
           {
-            options = contracts.secret.mkProvider {
+            options = shb.contracts.secret.mkProvider {
               settings = mkOption {
                 description = ''
                   Settings specific to the Sops provider.

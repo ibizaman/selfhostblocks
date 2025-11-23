@@ -2,13 +2,12 @@
   config,
   pkgs,
   lib,
+  shb,
   ...
 }:
 
 let
   cfg = config.shb.monitoring;
-
-  contracts = pkgs.callPackage ../contracts { };
 
   fqdn = "${cfg.subdomain}.${cfg.domain}";
 
@@ -49,7 +48,7 @@ in
 
     ssl = lib.mkOption {
       description = "Path to SSL files";
-      type = lib.types.nullOr contracts.ssl.certs;
+      type = lib.types.nullOr shb.contracts.ssl.certs;
       default = null;
     };
 
@@ -112,7 +111,7 @@ in
     adminPassword = lib.mkOption {
       description = "Initial admin password.";
       type = lib.types.submodule {
-        options = contracts.secret.mkRequester {
+        options = shb.contracts.secret.mkRequester {
           mode = "0400";
           owner = "grafana";
           group = "grafana";
@@ -124,7 +123,7 @@ in
     secretKey = lib.mkOption {
       description = "Secret key used for signing.";
       type = lib.types.submodule {
-        options = contracts.secret.mkRequester {
+        options = shb.contracts.secret.mkRequester {
           mode = "0400";
           owner = "grafana";
           group = "grafana";
@@ -226,7 +225,7 @@ in
           sharedSecret = lib.mkOption {
             description = "OIDC shared secret for Grafana.";
             type = lib.types.submodule {
-              options = contracts.secret.mkRequester {
+              options = shb.contracts.secret.mkRequester {
                 owner = "grafana";
                 restartUnits = [
                   "grafana.service"
@@ -238,7 +237,7 @@ in
           sharedSecretForAuthelia = lib.mkOption {
             description = "OIDC shared secret for Authelia. Must be the same as `sharedSecret`";
             type = lib.types.submodule {
-              options = contracts.secret.mkRequester {
+              options = shb.contracts.secret.mkRequester {
                 mode = "0400";
                 ownerText = "config.shb.authelia.autheliaUser";
                 owner = config.shb.authelia.autheliaUser;

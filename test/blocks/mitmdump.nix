@@ -1,4 +1,9 @@
-{ pkgs, lib, ... }:
+{
+  pkgs,
+  lib,
+  shb,
+  ...
+}:
 let
   serve =
     port: text:
@@ -45,7 +50,7 @@ let
     );
 in
 {
-  default = lib.shb.runNixOSTest {
+  default = shb.test.runNixOSTest {
     name = "mitmdump-default";
 
     nodes.machine =

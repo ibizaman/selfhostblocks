@@ -2,17 +2,17 @@
   config,
   lib,
   pkgs,
+  shb,
   ...
 }:
 let
   cfg = config.shb.pinchflat;
 
   inherit (lib) types;
-
-  contracts = pkgs.callPackage ../contracts { };
 in
 {
   imports = [
+    ../../lib/module.nix
     ../blocks/nginx.nix
   ];
 
@@ -33,7 +33,7 @@ in
 
     ssl = lib.mkOption {
       description = "Path to SSL files";
-      type = lib.types.nullOr contracts.ssl.certs;
+      type = lib.types.nullOr shb.contracts.ssl.certs;
       default = null;
     };
 
@@ -50,7 +50,7 @@ in
         Make sure the secret is at least 64 characters long.
       '';
       type = types.submodule {
-        options = contracts.secret.mkRequester {
+        options = shb.contracts.secret.mkRequester {
           restartUnits = [ "pinchflat.service" ];
         };
       };
@@ -64,7 +64,7 @@ in
     timeZone = lib.mkOption {
       type = lib.types.oneOf [
         lib.types.str
-        lib.shb.secretFileType
+        shb.secretFileType
       ];
       description = "Timezone of this instance.";
       example = "America/Los_Angeles";
@@ -123,7 +123,7 @@ in
       '';
       default = { };
       type = lib.types.submodule {
-        options = contracts.backup.mkRequester {
+        options = shb.contracts.backup.mkRequester {
           user = "pinchflat";
           sourceDirectories = [
             cfg.mediaDir
@@ -158,13 +158,13 @@ in
     };
 
     systemd.services.pinchflat-pre = {
-      script = lib.shb.replaceSecrets {
+      script = shb.replaceSecrets {
         userConfig = {
           SECRET_KEY_BASE.source = cfg.secretKeyBase.result.path;
           # TZ = cfg.secretKeyBase.result.path; # Uncomment when PR is merged.
         };
         resultPath = "/run/pinchflat/secrets.env";
-        generator = lib.shb.toEnvVar;
+        generator = shb.toEnvVar;
       };
       serviceConfig.Type = "oneshot";
       wantedBy = [ "multi-user.target" ];

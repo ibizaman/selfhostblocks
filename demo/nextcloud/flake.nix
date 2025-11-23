@@ -15,7 +15,6 @@
     let
       system = "x86_64-linux";
       nixpkgs' = selfhostblocks.lib.${system}.patchedNixpkgs;
-      inherit (selfhostblocks.lib.${system}) pkgs;
 
       basic =
         { config, ... }:
@@ -178,14 +177,14 @@
     in
     {
       nixosConfigurations = {
-        basic = pkgs.nixosSystem {
+        basic = nixpkgs'.nixosSystem {
           system = "x86_64-linux";
           modules = [
             sopsConfig
             basic
           ];
         };
-        ldap = pkgs.nixosSystem {
+        ldap = nixpkgs'.nixosSystem {
           system = "x86_64-linux";
           modules = [
             sopsConfig
@@ -193,7 +192,7 @@
             ldap
           ];
         };
-        sso = pkgs.nixosSystem {
+        sso = nixpkgs'.nixosSystem {
           system = "x86_64-linux";
           modules = [
             sopsConfig

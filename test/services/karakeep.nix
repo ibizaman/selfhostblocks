@@ -1,9 +1,9 @@
-{ lib, ... }:
+{ lib, shb, ... }:
 let
   nextauthSecret = "nextauthSecret";
   oidcSecret = "oidcSecret";
 
-  commonTestScript = lib.shb.mkScripts {
+  commonTestScript = shb.test.mkScripts {
     hasSSL = { node, ... }: !(isNull node.config.shb.karakeep.ssl);
     waitForServices =
       { ... }:
@@ -25,7 +25,7 @@ let
     { config, ... }:
     {
       imports = [
-        lib.shb.baseModule
+        shb.test.baseModule
         ../../modules/services/karakeep.nix
       ];
 
@@ -77,8 +77,8 @@ let
     { config, ... }:
     {
       imports = [
-        lib.shb.baseModule
-        lib.shb.clientLoginModule
+        shb.test.baseModule
+        shb.test.clientLoginModule
       ];
       test = {
         subdomain = "k";
@@ -171,7 +171,7 @@ let
     };
 in
 {
-  basic = lib.shb.runNixOSTest {
+  basic = shb.test.runNixOSTest {
     name = "karakeep_basic";
 
     nodes.client = { };
@@ -184,7 +184,7 @@ in
     testScript = commonTestScript.access;
   };
 
-  backup = lib.shb.runNixOSTest {
+  backup = shb.test.runNixOSTest {
     name = "karakeep_backup";
 
     nodes.server =
@@ -192,7 +192,7 @@ in
       {
         imports = [
           basic
-          (lib.shb.backup config.shb.karakeep.backup)
+          (shb.test.backup config.shb.karakeep.backup)
         ];
       };
 
@@ -201,14 +201,14 @@ in
     testScript = commonTestScript.backup;
   };
 
-  https = lib.shb.runNixOSTest {
+  https = shb.test.runNixOSTest {
     name = "karakeep_https";
 
     nodes.client = { };
     nodes.server = {
       imports = [
         basic
-        lib.shb.certs
+        shb.test.certs
         https
       ];
     };
@@ -216,7 +216,7 @@ in
     testScript = commonTestScript.access;
   };
 
-  sso = lib.shb.runNixOSTest {
+  sso = shb.test.runNixOSTest {
     name = "karakeep_sso";
 
     nodes.client = {
@@ -231,11 +231,11 @@ in
       {
         imports = [
           basic
-          lib.shb.certs
+          shb.test.certs
           https
-          lib.shb.ldap
+          shb.test.ldap
           ldap
-          (lib.shb.sso config.shb.certs.certs.selfsigned.n)
+          (shb.test.sso config.shb.certs.certs.selfsigned.n)
           sso
         ];
 

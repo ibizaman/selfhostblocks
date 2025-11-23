@@ -3,13 +3,12 @@
   pkgs,
   lib,
   utils,
+  shb,
   ...
 }:
 
 let
   cfg = config.shb.borgbackup;
-
-  contracts = pkgs.callPackage ../contracts { };
 
   inherit (lib)
     concatStringsSep
@@ -56,7 +55,7 @@ let
       passphrase = lib.mkOption {
         description = "Encryption key for the backup repository.";
         type = lib.types.submodule {
-          options = contracts.secret.mkRequester {
+          options = shb.contracts.secret.mkRequester {
             mode = "0400";
             owner = config.request.user;
             ownerText = "[shb.borgbackup.${prefix}.<name>.request.user](#blocks-borgbackup-options-shb.borgbackup.${prefix}._name_.request.user)";
@@ -76,7 +75,7 @@ let
             };
 
             secrets = mkOption {
-              type = attrsOf lib.shb.secretFileType;
+              type = attrsOf shb.secretFileType;
               default = { };
               description = ''
                 Secrets needed to access the repository where the backups will be stored.
@@ -157,15 +156,19 @@ let
   fullName = name: repository: "borgbackup-job-${name}_${repoSlugName repository.path}";
 in
 {
+  imports = [
+    ../../lib/module.nix
+  ];
+
   options.shb.borgbackup = {
     instances = mkOption {
-      description = "Files to backup following the [backup contract](./contracts-backup.html).";
+      description = "Files to backup following the [backup contract](./shb.contracts-backup.html).";
       default = { };
       type = attrsOf (
         submodule (
           { name, config, ... }:
           {
-            options = contracts.backup.mkProvider {
+            options = shb.contracts.backup.mkProvider {
               settings = mkOption {
                 description = ''
                   Settings specific to the BorgBackup provider.
@@ -193,13 +196,13 @@ in
     };
 
     databases = mkOption {
-      description = "Databases to backup following the [database backup contract](./contracts-databasebackup.html).";
+      description = "Databases to backup following the [database backup contract](./shb.contracts-databasebackup.html).";
       default = { };
       type = attrsOf (
         submodule (
           { name, config, ... }:
           {
-            options = contracts.databasebackup.mkProvider {
+            options = shb.contracts.databasebackup.mkProvider {
               settings = mkOption {
                 description = ''
                   Settings specific to the BorgBackup provider.
@@ -397,10 +400,10 @@ in
 
                 "${serviceName}-pre" = mkIf (instance.settings.repository.secrets != { }) (
                   let
-                    script = lib.shb.genConfigOutOfBandSystemd {
+                    script = shb.genConfigOutOfBandSystemd {
                       config = instance.settings.repository.secrets;
                       configLocation = "/run/secrets_borgbackup/${serviceName}";
-                      generator = lib.shb.toEnvVar;
+                      generator = shb.toEnvVar;
                       user = instance.request.user;
                     };
                   in
@@ -424,13 +427,13 @@ in
                 wantedBy = [ "multi-user.target" ];
                 serviceConfig.Type = "oneshot";
                 script = (
-                  lib.shb.replaceSecrets {
+                  shb.replaceSecrets {
                     userConfig = instance.settings.repository.secrets // {
                       BORG_PASSCOMMAND = ''"cat ${instance.settings.passphrase.result.path}"'';
                       BORG_REPO = instance.settings.repository.path;
                     };
                     resultPath = "/run/secrets_borgbackup_env/${fullName name instance.settings.repository}";
-                    generator = lib.shb.toEnvVar;
+                    generator = shb.toEnvVar;
                     user = instance.request.user;
                   }
                 );

@@ -15,11 +15,13 @@
     let
       system = "x86_64-linux";
       nixpkgs' = selfhostblocks.lib.${system}.patchedNixpkgs;
-      inherit (selfhostblocks.lib.${system}) pkgs;
 
       basic =
         { config, ... }:
         {
+          nixpkgs.overlays = [
+            selfhostblocks.overlays.${system}.default
+          ];
           imports = [
             ./configuration.nix
             selfhostblocks.nixosModules.authelia
@@ -105,7 +107,7 @@
     in
     {
       nixosConfigurations = {
-        basic = pkgs.nixosSystem {
+        basic = nixpkgs'.nixosSystem {
           system = "x86_64-linux";
           modules = [
             basic
@@ -113,7 +115,7 @@
           ];
         };
 
-        ldap = pkgs.nixosSystem {
+        ldap = nixpkgs'.nixosSystem {
           system = "x86_64-linux";
           modules = [
             basic

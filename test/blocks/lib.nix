@@ -1,4 +1,9 @@
-{ pkgs, lib, ... }:
+{
+  pkgs,
+  lib,
+  shb,
+  ...
+}:
 let
   pkgs' = pkgs;
 in
@@ -22,39 +27,39 @@ in
         d.d = "not secret D";
       };
 
-      configWithTemplates = lib.shb.withReplacements userConfig;
+      configWithTemplates = shb.withReplacements userConfig;
 
       nonSecretConfigFile = pkgs.writeText "config.yaml.template" (
         lib.generators.toJSON { } configWithTemplates
       );
 
-      replacements = lib.shb.getReplacements userConfig;
+      replacements = shb.getReplacements userConfig;
 
-      replaceInTemplate = lib.shb.replaceSecretsScript {
+      replaceInTemplate = shb.replaceSecretsScript {
         file = nonSecretConfigFile;
         resultPath = "/var/lib/config.yaml";
         inherit replacements;
       };
 
-      replaceInTemplateJSON = lib.shb.replaceSecrets {
+      replaceInTemplateJSON = shb.replaceSecrets {
         inherit userConfig;
         resultPath = "/var/lib/config.json";
-        generator = lib.shb.replaceSecretsFormatAdapter (pkgs.formats.json { });
+        generator = shb.replaceSecretsFormatAdapter (pkgs.formats.json { });
       };
 
-      replaceInTemplateJSONGen = lib.shb.replaceSecrets {
+      replaceInTemplateJSONGen = shb.replaceSecrets {
         inherit userConfig;
         resultPath = "/var/lib/config_gen.json";
-        generator = lib.shb.replaceSecretsGeneratorAdapter (lib.generators.toJSON { });
+        generator = shb.replaceSecretsGeneratorAdapter (lib.generators.toJSON { });
       };
 
-      replaceInTemplateXML = lib.shb.replaceSecrets {
+      replaceInTemplateXML = shb.replaceSecrets {
         inherit userConfig;
         resultPath = "/var/lib/config.xml";
-        generator = lib.shb.replaceSecretsFormatAdapter (lib.shb.formatXML { enclosingRoot = "Root"; });
+        generator = shb.replaceSecretsFormatAdapter (shb.formatXML { enclosingRoot = "Root"; });
       };
     in
-    lib.shb.runNixOSTest {
+    shb.test.runNixOSTest {
       name = "lib-template";
       nodes.machine =
         { config, pkgs, ... }:
