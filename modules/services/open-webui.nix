@@ -2,6 +2,7 @@
   config,
   lib,
   pkgs,
+  shb,
   ...
 }:
 let
@@ -20,6 +21,7 @@ let
 in
 {
   imports = [
+    ../../lib/module.nix
     ../blocks/nginx.nix
   ];
 
@@ -270,12 +272,12 @@ in
           "d '/run/open-webui' 0750 root root - -"
         ];
         systemd.services.open-webui-pre = {
-          script = lib.shb.replaceSecrets {
+          script = shb.replaceSecrets {
             userConfig = {
               OAUTH_CLIENT_SECRET.source = cfg.sso.sharedSecret.result.path;
             };
             resultPath = "/run/open-webui/secrets.env";
-            generator = lib.shb.toEnvVar;
+            generator = shb.toEnvVar;
           };
           serviceConfig.Type = "oneshot";
           wantedBy = [ "multi-user.target" ];

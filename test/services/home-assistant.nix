@@ -1,6 +1,6 @@
-{ pkgs, lib, ... }:
+{ pkgs, shb, ... }:
 let
-  commonTestScript = lib.shb.mkScripts {
+  commonTestScript = shb.mkScripts {
     hasSSL = { node, ... }: !(isNull node.config.shb.home-assistant.ssl);
     waitForServices =
       { ... }:
@@ -19,7 +19,7 @@ let
     { config, ... }:
     {
       imports = [
-        lib.shb.baseModule
+        shb.baseModule
         ../../modules/services/home-assistant.nix
       ];
 
@@ -46,8 +46,8 @@ let
     { config, ... }:
     {
       imports = [
-        lib.shb.baseModule
-        lib.shb.clientLoginModule
+        shb.baseModule
+        shb.clientLoginModule
       ];
       virtualisation.memorySize = 4096;
 
@@ -165,7 +165,7 @@ let
     };
 in
 {
-  basic = lib.shb.runNixOSTest {
+  basic = shb.runNixOSTest {
     name = "homeassistant_basic";
 
     nodes.client = {
@@ -182,7 +182,7 @@ in
     testScript = commonTestScript.access;
   };
 
-  backup = lib.shb.runNixOSTest {
+  backup = shb.runNixOSTest {
     name = "homeassistant_backup";
 
     nodes.server =
@@ -190,7 +190,7 @@ in
       {
         imports = [
           basic
-          (lib.shb.backup config.shb.home-assistant.backup)
+          (shb.backup config.shb.home-assistant.backup)
         ];
       };
 
@@ -199,13 +199,13 @@ in
     testScript = commonTestScript.backup;
   };
 
-  https = lib.shb.runNixOSTest {
+  https = shb.runNixOSTest {
     name = "homeassistant_https";
 
     nodes.server = {
       imports = [
         basic
-        lib.shb.certs
+        shb.certs
         https
       ];
     };
@@ -215,13 +215,13 @@ in
     testScript = commonTestScript.access;
   };
 
-  ldap = lib.shb.runNixOSTest {
+  ldap = shb.runNixOSTest {
     name = "homeassistant_ldap";
 
     nodes.server = {
       imports = [
         basic
-        lib.shb.ldap
+        shb.ldap
         ldap
       ];
     };
@@ -233,16 +233,16 @@ in
 
   # Not yet supported
   #
-  # sso = lib.shb.runNixOSTest {
+  # sso = shb.runNixOSTest {
   #   name = "vaultwarden_sso";
   #
   #   nodes.server = lib.mkMerge [
   #     basic
-  #     (lib.shb.certs domain)
+  #     (shb.certs domain)
   #     https
   #     ldap
-  #     (lib.shb.ldap domain pkgs')
-  #     (lib.shb.sso domain pkgs' config.shb.certs.certs.selfsigned.n)
+  #     (shb.ldap domain pkgs')
+  #     (shb.sso domain pkgs' config.shb.certs.certs.selfsigned.n)
   #     sso
   #   ];
   #
@@ -251,7 +251,7 @@ in
   #   testScript = commonTestScript.access;
   # };
 
-  voice = lib.shb.runNixOSTest {
+  voice = shb.runNixOSTest {
     name = "homeassistant_voice";
 
     nodes.server = {

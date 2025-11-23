@@ -46,46 +46,20 @@
             src = nixpkgs;
             inherit patches;
           };
-        patchedNixpkgs = (
-          patchNixpkgs {
+        patchedNixpkgs = let
+          patched = patchNixpkgs {
             nixpkgs = inputs.nixpkgs;
             patches = shbPatches;
             inherit system;
-          }
-        );
+          };
+        in
+          patched // {
+            nixosSystem = args: import "${patched}/nixos/lib/eval-config.nix" args;
+          };
         pkgs = import patchedNixpkgs {
           inherit system;
-          config.allowUnfree = true;
           overlays = [
-            (final: prev: {
-              lib = prev.lib // {
-                shb = self.lib.${system};
-                evalModules =
-                  args:
-                  ((prev.lib.makeOverridable prev.lib.evalModules) args).override (prevAttrs: {
-                    specialArgs = (prevAttrs.specialArgs or { }) // {
-                      inherit (pkgs) lib;
-                    };
-                  });
-              };
-              nixosSystem =
-                args:
-                ((prev.lib.makeOverridable (import "${patchedNixpkgs}/nixos/lib/eval-config.nix")) args).override
-                  (prevAttrs: {
-                    inherit (pkgs) lib;
-                  });
-              prometheus-systemd-exporter = prev.prometheus-systemd-exporter.overrideAttrs {
-                src = pkgs.fetchFromGitHub {
-                  owner = "ibizaman";
-                  repo = prev.prometheus-systemd-exporter.pname;
-                  # rev = "v${prev.prometheus-systemd-exporter.version}";
-                  rev = "next_timer";
-                  sha256 = "sha256-jzkh/616tsJbNxFtZ0xbdBQc16TMIYr9QOkPaeQw8xA=";
-                };
-
-                vendorHash = "sha256-4hsQ1417jLNOAqGkfCkzrmEtYR4YLLW2j0CiJtPg6GI=";
-              };
-            })
+            self.overlays.${system}.default
           ];
         };
 
@@ -233,12 +207,27 @@
 
         lib =
           (pkgs.callPackage ./lib { })
-          // (pkgs.callPackage ./test/common.nix { })
           // {
+            test = pkgs.callPackage ./test/common.nix { };
             contracts = pkgs.callPackage ./modules/contracts { };
             patches = shbPatches;
-            inherit patchNixpkgs patchedNixpkgs pkgs;
+            inherit patchNixpkgs patchedNixpkgs;
           };
+
+        overlays.default = final: prev: {
+          shb = self.nixosModules.lib;
+          prometheus-systemd-exporter = prev.prometheus-systemd-exporter.overrideAttrs {
+            src = pkgs.fetchFromGitHub {
+              owner = "ibizaman";
+              repo = prev.prometheus-systemd-exporter.pname;
+              # rev = "v${prev.prometheus-systemd-exporter.version}";
+              rev = "next_timer";
+              sha256 = "sha256-jzkh/616tsJbNxFtZ0xbdBQc16TMIYr9QOkPaeQw8xA=";
+            };
+
+            vendorHash = "sha256-4hsQ1417jLNOAqGkfCkzrmEtYR4YLLW2j0CiJtPg6GI=";
+          };
+        };
 
         checks =
           let
@@ -275,7 +264,7 @@
           in
           (optionalAttrs (system == "x86_64-linux") (
             {
-              modules = pkgs.lib.shb.check {
+              modules = self.lib.${system}.check {
                 inherit pkgs;
                 tests = mergeTests (importFiles [
                   ./test/modules/davfs.nix
@@ -415,6 +404,8 @@
           self.nixosModules.vaultwarden
         ];
       };
+
+      nixosModules.lib = lib/module.nix;
 
       nixosModules.authelia = modules/blocks/authelia.nix;
       nixosModules.borgbackup = modules/blocks/borgbackup.nix;

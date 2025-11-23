@@ -1,9 +1,9 @@
-{ lib, ... }:
+{ lib, shb, ... }:
 let
   password = "securepw";
   oidcSecret = "oidcSecret";
 
-  commonTestScript = lib.shb.accessScript {
+  commonTestScript = shb.accessScript {
     hasSSL = { node, ... }: !(isNull node.config.shb.monitoring.ssl);
     waitForServices =
       { ... }:
@@ -21,7 +21,7 @@ let
     { config, ... }:
     {
       imports = [
-        lib.shb.baseModule
+        shb.baseModule
         ../../modules/blocks/monitoring.nix
       ];
 
@@ -71,8 +71,8 @@ let
     { config, ... }:
     {
       imports = [
-        lib.shb.baseModule
-        lib.shb.clientLoginModule
+        shb.baseModule
+        shb.clientLoginModule
       ];
       test = {
         subdomain = "g";
@@ -161,7 +161,7 @@ let
     };
 in
 {
-  basic = lib.shb.runNixOSTest {
+  basic = shb.runNixOSTest {
     name = "monitoring_basic";
 
     nodes.server = {
@@ -175,13 +175,13 @@ in
     testScript = commonTestScript;
   };
 
-  https = lib.shb.runNixOSTest {
+  https = shb.runNixOSTest {
     name = "monitoring_https";
 
     nodes.server = {
       imports = [
         basic
-        lib.shb.certs
+        shb.certs
         https
       ];
     };
@@ -191,7 +191,7 @@ in
     testScript = commonTestScript;
   };
 
-  sso = lib.shb.runNixOSTest {
+  sso = shb.runNixOSTest {
     name = "monitoring_sso";
 
     nodes.client = {
@@ -206,11 +206,11 @@ in
       {
         imports = [
           basic
-          lib.shb.certs
+          shb.certs
           https
-          lib.shb.ldap
+          shb.ldap
           ldap
-          (lib.shb.sso config.shb.certs.certs.selfsigned.n)
+          (shb.sso config.shb.certs.certs.selfsigned.n)
           sso
         ];
 

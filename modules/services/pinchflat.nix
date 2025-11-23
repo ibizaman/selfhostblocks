@@ -2,6 +2,7 @@
   config,
   lib,
   pkgs,
+  shb,
   ...
 }:
 let
@@ -13,6 +14,7 @@ let
 in
 {
   imports = [
+    ../../lib/module.nix
     ../blocks/nginx.nix
   ];
 
@@ -64,7 +66,7 @@ in
     timeZone = lib.mkOption {
       type = lib.types.oneOf [
         lib.types.str
-        lib.shb.secretFileType
+        shb.secretFileType
       ];
       description = "Timezone of this instance.";
       example = "America/Los_Angeles";
@@ -158,13 +160,13 @@ in
     };
 
     systemd.services.pinchflat-pre = {
-      script = lib.shb.replaceSecrets {
+      script = shb.replaceSecrets {
         userConfig = {
           SECRET_KEY_BASE.source = cfg.secretKeyBase.result.path;
           # TZ = cfg.secretKeyBase.result.path; # Uncomment when PR is merged.
         };
         resultPath = "/run/pinchflat/secrets.env";
-        generator = lib.shb.toEnvVar;
+        generator = shb.toEnvVar;
       };
       serviceConfig.Type = "oneshot";
       wantedBy = [ "multi-user.target" ];

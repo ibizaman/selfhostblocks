@@ -1,4 +1,4 @@
-{ pkgs, lib, ... }:
+{ pkgs, lib, shb, ... }:
 let
   healthUrl = "/health";
   loginUrl = "/UI/Login";
@@ -6,7 +6,7 @@ let
   # TODO: Test login
   commonTestScript =
     appname: cfgPathFn:
-    lib.shb.mkScripts {
+    shb.mkScripts {
       hasSSL = { node, ... }: !(isNull node.config.shb.arr.${appname}.ssl);
       waitForServices =
         { ... }:
@@ -60,7 +60,7 @@ let
     { config, ... }:
     {
       imports = [
-        lib.shb.baseModule
+        shb.baseModule
         ../../modules/services/arr.nix
       ];
 
@@ -81,8 +81,8 @@ let
     { config, ... }:
     {
       imports = [
-        lib.shb.baseModule
-        lib.shb.clientLoginModule
+        shb.baseModule
+        shb.clientLoginModule
       ];
 
       test = {
@@ -106,7 +106,7 @@ let
 
   basicTest =
     appname: cfgPathFn:
-    lib.shb.runNixOSTest {
+    shb.runNixOSTest {
       name = "arr_${appname}_basic";
 
       nodes.client = {
@@ -125,7 +125,7 @@ let
 
   backupTest =
     appname: cfgPathFn:
-    lib.shb.runNixOSTest {
+    shb.runNixOSTest {
       name = "arr_${appname}_backup";
 
       nodes.server =
@@ -133,7 +133,7 @@ let
         {
           imports = [
             (basic appname)
-            (lib.shb.backup config.shb.arr.${appname}.backup)
+            (shb.backup config.shb.arr.${appname}.backup)
           ];
         };
 
@@ -153,7 +153,7 @@ let
 
   httpsTest =
     appname: cfgPathFn:
-    lib.shb.runNixOSTest {
+    shb.runNixOSTest {
       name = "arr_${appname}_https";
 
       nodes.server =
@@ -161,7 +161,7 @@ let
         {
           imports = [
             (basic appname)
-            lib.shb.certs
+            shb.certs
             (https appname)
           ];
         };
@@ -182,7 +182,7 @@ let
 
   ssoTest =
     appname: cfgPathFn:
-    lib.shb.runNixOSTest {
+    shb.runNixOSTest {
       name = "arr_${appname}_sso";
 
       nodes.server =
@@ -190,10 +190,10 @@ let
         {
           imports = [
             (basic appname)
-            lib.shb.certs
+            shb.certs
             (https appname)
-            lib.shb.ldap
-            (lib.shb.sso config.shb.certs.certs.selfsigned.n)
+            shb.ldap
+            (shb.sso config.shb.certs.certs.selfsigned.n)
             (sso appname)
           ];
         };

@@ -2,6 +2,7 @@
   config,
   pkgs,
   lib,
+  shb,
   ...
 }:
 
@@ -20,6 +21,7 @@ let
 in
 {
   imports = [
+    ../../lib/module.nix
     ../blocks/nginx.nix
   ];
 
@@ -210,7 +212,7 @@ in
     ];
     # Needed to be able to write template config.
     systemd.services.vaultwarden.serviceConfig.ProtectHome = lib.mkForce false;
-    systemd.services.vaultwarden.preStart = lib.shb.replaceSecrets {
+    systemd.services.vaultwarden.preStart = shb.replaceSecrets {
       userConfig = {
         DATABASE_URL.source = cfg.databasePassword.result.path;
         DATABASE_URL.transform = v: "postgresql://vaultwarden:${v}@127.0.0.1:5432/vaultwarden";
@@ -219,7 +221,7 @@ in
         SMTP_PASSWORD.source = cfg.smtp.password.result.path;
       };
       resultPath = "${dataFolder}/vaultwarden.env";
-      generator = lib.shb.toEnvVar;
+      generator = shb.toEnvVar;
     };
 
     shb.nginx.vhosts = [

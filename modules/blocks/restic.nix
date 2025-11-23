@@ -2,6 +2,7 @@
   config,
   pkgs,
   lib,
+  shb,
   utils,
   ...
 }:
@@ -80,7 +81,7 @@ let
             };
 
             secrets = mkOption {
-              type = attrsOf lib.shb.secretFileType;
+              type = attrsOf shb.secretFileType;
               default = { };
               description = ''
                 Secrets needed to access the repository where the backups will be stored.
@@ -148,6 +149,10 @@ let
   fullName = name: repository: "restic-backups-${name}_${repoSlugName repository.path}";
 in
 {
+  imports = [
+    ../../lib/module.nix
+  ];
+
   options.shb.restic = {
     instances = mkOption {
       description = "Files to backup following the [backup contract](./contracts-backup.html).";
@@ -380,10 +385,10 @@ in
 
                 "${serviceName}-pre" = mkIf (instance.settings.repository.secrets != { }) (
                   let
-                    script = lib.shb.genConfigOutOfBandSystemd {
+                    script = shb.genConfigOutOfBandSystemd {
                       config = instance.settings.repository.secrets;
                       configLocation = "/run/secrets_restic/${serviceName}";
-                      generator = lib.shb.toEnvVar;
+                      generator = shb.toEnvVar;
                       user = instance.request.user;
                     };
                   in
@@ -407,13 +412,13 @@ in
                 wantedBy = [ "multi-user.target" ];
                 serviceConfig.Type = "oneshot";
                 script = (
-                  lib.shb.replaceSecrets {
+                  shb.replaceSecrets {
                     userConfig = instance.settings.repository.secrets // {
                       RESTIC_PASSWORD_FILE = toString instance.settings.passphrase.result.path;
                       RESTIC_REPOSITORY = instance.settings.repository.path;
                     };
                     resultPath = "/run/secrets_restic_env/${fullName name instance.settings.repository}";
-                    generator = lib.shb.toEnvVar;
+                    generator = shb.toEnvVar;
                     user = instance.request.user;
                   }
                 );

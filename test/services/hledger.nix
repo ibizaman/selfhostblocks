@@ -1,6 +1,6 @@
-{ lib, ... }:
+{ shb, ... }:
 let
-  commonTestScript = lib.shb.mkScripts {
+  commonTestScript = shb.mkScripts {
     hasSSL = { node, ... }: !(isNull node.config.shb.hledger.ssl);
     waitForServices =
       { ... }:
@@ -14,7 +14,7 @@ let
     { config, ... }:
     {
       imports = [
-        lib.shb.baseModule
+        shb.baseModule
         ../../modules/services/hledger.nix
       ];
 
@@ -32,8 +32,8 @@ let
     { config, ... }:
     {
       imports = [
-        lib.shb.baseModule
-        lib.shb.clientLoginModule
+        shb.baseModule
+        shb.clientLoginModule
       ];
 
       test = {
@@ -69,7 +69,7 @@ let
     };
 in
 {
-  basic = lib.shb.runNixOSTest {
+  basic = shb.runNixOSTest {
     name = "hledger_basic";
 
     nodes.client = {
@@ -87,7 +87,7 @@ in
     testScript = commonTestScript.access;
   };
 
-  backup = lib.shb.runNixOSTest {
+  backup = shb.runNixOSTest {
     name = "hledger_backup";
 
     nodes.server =
@@ -95,7 +95,7 @@ in
       {
         imports = [
           basic
-          (lib.shb.backup config.shb.hledger.backup)
+          (shb.backup config.shb.hledger.backup)
         ];
       };
 
@@ -104,13 +104,13 @@ in
     testScript = commonTestScript.backup;
   };
 
-  https = lib.shb.runNixOSTest {
+  https = shb.runNixOSTest {
     name = "hledger_https";
 
     nodes.server = {
       imports = [
         basic
-        lib.shb.certs
+        shb.certs
         https
       ];
     };
@@ -120,7 +120,7 @@ in
     testScript = commonTestScript.access;
   };
 
-  sso = lib.shb.runNixOSTest {
+  sso = shb.runNixOSTest {
     name = "hledger_sso";
 
     nodes.server =
@@ -128,10 +128,10 @@ in
       {
         imports = [
           basic
-          lib.shb.certs
+          shb.certs
           https
-          lib.shb.ldap
-          (lib.shb.sso config.shb.certs.certs.selfsigned.n)
+          shb.ldap
+          (shb.sso config.shb.certs.certs.selfsigned.n)
           sso
         ];
       };

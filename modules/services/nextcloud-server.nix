@@ -27,6 +27,10 @@ let
   occ = "${config.services.nextcloud.occ}/bin/nextcloud-occ";
 in
 {
+  imports = [
+    ../../lib/module.nix
+  ];
+
   options.shb.nextcloud = {
     enable = lib.mkEnableOption "selfhostblocks.nextcloud-server";
 

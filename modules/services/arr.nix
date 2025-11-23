@@ -2,6 +2,7 @@
   config,
   pkgs,
   lib,
+  shb,
   ...
 }:
 
@@ -12,7 +13,7 @@ let
 
   apps = {
     radarr = {
-      settingsFormat = lib.shb.formatXML { enclosingRoot = "Config"; };
+      settingsFormat = shb.formatXML { enclosingRoot = "Config"; };
       moreOptions = {
         settings = lib.mkOption {
           description = "Specific options for radarr.";
@@ -21,7 +22,7 @@ let
             freeformType = apps.radarr.settingsFormat.type;
             options = {
               ApiKey = lib.mkOption {
-                type = lib.shb.secretFileType;
+                type = shb.secretFileType;
                 description = "Path to api key secret file.";
               };
               LogLevel = lib.mkOption {
@@ -73,7 +74,7 @@ let
       };
     };
     sonarr = {
-      settingsFormat = lib.shb.formatXML { enclosingRoot = "Config"; };
+      settingsFormat = shb.formatXML { enclosingRoot = "Config"; };
       moreOptions = {
         settings = lib.mkOption {
           description = "Specific options for sonarr.";
@@ -82,7 +83,7 @@ let
             freeformType = apps.sonarr.settingsFormat.type;
             options = {
               ApiKey = lib.mkOption {
-                type = lib.shb.secretFileType;
+                type = shb.secretFileType;
                 description = "Path to api key secret file.";
               };
               LogLevel = lib.mkOption {
@@ -129,7 +130,7 @@ let
       };
     };
     bazarr = {
-      settingsFormat = lib.shb.formatXML { enclosingRoot = "Config"; };
+      settingsFormat = shb.formatXML { enclosingRoot = "Config"; };
       moreOptions = {
         settings = lib.mkOption {
           description = "Specific options for bazarr.";
@@ -157,7 +158,7 @@ let
       };
     };
     readarr = {
-      settingsFormat = lib.shb.formatXML { enclosingRoot = "Config"; };
+      settingsFormat = shb.formatXML { enclosingRoot = "Config"; };
       moreOptions = {
         settings = lib.mkOption {
           description = "Specific options for readarr.";
@@ -184,7 +185,7 @@ let
       };
     };
     lidarr = {
-      settingsFormat = lib.shb.formatXML { enclosingRoot = "Config"; };
+      settingsFormat = shb.formatXML { enclosingRoot = "Config"; };
       moreOptions = {
         settings = lib.mkOption {
           description = "Specific options for lidarr.";
@@ -220,7 +221,7 @@ let
             freeformType = apps.jackett.settingsFormat.type;
             options = {
               ApiKey = lib.mkOption {
-                type = lib.shb.secretFileType;
+                type = shb.secretFileType;
                 description = "Path to api key secret file.";
               };
               FlareSolverrUrl = lib.mkOption {
@@ -229,7 +230,7 @@ let
                 default = null;
               };
               OmdbApiKey = lib.mkOption {
-                type = lib.types.nullOr lib.shb.secretFileType;
+                type = lib.types.nullOr shb.secretFileType;
                 description = "File containing the Open Movie Database API key.";
                 default = null;
               };
@@ -379,6 +380,7 @@ let
 in
 {
   imports = [
+    ../../lib/module.nix
     ../blocks/nginx.nix
   ];
 
@@ -398,7 +400,7 @@ in
           dataDir = "/var/lib/radarr";
         };
 
-        systemd.services.radarr.preStart = lib.shb.replaceSecrets {
+        systemd.services.radarr.preStart = shb.replaceSecrets {
           userConfig =
             cfg'.settings
             // (lib.optionalAttrs isSSOEnabled {
@@ -406,7 +408,7 @@ in
               AuthenticationMethod = "External";
             });
           resultPath = "${config.services.radarr.dataDir}/config.xml";
-          generator = lib.shb.replaceSecretsFormatAdapter apps.radarr.settingsFormat;
+          generator = shb.replaceSecretsFormatAdapter apps.radarr.settingsFormat;
         };
 
         shb.nginx.vhosts = [ (vhosts { } cfg') ];
@@ -429,7 +431,7 @@ in
           extraGroups = [ "media" ];
         };
 
-        systemd.services.sonarr.preStart = lib.shb.replaceSecrets {
+        systemd.services.sonarr.preStart = shb.replaceSecrets {
           userConfig =
             cfg'.settings
             // (lib.optionalAttrs isSSOEnabled {
@@ -457,7 +459,7 @@ in
         users.users.bazarr = {
           extraGroups = [ "media" ];
         };
-        systemd.services.bazarr.preStart = lib.shb.replaceSecrets {
+        systemd.services.bazarr.preStart = shb.replaceSecrets {
           userConfig =
             cfg'.settings
             // (lib.optionalAttrs isSSOEnabled {
@@ -484,7 +486,7 @@ in
         users.users.readarr = {
           extraGroups = [ "media" ];
         };
-        systemd.services.readarr.preStart = lib.shb.replaceSecrets {
+        systemd.services.readarr.preStart = shb.replaceSecrets {
           userConfig = cfg'.settings;
           resultPath = "${config.services.readarr.dataDir}/config.xml";
           generator = apps.readarr.settingsFormat.generate;
@@ -507,7 +509,7 @@ in
         users.users.lidarr = {
           extraGroups = [ "media" ];
         };
-        systemd.services.lidarr.preStart = lib.shb.replaceSecrets {
+        systemd.services.lidarr.preStart = shb.replaceSecrets {
           userConfig =
             cfg'.settings
             // (lib.optionalAttrs isSSOEnabled {
@@ -535,8 +537,8 @@ in
         users.users.jackett = {
           extraGroups = [ "media" ];
         };
-        systemd.services.jackett.preStart = lib.shb.replaceSecrets {
-          userConfig = lib.shb.renameAttrName cfg'.settings "ApiKey" "APIKey";
+        systemd.services.jackett.preStart = shb.replaceSecrets {
+          userConfig = shb.renameAttrName cfg'.settings "ApiKey" "APIKey";
           resultPath = "${config.services.jackett.dataDir}/ServerConfig.json";
           generator = apps.jackett.settingsFormat.generate;
         };

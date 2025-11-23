@@ -2,6 +2,7 @@
   config,
   pkgs,
   lib,
+  shb,
   ...
 }:
 
@@ -48,7 +49,7 @@ let
       source = cfg.sso.sharedSecret.result.path;
     }
   ];
-  replaceSecretsScript = lib.shb.replaceSecretsScript {
+  replaceSecretsScript = shb.replaceSecretsScript {
     file = ssoClientSettingsFile;
     resultPath = "/run/paperless/paperless-sso-client.env";
     inherit replacements;
@@ -77,6 +78,7 @@ let
 in
 {
   imports = [
+    ../../lib/module.nix
     ../blocks/nginx.nix
   ];
 

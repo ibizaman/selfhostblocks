@@ -1,4 +1,4 @@
-{ pkgs, lib }:
+{ pkgs, lib, shb }:
 let
   inherit (lib) mkOption optionalAttrs;
   inherit (lib.types) anything;
@@ -44,7 +44,7 @@ let
   importContract =
     module:
     let
-      importedModule = pkgs.callPackage module { };
+      importedModule = pkgs.callPackage module { inherit shb; };
     in
     mkContractFunctions {
       inherit (importedModule) mkRequest mkResult;

@@ -1,4 +1,4 @@
-{ pkgs, lib }:
+{ pkgs, lib, shb }:
 let
   inherit (lib)
     getAttrFromPath
@@ -16,13 +16,13 @@ in
   database ? "me",
   settings, # { repository, config } -> attrset
 }:
-lib.shb.runNixOSTest {
+shb.runNixOSTest {
   inherit name;
 
   nodes.machine =
     { config, ... }:
     {
-      imports = [ lib.shb.baseImports ] ++ modules;
+      imports = [ shb.baseImports ] ++ modules;
       config = lib.mkMerge [
         (setAttrByPath providerRoot {
           request = (getAttrFromPath requesterRoot config).request;

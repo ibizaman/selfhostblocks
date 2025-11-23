@@ -1,4 +1,4 @@
-{ lib, ... }:
+{ lib, shb, ... }:
 let
   inherit (lib)
     concatStringsSep
@@ -13,7 +13,7 @@ let
     submodule
     str
     ;
-  inherit (lib.shb) anyNotNull;
+  inherit (shb) anyNotNull;
 in
 {
   mkRequest =

@@ -1,6 +1,6 @@
-{ lib, ... }:
+{ shb, ... }:
 let
-  commonTestScript = lib.shb.mkScripts {
+  commonTestScript = shb.mkScripts {
     hasSSL = { node, ... }: !(isNull node.config.shb.vaultwarden.ssl);
     waitForServices =
       { ... }:
@@ -97,12 +97,12 @@ let
     };
 in
 {
-  basic = lib.shb.runNixOSTest {
+  basic = shb.runNixOSTest {
     name = "vaultwarden_basic";
 
     nodes.server = {
       imports = [
-        lib.shb.baseModule
+        shb.baseModule
         ../../modules/blocks/hardcodedsecret.nix
         ../../modules/services/vaultwarden.nix
         basic
@@ -114,15 +114,15 @@ in
     testScript = commonTestScript.access;
   };
 
-  https = lib.shb.runNixOSTest {
+  https = shb.runNixOSTest {
     name = "vaultwarden_https";
 
     nodes.server = {
       imports = [
-        lib.shb.baseModule
+        shb.baseModule
         ../../modules/blocks/hardcodedsecret.nix
         ../../modules/services/vaultwarden.nix
-        lib.shb.certs
+        shb.certs
         basic
         https
       ];
@@ -135,11 +135,11 @@ in
 
   # Not yet supported
   #
-  # ldap = lib.shb.runNixOSTest {
+  # ldap = shb.runNixOSTest {
   #   name = "vaultwarden_ldap";
   #
   #   nodes.server = lib.mkMerge [
-  #     lib.shb.baseModule
+  #     shb.baseModule
   #     ../../modules/blocks/hardcodedsecret.nix
   #     ../../modules/services/vaultwarden.nix
   #     basic
@@ -151,21 +151,21 @@ in
   #   testScript = commonTestScript.access;
   # };
 
-  sso = lib.shb.runNixOSTest {
+  sso = shb.runNixOSTest {
     name = "vaultwarden_sso";
 
     nodes.server =
       { config, ... }:
       {
         imports = [
-          lib.shb.baseModule
+          shb.baseModule
           ../../modules/blocks/hardcodedsecret.nix
           ../../modules/services/vaultwarden.nix
-          lib.shb.certs
+          shb.certs
           basic
           https
-          lib.shb.ldap
-          (lib.shb.sso config.shb.certs.certs.selfsigned.n)
+          shb.ldap
+          (shb.sso config.shb.certs.certs.selfsigned.n)
           sso
         ];
       };
@@ -196,18 +196,18 @@ in
     };
   };
 
-  backup = lib.shb.runNixOSTest {
+  backup = shb.runNixOSTest {
     name = "vaultwarden_backup";
 
     nodes.server =
       { config, ... }:
       {
         imports = [
-          lib.shb.baseModule
+          shb.baseModule
           ../../modules/blocks/hardcodedsecret.nix
           ../../modules/services/vaultwarden.nix
           basic
-          (lib.shb.backup config.shb.vaultwarden.backup)
+          (shb.backup config.shb.vaultwarden.backup)
         ];
       };
 

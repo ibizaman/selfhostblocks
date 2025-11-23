@@ -3,6 +3,7 @@
   options,
   pkgs,
   lib,
+  shb,
   ...
 }:
 
@@ -23,6 +24,7 @@ let
 in
 {
   imports = [
+    ../../lib/module.nix
     ./lldap.nix
     ./mitmdump.nix
     ./postgresql.nix
@@ -204,7 +206,7 @@ in
             };
 
             client_secret = lib.mkOption {
-              type = lib.shb.secretFileType;
+              type = shb.secretFileType;
               description = ''
                 File containing the shared secret with the OIDC client.
 
@@ -554,12 +556,12 @@ in
       let
         mkCfg =
           clients:
-          lib.shb.replaceSecrets {
+          shb.replaceSecrets {
             userConfig = {
               identity_providers.oidc.clients = clients;
             };
             resultPath = "/var/lib/authelia-${fqdn}/oidc_clients.yaml";
-            generator = lib.shb.replaceSecretsGeneratorAdapter (lib.generators.toYAML { });
+            generator = shb.replaceSecretsGeneratorAdapter (lib.generators.toYAML { });
           };
       in
       lib.mkBefore (

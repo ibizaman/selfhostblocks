@@ -27,6 +27,7 @@ Template:
 
 - Allow to upload big files in Immich.
 - Only enable php-fpm Prometheus exporter if Nextcloud is enabled.
+- Fix pkgs overrides not being passed to users of SelfHostBlocks.
 
 ## Other Changes
 

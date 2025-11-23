@@ -1,4 +1,4 @@
-{ pkgs, lib }:
+{ pkgs, lib, shb }:
 let
   inherit (lib)
     concatMapStringsSep
@@ -20,13 +20,13 @@ in
   settings, # { repository, config } -> attrset
   extraConfig ? null, # { username, config } -> attrset
 }:
-lib.shb.runNixOSTest {
+shb.runNixOSTest {
   inherit name;
 
   nodes.machine =
     { config, ... }:
     {
-      imports = [ lib.shb.baseImports ] ++ modules;
+      imports = [ shb.baseImports ] ++ modules;
 
       config = lib.mkMerge [
         (setAttrByPath providerRoot {

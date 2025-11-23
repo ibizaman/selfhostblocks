@@ -3,6 +3,7 @@
   pkgs,
   lib,
   utils,
+  shb,
   ...
 }:
 
@@ -76,7 +77,7 @@ let
             };
 
             secrets = mkOption {
-              type = attrsOf lib.shb.secretFileType;
+              type = attrsOf shb.secretFileType;
               default = { };
               description = ''
                 Secrets needed to access the repository where the backups will be stored.
@@ -157,6 +158,10 @@ let
   fullName = name: repository: "borgbackup-job-${name}_${repoSlugName repository.path}";
 in
 {
+  imports = [
+    ../../lib/module.nix
+  ];
+
   options.shb.borgbackup = {
     instances = mkOption {
       description = "Files to backup following the [backup contract](./contracts-backup.html).";
@@ -397,10 +402,10 @@ in
 
                 "${serviceName}-pre" = mkIf (instance.settings.repository.secrets != { }) (
                   let
-                    script = lib.shb.genConfigOutOfBandSystemd {
+                    script = shb.genConfigOutOfBandSystemd {
                       config = instance.settings.repository.secrets;
                       configLocation = "/run/secrets_borgbackup/${serviceName}";
-                      generator = lib.shb.toEnvVar;
+                      generator = shb.toEnvVar;
                       user = instance.request.user;
                     };
                   in
@@ -424,13 +429,13 @@ in
                 wantedBy = [ "multi-user.target" ];
                 serviceConfig.Type = "oneshot";
                 script = (
-                  lib.shb.replaceSecrets {
+                  shb.replaceSecrets {
                     userConfig = instance.settings.repository.secrets // {
                       BORG_PASSCOMMAND = ''"cat ${instance.settings.passphrase.result.path}"'';
                       BORG_REPO = instance.settings.repository.path;
                     };
                     resultPath = "/run/secrets_borgbackup_env/${fullName name instance.settings.repository}";
-                    generator = lib.shb.toEnvVar;
+                    generator = shb.toEnvVar;
                     user = instance.request.user;
                   }
                 );
