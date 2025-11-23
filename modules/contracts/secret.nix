@@ -1,4 +1,4 @@
-{ lib, ... }:
+{ lib, shb, ... }:
 let
   inherit (lib)
     concatStringsSep
@@ -8,7 +8,7 @@ let
     optionalString
     ;
   inherit (lib.types) listOf submodule str;
-  inherit (lib.shb) anyNotNull;
+  inherit (shb) anyNotNull;
 in
 {
   mkRequest =

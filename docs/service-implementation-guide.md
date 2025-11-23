@@ -295,12 +295,12 @@ let
   
 in {
   # Test variants (all 6 required)
-  basic = lib.shb.runNixOSTest { ... };
-  backup = lib.shb.runNixOSTest { ... };
-  https = lib.shb.runNixOSTest { ... };
-  ldap = lib.shb.runNixOSTest { ... };
-  monitoring = lib.shb.runNixOSTest { ... };
-  sso = lib.shb.runNixOSTest { ... };
+  basic = lib.shb.test.runNixOSTest { ... };
+  backup = lib.shb.test.runNixOSTest { ... };
+  https = lib.shb.test.runNixOSTest { ... };
+  ldap = lib.shb.test.runNixOSTest { ... };
+  monitoring = lib.shb.test.runNixOSTest { ... };
+  sso = lib.shb.test.runNixOSTest { ... };
 }
 ```
 

@@ -1,15 +1,15 @@
-{ lib, ... }:
+{ shb, ... }:
 let
   commonTest =
     user:
-    lib.shb.runNixOSTest {
+    shb.test.runNixOSTest {
       name = "borgbackup_backupAndRestore_${user}";
 
       nodes.machine =
         { config, ... }:
         {
           imports = [
-            lib.shb.baseImports
+            shb.test.baseImports
 
             ../../modules/blocks/hardcodedsecret.nix
             ../../modules/blocks/borgbackup.nix

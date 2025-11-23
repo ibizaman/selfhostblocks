@@ -445,7 +445,7 @@ A simplified test for a secret contract would look like the following.
 First, there is the generic test:
 
 ```nix
-{ pkgs, lib, ... }:
+{ pkgs, lib, shb, ... }:
 let
   inherit (lib) getAttrFromPath setAttrByPath;
 in
@@ -455,7 +455,7 @@ in
     modules ? [],
     owner ? "root",
     content ? "secretPasswordA",
-  }: lib.shb.runNixOSTest {
+  }: shb.test.runNixOSTest {
     inherit name;
     
     nodes.machine = { config, ... }: {

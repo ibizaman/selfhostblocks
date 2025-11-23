@@ -1,14 +1,12 @@
 {
   config,
-  pkgs,
   lib,
+  shb,
   ...
 }:
 
 let
   cfg = config.shb.audiobookshelf;
-
-  contracts = pkgs.callPackage ../contracts { };
 
   fqdn = "${cfg.subdomain}.${cfg.domain}";
 
@@ -38,7 +36,7 @@ in
 
     ssl = lib.mkOption {
       description = "Path to SSL files";
-      type = lib.types.nullOr contracts.ssl.certs;
+      type = lib.types.nullOr shb.contracts.ssl.certs;
       default = null;
     };
 
@@ -103,7 +101,7 @@ in
           sharedSecret = lib.mkOption {
             description = "OIDC shared secret for Audiobookshelf.";
             type = lib.types.submodule {
-              options = contracts.secret.mkRequester {
+              options = shb.contracts.secret.mkRequester {
                 mode = "0440";
                 owner = "audiobookshelf";
                 group = "audiobookshelf";
@@ -115,7 +113,7 @@ in
           sharedSecretForAuthelia = lib.mkOption {
             description = "OIDC shared secret for Authelia.";
             type = lib.types.submodule {
-              options = contracts.secret.mkRequester {
+              options = shb.contracts.secret.mkRequester {
                 mode = "0400";
                 ownerText = "config.shb.authelia.autheliaUser";
                 owner = config.shb.authelia.autheliaUser;
@@ -131,7 +129,7 @@ in
         Backup configuration.
       '';
       type = lib.types.submodule {
-        options = contracts.backup.mkRequester {
+        options = shb.contracts.backup.mkRequester {
           user = "audiobookshelf";
           sourceDirectories = [
             "/var/lib/audiobookshelf"

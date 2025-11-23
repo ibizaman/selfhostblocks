@@ -4,11 +4,6 @@
 
 ## Flake {#usage-flake}
 
-::: {.note}
-A complete minimal and buildable example can be found at
-[`./demo/minimal/flake.nix`](@REPO@/demo/minimal/flake.nix).
-:::
-
 Self Host Blocks is available as a flake. It also uses its own `pkgs.lib` and
 `nixpkgs` and it is required to use the provided ones as input for your
 deployments, otherwise you might end up blocked when Self Host Blocks patches a
@@ -35,6 +30,13 @@ Host Blocks:
 }
 ```
 
+::: {.note}
+For seasoned nixers or if you want to add your patches and overlays,
+SHB provides a decomposed version of the `nixosSystem` function above.
+For more examples, see the buildable examples at
+[`./demo/minimal/flake.nix`](@REPO@/demo/minimal/flake.nix).
+:::
+
 If you use `sops-nix` for secrets, SHB provides an additional module, not
 imported in the `default` module. It can be added by importing
 
@@ -42,32 +44,6 @@ imported in the `default` module. It can be added by importing
 inputs.sops-nix.nixosModules.default
 inputs.selfhostblocks.nixosModules.sops
 ```
-
-### SHB Lib {#usage-flake-lib}
-
-Providing patches to downstream users is finicky, to say the least. For example,
-using `selfhostblocks.inputs.nixpkgs` directly will _not_ work. So Self Host
-Blocks provides a few attributes under the `selfhostblocks.lib.${system}` flake
-output:
-
-- At the top-level, all functions defined by SHB under
-  [`./lib/default.nix`](@REPO@/lib/default.nix) and
-  [`./test/common.nix`](@REPO@/test/common.nix).
-- `patches`: the list of patches applied by SHB [`./patches`](@REPO@/patches) to
-  nixpkgs.
-- `contracts`: all contract modules.
-- `patchNixpkgs`: a re-export of `nixpkgs.legacyPackages.${system}.applyPatches`
-  with the arguments made a bit more explicit.
-- `patchedNixpkgs`: nixpkgs with `patches` applied.
-- `pkgs`: `nixpkgs.legacyPackages.${system}` with `patches` applied and also:
-  - `config.allowUnfree` set to `true`
-  - `lib.shb` holds functions defined by
-    [`./lib/default.nix`](@REPO@/lib/default.nix)
-  - `lib.evalModules` is patched to include patches provided by nixpkgs
-  - `nixosSystem` is patched to include patches provided by nixpkgs
-
-For normal usage, one should only need the provided `.nixosSystem`, `.pkgs` and
-in some cases `.nixpkgs`.
 
 ### Substituter {#usage-flake-substituter}
 
@@ -104,9 +80,11 @@ automatically merging the new `nixpkgs` version. The setup is explained in
 [repo]: https://github.com/ibizaman/selfhostblocks
 [automerge]: https://blog.tiserbox.com/posts/2023-12-25-automated-flake-lock-update-pull-requests-and-merging.html
 
-### Use SelfHostBlocks' lib {#usage-lib}
+### SHB Lib {#usage-flake-lib}
 
-Access any functions exposed by the [lib][lib] with this snippet:
+Providing patches to downstream users is finicky, to say the least.
+For example, using `selfhostblocks.inputs.nixpkgs` directly will _not_ work.
+So Self Host Blocks provides a few attributes under the `selfhostblocks.lib.${system}` flake output:
 
 ```nix
 {
@@ -115,15 +93,32 @@ Access any functions exposed by the [lib][lib] with this snippet:
   };
   outputs = { selfhostblocks, ... }:
     let
-      lib = selfhostblocks.lib.${system};
+      shb = selfhostblocks.lib.${system};
     in
       {
-        // Use lib.shb.replaceSecrets for example.
+        // Use shb.replaceSecrets for example.
       }
 }
 ```
 
-[lib]: https://github.com/ibizaman/selfhostblocks/blob/main/lib/default.nix
+- At the top-level, all functions defined by SHB under
+  [`./lib/default.nix`](@REPO@/lib/default.nix) and
+  [`./test/common.nix`](@REPO@/test/common.nix).
+- `patches`: the list of patches applied by SHB [`./patches`](@REPO@/patches) to
+  nixpkgs.
+- `contracts`: all contract modules.
+- `patchNixpkgs`: a re-export of `nixpkgs.legacyPackages.${system}.applyPatches`
+  with the arguments made a bit more explicit.
+- `patchedNixpkgs`: nixpkgs with `patches` applied.
+- `pkgs`: `nixpkgs.legacyPackages.${system}` with `patches` applied and also:
+  - `config.allowUnfree` set to `true`
+  - `lib.shb` holds functions defined by
+    [`./lib/default.nix`](@REPO@/lib/default.nix)
+  - `lib.evalModules` is patched to include patches provided by nixpkgs
+  - `nixosSystem` is patched to include patches provided by nixpkgs
+
+For normal usage, one should only need the provided `.nixosSystem`, `.pkgs` and
+in some cases `.nixpkgs`.
 
 ## Example Deployment with Nixos-Rebuild {#usage-example-nixosrebuild}
 
@@ -138,19 +133,13 @@ deployment system [nixos-rebuild][nixos-rebuild].
     selfhostblocks.url = "github:ibizaman/selfhostblocks";
   };
 
-  outputs = {
-    self,
-    selfhostblocks,
-  }: let
+  outputs = { self, selfhostblocks }: let
     system = "x86_64-linux";
-    lib = selfhostblocks.lib.${system};
 
-    nixpkgs' = lib.shb.patchedNixpkgs;
-
-    nixosSystem' = import "${nixpkgs'}/nixos/lib/eval-config.nix";
+    pkgs' = selfhostblocks.lib.${system}.pkgs;
   in {
     nixosConfigurations = {
-      machine = nixosSystem' {
+      machine = pkgs'.nixosSystem {
         inherit system;
         modules = [
           selfhostblocks.nixosModules.default

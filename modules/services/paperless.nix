@@ -2,12 +2,12 @@
   config,
   pkgs,
   lib,
+  shb,
   ...
 }:
 
 let
   cfg = config.shb.paperless;
-  contracts = pkgs.callPackage ../contracts { };
   dataFolder = cfg.dataDir;
   fqdn = "${cfg.subdomain}.${cfg.domain}";
   protocol = if !(isNull cfg.ssl) then "https" else "http";
@@ -48,7 +48,7 @@ let
       source = cfg.sso.sharedSecret.result.path;
     }
   ];
-  replaceSecretsScript = lib.shb.replaceSecretsScript {
+  replaceSecretsScript = shb.replaceSecretsScript {
     file = ssoClientSettingsFile;
     resultPath = "/run/paperless/paperless-sso-client.env";
     inherit replacements;
@@ -77,6 +77,7 @@ let
 in
 {
   imports = [
+    ../../lib/module.nix
     ../blocks/nginx.nix
   ];
 
@@ -117,7 +118,7 @@ in
 
     ssl = mkOption {
       description = "Path to SSL files";
-      type = nullOr contracts.ssl.certs;
+      type = nullOr shb.contracts.ssl.certs;
       default = null;
     };
 
@@ -152,7 +153,7 @@ in
     adminPassword = mkOption {
       description = "Secret containing the superuser (admin) password.";
       type = submodule {
-        options = contracts.secret.mkRequester {
+        options = shb.contracts.secret.mkRequester {
           mode = "0400";
           owner = "paperless";
           group = "paperless";
@@ -208,7 +209,7 @@ in
     };
 
     mount = mkOption {
-      type = contracts.mount;
+      type = shb.contracts.mount;
       description = ''
         Mount configuration. This is an output option.
 
@@ -233,7 +234,7 @@ in
       '';
       default = { };
       type = submodule {
-        options = contracts.backup.mkRequester {
+        options = shb.contracts.backup.mkRequester {
           user = "paperless";
           sourceDirectories = [
             dataFolder
@@ -314,7 +315,7 @@ in
           sharedSecret = mkOption {
             description = "OIDC shared secret for paperless.";
             type = submodule {
-              options = contracts.secret.mkRequester {
+              options = shb.contracts.secret.mkRequester {
                 mode = "0400";
                 owner = "paperless";
                 group = "paperless";
@@ -326,7 +327,7 @@ in
           sharedSecretForAuthelia = mkOption {
             description = "OIDC shared secret for Authelia. Content must be the same as `sharedSecret` option.";
             type = submodule {
-              options = contracts.secret.mkRequester {
+              options = shb.contracts.secret.mkRequester {
                 mode = "0400";
                 owner = "authelia";
               };

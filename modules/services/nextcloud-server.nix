@@ -2,6 +2,7 @@
   config,
   pkgs,
   lib,
+  shb,
   ...
 }:
 
@@ -18,8 +19,6 @@ let
     else
       "${cfg.apps.sso.endpoint}:${toString cfg.apps.sso.port}";
 
-  contracts = pkgs.callPackage ../contracts { };
-
   nextcloudPkg = builtins.getAttr ("nextcloud" + builtins.toString cfg.version) pkgs;
   nextcloudApps =
     (builtins.getAttr ("nextcloud" + builtins.toString cfg.version + "Packages") pkgs).apps;
@@ -27,6 +26,10 @@ let
   occ = "${config.services.nextcloud.occ}/bin/nextcloud-occ";
 in
 {
+  imports = [
+    ../../lib/module.nix
+  ];
+
   options.shb.nextcloud = {
     enable = lib.mkEnableOption "selfhostblocks.nextcloud-server";
 
@@ -68,7 +71,7 @@ in
 
     ssl = lib.mkOption {
       description = "Path to SSL files";
-      type = lib.types.nullOr contracts.ssl.certs;
+      type = lib.types.nullOr shb.contracts.ssl.certs;
       default = null;
     };
 
@@ -110,7 +113,7 @@ in
     adminPass = lib.mkOption {
       description = "Nextcloud admin password.";
       type = lib.types.submodule {
-        options = contracts.secret.mkRequester {
+        options = shb.contracts.secret.mkRequester {
           mode = "0400";
           owner = "nextcloud";
           restartUnits = [ "phpfpm-nextcloud.service" ];
@@ -251,7 +254,7 @@ in
 
                 ssl = lib.mkOption {
                   description = "Path to SSL files";
-                  type = lib.types.nullOr contracts.ssl.certs;
+                  type = lib.types.nullOr shb.contracts.ssl.certs;
                   default = null;
                 };
 
@@ -424,7 +427,7 @@ in
                   adminPassword = lib.mkOption {
                     description = "LDAP server admin password.";
                     type = lib.types.submodule {
-                      options = contracts.secret.mkRequester {
+                      options = shb.contracts.secret.mkRequester {
                         mode = "0400";
                         owner = "nextcloud";
                         restartUnits = [ "phpfpm-nextcloud.service" ];
@@ -505,7 +508,7 @@ in
                 secret = lib.mkOption {
                   description = "OIDC shared secret.";
                   type = lib.types.submodule {
-                    options = contracts.secret.mkRequester {
+                    options = shb.contracts.secret.mkRequester {
                       mode = "0400";
                       owner = "nextcloud";
                       restartUnits = [ "phpfpm-nextcloud.service" ];
@@ -516,7 +519,7 @@ in
                 secretForAuthelia = lib.mkOption {
                   description = "OIDC shared secret. Content must be the same as `secretFile` option.";
                   type = lib.types.submodule {
-                    options = contracts.secret.mkRequester {
+                    options = shb.contracts.secret.mkRequester {
                       mode = "0400";
                       owner = "authelia";
                     };
@@ -625,7 +628,7 @@ in
       '';
       default = { };
       type = lib.types.submodule {
-        options = contracts.backup.mkRequester {
+        options = shb.contracts.backup.mkRequester {
           user = "nextcloud";
           sourceDirectories = [
             cfg.dataDir

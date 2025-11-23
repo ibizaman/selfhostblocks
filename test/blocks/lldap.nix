@@ -1,4 +1,9 @@
-{ pkgs, lib, ... }:
+{
+  pkgs,
+  lib,
+  shb,
+  ...
+}:
 let
   pkgs' = pkgs;
 
@@ -6,7 +11,7 @@ let
   charliePassword = "CharliePassword";
 in
 {
-  auth = lib.shb.runNixOSTest {
+  auth = shb.test.runNixOSTest {
     name = "ldap-auth";
 
     nodes.server =

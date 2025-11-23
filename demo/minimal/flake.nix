@@ -19,7 +19,7 @@
       nixosConfigurations =
         let
           system = "x86_64-linux";
-          shb = selfhostblocks.lib.${system};
+          nixpkgs' = selfhostblocks.lib.${system}.patchedNixpkgs;
 
           # This module makes the assertions happy and the build succeed.
           # This is of course wrong and will not work on any real system.
@@ -31,19 +31,29 @@
         {
           # Test with:
           #   nix build .#nixosConfigurations.minimal.config.system.build.toplevel
-          minimal = shb.pkgs.nixosSystem {
+          minimal = nixpkgs'.nixosSystem {
             inherit system;
             modules = [
               selfhostblocks.nixosModules.default
               filesystemModule
+              {
+                nixpkgs.overlays = [
+                  selfhostblocks.overlays.${system}.default
+                ];
+              }
               # This modules showcases the use of SHB's lib.
               (
-                { config, lib, ... }:
+                {
+                  config,
+                  lib,
+                  shb,
+                  ...
+                }:
                 {
                   options.myOption = lib.mkOption {
-                    # Using provided nixosSystem directly
-                    # SHB's lib is available under `lib.shb`.
-                    type = lib.shb.secretFileType;
+                    # Using provided nixosSystem directly.
+                    # SHB's lib is available under `shb` thanks to the overlay.
+                    type = shb.secretFileType;
                   };
                   config = {
                     myOption.source = "/a/path";
@@ -58,21 +68,31 @@
           # Test with:
           #   nix build .#nixosConfigurations.sops.config.system.build.toplevel
           #   nix eval .#nixosConfigurations.sops.config.myOption
-          sops = shb.pkgs.nixosSystem {
+          sops = nixpkgs'.nixosSystem {
             inherit system;
             modules = [
               selfhostblocks.nixosModules.default
               selfhostblocks.nixosModules.sops
               sops-nix.nixosModules.default
               filesystemModule
+              {
+                nixpkgs.overlays = [
+                  selfhostblocks.overlays.${system}.default
+                ];
+              }
               # This modules showcases the use of SHB's lib.
               (
-                { config, lib, ... }:
+                {
+                  config,
+                  lib,
+                  shb,
+                  ...
+                }:
                 {
                   options.myOption = lib.mkOption {
-                    # Using provided nixosSystem directly
-                    # SHB's lib is available under `lib.shb`.
-                    type = lib.shb.secretFileType;
+                    # Using provided nixosSystem directly.
+                    # SHB's lib is available under `shb` thanks to the overlay.
+                    type = shb.secretFileType;
                   };
                   config = {
                     myOption.source = "/a/path";
@@ -84,8 +104,7 @@
             ];
           };
 
-          # Note: this is just to show-off a common pitfall for more advanced user.
-          # Prefer using the `shb.pkgs.nixosSystem` function directly.
+          # This example shows how to import the nixosSystem patches to nixpkgs manually.
           #
           # Test with:
           #   nix build .#nixosConfigurations.lowlevel.config.system.build.toplevel
@@ -94,21 +113,83 @@
             let
               # We must import nixosSystem directly from the patched nixpkgs
               # otherwise we do not get the patches.
-              nixosSystem' = import "${shb.patchedNixpkgs}/nixos/lib/eval-config.nix";
+              nixosSystem' = import "${nixpkgs'}/nixos/lib/eval-config.nix";
             in
             nixosSystem' {
               inherit system;
               modules = [
                 selfhostblocks.nixosModules.default
                 filesystemModule
+                {
+                  nixpkgs.overlays = [
+                    selfhostblocks.overlays.${system}.default
+                  ];
+                }
                 # This modules showcases the use of SHB's lib.
                 (
-                  { config, lib, ... }:
+                  {
+                    config,
+                    lib,
+                    shb,
+                    ...
+                  }:
                   {
                     options.myOption = lib.mkOption {
-                      # lib.shb.secretFileType is not available here,
-                      # so we must pass around the shb flake input.
-                      # type = shb.secretFileType;
+                      # Using provided nixosSystem directly.
+                      # SHB's lib is available under `shb` thanks to the overlay.
+                      type = shb.secretFileType;
+                    };
+                    config = {
+                      myOption.source = "/a/path";
+                      # Use the option.
+                      environment.etc.myOption.text = config.myOption.source;
+                    };
+                  }
+                )
+              ];
+            };
+
+          # This example shows how to apply patches to nixpkgs manually.
+          #
+          # Test with:
+          #   nix build .#nixosConfigurations.manual.config.system.build.toplevel
+          #   nix eval .#nixosConfigurations.manual.config.myOption
+          manual =
+            let
+              pkgs = import selfhostblocks.inputs.nixpkgs {
+                inherit system;
+              };
+              nixpkgs' = pkgs.applyPatches {
+                name = "nixpkgs-patched";
+                src = selfhostblocks.inputs.nixpkgs;
+                patches = selfhostblocks.lib.${system}.patches;
+              };
+              # We must import nixosSystem directly from the patched nixpkgs
+              # otherwise we do not get the patches.
+              nixosSystem' = import "${nixpkgs'}/nixos/lib/eval-config.nix";
+            in
+            nixosSystem' {
+              inherit system;
+              modules = [
+                selfhostblocks.nixosModules.default
+                filesystemModule
+                {
+                  nixpkgs.overlays = [
+                    selfhostblocks.overlays.${system}.default
+                  ];
+                }
+                # This modules showcases the use of SHB's lib.
+                (
+                  {
+                    config,
+                    lib,
+                    shb,
+                    ...
+                  }:
+                  {
+                    options.myOption = lib.mkOption {
+                      # Using provided nixosSystem directly.
+                      # SHB's lib is available under `shb` thanks to the overlay.
                       type = shb.secretFileType;
                     };
                     config = {

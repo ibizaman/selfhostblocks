@@ -2,14 +2,13 @@
   config,
   pkgs,
   lib,
+  shb,
   utils,
   ...
 }:
 
 let
   cfg = config.shb.restic;
-
-  contracts = pkgs.callPackage ../contracts { };
 
   inherit (lib)
     concatStringsSep
@@ -60,7 +59,7 @@ let
       passphrase = lib.mkOption {
         description = "Encryption key for the backup repository.";
         type = lib.types.submodule {
-          options = contracts.secret.mkRequester {
+          options = shb.contracts.secret.mkRequester {
             mode = "0400";
             owner = config.request.user;
             ownerText = "[shb.restic.${prefix}.<name>.request.user](#blocks-restic-options-shb.restic.${prefix}._name_.request.user)";
@@ -80,7 +79,7 @@ let
             };
 
             secrets = mkOption {
-              type = attrsOf lib.shb.secretFileType;
+              type = attrsOf shb.secretFileType;
               default = { };
               description = ''
                 Secrets needed to access the repository where the backups will be stored.
@@ -148,15 +147,19 @@ let
   fullName = name: repository: "restic-backups-${name}_${repoSlugName repository.path}";
 in
 {
+  imports = [
+    ../../lib/module.nix
+  ];
+
   options.shb.restic = {
     instances = mkOption {
-      description = "Files to backup following the [backup contract](./contracts-backup.html).";
+      description = "Files to backup following the [backup contract](./shb.contracts-backup.html).";
       default = { };
       type = attrsOf (
         submodule (
           { name, config, ... }:
           {
-            options = contracts.backup.mkProvider {
+            options = shb.contracts.backup.mkProvider {
               settings = mkOption {
                 description = ''
                   Settings specific to the Restic provider.
@@ -184,13 +187,13 @@ in
     };
 
     databases = mkOption {
-      description = "Databases to backup following the [database backup contract](./contracts-databasebackup.html).";
+      description = "Databases to backup following the [database backup contract](./shb.contracts-databasebackup.html).";
       default = { };
       type = attrsOf (
         submodule (
           { name, config, ... }:
           {
-            options = contracts.databasebackup.mkProvider {
+            options = shb.contracts.databasebackup.mkProvider {
               settings = mkOption {
                 description = ''
                   Settings specific to the Restic provider.
@@ -380,10 +383,10 @@ in
 
                 "${serviceName}-pre" = mkIf (instance.settings.repository.secrets != { }) (
                   let
-                    script = lib.shb.genConfigOutOfBandSystemd {
+                    script = shb.genConfigOutOfBandSystemd {
                       config = instance.settings.repository.secrets;
                       configLocation = "/run/secrets_restic/${serviceName}";
-                      generator = lib.shb.toEnvVar;
+                      generator = shb.toEnvVar;
                       user = instance.request.user;
                     };
                   in
@@ -407,13 +410,13 @@ in
                 wantedBy = [ "multi-user.target" ];
                 serviceConfig.Type = "oneshot";
                 script = (
-                  lib.shb.replaceSecrets {
+                  shb.replaceSecrets {
                     userConfig = instance.settings.repository.secrets // {
                       RESTIC_PASSWORD_FILE = toString instance.settings.passphrase.result.path;
                       RESTIC_REPOSITORY = instance.settings.repository.path;
                     };
                     resultPath = "/run/secrets_restic_env/${fullName name instance.settings.repository}";
-                    generator = lib.shb.toEnvVar;
+                    generator = shb.toEnvVar;
                     user = instance.request.user;
                   }
                 );

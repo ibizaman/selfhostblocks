@@ -2,12 +2,11 @@
   config,
   lib,
   pkgs,
+  shb,
   ...
 }:
 let
   cfg = config.shb.hardcodedsecret;
-
-  contracts = pkgs.callPackage ../contracts { };
 
   inherit (lib) mapAttrs' mkOption nameValuePair;
   inherit (lib.types)
@@ -19,6 +18,10 @@ let
   inherit (pkgs) writeText;
 in
 {
+  imports = [
+    ../../lib/module.nix
+  ];
+
   options.shb.hardcodedsecret = mkOption {
     default = { };
     description = ''
@@ -40,7 +43,7 @@ in
       submodule (
         { name, ... }:
         {
-          options = contracts.secret.mkProvider {
+          options = shb.contracts.secret.mkProvider {
             settings = mkOption {
               description = ''
                 Settings specific to the hardcoded secret module.

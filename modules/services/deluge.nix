@@ -2,13 +2,12 @@
   config,
   pkgs,
   lib,
+  shb,
   ...
 }:
 
 let
   cfg = config.shb.deluge;
-
-  contracts = pkgs.callPackage ../contracts { };
 
   fqdn = "${cfg.subdomain}.${cfg.domain}";
 
@@ -29,6 +28,7 @@ let
 in
 {
   imports = [
+    ../../lib/module.nix
     ../blocks/nginx.nix
   ];
 
@@ -49,7 +49,7 @@ in
 
     ssl = lib.mkOption {
       description = "Path to SSL files";
-      type = lib.types.nullOr contracts.ssl.certs;
+      type = lib.types.nullOr shb.contracts.ssl.certs;
       default = null;
     };
 
@@ -194,7 +194,7 @@ in
         lib.types.submodule {
           options = {
             password = lib.mkOption {
-              type = lib.shb.secretFileType;
+              type = shb.secretFileType;
               description = "File containing the user password.";
             };
           };
@@ -205,7 +205,7 @@ in
     localclientPassword = lib.mkOption {
       description = "Password for mandatory localclient user.";
       type = lib.types.submodule {
-        options = contracts.secret.mkRequester {
+        options = shb.contracts.secret.mkRequester {
           owner = "deluge";
           restartUnits = [ "deluged.service" ];
         };
@@ -216,7 +216,7 @@ in
       description = "Password for prometheus scraper. Setting this option will activate the prometheus deluge exporter.";
       type = lib.types.nullOr (
         lib.types.submodule {
-          options = contracts.secret.mkRequester {
+          options = shb.contracts.secret.mkRequester {
             owner = "deluge";
             restartUnits = [
               "deluged.service"
@@ -273,7 +273,7 @@ in
       '';
       default = { };
       type = lib.types.submodule {
-        options = contracts.backup.mkRequester {
+        options = shb.contracts.backup.mkRequester {
           user = "deluge";
           sourceDirectories = [
             cfg.dataDir
@@ -361,7 +361,7 @@ in
         };
 
         systemd.services.deluged.preStart = lib.mkBefore (
-          lib.shb.replaceSecrets {
+          shb.replaceSecrets {
             userConfig =
               cfg.extraUsers
               // {

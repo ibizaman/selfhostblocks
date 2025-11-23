@@ -2,13 +2,12 @@
   config,
   pkgs,
   lib,
+  shb,
   ...
 }:
 
 let
   cfg = config.shb.immich;
-
-  contracts = pkgs.callPackage ../contracts { };
 
   fqdn = "${cfg.subdomain}.${cfg.domain}";
   protocol = if !(isNull cfg.ssl) then "https" else "http";
@@ -76,10 +75,10 @@ let
 
   # Use SHB's replaceSecrets function for loading secrets at runtime
   configSetupScript = lib.optionalString (cfg.sso.enable || cfg.smtp != null) (
-    lib.shb.replaceSecrets {
+    shb.replaceSecrets {
       userConfig = shbManagedSettings;
       resultPath = configFile;
-      generator = lib.shb.replaceSecretsFormatAdapter (pkgs.formats.json { });
+      generator = shb.replaceSecretsFormatAdapter (pkgs.formats.json { });
       user = "immich";
       permissions = "u=r,g=,o=";
     }
@@ -106,6 +105,7 @@ let
 in
 {
   imports = [
+    ../../lib/module.nix
     ../blocks/nginx.nix
   ];
 
@@ -146,7 +146,7 @@ in
 
     ssl = mkOption {
       description = "Path to SSL files";
-      type = nullOr contracts.ssl.certs;
+      type = nullOr shb.contracts.ssl.certs;
       default = null;
     };
 
@@ -162,7 +162,7 @@ in
         This is required for secure session management.
       '';
       type = nullOr (submodule {
-        options = contracts.secret.mkRequester {
+        options = shb.contracts.secret.mkRequester {
           mode = "0400";
           owner = "immich";
           restartUnits = [ "immich-server.service" ];
@@ -172,7 +172,7 @@ in
     };
 
     mount = mkOption {
-      type = contracts.mount;
+      type = shb.contracts.mount;
       description = ''
         Mount configuration. This is an output option.
 
@@ -197,7 +197,7 @@ in
       '';
       default = { };
       type = submodule {
-        options = contracts.backup.mkRequester {
+        options = shb.contracts.backup.mkRequester {
           user = "immich";
           sourceDirectories = [
             dataFolder
@@ -328,7 +328,7 @@ in
           sharedSecret = mkOption {
             description = "OIDC shared secret for Immich.";
             type = submodule {
-              options = contracts.secret.mkRequester {
+              options = shb.contracts.secret.mkRequester {
                 mode = "0400";
                 owner = "immich";
                 group = "immich";
@@ -340,7 +340,7 @@ in
           sharedSecretForAuthelia = mkOption {
             description = "OIDC shared secret for Authelia. Content must be the same as `sharedSecret` option.";
             type = submodule {
-              options = contracts.secret.mkRequester {
+              options = shb.contracts.secret.mkRequester {
                 mode = "0400";
                 owner = "authelia";
               };
@@ -420,7 +420,7 @@ in
           password = mkOption {
             description = "File containing the password to connect to the SMTP host.";
             type = submodule {
-              options = contracts.secret.mkRequester {
+              options = shb.contracts.secret.mkRequester {
                 mode = "0400";
                 owner = "immich";
                 restartUnits = [ "immich-server.service" ];

@@ -3,13 +3,12 @@
   options,
   pkgs,
   lib,
+  shb,
   ...
 }:
 
 let
   cfg = config.shb.forgejo;
-
-  contracts = pkgs.callPackage ../contracts { };
 
   inherit (lib)
     all
@@ -87,7 +86,7 @@ in
 
     ssl = mkOption {
       description = "Path to SSL files";
-      type = nullOr contracts.ssl.certs;
+      type = nullOr shb.contracts.ssl.certs;
       default = null;
     };
 
@@ -137,7 +136,7 @@ in
           adminPassword = mkOption {
             description = "LDAP admin password.";
             type = submodule {
-              options = contracts.secret.mkRequester {
+              options = shb.contracts.secret.mkRequester {
                 mode = "0440";
                 owner = "forgejo";
                 group = "forgejo";
@@ -210,7 +209,7 @@ in
           sharedSecret = mkOption {
             description = "OIDC shared secret for Forgejo.";
             type = submodule {
-              options = contracts.secret.mkRequester {
+              options = shb.contracts.secret.mkRequester {
                 mode = "0440";
                 owner = "forgejo";
                 group = "forgejo";
@@ -222,7 +221,7 @@ in
           sharedSecretForAuthelia = mkOption {
             description = "OIDC shared secret for Authelia.";
             type = submodule {
-              options = contracts.secret.mkRequester {
+              options = shb.contracts.secret.mkRequester {
                 mode = "0400";
                 owner = "authelia";
               };
@@ -254,7 +253,7 @@ in
           password = mkOption {
             description = "Forgejo admin user password.";
             type = submodule {
-              options = contracts.secret.mkRequester {
+              options = shb.contracts.secret.mkRequester {
                 mode = "0440";
                 owner = "forgejo";
                 group = "forgejo";
@@ -269,7 +268,7 @@ in
     databasePassword = mkOption {
       description = "File containing the Forgejo database password.";
       type = submodule {
-        options = contracts.secret.mkRequester {
+        options = shb.contracts.secret.mkRequester {
           mode = "0440";
           owner = "forgejo";
           group = "forgejo";
@@ -329,7 +328,7 @@ in
       '';
       default = { };
       type = lib.types.submodule {
-        options = contracts.backup.mkRequester {
+        options = shb.contracts.backup.mkRequester {
           user = options.services.forgejo.user.value;
           sourceDirectories = [
             options.services.forgejo.dump.backupDir.value
@@ -342,7 +341,7 @@ in
     };
 
     mount = mkOption {
-      type = contracts.mount;
+      type = shb.contracts.mount;
       description = ''
         Mount configuration. This is an output option.
 

@@ -1,9 +1,9 @@
-{ pkgs, lib, ... }:
+{ pkgs, shb, ... }:
 let
   pkgs' = pkgs;
 in
 {
-  test = lib.shb.runNixOSTest {
+  test = shb.test.runNixOSTest {
     name = "ssl-test";
 
     nodes.server =

@@ -1,4 +1,4 @@
-{ lib, ... }:
+{ lib, shb, ... }:
 let
   inherit (lib)
     mkOption
@@ -8,7 +8,7 @@ let
     optionalString
     ;
   inherit (lib.types) submodule str;
-  inherit (lib.shb) anyNotNull;
+  inherit (shb) anyNotNull;
 in
 {
   mkRequest =

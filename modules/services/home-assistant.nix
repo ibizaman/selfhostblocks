@@ -2,13 +2,12 @@
   config,
   pkgs,
   lib,
+  shb,
   ...
 }:
 
 let
   cfg = config.shb.home-assistant;
-
-  contracts = pkgs.callPackage ../contracts { };
 
   fqdn = "${cfg.subdomain}.${cfg.domain}";
 
@@ -32,6 +31,10 @@ let
   configWithSecretsIncludes = nonSecrets // (lib.attrsets.mapAttrs (k: v: "!secret ${k}") secrets);
 in
 {
+  imports = [
+    ../../lib/module.nix
+  ];
+
   options.shb.home-assistant = {
     enable = lib.mkEnableOption "selfhostblocks.home-assistant";
 
@@ -49,7 +52,7 @@ in
 
     ssl = lib.mkOption {
       description = "Path to SSL files";
-      type = lib.types.nullOr contracts.ssl.certs;
+      type = lib.types.nullOr shb.contracts.ssl.certs;
       default = null;
     };
 
@@ -61,35 +64,35 @@ in
           name = lib.mkOption {
             type = lib.types.oneOf [
               lib.types.str
-              lib.shb.secretFileType
+              shb.secretFileType
             ];
             description = "Name of the Home Assistant instance.";
           };
           country = lib.mkOption {
             type = lib.types.oneOf [
               lib.types.str
-              lib.shb.secretFileType
+              shb.secretFileType
             ];
             description = "Two letter country code where this instance is located.";
           };
           latitude = lib.mkOption {
             type = lib.types.oneOf [
               lib.types.str
-              lib.shb.secretFileType
+              shb.secretFileType
             ];
             description = "Latitude where this instance is located.";
           };
           longitude = lib.mkOption {
             type = lib.types.oneOf [
               lib.types.str
-              lib.shb.secretFileType
+              shb.secretFileType
             ];
             description = "Longitude where this instance is located.";
           };
           time_zone = lib.mkOption {
             type = lib.types.oneOf [
               lib.types.str
-              lib.shb.secretFileType
+              shb.secretFileType
             ];
             description = "Timezone of this instance.";
             example = "America/Los_Angeles";
@@ -206,7 +209,7 @@ in
       '';
       default = { };
       type = lib.types.submodule {
-        options = contracts.backup.mkRequester {
+        options = shb.contracts.backup.mkRequester {
           user = "hass";
           # No need for backup hooks as we use an hourly automation job in home assistant directly with a cron job.
           sourceDirectories = [
@@ -383,10 +386,10 @@ in
           fi
         ''
       )
-      + (lib.shb.replaceSecrets {
+      + (shb.replaceSecrets {
         userConfig = cfg.config;
         resultPath = "${config.services.home-assistant.configDir}/secrets.yaml";
-        generator = lib.shb.replaceSecretsGeneratorAdapter (lib.generators.toYAML { });
+        generator = shb.replaceSecretsGeneratorAdapter (lib.generators.toYAML { });
       });
 
     systemd.tmpfiles.rules = [

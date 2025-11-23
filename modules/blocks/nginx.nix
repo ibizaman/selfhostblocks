@@ -1,14 +1,12 @@
 {
   config,
-  pkgs,
   lib,
+  shb,
   ...
 }:
 
 let
   cfg = config.shb.nginx;
-
-  contracts = pkgs.callPackage ../contracts { };
 
   fqdn = c: "${c.subdomain}.${c.domain}";
 
@@ -28,7 +26,7 @@ let
 
       ssl = lib.mkOption {
         description = "Path to SSL files";
-        type = lib.types.nullOr contracts.ssl.certs;
+        type = lib.types.nullOr shb.contracts.ssl.certs;
         default = null;
       };
 

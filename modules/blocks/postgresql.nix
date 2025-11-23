@@ -2,11 +2,11 @@
   config,
   lib,
   pkgs,
+  shb,
   ...
 }:
 let
   cfg = config.shb.postgresql;
-  contracts = pkgs.callPackage ../contracts { };
 
   upgrade-script =
     old: new:
@@ -39,6 +39,10 @@ let
     '';
 in
 {
+  imports = [
+    ../../lib/module.nix
+  ];
+
   options.shb.postgresql = {
     debug = lib.mkOption {
       type = lib.types.bool;
@@ -63,7 +67,7 @@ in
 
       default = { };
       type = lib.types.submodule {
-        options = contracts.databasebackup.mkRequester {
+        options = shb.contracts.databasebackup.mkRequester {
           user = "postgres";
 
           backupName = "postgres.sql";

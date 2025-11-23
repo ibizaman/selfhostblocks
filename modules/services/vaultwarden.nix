@@ -1,14 +1,12 @@
 {
   config,
-  pkgs,
   lib,
+  shb,
   ...
 }:
 
 let
   cfg = config.shb.vaultwarden;
-
-  contracts = pkgs.callPackage ../contracts { };
 
   fqdn = "${cfg.subdomain}.${cfg.domain}";
 
@@ -20,6 +18,7 @@ let
 in
 {
   imports = [
+    ../../lib/module.nix
     ../blocks/nginx.nix
   ];
 
@@ -40,7 +39,7 @@ in
 
     ssl = lib.mkOption {
       description = "Path to SSL files";
-      type = lib.types.nullOr contracts.ssl.certs;
+      type = lib.types.nullOr shb.contracts.ssl.certs;
       default = null;
     };
 
@@ -60,7 +59,7 @@ in
     databasePassword = lib.mkOption {
       description = "File containing the Vaultwarden database password.";
       type = lib.types.submodule {
-        options = contracts.secret.mkRequester {
+        options = shb.contracts.secret.mkRequester {
           mode = "0440";
           owner = "vaultwarden";
           group = "postgres";
@@ -118,7 +117,7 @@ in
             password = lib.mkOption {
               description = "File containing the password to connect to the SMTP host.";
               type = lib.types.submodule {
-                options = contracts.secret.mkRequester {
+                options = shb.contracts.secret.mkRequester {
                   mode = "0400";
                   owner = "vaultwarden";
                   restartUnits = [ "vaultwarden.service" ];
@@ -131,7 +130,7 @@ in
     };
 
     mount = lib.mkOption {
-      type = contracts.mount;
+      type = shb.contracts.mount;
       description = ''
         Mount configuration. This is an output option.
 
@@ -156,7 +155,7 @@ in
       '';
       default = { };
       type = lib.types.submodule {
-        options = contracts.backup.mkRequester {
+        options = shb.contracts.backup.mkRequester {
           user = "vaultwarden";
           sourceDirectories = [
             dataFolder
@@ -210,7 +209,7 @@ in
     ];
     # Needed to be able to write template config.
     systemd.services.vaultwarden.serviceConfig.ProtectHome = lib.mkForce false;
-    systemd.services.vaultwarden.preStart = lib.shb.replaceSecrets {
+    systemd.services.vaultwarden.preStart = shb.replaceSecrets {
       userConfig = {
         DATABASE_URL.source = cfg.databasePassword.result.path;
         DATABASE_URL.transform = v: "postgresql://vaultwarden:${v}@127.0.0.1:5432/vaultwarden";
@@ -219,7 +218,7 @@ in
         SMTP_PASSWORD.source = cfg.smtp.password.result.path;
       };
       resultPath = "${dataFolder}/vaultwarden.env";
-      generator = lib.shb.toEnvVar;
+      generator = shb.toEnvVar;
     };
 
     shb.nginx.vhosts = [

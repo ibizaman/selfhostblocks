@@ -2,13 +2,12 @@
   config,
   pkgs,
   lib,
+  shb,
   ...
 }:
 
 let
   cfg = config.shb.lldap;
-
-  contracts = pkgs.callPackage ../contracts { };
 
   fqdn = "${cfg.subdomain}.${cfg.domain}";
 
@@ -54,6 +53,7 @@ let
 in
 {
   imports = [
+    ../../lib/module.nix
     ./mitmdump.nix
 
     (lib.mkRenamedOptionModule [ "shb" "ldap" ] [ "shb" "lldap" ])
@@ -88,7 +88,7 @@ in
 
     ssl = lib.mkOption {
       description = "Path to SSL files";
-      type = lib.types.nullOr contracts.ssl.certs;
+      type = lib.types.nullOr shb.contracts.ssl.certs;
       default = null;
     };
 
@@ -101,7 +101,7 @@ in
     ldapUserPassword = lib.mkOption {
       description = "LDAP admin user secret.";
       type = lib.types.submodule {
-        options = contracts.secret.mkRequester {
+        options = shb.contracts.secret.mkRequester {
           mode = "0440";
           owner = "lldap";
           group = "lldap";
@@ -113,7 +113,7 @@ in
     jwtSecret = lib.mkOption {
       description = "JWT secret.";
       type = lib.types.submodule {
-        options = contracts.secret.mkRequester {
+        options = shb.contracts.secret.mkRequester {
           mode = "0440";
           owner = "lldap";
           group = "lldap";
@@ -136,7 +136,7 @@ in
     };
 
     mount = lib.mkOption {
-      type = contracts.mount;
+      type = shb.contracts.mount;
       description = ''
         Mount configuration. This is an output option.
 
@@ -160,7 +160,7 @@ in
         Backup configuration.
       '';
       type = lib.types.submodule {
-        options = contracts.backup.mkRequester {
+        options = shb.contracts.backup.mkRequester {
           # TODO: is there a workaround that avoid needing to use root?
           # root because otherwise we cannot access the private StateDiretory
           user = "root";
@@ -203,7 +203,7 @@ in
               password = mkOption {
                 description = "Password.";
                 type = lib.types.submodule {
-                  options = contracts.secret.mkRequester {
+                  options = shb.contracts.secret.mkRequester {
                     mode = "0440";
                     owner = "lldap";
                     group = "lldap";

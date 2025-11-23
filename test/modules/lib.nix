@@ -1,4 +1,4 @@
-{ lib, ... }:
+{ lib, shb, ... }:
 let
   inherit (lib) nameValuePair;
 in
@@ -34,7 +34,7 @@ in
           c.other = "other";
         };
       in
-      lib.shb.withReplacements (
+      shb.withReplacements (
         item
         // {
           nestedAttr = item;
@@ -70,7 +70,7 @@ in
           c.other = "other";
         };
       in
-      lib.shb.withReplacements [
+      shb.withReplacements [
         item
         item
         [ item ]
@@ -101,8 +101,8 @@ in
           c.other = "other";
         };
       in
-      map lib.shb.genReplacement (
-        lib.shb.getReplacements (
+      map shb.genReplacement (
+        shb.getReplacements (
           item
           // {
             nestedAttr = item;
@@ -123,7 +123,7 @@ in
       };
     };
 
-    expr = lib.shb.parseXML ''
+    expr = shb.parseXML ''
       <a>
         <b>1</b>
         <c><d>1</d></c>

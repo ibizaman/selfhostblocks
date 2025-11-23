@@ -2,13 +2,12 @@
   config,
   pkgs,
   lib,
+  shb,
   ...
 }:
 
 let
   cfg = config.shb.certs;
-
-  contracts = pkgs.callPackage ../contracts { };
 
   inherit (builtins) dirOf;
   inherit (lib)
@@ -20,6 +19,10 @@ let
     ;
 in
 {
+  imports = [
+    ../../lib/module.nix
+  ];
+
   options.shb.certs = {
     systemdService = lib.mkOption {
       description = ''
@@ -51,7 +54,7 @@ in
 
                   This option implements the SSL Generator contract.
                 '';
-                type = contracts.ssl.certs-paths;
+                type = shb.contracts.ssl.certs-paths;
                 default = {
                   key = "/var/lib/certs/cas/${config._module.args.name}.key";
                   cert = "/var/lib/certs/cas/${config._module.args.name}.cert";
@@ -81,7 +84,7 @@ in
           {
             options = {
               ca = lib.mkOption {
-                type = lib.types.nullOr contracts.ssl.cas;
+                type = lib.types.nullOr shb.contracts.ssl.cas;
                 description = ''
                   CA used to generate this certificate. Only used for self-signed.
 
@@ -128,7 +131,7 @@ in
 
                   This option implements the SSL Generator contract.
                 '';
-                type = contracts.ssl.certs-paths;
+                type = shb.contracts.ssl.certs-paths;
                 default = {
                   key = "/var/lib/certs/selfsigned/${config._module.args.name}.key";
                   cert = "/var/lib/certs/selfsigned/${config._module.args.name}.cert";
@@ -196,7 +199,7 @@ in
 
                   This option implements the SSL Generator contract.
                 '';
-                type = contracts.ssl.certs-paths;
+                type = shb.contracts.ssl.certs-paths;
                 default = {
                   key = "/var/lib/acme/${config._module.args.name}/key.pem";
                   cert = "/var/lib/acme/${config._module.args.name}/cert.pem";

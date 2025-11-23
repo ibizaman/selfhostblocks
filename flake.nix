@@ -46,46 +46,23 @@
             src = nixpkgs;
             inherit patches;
           };
-        patchedNixpkgs = (
-          patchNixpkgs {
-            nixpkgs = inputs.nixpkgs;
-            patches = shbPatches;
-            inherit system;
-          }
-        );
+        patchedNixpkgs =
+          let
+            patched = patchNixpkgs {
+              nixpkgs = inputs.nixpkgs;
+              patches = shbPatches;
+              inherit system;
+            };
+          in
+          patched
+          // {
+            nixosSystem = args: import "${patched}/nixos/lib/eval-config.nix" args;
+          };
         pkgs = import patchedNixpkgs {
           inherit system;
           config.allowUnfree = true;
           overlays = [
-            (final: prev: {
-              lib = prev.lib // {
-                shb = self.lib.${system};
-                evalModules =
-                  args:
-                  ((prev.lib.makeOverridable prev.lib.evalModules) args).override (prevAttrs: {
-                    specialArgs = (prevAttrs.specialArgs or { }) // {
-                      inherit (pkgs) lib;
-                    };
-                  });
-              };
-              nixosSystem =
-                args:
-                ((prev.lib.makeOverridable (import "${patchedNixpkgs}/nixos/lib/eval-config.nix")) args).override
-                  (prevAttrs: {
-                    inherit (pkgs) lib;
-                  });
-              prometheus-systemd-exporter = prev.prometheus-systemd-exporter.overrideAttrs {
-                src = pkgs.fetchFromGitHub {
-                  owner = "ibizaman";
-                  repo = prev.prometheus-systemd-exporter.pname;
-                  # rev = "v${prev.prometheus-systemd-exporter.version}";
-                  rev = "next_timer";
-                  sha256 = "sha256-jzkh/616tsJbNxFtZ0xbdBQc16TMIYr9QOkPaeQw8xA=";
-                };
-
-                vendorHash = "sha256-4hsQ1417jLNOAqGkfCkzrmEtYR4YLLW2j0CiJtPg6GI=";
-              };
-            })
+            self.overlays.${system}.default
           ];
         };
 
@@ -231,26 +208,47 @@
               '';
             });
 
-        lib =
-          (pkgs.callPackage ./lib { })
-          // (pkgs.callPackage ./test/common.nix { })
-          // {
-            contracts = pkgs.callPackage ./modules/contracts { };
-            patches = shbPatches;
-            inherit patchNixpkgs patchedNixpkgs pkgs;
+        lib = (pkgs.callPackage ./lib { }) // {
+          test = pkgs.callPackage ./test/common.nix { };
+          contracts = pkgs.callPackage ./modules/contracts {
+            shb = self.lib.${system};
           };
+          patches = shbPatches;
+          inherit patchNixpkgs patchedNixpkgs;
+        };
+
+        overlays.default = final: prev: {
+          # shb = self.nixosModules.lib;
+          prometheus-systemd-exporter = prev.prometheus-systemd-exporter.overrideAttrs {
+            src = pkgs.fetchFromGitHub {
+              owner = "ibizaman";
+              repo = prev.prometheus-systemd-exporter.pname;
+              # rev = "v${prev.prometheus-systemd-exporter.version}";
+              rev = "next_timer";
+              sha256 = "sha256-jzkh/616tsJbNxFtZ0xbdBQc16TMIYr9QOkPaeQw8xA=";
+            };
+
+            vendorHash = "sha256-4hsQ1417jLNOAqGkfCkzrmEtYR4YLLW2j0CiJtPg6GI=";
+          };
+        };
 
         checks =
           let
             inherit (pkgs.lib)
               foldl
               foldlAttrs
-              removeAttrs
               mergeAttrs
               optionalAttrs
               ;
 
-            importFiles = files: map (m: pkgs.callPackage m { }) files;
+            importFiles =
+              files:
+              map (
+                m:
+                pkgs.callPackage m {
+                  shb = self.lib.${system};
+                }
+              ) files;
 
             mergeTests = foldl mergeAttrs { };
 
@@ -267,15 +265,19 @@
             vm_test =
               name: path:
               flattenAttrs "vm_${name}" (
-                removeAttrs (pkgs.callPackage path { }) [
-                  "override"
-                  "overrideDerivation"
-                ]
+                removeAttrs
+                  (pkgs.callPackage path {
+                    shb = self.lib.${system};
+                  })
+                  [
+                    "override"
+                    "overrideDerivation"
+                  ]
               );
           in
           (optionalAttrs (system == "x86_64-linux") (
             {
-              modules = pkgs.lib.shb.check {
+              modules = self.lib.${system}.check {
                 inherit pkgs;
                 tests = mergeTests (importFiles [
                   ./test/modules/davfs.nix
@@ -287,7 +289,9 @@
               # TODO: Make this not use IFD
               lib = nix-flake-tests.lib.check {
                 inherit pkgs;
-                tests = pkgs.callPackage ./test/modules/lib.nix { };
+                tests = pkgs.callPackage ./test/modules/lib.nix {
+                  shb = self.lib.${system};
+                };
               };
             }
             // (vm_test "arr" ./test/services/arr.nix)
@@ -415,6 +419,8 @@
           self.nixosModules.vaultwarden
         ];
       };
+
+      nixosModules.lib = lib/module.nix;
 
       nixosModules.authelia = modules/blocks/authelia.nix;
       nixosModules.borgbackup = modules/blocks/borgbackup.nix;
