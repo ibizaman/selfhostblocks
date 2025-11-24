@@ -4,8 +4,10 @@
 
 ## Flake {#usage-flake}
 
-::: {.note} A complete minimal and buildable example can be found at
-[`./demo/minimal/flake.nix`](@REPO@/demo/minimal/flake.nix). :::
+::: {.note}
+A complete minimal and buildable example can be found at
+[`./demo/minimal/flake.nix`](@REPO@/demo/minimal/flake.nix).
+:::
 
 Self Host Blocks is available as a flake. It also uses its own `pkgs.lib` and
 `nixpkgs` and it is required to use the provided ones as input for your
