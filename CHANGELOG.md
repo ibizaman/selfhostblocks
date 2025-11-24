@@ -26,6 +26,10 @@ Template:
 
 - Allow to upload big files in Immich.
 
+## Other Changes
+
+- Add recipe to setup DNS server with DNSSEC.
+
 # v0.6.1
 
 ## New Features

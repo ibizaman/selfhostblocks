@@ -1985,6 +1985,18 @@
   "recipes": [
     "recipes.html#recipes"
   ],
+  "recipes-dnsServer": [
+    "recipes-dnsServer.html#recipes-dnsServer"
+  ],
+  "recipes-dnsServer-drawbacks": [
+    "recipes-dnsServer.html#recipes-dnsServer-drawbacks"
+  ],
+  "recipes-dnsServer-recipe": [
+    "recipes-dnsServer.html#recipes-dnsServer-recipe"
+  ],
+  "recipes-dnsServer-why": [
+    "recipes-dnsServer.html#recipes-dnsServer-why"
+  ],
   "recipes-exposeService": [
     "recipes-exposeService.html#recipes-exposeService"
   ],
