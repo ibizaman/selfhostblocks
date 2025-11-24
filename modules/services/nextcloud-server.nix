@@ -852,7 +852,7 @@ in
       systemd.services.nextcloud-setup.after = cfg.mountPointServices;
     })
 
-    (lib.mkIf cfg.phpFpmPrometheusExporter.enable {
+    (lib.mkIf (cfg.enable && cfg.phpFpmPrometheusExporter.enable) {
       services.prometheus.exporters.php-fpm = {
         enable = true;
         user = "nginx";
