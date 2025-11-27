@@ -21,10 +21,12 @@ Template:
 - Add a Grafana dashboard showing stats on backup jobs
   and also an alert if a backup job did not run in the last 24 hours or never succeeded in the last 24 hours.
 - Add SSO integration in Grafana.
+- Add Paperless service.
 
 ## Fixes
 
 - Allow to upload big files in Immich.
+- Only enable php-fpm Prometheus exporter if Nextcloud is enabled.
 
 ## Other Changes
 
