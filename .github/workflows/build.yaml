@@ -68,6 +68,8 @@ jobs:
       - name: Generate Matrix
         id: generate-matrix
         run: |
+          set -euox pipefail
+
           nix flake show --allow-import-from-derivation --json \
               | jq -c '.["checks"]["x86_64-linux"] | keys' > .output
 
