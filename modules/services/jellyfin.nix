@@ -2,6 +2,7 @@
   config,
   lib,
   pkgs,
+  shb,
   ...
 }:
 
@@ -265,6 +266,8 @@ in
   };
 
   imports = [
+    ../../lib/module.nix
+
     (lib.mkRenamedOptionModule
       [ "shb" "jellyfin" "adminPassword" ]
       [ "shb" "jellyfin" "admin" "password" ]
@@ -586,7 +589,7 @@ in
         fi
         ln -fs "${debugLogging}" "${config.services.jellyfin.configDir}/logging.json"
       ''
-      + (lib.shb.replaceSecretsScript {
+      + (shb.replaceSecretsScript {
         file = networkConfig;
         # Write permissions are needed otherwise the jellyfin-cli tool will not work correctly.
         permissions = "u=rw,g=rw,o=";
@@ -595,7 +598,7 @@ in
         ];
       })
       + lib.strings.optionalString cfg.ldap.enable (
-        lib.shb.replaceSecretsScript {
+        shb.replaceSecretsScript {
           file = ldapConfig;
           resultPath = "${config.services.jellyfin.dataDir}/plugins/configurations/LDAP-Auth.xml";
           replacements = [
@@ -607,7 +610,7 @@ in
         }
       )
       + lib.strings.optionalString cfg.sso.enable (
-        lib.shb.replaceSecretsScript {
+        shb.replaceSecretsScript {
           file = ssoConfig;
           resultPath = "${config.services.jellyfin.dataDir}/plugins/configurations/SSO-Auth.xml";
           replacements = [
@@ -619,7 +622,7 @@ in
         }
       )
       + lib.strings.optionalString cfg.sso.enable (
-        lib.shb.replaceSecretsScript {
+        shb.replaceSecretsScript {
           file = brandingConfig;
           resultPath = "${config.services.jellyfin.dataDir}/config/branding.xml";
           replacements = [

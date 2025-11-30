@@ -2,6 +2,7 @@
   config,
   pkgs,
   lib,
+  shb,
   ...
 }:
 
@@ -76,10 +77,10 @@ let
 
   # Use SHB's replaceSecrets function for loading secrets at runtime
   configSetupScript = lib.optionalString (cfg.sso.enable || cfg.smtp != null) (
-    lib.shb.replaceSecrets {
+    shb.replaceSecrets {
       userConfig = shbManagedSettings;
       resultPath = configFile;
-      generator = lib.shb.replaceSecretsFormatAdapter (pkgs.formats.json { });
+      generator = shb.replaceSecretsFormatAdapter (pkgs.formats.json { });
       user = "immich";
       permissions = "u=r,g=,o=";
     }
@@ -106,6 +107,7 @@ let
 in
 {
   imports = [
+    ../../lib/module.nix
     ../blocks/nginx.nix
   ];
 

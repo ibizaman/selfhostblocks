@@ -1,9 +1,9 @@
-{ pkgs, lib }:
+{ pkgs, lib, shb }:
 let
   subdomain = "i";
   domain = "example.com";
 
-  commonTestScript = lib.shb.accessScript {
+  commonTestScript = shb.accessScript {
     hasSSL = { node, ... }: !(isNull node.config.shb.immich.ssl);
     waitForServices =
       { ... }:
@@ -25,7 +25,7 @@ let
     { config, ... }:
     {
       imports = [
-        lib.shb.baseModule
+        shb.baseModule
         ../../modules/services/immich.nix
       ];
 
@@ -60,7 +60,7 @@ let
     {
       imports = [
         base
-        lib.shb.certs
+        shb.certs
       ];
 
       test.hasSSL = true;
@@ -72,7 +72,7 @@ let
     {
       imports = [
         https
-        (lib.shb.backup config.shb.immich.backup)
+        (shb.backup config.shb.immich.backup)
       ];
     };
 
@@ -81,8 +81,8 @@ let
     {
       imports = [
         https
-        lib.shb.ldap
-        (lib.shb.sso config.shb.certs.certs.selfsigned.n)
+        shb.ldap
+        (shb.sso config.shb.certs.certs.selfsigned.n)
       ];
 
       shb.immich.sso = {
@@ -157,7 +157,7 @@ in
     nodes.client = { };
 
     testScript =
-      (lib.shb.mkScripts {
+      (shb.mkScripts {
         hasSSL = args: !(isNull args.node.config.shb.immich.ssl);
         waitForServices = args: [
           "immich-server.service"

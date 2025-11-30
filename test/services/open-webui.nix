@@ -1,8 +1,8 @@
-{ lib, ... }:
+{ shb, ... }:
 let
   oidcSecret = "oidcSecret";
 
-  commonTestScript = lib.shb.mkScripts {
+  commonTestScript = shb.mkScripts {
     hasSSL = { node, ... }: !(isNull node.config.shb.open-webui.ssl);
     waitForServices =
       { ... }:
@@ -21,7 +21,7 @@ let
     { config, ... }:
     {
       imports = [
-        lib.shb.baseModule
+        shb.baseModule
         ../../modules/blocks/hardcodedsecret.nix
         ../../modules/services/open-webui.nix
       ];
@@ -68,8 +68,8 @@ let
     { config, ... }:
     {
       imports = [
-        lib.shb.baseModule
-        lib.shb.clientLoginModule
+        shb.baseModule
+        shb.clientLoginModule
       ];
       virtualisation.memorySize = 4096;
       test = {
@@ -163,7 +163,7 @@ let
     };
 in
 {
-  basic = lib.shb.runNixOSTest {
+  basic = shb.runNixOSTest {
     name = "open-webui_basic";
 
     nodes.client = { };
@@ -176,7 +176,7 @@ in
     testScript = commonTestScript.access;
   };
 
-  backup = lib.shb.runNixOSTest {
+  backup = shb.runNixOSTest {
     name = "open-webui_backup";
 
     nodes.server =
@@ -184,7 +184,7 @@ in
       {
         imports = [
           basic
-          (lib.shb.backup config.shb.open-webui.backup)
+          (shb.backup config.shb.open-webui.backup)
         ];
       };
 
@@ -193,14 +193,14 @@ in
     testScript = commonTestScript.backup;
   };
 
-  https = lib.shb.runNixOSTest {
+  https = shb.runNixOSTest {
     name = "open-webui_https";
 
     nodes.client = { };
     nodes.server = {
       imports = [
         basic
-        lib.shb.certs
+        shb.certs
         https
       ];
     };
@@ -208,7 +208,7 @@ in
     testScript = commonTestScript.access;
   };
 
-  sso = lib.shb.runNixOSTest {
+  sso = shb.runNixOSTest {
     name = "open-webui_sso";
 
     nodes.client = {
@@ -221,11 +221,11 @@ in
       {
         imports = [
           basic
-          lib.shb.certs
+          shb.certs
           https
-          lib.shb.ldap
+          shb.ldap
           ldap
-          (lib.shb.sso config.shb.certs.certs.selfsigned.n)
+          (shb.sso config.shb.certs.certs.selfsigned.n)
           sso
         ];
       };

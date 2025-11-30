@@ -1,9 +1,9 @@
-{ pkgs, lib }:
+{ pkgs, lib, shb }:
 let
   subdomain = "p";
   domain = "example.com";
 
-  commonTestScript = lib.shb.accessScript {
+  commonTestScript = shb.accessScript {
     hasSSL = { node, ... }: !(isNull node.config.shb.paperless.ssl);
     waitForServices =
       { ... }:
@@ -24,7 +24,7 @@ let
     { config, ... }:
     {
       imports = [
-        lib.shb.baseModule
+        shb.baseModule
         ../../modules/services/paperless.nix
       ];
 
@@ -57,7 +57,7 @@ let
     {
       imports = [
         base
-        lib.shb.certs
+        shb.certs
       ];
 
       test.hasSSL = true;
@@ -69,7 +69,7 @@ let
     {
       imports = [
         https
-        (lib.shb.backup config.shb.paperless.backup)
+        (shb.backup config.shb.paperless.backup)
       ];
     };
 
@@ -78,8 +78,8 @@ let
     {
       imports = [
         https
-        lib.shb.ldap
-        (lib.shb.sso config.shb.certs.certs.selfsigned.n)
+        shb.ldap
+        (shb.sso config.shb.certs.certs.selfsigned.n)
       ];
 
       shb.paperless.sso = {
@@ -163,7 +163,7 @@ in
     nodes.client = { };
 
     testScript =
-      (lib.shb.mkScripts {
+      (shb.mkScripts {
         hasSSL = args: !(isNull args.node.config.shb.paperless.ssl);
         waitForServices = args: [
           "paperless-web.service"

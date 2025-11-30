@@ -2,6 +2,7 @@
   config,
   pkgs,
   lib,
+  shb,
   ...
 }:
 
@@ -29,6 +30,7 @@ let
 in
 {
   imports = [
+    ../../lib/module.nix
     ../blocks/nginx.nix
   ];
 
@@ -194,7 +196,7 @@ in
         lib.types.submodule {
           options = {
             password = lib.mkOption {
-              type = lib.shb.secretFileType;
+              type = shb.secretFileType;
               description = "File containing the user password.";
             };
           };
@@ -361,7 +363,7 @@ in
         };
 
         systemd.services.deluged.preStart = lib.mkBefore (
-          lib.shb.replaceSecrets {
+          shb.replaceSecrets {
             userConfig =
               cfg.extraUsers
               // {

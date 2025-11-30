@@ -1,4 +1,4 @@
-{ pkgs, lib }:
+{ pkgs, lib, shb }:
 let
   inherit (lib) getAttrFromPath setAttrByPath;
   inherit (lib) mkIf;
@@ -13,13 +13,13 @@ in
   mode ? "0400",
   restartUnits ? [ "myunit.service" ],
 }:
-lib.shb.runNixOSTest {
+shb.runNixOSTest {
   name = "secret_${name}_${owner}_${group}_${mode}";
 
   nodes.machine =
     { config, ... }:
     {
-      imports = [ lib.shb.baseImports ] ++ modules;
+      imports = [ shb.baseImports ] ++ modules;
       config = lib.mkMerge [
         (setAttrByPath configRoot {
           A = {

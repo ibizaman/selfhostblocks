@@ -2,6 +2,7 @@
   config,
   lib,
   pkgs,
+  shb,
   ...
 }:
 let
@@ -11,6 +12,7 @@ let
 in
 {
   imports = [
+    ../../lib/module.nix
     ../blocks/nginx.nix
   ];
 
@@ -204,7 +206,7 @@ in
         # instead of using the value from the cfg.meilisearchMasterKey option.
         systemd.services.karakeep-init = {
           script = lib.mkForce (
-            (lib.shb.replaceSecrets {
+            (shb.replaceSecrets {
               userConfig = {
                 MEILI_MASTER_KEY.source = cfg.meilisearchMasterKey.result.path;
                 NEXTAUTH_SECRET.source = cfg.nextauthSecret.result.path;
@@ -213,7 +215,7 @@ in
                 OAUTH_CLIENT_SECRET.source = cfg.sso.sharedSecret.result.path;
               };
               resultPath = "/var/lib/karakeep/settings.env";
-              generator = lib.shb.toEnvVar;
+              generator = shb.toEnvVar;
             })
             + ''
               export DATA_DIR="$STATE_DIRECTORY"

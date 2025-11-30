@@ -1,6 +1,6 @@
-{ pkgs, lib, ... }:
+{ shb, ... }:
 let
-  commonTestScript = lib.shb.mkScripts {
+  commonTestScript = shb.mkScripts {
     hasSSL = { node, ... }: !(isNull node.config.shb.grocy.ssl);
     waitForServices =
       { ... }:
@@ -19,7 +19,7 @@ let
     { config, ... }:
     {
       imports = [
-        lib.shb.baseModule
+        shb.baseModule
         ../../modules/services/grocy.nix
       ];
 
@@ -37,8 +37,8 @@ let
     { config, ... }:
     {
       imports = [
-        lib.shb.baseModule
-        lib.shb.clientLoginModule
+        shb.baseModule
+        shb.clientLoginModule
       ];
       virtualisation.memorySize = 4096;
 
@@ -81,7 +81,7 @@ let
     };
 in
 {
-  basic = lib.shb.runNixOSTest {
+  basic = shb.runNixOSTest {
     name = "grocy_basic";
 
     nodes.client = {
@@ -98,13 +98,13 @@ in
     testScript = commonTestScript.access;
   };
 
-  https = lib.shb.runNixOSTest {
+  https = shb.runNixOSTest {
     name = "grocy_https";
 
     nodes.server = {
       imports = [
         basic
-        lib.shb.certs
+        shb.certs
         https
       ];
     };
