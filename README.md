@@ -98,10 +98,10 @@ To get started using SelfHostBlocks, the following snippet is enough:
 
   outputs = { selfhostblocks, ... }: let
     system = "x86_64-linux";
-    shb = selfhostblocks.lib.${system};
+    nixpkgs' = selfhostblocks.lib.${system}.patchedNixpkgs;
   in
     nixosConfigurations = {
-      myserver = shb.pkgs.nixosSystem {
+      myserver = nixpkgs'.nixosSystem {
         inherit system;
         modules = [
           selfhostblocks.nixosModules.default
@@ -125,7 +125,6 @@ and also how to handle secrets management with [SOPS][].
 
 Then, to actually configure services, you can choose which one interests you in
 the [services section](https://shb.skarabox.com/services.html) of the manual.
-Not all services have a corresponding manual page yet.
 
 The [recipes section](https://shb.skarabox.com/recipes.html) of the manual shows some other common use cases.
 
