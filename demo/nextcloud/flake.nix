@@ -24,6 +24,7 @@
             selfhostblocks.nixosModules.authelia
             selfhostblocks.nixosModules.nextcloud-server
             selfhostblocks.nixosModules.nginx
+            selfhostblocks.nixosModules.overlay
             selfhostblocks.nixosModules.sops
             selfhostblocks.nixosModules.ssl
             sops-nix.nixosModules.default

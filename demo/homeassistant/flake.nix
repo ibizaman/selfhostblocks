@@ -19,13 +19,11 @@
       basic =
         { config, ... }:
         {
-          nixpkgs.overlays = [
-            selfhostblocks.overlays.${system}.default
-          ];
           imports = [
             ./configuration.nix
             selfhostblocks.nixosModules.authelia
             selfhostblocks.nixosModules.home-assistant
+            selfhostblocks.nixosModules.overlay
             selfhostblocks.nixosModules.sops
             selfhostblocks.nixosModules.ssl
             sops-nix.nixosModules.default

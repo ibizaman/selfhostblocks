@@ -36,11 +36,6 @@
             modules = [
               selfhostblocks.nixosModules.default
               filesystemModule
-              {
-                nixpkgs.overlays = [
-                  selfhostblocks.overlays.${system}.default
-                ];
-              }
               # This modules showcases the use of SHB's lib.
               (
                 {
@@ -75,11 +70,6 @@
               selfhostblocks.nixosModules.sops
               sops-nix.nixosModules.default
               filesystemModule
-              {
-                nixpkgs.overlays = [
-                  selfhostblocks.overlays.${system}.default
-                ];
-              }
               # This modules showcases the use of SHB's lib.
               (
                 {
@@ -120,11 +110,6 @@
               modules = [
                 selfhostblocks.nixosModules.default
                 filesystemModule
-                {
-                  nixpkgs.overlays = [
-                    selfhostblocks.overlays.${system}.default
-                  ];
-                }
                 # This modules showcases the use of SHB's lib.
                 (
                   {
@@ -173,11 +158,6 @@
               modules = [
                 selfhostblocks.nixosModules.default
                 filesystemModule
-                {
-                  nixpkgs.overlays = [
-                    selfhostblocks.overlays.${system}.default
-                  ];
-                }
                 # This modules showcases the use of SHB's lib.
                 (
                   {
