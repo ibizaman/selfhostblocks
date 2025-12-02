@@ -61,9 +61,6 @@
         pkgs = import patchedNixpkgs {
           inherit system;
           config.allowUnfree = true;
-          overlays = [
-            self.overlays.default
-          ];
         };
 
         # The contract dummies are used to show options for contracts.
@@ -370,13 +367,6 @@
 
       nixosModules.default = {
         imports = [
-          # We cannot use self.nixosModules.overlay otherwise it leeds to infinite recursion.
-          {
-            nixpkgs.overlays = [
-              self.overlays.default
-            ];
-          }
-
           # blocks
           self.nixosModules.authelia
           self.nixosModules.borgbackup
@@ -412,11 +402,6 @@
         ];
       };
 
-      nixosModules.overlay = {
-        nixpkgs.overlays = [
-          self.overlays.default
-        ];
-      };
       nixosModules.lib = lib/module.nix;
 
       nixosModules.authelia = modules/blocks/authelia.nix;
@@ -450,20 +435,5 @@
       nixosModules.paperless = modules/services/paperless.nix;
       nixosModules.pinchflat = modules/services/pinchflat.nix;
       nixosModules.vaultwarden = modules/services/vaultwarden.nix;
-
-      overlays.default = final: prev: {
-        # shb = self.nixosModules.lib;
-        prometheus-systemd-exporter = prev.prometheus-systemd-exporter.overrideAttrs {
-          src = final.fetchFromGitHub {
-            owner = "ibizaman";
-            repo = prev.prometheus-systemd-exporter.pname;
-            # rev = "v${prev.prometheus-systemd-exporter.version}";
-            rev = "next_timer";
-            sha256 = "sha256-jzkh/616tsJbNxFtZ0xbdBQc16TMIYr9QOkPaeQw8xA=";
-          };
-
-          vendorHash = "sha256-4hsQ1417jLNOAqGkfCkzrmEtYR4YLLW2j0CiJtPg6GI=";
-        };
-      };
     };
 }
