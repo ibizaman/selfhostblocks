@@ -1967,9 +1967,6 @@
   "native-prometheus-metrics": [
     "service-implementation-guide.html#native-prometheus-metrics"
   ],
-  "next-steps": [
-    "index.html#next-steps"
-  ],
   "nixpkgs-integration": [
     "service-implementation-guide.html#nixpkgs-integration"
   ],
@@ -1978,6 +1975,54 @@
   ],
   "preface": [
     "index.html#preface"
+  ],
+  "preface-blocks": [
+    "index.html#preface-blocks"
+  ],
+  "preface-community": [
+    "index.html#preface-community"
+  ],
+  "preface-contracts": [
+    "index.html#preface-contracts"
+  ],
+  "preface-demos": [
+    "index.html#preface-demos"
+  ],
+  "preface-features": [
+    "index.html#preface-features"
+  ],
+  "preface-funding": [
+    "index.html#preface-funding"
+  ],
+  "preface-giants": [
+    "index.html#preface-giants"
+  ],
+  "preface-interface": [
+    "index.html#preface-interface"
+  ],
+  "preface-license": [
+    "index.html#preface-license"
+  ],
+  "preface-roadmap": [
+    "index.html#preface-roadmap"
+  ],
+  "preface-services": [
+    "index.html#preface-services"
+  ],
+  "preface-unified-interfaces": [
+    "index.html#preface-unified-interfaces"
+  ],
+  "preface-updates": [
+    "index.html#preface-updates"
+  ],
+  "preface-usage": [
+    "index.html#preface-usage"
+  ],
+  "preface-usage-installation-from-scratch": [
+    "index.html#preface-usage-installation-from-scratch"
+  ],
+  "preface-why-self-hosting": [
+    "index.html#preface-why-self-hosting"
   ],
   "quick-reference": [
     "service-implementation-guide.html#quick-reference"

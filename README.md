@@ -289,7 +289,7 @@ shb.forgejo = {
 As you can see, they are pretty similar!
 This makes setting up a new service pretty easy and intuitive.
 
-SelfHostBlocks provides an ever growing list of [services](#provided-services)
+SelfHostBlocks provides an ever growing list of [services](#services)
 that are configured in the same way.
 
 ### Contracts
