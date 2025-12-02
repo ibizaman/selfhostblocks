@@ -1,4 +1,4 @@
-{ lib, shb, ... }:
+{ shb, ... }:
 let
   password = "securepw";
   oidcSecret = "oidcSecret";
@@ -164,6 +164,8 @@ in
   basic = shb.test.runNixOSTest {
     name = "monitoring_basic";
 
+    node.pkgsReadOnly = false;
+
     nodes.server = {
       imports = [
         basic
@@ -177,6 +179,8 @@ in
 
   https = shb.test.runNixOSTest {
     name = "monitoring_https";
+
+    node.pkgsReadOnly = false;
 
     nodes.server = {
       imports = [
@@ -193,6 +197,8 @@ in
 
   sso = shb.test.runNixOSTest {
     name = "monitoring_sso";
+
+    node.pkgsReadOnly = false;
 
     nodes.client = {
       imports = [
