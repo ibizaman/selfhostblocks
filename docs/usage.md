@@ -30,7 +30,7 @@ Host Blocks:
 }
 ```
 
-::: {.info}
+::: {.note}
 In case somehow this documentation became stale,
 look at the examples in [`./demo/minimal/flake.nix`](@REPO@/demo/minimal/flake.nix)
 which provides examples tested in CI - so assured to always be up to date -
