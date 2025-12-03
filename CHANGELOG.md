@@ -16,6 +16,13 @@ Template:
 
 # Upcoming Release
 
+# v0.7.0
+
+## Breaking Changes
+
+- Fix pkgs overrides not being passed to users of SelfHostBlocks.
+  This will require to update your flake to follow the example in the [Usage](https://shb.skarabox.com/usage.html) section.
+
 ## New Features
 
 - Add a Grafana dashboard showing stats on backup jobs
@@ -27,7 +34,6 @@ Template:
 
 - Allow to upload big files in Immich.
 - Only enable php-fpm Prometheus exporter if Nextcloud is enabled.
-- Fix pkgs overrides not being passed to users of SelfHostBlocks.
 
 ## Other Changes
 
