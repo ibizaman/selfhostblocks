@@ -24,7 +24,7 @@ in
     }:
     mkOption {
       description = ''
-        Request part of the backup contract.
+        Request part of the database backup contract.
 
         Options set by the requester module
         enforcing how to backup files.
@@ -122,9 +122,9 @@ in
     }:
     mkOption {
       description = ''
-        Result part of the backup contract.
+        Result part of the database backup contract.
 
-        Options set by the provider module that indicates the name of the backup and restor scripts.
+        Options set by the provider module that indicates the name of the backup and restore scripts.
       '';
       default = {
         inherit restoreScript backupService;

@@ -158,7 +158,7 @@ in
       description = ''
         Result part of the backup contract.
 
-        Options set by the provider module that indicates the name of the backup and restor scripts.
+        Options set by the provider module that indicates the name of the backup and restore scripts.
       '';
       default = {
         inherit restoreScript backupService;
