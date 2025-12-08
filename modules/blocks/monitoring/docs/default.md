@@ -205,6 +205,45 @@ and the total requests to that service exceeds 1%.
 ![Error Dashboard Top Part](./assets/alert_rules_5xx_1.png)
 ![Error Dashboard Bottom Part](./assets/alert_rules_5xx_2.png)
 
+## SSL Certificates Dashboard and Alert {#blocks-monitoring-ssl}
+
+This dashboard shows Let's Encrypt renewal and setup jobs,
+or any job starting with "acme-" in the systemd service name.
+
+### Dashboard {#blocks-monitoring-ssl-dashboard}
+
+Variables:
+
+- The "Job" variable allows to focus on one or more certificate. "All" is the default.
+
+Graphs:
+
+- "Certificate Remaining Validity": Shows in how long will certificates expire.
+  It shows all files under `/var/lib/acme`.
+  An annotation will show up when the "Certificate Did Not Renew" alert fired or resolved.
+- "Schedule": Shows when a job will run.
+  The unit is "Datetime from Now" meaning it shows when a job ran or will run relative to the current time.
+- "Jobs in the Past Week": Shows stats on all renewal jobs that ran in the past.
+  It is sorted by the "Failed" column in descending order.
+  This way, one can directly see when a job has failures.
+  Note, the stats is not accurate because detecting jobs taking taking less than 15 seconds
+  is not supported well.
+- "Job Runs": Shows when a renewal job ran.
+  Normally, jobs running for less than 15 seconds will not show up in the graph.
+  We crafted a query that still shows them but the length is 100 seconds, even if the job
+  took less time to run.
+
+![SSL Dashboard No Filter](./assets/dashboards_SSL_all.png)
+![SSL Dashboard Filter Failing](./assets/dashboards_SSL_fail.png)
+
+### Alerts {#blocks-monitoring-ssl-alerts}
+
+- The "Certificate Did Not Renew" alert will fire if a backup job did not run at all in the last 24 hours
+    or if all runs were failures in the last 24 hours.
+  It will show up as annotations in the "Schedule" panel of the dashboard.
+
+![Late SSL Jobs Alert Firing](./assets/alert_rules_LateSSL_1.png)
+
 ## Options Reference {#blocks-monitoring-options}
 
 ```{=include=} options
