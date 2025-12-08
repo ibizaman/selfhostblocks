@@ -146,7 +146,7 @@
             "uid": "df80f9f5-97d7-4112-91d8-72f523a02b09"
           },
           "editorMode": "code",
-          "expr": "ssl_certificate_expiry_seconds",
+          "expr": "min by(subject) (ssl_certificate_expiry_seconds)",
           "interval": "",
           "intervalMs": 15000,
           "legendFormat": "{{exported_hostname}}: {{subject}} {{path}}",
