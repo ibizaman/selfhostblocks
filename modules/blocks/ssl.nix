@@ -495,7 +495,7 @@ in
                 [
                   {
                     "${name}" = {
-                      extraDomainNames = [ certCfg.domain ] ++ certCfg.extraDomains;
+                      extraDomainNames = certCfg.extraDomains;
                       email = certCfg.adminEmail;
                       enableDebugLogs = certCfg.debug;
                       server = lib.mkIf certCfg.stagingServer "https://acme-staging-v02.api.letsencrypt.org/directory";
