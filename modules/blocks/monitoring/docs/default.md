@@ -162,7 +162,7 @@ This dashboard is used to monitor a [deluge](./services-deluge.html) instance.
 
 ## Backups Dashboard and Alert {#blocks-monitoring-backup}
 
-This dashboard show Restic and BorgBackup backup jobs, or any job with "backup" in the systemd service name.
+This dashboard shows Restic and BorgBackup backup jobs, or any job with "backup" in the systemd service name.
 
 ### Dashboard {#blocks-monitoring-backup-dashboard}
 
