@@ -376,7 +376,7 @@
     "annotations": {
       "__dashboardUid__": "f05500d0-15ed-4719-b68d-fb898ca13cc8",
       "__panelId__": "15",
-      "summary": "A backup for service {{name}} did not run in the last 24 hours."
+      "summary": "A backup did not run in the last 24 hours."
     },
     "labels": {
       "role": "sysadmin"
