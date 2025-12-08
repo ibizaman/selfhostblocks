@@ -338,6 +338,40 @@ in
       serviceName = lib.strings.removeSuffix ".service";
     in
     lib.mkMerge [
+      # Generic assertions
+      {
+        assertions = lib.flatten (
+          lib.mapAttrsToList (
+            _name: certCfg:
+            (
+              let
+                domainInExtraDomains =
+                  (lib.lists.findFirstIndex (x: x == certCfg.domain) null certCfg.extraDomains) != null;
+                firstDuplicateDomain =
+                  (
+                    l:
+                    let
+                      sorted = lib.sort (x: y: x < y) l;
+                      maybeDupe = lib.lists.removePrefix (lib.lists.commonPrefix (lib.uniqueStrings sorted) sorted) sorted;
+                    in
+                    if maybeDupe == [ ] then null else lib.head maybeDupe
+                  )
+                    certCfg.extraDomains;
+              in
+              [
+                {
+                  assertion = !domainInExtraDomains;
+                  message = "Error in SHB option for domain ${certCfg.domain}: do not repeat the domain name in the `extraDomain` option.";
+                }
+                {
+                  assertion = firstDuplicateDomain == null;
+                  message = "Error in SHB option for domain ${certCfg.domain}: `extraDomain` option cannot have duplicates, first offender is: ${firstDuplicateDomain} in the following list: ${lib.concatStringsSep " " certCfg.extraDomains}.";
+                }
+              ]
+            )
+          ) (cfg.certs.selfsigned // cfg.certs.letsencrypt)
+        );
+      }
       # Config for self-signed CA.
       {
         systemd.services = lib.mapAttrs' (
