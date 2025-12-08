@@ -224,7 +224,8 @@ shb.test.backup.instances.all = backupcfg repos ["/var/lib/myfolder1" "/var/lib/
 
 ## Monitoring {#blocks-borgbackup-monitoring}
 
-[WIP](https://github.com/ibizaman/selfhostblocks/issues/151)
+A generic dashboard for all backup solutions is provided.
+See [Backups Dashboard and Alert](blocks-monitoring.html#blocks-monitoring-backup) section in the monitoring chapter.
 
 ## Maintenance {#blocks-borgbackup-maintenance}
 
