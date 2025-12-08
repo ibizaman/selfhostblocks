@@ -1121,6 +1121,15 @@
   "blocks-monitoring-provisioning": [
     "blocks-monitoring.html#blocks-monitoring-provisioning"
   ],
+  "blocks-monitoring-ssl": [
+    "blocks-monitoring.html#blocks-monitoring-ssl"
+  ],
+  "blocks-monitoring-ssl-alerts": [
+    "blocks-monitoring.html#blocks-monitoring-ssl-alerts"
+  ],
+  "blocks-monitoring-ssl-dashboard": [
+    "blocks-monitoring.html#blocks-monitoring-ssl-dashboard"
+  ],
   "blocks-monitoring-usage": [
     "blocks-monitoring.html#blocks-monitoring-usage"
   ],
@@ -1456,6 +1465,12 @@
   ],
   "blocks-sops-usage-requester": [
     "blocks-sops.html#blocks-sops-usage-requester"
+  ],
+  "blocks-ssl-debug-lets-encrypt": [
+    "blocks-ssl.html#blocks-ssl-debug-lets-encrypt"
+  ],
+  "blocks-ssl-monitoring": [
+    "blocks-ssl.html#blocks-ssl-monitoring"
   ],
   "blocks-ssl-options-shb.certs.cas.selfsigned": [
     "blocks-ssl.html#blocks-ssl-options-shb.certs.cas.selfsigned"
