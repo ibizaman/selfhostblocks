@@ -16,6 +16,21 @@ Template:
 
 # Upcoming Release
 
+# v0.7.1
+
+## New Features
+
+- Add a Grafana dashboard showing SSL certificate renewal jobs
+
+## Fixes
+
+- Fix let's encrypt certificate renewal jobs by removing duplicated domain name.
+  Also adds an assertion to catch these kinds of errors.
+
+## Other Changes
+
+- Reduce number of late SSL renewal alert by merging all metrics corresponding to one CN.
+
 # v0.7.0
 
 ## Breaking Changes
