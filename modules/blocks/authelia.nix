@@ -11,7 +11,7 @@ let
   cfg = config.shb.authelia;
   opt = options.shb.authelia;
 
-  fqdn = "${cfg.subdomain}.${cfg.domain}";
+  fqdn = builtins.replaceStrings [ "." ] [ "_" ] "${cfg.subdomain}.${cfg.domain}";
   fqdnWithPort = if isNull cfg.port then fqdn else "${fqdn}:${toString cfg.port}";
 
   autheliaCfg = config.services.authelia.instances.${fqdn};
