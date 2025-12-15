@@ -163,6 +163,28 @@ must have the same content. The former is a file that must be owned by the `forg
 the latter must be owned by the `authelia` user. I want to avoid needing to define the same secret
 twice with a future secrets SHB block.
 
+### SMTP {#services-forgejo-usage-smtp}
+
+To send e-mails, notifications, define the SMTP settings like so:
+
+```nix
+{
+  services.forgejo = {
+    smtp = {
+      host = "smtp.mailgun.org";
+      port = 587;
+      username = "postmaster@mg.${domain}";
+      from_address = "authelia@${domain}";
+      password.result = config.shb.sops.secret."forgejo/smtpPassword".result;
+    };
+  };
+
+  shb.sops.secret."forgejo/smtpPassword" = {
+    request = config.shb.forgejo.smtp.password.request;
+  };
+}
+```
+
 ### Backup {#services-forgejo-usage-backup}
 
 Every hour, Forgejo takes a backup using the [built-in `dump` command](https://forgejo.org/docs/latest/admin/command-line/#dump).
