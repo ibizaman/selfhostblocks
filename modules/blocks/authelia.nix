@@ -485,8 +485,7 @@ in
             filename = cfg.smtp;
           };
           smtp = lib.mkIf (!(builtins.isString cfg.smtp)) {
-            host = cfg.smtp.host;
-            port = cfg.smtp.port;
+            address = "smtp://${cfg.smtp.host}:${toString cfg.smtp.port}";
             username = cfg.smtp.username;
             sender = "${cfg.smtp.from_name} <${cfg.smtp.from_address}>";
             subject = "[Authelia] {title}";
