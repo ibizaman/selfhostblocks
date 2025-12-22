@@ -457,9 +457,6 @@ in
           sso = lib.mkOption {
             description = ''
               SSO Integration App. [Manual](https://docs.nextcloud.com/server/latest/admin_manual/configuration_user/oidc_auth.html)
-
-              Enabling this app will create a new LDAP configuration or update one that exists with
-              the given host.
             '';
             default = { };
             type = lib.types.submodule {
