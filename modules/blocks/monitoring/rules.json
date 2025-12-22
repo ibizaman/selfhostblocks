@@ -275,7 +275,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "(\n  # No run in the last 24 hours\n  systemd_timer_last_trigger_seconds{name=~\".*backup.*.timer\"}\n    ==\n  systemd_timer_last_trigger_seconds{name=~\".*backup.*.timer\"} offset 24h\n)\nOR\n(\n  # All runs in last 24 hours failed\n  label_replace((\n    time()\n      -\n    systemd_timer_last_trigger_seconds{name=~\".*backup.*.timer\"}\n  ) < 24*60*60, \"name\", \"$1.service\", \"name\", \"(.*).timer\")\n  AND on(name)\n  (\n    max_over_time(systemd_unit_state{name=~\".*backup.*.service\", state=\"failed\"}[24h]) > 0\n  )\n)",
+          "expr": "(\n  # Timer triggered at least once in the last 24h\n  label_replace((\n    time()\n      -\n    systemd_timer_last_trigger_seconds{name=~\".*backup.*.timer\"}\n  ) < 24*60*60, \"name\", \"$1.service\", \"name\", \"(.*).timer\")\n  AND on(name)\n  # At least one failure in the last 24h\n  (\n    max_over_time(systemd_unit_state{name=~\".*backup.*.service\", state=\"failed\"}[24h]) > 0\n  )\n  AND on(name)\n  # No successes in the last 24h\n  (\n    max_over_time(systemd_unit_state{name=~\".*backup.*.service\", state=\"inactive\"}[24h]) == 0\n  )\n)",
           "instant": false,
           "interval": "",
           "intervalMs": 15000,
