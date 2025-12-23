@@ -295,6 +295,15 @@ in
                 description = "SMTP name from which the emails originate.";
                 default = "Authelia";
               };
+              scheme = lib.mkOption {
+                description = "The protocl must be smtp, submission, or submissions. The only difference between these schemes are the default ports and submissions requires a TLS transport per SMTP Ports Security Measures, whereas submission and smtp use a standard TCP transport and typically enforce StartTLS.";
+                type = lib.types.enum [
+                  "smtp"
+                  "submission"
+                  "submissions"
+                ];
+                default = "smtp";
+              };
               host = lib.mkOption {
                 type = lib.types.str;
                 description = "SMTP host to send the emails to.";
@@ -485,7 +494,7 @@ in
             filename = cfg.smtp;
           };
           smtp = lib.mkIf (!(builtins.isString cfg.smtp)) {
-            address = "smtp://${cfg.smtp.host}:${toString cfg.smtp.port}";
+            address = "${cfg.smtp.scheme}://${cfg.smtp.host}:${toString cfg.smtp.port}";
             username = cfg.smtp.username;
             sender = "${cfg.smtp.from_name} <${cfg.smtp.from_address}>";
             subject = "[Authelia] {title}";
