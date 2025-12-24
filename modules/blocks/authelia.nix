@@ -11,7 +11,7 @@ let
   cfg = config.shb.authelia;
   opt = options.shb.authelia;
 
-  fqdn = "${cfg.subdomain}.${cfg.domain}";
+  fqdn = builtins.replaceStrings [ "." ] [ "_" ] "${cfg.subdomain}.${cfg.domain}";
   fqdnWithPort = if isNull cfg.port then fqdn else "${fqdn}:${toString cfg.port}";
 
   autheliaCfg = config.services.authelia.instances.${fqdn};
@@ -295,6 +295,15 @@ in
                 description = "SMTP name from which the emails originate.";
                 default = "Authelia";
               };
+              scheme = lib.mkOption {
+                description = "The protocl must be smtp, submission, or submissions. The only difference between these schemes are the default ports and submissions requires a TLS transport per SMTP Ports Security Measures, whereas submission and smtp use a standard TCP transport and typically enforce StartTLS.";
+                type = lib.types.enum [
+                  "smtp"
+                  "submission"
+                  "submissions"
+                ];
+                default = "smtp";
+              };
               host = lib.mkOption {
                 type = lib.types.str;
                 description = "SMTP host to send the emails to.";
@@ -411,20 +420,19 @@ in
       secrets = {
         jwtSecretFile = cfg.secrets.jwtSecret.result.path;
         storageEncryptionKeyFile = cfg.secrets.storageEncryptionKey.result.path;
+        sessionSecretFile = cfg.secrets.sessionSecret.result.path;
+        oidcIssuerPrivateKeyFile = cfg.secrets.identityProvidersOIDCIssuerPrivateKey.result.path;
+        oidcHmacSecretFile = cfg.secrets.identityProvidersOIDCHMACSecret.result.path;
       };
       # See https://www.authelia.com/configuration/methods/secrets/
       environmentVariables = {
         AUTHELIA_AUTHENTICATION_BACKEND_LDAP_PASSWORD_FILE = toString cfg.secrets.ldapAdminPassword.result.path;
-        AUTHELIA_SESSION_SECRET_FILE = toString cfg.secrets.sessionSecret.result.path;
         # Not needed since we use peer auth.
         # AUTHELIA_STORAGE_POSTGRES_PASSWORD_FILE = "/run/secrets/authelia/postgres_password";
-        AUTHELIA_STORAGE_ENCRYPTION_KEY_FILE = toString cfg.secrets.storageEncryptionKey.result.path;
-        AUTHELIA_IDENTITY_PROVIDERS_OIDC_HMAC_SECRET_FILE = toString cfg.secrets.identityProvidersOIDCHMACSecret.result.path;
-        AUTHELIA_IDENTITY_PROVIDERS_OIDC_ISSUER_PRIVATE_KEY_FILE = toString cfg.secrets.identityProvidersOIDCIssuerPrivateKey.result.path;
-
         AUTHELIA_NOTIFIER_SMTP_PASSWORD_FILE = lib.mkIf (!(builtins.isString cfg.smtp)) (
           toString cfg.smtp.password.result.path
         );
+        X_AUTHELIA_CONFIG_FILTERS = "template";
       };
       settings = {
         server.address = "tcp://127.0.0.1:${toString listenPort}";
@@ -486,8 +494,7 @@ in
             filename = cfg.smtp;
           };
           smtp = lib.mkIf (!(builtins.isString cfg.smtp)) {
-            host = cfg.smtp.host;
-            port = cfg.smtp.port;
+            address = "${cfg.smtp.scheme}://${cfg.smtp.host}:${toString cfg.smtp.port}";
             username = cfg.smtp.username;
             sender = "${cfg.smtp.from_name} <${cfg.smtp.from_address}>";
             subject = "[Authelia] {title}";

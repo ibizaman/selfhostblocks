@@ -75,7 +75,9 @@ let
     ''
     + lib.strings.concatMapStrings (s: ''server.wait_for_unit("${s}")'' + "\n") (
       waitForServices args
-      ++ (lib.optionals autheliaEnabled [ "authelia-auth.${cfg.domain}.service" ])
+      ++ (lib.optionals autheliaEnabled [
+        "authelia-auth_${builtins.replaceStrings [ "." ] [ "_" ] cfg.domain}.service"
+      ])
       ++ (lib.optionals lldapEnabled [ "lldap.service" ])
     )
     + lib.strings.concatMapStrings (p: ''server.wait_for_open_port(${toString p})'' + "\n") (
@@ -230,6 +232,7 @@ in
         baseImports
         ../modules/blocks/hardcodedsecret.nix
         ../modules/blocks/nginx.nix
+        ../modules/blocks/postgresql.nix
       ];
       config = {
         # HTTP(s) server port.

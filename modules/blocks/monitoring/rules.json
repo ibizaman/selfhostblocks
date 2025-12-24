@@ -371,7 +371,7 @@
     ],
     "dashboardUid": "f05500d0-15ed-4719-b68d-fb898ca13cc8",
     "panelId": 15,
-    "noDataState": "NoData",
+    "noDataState": "OK",
     "execErrState": "Error",
     "annotations": {
       "__dashboardUid__": "f05500d0-15ed-4719-b68d-fb898ca13cc8",

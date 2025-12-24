@@ -385,9 +385,16 @@ in
             type = str;
             description = "Username to connect to the SMTP host.";
           };
-          passwordFile = mkOption {
-            type = str;
+          password = mkOption {
             description = "File containing the password to connect to the SMTP host.";
+            type = submodule {
+              options = shb.contracts.secret.mkRequester {
+                mode = "0440";
+                owner = "forgejo";
+                group = "forgejo";
+                restartUnits = [ "forgejo.service" ];
+              };
+            };
           };
         };
       });
@@ -617,7 +624,7 @@ in
         SMTP_ADDR = "${cfg.smtp.host}:${toString cfg.smtp.port}";
         FROM = cfg.smtp.from_address;
         USER = cfg.smtp.username;
-        PASSWD = cfg.smtp.passwordFile;
+        PASSWD = cfg.smtp.password.result.path;
       };
     })
 

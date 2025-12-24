@@ -2795,8 +2795,29 @@
   "services-forgejo-options-shb.forgejo.smtp.host": [
     "services-forgejo.html#services-forgejo-options-shb.forgejo.smtp.host"
   ],
-  "services-forgejo-options-shb.forgejo.smtp.passwordFile": [
-    "services-forgejo.html#services-forgejo-options-shb.forgejo.smtp.passwordFile"
+  "services-forgejo-options-shb.forgejo.smtp.password": [
+    "services-forgejo.html#services-forgejo-options-shb.forgejo.smtp.password"
+  ],
+  "services-forgejo-options-shb.forgejo.smtp.password.request": [
+    "services-forgejo.html#services-forgejo-options-shb.forgejo.smtp.password.request"
+  ],
+  "services-forgejo-options-shb.forgejo.smtp.password.request.group": [
+    "services-forgejo.html#services-forgejo-options-shb.forgejo.smtp.password.request.group"
+  ],
+  "services-forgejo-options-shb.forgejo.smtp.password.request.mode": [
+    "services-forgejo.html#services-forgejo-options-shb.forgejo.smtp.password.request.mode"
+  ],
+  "services-forgejo-options-shb.forgejo.smtp.password.request.owner": [
+    "services-forgejo.html#services-forgejo-options-shb.forgejo.smtp.password.request.owner"
+  ],
+  "services-forgejo-options-shb.forgejo.smtp.password.request.restartUnits": [
+    "services-forgejo.html#services-forgejo-options-shb.forgejo.smtp.password.request.restartUnits"
+  ],
+  "services-forgejo-options-shb.forgejo.smtp.password.result": [
+    "services-forgejo.html#services-forgejo-options-shb.forgejo.smtp.password.result"
+  ],
+  "services-forgejo-options-shb.forgejo.smtp.password.result.path": [
+    "services-forgejo.html#services-forgejo-options-shb.forgejo.smtp.password.result.path"
   ],
   "services-forgejo-options-shb.forgejo.smtp.port": [
     "services-forgejo.html#services-forgejo-options-shb.forgejo.smtp.port"
@@ -2938,6 +2959,9 @@
   ],
   "services-forgejo-usage-ldap": [
     "services-forgejo.html#services-forgejo-usage-ldap"
+  ],
+  "services-forgejo-usage-smtp": [
+    "services-forgejo.html#services-forgejo-usage-smtp"
   ],
   "services-forgejo-usage-sso": [
     "services-forgejo.html#services-forgejo-usage-sso"
