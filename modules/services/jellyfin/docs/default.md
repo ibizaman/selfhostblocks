@@ -15,8 +15,8 @@ and LDAP and SSO integration.
 - Declarative selection of listening port.
 - Access through [subdomain](#services-jellyfin-options-shb.jellyfin.subdomain) using reverse proxy. [Manual](#services-jellyfin-usage-configuration).
 - Access through [HTTPS](#services-jellyfin-options-shb.jellyfin.ssl) using reverse proxy. [Manual](#services-jellyfin-usage-https).
-- Declarative [LDAP](#services-jellyfin-options-shb.jellyfin.ldap) configuration. [Manual](#services-jellyfin-usage-ldap).
-- Declarative [SSO](#services-jellyfin-options-shb.jellyfin.sso) configuration. [Manual](#services-jellyfin-usage-sso).
+- Declarative [LDAP](#services-jellyfin-options-shb.jellyfin.ldap) configuration although plugin must be installed manually. [Manual](#services-jellyfin-usage-ldap).
+- Declarative [SSO](#services-jellyfin-options-shb.jellyfin.sso) configuration although plugin must be installed manually. [Manual](#services-jellyfin-usage-sso).
 - [Backup](#services-jellyfin-options-shb.jellyfin.backup) through the [backup block](./blocks-backup.html). [Manual](#services-jellyfin-usage-backup).
 
 ## Usage {#services-jellyfin-usage}
@@ -109,6 +109,14 @@ with the `key` option.
 The other secrets can be randomly generated with
 `nix run nixpkgs#openssl -- rand -hex 64`.
 
+Then, install the plugin [LDAP-Auth](https://github.com/jellyfin/jellyfin-plugin-ldapauth).
+It should be available from the official repository already.
+No manual configuration of the plugin is needed, just installation.
+Note that the version tested with is 19.0.0.0.
+If your version differs, it could lead to some configuration mismatch.
+If that's the case, please [open an issue](https://github.com/ibizaman/selfhostblocks/issues/new)
+or join the [support channel](https://img.shields.io/matrix/selfhostblocks%3Amatrix.org).
+
 And that's it.
 Now, go to the LDAP server at `http://ldap.example.com`,
 create the `jellyfin_user` and `jellyfin_admin` groups,
@@ -148,6 +156,14 @@ The `shb.jellyfin.sso.secretFile` and `shb.jellyfin.sso.secretFileForAuthelia` o
 must have the same content. The former is a file that must be owned by the `jellyfin` user while
 the latter must be owned by the `authelia` user. I want to avoid needing to define the same secret
 twice with a future secrets SHB block.
+
+Then, install the plugin [SSO-Auth](https://github.com/9p4/jellyfin-plugin-sso).
+It should be available from the official repository already.
+No manual configuration of the plugin is needed, just installation.
+Note that the version tested with is 3.5.2.4.
+If your version differs, it could lead to some configuration mismatch.
+If that's the case, please [open an issue](https://github.com/ibizaman/selfhostblocks/issues/new)
+or join the [support channel](https://img.shields.io/matrix/selfhostblocks%3Amatrix.org).
 
 ### Backup {#services-jellyfin-usage-backup}
 
