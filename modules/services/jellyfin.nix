@@ -550,6 +550,7 @@ in
                       <string>groups</string>
                     </OidScopes>
                     <CanonicalLinks />
+                    <DisablePushedAuthorization>true</DisablePushedAuthorization>
                   </PluginConfiguration>
                 </value>
               </item>
@@ -839,7 +840,15 @@ in
         require_pkce = true;
         pkce_challenge_method = "S256";
         userinfo_signed_response_alg = "none";
+        # Jellyfin SSO plugin uses client_secret_post for token exchange
         token_endpoint_auth_method = "client_secret_post";
+        # Required OIDC scopes for Authelia to return group claims
+        scopes = [
+          "openid"
+          "profile"
+          "email"
+          "groups"
+        ];
       }
     ];
   };
