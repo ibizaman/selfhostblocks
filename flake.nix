@@ -104,6 +104,7 @@
             "blocks/restic" = ./modules/blocks/restic.nix;
             "blocks/sops" = ./modules/blocks/sops.nix;
             "services/arr" = ./modules/services/arr.nix;
+            "services/firefly-iii" = ./modules/services/firefly-iii.nix;
             "services/forgejo" = [
               ./modules/services/forgejo.nix
               (pkgs.path + "/nixos/modules/services/misc/forgejo.nix")
@@ -280,6 +281,7 @@
             // (vm_test "arr" ./test/services/arr.nix)
             // (vm_test "audiobookshelf" ./test/services/audiobookshelf.nix)
             // (vm_test "deluge" ./test/services/deluge.nix)
+            // (vm_test "firefly-iii" ./test/services/firefly-iii.nix)
             // (vm_test "forgejo" ./test/services/forgejo.nix)
             // (vm_test "grocy" ./test/services/grocy.nix)
             // (vm_test "hledger" ./test/services/hledger.nix)
@@ -388,6 +390,7 @@
           self.nixosModules.arr
           self.nixosModules.audiobookshelf
           self.nixosModules.deluge
+          self.nixosModules.firefly-iii
           self.nixosModules.forgejo
           self.nixosModules.grocy
           self.nixosModules.hledger
@@ -424,6 +427,7 @@
       nixosModules.arr = modules/services/arr.nix;
       nixosModules.audiobookshelf = modules/services/audiobookshelf.nix;
       nixosModules.deluge = modules/services/deluge.nix;
+      nixosModules.firefly-iii = modules/services/firefly-iii.nix;
       nixosModules.forgejo = modules/services/forgejo.nix;
       nixosModules.grocy = modules/services/grocy.nix;
       nixosModules.hledger = modules/services/hledger.nix;

@@ -2711,11 +2711,305 @@
   "services-category-documents": [
     "services.html#services-category-documents"
   ],
+  "services-category-finance": [
+    "services.html#services-category-finance"
+  ],
   "services-category-media": [
     "services.html#services-category-media"
   ],
   "services-category-passwords": [
     "services.html#services-category-passwords"
+  ],
+  "services-firefly-iii": [
+    "services-firefly-iii.html#services-firefly-iii"
+  ],
+  "services-firefly-iii-certs": [
+    "services-firefly-iii.html#services-firefly-iii-certs"
+  ],
+  "services-firefly-iii-database-inspection": [
+    "services-firefly-iii.html#services-firefly-iii-database-inspection"
+  ],
+  "services-firefly-iii-declarative-ldap": [
+    "services-firefly-iii.html#services-firefly-iii-declarative-ldap"
+  ],
+  "services-firefly-iii-impermanence": [
+    "services-firefly-iii.html#services-firefly-iii-impermanence"
+  ],
+  "services-firefly-iii-mobile": [
+    "services-firefly-iii.html#services-firefly-iii-mobile"
+  ],
+  "services-firefly-iii-options": [
+    "services-firefly-iii.html#services-firefly-iii-options"
+  ],
+  "services-firefly-iii-options-shb.firefly-iii.appKey": [
+    "services-firefly-iii.html#services-firefly-iii-options-shb.firefly-iii.appKey"
+  ],
+  "services-firefly-iii-options-shb.firefly-iii.appKey.request": [
+    "services-firefly-iii.html#services-firefly-iii-options-shb.firefly-iii.appKey.request"
+  ],
+  "services-firefly-iii-options-shb.firefly-iii.appKey.request.group": [
+    "services-firefly-iii.html#services-firefly-iii-options-shb.firefly-iii.appKey.request.group"
+  ],
+  "services-firefly-iii-options-shb.firefly-iii.appKey.request.mode": [
+    "services-firefly-iii.html#services-firefly-iii-options-shb.firefly-iii.appKey.request.mode"
+  ],
+  "services-firefly-iii-options-shb.firefly-iii.appKey.request.owner": [
+    "services-firefly-iii.html#services-firefly-iii-options-shb.firefly-iii.appKey.request.owner"
+  ],
+  "services-firefly-iii-options-shb.firefly-iii.appKey.request.restartUnits": [
+    "services-firefly-iii.html#services-firefly-iii-options-shb.firefly-iii.appKey.request.restartUnits"
+  ],
+  "services-firefly-iii-options-shb.firefly-iii.appKey.result": [
+    "services-firefly-iii.html#services-firefly-iii-options-shb.firefly-iii.appKey.result"
+  ],
+  "services-firefly-iii-options-shb.firefly-iii.appKey.result.path": [
+    "services-firefly-iii.html#services-firefly-iii-options-shb.firefly-iii.appKey.result.path"
+  ],
+  "services-firefly-iii-options-shb.firefly-iii.backup": [
+    "services-firefly-iii.html#services-firefly-iii-options-shb.firefly-iii.backup"
+  ],
+  "services-firefly-iii-options-shb.firefly-iii.backup.request": [
+    "services-firefly-iii.html#services-firefly-iii-options-shb.firefly-iii.backup.request"
+  ],
+  "services-firefly-iii-options-shb.firefly-iii.backup.request.excludePatterns": [
+    "services-firefly-iii.html#services-firefly-iii-options-shb.firefly-iii.backup.request.excludePatterns"
+  ],
+  "services-firefly-iii-options-shb.firefly-iii.backup.request.hooks": [
+    "services-firefly-iii.html#services-firefly-iii-options-shb.firefly-iii.backup.request.hooks"
+  ],
+  "services-firefly-iii-options-shb.firefly-iii.backup.request.hooks.afterBackup": [
+    "services-firefly-iii.html#services-firefly-iii-options-shb.firefly-iii.backup.request.hooks.afterBackup"
+  ],
+  "services-firefly-iii-options-shb.firefly-iii.backup.request.hooks.beforeBackup": [
+    "services-firefly-iii.html#services-firefly-iii-options-shb.firefly-iii.backup.request.hooks.beforeBackup"
+  ],
+  "services-firefly-iii-options-shb.firefly-iii.backup.request.sourceDirectories": [
+    "services-firefly-iii.html#services-firefly-iii-options-shb.firefly-iii.backup.request.sourceDirectories"
+  ],
+  "services-firefly-iii-options-shb.firefly-iii.backup.request.user": [
+    "services-firefly-iii.html#services-firefly-iii-options-shb.firefly-iii.backup.request.user"
+  ],
+  "services-firefly-iii-options-shb.firefly-iii.backup.result": [
+    "services-firefly-iii.html#services-firefly-iii-options-shb.firefly-iii.backup.result"
+  ],
+  "services-firefly-iii-options-shb.firefly-iii.backup.result.backupService": [
+    "services-firefly-iii.html#services-firefly-iii-options-shb.firefly-iii.backup.result.backupService"
+  ],
+  "services-firefly-iii-options-shb.firefly-iii.backup.result.restoreScript": [
+    "services-firefly-iii.html#services-firefly-iii-options-shb.firefly-iii.backup.result.restoreScript"
+  ],
+  "services-firefly-iii-options-shb.firefly-iii.dbPassword": [
+    "services-firefly-iii.html#services-firefly-iii-options-shb.firefly-iii.dbPassword"
+  ],
+  "services-firefly-iii-options-shb.firefly-iii.dbPassword.request": [
+    "services-firefly-iii.html#services-firefly-iii-options-shb.firefly-iii.dbPassword.request"
+  ],
+  "services-firefly-iii-options-shb.firefly-iii.dbPassword.request.group": [
+    "services-firefly-iii.html#services-firefly-iii-options-shb.firefly-iii.dbPassword.request.group"
+  ],
+  "services-firefly-iii-options-shb.firefly-iii.dbPassword.request.mode": [
+    "services-firefly-iii.html#services-firefly-iii-options-shb.firefly-iii.dbPassword.request.mode"
+  ],
+  "services-firefly-iii-options-shb.firefly-iii.dbPassword.request.owner": [
+    "services-firefly-iii.html#services-firefly-iii-options-shb.firefly-iii.dbPassword.request.owner"
+  ],
+  "services-firefly-iii-options-shb.firefly-iii.dbPassword.request.restartUnits": [
+    "services-firefly-iii.html#services-firefly-iii-options-shb.firefly-iii.dbPassword.request.restartUnits"
+  ],
+  "services-firefly-iii-options-shb.firefly-iii.dbPassword.result": [
+    "services-firefly-iii.html#services-firefly-iii-options-shb.firefly-iii.dbPassword.result"
+  ],
+  "services-firefly-iii-options-shb.firefly-iii.dbPassword.result.path": [
+    "services-firefly-iii.html#services-firefly-iii-options-shb.firefly-iii.dbPassword.result.path"
+  ],
+  "services-firefly-iii-options-shb.firefly-iii.debug": [
+    "services-firefly-iii.html#services-firefly-iii-options-shb.firefly-iii.debug"
+  ],
+  "services-firefly-iii-options-shb.firefly-iii.domain": [
+    "services-firefly-iii.html#services-firefly-iii-options-shb.firefly-iii.domain"
+  ],
+  "services-firefly-iii-options-shb.firefly-iii.enable": [
+    "services-firefly-iii.html#services-firefly-iii-options-shb.firefly-iii.enable"
+  ],
+  "services-firefly-iii-options-shb.firefly-iii.impermanence": [
+    "services-firefly-iii.html#services-firefly-iii-options-shb.firefly-iii.impermanence"
+  ],
+  "services-firefly-iii-options-shb.firefly-iii.importer": [
+    "services-firefly-iii.html#services-firefly-iii-options-shb.firefly-iii.importer"
+  ],
+  "services-firefly-iii-options-shb.firefly-iii.importer.firefly-iii-accessToken": [
+    "services-firefly-iii.html#services-firefly-iii-options-shb.firefly-iii.importer.firefly-iii-accessToken"
+  ],
+  "services-firefly-iii-options-shb.firefly-iii.importer.firefly-iii-accessToken.request": [
+    "services-firefly-iii.html#services-firefly-iii-options-shb.firefly-iii.importer.firefly-iii-accessToken.request"
+  ],
+  "services-firefly-iii-options-shb.firefly-iii.importer.firefly-iii-accessToken.request.group": [
+    "services-firefly-iii.html#services-firefly-iii-options-shb.firefly-iii.importer.firefly-iii-accessToken.request.group"
+  ],
+  "services-firefly-iii-options-shb.firefly-iii.importer.firefly-iii-accessToken.request.mode": [
+    "services-firefly-iii.html#services-firefly-iii-options-shb.firefly-iii.importer.firefly-iii-accessToken.request.mode"
+  ],
+  "services-firefly-iii-options-shb.firefly-iii.importer.firefly-iii-accessToken.request.owner": [
+    "services-firefly-iii.html#services-firefly-iii-options-shb.firefly-iii.importer.firefly-iii-accessToken.request.owner"
+  ],
+  "services-firefly-iii-options-shb.firefly-iii.importer.firefly-iii-accessToken.request.restartUnits": [
+    "services-firefly-iii.html#services-firefly-iii-options-shb.firefly-iii.importer.firefly-iii-accessToken.request.restartUnits"
+  ],
+  "services-firefly-iii-options-shb.firefly-iii.importer.firefly-iii-accessToken.result": [
+    "services-firefly-iii.html#services-firefly-iii-options-shb.firefly-iii.importer.firefly-iii-accessToken.result"
+  ],
+  "services-firefly-iii-options-shb.firefly-iii.importer.firefly-iii-accessToken.result.path": [
+    "services-firefly-iii.html#services-firefly-iii-options-shb.firefly-iii.importer.firefly-iii-accessToken.result.path"
+  ],
+  "services-firefly-iii-options-shb.firefly-iii.importer.subdomain": [
+    "services-firefly-iii.html#services-firefly-iii-options-shb.firefly-iii.importer.subdomain"
+  ],
+  "services-firefly-iii-options-shb.firefly-iii.ldap": [
+    "services-firefly-iii.html#services-firefly-iii-options-shb.firefly-iii.ldap"
+  ],
+  "services-firefly-iii-options-shb.firefly-iii.ldap.adminGroup": [
+    "services-firefly-iii.html#services-firefly-iii-options-shb.firefly-iii.ldap.adminGroup"
+  ],
+  "services-firefly-iii-options-shb.firefly-iii.ldap.userGroup": [
+    "services-firefly-iii.html#services-firefly-iii-options-shb.firefly-iii.ldap.userGroup"
+  ],
+  "services-firefly-iii-options-shb.firefly-iii.siteOwnerEmail": [
+    "services-firefly-iii.html#services-firefly-iii-options-shb.firefly-iii.siteOwnerEmail"
+  ],
+  "services-firefly-iii-options-shb.firefly-iii.smtp": [
+    "services-firefly-iii.html#services-firefly-iii-options-shb.firefly-iii.smtp"
+  ],
+  "services-firefly-iii-options-shb.firefly-iii.smtp.from_address": [
+    "services-firefly-iii.html#services-firefly-iii-options-shb.firefly-iii.smtp.from_address"
+  ],
+  "services-firefly-iii-options-shb.firefly-iii.smtp.host": [
+    "services-firefly-iii.html#services-firefly-iii-options-shb.firefly-iii.smtp.host"
+  ],
+  "services-firefly-iii-options-shb.firefly-iii.smtp.password": [
+    "services-firefly-iii.html#services-firefly-iii-options-shb.firefly-iii.smtp.password"
+  ],
+  "services-firefly-iii-options-shb.firefly-iii.smtp.password.request": [
+    "services-firefly-iii.html#services-firefly-iii-options-shb.firefly-iii.smtp.password.request"
+  ],
+  "services-firefly-iii-options-shb.firefly-iii.smtp.password.request.group": [
+    "services-firefly-iii.html#services-firefly-iii-options-shb.firefly-iii.smtp.password.request.group"
+  ],
+  "services-firefly-iii-options-shb.firefly-iii.smtp.password.request.mode": [
+    "services-firefly-iii.html#services-firefly-iii-options-shb.firefly-iii.smtp.password.request.mode"
+  ],
+  "services-firefly-iii-options-shb.firefly-iii.smtp.password.request.owner": [
+    "services-firefly-iii.html#services-firefly-iii-options-shb.firefly-iii.smtp.password.request.owner"
+  ],
+  "services-firefly-iii-options-shb.firefly-iii.smtp.password.request.restartUnits": [
+    "services-firefly-iii.html#services-firefly-iii-options-shb.firefly-iii.smtp.password.request.restartUnits"
+  ],
+  "services-firefly-iii-options-shb.firefly-iii.smtp.password.result": [
+    "services-firefly-iii.html#services-firefly-iii-options-shb.firefly-iii.smtp.password.result"
+  ],
+  "services-firefly-iii-options-shb.firefly-iii.smtp.password.result.path": [
+    "services-firefly-iii.html#services-firefly-iii-options-shb.firefly-iii.smtp.password.result.path"
+  ],
+  "services-firefly-iii-options-shb.firefly-iii.smtp.port": [
+    "services-firefly-iii.html#services-firefly-iii-options-shb.firefly-iii.smtp.port"
+  ],
+  "services-firefly-iii-options-shb.firefly-iii.smtp.username": [
+    "services-firefly-iii.html#services-firefly-iii-options-shb.firefly-iii.smtp.username"
+  ],
+  "services-firefly-iii-options-shb.firefly-iii.ssl": [
+    "services-firefly-iii.html#services-firefly-iii-options-shb.firefly-iii.ssl"
+  ],
+  "services-firefly-iii-options-shb.firefly-iii.ssl.paths": [
+    "services-firefly-iii.html#services-firefly-iii-options-shb.firefly-iii.ssl.paths"
+  ],
+  "services-firefly-iii-options-shb.firefly-iii.ssl.paths.cert": [
+    "services-firefly-iii.html#services-firefly-iii-options-shb.firefly-iii.ssl.paths.cert"
+  ],
+  "services-firefly-iii-options-shb.firefly-iii.ssl.paths.key": [
+    "services-firefly-iii.html#services-firefly-iii-options-shb.firefly-iii.ssl.paths.key"
+  ],
+  "services-firefly-iii-options-shb.firefly-iii.ssl.systemdService": [
+    "services-firefly-iii.html#services-firefly-iii-options-shb.firefly-iii.ssl.systemdService"
+  ],
+  "services-firefly-iii-options-shb.firefly-iii.sso": [
+    "services-firefly-iii.html#services-firefly-iii-options-shb.firefly-iii.sso"
+  ],
+  "services-firefly-iii-options-shb.firefly-iii.sso.adminGroup": [
+    "services-firefly-iii.html#services-firefly-iii-options-shb.firefly-iii.sso.adminGroup"
+  ],
+  "services-firefly-iii-options-shb.firefly-iii.sso.authEndpoint": [
+    "services-firefly-iii.html#services-firefly-iii-options-shb.firefly-iii.sso.authEndpoint"
+  ],
+  "services-firefly-iii-options-shb.firefly-iii.sso.authorization_policy": [
+    "services-firefly-iii.html#services-firefly-iii-options-shb.firefly-iii.sso.authorization_policy"
+  ],
+  "services-firefly-iii-options-shb.firefly-iii.sso.clientID": [
+    "services-firefly-iii.html#services-firefly-iii-options-shb.firefly-iii.sso.clientID"
+  ],
+  "services-firefly-iii-options-shb.firefly-iii.sso.enable": [
+    "services-firefly-iii.html#services-firefly-iii-options-shb.firefly-iii.sso.enable"
+  ],
+  "services-firefly-iii-options-shb.firefly-iii.sso.port": [
+    "services-firefly-iii.html#services-firefly-iii-options-shb.firefly-iii.sso.port"
+  ],
+  "services-firefly-iii-options-shb.firefly-iii.sso.provider": [
+    "services-firefly-iii.html#services-firefly-iii-options-shb.firefly-iii.sso.provider"
+  ],
+  "services-firefly-iii-options-shb.firefly-iii.sso.secret": [
+    "services-firefly-iii.html#services-firefly-iii-options-shb.firefly-iii.sso.secret"
+  ],
+  "services-firefly-iii-options-shb.firefly-iii.sso.secret.request": [
+    "services-firefly-iii.html#services-firefly-iii-options-shb.firefly-iii.sso.secret.request"
+  ],
+  "services-firefly-iii-options-shb.firefly-iii.sso.secret.request.group": [
+    "services-firefly-iii.html#services-firefly-iii-options-shb.firefly-iii.sso.secret.request.group"
+  ],
+  "services-firefly-iii-options-shb.firefly-iii.sso.secret.request.mode": [
+    "services-firefly-iii.html#services-firefly-iii-options-shb.firefly-iii.sso.secret.request.mode"
+  ],
+  "services-firefly-iii-options-shb.firefly-iii.sso.secret.request.owner": [
+    "services-firefly-iii.html#services-firefly-iii-options-shb.firefly-iii.sso.secret.request.owner"
+  ],
+  "services-firefly-iii-options-shb.firefly-iii.sso.secret.request.restartUnits": [
+    "services-firefly-iii.html#services-firefly-iii-options-shb.firefly-iii.sso.secret.request.restartUnits"
+  ],
+  "services-firefly-iii-options-shb.firefly-iii.sso.secret.result": [
+    "services-firefly-iii.html#services-firefly-iii-options-shb.firefly-iii.sso.secret.result"
+  ],
+  "services-firefly-iii-options-shb.firefly-iii.sso.secret.result.path": [
+    "services-firefly-iii.html#services-firefly-iii-options-shb.firefly-iii.sso.secret.result.path"
+  ],
+  "services-firefly-iii-options-shb.firefly-iii.sso.secretForAuthelia": [
+    "services-firefly-iii.html#services-firefly-iii-options-shb.firefly-iii.sso.secretForAuthelia"
+  ],
+  "services-firefly-iii-options-shb.firefly-iii.sso.secretForAuthelia.request": [
+    "services-firefly-iii.html#services-firefly-iii-options-shb.firefly-iii.sso.secretForAuthelia.request"
+  ],
+  "services-firefly-iii-options-shb.firefly-iii.sso.secretForAuthelia.request.group": [
+    "services-firefly-iii.html#services-firefly-iii-options-shb.firefly-iii.sso.secretForAuthelia.request.group"
+  ],
+  "services-firefly-iii-options-shb.firefly-iii.sso.secretForAuthelia.request.mode": [
+    "services-firefly-iii.html#services-firefly-iii-options-shb.firefly-iii.sso.secretForAuthelia.request.mode"
+  ],
+  "services-firefly-iii-options-shb.firefly-iii.sso.secretForAuthelia.request.owner": [
+    "services-firefly-iii.html#services-firefly-iii-options-shb.firefly-iii.sso.secretForAuthelia.request.owner"
+  ],
+  "services-firefly-iii-options-shb.firefly-iii.sso.secretForAuthelia.request.restartUnits": [
+    "services-firefly-iii.html#services-firefly-iii-options-shb.firefly-iii.sso.secretForAuthelia.request.restartUnits"
+  ],
+  "services-firefly-iii-options-shb.firefly-iii.sso.secretForAuthelia.result": [
+    "services-firefly-iii.html#services-firefly-iii-options-shb.firefly-iii.sso.secretForAuthelia.result"
+  ],
+  "services-firefly-iii-options-shb.firefly-iii.sso.secretForAuthelia.result.path": [
+    "services-firefly-iii.html#services-firefly-iii-options-shb.firefly-iii.sso.secretForAuthelia.result.path"
+  ],
+  "services-firefly-iii-options-shb.firefly-iii.subdomain": [
+    "services-firefly-iii.html#services-firefly-iii-options-shb.firefly-iii.subdomain"
+  ],
+  "services-firefly-iii-usage": [
+    "services-firefly-iii.html#services-firefly-iii-usage"
+  ],
+  "services-firefly-iii-usage-backup": [
+    "services-firefly-iii.html#services-firefly-iii-usage-backup"
   ],
   "services-forgejo": [
     "services-forgejo.html#services-forgejo"
