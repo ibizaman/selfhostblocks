@@ -31,8 +31,9 @@ let
       };
 
       upstream = lib.mkOption {
-        type = lib.types.str;
+        type = lib.types.nullOr lib.types.str;
         description = "Upstream url to be protected.";
+        default = null;
         example = "http://127.0.0.1:1234";
       };
 
@@ -157,49 +158,51 @@ in
             sslCertificateKey = lib.mkIf (!(isNull c.ssl)) c.ssl.paths.key;
 
             # Taken from https://github.com/authelia/authelia/issues/178
-            locations."/".extraConfig = ''
-              add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
-              add_header X-Content-Type-Options nosniff;
-              add_header X-Frame-Options "SAMEORIGIN";
-              add_header X-XSS-Protection "1; mode=block";
-              add_header X-Robots-Tag "noindex, nofollow, nosnippet, noarchive";
-              add_header X-Download-Options noopen;
-              add_header X-Permitted-Cross-Domain-Policies none;
+            locations."/".extraConfig =
+              lib.optionalString (c.upstream != null) ''
+                add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
+                add_header X-Content-Type-Options nosniff;
+                add_header X-Frame-Options "SAMEORIGIN";
+                add_header X-XSS-Protection "1; mode=block";
+                add_header X-Robots-Tag "noindex, nofollow, nosnippet, noarchive";
+                add_header X-Download-Options noopen;
+                add_header X-Permitted-Cross-Domain-Policies none;
 
-              proxy_set_header Host $host;
-              proxy_set_header X-Real-IP $remote_addr;
-              proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-              proxy_set_header X-Forwarded-Proto $scheme;
-              proxy_http_version 1.1;
-              proxy_set_header Upgrade $http_upgrade;
-              proxy_set_header Connection "upgrade";
-              proxy_cache_bypass $http_upgrade;
+                proxy_set_header Host $host;
+                proxy_set_header X-Real-IP $remote_addr;
+                proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                proxy_set_header X-Forwarded-Proto $scheme;
+                proxy_http_version 1.1;
+                proxy_set_header Upgrade $http_upgrade;
+                proxy_set_header Connection "upgrade";
+                proxy_cache_bypass $http_upgrade;
 
-              proxy_pass ${c.upstream};
-            ''
-            + c.extraConfig
-            + lib.optionalString (c.authEndpoint != null) ''
-              auth_request /authelia;
-              auth_request_set $user $upstream_http_remote_user;
-              auth_request_set $groups $upstream_http_remote_groups;
-              proxy_set_header X-Forwarded-User $user;
-              proxy_set_header X-Forwarded-Groups $groups;
-              # TODO: Are those needed?
-              # auth_request_set $name $upstream_http_remote_name;
-              # auth_request_set $email $upstream_http_remote_email;
-              # proxy_set_header Remote-Name $name;
-              # proxy_set_header Remote-Email $email;
-              # TODO: Would be nice to have this working, I think.
-              # set $new_cookie $http_cookie;
-              # if ($http_cookie ~ "(.*)(?:^|;)\s*example\.com\.session\.id=[^;]+(.*)") {
-              #     set $new_cookie $1$2;
-              # }
-              # proxy_set_header Cookie $new_cookie;
+                proxy_pass ${c.upstream};
+              ''
+              + c.extraConfig
+              + lib.optionalString (c.authEndpoint != null) ''
+                auth_request /authelia;
+                auth_request_set $user $upstream_http_remote_user;
+                auth_request_set $groups $upstream_http_remote_groups;
+                proxy_set_header X-Forwarded-User $user;
+                proxy_set_header X-Forwarded-Groups $groups;
+                # TODO: Are those needed?
+                # auth_request_set $name $upstream_http_remote_name;
+                # auth_request_set $email $upstream_http_remote_email;
+                # proxy_set_header Remote-Name $name;
+                # proxy_set_header Remote-Email $email;
+                # TODO: Would be nice to have this working, I think.
+                # set $new_cookie $http_cookie;
+                # if ($http_cookie ~ "(.*)(?:^|;)\s*example\.com\.session\.id=[^;]+(.*)") {
+                #     set $new_cookie $1$2;
+                # }
+                # proxy_set_header Cookie $new_cookie;
 
-              auth_request_set $redirect $scheme://$http_host$request_uri;
-              error_page 401 =302 ${c.authEndpoint}?rd=$redirect;
-              error_page 403 = ${c.authEndpoint}/error/403;
-            '';
+                auth_request_set $redirect $scheme://$http_host$request_uri;
+                error_page 401 =302 ${c.authEndpoint}?rd=$redirect;
+                error_page 403 = ${c.authEndpoint}/error/403;
+              '';
+
 
             # Virtual endpoint created by nginx to forward auth requests.
             locations."/authelia".extraConfig = lib.mkIf (!(isNull c.authEndpoint)) ''
