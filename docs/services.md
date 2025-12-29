@@ -16,6 +16,7 @@ information is provided in the respective manual sections.
 | Service              | Backup | Reverse Proxy | SSO | LDAP  | Monitoring | Profiling |
 |----------------------|--------|---------------|-----|-------|------------|-----------|
 | [*Arr][]             | Y (1)  | Y             | Y   | Y (4) | Y (2)      | N         |
+| [Firefly-iii][]      | Y (1)  | Y             | Y   | Y     | Y (2)      | N         |
 | [Forgejo][]          | Y (1)  | Y             | Y   | Y     | Y (2)      | N         |
 | [Home-Assistant][]   | Y (1)  | Y             | N   | Y     | Y (2)      | N         |
 | [Jellyfin][]         | Y (1)  | Y             | Y   | Y     | Y (2)      | N         |
@@ -35,6 +36,7 @@ Legend: **N**: no but WIP; **P**: partial; **Y**: yes
 4. Uses LDAP indirectly through forward auth.
 
 [*Arr]: services-arr.html
+[Firefly-iii]: services-firefly-iii.html
 [Forgejo]: services-forgejo.html
 [Home-Assistant]: services-home-assistant.html
 [Jellyfin]: services-jellyfin.html
@@ -90,4 +92,10 @@ modules/services/jellyfin/docs/default.md
 
 ```{=include=} chapters html:into-file=//services-pinchflat.html
 modules/services/pinchflat/docs/default.md
+```
+
+## Finance {#services-category-finance}
+
+```{=include=} chapters html:into-file=//services-firefly-iii.html
+modules/services/firefly-iii/docs/default.md
 ```
