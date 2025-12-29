@@ -215,7 +215,7 @@ in
             '';
 
             # Virtual endpoint created by nginx to forward auth requests.
-            locations."/authelia".extraConfig = lib.mkIf (!(isNull c.authEndpoint)) ''
+            locations."/authelia".extraConfig = lib.mkIf (c.authEndpoint != null) ''
               internal;
               proxy_pass ${c.authEndpoint}/api/verify;
 
