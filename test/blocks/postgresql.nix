@@ -22,8 +22,8 @@ in
 
         shb.postgresql.ensures = [
           {
-            username = "me";
-            database = "me";
+            username = "me-with-special-chars";
+            database = "me-with-special-chars";
           }
         ];
       };
@@ -39,13 +39,13 @@ in
             return "sudo -u me psql -U {user} {db} --command \"\"".format(user=user, db=database)
 
         with subtest("cannot login because of missing user"):
-            machine.fail(peer_cmd("me", "me"), timeout=10)
+            machine.fail(peer_cmd("me-with-special-chars", "me-with-special-chars"), timeout=10)
 
         with subtest("cannot login with unknown user"):
-            machine.fail(peer_cmd("notme", "me"), timeout=10)
+            machine.fail(peer_cmd("notme", "me-with-other-chars"), timeout=10)
 
         with subtest("cannot login to unknown database"):
-            machine.fail(peer_cmd("me", "notmine"), timeout=10)
+            machine.fail(peer_cmd("me-with-special-chars", "notmine"), timeout=10)
       '';
   };
 
@@ -145,59 +145,63 @@ in
       '';
   };
 
-  tcpIPPasswordAuth = shb.test.runNixOSTest {
-    name = "postgresql-tcpIPPasswordAuth";
+  tcpIPPasswordAuth =
+    let
+      username = "me-with-special-chars";
+    in
+    shb.test.runNixOSTest {
+      name = "postgresql-tcpIPPasswordAuth";
 
-    nodes.machine =
-      { config, pkgs, ... }:
-      {
-        imports = [
-          (pkgs'.path + "/nixos/modules/profiles/headless.nix")
-          (pkgs'.path + "/nixos/modules/profiles/qemu-guest.nix")
-          ../../modules/blocks/postgresql.nix
-        ];
+      nodes.machine =
+        { config, pkgs, ... }:
+        {
+          imports = [
+            (pkgs'.path + "/nixos/modules/profiles/headless.nix")
+            (pkgs'.path + "/nixos/modules/profiles/qemu-guest.nix")
+            ../../modules/blocks/postgresql.nix
+          ];
 
-        users.users.me = {
-          isSystemUser = true;
-          group = "me";
-          extraGroups = [ "sudoers" ];
+          users.users.${username} = {
+            isSystemUser = true;
+            group = username;
+            extraGroups = [ "sudoers" ];
+          };
+          users.groups.${username} = { };
+
+          system.activationScripts.secret = ''
+            echo secretpw > /run/dbsecret
+          '';
+          shb.postgresql.enableTCPIP = true;
+          shb.postgresql.ensures = [
+            {
+              username = username;
+              database = username;
+              passwordFile = "/run/dbsecret";
+            }
+          ];
         };
-        users.groups.me = { };
 
-        system.activationScripts.secret = ''
-          echo secretpw > /run/dbsecret
+      testScript =
+        { nodes, ... }:
+        ''
+          start_all()
+          machine.wait_for_unit("postgresql.service")
+          machine.wait_for_open_port(5432)
+
+          def peer_cmd(user, database):
+              return "sudo -u ${username} psql -U {user} {db} --command \"\"".format(user=user, db=database)
+
+          def tcpip_cmd(user, database, port, password):
+              return "PGPASSWORD={password} psql -h 127.0.0.1 -p {port} -U {user} {db} --command \"\"".format(user=user, db=database, port=port, password=password)
+
+          with subtest("can peer login with provisioned user and database"):
+              machine.succeed(peer_cmd("${username}", "${username}"), timeout=10)
+
+          with subtest("can tcpip login with provisioned user and database"):
+              machine.succeed(tcpip_cmd("${username}", "${username}", "5432", "secretpw"), timeout=10)
+
+          with subtest("cannot tcpip login with wrong password"):
+              machine.fail(tcpip_cmd("${username}", "${username}", "5432", "oops"), timeout=10)
         '';
-        shb.postgresql.enableTCPIP = true;
-        shb.postgresql.ensures = [
-          {
-            username = "me";
-            database = "me";
-            passwordFile = "/run/dbsecret";
-          }
-        ];
-      };
-
-    testScript =
-      { nodes, ... }:
-      ''
-        start_all()
-        machine.wait_for_unit("postgresql.service")
-        machine.wait_for_open_port(5432)
-
-        def peer_cmd(user, database):
-            return "sudo -u me psql -U {user} {db} --command \"\"".format(user=user, db=database)
-
-        def tcpip_cmd(user, database, port, password):
-            return "PGPASSWORD={password} psql -h 127.0.0.1 -p {port} -U {user} {db} --command \"\"".format(user=user, db=database, port=port, password=password)
-
-        with subtest("can peer login with provisioned user and database"):
-            machine.succeed(peer_cmd("me", "me"), timeout=10)
-
-        with subtest("can tcpip login with provisioned user and database"):
-            machine.succeed(tcpip_cmd("me", "me", "5432", "secretpw"), timeout=10)
-
-        with subtest("cannot tcpip login with wrong password"):
-            machine.fail(tcpip_cmd("me", "me", "5432", "oops"), timeout=10)
-      '';
-  };
+    };
 }

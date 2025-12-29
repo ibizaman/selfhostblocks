@@ -162,7 +162,7 @@ in
               { username, passwordFile, ... }:
               ''
                 password := trim(both from replace(pg_read_file('${passwordFile}'), E'\n', '''));
-                EXECUTE format('ALTER ROLE ${username} WITH PASSWORD '''%s''';', password);
+                EXECUTE format('ALTER ROLE "${username}" WITH PASSWORD '''%s''';', password);
               '';
             cfgsWithPasswords = builtins.filter (cfg: cfg.passwordFile != null) ensureCfgs;
           in
