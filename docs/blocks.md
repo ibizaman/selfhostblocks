@@ -46,6 +46,10 @@ modules/blocks/sops/docs/default.md
 modules/blocks/ssl/docs/default.md
 ```
 
+```{=include=} chapters html:into-file=//blocks-nginx.html
+modules/blocks/nginx/docs/default.md
+```
+
 ## Introspection {#blocks-category-introspection}
 
 ```{=include=} chapters html:into-file=//blocks-monitoring.html

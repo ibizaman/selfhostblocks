@@ -314,9 +314,6 @@
   "blocks-authelia-options-shb.authelia.subdomain": [
     "blocks-authelia.html#blocks-authelia-options-shb.authelia.subdomain"
   ],
-  "blocks-authelia-shb-forward-auth": [
-    "blocks-authelia.html#blocks-authelia-shb-forward-auth"
-  ],
   "blocks-authelia-shb-oidc": [
     "blocks-authelia.html#blocks-authelia-shb-oidc"
   ],
@@ -1138,6 +1135,78 @@
   ],
   "blocks-monitoring-usage-smtp": [
     "blocks-monitoring.html#blocks-monitoring-usage-smtp"
+  ],
+  "blocks-nginx": [
+    "blocks-nginx.html#blocks-nginx"
+  ],
+  "blocks-nginx-options": [
+    "blocks-nginx.html#blocks-nginx-options"
+  ],
+  "blocks-nginx-options-shb.nginx.accessLog": [
+    "blocks-nginx.html#blocks-nginx-options-shb.nginx.accessLog"
+  ],
+  "blocks-nginx-options-shb.nginx.debugLog": [
+    "blocks-nginx.html#blocks-nginx-options-shb.nginx.debugLog"
+  ],
+  "blocks-nginx-options-shb.nginx.vhosts": [
+    "blocks-nginx.html#blocks-nginx-options-shb.nginx.vhosts"
+  ],
+  "blocks-nginx-options-shb.nginx.vhosts._.authEndpoint": [
+    "blocks-nginx.html#blocks-nginx-options-shb.nginx.vhosts._.authEndpoint"
+  ],
+  "blocks-nginx-options-shb.nginx.vhosts._.autheliaRules": [
+    "blocks-nginx.html#blocks-nginx-options-shb.nginx.vhosts._.autheliaRules"
+  ],
+  "blocks-nginx-options-shb.nginx.vhosts._.domain": [
+    "blocks-nginx.html#blocks-nginx-options-shb.nginx.vhosts._.domain"
+  ],
+  "blocks-nginx-options-shb.nginx.vhosts._.extraConfig": [
+    "blocks-nginx.html#blocks-nginx-options-shb.nginx.vhosts._.extraConfig"
+  ],
+  "blocks-nginx-options-shb.nginx.vhosts._.ssl": [
+    "blocks-nginx.html#blocks-nginx-options-shb.nginx.vhosts._.ssl"
+  ],
+  "blocks-nginx-options-shb.nginx.vhosts._.ssl.paths": [
+    "blocks-nginx.html#blocks-nginx-options-shb.nginx.vhosts._.ssl.paths"
+  ],
+  "blocks-nginx-options-shb.nginx.vhosts._.ssl.paths.cert": [
+    "blocks-nginx.html#blocks-nginx-options-shb.nginx.vhosts._.ssl.paths.cert"
+  ],
+  "blocks-nginx-options-shb.nginx.vhosts._.ssl.paths.key": [
+    "blocks-nginx.html#blocks-nginx-options-shb.nginx.vhosts._.ssl.paths.key"
+  ],
+  "blocks-nginx-options-shb.nginx.vhosts._.ssl.systemdService": [
+    "blocks-nginx.html#blocks-nginx-options-shb.nginx.vhosts._.ssl.systemdService"
+  ],
+  "blocks-nginx-options-shb.nginx.vhosts._.subdomain": [
+    "blocks-nginx.html#blocks-nginx-options-shb.nginx.vhosts._.subdomain"
+  ],
+  "blocks-nginx-options-shb.nginx.vhosts._.upstream": [
+    "blocks-nginx.html#blocks-nginx-options-shb.nginx.vhosts._.upstream"
+  ],
+  "blocks-nginx-usage": [
+    "blocks-nginx.html#blocks-nginx-usage"
+  ],
+  "blocks-nginx-usage-accesslog": [
+    "blocks-nginx.html#blocks-nginx-usage-accesslog"
+  ],
+  "blocks-nginx-usage-debuglog": [
+    "blocks-nginx.html#blocks-nginx-usage-debuglog"
+  ],
+  "blocks-nginx-usage-extraconfig": [
+    "blocks-nginx.html#blocks-nginx-usage-extraconfig"
+  ],
+  "blocks-nginx-usage-forwardauth": [
+    "blocks-nginx.html#blocks-nginx-usage-forwardauth"
+  ],
+  "blocks-nginx-usage-shbforwardauth": [
+    "blocks-nginx.html#blocks-nginx-usage-shbforwardauth"
+  ],
+  "blocks-nginx-usage-ssl": [
+    "blocks-nginx.html#blocks-nginx-usage-ssl"
+  ],
+  "blocks-nginx-usage-upstream": [
+    "blocks-nginx.html#blocks-nginx-usage-upstream"
   ],
   "blocks-postgresql": [
     "blocks-postgresql.html#blocks-postgresql"
