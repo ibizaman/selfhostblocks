@@ -179,6 +179,9 @@ so it involves more hops than a direct [OIDC integration](blocks-authelia.html#b
 }
 ```
 
+If PHP is used with fastCGI,
+extra headers must be added by enabling the [`shb.nginx.vhosts.*.phpForwardAuth`](#blocks-nginx-options-shb.nginx.vhosts._.phpForwardAuth) option.
+
 ### Virtual Host Extra Config {#blocks-nginx-usage-extraconfig}
 
 To add extra configuration to a virtual host,

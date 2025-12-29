@@ -1163,6 +1163,9 @@
   "blocks-nginx-options-shb.nginx.vhosts._.extraConfig": [
     "blocks-nginx.html#blocks-nginx-options-shb.nginx.vhosts._.extraConfig"
   ],
+  "blocks-nginx-options-shb.nginx.vhosts._.phpForwardAuth": [
+    "blocks-nginx.html#blocks-nginx-options-shb.nginx.vhosts._.phpForwardAuth"
+  ],
   "blocks-nginx-options-shb.nginx.vhosts._.ssl": [
     "blocks-nginx.html#blocks-nginx-options-shb.nginx.vhosts._.ssl"
   ],

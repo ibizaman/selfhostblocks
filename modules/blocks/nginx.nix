@@ -79,6 +79,12 @@ let
         '';
       };
 
+      phpForwardAuth = lib.mkOption {
+        type = lib.types.bool;
+        default = false;
+        description = "Authelia rule configuration";
+      };
+
       extraConfig = lib.mkOption {
         type = lib.types.lines;
         default = "";
@@ -203,6 +209,10 @@ in
                 error_page 403 = ${c.authEndpoint}/error/403;
               '';
 
+            locations."~ \\.php$".extraConfig = lib.mkIf (c.phpForwardAuth) ''
+              fastcgi_param HTTP_X_FORWARDED_USER   $user;
+              fastcgi_param HTTP_X_FORWARDED_GROUPS $groups;
+            '';
 
             # Virtual endpoint created by nginx to forward auth requests.
             locations."/authelia".extraConfig = lib.mkIf (!(isNull c.authEndpoint)) ''
