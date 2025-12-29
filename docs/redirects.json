@@ -1148,6 +1148,9 @@
   "blocks-postgresql-contract-databasebackup-all": [
     "blocks-postgresql.html#blocks-postgresql-contract-databasebackup-all"
   ],
+  "blocks-postgresql-ensures": [
+    "blocks-postgresql.html#blocks-postgresql-ensures"
+  ],
   "blocks-postgresql-options": [
     "blocks-postgresql.html#blocks-postgresql-options"
   ],
@@ -1198,6 +1201,9 @@
   ],
   "blocks-postgresql-tests": [
     "blocks-postgresql.html#blocks-postgresql-tests"
+  ],
+  "blocks-postgresql-usage": [
+    "blocks-postgresql.html#blocks-postgresql-usage"
   ],
   "blocks-restic": [
     "blocks-restic.html#blocks-restic"
