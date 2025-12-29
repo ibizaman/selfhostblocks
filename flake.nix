@@ -99,6 +99,7 @@
             };
             "blocks/mitmdump" = ./modules/blocks/mitmdump.nix;
             "blocks/monitoring" = ./modules/blocks/monitoring.nix;
+            "blocks/nginx" = ./modules/blocks/nginx.nix;
             "blocks/postgresql" = ./modules/blocks/postgresql.nix;
             "blocks/restic" = ./modules/blocks/restic.nix;
             "blocks/sops" = ./modules/blocks/sops.nix;

@@ -8,8 +8,9 @@ This block sets up an [Authelia][] service for Single-Sign On integration.
 
 Compared to the upstream nixpkgs module, this module is tightly integrated
 with SHB which allows easy configuration of SSO with [OIDC integration](#blocks-authelia-shb-oidc)
-or with [forward auth integration](#blocks-authelia-shb-forward-auth)
 as well as some extensive [troubleshooting](#blocks-authelia-troubleshooting) features.
+
+Note that forward authentication is configured with the [nginx block](blocks-nginx.html#blocks-nginx-usage-shbforwardauth).
 
 ## Global Setup {#blocks-authelia-global-setup}
 
@@ -191,40 +192,9 @@ Inspiration can be taken from SelfHostBlocks' source code.
 To access the UI, we will need to create an `open-webui_user` and
 `open-webui_admin` LDAP group and assign our user to it.
 
-## SHB Forward Auth {#blocks-authelia-shb-forward-auth}
-
-For services provided by SelfHostBlocks that do not handle [OIDC integration][OIDC],
-this block can provide [forward authentication][] which still allows the service to be protected by Authelia.
-
-The user could still be required to authenticate to the service itself,
-although some services can automatically users authorized by Authelia.
-
-[forward authentication]: https://doc.traefik.io/traefik/middlewares/http/forwardauth/
-
-Integrating with this block is done with the following code:
-
-```nix
-shb.<services>.authEndpoint = "https://${config.shb.authelia.subdomain}.${config.shb.authelia.domain}";
-```
-
 ## Forward Auth {#blocks-authelia-forward-auth}
 
-To integrate a service that does not handle OIDC integration
-and which is not provided by SelfHostBlocks with this Authelia block,
-the necessary configuration is:
-
-```nix
-shb.nginx.vhosts = [
-  {
-    subdomain = "<service>";
-    domain = "example.com";
-    ssl = config.shb.certs.certs.letsencrypt."example.com";
-    upstream = "http://127.0.0.1:${toString config.services.<service>.port}/";
-  }
-];
-```
-
-This configuration assumes usage of the [SSL block][].
+Forward authentication is provided by the [nginx block](blocks-nginx.html#blocks-nginx-usage-ssl).
 
 ## Troubleshooting {#blocks-authelia-troubleshooting}
 

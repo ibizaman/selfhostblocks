@@ -48,10 +48,34 @@ let
         default = [ ];
         description = "Authelia rule configuration";
         example = lib.literalExpression ''
-          [{
-                  policy = "two_factor";
-                  subject = ["group:service_user"];
-                  }]'';
+          [
+            # Protect /admin endpoint with 2FA
+            # and only allow access to admin users.
+            {
+              domain = "myapp.example.com";
+              policy = "two_factor";
+              subject = [ "group:service_admin" ];
+              resources = [
+                "^/admin"
+              ];
+            }
+            # Leave /api endpoint open - assumes an API key is used to protect it.
+            {
+              domain = "myapp.example.com";
+              policy = "bypass";
+              resources = [
+                "^/api"
+              ];
+            },
+            # Protect rest of app with 1FA
+            # and allow access to normal and admin users.
+            {
+              domain = "myapp.example.com";
+              policy = "one_factor";
+              subject = ["group:service_user"];
+            },
+          ]
+        '';
       };
 
       extraConfig = lib.mkOption {
