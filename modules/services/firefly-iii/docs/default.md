@@ -8,6 +8,9 @@ Compared to the stock module from nixpkgs,
 this one sets up, in a fully declarative manner,
 LDAP and SSO integration
 and has a nicer option for secrets.
+It also sets up the Firefly-iii data importer service
+and nearly automatically links it to the Firefly-iii instance using a Personal Account Token.
+Instructions on how to do so is given in the next section.
 
 ## Usage {#services-firefly-iii-usage}
 
