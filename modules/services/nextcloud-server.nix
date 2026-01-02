@@ -1102,9 +1102,21 @@ in
           }
         ];
 
-        services.nextcloud.extraApps = {
-          inherit (nextcloudApps) oidc_login;
-        };
+        services.nextcloud.extraApps =
+          if (cfg.version == 31) then
+            {
+              inherit (nextcloudApps) oidc_login;
+            }
+          else
+            {
+              oidc_login = pkgs.fetchNextcloudApp {
+                appName = "oidc_login";
+                sha256 = "sha256-nI5HSzwlcjWOpo7eWjgzm3BE9rXnqKSC42KSP2LGfdE=";
+                url = "https://github.com/toony/nextcloud-oidc-login/archive/refs/heads/bugfix/319-nextcloud32-compat.tar.gz";
+                appVersion = "3.2.2-nextcloud32-compat";
+                license = "agpl3Plus";
+              };
+            };
 
         systemd.services.nextcloud-setup-pre = {
           wantedBy = [ "multi-user.target" ];
