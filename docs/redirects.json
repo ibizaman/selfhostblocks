@@ -2837,6 +2837,9 @@
   "services-firefly-iii-options-shb.firefly-iii.importer": [
     "services-firefly-iii.html#services-firefly-iii-options-shb.firefly-iii.importer"
   ],
+  "services-firefly-iii-options-shb.firefly-iii.importer.enable": [
+    "services-firefly-iii.html#services-firefly-iii-options-shb.firefly-iii.importer.enable"
+  ],
   "services-firefly-iii-options-shb.firefly-iii.importer.firefly-iii-accessToken": [
     "services-firefly-iii.html#services-firefly-iii-options-shb.firefly-iii.importer.firefly-iii-accessToken"
   ],

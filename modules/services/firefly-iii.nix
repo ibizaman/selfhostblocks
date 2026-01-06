@@ -261,6 +261,10 @@ in
       default = { };
       type = lib.types.submodule {
         options = {
+          enable = lib.mkEnableOption "Firefly-iii Data Importer." // {
+            default = true;
+          };
+
           subdomain = lib.mkOption {
             type = lib.types.str;
             description = ''
@@ -348,7 +352,7 @@ in
           }
         ];
       }
-      {
+      (lib.mkIf cfg.importer.enable {
         services.firefly-iii-data-importer = {
           enable = true;
 
@@ -370,7 +374,7 @@ in
             subdomain = cfg.importer.subdomain;
           }
         ];
-      }
+      })
       (lib.mkIf (cfg.smtp != null) {
         services.firefly-iii.settings = {
           MAIL_MAILER = "smtp";
@@ -405,6 +409,18 @@ in
                 policy = cfg.sso.authorization_policy;
                 subject = [ "group:${cfg.ldap.userGroup}" ];
               }
+            ];
+          }
+        ];
+      })
+      (lib.mkIf (cfg.sso.enable && cfg.importer.enable) {
+        shb.nginx.vhosts = [
+          {
+            inherit (cfg.importer) subdomain;
+            inherit (cfg) domain ssl;
+            inherit (cfg.sso) authEndpoint;
+
+            autheliaRules = [
               {
                 domain = "${cfg.importer.subdomain}.${cfg.domain}";
                 policy = cfg.sso.authorization_policy;
