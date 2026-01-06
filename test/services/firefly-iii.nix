@@ -6,6 +6,7 @@ let
       { ... }:
       [
         "phpfpm-firefly-iii.service"
+        "phpfpm-firefly-iii-data-importer.service"
         "nginx.service"
       ];
     waitForPorts =
@@ -35,6 +36,7 @@ let
         siteOwnerEmail = "mail@example.com";
         appKey.result = config.shb.hardcodedsecret.appKey.result;
         dbPassword.result = config.shb.hardcodedsecret.dbPassword.result;
+        importer.firefly-iii-accessToken.result = config.shb.hardcodedsecret.accessToken.result;
       };
 
       # systemd.tmpfiles.rules = [
@@ -54,6 +56,10 @@ let
       shb.hardcodedsecret.dbPassword = {
         request = config.shb.firefly-iii.dbPassword.request;
         settings.content = pkgs.lib.strings.replicate 64 "Y";
+      };
+      shb.hardcodedsecret.accessToken = {
+        request = config.shb.firefly-iii.importer.firefly-iii-accessToken.request;
+        settings.content = pkgs.lib.strings.replicate 64 "X";
       };
     };
 
@@ -83,6 +89,33 @@ let
       };
     };
 
+  clientLoginDataImporter =
+    { config, ... }:
+    {
+      imports = [
+        shb.test.baseModule
+        shb.test.clientLoginModule
+      ];
+      test = {
+        subdomain = "f-importer";
+      };
+
+      test.login = {
+        startUrl = "http://${config.test.fqdn}";
+        # There is no login without SSO integration.
+        testLoginWith = [
+          {
+            username = null;
+            password = null;
+            nextPageExpect = [
+              # The error to connect is expected since the access token must be created manually in Firefly-iii.
+              "expect(page.get_by_text('The importer could not connect')).to_be_visible()"
+            ];
+          }
+        ];
+      };
+    };
+
   https =
     { config, ... }:
     {
@@ -97,6 +130,7 @@ let
       shb.firefly-iii = {
         ldap = {
           userGroup = "user_group";
+          adminGroup = "admin_group";
         };
       };
     };
@@ -168,6 +202,75 @@ let
       };
     };
 
+  clientLoginSsoDataImporter =
+    { config, ... }:
+    {
+      imports = [
+        shb.test.baseModule
+        shb.test.clientLoginModule
+      ];
+      test = {
+        subdomain = "f-importer";
+      };
+
+      test.login = {
+        startUrl = "https://${config.test.fqdn}";
+        usernameFieldLabelRegex = "Username";
+        passwordFieldLabelRegex = "Password";
+        loginButtonNameRegex = "[sS]ign [iI]n";
+        testLoginWith = [
+          {
+            username = "alice";
+            password = "NotAlicePassword";
+            nextPageExpect = [
+              "expect(page.get_by_text(re.compile('[Ii]ncorrect'))).to_be_visible()"
+            ];
+          }
+          {
+            username = "alice";
+            password = "AlicePassword";
+            nextPageExpect = [
+              "expect(page.get_by_text(re.compile('[Ii]ncorrect'))).not_to_be_visible()"
+              "expect(page.get_by_role('button', name=re.compile('Sign In'))).not_to_be_visible()"
+              # Only admins have access
+              "expect(page.get_by_text('Authenticated')).to_be_visible(timeout=10000)"
+            ];
+          }
+          {
+            username = "bob";
+            password = "NotBobPassword";
+            nextPageExpect = [
+              "expect(page.get_by_text(re.compile('[Ii]ncorrect'))).to_be_visible()"
+            ];
+          }
+          {
+            username = "bob";
+            password = "BobPassword";
+            nextPageExpect = [
+              "expect(page.get_by_text(re.compile('[Ii]ncorrect'))).not_to_be_visible()"
+              "expect(page.get_by_role('button', name=re.compile('Sign In'))).not_to_be_visible()"
+              # The error to connect is expected since the access token must be created manually in Firefly-iii.
+              "expect(page.get_by_text('The importer could not connect')).to_be_visible(timeout=10000)"
+            ];
+          }
+          {
+            username = "charlie";
+            password = "NotCharliePassword";
+            nextPageExpect = [
+              "expect(page.get_by_text(re.compile('[Ii]ncorrect'))).to_be_visible()"
+            ];
+          }
+          {
+            username = "charlie";
+            password = "CharliePassword";
+            nextPageExpect = [
+              "expect(page).to_have_url(re.compile('.*/authenticated'))"
+            ];
+          }
+        ];
+      };
+    };
+
   sso =
     { config, ... }:
     {
@@ -186,6 +289,23 @@ in
     nodes.client = {
       imports = [
         clientLogin
+      ];
+    };
+    nodes.server = {
+      imports = [
+        basic
+      ];
+    };
+
+    testScript = commonTestScript.access;
+  };
+
+  data-importer_basic = shb.test.runNixOSTest {
+    name = "firefly-iii-data-importer_basic";
+
+    nodes.client = {
+      imports = [
+        clientLoginDataImporter
       ];
     };
     nodes.server = {
@@ -258,5 +378,30 @@ in
     testScript = commonTestScript.access.override {
       redirectSSO = true;
     };
+  };
+
+  data-importer_sso = shb.test.runNixOSTest {
+    name = "firefly-iii-data-importer_sso";
+
+    nodes.client = {
+      imports = [
+        clientLoginSsoDataImporter
+      ];
+    };
+    nodes.server =
+      { config, pkgs, ... }:
+      {
+        imports = [
+          basic
+          shb.test.certs
+          https
+          shb.test.ldap
+          ldap
+          (shb.test.sso config.shb.certs.certs.selfsigned.n)
+          sso
+        ];
+      };
+
+    testScript = commonTestScript.access;
   };
 }
