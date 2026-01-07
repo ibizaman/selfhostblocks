@@ -1895,6 +1895,9 @@
   "contributing-code": [
     "contributing.html#contributing-code"
   ],
+  "contributing-debug-tests": [
+    "contributing.html#contributing-debug-tests"
+  ],
   "contributing-deploy-colmena": [
     "contributing.html#contributing-deploy-colmena"
   ],
@@ -1922,11 +1925,17 @@
   "contributing-localversion": [
     "contributing.html#contributing-localversion"
   ],
+  "contributing-playwright-tests": [
+    "contributing.html#contributing-playwright-tests"
+  ],
   "contributing-runtests": [
     "contributing.html#contributing-runtests"
   ],
   "contributing-upload": [
     "contributing.html#contributing-upload"
+  ],
+  "contributing-upload-package": [
+    "contributing.html#contributing-upload-package"
   ],
   "contributing-upstream": [
     "contributing.html#contributing-upstream"
