@@ -53,20 +53,47 @@ $ nix build .#checks.${system}.modules
 $ nix build .#checks.${system}.vm_postgresql_peerAuth
 ```
 
-Run one VM test interactively:
-
-```bash
-$ nix run .#checks.${system}.vm_postgresql_peerAuth.driverInteractive
-```
-
-When you get to the shell, run either `start_all()` or `test_script()`. The former just starts all
-the VMs and service, then you can introspect. The latter also starts the VMs if they are not yet and
-then will run the test script.
+### Playwright Tests {#contributing-playwright-tests}
 
 If the test includes playwright tests, you can see the playwright trace with:
 
 ```bash
 $ nix run .#playwright -- show-trace $(nix eval .#checks.x86_64-linux.vm_grocy_basic --raw)/trace/0.zip
+```
+
+### Debug Tests {#contributing-debug-tests}
+
+Run the test in driver interactive mode:
+
+```bash
+$ nix run .#checks.${system}.vm_postgresql_peerAuth.driverInteractive
+```
+
+When you get to the shell, start the server and/or client with one of the following commands:
+
+```bash
+server.start()
+client.start()
+start_all()
+```
+
+To run the test from the shell, use `test_script()`.
+Note that if the test script ends in error,
+the shell will exit and you will need to restart the VMs.
+
+After the shell started, you will see lines like so:
+
+```
+SSH backdoor enabled, the machines can be accessed like this:
+Note: this requires systemd-ssh-proxy(1) to be enabled (default on NixOS 25.05 and newer).
+    client:  ssh -o User=root vsock/3
+    server:  ssh -o User=root vsock/4
+```
+
+With the following command, you can directly access the server's nginx instance with your browser at `http://localhost:8000`:
+
+```bash
+ssh-keygen -R vsock/4; ssh -o User=root -L 8000:localhost:80 vsock/4
 ```
 
 ## Upload test results to CI {#contributing-upload}
@@ -78,6 +105,18 @@ After running the `nix-fast-build` command from the previous section, run:
 
 ```bash
 $ find . -type l -name "result-vm_*" | xargs readlink | nix run nixpkgs#cachix -- push selfhostblocks
+```
+
+## Upload package to CI {#contributing-upload-package}
+
+In the rare case where a package must be built but cannot in CI,
+for example because of not enough memory,
+you can push the package directly to the cache with:
+
+```bash
+nix build .#checks.x86_64-linux.vm_karakeep_backup.nodes.server.services.karakeep.package
+readlink result | nix run nixpkgs#cachix -- push selfhostblocks
+
 ```
 
 ## Deploy using colmena {#contributing-deploy-colmena}
