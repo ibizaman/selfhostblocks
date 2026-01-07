@@ -1,5 +1,10 @@
 { lib, shb, ... }:
 let
+  supportedVersion = [
+    31
+    32
+  ];
+
   adminUser = "root";
   adminPass = "rootpw";
   oidcSecret = "oidcSecret";
@@ -149,7 +154,7 @@ let
         startUrl = "http://${config.test.fqdn}";
         usernameFieldLabelRegex = "Account name";
         passwordFieldLabelRegex = "^ *[Pp]assword";
-        loginButtonNameRegex = "[Ll]og [Ii]n";
+        loginButtonNameRegex = "^[Ll]og [Ii]n$";
         testLoginWith = [
           {
             username = adminUser;
@@ -189,7 +194,7 @@ let
         startUrl = "http://${config.test.fqdn}";
         usernameFieldLabelRegex = "Account name";
         passwordFieldLabelRegex = "^ *[Pp]assword";
-        loginButtonNameRegex = "[Ll]og [Ii]n";
+        loginButtonNameRegex = "^[Ll]og [Ii]n$";
         testLoginWith = [
           {
             username = "alice";
@@ -442,252 +447,331 @@ let
           )
           print(response)
     '';
-in
-{
-  basic = shb.test.runNixOSTest {
-    name = "nextcloud_basic";
 
-    nodes.client = {
-      imports = [
-        clientLogin
-      ];
-    };
-    nodes.server = {
-      imports = [
-        basic
-      ];
-    };
+  basicTest =
+    version:
+    shb.test.runNixOSTest {
+      name = "nextcloud_basic_${toString version}";
 
-    testScript = commonTestScript.access;
-  };
-
-  cron = shb.test.runNixOSTest {
-    name = "nextcloud_cron";
-
-    nodes.server = {
-      imports = [
-        basic
-      ];
-    };
-
-    nodes.client = { };
-
-    testScript = commonTestScript.access.override {
-      extraScript =
-        {
-          node,
-          fqdn,
-          proto_fqdn,
-          ...
-        }:
-        ''
-          import time
-
-          def find_in_logs(unit, text):
-              return server.systemctl("status {}".format(unit))[1].find(text) != -1
-
-          with subtest("cron job succeeds"):
-              # This call does not block until the service is done.
-              server.succeed("systemctl start nextcloud-cron.service&")
-
-              # If the service failed, then we're not happy.
-              status = "active"
-              while status == "active":
-                  status = server.get_unit_info("nextcloud-cron")["ActiveState"]
-                  time.sleep(5)
-              if status != "inactive":
-                  raise Exception("Cron job did not finish correctly")
-
-              if not find_in_logs("nextcloud-cron", "nextcloud-cron.service: Deactivated successfully."):
-                  raise Exception("Nextcloud cron job did not finish successfully.")
-        '';
-    };
-  };
-
-  backup = shb.test.runNixOSTest {
-    name = "nextcloud_backup";
-
-    nodes.server =
-      { config, ... }:
-      {
+      nodes.client = {
+        imports = [
+          clientLogin
+        ];
+      };
+      nodes.server = {
         imports = [
           basic
-          (shb.test.backup config.shb.nextcloud.backup)
+          {
+            shb.nextcloud.version = version;
+          }
         ];
       };
 
-    nodes.client = { };
-
-    testScript = commonTestScript.backup;
-  };
-
-  https = shb.test.runNixOSTest {
-    name = "nextcloud_https";
-
-    nodes.server = {
-      imports = [
-        basic
-        shb.test.certs
-        https
-      ];
+      testScript = commonTestScript.access;
     };
 
-    nodes.client = { };
+  cronTest =
+    version:
+    shb.test.runNixOSTest {
+      name = "nextcloud_cron_${toString version}";
 
-    # TODO: Test login
-    testScript = commonTestScript.access;
-  };
+      nodes.server = {
+        imports = [
+          basic
+          {
+            shb.nextcloud.version = version;
+          }
+        ];
+      };
 
-  previewGenerator = shb.test.runNixOSTest {
-    name = "nextcloud_previewGenerator";
+      nodes.client = { };
 
-    nodes.server = {
-      imports = [
-        basic
-        shb.test.certs
-        https
-        previewgenerator
-      ];
+      testScript = commonTestScript.access.override {
+        extraScript =
+          {
+            node,
+            fqdn,
+            proto_fqdn,
+            ...
+          }:
+          ''
+            import time
+
+            def find_in_logs(unit, text):
+                return server.systemctl("status {}".format(unit))[1].find(text) != -1
+
+            with subtest("cron job succeeds"):
+                # This call does not block until the service is done.
+                server.succeed("systemctl start nextcloud-cron.service&")
+
+                # If the service failed, then we're not happy.
+                status = "active"
+                while status == "active":
+                    status = server.get_unit_info("nextcloud-cron")["ActiveState"]
+                    time.sleep(5)
+                if status != "inactive":
+                    raise Exception("Cron job did not finish correctly")
+
+                if not find_in_logs("nextcloud-cron", "nextcloud-cron.service: Deactivated successfully."):
+                    raise Exception("Nextcloud cron job did not finish successfully.")
+          '';
+      };
     };
 
-    nodes.client = { };
+  backupTest =
+    version:
+    shb.test.runNixOSTest {
+      name = "nextcloud_backup_${toString version}";
 
-    testScript = commonTestScript.access;
-  };
+      nodes.server =
+        { config, ... }:
+        {
+          imports = [
+            basic
+            {
+              shb.nextcloud.version = version;
+            }
+            (shb.test.backup config.shb.nextcloud.backup)
+          ];
+        };
 
-  externalStorage = shb.test.runNixOSTest {
-    name = "nextcloud_externalStorage";
+      nodes.client = { };
 
-    nodes.server = {
-      imports = [
-        basic
-        shb.test.certs
-        https
-        externalstorage
-      ];
+      testScript = commonTestScript.backup;
     };
 
-    nodes.client = { };
+  httpsTest =
+    version:
+    shb.test.runNixOSTest {
+      name = "nextcloud_https_${toString version}";
 
-    testScript = commonTestScript.access;
-  };
+      nodes.server = {
+        imports = [
+          basic
+          {
+            shb.nextcloud.version = version;
+          }
+          shb.test.certs
+          https
+        ];
+      };
+
+      nodes.client = { };
+
+      # TODO: Test login
+      testScript = commonTestScript.access;
+    };
+
+  previewGeneratorTest =
+    version:
+    shb.test.runNixOSTest {
+      name = "nextcloud_previewGenerator_${toString version}";
+
+      nodes.server = {
+        imports = [
+          basic
+          {
+            shb.nextcloud.version = version;
+          }
+          shb.test.certs
+          https
+          previewgenerator
+        ];
+      };
+
+      nodes.client = { };
+
+      testScript = commonTestScript.access;
+    };
+
+  externalStorageTest =
+    version:
+    shb.test.runNixOSTest {
+      name = "nextcloud_externalStorage_${toString version}";
+
+      nodes.server = {
+        imports = [
+          basic
+          {
+            shb.nextcloud.version = version;
+          }
+          shb.test.certs
+          https
+          externalstorage
+        ];
+      };
+
+      nodes.client = { };
+
+      testScript = commonTestScript.access;
+    };
 
   # TODO: fix memories app
   # See https://github.com/ibizaman/selfhostblocks/issues/476
 
-  # memories = shb.test.runNixOSTest {
-  #   name = "nextcloud_memories";
+  memoriesTest =
+    version:
+    shb.test.runNixOSTest {
+      name = "nextcloud_memories_${toString version}";
 
-  #   nodes.server = {
-  #     imports = [
-  #       basic
-  #       shb.test.certs
-  #       https
-  #       memories
-  #     ];
-  #   };
-
-  #   nodes.client = {};
-
-  #   testScript = commonTestScript.access;
-  # };
-
-  recognize = shb.test.runNixOSTest {
-    name = "nextcloud_recognize";
-
-    nodes.server = {
-      imports = [
-        basic
-        shb.test.certs
-        https
-        recognize
-      ];
-    };
-
-    nodes.client = { };
-
-    testScript = commonTestScript.access;
-  };
-
-  ldap = shb.test.runNixOSTest {
-    name = "nextcloud_ldap";
-
-    nodes.server =
-      { config, ... }:
-      {
+      nodes.server = {
         imports = [
           basic
+          {
+            shb.nextcloud.version = version;
+          }
           shb.test.certs
           https
-          shb.test.ldap
-          ldap
+          memories
         ];
       };
 
-    nodes.client = {
-      imports = [
-        clientLdapLogin
-      ];
+      nodes.client = { };
+
+      testScript = commonTestScript.access;
     };
 
-    testScript = commonTestScript.access;
-  };
+  recognizeTest =
+    version:
+    shb.test.runNixOSTest {
+      name = "nextcloud_recognize_${toString version}";
 
-  sso = shb.test.runNixOSTest {
-    name = "nextcloud_sso";
-
-    nodes.server =
-      { config, ... }:
-      {
+      nodes.server = {
         imports = [
           basic
+          {
+            shb.nextcloud.version = version;
+          }
           shb.test.certs
           https
-          shb.test.ldap
-          (shb.test.sso config.shb.certs.certs.selfsigned.n)
-          sso
+          recognize
+        ];
+      };
+
+      nodes.client = { };
+
+      testScript = commonTestScript.access;
+    };
+
+  ldapTest =
+    version:
+    shb.test.runNixOSTest {
+      name = "nextcloud_ldap_${toString version}";
+
+      nodes.server =
+        { config, ... }:
+        {
+          imports = [
+            basic
+            {
+              shb.nextcloud.version = version;
+            }
+            shb.test.certs
+            https
+            shb.test.ldap
+            ldap
+          ];
+        };
+
+      nodes.client = {
+        imports = [
+          clientLdapLogin
+        ];
+      };
+
+      testScript = commonTestScript.access;
+    };
+
+  ssoTest =
+    version:
+    shb.test.runNixOSTest {
+      name = "nextcloud_sso_${toString version}";
+
+      nodes.server =
+        { config, ... }:
+        {
+          imports = [
+            basic
+            {
+              shb.nextcloud.version = version;
+            }
+            shb.test.certs
+            https
+            shb.test.ldap
+            (shb.test.sso config.shb.certs.certs.selfsigned.n)
+            sso
+            (
+              { config, ... }:
+              {
+                networking.hosts = {
+                  "127.0.0.1" = [ config.test.fqdn ];
+                };
+              }
+            )
+          ];
+        };
+
+      nodes.client = {
+        imports = [
+          clientSsoLogin
           (
             { config, ... }:
             {
               networking.hosts = {
-                "127.0.0.1" = [ config.test.fqdn ];
+                "192.168.1.2" = [ config.test.fqdn ];
               };
             }
           )
         ];
       };
 
-    nodes.client = {
-      imports = [
-        clientSsoLogin
-        (
-          { config, ... }:
-          {
-            networking.hosts = {
-              "192.168.1.2" = [ config.test.fqdn ];
-            };
-          }
-        )
-      ];
+      testScript = commonTestScript.access;
     };
 
-    testScript = commonTestScript.access;
+  prometheusTest =
+    version:
+    shb.test.runNixOSTest {
+      name = "nextcloud_prometheus_${toString version}";
+
+      nodes.server =
+        { config, ... }:
+        {
+          imports = [
+            basic
+            {
+              shb.nextcloud.version = version;
+            }
+            prometheus
+          ];
+        };
+
+      nodes.client = { };
+
+      testScript = prometheusTestScript;
+    };
+
+  versionedTests = v: {
+    "basic_${toString v}" = basicTest v;
+
+    "cron_${toString v}" = cronTest v;
+
+    "backup_${toString v}" = backupTest v;
+
+    "https_${toString v}" = httpsTest v;
+
+    "previewGenerator_${toString v}" = previewGeneratorTest v;
+
+    "externalStorage_${toString v}" = externalStorageTest v;
+
+    "memories_${toString v}" = memoriesTest v;
+
+    "recognize_${toString v}" = recognizeTest v;
+
+    "ldap_${toString v}" = ldapTest v;
+
+    "sso_${toString v}" = ssoTest v;
+
+    "prometheus_${toString v}" = prometheusTest v;
   };
-
-  prometheus = shb.test.runNixOSTest {
-    name = "nextcloud_prometheus";
-
-    nodes.server =
-      { config, ... }:
-      {
-        imports = [
-          basic
-          prometheus
-        ];
-      };
-
-    nodes.client = { };
-
-    testScript = prometheusTestScript;
-  };
-}
+in
+lib.foldl (all: v: lib.mergeAttrs all (versionedTests v)) { } supportedVersion
