@@ -1022,6 +1022,7 @@ in
           ${occ} app:enable  user_ldap
 
           ${occ} config:app:set user_ldap ${cID}ldap_configuration_active --value=0
+          ${occ} config:app:set user_ldap configuration_prefixes --value '["${cID}"]'
 
           # The following CLI commands follow
           # https://github.com/lldap/lldap/blob/main/example_configs/nextcloud.md#nextcloud-config--the-cli-way
