@@ -509,10 +509,10 @@ in
           };
           bob = {
             email = "bob@example.com";
-            groups = [
-              "user_group"
-              "admin_group"
-            ];
+            # Purposely not adding bob to the user_group
+            # so we can make sure users only part admins
+            # can also login normally.
+            groups = [ "admin_group" ];
             password.result.path = pkgs.writeText "bobPassword" "BobPassword";
           };
           charlie = {
