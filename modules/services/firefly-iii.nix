@@ -407,7 +407,10 @@ in
               {
                 domain = "${cfg.subdomain}.${cfg.domain}";
                 policy = cfg.sso.authorization_policy;
-                subject = [ "group:${cfg.ldap.userGroup}" ];
+                subject = [
+                  "group:${cfg.ldap.userGroup}"
+                  "group:${cfg.ldap.adminGroup}"
+                ];
               }
             ];
           }
