@@ -13,17 +13,21 @@ and LDAP and SSO integration.
 
 - Declarative creation of admin user.
 - Declarative selection of listening port.
-- Access through [subdomain](#services-jellyfin-options-shb.jellyfin.subdomain) using reverse proxy. [Manual](#services-jellyfin-usage-configuration).
-- Access through [HTTPS](#services-jellyfin-options-shb.jellyfin.ssl) using reverse proxy. [Manual](#services-jellyfin-usage-https).
-- Declarative [LDAP](#services-jellyfin-options-shb.jellyfin.ldap) configuration although plugin must be installed manually. [Manual](#services-jellyfin-usage-ldap).
-- Declarative [SSO](#services-jellyfin-options-shb.jellyfin.sso) configuration although plugin must be installed manually. [Manual](#services-jellyfin-usage-sso).
+- Access through [subdomain](#services-jellyfin-options-shb.jellyfin.subdomain)
+  and [HTTPS](#services-jellyfin-options-shb.jellyfin.ssl) using reverse proxy. [Manual](#services-jellyfin-usage).
+- Declarative plugin installation. [Manual](#services-jellyfin-options-shb.jellyfin.plugins).
+- Declarative [LDAP](#services-jellyfin-options-shb.jellyfin.ldap) configuration.
+- Declarative [SSO](#services-jellyfin-options-shb.jellyfin.sso) configuration.
 - [Backup](#services-jellyfin-options-shb.jellyfin.backup) through the [backup block](./blocks-backup.html). [Manual](#services-jellyfin-usage-backup).
 
 ## Usage {#services-jellyfin-usage}
 
-### Initial Configuration {#services-jellyfin-usage-configuration}
+The following snippet assumes a few blocks have been setup already:
 
-The following snippet enables Jellyfin and makes it available under the `jellyfin.example.com` endpoint.
+- the [secrets block](usage.html#usage-secrets) with SOPS,
+- the [`shb.ssl` block](blocks-ssl.html#usage),
+- the [`shb.lldap` block](blocks-lldap.html#blocks-lldap-global-setup).
+- the [`shb.authelia` block](blocks-authelia.html#blocks-sso-global-setup).
 
 ```nix
 shb.jellyfin = {
@@ -33,137 +37,59 @@ shb.jellyfin = {
 
   admin = {
     username = "admin";
-    password.result = config.shb.sops.secret.jellyfinAdminPassword.result;
+    password.result = config.shb.sops.secret."jellyfin/adminPassword".result;
+  };
+
+  ldap = {
+    enable = true;
+    host = "127.0.0.1";
+    port = config.shb.lldap.ldapPort;
+    dcdomain = config.shb.lldap.dcdomain;
+    adminPassword.result = config.shb.sops.secrets."jellyfin/ldap/adminPassword".result
+  };
+
+  sso = {
+    enable = true;
+    endpoint = "https://${config.shb.authelia.subdomain}.${config.shb.authelia.domain}";
+  
+    secretFile = config.shb.sops.secret."jellyfin/sso_secret".result;
+    secretFileForAuthelia = config.shb.sops.secret."jellyfin/authelia/sso_secret".result;
   };
 };
 
-shb.sops.secret.jellyfinAdminPassword.request = config.shb.jellyfin.admin.password.request;
-```
+shb.sops.secret."jellyfin/adminPassword".request = config.shb.jellyfin.admin.password.request;
 
-This assumes secrets are setup with SOPS
-as mentioned in [the secrets setup section](usage.html#usage-secrets) of the manual.
+shb.sops.secrets."jellyfin/ldap/adminPassword".request = config.shb.jellyfin.ldap.adminPassword.request;
 
-### Jellyfin through HTTPS {#services-jellyfin-usage-https}
-
-:::: {.note}
-We will build upon the [Initial Configuration](#services-jellyfin-usage-configuration) section,
-so please follow that first.
-::::
-
-If the `shb.ssl` block is used (see [manual](blocks-ssl.html#usage) on how to set it up),
-the instance will be reachable at `https://jellyfin.example.com`.
-
-Here is an example with Let's Encrypt certificates, validated using the HTTP method.
-First, set the global configuration for your domain:
-
-```nix
-shb.certs.certs.letsencrypt."example.com" = {
-  domain = "example.com";
-  group = "nginx";
-  reloadServices = [ "nginx.service" ];
-  adminEmail = "myemail@mydomain.com";
+shb.sops.secret."jellyfin/sso_secret".request = config.shb.jellyfin.sso.sharedSecret.request;
+shb.sops.secret."jellyfin/authelia/sso_secret" = {
+  request = config.shb.jellyfin.sso.sharedSecretForAuthelia.request;
+  settings.key = "jellyfin/sso_secret";
 };
 ```
 
-Then you can tell Jellyfin to use those certificates.
+Secrets can be randomly generated with `nix run nixpkgs#openssl -- rand -hex 64`.
 
-```nix
-shb.certs.certs.letsencrypt."example.com".extraDomains = [ "jellyfin.example.com" ];
-
-shb.jellyfin = {
-  ssl = config.shb.certs.certs.letsencrypt."example.com";
-};
-```
-
-### With LDAP Support {#services-jellyfin-usage-ldap}
-
-:::: {.note}
-We will build upon the [HTTPS](#services-jellyfin-usage-https) section,
-so please follow that first.
-::::
-
-We will use the [LLDAP block][] provided by Self Host Blocks.
-Assuming it [has been set already][LLDAP block setup], add the following configuration:
-
-[LLDAP block]: blocks-lldap.html
-[LLDAP block setup]: blocks-lldap.html#blocks-lldap-global-setup
-
-```nix
-shb.jellyfin.ldap
-  enable = true;
-  host = "127.0.0.1";
-  port = config.shb.lldap.ldapPort;
-  dcdomain = config.shb.lldap.dcdomain;
-  adminPassword.result = config.shb.sops.secrets."jellyfin/ldap/adminPassword".result
-};
-
-shb.sops.secrets."jellyfin/ldap/adminPassword" = {
-  request = config.shb.jellyfin.ldap.adminPassword.request;
-  settings.key = "ldap/userPassword";
-};
-```
-
-The `shb.jellyfin.ldap.adminPasswordFile` must be the same
-as the `shb.lldap.ldapUserPasswordFile` which is achieved
-with the `key` option.
-The other secrets can be randomly generated with
-`nix run nixpkgs#openssl -- rand -hex 64`.
-
-Then, install the plugin [LDAP-Auth](https://github.com/jellyfin/jellyfin-plugin-ldapauth).
-It should be available from the official repository already.
-No manual configuration of the plugin is needed, just installation.
-Note that the version tested with is 19.0.0.0.
-If your version differs, it could lead to some configuration mismatch.
-If that's the case, please [open an issue](https://github.com/ibizaman/selfhostblocks/issues/new)
-or join the [support channel](https://img.shields.io/matrix/selfhostblocks%3Amatrix.org).
-
-And that's it.
-Now, go to the LDAP server at `http://ldap.example.com`,
-create the `jellyfin_user` and `jellyfin_admin` groups,
-create a user and add it to one or both groups.
-When that's done, go back to the Jellyfin server at
-`http://jellyfin.example.com` and login with that user.
-
-Work is in progress to make the creation of the LDAP user and group declarative too.
-
-### With SSO Support {#services-jellyfin-usage-sso}
-
-:::: {.note}
-We will build upon the [LDAP](#services-jellyfin-usage-ldap) section,
-so please follow that first.
-::::
-
-We will use the [SSO block][] provided by Self Host Blocks.
-Assuming it [has been set already][SSO block setup], add the following configuration:
-
-[SSO block]: blocks-sso.html
-[SSO block setup]: blocks-sso.html#blocks-sso-global-setup
-
-```nix
-shb.jellyfin.sso = {
-  enable = true;
-  endpoint = "https://${config.shb.authelia.subdomain}.${config.shb.authelia.domain}";
-
-  secretFile = <path/to/oidcJellyfinSharedSecret>;
-  secretFileForAuthelia = <path/to/oidcJellyfinSharedSecret>;
-};
-```
-
-Passing the `ssl` option will auto-configure nginx to force SSL connections with the given
-certificate.
+The [user](#services-jellyfin-options-shb.jellyfin.ldap.userGroup)
+and [admin](#services-jellyfin-options-shb.jellyfin.ldap.adminGroup)
+LDAP groups are created automatically.
 
 The `shb.jellyfin.sso.secretFile` and `shb.jellyfin.sso.secretFileForAuthelia` options
 must have the same content. The former is a file that must be owned by the `jellyfin` user while
 the latter must be owned by the `authelia` user. I want to avoid needing to define the same secret
 twice with a future secrets SHB block.
 
-Then, install the plugin [SSO-Auth](https://github.com/9p4/jellyfin-plugin-sso).
-It should be available from the official repository already.
-No manual configuration of the plugin is needed, just installation.
-Note that the version tested with is 3.5.2.4.
-If your version differs, it could lead to some configuration mismatch.
-If that's the case, please [open an issue](https://github.com/ibizaman/selfhostblocks/issues/new)
-or join the [support channel](https://img.shields.io/matrix/selfhostblocks%3Amatrix.org).
+### Certificates {#services-jellyfin-certs}
+
+For Let's Encrypt certificates, add:
+
+```nix
+{
+  shb.certs.certs.letsencrypt.${domain}.extraDomains = [
+    "${config.shb.jellyfin.subdomain}.${config.shb.jellyfin.domain}"
+  ];
+}
+```
 
 ### Backup {#services-jellyfin-usage-backup}
 
@@ -184,6 +110,27 @@ You can define any number of Restic instances to backup Jellyfin multiple times.
 
 You will then need to configure more options like the `repository`,
 as explained in the [restic](blocks-restic.html) documentation.
+
+### Impermanence {#services-jellyfin-impermanence}
+
+To save the data folder in an impermanence setup, add:
+
+```nix
+{
+  shb.zfs.datasets."safe/jellyfin".path = config.shb.jellyfin.impermanence;
+}
+```
+
+### Declarative LDAP {#services-jellyfin-declarative-ldap}
+
+To add a user `USERNAME` to the user and admin groups for jellyfin, add:
+
+```nix
+shb.lldap.ensureUsers.USERNAME.groups = [
+  config.shb.jellyfin.ldap.userGroup
+  config.shb.jellyfin.ldap.adminGroup
+];
+```
 
 ## Debug {#services-jellyfin-debug}
 

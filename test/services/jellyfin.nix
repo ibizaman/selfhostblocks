@@ -79,6 +79,7 @@ let
     { config, ... }:
     {
       imports = [
+        shb.test.baseModule
         shb.test.clientLoginModule
       ];
       virtualisation.memorySize = 4096;
@@ -89,28 +90,28 @@ let
 
       test.login = {
         browser = "firefox";
-        # I tried without the path part but it randomly selects either the wizard
-        # or the page that selects a server.
-        # startUrl = "${config.test.proto}://${config.test.fqdn}/web/#/wizardstart.html";
-        # startUrl = "${config.test.proto}://${config.test.fqdn}";
-        startUrl = "${config.test.proto}://${config.test.fqdn}/web/#/login.html";
+        startUrl = "${config.test.proto}://${config.test.fqdn}";
         usernameFieldLabelRegex = "[Uu]ser";
         loginButtonNameRegex = "Sign In";
         testLoginWith = [
-          # I just couldn't make this work. It's very flaky.
-          # Most of the time, the login jellyfin page doesn't even load
-          # and the playwright browser is stuck on the splash page.
-          # I resorted to test the API directly.
-          # { username = "jellyfin"; password = "badpassword"; nextPageExpect = [
-          #     "expect(page).to_have_title(re.compile('Jellyfin'))"
-          #     "expect(page.get_by_text(re.compile('[Ii]nvalid'))).to_be_visible(timeout=30000)"
-          #   ]; }
-          # { username = "jellyfin"; password = "admin"; nextPageExpect = [
-          #     "expect(page).to_have_title(re.compile('Jellyfin'))"
-          #     "expect(page.get_by_text(re.compile('[Ii]nvalid'))).not_to_be_visible(timeout=30000)"
-          #     "expect(page.get_by_role('label', re.compile('[Uu]ser'))).not_to_be_visible(timeout=30000)"
-          #     "expect(page.get_by_text(re.compile('[Pp]assword'))).not_to_be_visible(timeout=30000)"
-          #   ]; }
+          {
+            username = "jellyfin";
+            password = "badpassword";
+            nextPageExpect = [
+              "expect(page).to_have_title(re.compile('Jellyfin'))"
+              "expect(page.get_by_text(re.compile('[Ii]nvalid'))).to_be_visible(timeout=10000)"
+            ];
+          }
+          {
+            username = "jellyfin";
+            password = "admin";
+            nextPageExpect = [
+              "expect(page).to_have_title(re.compile('Jellyfin'))"
+              "expect(page.get_by_text(re.compile('[Ii]nvalid'))).not_to_be_visible(timeout=10000)"
+              "expect(page.get_by_label(re.compile('^[Uu]ser'))).not_to_be_visible(timeout=10000)"
+              "expect(page.get_by_label(re.compile('^[Pp]assword$'))).not_to_be_visible(timeout=10000)"
+            ];
+          }
         ];
       };
     };
@@ -135,6 +136,8 @@ let
           host = "127.0.0.1";
           port = config.shb.lldap.ldapPort;
           dcdomain = config.shb.lldap.dcdomain;
+          userGroup = "user_group";
+          adminGroup = "admin_group";
           adminPassword.result = config.shb.hardcodedsecret.jellyfinLdapUserPassword.result;
         };
       };
@@ -145,10 +148,95 @@ let
       };
     };
 
+  clientLoginLdap =
+    { config, ... }:
+    {
+      imports = [
+        shb.test.baseModule
+        shb.test.clientLoginModule
+      ];
+      virtualisation.memorySize = 4096;
+
+      test = {
+        subdomain = "j";
+      };
+
+      test.login = {
+        startUrl = "${config.test.proto}://${config.test.fqdn}";
+        usernameFieldLabelRegex = "[Uu]ser";
+        loginButtonNameRegex = "Sign In";
+        testLoginWith = [
+          {
+            username = "jellyfin";
+            password = "badpassword";
+            nextPageExpect = [
+              "expect(page).to_have_title(re.compile('Jellyfin'))"
+              "expect(page.get_by_text(re.compile('[Ii]nvalid'))).to_be_visible(timeout=10000)"
+            ];
+          }
+          {
+            username = "jellyfin";
+            password = "admin";
+            nextPageExpect = [
+              "expect(page).to_have_title(re.compile('Jellyfin'))"
+              "expect(page.get_by_text(re.compile('[Ii]nvalid'))).not_to_be_visible(timeout=10000)"
+              "expect(page.get_by_label(re.compile('^[Uu]ser'))).not_to_be_visible(timeout=10000)"
+              "expect(page.get_by_label(re.compile('^[Pp]assword$'))).not_to_be_visible(timeout=10000)"
+            ];
+          }
+          {
+            username = "alice";
+            password = "AlicePassword";
+            nextPageExpect = [
+              "expect(page).to_have_title(re.compile('Jellyfin'))"
+              # For a reason I can't explain, redirection needs to happen manually.
+              "page.goto('${config.test.proto}://${config.test.fqdn}/web/')"
+              "expect(page.get_by_text(re.compile('[Ii]nvalid'))).not_to_be_visible(timeout=10000)"
+              "expect(page.get_by_label(re.compile('^[Uu]ser'))).not_to_be_visible(timeout=10000)"
+              "expect(page.get_by_label(re.compile('^[Pp]assword$'))).not_to_be_visible(timeout=10000)"
+            ];
+          }
+          {
+            username = "alice";
+            password = "NotAlicePassword";
+            nextPageExpect = [
+              "expect(page).to_have_title(re.compile('Jellyfin'))"
+              "expect(page.get_by_text(re.compile('[Ii]nvalid'))).to_be_visible(timeout=10000)"
+            ];
+          }
+          {
+            username = "bob";
+            password = "BobPassword";
+            nextPageExpect = [
+              "expect(page).to_have_title(re.compile('Jellyfin'))"
+              # For a reason I can't explain, redirection needs to happen manually.
+              "page.goto('${config.test.proto}://${config.test.fqdn}/web/')"
+              "expect(page.get_by_text(re.compile('[Ii]nvalid'))).not_to_be_visible(timeout=10000)"
+              "expect(page.get_by_label(re.compile('^[Uu]ser'))).not_to_be_visible(timeout=10000)"
+              "expect(page.get_by_label(re.compile('^[Pp]assword$'))).not_to_be_visible(timeout=10000)"
+            ];
+          }
+          {
+            username = "bob";
+            password = "NotBobPassword";
+            nextPageExpect = [
+              "expect(page).to_have_title(re.compile('Jellyfin'))"
+              "expect(page.get_by_text(re.compile('[Ii]nvalid'))).to_be_visible(timeout=10000)"
+            ];
+          }
+        ];
+      };
+    };
+
   sso =
     { config, ... }:
     {
       shb.jellyfin = {
+        ldap = {
+          userGroup = "user_group";
+          adminGroup = "admin_group";
+        };
+
         sso = {
           enable = true;
           endpoint = "https://${config.shb.authelia.subdomain}.${config.shb.authelia.domain}";
@@ -165,6 +253,82 @@ let
       shb.hardcodedsecret.jellyfinSSOPasswordAuthelia = {
         request = config.shb.jellyfin.sso.sharedSecretForAuthelia.request;
         settings.content = "ssoPassword";
+      };
+    };
+
+  clientLoginSso =
+    { config, ... }:
+    {
+      imports = [
+        shb.test.baseModule
+        shb.test.clientLoginModule
+      ];
+      virtualisation.memorySize = 4096;
+
+      test = {
+        subdomain = "j";
+      };
+
+      test.login = {
+        startUrl = "${config.test.proto}://${config.test.fqdn}";
+        beforeHook = ''
+          page.locator('text=Sign in with Authelia').click()
+        '';
+        usernameFieldLabelRegex = "Username";
+        passwordFieldLabelRegex = "Password";
+        loginButtonNameRegex = "[Ss]ign [Ii]n";
+        loginSpawnsNewPage = true;
+        testLoginWith = [
+          {
+            username = "alice";
+            password = "AlicePassword";
+            nextPageExpect = [
+              "page.get_by_text(re.compile('[Aa]ccept')).click()"
+              # For a reason I can't explain, redirection needs to happen manually.
+              "page.goto('${config.test.proto}://${config.test.fqdn}/web/')"
+              "expect(page).to_have_title(re.compile('Jellyfin'))"
+              "expect(page.get_by_text(re.compile('[Ii]nvalid'))).not_to_be_visible(timeout=10000)"
+              "expect(page.get_by_label(re.compile('^[Uu]ser'))).not_to_be_visible(timeout=10000)"
+              "expect(page.get_by_label(re.compile('^[Pp]assword$'))).not_to_be_visible(timeout=10000)"
+            ];
+          }
+          {
+            username = "alice";
+            password = "NotAlicePassword";
+            nextPageExpect = [
+              # For a reason I can't explain, redirection needs to happen manually.
+              # So for failing auth, we check we're back on the login page.
+              "page.goto('${config.test.proto}://${config.test.fqdn}/web/')"
+              "expect(page).to_have_title(re.compile('Jellyfin'))"
+              "expect(page.get_by_label(re.compile('^[Uu]ser'))).to_be_visible(timeout=10000)"
+              "expect(page.get_by_label(re.compile('^[Pp]assword$'))).to_be_visible(timeout=10000)"
+            ];
+          }
+          {
+            username = "bob";
+            password = "BobPassword";
+            nextPageExpect = [
+              "page.get_by_text(re.compile('[Aa]ccept')).click()"
+              # For a reason I can't explain, redirection needs to happen manually.
+              "page.goto('${config.test.proto}://${config.test.fqdn}/web/')"
+              "expect(page).to_have_title(re.compile('Jellyfin'))"
+              "expect(page.get_by_text(re.compile('[Ii]nvalid'))).not_to_be_visible(timeout=10000)"
+              "expect(page.get_by_label(re.compile('^[Uu]ser'))).not_to_be_visible(timeout=10000)"
+              "expect(page.get_by_label(re.compile('^[Pp]assword$'))).not_to_be_visible(timeout=10000)"
+            ];
+          }
+          {
+            username = "bob";
+            password = "NotBobPassword";
+            nextPageExpect = [
+              # For a reason I can't explain, redirection needs to happen manually.
+              "page.goto('${config.test.proto}://${config.test.fqdn}/web/')"
+              "expect(page).to_have_title(re.compile('Jellyfin'))"
+              "expect(page.get_by_label(re.compile('^[Uu]ser'))).to_be_visible(timeout=10000)"
+              "expect(page.get_by_label(re.compile('^[Pp]assword$'))).to_be_visible(timeout=10000)"
+            ];
+          }
+        ];
       };
     };
 
@@ -189,13 +353,14 @@ in
     nodes.server = {
       imports = [
         basic
-        clientLogin
       ];
     };
 
-    # Client login does not work without SSL.
-    # At least, I couldn't make it work.
-    nodes.client = { };
+    nodes.client = {
+      imports = [
+        clientLogin
+      ];
+    };
 
     testScript = commonTestScript.access;
   };
@@ -228,7 +393,6 @@ in
       { config, lib, ... }:
       {
         imports = [
-          shb.test.baseModule
           clientLogin
         ];
       };
@@ -240,12 +404,18 @@ in
     nodes.server = {
       imports = [
         basic
+        shb.test.certs
+        https
         shb.test.ldap
         ldap
       ];
     };
 
-    nodes.client = { };
+    nodes.client = {
+      imports = [
+        clientLoginLdap
+      ];
+    };
 
     testScript = commonTestScript.access;
   };
@@ -264,7 +434,11 @@ in
         ];
       };
 
-    nodes.client = { };
+    nodes.client = {
+      imports = [
+        clientLoginSso
+      ];
+    };
 
     testScript = commonTestScript.access;
   };
