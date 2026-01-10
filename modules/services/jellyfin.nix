@@ -57,6 +57,34 @@ let
       platforms = dotnet-runtime.meta.platforms;
     };
   };
+
+  pluginName = src: (builtins.fromJSON (builtins.readFile "${src}/meta.json")).name;
+
+  mkJellyfinPlugin =
+    {
+      pname,
+      version,
+      hash,
+      url,
+    }:
+    pkgs.callPackage (
+      { stdenv, fetchzip }:
+      stdenv.mkDerivation (finalAttrs: {
+        inherit pname version;
+
+        src = fetchzip {
+          inherit url hash;
+          stripRoot = false;
+        };
+
+        dontBuild = true;
+
+        installPhase = ''
+          mkdir $out
+          cp -r . $out
+        '';
+      })
+    ) { };
 in
 {
   options.shb.jellyfin = {
@@ -119,12 +147,38 @@ in
       );
     };
 
+    plugins = lib.mkOption {
+      description = ''
+        Install plugins declaratively.
+
+        The LDAP and SSO plugins will be added if their respective
+        shb.jellyfin.ldap.enable and shb.jellyfin.sso.enable options are set to true.
+
+        The interface for plugin creation is WIP.
+        Feel free to add yours following the examples from the LDAP and SSO plugins
+        but know that they may require some tweaks later on.
+      '';
+      default = [ ];
+      type = types.listOf types.package;
+    };
+
     ldap = lib.mkOption {
       description = "LDAP configuration.";
       default = { };
       type = types.submodule {
         options = {
           enable = lib.mkEnableOption "LDAP";
+
+          plugin = lib.mkOption {
+            type = lib.types.package;
+            description = "Pluging used for LDAP authentication.";
+            default = mkJellyfinPlugin (rec {
+              pname = "jellyfin-plugin-ldapauth";
+              version = "20";
+              url = "https://github.com/jellyfin/${pname}/releases/download/v${version}/ldap-authentication_${version}.0.0.0.zip";
+              hash = "sha256-qATHNuiC6u+/vbY610jrFZSC16FG+Zpdjo+dfOVdVIk=";
+            });
+          };
 
           host = lib.mkOption {
             type = types.str;
@@ -178,6 +232,17 @@ in
         options = {
           enable = lib.mkEnableOption "SSO";
 
+          plugin = lib.mkOption {
+            type = lib.types.package;
+            description = "Pluging used for SSO authentication.";
+            default = mkJellyfinPlugin (rec {
+              pname = "jellyfin-plugin-sso";
+              version = "3.5.2.4";
+              url = "https://github.com/9p4/${pname}/releases/download/v${version}/sso-authentication_${version}.zip";
+              hash = "sha256-e+w5m6/7vRAynStDj34eBexfCIEgDJ09huHzi5gQEbo=";
+            });
+          };
+
           provider = lib.mkOption {
             type = types.str;
             description = "OIDC provider name";
@@ -194,18 +259,6 @@ in
             type = types.str;
             description = "Client ID for the OIDC endpoint";
             default = "jellyfin";
-          };
-
-          adminUserGroup = lib.mkOption {
-            type = types.str;
-            description = "OIDC admin group";
-            default = "jellyfin_admin";
-          };
-
-          userGroup = lib.mkOption {
-            type = types.str;
-            description = "OIDC user group";
-            default = "jellyfin_user";
           };
 
           authorization_policy = lib.mkOption {
@@ -270,6 +323,16 @@ in
       [ "shb" "jellyfin" "adminPassword" ]
       [ "shb" "jellyfin" "admin" "password" ]
     )
+
+    # (lib.mkRenamedOptionModule
+    #   [ "shb" "jellyfin" "sso" "userGroup" ]
+    #   [ "shb" "jellyfin" "ldap" "userGroup" ]
+    # )
+
+    # (lib.mkRenamedOptionModule
+    #   [ "shb" "jellyfin" "sso" "adminUserGroup" ]
+    #   [ "shb" "jellyfin" "ldap" "adminGroup" ]
+    # )
   ];
 
   config = lib.mkIf cfg.enable {
@@ -471,10 +534,10 @@ in
                     <EnableAllFolders>true</EnableAllFolders>
                     <EnabledFolders />
                     <AdminRoles>
-                      <string>${cfg.sso.adminUserGroup}</string>
+                      <string>${cfg.ldap.adminGroup}</string>
                     </AdminRoles>
                     <Roles>
-                      <string>${cfg.sso.userGroup}</string>
+                      <string>${cfg.ldap.userGroup}</string>
                     </Roles>
                     <EnableFolderRoles>false</EnableFolderRoles>
                     <FolderRoleMappings />
@@ -596,7 +659,7 @@ in
         ];
       })
       + lib.strings.optionalString cfg.ldap.enable (
-        shb.replaceSecretsScript {
+        (shb.replaceSecretsScript {
           file = ldapConfig;
           resultPath = "${config.services.jellyfin.dataDir}/plugins/configurations/LDAP-Auth.xml";
           replacements = [
@@ -605,7 +668,7 @@ in
               source = cfg.ldap.adminPassword.result.path;
             }
           ];
-        }
+        })
       )
       + lib.strings.optionalString cfg.sso.enable (
         shb.replaceSecretsScript {
@@ -626,7 +689,34 @@ in
           replacements = [
           ];
         }
+      )
+      + (
+        let
+          pluginInstallScript = p: ''
+            pluginDir="${config.services.jellyfin.dataDir}/plugins/${pluginName p}"
+            mkdir -p "$pluginDir"
+            for f in "${p}"/*; do
+              ln -sf "$f" "$pluginDir"
+            done
+
+            rm "$pluginDir/meta.json"
+            ${pkgs.jq}/bin/jq ". + {
+              status: \"Active\",
+              autoUpdate: false,
+              assemblies: []
+            }" "${p}/meta.json" > "$pluginDir/meta.json"
+          '';
+        in
+        lib.concatMapStringsSep "\n" pluginInstallScript cfg.plugins
       );
+
+    shb.jellyfin.plugins =
+      lib.optionals cfg.ldap.enable [ cfg.ldap.plugin ]
+      ++ lib.optionals cfg.sso.enable [ cfg.sso.plugin ];
+
+    systemd.tmpfiles.rules = lib.optionals cfg.ldap.enable [
+      "d '${config.services.jellyfin.dataDir}/plugins' 0750 jellyfin jellyfin - -"
+    ];
 
     systemd.services.jellyfin.serviceConfig.ExecStartPost =
       let
@@ -718,7 +808,7 @@ in
 
     systemd.services.jellyfin.serviceConfig.TimeoutStartSec = 300;
 
-    shb.authelia.oidcClients = lib.lists.optionals (!(isNull cfg.sso)) [
+    shb.authelia.oidcClients = lib.optionals cfg.sso.enable [
       {
         client_id = cfg.sso.clientID;
         client_name = "Jellyfin";

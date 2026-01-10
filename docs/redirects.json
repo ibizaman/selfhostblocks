@@ -3512,11 +3512,20 @@
   "services-jellyfin": [
     "services-jellyfin.html#services-jellyfin"
   ],
+  "services-jellyfin-certs": [
+    "services-jellyfin.html#services-jellyfin-certs"
+  ],
   "services-jellyfin-debug": [
     "services-jellyfin.html#services-jellyfin-debug"
   ],
+  "services-jellyfin-declarative-ldap": [
+    "services-jellyfin.html#services-jellyfin-declarative-ldap"
+  ],
   "services-jellyfin-features": [
     "services-jellyfin.html#services-jellyfin-features"
+  ],
+  "services-jellyfin-impermanence": [
+    "services-jellyfin.html#services-jellyfin-impermanence"
   ],
   "services-jellyfin-options": [
     "services-jellyfin.html#services-jellyfin-options"
@@ -3632,11 +3641,17 @@
   "services-jellyfin-options-shb.jellyfin.ldap.host": [
     "services-jellyfin.html#services-jellyfin-options-shb.jellyfin.ldap.host"
   ],
+  "services-jellyfin-options-shb.jellyfin.ldap.plugin": [
+    "services-jellyfin.html#services-jellyfin-options-shb.jellyfin.ldap.plugin"
+  ],
   "services-jellyfin-options-shb.jellyfin.ldap.port": [
     "services-jellyfin.html#services-jellyfin-options-shb.jellyfin.ldap.port"
   ],
   "services-jellyfin-options-shb.jellyfin.ldap.userGroup": [
     "services-jellyfin.html#services-jellyfin-options-shb.jellyfin.ldap.userGroup"
+  ],
+  "services-jellyfin-options-shb.jellyfin.plugins": [
+    "services-jellyfin.html#services-jellyfin-options-shb.jellyfin.plugins"
   ],
   "services-jellyfin-options-shb.jellyfin.port": [
     "services-jellyfin.html#services-jellyfin-options-shb.jellyfin.port"
@@ -3659,9 +3674,6 @@
   "services-jellyfin-options-shb.jellyfin.sso": [
     "services-jellyfin.html#services-jellyfin-options-shb.jellyfin.sso"
   ],
-  "services-jellyfin-options-shb.jellyfin.sso.adminUserGroup": [
-    "services-jellyfin.html#services-jellyfin-options-shb.jellyfin.sso.adminUserGroup"
-  ],
   "services-jellyfin-options-shb.jellyfin.sso.authorization_policy": [
     "services-jellyfin.html#services-jellyfin-options-shb.jellyfin.sso.authorization_policy"
   ],
@@ -3673,6 +3685,9 @@
   ],
   "services-jellyfin-options-shb.jellyfin.sso.endpoint": [
     "services-jellyfin.html#services-jellyfin-options-shb.jellyfin.sso.endpoint"
+  ],
+  "services-jellyfin-options-shb.jellyfin.sso.plugin": [
+    "services-jellyfin.html#services-jellyfin-options-shb.jellyfin.sso.plugin"
   ],
   "services-jellyfin-options-shb.jellyfin.sso.provider": [
     "services-jellyfin.html#services-jellyfin-options-shb.jellyfin.sso.provider"
@@ -3725,9 +3740,6 @@
   "services-jellyfin-options-shb.jellyfin.sso.sharedSecretForAuthelia.result.path": [
     "services-jellyfin.html#services-jellyfin-options-shb.jellyfin.sso.sharedSecretForAuthelia.result.path"
   ],
-  "services-jellyfin-options-shb.jellyfin.sso.userGroup": [
-    "services-jellyfin.html#services-jellyfin-options-shb.jellyfin.sso.userGroup"
-  ],
   "services-jellyfin-options-shb.jellyfin.subdomain": [
     "services-jellyfin.html#services-jellyfin-options-shb.jellyfin.subdomain"
   ],
@@ -3736,18 +3748,6 @@
   ],
   "services-jellyfin-usage-backup": [
     "services-jellyfin.html#services-jellyfin-usage-backup"
-  ],
-  "services-jellyfin-usage-configuration": [
-    "services-jellyfin.html#services-jellyfin-usage-configuration"
-  ],
-  "services-jellyfin-usage-https": [
-    "services-jellyfin.html#services-jellyfin-usage-https"
-  ],
-  "services-jellyfin-usage-ldap": [
-    "services-jellyfin.html#services-jellyfin-usage-ldap"
-  ],
-  "services-jellyfin-usage-sso": [
-    "services-jellyfin.html#services-jellyfin-usage-sso"
   ],
   "services-karakeep": [
     "services-karakeep.html#services-karakeep"

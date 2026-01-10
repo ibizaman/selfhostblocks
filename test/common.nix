@@ -283,6 +283,10 @@ in
           type = str;
           default = "[Ll]ogin";
         };
+        loginSpawnsNewPage = mkOption {
+          type = bool;
+          default = false;
+        };
         testLoginWith = mkOption {
           type = listOf (submodule {
             options = {
@@ -350,6 +354,8 @@ in
 
                 with open("${testCfg}") as f:
                     testCfg = json.load(f)
+                    print("Test configuration:")
+                    print(json.dumps(testCfg, indent=2))
 
                 browser_name = testCfg['browser']
                 browser_args = browsers.get(browser_name)
@@ -366,11 +372,24 @@ in
                         context.tracing.start(screenshots=True, snapshots=True, sources=True)
                         try:
                             page = context.new_page()
+                            # This is used to debug frame changes.
+                            # Frame changes or popup are somewhat handled with the expect_page() call later.
+                            page.on("framenavigated", lambda frame: print("NAV:", frame.url))
+                            page.on("frameattached", lambda frame: print("ATTACHED:", frame.url))
+                            page.on("framedetached", lambda frame: print("DETACHED:", frame.url))
+
                             print(f"Going to {testCfg['startUrl']}")
                             page.goto(testCfg['startUrl'])
 
                             if testCfg.get("beforeHook") is not None:
-                                exec(testCfg.get("beforeHook"))
+                                if testCfg['loginSpawnsNewPage']:
+                                    print("Login spawns new page")
+                                    # The with clause handles window.open() or <a target="_blank">.
+                                    with context.expect_page() as p:
+                                        exec(testCfg.get("beforeHook"))
+                                    page = p.value
+                                else:
+                                    exec(testCfg.get("beforeHook"))
 
                             if u['username'] is not None:
                                 print(f"Filling field username with {u['username']}")
