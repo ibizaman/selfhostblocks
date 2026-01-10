@@ -39,15 +39,6 @@ let
         importer.firefly-iii-accessToken.result = config.shb.hardcodedsecret.accessToken.result;
       };
 
-      # systemd.tmpfiles.rules = [
-      #   "d '/src/firefly-iii' 0750 pinchflat pinchflat - -"
-      # ];
-
-      # Needed for gitea-runner-local to be able to ping firefly-iii.
-      # networking.hosts = {
-      #   "127.0.0.1" = [ "${config.test.subdomain}.${config.test.domain}" ];
-      # };
-
       shb.hardcodedsecret.appKey = {
         request = config.shb.firefly-iii.appKey.request;
         # Firefly-iir requires this to be exactly 32 characters.
