@@ -58,7 +58,12 @@ let
     };
   };
 
-  pluginName = src: (builtins.fromJSON (builtins.readFile "${src}/meta.json")).name;
+  pluginName =
+    src:
+    let
+      meta = builtins.fromJSON (builtins.readFile "${src}/meta.json");
+    in
+    "${meta.name}_${meta.version}";
 
   mkJellyfinPlugin =
     {
