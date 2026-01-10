@@ -73,7 +73,7 @@ On first start, leave the `shb.firefly-iii.importer.firefly-iii-accessToken` opt
 To fill it out and connect the data importer to the Firefly-iii instance,
 you must first create a personal access token then fill that option and redeploy.
 
-## Backup {#services-firefly-iii-usage-backup}
+### Backup {#services-firefly-iii-usage-backup}
 
 Backing up Firefly-iii using the [Restic block](blocks-restic.html) is done like so:
 
@@ -90,10 +90,10 @@ The name `"firefly-iii"` in the `instances` can be anything.
 The `config.shb.firefly-iii.backup` option provides what directories to backup.
 You can define any number of Restic instances to backup Firefly-iii multiple times.
 
-Linking the Firefly-iii data importer to the Firefly-iii instance must still be done manually
-by following the instructions appearing on the web UI.
+You will then need to configure more options like the `repository`,
+as explained in the [restic](blocks-restic.html) documentation.
 
-## Certificates {#services-firefly-iii-certs}
+### Certificates {#services-firefly-iii-certs}
 
 For Let's Encrypt certificates, add:
 
@@ -106,7 +106,7 @@ For Let's Encrypt certificates, add:
 }
 ```
 
-## Impermanence {#services-firefly-iii-impermanence}
+### Impermanence {#services-firefly-iii-impermanence}
 
 To save the data folder in an impermanence setup, add:
 
@@ -116,7 +116,7 @@ To save the data folder in an impermanence setup, add:
 }
 ```
 
-## Declarative LDAP {#services-firefly-iii-declarative-ldap}
+### Declarative LDAP {#services-firefly-iii-declarative-ldap}
 
 To add a user `USERNAME` to the user and admin groups for Firefly-iii, add:
 
