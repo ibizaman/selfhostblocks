@@ -5,9 +5,10 @@ Defined in [`/modules/services/jellyfin.nix`](@REPO@/modules/services/jellyfin.n
 This NixOS module is a service that sets up a [Jellyfin](https://jellyfin.org/) instance.
 
 Compared to the stock module from nixpkgs,
-this one sets up, in a fully declarative manner
-the initial wizard with an admin user
-and LDAP and SSO integration.
+this one sets up, in a fully declarative manner:
+- the initial wizard with an admin user thanks to a custom Jellyfin CLI
+  and a custom restart logic to apply the changes from the CLI.
+- LDAP and SSO integration thanks to a custom declarative installation of plugins.
 
 ## Features {#services-jellyfin-features}
 

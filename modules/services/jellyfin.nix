@@ -65,6 +65,12 @@ let
     in
     "${meta.name}_${meta.version}";
 
+  pluginNamePrefix =
+    src:
+    let
+      meta = builtins.fromJSON (builtins.readFile "${src}/meta.json");
+    in
+    "${meta.name}";
 in
 {
   options.shb.jellyfin = {
@@ -137,6 +143,15 @@ in
         The interface for plugin creation is WIP.
         Feel free to add yours following the examples from the LDAP and SSO plugins
         but know that they may require some tweaks later on.
+        Notably, configuration is not yet handled by this option
+        so that will be added in the future.
+
+        Each plugin's meta.json must be writeable because Jellyfin appends some information
+        upon installing the plugin, like its active or disabled status.
+        SHB automatically enables the plugin
+        and deletes any plugin with the same prefix but other versions.
+        Note that SHB does not attempt to find which version is latest.
+        If twice the same plugin is added, the last one in the "plugins" list wins.
       '';
       default = [ ];
       type = types.listOf types.package;
@@ -289,8 +304,9 @@ in
           ];
           sourceDirectoriesText = ''
             [
-                        "services.jellyfin.dataDir"
-                      ]'';
+              "services.jellyfin.dataDir"
+            ]
+          '';
         };
       };
     };
@@ -685,6 +701,18 @@ in
               autoUpdate: false,
               assemblies: []
             }" "${p}/meta.json" > "$pluginDir/meta.json"
+
+            echo "Disabling other versions of plugin ${pluginName p}"
+            for p in "${config.services.jellyfin.dataDir}/plugins/${pluginNamePrefix p}"*; do
+              if [ "$p" = "$pluginDir" ]; then
+                continue
+              fi
+              echo "Marking plugin $p as disabled"
+              ${pkgs.jq}/bin/jq ". + {
+                status: \"Disabled\",
+              }" "$p/meta.json" > "$p/meta.json.new"
+              mv "$p/meta.json.new" "$p/meta.json"
+            done
           '';
         in
         lib.concatMapStringsSep "\n" pluginInstallScript cfg.plugins
