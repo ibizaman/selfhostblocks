@@ -128,7 +128,7 @@ let
     };
 
   ldap =
-    { config, ... }:
+    { config, lib, ... }:
     {
       shb.jellyfin = {
         ldap = {
@@ -141,6 +141,20 @@ let
           adminPassword.result = config.shb.hardcodedsecret.jellyfinLdapUserPassword.result;
         };
       };
+
+      # There's something weird happending here
+      # where this plugin disappears after a jellyfin restart.
+      # I don't know why this is the case.
+      # I tried using a real plugin here instead of a mock or just creating a meta.json file.
+      # But this didn't help.
+      shb.jellyfin.plugins = lib.mkBefore [
+        (shb.mkJellyfinPlugin (rec {
+          pname = "jellyfin-plugin-ldapauth";
+          version = "19";
+          url = "https://github.com/jellyfin/${pname}/releases/download/v${version}/ldap-authentication_${version}.0.0.0.zip";
+          hash = "sha256-NunkpdYjsxYT6a4RaDXLkgRn4scRw8GaWvyHGs9IdWo=";
+        }))
+      ];
 
       shb.hardcodedsecret.jellyfinLdapUserPassword = {
         request = config.shb.jellyfin.ldap.adminPassword.request;
@@ -417,7 +431,23 @@ in
       ];
     };
 
-    testScript = commonTestScript.access;
+    testScript = commonTestScript.access.override {
+      extraScript =
+        {
+          node,
+          ...
+        }:
+        # I have no idea why the LDAP Authentication_19.0.0.0 plugin disappears.
+        ''
+          r = server.execute('cat "${node.config.services.jellyfin.dataDir}/plugins/LDAP Authentication_19.0.0.0/meta.json"')
+          if r[0] != 0:
+              print("meta.json for plugin LDAP Authentication_19.0.0.0 not found")
+          else:
+              c = json.loads(r[1])
+              if "status" in c and c["status"] != "Disabled":
+                  raise Exception(f'meta.json status: expected Disabled, got: {c["status"]}')
+        '';
+    };
   };
 
   sso = jellyfinTest "sso" {
