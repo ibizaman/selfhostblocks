@@ -65,31 +65,6 @@ let
     in
     "${meta.name}_${meta.version}";
 
-  mkJellyfinPlugin =
-    {
-      pname,
-      version,
-      hash,
-      url,
-    }:
-    pkgs.callPackage (
-      { stdenv, fetchzip }:
-      stdenv.mkDerivation (finalAttrs: {
-        inherit pname version;
-
-        src = fetchzip {
-          inherit url hash;
-          stripRoot = false;
-        };
-
-        dontBuild = true;
-
-        installPhase = ''
-          mkdir $out
-          cp -r . $out
-        '';
-      })
-    ) { };
 in
 {
   options.shb.jellyfin = {
@@ -177,7 +152,7 @@ in
           plugin = lib.mkOption {
             type = lib.types.package;
             description = "Pluging used for LDAP authentication.";
-            default = mkJellyfinPlugin (rec {
+            default = shb.mkJellyfinPlugin (rec {
               pname = "jellyfin-plugin-ldapauth";
               version = "20";
               url = "https://github.com/jellyfin/${pname}/releases/download/v${version}/ldap-authentication_${version}.0.0.0.zip";
@@ -240,7 +215,7 @@ in
           plugin = lib.mkOption {
             type = lib.types.package;
             description = "Pluging used for SSO authentication.";
-            default = mkJellyfinPlugin (rec {
+            default = shb.mkJellyfinPlugin (rec {
               pname = "jellyfin-plugin-sso";
               version = "3.5.2.4";
               url = "https://github.com/9p4/${pname}/releases/download/v${version}/sso-authentication_${version}.zip";
