@@ -383,4 +383,30 @@ rec {
     map genLoadCredentials allSecrets;
 
   anyNotNull = any (x: x != null);
+
+  mkJellyfinPlugin =
+    {
+      pname,
+      version,
+      hash,
+      url,
+    }:
+    pkgs.callPackage (
+      { stdenv, fetchzip }:
+      stdenv.mkDerivation (finalAttrs: {
+        inherit pname version;
+
+        src = fetchzip {
+          inherit url hash;
+          stripRoot = false;
+        };
+
+        dontBuild = true;
+
+        installPhase = ''
+          mkdir $out
+          cp -r . $out
+        '';
+      })
+    ) { };
 }
