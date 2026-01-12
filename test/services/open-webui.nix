@@ -34,6 +34,8 @@ let
         enable = true;
         inherit (config.test) subdomain domain;
       };
+      # Speeds up tests because models can't be downloaded anyway and that leads to retries.
+      services.open-webui.environment.OFFLINE_MODE = "true";
 
       networking.hosts = {
         "127.0.0.1" = [ "${config.test.subdomain}.${config.test.domain}" ];
