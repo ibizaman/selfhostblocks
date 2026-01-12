@@ -498,7 +498,12 @@ in
 
                 adminGroup = lib.mkOption {
                   type = lib.types.str;
-                  description = "Group admins must belong to to be able to login to Nextcloud.";
+                  description = ''
+                    Group admins must belong to to be able to login to Nextcloud.
+
+                    This option is purposely not inside the LDAP app because only SSO allows
+                    distinguising between users and admins.
+                  '';
                   default = "nextcloud_admin";
                 };
 
@@ -1167,7 +1172,10 @@ in
               groups = "groups";
               is_admin = "is_nextcloud_admin";
             };
-            oidc_login_allowed_groups = [ cfg.apps.ldap.userGroup ];
+            oidc_login_allowed_groups = [
+              cfg.apps.ldap.userGroup
+              cfg.apps.sso.adminGroup
+            ];
             oidc_login_default_group = "oidc";
             oidc_login_use_external_storage = false;
             oidc_login_scope = lib.concatStringsSep " " scopes;

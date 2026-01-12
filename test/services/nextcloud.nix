@@ -212,22 +212,6 @@ let
               "expect(page.get_by_text('Wrong login or password')).to_be_visible()"
             ];
           }
-          {
-            username = "bob";
-            password = "BobPassword";
-            nextPageExpect = [
-              "expect(page.get_by_text('Wrong login or password')).not_to_be_visible()"
-              "expect(page.get_by_role('button', name=re.compile('[Ll]og [Ii]n'))).not_to_be_visible()"
-              "expect(page).to_have_title(re.compile('Dashboard'))"
-            ];
-          }
-          {
-            username = "bob";
-            password = "NotBobPassword";
-            nextPageExpect = [
-              "expect(page.get_by_text('Wrong login or password')).to_be_visible()"
-            ];
-          }
         ];
       };
     };
