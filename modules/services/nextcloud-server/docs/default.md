@@ -11,8 +11,10 @@ It is based on the nixpkgs Nextcloud server and provides opinionated defaults.
   to configure those with the UI.
   - [LDAP](#services-nextcloudserver-usage-ldap) app:
     enables app and sets up integration with an existing LDAP server, in this case LLDAP.
+    Note that the LDAP app cannot distinguish between normal users and admin users.
   - [SSO](#services-nextcloudserver-usage-oidc) app:
     enables app and sets up integration with an existing SSO server, in this case Authelia.
+    The SSO app can distinguish between normal users and admin users.
   - [Preview Generator](#services-nextcloudserver-usage-previewgenerator) app:
     enables app and sets up required cron job.
   - [External Storage](#services-nextcloudserver-usage-externalstorage) app:
