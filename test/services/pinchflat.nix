@@ -130,22 +130,7 @@ let
               "expect(page.get_by_text('Create a media profile')).to_be_visible()"
             ];
           }
-          {
-            username = "bob";
-            password = "NotBobPassword";
-            nextPageExpect = [
-              "expect(page.get_by_text(re.compile('[Ii]ncorrect'))).to_be_visible()"
-            ];
-          }
-          {
-            username = "bob";
-            password = "BobPassword";
-            nextPageExpect = [
-              "expect(page.get_by_text(re.compile('[Ii]ncorrect'))).not_to_be_visible()"
-              "expect(page.get_by_role('button', name=re.compile('Sign In'))).not_to_be_visible()"
-              "expect(page.get_by_text('Create a media profile')).to_be_visible()"
-            ];
-          }
+          # Bob, with its admin role only, cannot login into Karakeep because admins do not exist in Karakeep.
           {
             username = "charlie";
             password = "NotCharliePassword";
