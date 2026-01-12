@@ -493,7 +493,7 @@ in
               --bind-password       $(tr -d '\n' < ${cfg.ldap.adminPassword.result.path}) \
               --security-protocol   Unencrypted \
               --user-search-base    ou=people,${cfg.ldap.dcdomain} \
-              --user-filter         '(&(memberof=cn=${cfg.ldap.userGroup},ou=groups,${cfg.ldap.dcdomain})(|(uid=%[1]s)(mail=%[1]s)))' \
+              --user-filter         '(&(|(memberof=cn=${cfg.ldap.userGroup},ou=groups,${cfg.ldap.dcdomain})(memberof=cn=${cfg.ldap.adminGroup},ou=groups,${cfg.ldap.dcdomain}))(|(uid=%[1]s)(mail=%[1]s)))' \
               --admin-filter        '(memberof=cn=${cfg.ldap.adminGroup},ou=groups,${cfg.ldap.dcdomain})' \
               --username-attribute  uid \
               --firstname-attribute givenName \
@@ -512,7 +512,7 @@ in
               --bind-password       $(tr -d '\n' < ${cfg.ldap.adminPassword.result.path}) \
               --security-protocol   Unencrypted \
               --user-search-base    ou=people,${cfg.ldap.dcdomain} \
-              --user-filter         '(&(memberof=cn=${cfg.ldap.userGroup},ou=groups,${cfg.ldap.dcdomain})(|(uid=%[1]s)(mail=%[1]s)))' \
+              --user-filter         '(&(|(memberof=cn=${cfg.ldap.userGroup},ou=groups,${cfg.ldap.dcdomain})(memberof=cn=${cfg.ldap.adminGroup},ou=groups,${cfg.ldap.dcdomain}))(|(uid=%[1]s)(mail=%[1]s)))' \
               --admin-filter        '(memberof=cn=${cfg.ldap.adminGroup},ou=groups,${cfg.ldap.dcdomain})' \
               --username-attribute  uid \
               --firstname-attribute givenName \

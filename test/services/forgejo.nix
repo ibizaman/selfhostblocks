@@ -149,6 +149,7 @@ let
           waitForSystemdServices = [ "lldap.service" ];
 
           userGroup = "user_group";
+          adminGroup = "admin_group";
         };
       };
 
