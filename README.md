@@ -174,6 +174,7 @@ Also, the stack fits together nicely thanks to [contracts](#contracts).
 - Nextcloud
 - Audiobookshelf
 - Deluge + *arr stack
+- Simple NixOS Mailserver
 - Firefly-iii
 - Forgejo
 - Grocy
