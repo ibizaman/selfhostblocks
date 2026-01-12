@@ -16,6 +16,30 @@ Template:
 
 # Upcoming Release
 
+# v0.7.2
+
+## New Features
+
+- Forgejo uses secrets contract for smtp password.
+- Add [Firefly-iii](https://shb.skarabox.com/services-firefly-iii.html) service.
+- Jellyfin can [install plugins declaratively](https://shb.skarabox.com/services-jellyfin.html#services-jellyfin-options-shb.jellyfin.plugins).
+  (Support is quite crude and WIP).
+- Jellyfin configures LDAP and SSO fully declaratively, including installing necessary plugins.
+- Nextcloud 32 is fully supported thanks to tests for version 31 and 32.
+
+## Fixes
+
+- Revert Authelia to continue using dots in systemd service names.
+  This caused issue with nginx name resolution.
+
+## Other Changes
+
+- Authelia uses non deprecated `smtp.address` option.
+- Add documentation for Nginx block
+- Now a user which is only member of the admin LDAP group of a service can login.
+  Before, some services required a user to be member of both the user and admin LDAP group.
+  This is ensured by regression tests going forward.
+
 # v0.7.1
 
 ## New Features
