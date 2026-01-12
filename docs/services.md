@@ -13,18 +13,19 @@ Not all services are yet documented. You can find all available services [in the
 The following table summarizes for each documented service what features it provides. More
 information is provided in the respective manual sections.
 
-| Service              | Backup | Reverse Proxy | SSO | LDAP  | Monitoring | Profiling |
-|----------------------|--------|---------------|-----|-------|------------|-----------|
-| [*Arr][]             | Y (1)  | Y             | Y   | Y (4) | Y (2)      | N         |
-| [Firefly-iii][]      | Y (1)  | Y             | Y   | Y     | Y (2)      | N         |
-| [Forgejo][]          | Y (1)  | Y             | Y   | Y     | Y (2)      | N         |
-| [Home-Assistant][]   | Y (1)  | Y             | N   | Y     | Y (2)      | N         |
-| [Jellyfin][]         | Y (1)  | Y             | Y   | Y     | Y (2)      | N         |
-| [Karakeep][]         | Y (1)  | Y             | Y   | Y     | Y (2)      | N         |
-| [Nextcloud Server][] | Y (1)  | Y             | Y   | Y     | Y (2)      | P (3)     |
-| [Open WebUI][]       | Y (1)  | Y             | Y   | Y     | Y (2)      | N         |
-| [Pinchflat][]        | Y      | Y             | Y   | Y (4) | Y (5)      | N         |
-| [Vaultwarden][]      | Y (1)  | Y             | Y   | Y     | Y (2)      | N         |
+| Service                     | Backup | Reverse Proxy | SSO | LDAP  | Monitoring | Profiling |
+|-----------------------------|--------|---------------|-----|-------|------------|-----------|
+| [*Arr][]                    | Y (1)  | Y             | Y   | Y (4) | Y (2)      | N         |
+| [Firefly-iii][]             | Y (1)  | Y             | Y   | Y     | Y (2)      | N         |
+| [Forgejo][]                 | Y (1)  | Y             | Y   | Y     | Y (2)      | N         |
+| [Home-Assistant][]          | Y (1)  | Y             | N   | Y     | Y (2)      | N         |
+| [Jellyfin][]                | Y (1)  | Y             | Y   | Y     | Y (2)      | N         |
+| [Karakeep][]                | Y (1)  | Y             | Y   | Y     | Y (2)      | N         |
+| [Nextcloud Server][]        | Y (1)  | Y             | Y   | Y     | Y (2)      | P (3)     |
+| [Open WebUI][]              | Y (1)  | Y             | Y   | Y     | Y (2)      | N         |
+| [Pinchflat][]               | Y      | Y             | Y   | Y (4) | Y (5)      | N         |
+| [Simple NixOS Mailserver][] | Y      | Y             | N   | Y     | Y          | N         |
+| [Vaultwarden][]             | Y (1)  | Y             | Y   | Y     | Y (2)      | N         |
 
 Legend: **N**: no but WIP; **P**: partial; **Y**: yes
 
@@ -44,12 +45,19 @@ Legend: **N**: no but WIP; **P**: partial; **Y**: yes
 [Nextcloud Server]: services-nextcloud.html
 [Open WebUI]: services-open-webui.html
 [Pinchflat]: services-pinchflat.html
+[Simple NixOS Mailserver]: services-mailserver.html
 [Vaultwarden]: services-vaultwarden.html
 
 ## Documents {#services-category-documents}
 
 ```{=include=} chapters html:into-file=//services-nextcloud.html
 modules/services/nextcloud-server/docs/default.md
+```
+
+## Emails {#services-category-emails}
+
+```{=include=} chapters html:into-file=//services-mailserver.html
+modules/services/mailserver/docs/default.md
 ```
 
 ## Passwords {#services-category-passwords}

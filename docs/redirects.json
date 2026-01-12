@@ -2720,6 +2720,9 @@
   "services-category-documents": [
     "services.html#services-category-documents"
   ],
+  "services-category-emails": [
+    "services.html#services-category-emails"
+  ],
   "services-category-finance": [
     "services.html#services-category-finance"
   ],
@@ -3943,6 +3946,294 @@
   ],
   "services-karakeep-usage": [
     "services-karakeep.html#services-karakeep-usage"
+  ],
+  "services-mailserver": [
+    "services-mailserver.html#services-mailserver"
+  ],
+  "services-mailserver-certs": [
+    "services-mailserver.html#services-mailserver-certs"
+  ],
+  "services-mailserver-debug": [
+    "services-mailserver.html#services-mailserver-debug"
+  ],
+  "services-mailserver-debug-auth": [
+    "services-mailserver.html#services-mailserver-debug-auth"
+  ],
+  "services-mailserver-debug-folder-mapping": [
+    "services-mailserver.html#services-mailserver-debug-folder-mapping"
+  ],
+  "services-mailserver-debug-folders": [
+    "services-mailserver.html#services-mailserver-debug-folders"
+  ],
+  "services-mailserver-debug-local-folders": [
+    "services-mailserver.html#services-mailserver-debug-local-folders"
+  ],
+  "services-mailserver-debug-ports": [
+    "services-mailserver.html#services-mailserver-debug-ports"
+  ],
+  "services-mailserver-debug-systemd": [
+    "services-mailserver.html#services-mailserver-debug-systemd"
+  ],
+  "services-mailserver-declarative-ldap": [
+    "services-mailserver.html#services-mailserver-declarative-ldap"
+  ],
+  "services-mailserver-impermanence": [
+    "services-mailserver.html#services-mailserver-impermanence"
+  ],
+  "services-mailserver-mobile": [
+    "services-mailserver.html#services-mailserver-mobile"
+  ],
+  "services-mailserver-options": [
+    "services-mailserver.html#services-mailserver-options"
+  ],
+  "services-mailserver-options-shb.mailserver.adminPassword": [
+    "services-mailserver.html#services-mailserver-options-shb.mailserver.adminPassword"
+  ],
+  "services-mailserver-options-shb.mailserver.adminPassword.request": [
+    "services-mailserver.html#services-mailserver-options-shb.mailserver.adminPassword.request"
+  ],
+  "services-mailserver-options-shb.mailserver.adminPassword.request.group": [
+    "services-mailserver.html#services-mailserver-options-shb.mailserver.adminPassword.request.group"
+  ],
+  "services-mailserver-options-shb.mailserver.adminPassword.request.mode": [
+    "services-mailserver.html#services-mailserver-options-shb.mailserver.adminPassword.request.mode"
+  ],
+  "services-mailserver-options-shb.mailserver.adminPassword.request.owner": [
+    "services-mailserver.html#services-mailserver-options-shb.mailserver.adminPassword.request.owner"
+  ],
+  "services-mailserver-options-shb.mailserver.adminPassword.request.restartUnits": [
+    "services-mailserver.html#services-mailserver-options-shb.mailserver.adminPassword.request.restartUnits"
+  ],
+  "services-mailserver-options-shb.mailserver.adminPassword.result": [
+    "services-mailserver.html#services-mailserver-options-shb.mailserver.adminPassword.result"
+  ],
+  "services-mailserver-options-shb.mailserver.adminPassword.result.path": [
+    "services-mailserver.html#services-mailserver-options-shb.mailserver.adminPassword.result.path"
+  ],
+  "services-mailserver-options-shb.mailserver.adminUsername": [
+    "services-mailserver.html#services-mailserver-options-shb.mailserver.adminUsername"
+  ],
+  "services-mailserver-options-shb.mailserver.backup": [
+    "services-mailserver.html#services-mailserver-options-shb.mailserver.backup"
+  ],
+  "services-mailserver-options-shb.mailserver.backup.request": [
+    "services-mailserver.html#services-mailserver-options-shb.mailserver.backup.request"
+  ],
+  "services-mailserver-options-shb.mailserver.backup.request.excludePatterns": [
+    "services-mailserver.html#services-mailserver-options-shb.mailserver.backup.request.excludePatterns"
+  ],
+  "services-mailserver-options-shb.mailserver.backup.request.hooks": [
+    "services-mailserver.html#services-mailserver-options-shb.mailserver.backup.request.hooks"
+  ],
+  "services-mailserver-options-shb.mailserver.backup.request.hooks.afterBackup": [
+    "services-mailserver.html#services-mailserver-options-shb.mailserver.backup.request.hooks.afterBackup"
+  ],
+  "services-mailserver-options-shb.mailserver.backup.request.hooks.beforeBackup": [
+    "services-mailserver.html#services-mailserver-options-shb.mailserver.backup.request.hooks.beforeBackup"
+  ],
+  "services-mailserver-options-shb.mailserver.backup.request.sourceDirectories": [
+    "services-mailserver.html#services-mailserver-options-shb.mailserver.backup.request.sourceDirectories"
+  ],
+  "services-mailserver-options-shb.mailserver.backup.request.user": [
+    "services-mailserver.html#services-mailserver-options-shb.mailserver.backup.request.user"
+  ],
+  "services-mailserver-options-shb.mailserver.backup.result": [
+    "services-mailserver.html#services-mailserver-options-shb.mailserver.backup.result"
+  ],
+  "services-mailserver-options-shb.mailserver.backup.result.backupService": [
+    "services-mailserver.html#services-mailserver-options-shb.mailserver.backup.result.backupService"
+  ],
+  "services-mailserver-options-shb.mailserver.backup.result.restoreScript": [
+    "services-mailserver.html#services-mailserver-options-shb.mailserver.backup.result.restoreScript"
+  ],
+  "services-mailserver-options-shb.mailserver.domain": [
+    "services-mailserver.html#services-mailserver-options-shb.mailserver.domain"
+  ],
+  "services-mailserver-options-shb.mailserver.enable": [
+    "services-mailserver.html#services-mailserver-options-shb.mailserver.enable"
+  ],
+  "services-mailserver-options-shb.mailserver.imapSync": [
+    "services-mailserver.html#services-mailserver-options-shb.mailserver.imapSync"
+  ],
+  "services-mailserver-options-shb.mailserver.imapSync.accounts": [
+    "services-mailserver.html#services-mailserver-options-shb.mailserver.imapSync.accounts"
+  ],
+  "services-mailserver-options-shb.mailserver.imapSync.accounts._name_.host": [
+    "services-mailserver.html#services-mailserver-options-shb.mailserver.imapSync.accounts._name_.host"
+  ],
+  "services-mailserver-options-shb.mailserver.imapSync.accounts._name_.mapSpecialDrafts": [
+    "services-mailserver.html#services-mailserver-options-shb.mailserver.imapSync.accounts._name_.mapSpecialDrafts"
+  ],
+  "services-mailserver-options-shb.mailserver.imapSync.accounts._name_.mapSpecialJunk": [
+    "services-mailserver.html#services-mailserver-options-shb.mailserver.imapSync.accounts._name_.mapSpecialJunk"
+  ],
+  "services-mailserver-options-shb.mailserver.imapSync.accounts._name_.mapSpecialSent": [
+    "services-mailserver.html#services-mailserver-options-shb.mailserver.imapSync.accounts._name_.mapSpecialSent"
+  ],
+  "services-mailserver-options-shb.mailserver.imapSync.accounts._name_.mapSpecialTrash": [
+    "services-mailserver.html#services-mailserver-options-shb.mailserver.imapSync.accounts._name_.mapSpecialTrash"
+  ],
+  "services-mailserver-options-shb.mailserver.imapSync.accounts._name_.password": [
+    "services-mailserver.html#services-mailserver-options-shb.mailserver.imapSync.accounts._name_.password"
+  ],
+  "services-mailserver-options-shb.mailserver.imapSync.accounts._name_.password.request": [
+    "services-mailserver.html#services-mailserver-options-shb.mailserver.imapSync.accounts._name_.password.request"
+  ],
+  "services-mailserver-options-shb.mailserver.imapSync.accounts._name_.password.request.group": [
+    "services-mailserver.html#services-mailserver-options-shb.mailserver.imapSync.accounts._name_.password.request.group"
+  ],
+  "services-mailserver-options-shb.mailserver.imapSync.accounts._name_.password.request.mode": [
+    "services-mailserver.html#services-mailserver-options-shb.mailserver.imapSync.accounts._name_.password.request.mode"
+  ],
+  "services-mailserver-options-shb.mailserver.imapSync.accounts._name_.password.request.owner": [
+    "services-mailserver.html#services-mailserver-options-shb.mailserver.imapSync.accounts._name_.password.request.owner"
+  ],
+  "services-mailserver-options-shb.mailserver.imapSync.accounts._name_.password.request.restartUnits": [
+    "services-mailserver.html#services-mailserver-options-shb.mailserver.imapSync.accounts._name_.password.request.restartUnits"
+  ],
+  "services-mailserver-options-shb.mailserver.imapSync.accounts._name_.password.result": [
+    "services-mailserver.html#services-mailserver-options-shb.mailserver.imapSync.accounts._name_.password.result"
+  ],
+  "services-mailserver-options-shb.mailserver.imapSync.accounts._name_.password.result.path": [
+    "services-mailserver.html#services-mailserver-options-shb.mailserver.imapSync.accounts._name_.password.result.path"
+  ],
+  "services-mailserver-options-shb.mailserver.imapSync.accounts._name_.port": [
+    "services-mailserver.html#services-mailserver-options-shb.mailserver.imapSync.accounts._name_.port"
+  ],
+  "services-mailserver-options-shb.mailserver.imapSync.accounts._name_.sslType": [
+    "services-mailserver.html#services-mailserver-options-shb.mailserver.imapSync.accounts._name_.sslType"
+  ],
+  "services-mailserver-options-shb.mailserver.imapSync.accounts._name_.timeout": [
+    "services-mailserver.html#services-mailserver-options-shb.mailserver.imapSync.accounts._name_.timeout"
+  ],
+  "services-mailserver-options-shb.mailserver.imapSync.accounts._name_.username": [
+    "services-mailserver.html#services-mailserver-options-shb.mailserver.imapSync.accounts._name_.username"
+  ],
+  "services-mailserver-options-shb.mailserver.imapSync.debug": [
+    "services-mailserver.html#services-mailserver-options-shb.mailserver.imapSync.debug"
+  ],
+  "services-mailserver-options-shb.mailserver.imapSync.syncTimer": [
+    "services-mailserver.html#services-mailserver-options-shb.mailserver.imapSync.syncTimer"
+  ],
+  "services-mailserver-options-shb.mailserver.impermanence": [
+    "services-mailserver.html#services-mailserver-options-shb.mailserver.impermanence"
+  ],
+  "services-mailserver-options-shb.mailserver.ldap": [
+    "services-mailserver.html#services-mailserver-options-shb.mailserver.ldap"
+  ],
+  "services-mailserver-options-shb.mailserver.ldap.account": [
+    "services-mailserver.html#services-mailserver-options-shb.mailserver.ldap.account"
+  ],
+  "services-mailserver-options-shb.mailserver.ldap.adminName": [
+    "services-mailserver.html#services-mailserver-options-shb.mailserver.ldap.adminName"
+  ],
+  "services-mailserver-options-shb.mailserver.ldap.adminPassword": [
+    "services-mailserver.html#services-mailserver-options-shb.mailserver.ldap.adminPassword"
+  ],
+  "services-mailserver-options-shb.mailserver.ldap.adminPassword.request": [
+    "services-mailserver.html#services-mailserver-options-shb.mailserver.ldap.adminPassword.request"
+  ],
+  "services-mailserver-options-shb.mailserver.ldap.adminPassword.request.group": [
+    "services-mailserver.html#services-mailserver-options-shb.mailserver.ldap.adminPassword.request.group"
+  ],
+  "services-mailserver-options-shb.mailserver.ldap.adminPassword.request.mode": [
+    "services-mailserver.html#services-mailserver-options-shb.mailserver.ldap.adminPassword.request.mode"
+  ],
+  "services-mailserver-options-shb.mailserver.ldap.adminPassword.request.owner": [
+    "services-mailserver.html#services-mailserver-options-shb.mailserver.ldap.adminPassword.request.owner"
+  ],
+  "services-mailserver-options-shb.mailserver.ldap.adminPassword.request.restartUnits": [
+    "services-mailserver.html#services-mailserver-options-shb.mailserver.ldap.adminPassword.request.restartUnits"
+  ],
+  "services-mailserver-options-shb.mailserver.ldap.adminPassword.result": [
+    "services-mailserver.html#services-mailserver-options-shb.mailserver.ldap.adminPassword.result"
+  ],
+  "services-mailserver-options-shb.mailserver.ldap.adminPassword.result.path": [
+    "services-mailserver.html#services-mailserver-options-shb.mailserver.ldap.adminPassword.result.path"
+  ],
+  "services-mailserver-options-shb.mailserver.ldap.dcdomain": [
+    "services-mailserver.html#services-mailserver-options-shb.mailserver.ldap.dcdomain"
+  ],
+  "services-mailserver-options-shb.mailserver.ldap.enable": [
+    "services-mailserver.html#services-mailserver-options-shb.mailserver.ldap.enable"
+  ],
+  "services-mailserver-options-shb.mailserver.ldap.host": [
+    "services-mailserver.html#services-mailserver-options-shb.mailserver.ldap.host"
+  ],
+  "services-mailserver-options-shb.mailserver.ldap.port": [
+    "services-mailserver.html#services-mailserver-options-shb.mailserver.ldap.port"
+  ],
+  "services-mailserver-options-shb.mailserver.ldap.userGroup": [
+    "services-mailserver.html#services-mailserver-options-shb.mailserver.ldap.userGroup"
+  ],
+  "services-mailserver-options-shb.mailserver.smtpRelay": [
+    "services-mailserver.html#services-mailserver-options-shb.mailserver.smtpRelay"
+  ],
+  "services-mailserver-options-shb.mailserver.smtpRelay.host": [
+    "services-mailserver.html#services-mailserver-options-shb.mailserver.smtpRelay.host"
+  ],
+  "services-mailserver-options-shb.mailserver.smtpRelay.password": [
+    "services-mailserver.html#services-mailserver-options-shb.mailserver.smtpRelay.password"
+  ],
+  "services-mailserver-options-shb.mailserver.smtpRelay.password.request": [
+    "services-mailserver.html#services-mailserver-options-shb.mailserver.smtpRelay.password.request"
+  ],
+  "services-mailserver-options-shb.mailserver.smtpRelay.password.request.group": [
+    "services-mailserver.html#services-mailserver-options-shb.mailserver.smtpRelay.password.request.group"
+  ],
+  "services-mailserver-options-shb.mailserver.smtpRelay.password.request.mode": [
+    "services-mailserver.html#services-mailserver-options-shb.mailserver.smtpRelay.password.request.mode"
+  ],
+  "services-mailserver-options-shb.mailserver.smtpRelay.password.request.owner": [
+    "services-mailserver.html#services-mailserver-options-shb.mailserver.smtpRelay.password.request.owner"
+  ],
+  "services-mailserver-options-shb.mailserver.smtpRelay.password.request.restartUnits": [
+    "services-mailserver.html#services-mailserver-options-shb.mailserver.smtpRelay.password.request.restartUnits"
+  ],
+  "services-mailserver-options-shb.mailserver.smtpRelay.password.result": [
+    "services-mailserver.html#services-mailserver-options-shb.mailserver.smtpRelay.password.result"
+  ],
+  "services-mailserver-options-shb.mailserver.smtpRelay.password.result.path": [
+    "services-mailserver.html#services-mailserver-options-shb.mailserver.smtpRelay.password.result.path"
+  ],
+  "services-mailserver-options-shb.mailserver.smtpRelay.port": [
+    "services-mailserver.html#services-mailserver-options-shb.mailserver.smtpRelay.port"
+  ],
+  "services-mailserver-options-shb.mailserver.smtpRelay.username": [
+    "services-mailserver.html#services-mailserver-options-shb.mailserver.smtpRelay.username"
+  ],
+  "services-mailserver-options-shb.mailserver.ssl": [
+    "services-mailserver.html#services-mailserver-options-shb.mailserver.ssl"
+  ],
+  "services-mailserver-options-shb.mailserver.ssl.paths": [
+    "services-mailserver.html#services-mailserver-options-shb.mailserver.ssl.paths"
+  ],
+  "services-mailserver-options-shb.mailserver.ssl.paths.cert": [
+    "services-mailserver.html#services-mailserver-options-shb.mailserver.ssl.paths.cert"
+  ],
+  "services-mailserver-options-shb.mailserver.ssl.paths.key": [
+    "services-mailserver.html#services-mailserver-options-shb.mailserver.ssl.paths.key"
+  ],
+  "services-mailserver-options-shb.mailserver.ssl.systemdService": [
+    "services-mailserver.html#services-mailserver-options-shb.mailserver.ssl.systemdService"
+  ],
+  "services-mailserver-options-shb.mailserver.subdomain": [
+    "services-mailserver.html#services-mailserver-options-shb.mailserver.subdomain"
+  ],
+  "services-mailserver-usage": [
+    "services-mailserver.html#services-mailserver-usage"
+  ],
+  "services-mailserver-usage-backup": [
+    "services-mailserver.html#services-mailserver-usage-backup"
+  ],
+  "services-mailserver-usage-disk-layout": [
+    "services-mailserver.html#services-mailserver-usage-disk-layout"
+  ],
+  "services-mailserver-usage-ldap": [
+    "services-mailserver.html#services-mailserver-usage-ldap"
+  ],
+  "services-mailserver-usage-secrets": [
+    "services-mailserver.html#services-mailserver-usage-secrets"
   ],
   "services-monitoring-features": [
     "blocks-monitoring.html#services-monitoring-features"

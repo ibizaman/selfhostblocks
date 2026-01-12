@@ -112,6 +112,7 @@
             "services/home-assistant" = ./modules/services/home-assistant.nix;
             "services/jellyfin" = ./modules/services/jellyfin.nix;
             "services/karakeep" = ./modules/services/karakeep.nix;
+            "services/mailserver" = ./modules/services/mailserver.nix;
             "services/nextcloud-server" = {
               module = ./modules/services/nextcloud-server.nix;
               optionRoot = [
@@ -398,6 +399,7 @@
           self.nixosModules.home-assistant
           self.nixosModules.jellyfin
           self.nixosModules.karakeep
+          self.nixosModules.mailserver
           self.nixosModules.nextcloud-server
           self.nixosModules.open-webui
           self.nixosModules.pinchflat
@@ -435,6 +437,7 @@
       nixosModules.home-assistant = modules/services/home-assistant.nix;
       nixosModules.jellyfin = modules/services/jellyfin.nix;
       nixosModules.karakeep = modules/services/karakeep.nix;
+      nixosModules.mailserver = modules/services/mailserver.nix;
       nixosModules.nextcloud-server = modules/services/nextcloud-server.nix;
       nixosModules.open-webui = modules/services/open-webui.nix;
       nixosModules.paperless = modules/services/paperless.nix;
