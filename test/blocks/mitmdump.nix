@@ -10,7 +10,7 @@ let
     lib.getExe (
       pkgs.writers.writePython3Bin "serve"
         {
-          libraries = [ pkgs.python3Packages.systemd ];
+          libraries = [ pkgs.python3Packages.systemd-python ];
         }
         (
           let
