@@ -271,7 +271,7 @@ in
               Subdomain under which the firefly-iii data importer will be served.
             '';
             default = "${cfg.subdomain}-importer";
-            defaultText = lib.literalExpression ''''${shb.firefly-iii.subdomain}-importer'';
+            defaultText = lib.literalExpression "\${shb.firefly-iii.subdomain}-importer";
           };
 
           firefly-iii-accessToken = lib.mkOption {

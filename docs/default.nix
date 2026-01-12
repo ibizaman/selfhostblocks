@@ -124,7 +124,7 @@ let
 
   outputPath = "share/doc/selfhostblocks";
 
-  manpage-urls = pkgs.writeText "manpage-urls.json" ''{}'';
+  manpage-urls = pkgs.writeText "manpage-urls.json" "{}";
 in
 stdenv.mkDerivation {
   name = "self-host-blocks-manual";
