@@ -1,4 +1,4 @@
-{ lib, shb, ... }:
+{ shb, ... }:
 let
   nextauthSecret = "nextauthSecret";
   oidcSecret = "oidcSecret";
@@ -110,23 +110,7 @@ let
               "expect(page.get_by_text('new item')).to_be_visible()"
             ];
           }
-          {
-            username = "bob";
-            password = "NotBobPassword";
-            nextPageExpect = [
-              "expect(page.get_by_text(re.compile('[Ii]ncorrect'))).to_be_visible(timeout=10000)"
-            ];
-          }
-          {
-            username = "bob";
-            password = "BobPassword";
-            nextPageExpect = [
-              "page.get_by_role('button', name=re.compile('Accept')).click()"
-              "expect(page.get_by_text(re.compile('[Ii]ncorrect'))).not_to_be_visible(timeout=10000)"
-              "expect(page.get_by_role('button', name=re.compile('Sign In'))).not_to_be_visible()"
-              "expect(page.get_by_text('new item')).to_be_visible()"
-            ];
-          }
+          # Bob, with its admin role only, cannot login into Karakeep because admins do not exist in Karakeep.
           {
             username = "charlie";
             password = "NotCharliePassword";
