@@ -29,7 +29,7 @@ let
             p = pkgs.python3Packages;
           in
           [
-            p.systemd
+            p.systemd-python
             p.mitmproxy
           ];
         flakeIgnore = [ "E501" ];
