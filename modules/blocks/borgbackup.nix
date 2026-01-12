@@ -98,7 +98,7 @@ let
                 OnCalendar = "daily";
                 Persistent = true;
               };
-              description = ''When to run the backup. See {manpage}`systemd.timer(5)` for details.'';
+              description = "When to run the backup. See {manpage}`systemd.timer(5)` for details.";
               example = {
                 OnCalendar = "00:05";
                 RandomizedDelaySec = "5h";

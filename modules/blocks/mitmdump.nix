@@ -239,7 +239,7 @@ in
                 description = ''
                   Addons to enable on this mitmdump instance.
                 '';
-                example = lib.literalExpression ''[ config.shb.mitmdump.addons.logger ]'';
+                example = lib.literalExpression "[ config.shb.mitmdump.addons.logger ]";
               };
 
               extraArgs = mkOption {

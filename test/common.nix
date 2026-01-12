@@ -78,7 +78,7 @@ let
       ++ (lib.optionals autheliaEnabled [ "authelia-auth.${cfg.domain}.service" ])
       ++ (lib.optionals lldapEnabled [ "lldap.service" ])
     )
-    + lib.strings.concatMapStrings (p: ''server.wait_for_open_port(${toString p})'' + "\n") (
+    + lib.strings.concatMapStrings (p: "server.wait_for_open_port(${toString p})" + "\n") (
       waitForPorts args
       # TODO: when the SSO block exists, replace this hardcoded port.
       ++ (lib.optionals autheliaEnabled [
