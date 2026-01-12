@@ -136,7 +136,7 @@ let
     };
 in
 {
-  basic = pkgs.nixosTest {
+  basic = shb.test.runNixOSTest {
     name = "immich-basic";
 
     nodes.server = basic;
@@ -145,7 +145,7 @@ in
     testScript = commonTestScript;
   };
 
-  https = pkgs.nixosTest {
+  https = shb.test.runNixOSTest {
     name = "immich-https";
 
     nodes.server = https;
@@ -154,7 +154,7 @@ in
     testScript = commonTestScript;
   };
 
-  backup = pkgs.nixosTest {
+  backup = shb.test.runNixOSTest {
     name = "immich-backup";
 
     nodes.server = backup;

@@ -133,7 +133,7 @@ let
     };
 in
 {
-  basic = pkgs.nixosTest {
+  basic = shb.test.runNixOSTest {
     name = "paperless-basic";
 
     nodes.server = basic;
@@ -142,7 +142,7 @@ in
     testScript = commonTestScript;
   };
 
-  https = pkgs.nixosTest {
+  https = shb.test.runNixOSTest {
     name = "paperless-https";
 
     nodes.server = https;
@@ -151,7 +151,7 @@ in
     testScript = commonTestScript;
   };
 
-  sso = pkgs.nixosTest {
+  sso = shb.test.runNixOSTest {
     name = "paperless-https";
 
     nodes.server = sso;
@@ -160,7 +160,7 @@ in
     testScript = commonTestScript;
   };
 
-  backup = pkgs.nixosTest {
+  backup = shb.test.runNixOSTest {
     name = "paperless-backup";
 
     nodes.server = backup;
