@@ -96,10 +96,10 @@ in
       default = 1;
     };
 
-    provisionDashboards = lib.mkOption {
-      type = lib.types.bool;
-      description = "Provision Self Host Blocks dashboards under 'Self Host Blocks' folder.";
-      default = true;
+    dashboards = lib.mkOption {
+      type = lib.types.listOf lib.types.path;
+      description = "Dashboards to provision under 'Self Host Blocks' folder.";
+      default = [ ];
     };
 
     contactPoints = lib.mkOption {
@@ -302,14 +302,29 @@ in
           };
         };
       };
+    })
+
+    (lib.mkIf cfg.enable {
+      shb.monitoring.dashboards = [
+        ./monitoring/dashboards/Backups.json
+        ./monitoring/dashboards/Errors.json
+        ./monitoring/dashboards/Nextcloud.json
+        ./monitoring/dashboards/Performance.json
+        ./monitoring/dashboards/Scraping_Jobs.json
+        ./monitoring/dashboards/SSL.json
+        ./monitoring/dashboards/Torrents.json
+      ];
 
       services.grafana.provision = {
-        dashboards.settings = lib.mkIf cfg.provisionDashboards {
+        dashboards.settings = lib.mkIf (cfg.dashboards != [ ]) {
           apiVersion = 1;
           providers = [
             {
               folder = "Self Host Blocks";
-              options.path = ./monitoring/dashboards;
+              options.path = pkgs.symlinkJoin {
+                name = "dashboards";
+                paths = map (p: pkgs.runCommand "dashboard" { } "mkdir $out; cp ${p} $out") cfg.dashboards;
+              };
               allowUiUpdates = true;
               disableDeletion = true;
             }
@@ -400,7 +415,9 @@ in
             # any updates.
           };
       };
+    })
 
+    (lib.mkIf cfg.enable {
       services.prometheus = {
         enable = true;
         port = cfg.prometheusPort;
@@ -567,7 +584,9 @@ in
           };
         };
       };
+    })
 
+    (lib.mkIf cfg.enable {
       services.prometheus.scrapeConfigs = [
         {
           job_name = "node";
