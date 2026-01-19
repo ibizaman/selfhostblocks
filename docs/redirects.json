@@ -983,9 +983,6 @@
   "blocks-monitoring-options-shb.monitoring.prometheusPort": [
     "blocks-monitoring.html#blocks-monitoring-options-shb.monitoring.prometheusPort"
   ],
-  "blocks-monitoring-options-shb.monitoring.provisionDashboards": [
-    "blocks-monitoring.html#blocks-monitoring-options-shb.monitoring.provisionDashboards"
-  ],
   "blocks-monitoring-options-shb.monitoring.secretKey": [
     "blocks-monitoring.html#blocks-monitoring-options-shb.monitoring.secretKey"
   ],
