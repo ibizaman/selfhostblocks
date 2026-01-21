@@ -306,13 +306,9 @@ in
 
     (lib.mkIf cfg.enable {
       shb.monitoring.dashboards = [
-        ./monitoring/dashboards/Backups.json
         ./monitoring/dashboards/Errors.json
-        ./monitoring/dashboards/Nextcloud.json
         ./monitoring/dashboards/Performance.json
         ./monitoring/dashboards/Scraping_Jobs.json
-        ./monitoring/dashboards/SSL.json
-        ./monitoring/dashboards/Torrents.json
       ];
 
       services.grafana.provision = {

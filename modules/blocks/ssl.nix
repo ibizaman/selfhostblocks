@@ -21,6 +21,7 @@ in
 {
   imports = [
     ../../lib/module.nix
+    ./monitoring.nix
   ];
 
   options.shb.certs = {
@@ -30,6 +31,9 @@ in
       '';
       type = lib.types.str;
       default = "shb-ca-bundle.service";
+    };
+    enableDashboard = lib.mkEnableOption "the SSL SHB dashboard" // {
+      default = true;
     };
     cas.selfsigned = lib.mkOption {
       description = "Generate a self-signed Certificate Authority.";
@@ -662,5 +666,10 @@ in
           in
           optionals (cfg.certs.letsencrypt != { }) (flatten (mapAttrsToList scrapeCfg cfg.certs.letsencrypt));
       }
+      (lib.mkIf (cfg.enableDashboard && (cfg.certs.selfsigned != { } || cfg.certs.letsencrypt != { })) {
+        shb.monitoring.dashboards = [
+          ./ssl/dashboard/SSL.json
+        ];
+      })
     ];
 }

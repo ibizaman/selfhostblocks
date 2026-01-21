@@ -431,6 +431,9 @@
   "blocks-borgbackup-options-shb.borgbackup.databases._name_.settings.stateDir": [
     "blocks-borgbackup.html#blocks-borgbackup-options-shb.borgbackup.databases._name_.settings.stateDir"
   ],
+  "blocks-borgbackup-options-shb.borgbackup.enableDashboard": [
+    "blocks-borgbackup.html#blocks-borgbackup-options-shb.borgbackup.enableDashboard"
+  ],
   "blocks-borgbackup-options-shb.borgbackup.instances": [
     "blocks-borgbackup.html#blocks-borgbackup-options-shb.borgbackup.instances"
   ],
@@ -950,6 +953,9 @@
   "blocks-monitoring-options-shb.monitoring.contactPoints": [
     "blocks-monitoring.html#blocks-monitoring-options-shb.monitoring.contactPoints"
   ],
+  "blocks-monitoring-options-shb.monitoring.dashboards": [
+    "blocks-monitoring.html#blocks-monitoring-options-shb.monitoring.dashboards"
+  ],
   "blocks-monitoring-options-shb.monitoring.debugLog": [
     "blocks-monitoring.html#blocks-monitoring-options-shb.monitoring.debugLog"
   ],
@@ -1376,6 +1382,9 @@
   "blocks-restic-options-shb.restic.databases._name_.settings.retention": [
     "blocks-restic.html#blocks-restic-options-shb.restic.databases._name_.settings.retention"
   ],
+  "blocks-restic-options-shb.restic.enableDashboard": [
+    "blocks-restic.html#blocks-restic-options-shb.restic.enableDashboard"
+  ],
   "blocks-restic-options-shb.restic.instances": [
     "blocks-restic.html#blocks-restic-options-shb.restic.instances"
   ],
@@ -1660,6 +1669,9 @@
   ],
   "blocks-ssl-options-shb.certs.certs.selfsigned._name_.systemdService": [
     "blocks-ssl.html#blocks-ssl-options-shb.certs.certs.selfsigned._name_.systemdService"
+  ],
+  "blocks-ssl-options-shb.certs.enableDashboard": [
+    "blocks-ssl.html#blocks-ssl-options-shb.certs.enableDashboard"
   ],
   "blocks-ssl-options-shb.certs.systemdService": [
     "blocks-ssl.html#blocks-ssl-options-shb.certs.systemdService"
@@ -4534,6 +4546,9 @@
   ],
   "services-nextcloudserver-options-shb.nextcloud.enable": [
     "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.enable"
+  ],
+  "services-nextcloudserver-options-shb.nextcloud.enableDashboard": [
+    "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.enableDashboard"
   ],
   "services-nextcloudserver-options-shb.nextcloud.externalFqdn": [
     "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.externalFqdn"

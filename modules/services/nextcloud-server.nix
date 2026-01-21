@@ -28,10 +28,16 @@ in
 {
   imports = [
     ../../lib/module.nix
+    ../blocks/authelia.nix
+    ../blocks/monitoring.nix
   ];
 
   options.shb.nextcloud = {
-    enable = lib.mkEnableOption "selfhostblocks.nextcloud-server";
+    enable = lib.mkEnableOption "the SHB Nextcloud service";
+
+    enableDashboard = lib.mkEnableOption "the Nextcloud SHB dashboard" // {
+      default = true;
+    };
 
     subdomain = lib.mkOption {
       type = lib.types.str;
@@ -1347,5 +1353,11 @@ in
         '';
       }
     ))
+
+    (lib.mkIf (cfg.enable && cfg.enableDashboard) {
+      shb.monitoring.dashboards = [
+        ./nextcloud-server/dashboard/Nextcloud.json
+      ];
+    })
   ];
 }
