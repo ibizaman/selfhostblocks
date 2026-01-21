@@ -30,10 +30,15 @@ in
   imports = [
     ../../lib/module.nix
     ../blocks/nginx.nix
+    ../blocks/monitoring.nix
   ];
 
   options.shb.deluge = {
-    enable = lib.mkEnableOption "selfhostblocks.deluge";
+    enable = lib.mkEnableOption "the SHB Deluge service";
+
+    enableDashboard = lib.mkEnableOption "the Torrents SHB dashboard" // {
+      default = true;
+    };
 
     subdomain = lib.mkOption {
       type = lib.types.str;
@@ -450,6 +455,12 @@ in
               }
             ];
           }
+        ];
+      })
+
+      (lib.mkIf (cfg.enable && cfg.enableDashboard) {
+        shb.monitoring.dashboards = [
+          ./deluge/dashboard/Torrents.json
         ];
       })
     ]

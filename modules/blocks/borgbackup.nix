@@ -158,9 +158,14 @@ in
 {
   imports = [
     ../../lib/module.nix
+    ../blocks/monitoring.nix
   ];
 
   options.shb.borgbackup = {
+    enableDashboard = lib.mkEnableOption "the Backups SHB dashboard" // {
+      default = true;
+    };
+
     instances = mkOption {
       description = "Files to backup following the [backup contract](./shb.contracts-backup.html).";
       default = { };
@@ -525,6 +530,12 @@ in
           in
           flatten (mapAttrsToList mkBorgBackupBinary cfg.databases);
       }
+
+      (lib.mkIf (cfg.enableDashboard && (cfg.instances != { } || cfg.databases != { })) {
+        shb.monitoring.dashboards = [
+          ./backup/dashboard/Backups.json
+        ];
+      })
     ]
   );
 }
