@@ -461,6 +461,13 @@ nix flake check
 nix build .#manualHtml
 ```
 
+To continuously rebuild the documentation of file change, run the following command.
+To exit, you'll need to do Ctrl-C twice in a row.
+
+```bash
+nix run .#manualHtml-watch
+```
+
 ### Iterative Development Approach {#iterative-development-approach}
 
 1. **Start with basic functionality** - get core service working
