@@ -208,6 +208,16 @@
               '';
             });
 
+        packages.manualHtml-watch = pkgs.writeShellApplication {
+          name = "manualHtml-watch";
+          text = ''
+            while sleep 1; do
+              find . -name "*.nix" -o -name "*.md" \
+                | entr -d sh -c '(nix run --offline .#update-redirects && nix build --offline .#manualHtml || :)'
+            done
+          '';
+        };
+
         lib = (pkgs.callPackage ./lib { }) // {
           test = pkgs.callPackage ./test/common.nix { };
           contracts = pkgs.callPackage ./modules/contracts {
