@@ -89,7 +89,7 @@ in
               options = shb.contracts.secret.mkRequester {
                 mode = "0400";
                 owner = cfg.autheliaUser;
-                restartUnits = [ "authelia-${opt.subdomain}.${opt.domain}" ];
+                restartUnits = [ "authelia-${opt.subdomain}.${opt.domain}.service" ];
               };
             };
           };
@@ -99,7 +99,7 @@ in
               options = shb.contracts.secret.mkRequester {
                 mode = "0400";
                 owner = cfg.autheliaUser;
-                restartUnits = [ "authelia-${opt.subdomain}.${opt.domain}" ];
+                restartUnits = [ "authelia-${opt.subdomain}.${opt.domain}.service" ];
               };
             };
           };
@@ -109,7 +109,7 @@ in
               options = shb.contracts.secret.mkRequester {
                 mode = "0400";
                 owner = cfg.autheliaUser;
-                restartUnits = [ "authelia-${opt.subdomain}.${opt.domain}" ];
+                restartUnits = [ "authelia-${opt.subdomain}.${opt.domain}.service" ];
               };
             };
           };
@@ -119,7 +119,7 @@ in
               options = shb.contracts.secret.mkRequester {
                 mode = "0400";
                 owner = cfg.autheliaUser;
-                restartUnits = [ "authelia-${opt.subdomain}.${opt.domain}" ];
+                restartUnits = [ "authelia-${opt.subdomain}.${opt.domain}.service" ];
               };
             };
           };
@@ -129,7 +129,7 @@ in
               options = shb.contracts.secret.mkRequester {
                 mode = "0400";
                 owner = cfg.autheliaUser;
-                restartUnits = [ "authelia-${opt.subdomain}.${opt.domain}" ];
+                restartUnits = [ "authelia-${opt.subdomain}.${opt.domain}.service" ];
               };
             };
           };
@@ -143,7 +143,7 @@ in
               options = shb.contracts.secret.mkRequester {
                 mode = "0400";
                 owner = cfg.autheliaUser;
-                restartUnits = [ "authelia-${opt.subdomain}.${opt.domain}" ];
+                restartUnits = [ "authelia-${opt.subdomain}.${opt.domain}.service" ];
               };
             };
           };
@@ -323,7 +323,7 @@ in
                   options = shb.contracts.secret.mkRequester {
                     mode = "0400";
                     owner = cfg.autheliaUser;
-                    restartUnits = [ "authelia-${fqdn}" ];
+                    restartUnits = [ "authelia-${fqdn}.service" ];
                   };
                 };
               };
