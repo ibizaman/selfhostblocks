@@ -63,7 +63,7 @@ let
             mode = "0400";
             owner = config.request.user;
             ownerText = "[shb.restic.${prefix}.<name>.request.user](#blocks-restic-options-shb.restic.${prefix}._name_.request.user)";
-            restartUnits = [ (fullName name config.settings.repository) ];
+            restartUnits = [ "${fullName name config.settings.repository}.service" ];
             restartUnitsText = "[ [shb.restic.${prefix}.<name>.settings.repository](#blocks-restic-options-shb.restic.${prefix}._name_.settings.repository) ]";
           };
         };
