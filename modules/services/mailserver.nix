@@ -335,7 +335,7 @@ in
 
     backup = lib.mkOption {
       description = ''
-        Backup emails.
+        Backup emails, index and sieve.
       '';
       default = { };
       type = lib.types.submodule {
@@ -345,13 +345,32 @@ in
             config.mailserver.indexDir
             config.mailserver.mailDirectory
             config.mailserver.sieveDirectory
-            config.mailserver.dkimKeyDirectory
           ];
           sourceDirectoriesText = ''
             [
               config.mailserver.indexDir
               config.mailserver.mailDirectory
               config.mailserver.sieveDirectory
+            ]
+          '';
+        };
+      };
+    };
+
+    backupDKIM = lib.mkOption {
+      description = ''
+        Backup dkim directory.
+      '';
+      default = { };
+      type = lib.types.submodule {
+        options = shb.contracts.backup.mkRequester {
+          user = config.services.rspamd.user;
+          userText = "services.rspamd.user";
+          sourceDirectories = builtins.filter (x: x != null) [
+            config.mailserver.dkimKeyDirectory
+          ];
+          sourceDirectoriesText = ''
+            [
               config.mailserver.dkimKeyDirectory
             ]
           '';

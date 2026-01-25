@@ -4055,6 +4055,39 @@
   "services-mailserver-options-shb.mailserver.backup.result.restoreScript": [
     "services-mailserver.html#services-mailserver-options-shb.mailserver.backup.result.restoreScript"
   ],
+  "services-mailserver-options-shb.mailserver.backupDKIM": [
+    "services-mailserver.html#services-mailserver-options-shb.mailserver.backupDKIM"
+  ],
+  "services-mailserver-options-shb.mailserver.backupDKIM.request": [
+    "services-mailserver.html#services-mailserver-options-shb.mailserver.backupDKIM.request"
+  ],
+  "services-mailserver-options-shb.mailserver.backupDKIM.request.excludePatterns": [
+    "services-mailserver.html#services-mailserver-options-shb.mailserver.backupDKIM.request.excludePatterns"
+  ],
+  "services-mailserver-options-shb.mailserver.backupDKIM.request.hooks": [
+    "services-mailserver.html#services-mailserver-options-shb.mailserver.backupDKIM.request.hooks"
+  ],
+  "services-mailserver-options-shb.mailserver.backupDKIM.request.hooks.afterBackup": [
+    "services-mailserver.html#services-mailserver-options-shb.mailserver.backupDKIM.request.hooks.afterBackup"
+  ],
+  "services-mailserver-options-shb.mailserver.backupDKIM.request.hooks.beforeBackup": [
+    "services-mailserver.html#services-mailserver-options-shb.mailserver.backupDKIM.request.hooks.beforeBackup"
+  ],
+  "services-mailserver-options-shb.mailserver.backupDKIM.request.sourceDirectories": [
+    "services-mailserver.html#services-mailserver-options-shb.mailserver.backupDKIM.request.sourceDirectories"
+  ],
+  "services-mailserver-options-shb.mailserver.backupDKIM.request.user": [
+    "services-mailserver.html#services-mailserver-options-shb.mailserver.backupDKIM.request.user"
+  ],
+  "services-mailserver-options-shb.mailserver.backupDKIM.result": [
+    "services-mailserver.html#services-mailserver-options-shb.mailserver.backupDKIM.result"
+  ],
+  "services-mailserver-options-shb.mailserver.backupDKIM.result.backupService": [
+    "services-mailserver.html#services-mailserver-options-shb.mailserver.backupDKIM.result.backupService"
+  ],
+  "services-mailserver-options-shb.mailserver.backupDKIM.result.restoreScript": [
+    "services-mailserver.html#services-mailserver-options-shb.mailserver.backupDKIM.result.restoreScript"
+  ],
   "services-mailserver-options-shb.mailserver.domain": [
     "services-mailserver.html#services-mailserver-options-shb.mailserver.domain"
   ],
