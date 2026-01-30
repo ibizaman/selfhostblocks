@@ -636,7 +636,7 @@ in
       };
 
       services.gitea-actions-runner = mkIf cfg.localActionRunner {
-        package = pkgs.forgejo-actions-runner;
+        package = pkgs.forgejo-runner;
         instances.local = {
           enable = true;
           name = "local";
