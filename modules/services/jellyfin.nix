@@ -13,30 +13,37 @@ let
 
   fqdn = "${cfg.subdomain}.${cfg.domain}";
 
-  jellyfin-cli = pkgs.buildDotnetModule rec {
-    pname = "jellyfin-cli";
-    version = "10.10.7";
+  jellyfin = pkgs.buildDotnetModule rec {
+    pname = "jellyfin";
+    version = "10.11.6";
 
     src = pkgs.fetchFromGitHub {
       owner = "ibizaman";
       repo = "jellyfin";
-      rev = "0b1a5d929960f852dba90c1fc36f3a19dc094f8d";
-      hash = "sha256-H9V65+886EYMn/xDEgmxvoEOrbZaI1wSfmkN9vAzGhw=";
+      rev = "c58ca41d9ee76d137be788cd6f2d089e288ad561";
+      hash = "sha256-gTHsz5qRT+9FjAqBb4hDBkHChYDU52snBWu6cQb10i4=";
     };
 
     propagatedBuildInputs = [ pkgs.sqlite ];
 
-    projectFile = "Jellyfin.Cli/Jellyfin.Cli.csproj";
-    executables = [ "jellyfin-cli" ];
+    projectFile = "Jellyfin.Server/Jellyfin.Server.csproj";
+    executables = [ "jellyfin" ];
     nugetDeps = "${pkgs.path}/pkgs/by-name/je/jellyfin/nuget-deps.json";
     runtimeDeps = [
       pkgs.jellyfin-ffmpeg
       pkgs.fontconfig
       pkgs.freetype
     ];
-    dotnet-sdk = pkgs.dotnetCorePackages.sdk_8_0;
-    dotnet-runtime = pkgs.dotnetCorePackages.aspnetcore_8_0;
+    dotnet-sdk = pkgs.dotnetCorePackages.sdk_9_0;
+    dotnet-runtime = pkgs.dotnetCorePackages.aspnetcore_9_0;
     dotnetBuildFlags = [ "--no-self-contained" ];
+
+    makeWrapperArgs = [
+      "--append-flags"
+      "--ffmpeg=${pkgs.jellyfin-ffmpeg}/bin/ffmpeg"
+      "--append-flags"
+      "--webdir=${pkgs.jellyfin-web}/share/jellyfin-web"
+    ];
 
     passthru.tests = {
       smoke-test = pkgs.nixosTests.jellyfin;
@@ -53,7 +60,7 @@ let
         purcell
         jojosch
       ];
-      mainProgram = "jellyfin-cli";
+      mainProgram = "jellyfin";
       platforms = dotnet-runtime.meta.platforms;
     };
   };
@@ -169,9 +176,9 @@ in
             description = "Pluging used for LDAP authentication.";
             default = shb.mkJellyfinPlugin (rec {
               pname = "jellyfin-plugin-ldapauth";
-              version = "20";
+              version = "22";
               url = "https://github.com/jellyfin/${pname}/releases/download/v${version}/ldap-authentication_${version}.0.0.0.zip";
-              hash = "sha256-qATHNuiC6u+/vbY610jrFZSC16FG+Zpdjo+dfOVdVIk=";
+              hash = "sha256-m2oD9woEuoSRiV9OeifAxZN7XQULMKS0Yq4TF+LjjpI=";
             });
           };
 
@@ -232,9 +239,9 @@ in
             description = "Pluging used for SSO authentication.";
             default = shb.mkJellyfinPlugin (rec {
               pname = "jellyfin-plugin-sso";
-              version = "3.5.2.4";
+              version = "4.0.0.3";
               url = "https://github.com/9p4/${pname}/releases/download/v${version}/sso-authentication_${version}.zip";
-              hash = "sha256-e+w5m6/7vRAynStDj34eBexfCIEgDJ09huHzi5gQEbo=";
+              hash = "sha256-Jkuc+Ua7934iSutf/zTY1phTxaltUkfiujOkCi7BW8w=";
             });
           };
 
@@ -340,6 +347,7 @@ in
     ];
 
     services.jellyfin.enable = true;
+    services.jellyfin.package = jellyfin;
 
     networking.firewall = {
       # from https://jellyfin.org/docs/general/networking/index.html, for auto-discovery
@@ -730,6 +738,7 @@ in
       let
         # We must always wait for the service to be fully initialized,
         # even if we're planning on changing the config and restarting.
+        # And the service is not initialized until this URL returns a 200 and not a 503.
         waitForCurl = pkgs.writeShellApplication {
           name = "waitForCurl";
           runtimeInputs = [ pkgs.curl ];
@@ -770,14 +779,14 @@ in
         #
         # If the file does not exist, write the config, create the file then restart.
         # If the file exists, do nothing and remove the file, resetting the state for the next time.
-        restartedFile = "${config.services.jellyfin.dataDir}/.jellyfin-restarted";
+        restartedFile = "${config.services.jellyfin.dataDir}/shb-jellyfin-restarted";
 
         writeConfig = pkgs.writeShellApplication {
           name = "writeConfig";
           runtimeInputs = [ pkgs.systemd ];
           text = ''
             if ! [ -f "${restartedFile}" ]; then
-              ${lib.getExe jellyfin-cli} wizard \
+              ${lib.getExe config.services.jellyfin.package} config \
                 --datadir='${config.services.jellyfin.dataDir}' \
                 --configdir='${config.services.jellyfin.configDir}' \
                 --cachedir='${config.services.jellyfin.cacheDir}' \
@@ -799,7 +808,7 @@ in
               rm "${restartedFile}"
             else
               echo "Restarting jellyfin.service"
-              touch "${restartedFile}"
+              echo "This file is used by SelfHostBlocks to know when to restart jellyfin" > "${restartedFile}"
               systemctl reload-or-restart jellyfin.service
             fi
           '';
