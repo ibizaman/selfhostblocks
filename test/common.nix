@@ -99,19 +99,23 @@ let
     # otherwise curl will not be able to verify the "legitimacy of the server".
     + lib.strings.concatMapStrings (
       u:
+      let
+        url = if builtins.isString u then u else u.url;
+        status = if builtins.isString u then 200 else u.status;
+      in
       ''
         import time
 
         done = False
         count = 15
         while not done and count > 0:
-            response = curl(client, """{"code":%{response_code}}""", "${u}")
+            response = curl(client, """{"code":%{response_code}}""", "${url}")
             time.sleep(5)
             count -= 1
             if isinstance(response, dict):
-                done = response.get('code') == 200
+                done = response.get('code') == ${toString status}
         if not done:
-            raise Exception(f"Response was never 200, got last: {response}")
+            raise Exception(f"Response was never ${toString status}, got last: {response}")
       ''
       + "\n"
     ) (waitForUrls args)
