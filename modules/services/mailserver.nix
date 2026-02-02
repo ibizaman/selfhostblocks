@@ -14,7 +14,7 @@ in
       builtins.fetchGit {
         url = "https://gitlab.com/simple-nixos-mailserver/nixos-mailserver.git";
         ref = "master";
-        rev = "5965fae920b6b97f39f94bdb6195631e274c93a5";
+        rev = "7d433bf89882f61621f95082e90a4ab91eb0bdd3";
       }
       + "/default.nix"
     )
@@ -71,10 +71,10 @@ in
     imapSync = lib.mkOption {
       description = ''
         Synchronize one or more email providers through IMAP
-        to your dovecot2 instance.
+        to your dovecot instance.
 
         This allows you to backup that email provider
-        and centralize your accounts in this dovecot2 instance.
+        and centralize your accounts in this dovecot instance.
       '';
       default = null;
       type = lib.types.nullOr (
@@ -410,9 +410,12 @@ in
 
         localDnsResolver = false;
 
-        certificateScheme = "acme-nginx";
         enableImapSsl = true;
         enableSubmissionSsl = true;
+        x509 = {
+          certificateFile = cfg.ssl.paths.cert;
+          privateKeyFile = cfg.ssl.paths.key;
+        };
 
         # Using / is needed for iOS mail.
         # Both following options are used to organize subfolders in subdirectories.
