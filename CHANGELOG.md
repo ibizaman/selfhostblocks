@@ -16,6 +16,19 @@ Template:
 
 # Upcoming Release
 
+# v0.7.3
+
+## New Features
+
+- Add [mailserver module](https://shb.skarabox.com/services-mailserver.html) integrating with [Simple NixOS Mailserver](https://gitlab.com/simple-nixos-mailserver/nixos-mailserver) and allowing full backup of an email provider.
+- Bump nixpkgs from https://github.com/NixOS/nixpkgs/commit/5e2a59a5b1a82f89f2c7e598302a9cacebb72a67 to https://github.com/NixOS/nixpkgs/commit/bfc1b8a4574108ceef22f02bafcf6611380c100d. [Full diff](https://github.com/nixos/nixpkgs/compare/5e2a59a5b1a82f89f2c7e598302a9cacebb72a67...bfc1b8a4574108ceef22f02bafcf6611380c100d).
+  On top of minor changes, the most notable one was:
+  - Updated Jellyfin LDAP and SSO plugins and configuration. @Codys-Wright
+
+## Bug Fixes
+
+- Fix Restic and Authelia modules referencing systemd services without the `.service` suffix and leading to 
+
 # v0.7.2
 
 ## New Features
