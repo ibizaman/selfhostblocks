@@ -39,7 +39,7 @@ shb.firefly-iii = {
     port = 587;
     username = "postmaster@mg.example.com";
     from_address = "firefly-iii@example.com";
-    password.result = config.shb.sops.secrets."firefly-iii/smtpPassword".result;
+    password.result = config.shb.sops.secret."firefly-iii/smtpPassword".result;
   };
 
   sso = {

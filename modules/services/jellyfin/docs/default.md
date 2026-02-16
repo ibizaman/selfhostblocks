@@ -46,7 +46,7 @@ shb.jellyfin = {
     host = "127.0.0.1";
     port = config.shb.lldap.ldapPort;
     dcdomain = config.shb.lldap.dcdomain;
-    adminPassword.result = config.shb.sops.secrets."jellyfin/ldap/adminPassword".result
+    adminPassword.result = config.shb.sops.secret."jellyfin/ldap/adminPassword".result
   };
 
   sso = {
@@ -60,7 +60,7 @@ shb.jellyfin = {
 
 shb.sops.secret."jellyfin/adminPassword".request = config.shb.jellyfin.admin.password.request;
 
-shb.sops.secrets."jellyfin/ldap/adminPassword".request = config.shb.jellyfin.ldap.adminPassword.request;
+shb.sops.secret."jellyfin/ldap/adminPassword".request = config.shb.jellyfin.ldap.adminPassword.request;
 
 shb.sops.secret."jellyfin/sso_secret".request = config.shb.jellyfin.sso.sharedSecret.request;
 shb.sops.secret."jellyfin/authelia/sso_secret" = {

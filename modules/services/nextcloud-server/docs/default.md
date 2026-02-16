@@ -72,10 +72,10 @@ shb.nextcloud = {
   domain = "example.com";
   subdomain = "n";
   defaultPhoneRegion = "US";
-  adminPass.result = config.shb.sops.secrets."nextcloud/adminpass".result;
+  adminPass.result = config.shb.sops.secret."nextcloud/adminpass".result;
 };
 
-shb.sops.secrets."nextcloud/adminpass".request = config.shb.nextcloud.adminPass.request;
+shb.sops.secret."nextcloud/adminpass".request = config.shb.nextcloud.adminPass.request;
 ```
 
 This assumes secrets are setup with SOPS as mentioned in [the secrets setup section](usage.html#usage-secrets) of the manual.
@@ -165,11 +165,11 @@ shb.nextcloud.apps.ldap = {
   port = config.shb.lldap.ldapPort;
   dcdomain = config.shb.lldap.dcdomain;
   adminName = "admin";
-  adminPassword.result = config.shb.sops.secrets."nextcloud/ldap/adminPassword".result
+  adminPassword.result = config.shb.sops.secret."nextcloud/ldap/adminPassword".result
   userGroup = "nextcloud_user";
 };
 
-shb.sops.secrets."nextcloud/ldap/adminPassword" = {
+shb.sops.secret."nextcloud/ldap/adminPassword" = {
   request = config.shb.nextcloud.apps.ldap.adminPassword.request;
   settings.key = "ldap/userPassword";
 };
@@ -216,8 +216,8 @@ shb.nextcloud.apps.sso = {
   clientID = "nextcloud";
   fallbackDefaultAuth = false;
 
-  secret.result = config.shb.sops.secrets."nextcloud/sso/secret".result;
-  secretForAuthelia.result = config.shb.sops.secrets."nextcloud/sso/secretForAuthelia".result;
+  secret.result = config.shb.sops.secret."nextcloud/sso/secret".result;
+  secretForAuthelia.result = config.shb.sops.secret."nextcloud/sso/secretForAuthelia".result;
 };
 
 shb.sops.secret."nextcloud/sso/secret".request = config.shb.nextcloud.apps.sso.secret.request;

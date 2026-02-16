@@ -8,6 +8,7 @@ This block sets up a backup job using [Restic][].
 
 ## Provider Contracts {#blocks-restic-contract-provider}
 
+
 This block provides the following contracts:
 
 - [backup contract](contracts-backup.html) under the [`shb.restic.instances`][instances] option.
@@ -25,6 +26,7 @@ a backup Systemd service and a [restore script](#blocks-restic-maintenance) are 
 
 ## Usage {#blocks-restic-usage}
 
+
 The following examples assume usage of the [sops block][] to provide secrets
 although any blocks providing the [secrets contract][] works too.
 
@@ -32,6 +34,7 @@ although any blocks providing the [secrets contract][] works too.
 [secrets contract]: ./contracts-secrets.html
 
 ### One folder backed up manually {#blocks-restic-usage-provider-manual}
+
 
 The following snippet shows how to configure
 the backup of 1 folder to 1 repository.
@@ -50,7 +53,7 @@ shb.restic.instances."myservice" = {
   settings = {
     enable = true;
 
-    passphrase.result = shb.sops.secret."passphrase".result;
+    passphrase.result = config.shb.sops.secret."passphrase".result;
 
     repository = {
       path = "/srv/backups/myservice";
@@ -71,7 +74,7 @@ shb.restic.instances."myservice" = {
 };
 
 shb.sops.secret."passphrase".request =
-  shb.restic.instances."myservice".settings.passphrase.request;
+  config.shb.restic.instances."myservice".settings.passphrase.request;
 ```
 
 ### One folder backed up with contract {#blocks-restic-usage-provider-contract}
@@ -87,7 +90,7 @@ shb.restic.instances."myservice" = {
   settings = {
     enable = true;
 
-    passphrase.result = shb.sops.secret."passphrase".result;
+    passphrase.result = config.shb.sops.secret."passphrase".result;
 
     repository = {
       path = "/srv/backups/myservice";
@@ -108,7 +111,7 @@ shb.restic.instances."myservice" = {
 };
 
 shb.sops.secret."passphrase".request =
-  shb.restic.instances."myservice".settings.passphrase.request;
+  config.shb.restic.instances."myservice".settings.passphrase.request;
 ```
 
 ### One folder backed up to S3 {#blocks-restic-usage-provider-remote}

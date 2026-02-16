@@ -395,7 +395,7 @@ in
 
         services.radarr = {
           enable = true;
-          dataDir = "/var/lib/radarr";
+          dataDir = shb.arr.radarr.dataDir;
         };
 
         systemd.services.radarr.preStart = shb.replaceSecrets {
@@ -423,7 +423,7 @@ in
 
         services.sonarr = {
           enable = true;
-          dataDir = "/var/lib/sonarr";
+          dataDir = shb.arr.sonarr.dataDir;
         };
         users.users.sonarr = {
           extraGroups = [ "media" ];
@@ -464,7 +464,7 @@ in
               AuthenticationRequired = "DisabledForLocalAddresses";
               AuthenticationMethod = "External";
             });
-          resultPath = "/var/lib/bazarr/config.xml";
+          resultPath = "${config.services.bazarr.dataDir}/config.xml";
           generator = apps.bazarr.settingsFormat.generate;
         };
 
@@ -479,7 +479,7 @@ in
       {
         services.readarr = {
           enable = true;
-          dataDir = "/var/lib/readarr";
+          dataDir = shb.arr.readarr.dataDir;
         };
         users.users.readarr = {
           extraGroups = [ "media" ];
@@ -502,7 +502,7 @@ in
       {
         services.lidarr = {
           enable = true;
-          dataDir = "/var/lib/lidarr";
+          dataDir = shb.arr.lidarr.dataDir;
         };
         users.users.lidarr = {
           extraGroups = [ "media" ];
@@ -529,7 +529,7 @@ in
       {
         services.jackett = {
           enable = true;
-          dataDir = "/var/lib/jackett";
+          dataDir = shb.arr.jackett.dataDir;
         };
         # TODO: avoid implicitly relying on the media group
         users.users.jackett = {

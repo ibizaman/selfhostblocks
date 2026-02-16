@@ -634,8 +634,8 @@ One way to setup secrets management using `sops-nix`:
    Setting the default this way makes all sops instances use that same file.
 7. Reference the secrets in nix:
    ```nix
-   shb.sops.secrets."nextcloud/adminpass".request = config.shb.nextcloud.adminPass.request;
-   shb.nextcloud.adminPass.result = config.shb.sops.secrets."nextcloud/adminpass".result;
+   shb.sops.secret."nextcloud/adminpass".request = config.shb.nextcloud.adminPass.request;
+   shb.nextcloud.adminPass.result = config.shb.sops.secret."nextcloud/adminpass".result;
    ```
    The above snippet uses the [secrets contract](./contracts-secret.html) and
    [sops block](./blocks-sops.html) to ease the configuration.
