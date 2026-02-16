@@ -28,7 +28,7 @@ shb.vaultwarden = {
 
   port = 8222;
 
-  databasePassword.result = config.shb.sops.secrets."vaultwarden/db".result;
+  databasePassword.result = config.shb.sops.secret."vaultwarden/db".result;
 
   smtp = {
     host = "smtp.eu.mailgun.org";

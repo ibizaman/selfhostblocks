@@ -142,7 +142,7 @@ set [`shb.lldap.enforceUserMemberships`](#blocks-lldap-options-shb.lldap.enforce
   };
 
   shb.sops.secret."dad".request =
-    shb.lldap.ensureUsers.dad.password.request;
+    config.shb.lldap.ensureUsers.dad.password.request;
 }
 ```
 

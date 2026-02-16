@@ -42,12 +42,12 @@ Now, with this contract, a layer on top of `sops` is added which is found under 
 The configuration then becomes:
 
 ```nix
-shb.sops.secrets."ldap/user_password" = {
+shb.sops.secret."ldap/user_password" = {
   request = config.shb.lldap.userPassword.request;
   settings.sopsFile = ./secrets.yaml;
 };
 
-shb.lldap.userPassword.result = config.shb.sops.secrets."ldap/user_password".result;
+shb.lldap.userPassword.result = config.shb.sops.secret."ldap/user_password".result;
 ```
 
 The issue is now gone as the responsibility falls
@@ -63,9 +63,9 @@ sops.defaultSopsFile = ./secrets.yaml;
 Then the snippet above is even more simplified:
 
 ```nix
-shb.sops.secrets."ldap/user_password".request = config.shb.lldap.userPassword.request;
+shb.sops.secret."ldap/user_password".request = config.shb.lldap.userPassword.request;
 
-shb.lldap.userPassword.result = config.shb.sops.secrets."ldap/user_password".result;
+shb.lldap.userPassword.result = config.shb.sops.secret."ldap/user_password".result;
 ```
 
 ## Contract Reference {#contract-secret-options}

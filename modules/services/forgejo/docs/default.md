@@ -34,20 +34,20 @@ shb.forgejo = {
     "theadmin" = {
       isAdmin = true;
       email = "theadmin@example.com";
-      password.result = config.shb.sops.secrets.forgejoAdminPassword.result;
+      password.result = config.shb.sops.secret.forgejoAdminPassword.result;
     };
     "theuser" = {
       email = "theuser@example.com";
-      password.result = config.shb.sops.secrets.forgejoUserPassword.result;
+      password.result = config.shb.sops.secret.forgejoUserPassword.result;
     };
   };
 };
 
-shb.sops.secrets."forgejo/admin/password" = {
+shb.sops.secret."forgejo/admin/password" = {
   request = config.shb.forgejo.users."theadmin".password.request;
 };
 
-shb.sops.secrets."forgejo/user/password" = {
+shb.sops.secret."forgejo/user/password" = {
   request = config.shb.forgejo.users."theuser".password.request;
 };
 ```
@@ -110,10 +110,10 @@ shb.forgejo.ldap = {
   host = "127.0.0.1";
   port = config.shb.lldap.ldapPort;
   dcdomain = config.shb.lldap.dcdomain;
-  adminPassword.result = config.shb.sops.secrets."forgejo/ldap/adminPassword".result
+  adminPassword.result = config.shb.sops.secret."forgejo/ldap/adminPassword".result
 };
 
-shb.sops.secrets."forgejo/ldap/adminPassword" = {
+shb.sops.secret."forgejo/ldap/adminPassword" = {
   request = config.shb.forgejo.ldap.adminPassword.request;
   settings.key = "ldap/userPassword";
 };

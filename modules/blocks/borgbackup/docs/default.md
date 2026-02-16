@@ -50,7 +50,7 @@ shb.borgbackup.instances."myservice" = {
   settings = {
     enable = true;
 
-    passphrase.result = shb.sops.secret."passphrase".result;
+    passphrase.result = config.shb.sops.secret."passphrase".result;
 
     repository = {
       path = "/srv/backups/myservice";
@@ -71,7 +71,7 @@ shb.borgbackup.instances."myservice" = {
 };
 
 shb.sops.secret."passphrase".request =
-  shb.borgbackup.instances."myservice".settings.passphrase.request;
+  config.shb.borgbackup.instances."myservice".settings.passphrase.request;
 ```
 
 ### One folder backed up with contract {#blocks-borgbackup-usage-provider-contract}
@@ -87,7 +87,7 @@ shb.borgbackup.instances."myservice" = {
   settings = {
     enable = true;
 
-    passphrase.result = shb.sops.secret."passphrase".result;
+    passphrase.result = config.shb.sops.secret."passphrase".result;
 
     repository = {
       path = "/srv/backups/myservice";
@@ -108,7 +108,7 @@ shb.borgbackup.instances."myservice" = {
 };
 
 shb.sops.secret."passphrase".request =
-  shb.borgbackup.instances."myservice".settings.passphrase.request;
+  config.shb.borgbackup.instances."myservice".settings.passphrase.request;
 ```
 
 ### One folder backed up to S3 {#blocks-borgbackup-usage-provider-remote}

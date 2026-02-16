@@ -44,31 +44,31 @@ shb.authelia = {
     port = 587;
     username = "postmaster@mg.example.com";
     from_address = "authelia@example.com";
-    password.result = config.shb.sops.secrets."authelia/smtp_password".result;
+    password.result = config.shb.sops.secret."authelia/smtp_password".result;
   };
 
   secrets = {
-    jwtSecret.result = config.shb.sops.secrets."authelia/jwt_secret".result;
-    ldapAdminPassword.result = config.shb.sops.secrets."authelia/ldap_admin_password".result;
-    sessionSecret.result = config.shb.sops.secrets."authelia/session_secret".result;
-    storageEncryptionKey.result = config.shb.sops.secrets."authelia/storage_encryption_key".result;
-    identityProvidersOIDCHMACSecret.result = config.shb.sops.secrets."authelia/hmac_secret".result;
-    identityProvidersOIDCIssuerPrivateKey.result = config.shb.sops.secrets."authelia/private_key".result;
+    jwtSecret.result = config.shb.sops.secret."authelia/jwt_secret".result;
+    ldapAdminPassword.result = config.shb.sops.secret."authelia/ldap_admin_password".result;
+    sessionSecret.result = config.shb.sops.secret."authelia/session_secret".result;
+    storageEncryptionKey.result = config.shb.sops.secret."authelia/storage_encryption_key".result;
+    identityProvidersOIDCHMACSecret.result = config.shb.sops.secret."authelia/hmac_secret".result;
+    identityProvidersOIDCIssuerPrivateKey.result = config.shb.sops.secret."authelia/private_key".result;
   };
 };
 
 shb.certs.certs.letsencrypt."example.com".extraDomains = [ "auth.example.com" ];
 
-shb.sops.secrets."authelia/jwt_secret".request = config.shb.authelia.secrets.jwtSecret.request;
-shb.sops.secrets."authelia/ldap_admin_password" = {
+shb.sops.secret."authelia/jwt_secret".request = config.shb.authelia.secrets.jwtSecret.request;
+shb.sops.secret."authelia/ldap_admin_password" = {
   request = config.shb.authelia.secrets.ldapAdminPassword.request;
   settings.key = "lldap/user_password";
 };
-shb.sops.secrets."authelia/session_secret".request = config.shb.authelia.secrets.sessionSecret.request;
-shb.sops.secrets."authelia/storage_encryption_key".request = config.shb.authelia.secrets.storageEncryptionKey.request;
-shb.sops.secrets."authelia/hmac_secret".request = config.shb.authelia.secrets.identityProvidersOIDCHMACSecret.request;
-shb.sops.secrets."authelia/private_key".request = config.shb.authelia.secrets.identityProvidersOIDCIssuerPrivateKey.request;
-shb.sops.secrets."authelia/smtp_password".request = config.shb.authelia.smtp.password.request;
+shb.sops.secret."authelia/session_secret".request = config.shb.authelia.secrets.sessionSecret.request;
+shb.sops.secret."authelia/storage_encryption_key".request = config.shb.authelia.secrets.storageEncryptionKey.request;
+shb.sops.secret."authelia/hmac_secret".request = config.shb.authelia.secrets.identityProvidersOIDCHMACSecret.request;
+shb.sops.secret."authelia/private_key".request = config.shb.authelia.secrets.identityProvidersOIDCIssuerPrivateKey.request;
+shb.sops.secret."authelia/smtp_password".request = config.shb.authelia.smtp.password.request;
 ```
 
 This assumes secrets are setup with SOPS
@@ -95,8 +95,8 @@ shb.<service>.sso = {
   enable = true;
   endpoint = "https://${config.shb.authelia.subdomain}.${config.shb.authelia.domain}";
 
-  secret.result = config.shb.sops.secrets."<service>/sso/secret".result;
-  secretForAuthelia.result = config.shb.sops.secrets."<service>/sso/secretForAuthelia".result;
+  secret.result = config.shb.sops.secret."<service>/sso/secret".result;
+  secretForAuthelia.result = config.shb.sops.secret."<service>/sso/secretForAuthelia".result;
 };
 
 shb.sops.secret."<service>/sso/secret".request = config.shb.<service>.sso.secret.request;
@@ -122,7 +122,7 @@ the necessary configuration is:
 shb.authelia.oidcClients = [
   {
     client_id = "<service>";
-    client_secret.source = shb.sops.secret."<service>/sso/secretForAuthelia".response.path;
+    client_secret.source = config.shb.sops.secret."<service>/sso/secretForAuthelia".response.path;
     scopes = [ "openid" "email" "profile" ];
     redirect_uris = [
       "<provided by service documentation>"
@@ -167,7 +167,7 @@ services.open-webui.environment = {
 shb.authelia.oidcClients = [
   {
     client_id = "open-webui";
-    client_secret.source = shb.sops.secret."open-webui/sso/secretForAuthelia".response.path;
+    client_secret.source = config.shb.sops.secret."open-webui/sso/secretForAuthelia".response.path;
     scopes = [ "openid" "email" "profile" ];
     redirect_uris = [
       "<provided by service documentation>"

@@ -212,7 +212,7 @@ let
 
   radarrCfgFn = cfg: "${cfg.dataDir}/config.xml";
   sonarrCfgFn = cfg: "${cfg.dataDir}/config.xml";
-  bazarrCfgFn = cfg: "/var/lib/bazarr/config.xml";
+  bazarrCfgFn = cfg: "${cfg.dataDir}/config.xml";
   readarrCfgFn = cfg: "${cfg.dataDir}/config.xml";
   lidarrCfgFn = cfg: "${cfg.dataDir}/config.xml";
   jackettCfgFn = cfg: "${cfg.dataDir}/ServerConfig.json";

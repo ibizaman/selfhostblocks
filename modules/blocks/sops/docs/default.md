@@ -13,7 +13,7 @@ to adapt it to the [secret contract](./contracts-secret.html).
 
 This block provides the following contracts:
 
-- [secret contract][] under the [`shb.sops.secrets`][secret] option.
+- [secret contract][] under the [`shb.sops.secret`][secret] option.
   It is not yet tested with [contract tests][secret contract tests] but it is used extensively on several machines.
 
 [secret]: #blocks-sops-options-shb.sops.secret
@@ -21,7 +21,7 @@ This block provides the following contracts:
 [secret contract tests]: @REPO@/test/contracts/secret.nix
 
 As requested by the contract, when asking for a secret with the `shb.sops` module,
-the path where the secret will be located can be found under the [`shb.sops.secrets.<name>.result`][result] option.
+the path where the secret will be located can be found under the [`shb.sops.secret.<name>.result`][result] option.
 
 [result]: #blocks-sops-options-shb.sops.secret._name_.result
 
