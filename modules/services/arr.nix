@@ -395,7 +395,7 @@ in
 
         services.radarr = {
           enable = true;
-          dataDir = shb.arr.radarr.dataDir;
+          dataDir = cfg'.dataDir;
         };
 
         systemd.services.radarr.preStart = shb.replaceSecrets {
@@ -405,7 +405,7 @@ in
               AuthenticationRequired = "DisabledForLocalAddresses";
               AuthenticationMethod = "External";
             });
-          resultPath = "${config.services.radarr.dataDir}/config.xml";
+          resultPath = "${cfg'.dataDir}/config.xml";
           generator = shb.replaceSecretsFormatAdapter apps.radarr.settingsFormat;
         };
 
@@ -423,7 +423,7 @@ in
 
         services.sonarr = {
           enable = true;
-          dataDir = shb.arr.sonarr.dataDir;
+          dataDir = cfg'.dataDir;
         };
         users.users.sonarr = {
           extraGroups = [ "media" ];
@@ -436,7 +436,7 @@ in
               AuthenticationRequired = "DisabledForLocalAddresses";
               AuthenticationMethod = "External";
             });
-          resultPath = "${config.services.sonarr.dataDir}/config.xml";
+          resultPath = "${cfg'.dataDir}/config.xml";
           generator = apps.sonarr.settingsFormat.generate;
         };
 
@@ -452,6 +452,7 @@ in
       {
         services.bazarr = {
           enable = true;
+          dataDir = cfg'.dataDir;
           listenPort = cfg'.settings.Port;
         };
         users.users.bazarr = {
@@ -464,7 +465,7 @@ in
               AuthenticationRequired = "DisabledForLocalAddresses";
               AuthenticationMethod = "External";
             });
-          resultPath = "${config.services.bazarr.dataDir}/config.xml";
+          resultPath = "${cfg'.dataDir}/config.xml";
           generator = apps.bazarr.settingsFormat.generate;
         };
 
@@ -479,14 +480,14 @@ in
       {
         services.readarr = {
           enable = true;
-          dataDir = shb.arr.readarr.dataDir;
+          dataDir = cfg'.dataDir;
         };
         users.users.readarr = {
           extraGroups = [ "media" ];
         };
         systemd.services.readarr.preStart = shb.replaceSecrets {
           userConfig = cfg'.settings;
-          resultPath = "${config.services.readarr.dataDir}/config.xml";
+          resultPath = "${cfg'.dataDir}/config.xml";
           generator = apps.readarr.settingsFormat.generate;
         };
 
@@ -502,7 +503,7 @@ in
       {
         services.lidarr = {
           enable = true;
-          dataDir = shb.arr.lidarr.dataDir;
+          dataDir = cfg'.dataDir;
         };
         users.users.lidarr = {
           extraGroups = [ "media" ];
@@ -514,7 +515,7 @@ in
               AuthenticationRequired = "DisabledForLocalAddresses";
               AuthenticationMethod = "External";
             });
-          resultPath = "${config.services.lidarr.dataDir}/config.xml";
+          resultPath = "${cfg'.dataDir}/config.xml";
           generator = apps.lidarr.settingsFormat.generate;
         };
 
@@ -529,7 +530,7 @@ in
       {
         services.jackett = {
           enable = true;
-          dataDir = shb.arr.jackett.dataDir;
+          dataDir = cfg'.dataDir;
         };
         # TODO: avoid implicitly relying on the media group
         users.users.jackett = {
@@ -537,7 +538,7 @@ in
         };
         systemd.services.jackett.preStart = shb.replaceSecrets {
           userConfig = shb.renameAttrName cfg'.settings "ApiKey" "APIKey";
-          resultPath = "${config.services.jackett.dataDir}/ServerConfig.json";
+          resultPath = "${cfg'.dataDir}/ServerConfig.json";
           generator = apps.jackett.settingsFormat.generate;
         };
 
