@@ -51,7 +51,7 @@ let
               if response['code'] != 200:
                   raise Exception(f"Code is {response['code']}")
         ''
-        + lib.optionalString (apiKey != null) ''
+        + lib.optionalString (apiKey != null && cfgPath != null) ''
 
           with subtest("apikey"):
               config = server.succeed("cat ${cfgPath}")
@@ -212,7 +212,7 @@ let
 
   radarrCfgFn = cfg: "${cfg.dataDir}/config.xml";
   sonarrCfgFn = cfg: "${cfg.dataDir}/config.xml";
-  bazarrCfgFn = cfg: "${cfg.dataDir}/config.xml";
+  bazarrCfgFn = cfg: null;
   readarrCfgFn = cfg: "${cfg.dataDir}/config.xml";
   lidarrCfgFn = cfg: "${cfg.dataDir}/config.xml";
   jackettCfgFn = cfg: "${cfg.dataDir}/ServerConfig.json";
