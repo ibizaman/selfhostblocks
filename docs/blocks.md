@@ -5,8 +5,11 @@ Blocks help you self-host apps or services. They implement a specific function l
 access through a subdomain. Each block is designed to be usable on its own and to fit nicely with
 others.
 
-Not all blocks are documented yet.
-You can find all available blocks [in the repository](@REPO@/modules/blocks).
+All blocks are implemented under the blocks folder [in the repository](@REPO@/modules/blocks).
+
+All services in SHB document how to setup the various blocks provided here.
+For custom services or those not provided by SHB,
+the [Expose a service Recipe](recipes-exposeService.html) explains how to use the blocks here.
 
 ## Authentication {#blocks-category-authentication}
 
