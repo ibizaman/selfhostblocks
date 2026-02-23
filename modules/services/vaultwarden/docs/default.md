@@ -12,7 +12,7 @@ This NixOS module is a service that sets up a [Vaultwarden Server](https://githu
 - Backup of the data directory through the [backup contract](./contracts-backup.html).
 - [Integration Tests](@REPO@/test/services/vaultwarden.nix)
   - Tests /admin can only be accessed when authenticated with SSO.
-- Access to advanced options not exposed here thanks to how NixOS modules work.
+- Integration with the [dashboard contract](contracts-dashboard.html) for displaying user facing application in a dashboard.
 
 ## Usage {#services-vaultwarden-usage}
 
@@ -119,6 +119,22 @@ shb.restic.instances."vaultwarden" = {
 The name `"vaultwarden"` in the `instances` can be anything.
 The `config.shb.vaultwarden.backup` option provides what directories to backup.
 You can define any number of Restic instances to backup Vaultwarden multiple times.
+
+### Application Dashboard {#services-vaultwarden-usage-applicationdashboard}
+
+Integration with the [dashboard contract](contracts-dashboard.html) is provided
+by the [dashboard option](#services-vaultwarden-options-shb.vaultwarden.dashboard).
+
+For example using the [Homepage](services-homepage.html) service:
+
+```nix
+{
+  shb.homepage.servicesGroups.Documents.services.Vaultwarden = {
+    sortOrder = 10;
+    dashboard.request = config.shb.vaultwarden.dashboard.request;
+  };
+}
+```
 
 ## Maintenance {#services-vaultwarden-maintenance}
 

@@ -33,7 +33,9 @@ Here is an example module defining such a `backup` option:
 {
   options = {
     myservice.backup = mkOption {
-      type = contracts.backup.request;
+      type = lib.types.submodule {
+        options = contracts.backup.request;
+      };
       default = {
         user = "myservice";
         sourceDirectories = [

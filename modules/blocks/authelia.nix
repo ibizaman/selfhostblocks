@@ -390,6 +390,20 @@ in
         to see exactly what Authelia receives and sends back.
       '';
     };
+
+    dashboard = lib.mkOption {
+      description = ''
+        Dashboard contract consumer
+      '';
+      default = { };
+      type = lib.types.submodule {
+        options = shb.contracts.dashboard.mkRequester {
+          externalUrl = "https://${cfg.subdomain}.${cfg.domain}";
+          externalUrlText = "https://\${config.shb.authelia.subdomain}.\${config.shb.authelia.domain}";
+          internalUrl = "http://127.0.0.1:${toString listenPort}";
+        };
+      };
+    };
   };
 
   config = lib.mkIf cfg.enable {

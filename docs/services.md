@@ -1,9 +1,9 @@
 <!-- Read these docs at https://shb.skarabox.com -->
 # Services {#services}
 
-Services are usually web applications that SHB help you self-host.
+Services are usually web applications that SHB help you self-host some of your data.
 Configuration of those is purposely made more opinionated than the upstream nixpkgs modules
-in exchange for requiring less options to define.
+in exchange for an uniformized configuration experience.
 That is possible thanks to the extensive use of blocks provided by SHB.
 
 ::: {.note}
@@ -19,6 +19,7 @@ information is provided in the respective manual sections.
 | [Firefly-iii][]             | Y (1)  | Y             | Y   | Y     | Y (2)      | N         |
 | [Forgejo][]                 | Y (1)  | Y             | Y   | Y     | Y (2)      | N         |
 | [Home-Assistant][]          | Y (1)  | Y             | N   | Y     | Y (2)      | N         |
+| [Homepage][]                | Y (1)  | Y             | N   | Y     | Y (2)      | N         |
 | [Jellyfin][]                | Y (1)  | Y             | Y   | Y     | Y (2)      | N         |
 | [Karakeep][]                | Y (1)  | Y             | Y   | Y     | Y (2)      | N         |
 | [Nextcloud Server][]        | Y (1)  | Y             | Y   | Y     | Y (2)      | P (3)     |
@@ -40,6 +41,7 @@ Legend: **N**: no but WIP; **P**: partial; **Y**: yes
 [Firefly-iii]: services-firefly-iii.html
 [Forgejo]: services-forgejo.html
 [Home-Assistant]: services-home-assistant.html
+[Homepage]: services-homepage.html
 [Jellyfin]: services-jellyfin.html
 [Karakeep]: services-karakeep.html
 [Nextcloud Server]: services-nextcloud.html
@@ -47,6 +49,12 @@ Legend: **N**: no but WIP; **P**: partial; **Y**: yes
 [Pinchflat]: services-pinchflat.html
 [Simple NixOS Mailserver]: services-mailserver.html
 [Vaultwarden]: services-vaultwarden.html
+
+## Dashboard {#services-category-dashboard}
+
+```{=include=} chapters html:into-file=//services-homepage.html
+modules/services/homepage/docs/default.md
+```
 
 ## Documents {#services-category-documents}
 

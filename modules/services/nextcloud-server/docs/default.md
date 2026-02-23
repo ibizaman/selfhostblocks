@@ -35,8 +35,8 @@ It is based on the nixpkgs Nextcloud server and provides opinionated defaults.
 - Forces PostgreSQL as the database.
 - Forces Redis as the cache and sets good defaults.
 - Backup of the [`shb.nextcloud.dataDir`][dataDir] through the [backup block](./blocks-backup.html).
-- [Dashboard](#services-nextcloudserver-dashboard) for monitoring of reverse proxy, PHP-FPM, and database backups through the [monitoring
-  block](./blocks-monitoring.html).
+- [Monitoring Dashboard](#services-nextcloudserver-dashboard) for monitoring of reverse proxy, PHP-FPM, and database backups through the [monitoring block](./blocks-monitoring.html).
+- Integration with the [dashboard contract](contracts-dashboard.html) for displaying user facing application in a dashboard.
 - [Integration Tests](@REPO@/test/services/nextcloud.nix)
   - Tests system cron job is setup correctly.
   - Tests initial admin user and password are setup correctly.
@@ -344,6 +344,22 @@ Note that this will backup the whole PostgreSQL instance,
 not just the Nextcloud database.
 This limitation will be lifted in the future.
 
+### Application Dashboard {#services-nextcloudserver-usage-applicationdashboard}
+
+Integration with the [dashboard contract](contracts-dashboard.html) is provided
+by the [dashboard option](#services-nextcloudserver-options-shb.nextcloud.dashboard).
+
+For example using the [Homepage](services-homepage.html) service:
+
+```nix
+{
+  shb.homepage.servicesGroups.Documents.services.Nextcloud = {
+    sortOrder = 1;
+    dashboard.request = config.shb.nextcloud.dashboard.request;
+  };
+}
+```
+
 ### Enable Preview Generator App {#services-nextcloudserver-usage-previewgenerator}
 
 The following snippet installs and enables the [Preview
@@ -537,7 +553,7 @@ by issuing the command `nextcloud-occ config:system:delete instanceid`.
 Head over to the [Nextcloud demo](demo-nextcloud-server.html) for a demo that installs Nextcloud with or
 without LDAP integration on a VM with minimal manual steps.
 
-## Dashboard {#services-nextcloudserver-dashboard}
+## Monitoring Dashboard {#services-nextcloudserver-dashboard}
 
 The dashboard is added to Grafana automatically under "Self Host Blocks > Nextcloud"
 as long as the Nextcloud service is [enabled][]

@@ -21,8 +21,11 @@ It integrates well with [Ollama][].
 - Access through [subdomain](#services-karakeep-options-shb.karakeep.subdomain) using reverse proxy.
 - Access through [HTTPS](#services-karakeep-options-shb.karakeep.ssl) using reverse proxy.
 - [Backup](#services-karakeep-options-shb.karakeep.sso) through the [backup block](./blocks-backup.html).
+- Integration with the [dashboard contract](contracts-dashboard.html) for displaying user facing application in a dashboard. [Manual](#services-karakeep-usage-applicationdashboard)
 
 ## Usage {#services-karakeep-usage}
+
+### Initial Configuration {#services-karakeep-usage-configuration}
 
 The following snippet assumes a few blocks have been setup already:
 
@@ -65,6 +68,35 @@ Secrets can be randomly generated with `nix run nixpkgs#openssl -- rand -hex 64`
 The [user](#services-open-webui-options-shb.open-webui.ldap.userGroup)
 and [admin](#services-open-webui-options-shb.open-webui.ldap.adminGroup)
 LDAP groups are created automatically.
+
+### Application Dashboard {#services-karakeep-usage-applicationdashboard}
+
+Integration with the [dashboard contract](contracts-dashboard.html) is provided
+by the [dashboard option](#services-karakeep-options-shb.karakeep.dashboard).
+
+For example using the [Homepage](services-homepage.html) service:
+
+```nix
+{
+  shb.homepage.servicesGroups.Documents.services.Karakeep = {
+    sortOrder = 3;
+    dashboard.request = config.shb.karakeep.dashboard.request;
+  };
+}
+```
+
+An API key can be set to show extra info:
+
+```nix
+{
+  shb.homepage.servicesGroups.Documents.services.Karakeep = {
+    apiKey.result = config.shb.sops.secret."karakeep/homepageApiKey".result;
+  };
+
+  shb.sops.secret."karakeep/homepageApiKey".request =
+    config.shb.homepage.servicesGroups.Documents.services.Karakeep.apiKey.request;
+}
+```
 
 ## Integration with Ollama {#services-karakeep-ollama}
 

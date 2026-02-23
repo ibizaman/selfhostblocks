@@ -21,8 +21,11 @@ This service sets up [Open WebUI][] which provides a frontend to various LLMs.
 - Access through [subdomain](#services-open-webui-options-shb.open-webui.subdomain) using reverse proxy.
 - Access through [HTTPS](#services-open-webui-options-shb.open-webui.ssl) using reverse proxy.
 - [Backup](#services-open-webui-options-shb.open-webui.sso) through the [backup block](./blocks-backup.html).
+- Integration with the [dashboard contract](contracts-dashboard.html) for displaying user facing application in a dashboard. [Manual](#services-open-webui-usage-applicationdashboard)
 
 ## Usage {#services-open-webui-usage}
+
+### Initial Configuration {#services-open-webui-usage-configuration}
 
 The following snippet assumes a few blocks have been setup already:
 
@@ -62,6 +65,25 @@ Secrets can be randomly generated with `nix run nixpkgs#openssl -- rand -hex 64`
 The [user](#services-open-webui-options-shb.open-webui.ldap.userGroup)
 and [admin](#services-open-webui-options-shb.open-webui.ldap.adminGroup)
 LDAP groups are created automatically.
+
+### Application Dashboard {#services-open-webui-usage-applicationdashboard}
+
+Integration with the [dashboard contract](contracts-dashboard.html) is provided
+by the [dashboard option](#services-open-webui-options-shb.open-webui.dashboard).
+
+For example using the [Homepage](services-homepage.html) service:
+
+```nix
+{
+  shb.homepage.servicesGroups.Documents.services.OpenWebUI = {
+    sortOrder = 1;
+    dashboard.request = config.shb.home-assistant.dashboard.request;
+    settings.icon = "sh-open-webui";
+  };
+}
+```
+
+The icon needs to be set manually otherwise it is not displayed correctly.
 
 ## Integration with OLLAMA {#services-open-webui-ollama}
 

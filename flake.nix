@@ -66,6 +66,9 @@
         # The contract dummies are used to show options for contracts.
         contractDummyModules = [
           modules/contracts/backup/dummyModule.nix
+          modules/contracts/dashboard/dummyModule.nix
+          modules/contracts/databasebackup/dummyModule.nix
+          modules/contracts/secret/dummyModule.nix
           modules/contracts/ssl/dummyModule.nix
         ];
       in
@@ -110,6 +113,7 @@
               (pkgs.path + "/nixos/modules/services/misc/forgejo.nix")
             ];
             "services/home-assistant" = ./modules/services/home-assistant.nix;
+            "services/homepage" = ./modules/services/homepage.nix;
             "services/jellyfin" = ./modules/services/jellyfin.nix;
             "services/karakeep" = ./modules/services/karakeep.nix;
             "services/mailserver" = ./modules/services/mailserver.nix;
@@ -129,6 +133,14 @@
                 "shb"
                 "contracts"
                 "backup"
+              ];
+            };
+            "contracts/dashboard" = {
+              module = ./modules/contracts/dashboard/dummyModule.nix;
+              optionRoot = [
+                "shb"
+                "contracts"
+                "dashboard"
               ];
             };
             "contracts/databasebackup" = {
@@ -298,6 +310,7 @@
             // (vm_test "hledger" ./test/services/hledger.nix)
             // (vm_test "immich" ./test/services/immich.nix)
             // (vm_test "homeassistant" ./test/services/home-assistant.nix)
+            // (vm_test "homepage" ./test/services/homepage.nix)
             // (vm_test "jellyfin" ./test/services/jellyfin.nix)
             // (vm_test "karakeep" ./test/services/karakeep.nix)
             // (vm_test "nextcloud" ./test/services/nextcloud.nix)
@@ -407,6 +420,7 @@
           self.nixosModules.hledger
           self.nixosModules.immich
           self.nixosModules.home-assistant
+          self.nixosModules.homepage
           self.nixosModules.jellyfin
           self.nixosModules.karakeep
           self.nixosModules.mailserver
@@ -445,6 +459,7 @@
       nixosModules.hledger = modules/services/hledger.nix;
       nixosModules.immich = modules/services/immich.nix;
       nixosModules.home-assistant = modules/services/home-assistant.nix;
+      nixosModules.homepage = modules/services/homepage.nix;
       nixosModules.jellyfin = modules/services/jellyfin.nix;
       nixosModules.karakeep = modules/services/karakeep.nix;
       nixosModules.mailserver = modules/services/mailserver.nix;

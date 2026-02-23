@@ -160,6 +160,20 @@ in
         };
       };
     };
+
+    dashboard = lib.mkOption {
+      description = ''
+        Dashboard contract consumer
+      '';
+      default = { };
+      type = lib.types.submodule {
+        options = shb.contracts.dashboard.mkRequester {
+          externalUrl = "https://${cfg.subdomain}.${cfg.domain}";
+          externalUrlText = "https://\${config.shb.open-webui.subdomain}.\${config.shb.open-webui.domain}";
+          internalUrl = "http://127.0.0.1:${toString cfg.port}";
+        };
+      };
+    };
   };
 
   config = (

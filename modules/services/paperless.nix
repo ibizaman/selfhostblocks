@@ -59,10 +59,8 @@ let
     mkIf
     lists
     mkOption
-    optionals
     ;
   inherit (lib.types)
-    attrs
     attrsOf
     bool
     enum
@@ -343,6 +341,20 @@ in
             description = "Require one factor (password) or two factor (device) authentication.";
             default = "one_factor";
           };
+        };
+      };
+    };
+
+    dashboard = lib.mkOption {
+      description = ''
+        Dashboard contract consumer
+      '';
+      default = { };
+      type = lib.types.submodule {
+        options = shb.contracts.dashboard.mkRequester {
+          externalUrl = "https://${cfg.subdomain}.${cfg.domain}";
+          externalUrlText = "https://\${config.shb.paperless.subdomain}.\${config.shb.paperless.domain}";
+          internalUrl = "http://127.0.0.1:${toString cfg.port}";
         };
       };
     };

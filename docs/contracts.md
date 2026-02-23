@@ -37,13 +37,17 @@ Provided contracts are:
 - [SSL generator contract](contracts-ssl.html) to generate SSL certificates.
   Two providers are implemented: self-signed and Let's Encrypt.
 - [Backup contract][] to backup directories.
-  One provider is implemented: [Restic][].
+  Two providers are implemented: [BorgBackup][] and [Restic][].
 - [Database Backup contract](contracts-databasebackup.html) to backup database dumps.
-  One provider is implemented: [Restic][].
-- [Secret contract](contracts-secret.html) to provide secrets that are deployed outside of the Nix store.
+  One provider is implemented: [BorgBackup][] and [Restic][].
+- [Contract for Secrets](contracts-secret.html) to provide secrets that are deployed outside of the Nix store.
   One provider is implemented: [SOPS][].
+- [Dashboard contract](contracts-dashboard.html) to show services in a nice user-facing dashboard.
+  One provider is implemented: [Homepage][].
 
 [backup contract]: contracts-backup.html
+[borgbackup]: blocks-borgbackup.html
+[homepage]: services-homepage.html
 [restic]: blocks-restic.html
 [sops]: blocks-sops.html
 
@@ -61,6 +65,10 @@ modules/contracts/databasebackup/docs/default.md
 
 ```{=include=} chapters html:into-file=//contracts-secret.html
 modules/contracts/secret/docs/default.md
+```
+
+```{=include=} chapters html:into-file=//contracts-dashboard.html
+modules/contracts/dashboard/docs/default.md
 ```
 
 ## Problem Statement {#contracts-why}

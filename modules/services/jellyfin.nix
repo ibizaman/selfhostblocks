@@ -317,6 +317,20 @@ in
         };
       };
     };
+
+    dashboard = lib.mkOption {
+      description = ''
+        Dashboard contract consumer
+      '';
+      default = { };
+      type = types.submodule {
+        options = shb.contracts.dashboard.mkRequester {
+          externalUrl = "https://${fqdn}";
+          externalUrlText = "https://\${config.shb.jellyfin.subdomain}.\${config.shb.jellyfin.domain}";
+          internalUrl = "http://127.0.0.1:${toString cfg.port}";
+        };
+      };
+    };
   };
 
   imports = [

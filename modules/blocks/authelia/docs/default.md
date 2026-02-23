@@ -12,7 +12,13 @@ as well as some extensive [troubleshooting](#blocks-authelia-troubleshooting) fe
 
 Note that forward authentication is configured with the [nginx block](blocks-nginx.html#blocks-nginx-usage-shbforwardauth).
 
-## Global Setup {#blocks-authelia-global-setup}
+## Features {#services-authelia-features}
+
+- Integration with the [dashboard contract](contracts-dashboard.html) for displaying user facing application in a dashboard. [Manual](#services-authelia-usage-applicationdashboard)
+
+## Usage {#services-authelia-usage}
+
+### Initial Configuration {#blocks-authelia-usage-configuration}
 
 Authelia cannot work without SSL and LDAP.
 So setting up the Authelia block requires to setup the [SSL block][] first
@@ -79,6 +85,22 @@ Use `nix run nixpkgs#openssl -- rand -hex 64` to generate them.
 Crucially, the `shb.authelia.secrets.ldapAdminPasswordFile` must be the same
 as the `shb.lldap.ldapUserPassword` defined for the [LLDAP block][].
 This is done using Sops' `key` option.
+
+### Application Dashboard {#services-authelia-usage-applicationdashboard}
+
+Integration with the [dashboard contract](contracts-dashboard.html) is provided
+by the [dashboard option](#blocks-authelia-options-shb.authelia.dashboard).
+
+For example using the [Homepage](services-homepage.html) service:
+
+```nix
+{
+  shb.homepage.servicesGroups.Admin.services.Authelia = {
+    sortOrder = 2;
+    dashboard.request = config.shb.authelia.dashboard.request;
+  };
+}
+```
 
 ## SHB OIDC integration {#blocks-authelia-shb-oidc}
 

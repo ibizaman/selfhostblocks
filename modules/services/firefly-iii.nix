@@ -10,6 +10,9 @@ let
 in
 {
   imports = [
+    ../blocks/nginx.nix
+    ../blocks/lldap.nix
+
     ../../lib/module.nix
   ];
 
@@ -290,6 +293,22 @@ in
             '';
             default = null;
           };
+        };
+      };
+    };
+
+    dashboard = lib.mkOption {
+      description = ''
+        Dashboard contract consumer
+      '';
+      default = { };
+      type = lib.types.submodule {
+        options = shb.contracts.dashboard.mkRequester {
+          externalUrl = "https://${cfg.subdomain}.${cfg.domain}";
+          externalUrlText = "https://\${config.shb.firefly-iii.subdomain}.\${config.shb.firefly-iii.domain}";
+          # This works thanks to the Personal Access Token.
+          internalUrl = "https://${cfg.subdomain}.${cfg.domain}";
+          internalUrlText = "https://\${config.shb.firefly-iii.subdomain}.\${config.shb.firefly-iii.domain}";
         };
       };
     };

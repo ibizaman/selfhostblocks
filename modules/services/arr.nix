@@ -392,6 +392,20 @@ let
                 };
               };
             };
+
+            dashboard = lib.mkOption {
+              description = ''
+                Dashboard contract consumer
+              '';
+              default = { };
+              type = lib.types.submodule {
+                options = shb.contracts.dashboard.mkRequester {
+                  externalUrl = "https://${cfg.${name}.subdomain}.${cfg.${name}.domain}";
+                  externalUrlText = "https://\${config.shb.arr.${name}.subdomain}.\${config.shb.arr.${name}.domain}";
+                  internalUrl = "http://127.0.0.1:${toString cfg.${name}.settings.Port}";
+                };
+              };
+            };
           }
           // (c.moreOptions or { });
         };
