@@ -2267,6 +2267,9 @@
   "services-arr-options-shb.arr.bazarr.enable": [
     "services-arr.html#services-arr-options-shb.arr.bazarr.enable"
   ],
+  "services-arr-options-shb.arr.bazarr.ldapUserGroup": [
+    "services-arr.html#services-arr-options-shb.arr.bazarr.ldapUserGroup"
+  ],
   "services-arr-options-shb.arr.bazarr.settings": [
     "services-arr.html#services-arr-options-shb.arr.bazarr.settings"
   ],
@@ -2341,6 +2344,9 @@
   ],
   "services-arr-options-shb.arr.jackett.enable": [
     "services-arr.html#services-arr-options-shb.arr.jackett.enable"
+  ],
+  "services-arr-options-shb.arr.jackett.ldapUserGroup": [
+    "services-arr.html#services-arr-options-shb.arr.jackett.ldapUserGroup"
   ],
   "services-arr-options-shb.arr.jackett.settings": [
     "services-arr.html#services-arr-options-shb.arr.jackett.settings"
@@ -2444,6 +2450,9 @@
   "services-arr-options-shb.arr.lidarr.enable": [
     "services-arr.html#services-arr-options-shb.arr.lidarr.enable"
   ],
+  "services-arr-options-shb.arr.lidarr.ldapUserGroup": [
+    "services-arr.html#services-arr-options-shb.arr.lidarr.ldapUserGroup"
+  ],
   "services-arr-options-shb.arr.lidarr.settings": [
     "services-arr.html#services-arr-options-shb.arr.lidarr.settings"
   ],
@@ -2518,6 +2527,9 @@
   ],
   "services-arr-options-shb.arr.radarr.enable": [
     "services-arr.html#services-arr-options-shb.arr.radarr.enable"
+  ],
+  "services-arr-options-shb.arr.radarr.ldapUserGroup": [
+    "services-arr.html#services-arr-options-shb.arr.radarr.ldapUserGroup"
   ],
   "services-arr-options-shb.arr.radarr.settings": [
     "services-arr.html#services-arr-options-shb.arr.radarr.settings"
@@ -2606,6 +2618,9 @@
   "services-arr-options-shb.arr.readarr.enable": [
     "services-arr.html#services-arr-options-shb.arr.readarr.enable"
   ],
+  "services-arr-options-shb.arr.readarr.ldapUserGroup": [
+    "services-arr.html#services-arr-options-shb.arr.readarr.ldapUserGroup"
+  ],
   "services-arr-options-shb.arr.readarr.settings": [
     "services-arr.html#services-arr-options-shb.arr.readarr.settings"
   ],
@@ -2680,6 +2695,9 @@
   ],
   "services-arr-options-shb.arr.sonarr.enable": [
     "services-arr.html#services-arr-options-shb.arr.sonarr.enable"
+  ],
+  "services-arr-options-shb.arr.sonarr.ldapUserGroup": [
+    "services-arr.html#services-arr-options-shb.arr.sonarr.ldapUserGroup"
   ],
   "services-arr-options-shb.arr.sonarr.settings": [
     "services-arr.html#services-arr-options-shb.arr.sonarr.settings"
