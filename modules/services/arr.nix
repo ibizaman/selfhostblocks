@@ -144,6 +144,10 @@ let
                 description = "Log level.";
                 default = "info";
               };
+              ApiKey = lib.mkOption {
+                type = shb.secretFileType;
+                description = "Path to api key secret file.";
+              };
               Port = lib.mkOption {
                 type = lib.types.port;
                 description = "Port on which bazarr listens to incoming requests.";
@@ -172,6 +176,10 @@ let
                 description = "Log level.";
                 default = "info";
               };
+              ApiKey = lib.mkOption {
+                type = shb.secretFileType;
+                description = "Path to api key secret file.";
+              };
               Port = lib.mkOption {
                 type = lib.types.port;
                 description = "Port on which readarr listens to incoming requests.";
@@ -198,6 +206,10 @@ let
                 ];
                 description = "Log level.";
                 default = "info";
+              };
+              ApiKey = lib.mkOption {
+                type = shb.secretFileType;
+                description = "Path to api key secret file.";
               };
               Port = lib.mkOption {
                 type = lib.types.port;
@@ -458,16 +470,20 @@ in
         users.users.bazarr = {
           extraGroups = [ "media" ];
         };
-        systemd.services.bazarr.preStart = shb.replaceSecrets {
-          userConfig =
-            cfg'.settings
-            // (lib.optionalAttrs isSSOEnabled {
-              AuthenticationRequired = "DisabledForLocalAddresses";
-              AuthenticationMethod = "External";
-            });
-          resultPath = "${cfg'.dataDir}/config.xml";
-          generator = apps.bazarr.settingsFormat.generate;
-        };
+        # This is actually not working. Bazarr uses a config file in dataDir/config/config.yaml
+        # which includes all configuration so we must somehow merge our declarative config with it.
+        # It's doable but will take some time. Help is welcomed.
+        #
+        # systemd.services.bazarr.preStart = shb.replaceSecrets {
+        #   userConfig =
+        #     cfg'.settings
+        #     // (lib.optionalAttrs isSSOEnabled {
+        #       AuthenticationRequired = "DisabledForLocalAddresses";
+        #       AuthenticationMethod = "External";
+        #     });
+        #   resultPath = "${cfg'.dataDir}/config.xml";
+        #   generator = apps.bazarr.settingsFormat.generate;
+        # };
 
         shb.nginx.vhosts = [ (vhosts { } cfg') ];
       }
