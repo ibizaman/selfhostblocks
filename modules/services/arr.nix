@@ -515,6 +515,7 @@ in
     (lib.mkIf cfg.readarr.enable (
       let
         cfg' = cfg.readarr;
+        isSSOEnabled = !(isNull cfg'.authEndpoint);
       in
       {
         services.readarr = {
@@ -525,7 +526,12 @@ in
           extraGroups = [ "media" ];
         };
         systemd.services.readarr.preStart = shb.replaceSecrets {
-          userConfig = cfg'.settings;
+          userConfig =
+            cfg'.settings
+            // (lib.optionalAttrs isSSOEnabled {
+              AuthenticationRequired = "DisabledForLocalAddresses";
+              AuthenticationMethod = "External";
+            });
           resultPath = "${cfg'.dataDir}/config.xml";
           generator = apps.readarr.settingsFormat.generate;
         };
