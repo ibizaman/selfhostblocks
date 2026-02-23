@@ -44,6 +44,7 @@ in
 {
   imports = [
     ../blocks/nginx.nix
+    ../blocks/lldap.nix
 
     (lib.mkRemovedOptionModule [ "shb" "forgejo" "adminPassword" ] ''
       Instead, define an admin user in shb.forgejo.users and give it the same password, like so:
@@ -470,6 +471,12 @@ in
     (mkIf (cfg.enable && cfg.ldap.enable != false) {
       systemd.services.forgejo.wants = cfg.ldap.waitForSystemdServices;
       systemd.services.forgejo.after = cfg.ldap.waitForSystemdServices;
+
+      shb.lldap.ensureGroups = {
+        ${cfg.ldap.adminGroup} = { };
+        ${cfg.ldap.userGroup} = { };
+      };
+
       # The delimiter in the `cut` command is a TAB!
       systemd.services.forgejo.preStart =
         let
