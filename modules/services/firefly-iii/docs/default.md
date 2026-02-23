@@ -12,7 +12,13 @@ It also sets up the Firefly-iii data importer service
 and nearly automatically links it to the Firefly-iii instance using a Personal Account Token.
 Instructions on how to do so is given in the next section.
 
+## Features {#services-firefly-iii-features}
+
+- Integration with the [dashboard contract](contracts-dashboard.html) for displaying user facing application in a dashboard. [Manual](#services-firefly-iii-usage-applicationdashboard)
+
 ## Usage {#services-firefly-iii-usage}
+
+### Initial Configuration {#services-firefly-iii-usage-configuration}
 
 The following snippet assumes a few blocks have been setup already:
 
@@ -125,6 +131,38 @@ shb.lldap.ensureUsers.USERNAME.groups = [
   config.shb.firefly-iii.ldap.userGroup
   config.shb.firefly-iii.ldap.adminGroup
 ];
+```
+
+### Application Dashboard {#services-firefly-iii-usage-applicationdashboard}
+
+Integration with the [dashboard contract](contracts-dashboard.html) is provided
+by the [dashboard option](#services-firefly-iii-options-shb.firefly-iii.dashboard).
+
+For example using the [Homepage](services-homepage.html) service:
+
+```nix
+{
+  shb.homepage.servicesGroups.Finance.services.Firefly-iii = {
+    sortOrder = 1;
+    dashboard.request = config.shb.firefly-iii.dashboard.request;
+    settings.widget.type = "firefly";
+  };
+}
+```
+
+The widget type needs to be set manually otherwise it is not displayed correctly.
+
+An API key can be set to show extra info:
+
+```nix
+{
+  shb.homepage.servicesGroups.Finance.services.Firefly-iii = {
+    apiKey.result = config.shb.sops.secret."firefly-iii/homepageApiKey".result;
+  };
+
+  shb.sops.secret."firefly-iii/homepageApiKey".request =
+    config.shb.homepage.servicesGroups.Finance.services.Firefly-iii.apiKey.request;
+}
 ```
 
 ## Database Inspection {#services-firefly-iii-database-inspection}

@@ -247,6 +247,21 @@ in
         };
       };
     };
+
+    dashboard = lib.mkOption {
+      description = ''
+        Dashboard contract consumer
+      '';
+      default = { };
+      type = lib.types.submodule {
+        options = shb.contracts.dashboard.mkRequester {
+          externalUrl = "https://${cfg.subdomain}.${cfg.domain}";
+          externalUrlText = "https://\${config.shb.monitoring.subdomain}.\${config.shb.monitoring.domain}";
+          internalUrl = "https://${cfg.subdomain}.${cfg.domain}";
+          internalUrlText = "https://\${config.shb.monitoring.subdomain}.\${config.shb.monitoring.domain}";
+        };
+      };
+    };
   };
 
   config = lib.mkMerge [

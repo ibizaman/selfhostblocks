@@ -152,6 +152,20 @@ in
       default = false;
       example = true;
     };
+
+    dashboard = lib.mkOption {
+      description = ''
+        Dashboard contract consumer
+      '';
+      default = { };
+      type = lib.types.submodule {
+        options = shb.contracts.dashboard.mkRequester {
+          externalUrl = "https://${cfg.subdomain}.${cfg.domain}";
+          externalUrlText = "https://\${config.shb.audiobookshelf.subdomain}.\${config.shb.audiobookshelf.domain}";
+          internalUrl = "http://127.0.0.1:${toString cfg.webPort}";
+        };
+      };
+    };
   };
 
   config = lib.mkIf cfg.enable (

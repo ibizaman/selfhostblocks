@@ -465,6 +465,20 @@ in
       default = false;
       example = true;
     };
+
+    dashboard = lib.mkOption {
+      description = ''
+        Dashboard contract consumer
+      '';
+      default = { };
+      type = lib.types.submodule {
+        options = shb.contracts.dashboard.mkRequester {
+          externalUrl = "https://${fqdn}";
+          externalUrlText = "https://\${config.shb.immich.subdomain}.\${config.shb.immich.domain}";
+          internalUrl = "http://127.0.0.1:${toString cfg.port}";
+        };
+      };
+    };
   };
 
   config = mkIf cfg.enable {

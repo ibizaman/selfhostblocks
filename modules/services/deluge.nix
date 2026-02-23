@@ -36,7 +36,7 @@ in
   options.shb.deluge = {
     enable = lib.mkEnableOption "the SHB Deluge service";
 
-    enableDashboard = lib.mkEnableOption "the Torrents SHB dashboard" // {
+    enableDashboard = lib.mkEnableOption "the Torrents SHB monitoring dashboard" // {
       default = true;
     };
 
@@ -300,6 +300,20 @@ in
       description = "Enable logging.";
       default = null;
       example = "info";
+    };
+
+    dashboard = lib.mkOption {
+      description = ''
+        Dashboard contract consumer
+      '';
+      default = { };
+      type = lib.types.submodule {
+        options = shb.contracts.dashboard.mkRequester {
+          externalUrl = "https://${fqdn}";
+          externalUrlText = "https://\${config.shb.deluge.subdomain}.\${config.shb.deluge.domain}";
+          internalUrl = "http://127.0.0.1:${toString cfg.webPort}";
+        };
+      };
     };
   };
 

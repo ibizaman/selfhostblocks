@@ -82,6 +82,21 @@ in
       default = [ "--forecast" ];
       type = lib.types.listOf lib.types.str;
     };
+
+    dashboard = lib.mkOption {
+      description = ''
+        Dashboard contract consumer
+      '';
+      default = { };
+      type = lib.types.submodule {
+        options = shb.contracts.dashboard.mkRequester {
+          externalUrl = "https://${cfg.subdomain}.${cfg.domain}";
+          externalUrlText = "https://\${config.shb.hledger.subdomain}.\${config.shb.hledger.domain}";
+          internalUrl = "http://127.0.0.1:${toString config.services.hledger-web.port}";
+          internalUrlText = "http://127.0.0.1:\${config.services.hledger-web.port}";
+        };
+      };
+    };
   };
 
   config = lib.mkIf cfg.enable {

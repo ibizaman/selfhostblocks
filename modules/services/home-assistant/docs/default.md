@@ -15,6 +15,7 @@ LDAP and SSO integration.
 - Access through [subdomain](#services-home-assistant-options-shb.home-assistant.subdomain) using reverse proxy. [Manual](#services-home-assistant-usage-configuration).
 - Access through [HTTPS](#services-home-assistant-options-shb.home-assistant.ssl) using reverse proxy. [Manual](#services-home-assistant-usage-configuration).
 - [Backup](#services-home-assistant-options-shb.home-assistant.backup) through the [backup block](./blocks-backup.html). [Manual](#services-home-assistant-usage-backup).
+- Integration with the [dashboard contract](contracts-dashboard.html) for displaying user facing application in a dashboard. [Manual](#services-home-assistant-usage-applicationdashboard)
 
 - Not yet: declarative SSO.
 
@@ -162,6 +163,57 @@ You can define any number of Restic instances to backup Home-Assistant multiple 
 
 You will then need to configure more options like the `repository`,
 as explained in the [restic](blocks-restic.html) documentation.
+
+### Application Dashboard {#services-home-assistant-usage-applicationdashboard}
+
+Integration with the [dashboard contract](contracts-dashboard.html) is provided
+by the [dashboard option](#services-home-assistant-options-shb.home-assistant.dashboard).
+
+For example using the [Homepage](services-homepage.html) service:
+
+```nix
+{
+  shb.homepage.servicesGroups.Home.services.HomeAssistant = {
+    sortOrder = 1;
+    dashboard.request = config.shb.home-assistant.dashboard.request;
+    settings.icon = "si-homeassistant";
+  };
+}
+```
+
+The icon needs to be set manually otherwise it is not displayed correctly.
+
+An API key can be set to show extra info:
+
+```nix
+{
+  shb.homepage.servicesGroups.Home.services.HomeAssistant = {
+    apiKey.result = config.shb.sops.secret."home-assistant/homepageApiKey".result;
+  };
+
+  shb.sops.secret."home-assistant/homepageApiKey".request =
+    config.shb.homepage.servicesGroups.Home.services.HomeAssistant.apiKey.request;
+}
+```
+
+Custom widgets can be set using Home Assistant templating:
+
+```nix
+{
+  shb.homepage.servicesGroups.Home.services.HomeAssistant = {
+    settings.widget.custom = [
+      {
+        template = "{{ states('sensor.power_consumption_power_consumption', with_unit=True, rounded=True) }}";
+        label = "energy now";
+      }
+      {
+        state = "sensor.power_consumption_daily_power_consumption";
+        label = "energy today";
+      }
+    ];
+  };
+}
+```
 
 ### Extra Components {#services-home-assistant-usage-extra-components}
 

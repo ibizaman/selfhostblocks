@@ -20,8 +20,11 @@ this one sets up, in a fully declarative manner:
 - Declarative [LDAP](#services-jellyfin-options-shb.jellyfin.ldap) configuration.
 - Declarative [SSO](#services-jellyfin-options-shb.jellyfin.sso) configuration.
 - [Backup](#services-jellyfin-options-shb.jellyfin.backup) through the [backup block](./blocks-backup.html). [Manual](#services-jellyfin-usage-backup).
+- Integration with the [dashboard contract](contracts-dashboard.html) for displaying user facing application in a dashboard. [Manual](#services-jellyfin-usage-applicationdashboard)
 
 ## Usage {#services-jellyfin-usage}
+
+### Initial Configuration {#services-jellyfin-usage-configuration}
 
 The following snippet assumes a few blocks have been setup already:
 
@@ -131,6 +134,35 @@ shb.lldap.ensureUsers.USERNAME.groups = [
   config.shb.jellyfin.ldap.userGroup
   config.shb.jellyfin.ldap.adminGroup
 ];
+```
+
+### Application Dashboard {#services-jellyfin-usage-applicationdashboard}
+
+Integration with the [dashboard contract](contracts-dashboard.html) is provided
+by the [dashboard option](#services-jellyfin-options-shb.jellyfin.dashboard).
+
+For example using the [Homepage](services-homepage.html) service:
+
+```nix
+{
+  shb.homepage.servicesGroups.Media.services.Jellyfin = {
+    sortOrder = 1;
+    dashboard.request = config.shb.jellyfin.dashboard.request;
+  };
+}
+```
+
+An API key can be set to show extra info:
+
+```nix
+{
+  shb.homepage.servicesGroups.Media.services.Jellyfin = {
+    apiKey.result = config.shb.sops.secret."jellyfin/homepageApiKey".result;
+  };
+
+  shb.sops.secret."jellyfin/homepageApiKey".request =
+    config.shb.homepage.servicesGroups.Media.services.Jellyfin.apiKey.request;
+}
 ```
 
 ## Debug {#services-jellyfin-debug}

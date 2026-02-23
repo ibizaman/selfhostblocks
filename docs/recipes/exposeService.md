@@ -128,3 +128,29 @@ shb.sops.secret."awesome" = {
   request = config.shb.restic.instances.awesome.settings.passphrase.request;
 };
 ```
+
+## Impermanence {#recipes-exposeService-impermanence}
+
+To save the data folder in an impermanence setup, add:
+
+```nix
+{
+  shb.zfs.datasets."safe/awesome".path = config.services.awesome.dataDir;
+}
+```
+
+## Application Dashboard {#recipes-exposeService-applicationdashboard}
+
+For example using the [Homepage](services-homepage.html) service:
+
+```nix
+{
+  shb.homepage.servicesGroups.MyServices.services.Awesome = {
+    sortOrder = 1;
+    dashboard.request = {
+      externalUrl = "https://${fqdn}";
+      internalUrl = "http://127.0.0.1:${toString listenPort}";
+    };
+  };
+}
+```

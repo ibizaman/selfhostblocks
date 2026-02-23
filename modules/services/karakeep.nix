@@ -175,6 +175,20 @@ in
         };
       };
     };
+
+    dashboard = lib.mkOption {
+      description = ''
+        Dashboard contract consumer
+      '';
+      default = { };
+      type = lib.types.submodule {
+        options = shb.contracts.dashboard.mkRequester {
+          externalUrl = "https://${cfg.subdomain}.${cfg.domain}";
+          externalUrlText = "https://\${config.shb.karakeep.subdomain}.\${config.shb.karakeep.domain}";
+          internalUrl = "http://127.0.0.1:${toString cfg.port}";
+        };
+      };
+    };
   };
 
   config = (

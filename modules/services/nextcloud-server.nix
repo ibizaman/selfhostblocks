@@ -694,6 +694,21 @@ in
         but Self Host Blocks assumes that it will not be the case for most users.
       '';
     };
+
+    dashboard = lib.mkOption {
+      description = ''
+        Dashboard contract consumer
+      '';
+      default = { };
+      type = lib.types.submodule {
+        options = shb.contracts.dashboard.mkRequester {
+          externalUrl = "https://${fqdn}";
+          externalUrlText = "https://\${config.shb.nextcloud.subdomain}.\${config.shb.nextcloud.domain}";
+          internalUrl = "https://${fqdn}";
+          internalUrlText = "https://\${config.shb.nextcloud.subdomain}.\${config.shb.nextcloud.domain}";
+        };
+      };
+    };
   };
 
   config = lib.mkMerge [

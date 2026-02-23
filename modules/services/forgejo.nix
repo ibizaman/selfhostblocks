@@ -408,6 +408,21 @@ in
       type = bool;
       default = false;
     };
+
+    dashboard = lib.mkOption {
+      description = ''
+        Dashboard contract consumer
+      '';
+      default = { };
+      type = lib.types.submodule {
+        options = shb.contracts.dashboard.mkRequester {
+          externalUrl = "https://${cfg.subdomain}.${cfg.domain}";
+          externalUrlText = "https://\${config.shb.forgejo.subdomain}.\${config.shb.forgejo.domain}";
+          internalUrl = "https://${cfg.subdomain}.${cfg.domain}";
+          internalUrlText = "https://\${config.shb.forgejo.subdomain}.\${config.shb.forgejo.domain}";
+        };
+      };
+    };
   };
 
   config = mkMerge [

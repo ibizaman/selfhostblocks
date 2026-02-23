@@ -333,6 +333,20 @@ in
       type = types.bool;
       default = true;
     };
+
+    dashboard = lib.mkOption {
+      description = ''
+        Dashboard contract consumer
+      '';
+      default = { };
+      type = lib.types.submodule {
+        options = shb.contracts.dashboard.mkRequester {
+          externalUrl = "https://${cfg.subdomain}.${cfg.domain}";
+          externalUrlText = "https://\${config.shb.lldap.subdomain}.\${config.shb.lldap.domain}";
+          internalUrl = "http://127.0.0.1:${toString cfg.webUIListenPort}";
+        };
+      };
+    };
   };
 
   config = lib.mkIf cfg.enable {

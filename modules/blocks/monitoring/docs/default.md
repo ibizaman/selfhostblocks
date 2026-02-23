@@ -17,8 +17,11 @@ This block sets up the monitoring stack for Self Host Blocks. It is composed of:
   - Registration is enabled through SSO.
 - Access through [subdomain](#blocks-monitoring-options-shb.monitoring.subdomain) using reverse proxy.
 - Access through [HTTPS](#blocks-monitoring-options-shb.monitoring.ssl) using reverse proxy.
+- Integration with the [dashboard contract](contracts-dashboard.html) for displaying user facing application in a dashboard. [Manual](#blocks-monitoring-usage-applicationdashboard)
 
 ## Usage {#blocks-monitoring-usage}
+
+### Initial Configuration {#blocks-monitoring-usage-configuration}
 
 The following snippet assumes a few blocks have been setup already:
 
@@ -108,6 +111,22 @@ You might for example want to update the metrics retention time with:
 
 ```nix
 services.prometheus.retentionTime = "60d";
+```
+
+### Application Dashboard {#blocks-monitoring-usage-applicationdashboard}
+
+Integration with the [dashboard contract](contracts-dashboard.html) is provided
+by the [dashboard option](#blocks-monitoring-options-shb.monitoring.dashboard).
+
+For example using the [Homepage](services-homepage.html) service:
+
+```nix
+{
+  shb.homepage.servicesGroups.Admin.services.Grafana = {
+    sortOrder = 10;
+    dashboard.request = config.shb.monitoring.dashboard.request;
+  };
+}
 ```
 
 ## Provisioning {#blocks-monitoring-provisioning}

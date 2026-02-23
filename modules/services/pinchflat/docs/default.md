@@ -9,7 +9,13 @@ this one sets up, in a fully declarative manner,
 LDAP and SSO integration
 and has a nicer option for secrets.
 
+## Features {#services-pinchflat-features}
+
+- Integration with the [dashboard contract](contracts-dashboard.html) for displaying user facing application in a dashboard. [Manual](#services-pinchflat-usage-applicationdashboard)
+
 ## Usage {#services-pinchflat-usage}
+
+### Initial Configuration {#services-pinchflat-usage-configuration}
 
 The following snippet assumes a few blocks have been setup already:
 
@@ -46,7 +52,7 @@ Secrets can be randomly generated with `nix run nixpkgs#openssl -- rand -hex 64`
 The [user](#services-pinchflat-options-shb.pinchflat.ldap.userGroup)
 LDAP group is created automatically.
 
-## Backup {#services-pinchflat-usage-backup}
+### Backup {#services-pinchflat-usage-backup}
 
 Backing up Pinchflat using the [Restic block](blocks-restic.html) is done like so:
 
@@ -62,6 +68,22 @@ shb.restic.instances."pinchflat" = {
 The name `"pinchflat"` in the `instances` can be anything.
 The `config.shb.pinchflat.backup` option provides what directories to backup.
 You can define any number of Restic instances to backup Pinchflat multiple times.
+
+### Application Dashboard {#services-pinchflat-usage-applicationdashboard}
+
+Integration with the [dashboard contract](contracts-dashboard.html) is provided
+by the [dashboard option](#services-pinchflat-options-shb.pinchflat.dashboard).
+
+For example using the [Homepage](services-homepage.html) service:
+
+```nix
+{
+  shb.homepage.servicesGroups.Media.services.Pinchflat = {
+    sortOrder = 2;
+    dashboard.request = config.shb.pinchflat.dashboard.request;
+  };
+}
+```
 
 ## Options Reference {#services-pinchflat-options}
 

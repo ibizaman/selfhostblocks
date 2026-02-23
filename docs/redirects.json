@@ -53,9 +53,6 @@
   "blocks-authelia-forward-auth": [
     "blocks-authelia.html#blocks-authelia-forward-auth"
   ],
-  "blocks-authelia-global-setup": [
-    "blocks-authelia.html#blocks-authelia-global-setup"
-  ],
   "blocks-authelia-oidc": [
     "blocks-authelia.html#blocks-authelia-oidc"
   ],
@@ -64,6 +61,21 @@
   ],
   "blocks-authelia-options-shb.authelia.autheliaUser": [
     "blocks-authelia.html#blocks-authelia-options-shb.authelia.autheliaUser"
+  ],
+  "blocks-authelia-options-shb.authelia.dashboard": [
+    "blocks-authelia.html#blocks-authelia-options-shb.authelia.dashboard"
+  ],
+  "blocks-authelia-options-shb.authelia.dashboard.request": [
+    "blocks-authelia.html#blocks-authelia-options-shb.authelia.dashboard.request"
+  ],
+  "blocks-authelia-options-shb.authelia.dashboard.request.externalUrl": [
+    "blocks-authelia.html#blocks-authelia-options-shb.authelia.dashboard.request.externalUrl"
+  ],
+  "blocks-authelia-options-shb.authelia.dashboard.request.internalUrl": [
+    "blocks-authelia.html#blocks-authelia-options-shb.authelia.dashboard.request.internalUrl"
+  ],
+  "blocks-authelia-options-shb.authelia.dashboard.result": [
+    "blocks-authelia.html#blocks-authelia-options-shb.authelia.dashboard.result"
   ],
   "blocks-authelia-options-shb.authelia.dcdomain": [
     "blocks-authelia.html#blocks-authelia-options-shb.authelia.dcdomain"
@@ -323,6 +335,9 @@
   "blocks-authelia-troubleshooting": [
     "blocks-authelia.html#blocks-authelia-troubleshooting"
   ],
+  "blocks-authelia-usage-configuration": [
+    "blocks-authelia.html#blocks-authelia-usage-configuration"
+  ],
   "blocks-borgbackup": [
     "blocks-borgbackup.html#blocks-borgbackup"
   ],
@@ -578,8 +593,8 @@
   "blocks-lldap": [
     "blocks-lldap.html#blocks-lldap"
   ],
-  "blocks-lldap-global-setup": [
-    "blocks-lldap.html#blocks-lldap-global-setup"
+  "blocks-lldap-features": [
+    "blocks-lldap.html#blocks-lldap-features"
   ],
   "blocks-lldap-manage-groups": [
     "blocks-lldap.html#blocks-lldap-manage-groups"
@@ -622,6 +637,21 @@
   ],
   "blocks-lldap-options-shb.lldap.backup.result.restoreScript": [
     "blocks-lldap.html#blocks-lldap-options-shb.lldap.backup.result.restoreScript"
+  ],
+  "blocks-lldap-options-shb.lldap.dashboard": [
+    "blocks-lldap.html#blocks-lldap-options-shb.lldap.dashboard"
+  ],
+  "blocks-lldap-options-shb.lldap.dashboard.request": [
+    "blocks-lldap.html#blocks-lldap-options-shb.lldap.dashboard.request"
+  ],
+  "blocks-lldap-options-shb.lldap.dashboard.request.externalUrl": [
+    "blocks-lldap.html#blocks-lldap-options-shb.lldap.dashboard.request.externalUrl"
+  ],
+  "blocks-lldap-options-shb.lldap.dashboard.request.internalUrl": [
+    "blocks-lldap.html#blocks-lldap-options-shb.lldap.dashboard.request.internalUrl"
+  ],
+  "blocks-lldap-options-shb.lldap.dashboard.result": [
+    "blocks-lldap.html#blocks-lldap-options-shb.lldap.dashboard.result"
   ],
   "blocks-lldap-options-shb.lldap.dcdomain": [
     "blocks-lldap.html#blocks-lldap-options-shb.lldap.dcdomain"
@@ -824,17 +854,26 @@
   "blocks-lldap-options-shb.lldap.webUIListenPort": [
     "blocks-lldap.html#blocks-lldap-options-shb.lldap.webUIListenPort"
   ],
-  "blocks-lldap-restrict-access-by-ip": [
-    "blocks-lldap.html#blocks-lldap-restrict-access-by-ip"
-  ],
-  "blocks-lldap-ssl": [
-    "blocks-lldap.html#blocks-lldap-ssl"
-  ],
   "blocks-lldap-tests": [
     "blocks-lldap.html#blocks-lldap-tests"
   ],
   "blocks-lldap-troubleshooting": [
     "blocks-lldap.html#blocks-lldap-troubleshooting"
+  ],
+  "blocks-lldap-usage": [
+    "blocks-lldap.html#blocks-lldap-usage"
+  ],
+  "blocks-lldap-usage-applicationdashboard": [
+    "blocks-lldap.html#blocks-lldap-usage-applicationdashboard"
+  ],
+  "blocks-lldap-usage-configuration": [
+    "blocks-lldap.html#blocks-lldap-usage-configuration"
+  ],
+  "blocks-lldap-usage-restrict-access-by-ip": [
+    "blocks-lldap.html#blocks-lldap-usage-restrict-access-by-ip"
+  ],
+  "blocks-lldap-usage-ssl": [
+    "blocks-lldap.html#blocks-lldap-usage-ssl"
   ],
   "blocks-mitmdump": [
     "blocks-mitmdump.html#blocks-mitmdump"
@@ -952,6 +991,21 @@
   ],
   "blocks-monitoring-options-shb.monitoring.contactPoints": [
     "blocks-monitoring.html#blocks-monitoring-options-shb.monitoring.contactPoints"
+  ],
+  "blocks-monitoring-options-shb.monitoring.dashboard": [
+    "blocks-monitoring.html#blocks-monitoring-options-shb.monitoring.dashboard"
+  ],
+  "blocks-monitoring-options-shb.monitoring.dashboard.request": [
+    "blocks-monitoring.html#blocks-monitoring-options-shb.monitoring.dashboard.request"
+  ],
+  "blocks-monitoring-options-shb.monitoring.dashboard.request.externalUrl": [
+    "blocks-monitoring.html#blocks-monitoring-options-shb.monitoring.dashboard.request.externalUrl"
+  ],
+  "blocks-monitoring-options-shb.monitoring.dashboard.request.internalUrl": [
+    "blocks-monitoring.html#blocks-monitoring-options-shb.monitoring.dashboard.request.internalUrl"
+  ],
+  "blocks-monitoring-options-shb.monitoring.dashboard.result": [
+    "blocks-monitoring.html#blocks-monitoring-options-shb.monitoring.dashboard.result"
   ],
   "blocks-monitoring-options-shb.monitoring.dashboards": [
     "blocks-monitoring.html#blocks-monitoring-options-shb.monitoring.dashboards"
@@ -1132,6 +1186,12 @@
   ],
   "blocks-monitoring-usage": [
     "blocks-monitoring.html#blocks-monitoring-usage"
+  ],
+  "blocks-monitoring-usage-applicationdashboard": [
+    "blocks-monitoring.html#blocks-monitoring-usage-applicationdashboard"
+  ],
+  "blocks-monitoring-usage-configuration": [
+    "blocks-monitoring.html#blocks-monitoring-usage-configuration"
   ],
   "blocks-monitoring-usage-log-optimization": [
     "blocks-monitoring.html#blocks-monitoring-usage-log-optimization"
@@ -1712,6 +1772,15 @@
   "contract-backup-usage": [
     "contracts-backup.html#contract-backup-usage"
   ],
+  "contract-dashboard": [
+    "contracts-dashboard.html#contract-dashboard"
+  ],
+  "contract-dashboard-options": [
+    "contracts-dashboard.html#contract-dashboard-options"
+  ],
+  "contract-dashboard-providers": [
+    "contracts-dashboard.html#contract-dashboard-providers"
+  ],
   "contract-databasebackup": [
     "contracts-databasebackup.html#contract-databasebackup"
   ],
@@ -1804,6 +1873,27 @@
   ],
   "contracts-concept": [
     "contracts.html#contracts-concept"
+  ],
+  "contracts-dashboard-options-shb.contracts.dashboard": [
+    "contracts-dashboard.html#contracts-dashboard-options-shb.contracts.dashboard"
+  ],
+  "contracts-dashboard-options-shb.contracts.dashboard.request": [
+    "contracts-dashboard.html#contracts-dashboard-options-shb.contracts.dashboard.request"
+  ],
+  "contracts-dashboard-options-shb.contracts.dashboard.request.externalUrl": [
+    "contracts-dashboard.html#contracts-dashboard-options-shb.contracts.dashboard.request.externalUrl"
+  ],
+  "contracts-dashboard-options-shb.contracts.dashboard.request.internalUrl": [
+    "contracts-dashboard.html#contracts-dashboard-options-shb.contracts.dashboard.request.internalUrl"
+  ],
+  "contracts-dashboard-options-shb.contracts.dashboard.result": [
+    "contracts-dashboard.html#contracts-dashboard-options-shb.contracts.dashboard.result"
+  ],
+  "contracts-dashboard-options-shb.contracts.dashboard.settings": [
+    "contracts-dashboard.html#contracts-dashboard-options-shb.contracts.dashboard.settings"
+  ],
+  "contracts-dashboard-usage": [
+    "contracts-dashboard.html#contracts-dashboard-usage"
   ],
   "contracts-databasebackup-options-shb.contracts.databasebackup": [
     "contracts-databasebackup.html#contracts-databasebackup-options-shb.contracts.databasebackup"
@@ -2156,11 +2246,17 @@
   "recipes-exposeService": [
     "recipes-exposeService.html#recipes-exposeService"
   ],
+  "recipes-exposeService-applicationdashboard": [
+    "recipes-exposeService.html#recipes-exposeService-applicationdashboard"
+  ],
   "recipes-exposeService-backup": [
     "recipes-exposeService.html#recipes-exposeService-backup"
   ],
   "recipes-exposeService-debug": [
     "recipes-exposeService.html#recipes-exposeService-debug"
+  ],
+  "recipes-exposeService-impermanence": [
+    "recipes-exposeService.html#recipes-exposeService-impermanence"
   ],
   "recipes-exposeService-ldap": [
     "recipes-exposeService.html#recipes-exposeService-ldap"
@@ -2216,6 +2312,9 @@
   "services-arr": [
     "services-arr.html#services-arr"
   ],
+  "services-arr-features": [
+    "services-arr.html#services-arr-features"
+  ],
   "services-arr-options": [
     "services-arr.html#services-arr-options"
   ],
@@ -2258,6 +2357,21 @@
   "services-arr-options-shb.arr.bazarr.backup.result.restoreScript": [
     "services-arr.html#services-arr-options-shb.arr.bazarr.backup.result.restoreScript"
   ],
+  "services-arr-options-shb.arr.bazarr.dashboard": [
+    "services-arr.html#services-arr-options-shb.arr.bazarr.dashboard"
+  ],
+  "services-arr-options-shb.arr.bazarr.dashboard.request": [
+    "services-arr.html#services-arr-options-shb.arr.bazarr.dashboard.request"
+  ],
+  "services-arr-options-shb.arr.bazarr.dashboard.request.externalUrl": [
+    "services-arr.html#services-arr-options-shb.arr.bazarr.dashboard.request.externalUrl"
+  ],
+  "services-arr-options-shb.arr.bazarr.dashboard.request.internalUrl": [
+    "services-arr.html#services-arr-options-shb.arr.bazarr.dashboard.request.internalUrl"
+  ],
+  "services-arr-options-shb.arr.bazarr.dashboard.result": [
+    "services-arr.html#services-arr-options-shb.arr.bazarr.dashboard.result"
+  ],
   "services-arr-options-shb.arr.bazarr.dataDir": [
     "services-arr.html#services-arr-options-shb.arr.bazarr.dataDir"
   ],
@@ -2272,6 +2386,15 @@
   ],
   "services-arr-options-shb.arr.bazarr.settings": [
     "services-arr.html#services-arr-options-shb.arr.bazarr.settings"
+  ],
+  "services-arr-options-shb.arr.bazarr.settings.ApiKey": [
+    "services-arr.html#services-arr-options-shb.arr.bazarr.settings.ApiKey"
+  ],
+  "services-arr-options-shb.arr.bazarr.settings.ApiKey.source": [
+    "services-arr.html#services-arr-options-shb.arr.bazarr.settings.ApiKey.source"
+  ],
+  "services-arr-options-shb.arr.bazarr.settings.ApiKey.transform": [
+    "services-arr.html#services-arr-options-shb.arr.bazarr.settings.ApiKey.transform"
   ],
   "services-arr-options-shb.arr.bazarr.settings.LogLevel": [
     "services-arr.html#services-arr-options-shb.arr.bazarr.settings.LogLevel"
@@ -2335,6 +2458,21 @@
   ],
   "services-arr-options-shb.arr.jackett.backup.result.restoreScript": [
     "services-arr.html#services-arr-options-shb.arr.jackett.backup.result.restoreScript"
+  ],
+  "services-arr-options-shb.arr.jackett.dashboard": [
+    "services-arr.html#services-arr-options-shb.arr.jackett.dashboard"
+  ],
+  "services-arr-options-shb.arr.jackett.dashboard.request": [
+    "services-arr.html#services-arr-options-shb.arr.jackett.dashboard.request"
+  ],
+  "services-arr-options-shb.arr.jackett.dashboard.request.externalUrl": [
+    "services-arr.html#services-arr-options-shb.arr.jackett.dashboard.request.externalUrl"
+  ],
+  "services-arr-options-shb.arr.jackett.dashboard.request.internalUrl": [
+    "services-arr.html#services-arr-options-shb.arr.jackett.dashboard.request.internalUrl"
+  ],
+  "services-arr-options-shb.arr.jackett.dashboard.result": [
+    "services-arr.html#services-arr-options-shb.arr.jackett.dashboard.result"
   ],
   "services-arr-options-shb.arr.jackett.dataDir": [
     "services-arr.html#services-arr-options-shb.arr.jackett.dataDir"
@@ -2441,6 +2579,21 @@
   "services-arr-options-shb.arr.lidarr.backup.result.restoreScript": [
     "services-arr.html#services-arr-options-shb.arr.lidarr.backup.result.restoreScript"
   ],
+  "services-arr-options-shb.arr.lidarr.dashboard": [
+    "services-arr.html#services-arr-options-shb.arr.lidarr.dashboard"
+  ],
+  "services-arr-options-shb.arr.lidarr.dashboard.request": [
+    "services-arr.html#services-arr-options-shb.arr.lidarr.dashboard.request"
+  ],
+  "services-arr-options-shb.arr.lidarr.dashboard.request.externalUrl": [
+    "services-arr.html#services-arr-options-shb.arr.lidarr.dashboard.request.externalUrl"
+  ],
+  "services-arr-options-shb.arr.lidarr.dashboard.request.internalUrl": [
+    "services-arr.html#services-arr-options-shb.arr.lidarr.dashboard.request.internalUrl"
+  ],
+  "services-arr-options-shb.arr.lidarr.dashboard.result": [
+    "services-arr.html#services-arr-options-shb.arr.lidarr.dashboard.result"
+  ],
   "services-arr-options-shb.arr.lidarr.dataDir": [
     "services-arr.html#services-arr-options-shb.arr.lidarr.dataDir"
   ],
@@ -2455,6 +2608,15 @@
   ],
   "services-arr-options-shb.arr.lidarr.settings": [
     "services-arr.html#services-arr-options-shb.arr.lidarr.settings"
+  ],
+  "services-arr-options-shb.arr.lidarr.settings.ApiKey": [
+    "services-arr.html#services-arr-options-shb.arr.lidarr.settings.ApiKey"
+  ],
+  "services-arr-options-shb.arr.lidarr.settings.ApiKey.source": [
+    "services-arr.html#services-arr-options-shb.arr.lidarr.settings.ApiKey.source"
+  ],
+  "services-arr-options-shb.arr.lidarr.settings.ApiKey.transform": [
+    "services-arr.html#services-arr-options-shb.arr.lidarr.settings.ApiKey.transform"
   ],
   "services-arr-options-shb.arr.lidarr.settings.LogLevel": [
     "services-arr.html#services-arr-options-shb.arr.lidarr.settings.LogLevel"
@@ -2518,6 +2680,21 @@
   ],
   "services-arr-options-shb.arr.radarr.backup.result.restoreScript": [
     "services-arr.html#services-arr-options-shb.arr.radarr.backup.result.restoreScript"
+  ],
+  "services-arr-options-shb.arr.radarr.dashboard": [
+    "services-arr.html#services-arr-options-shb.arr.radarr.dashboard"
+  ],
+  "services-arr-options-shb.arr.radarr.dashboard.request": [
+    "services-arr.html#services-arr-options-shb.arr.radarr.dashboard.request"
+  ],
+  "services-arr-options-shb.arr.radarr.dashboard.request.externalUrl": [
+    "services-arr.html#services-arr-options-shb.arr.radarr.dashboard.request.externalUrl"
+  ],
+  "services-arr-options-shb.arr.radarr.dashboard.request.internalUrl": [
+    "services-arr.html#services-arr-options-shb.arr.radarr.dashboard.request.internalUrl"
+  ],
+  "services-arr-options-shb.arr.radarr.dashboard.result": [
+    "services-arr.html#services-arr-options-shb.arr.radarr.dashboard.result"
   ],
   "services-arr-options-shb.arr.radarr.dataDir": [
     "services-arr.html#services-arr-options-shb.arr.radarr.dataDir"
@@ -2609,6 +2786,21 @@
   "services-arr-options-shb.arr.readarr.backup.result.restoreScript": [
     "services-arr.html#services-arr-options-shb.arr.readarr.backup.result.restoreScript"
   ],
+  "services-arr-options-shb.arr.readarr.dashboard": [
+    "services-arr.html#services-arr-options-shb.arr.readarr.dashboard"
+  ],
+  "services-arr-options-shb.arr.readarr.dashboard.request": [
+    "services-arr.html#services-arr-options-shb.arr.readarr.dashboard.request"
+  ],
+  "services-arr-options-shb.arr.readarr.dashboard.request.externalUrl": [
+    "services-arr.html#services-arr-options-shb.arr.readarr.dashboard.request.externalUrl"
+  ],
+  "services-arr-options-shb.arr.readarr.dashboard.request.internalUrl": [
+    "services-arr.html#services-arr-options-shb.arr.readarr.dashboard.request.internalUrl"
+  ],
+  "services-arr-options-shb.arr.readarr.dashboard.result": [
+    "services-arr.html#services-arr-options-shb.arr.readarr.dashboard.result"
+  ],
   "services-arr-options-shb.arr.readarr.dataDir": [
     "services-arr.html#services-arr-options-shb.arr.readarr.dataDir"
   ],
@@ -2623,6 +2815,15 @@
   ],
   "services-arr-options-shb.arr.readarr.settings": [
     "services-arr.html#services-arr-options-shb.arr.readarr.settings"
+  ],
+  "services-arr-options-shb.arr.readarr.settings.ApiKey": [
+    "services-arr.html#services-arr-options-shb.arr.readarr.settings.ApiKey"
+  ],
+  "services-arr-options-shb.arr.readarr.settings.ApiKey.source": [
+    "services-arr.html#services-arr-options-shb.arr.readarr.settings.ApiKey.source"
+  ],
+  "services-arr-options-shb.arr.readarr.settings.ApiKey.transform": [
+    "services-arr.html#services-arr-options-shb.arr.readarr.settings.ApiKey.transform"
   ],
   "services-arr-options-shb.arr.readarr.settings.LogLevel": [
     "services-arr.html#services-arr-options-shb.arr.readarr.settings.LogLevel"
@@ -2687,6 +2888,21 @@
   "services-arr-options-shb.arr.sonarr.backup.result.restoreScript": [
     "services-arr.html#services-arr-options-shb.arr.sonarr.backup.result.restoreScript"
   ],
+  "services-arr-options-shb.arr.sonarr.dashboard": [
+    "services-arr.html#services-arr-options-shb.arr.sonarr.dashboard"
+  ],
+  "services-arr-options-shb.arr.sonarr.dashboard.request": [
+    "services-arr.html#services-arr-options-shb.arr.sonarr.dashboard.request"
+  ],
+  "services-arr-options-shb.arr.sonarr.dashboard.request.externalUrl": [
+    "services-arr.html#services-arr-options-shb.arr.sonarr.dashboard.request.externalUrl"
+  ],
+  "services-arr-options-shb.arr.sonarr.dashboard.request.internalUrl": [
+    "services-arr.html#services-arr-options-shb.arr.sonarr.dashboard.request.internalUrl"
+  ],
+  "services-arr-options-shb.arr.sonarr.dashboard.result": [
+    "services-arr.html#services-arr-options-shb.arr.sonarr.dashboard.result"
+  ],
   "services-arr-options-shb.arr.sonarr.dataDir": [
     "services-arr.html#services-arr-options-shb.arr.sonarr.dataDir"
   ],
@@ -2735,6 +2951,30 @@
   "services-arr-options-shb.arr.sonarr.subdomain": [
     "services-arr.html#services-arr-options-shb.arr.sonarr.subdomain"
   ],
+  "services-arr-usage": [
+    "services-arr.html#services-arr-usage"
+  ],
+  "services-arr-usage-apikeys": [
+    "services-arr.html#services-arr-usage-apikeys"
+  ],
+  "services-arr-usage-applicationdashboard": [
+    "services-arr.html#services-arr-usage-applicationdashboard"
+  ],
+  "services-arr-usage-configuration": [
+    "services-arr.html#services-arr-usage-configuration"
+  ],
+  "services-arr-usage-jackett-proxy": [
+    "services-arr.html#services-arr-usage-jackett-proxy"
+  ],
+  "services-authelia-features": [
+    "blocks-authelia.html#services-authelia-features"
+  ],
+  "services-authelia-usage": [
+    "blocks-authelia.html#services-authelia-usage"
+  ],
+  "services-authelia-usage-applicationdashboard": [
+    "blocks-authelia.html#services-authelia-usage-applicationdashboard"
+  ],
   "services-category-ai": [
     "services.html#services-category-ai"
   ],
@@ -2743,6 +2983,9 @@
   ],
   "services-category-code": [
     "services.html#services-category-code"
+  ],
+  "services-category-dashboard": [
+    "services.html#services-category-dashboard"
   ],
   "services-category-documents": [
     "services.html#services-category-documents"
@@ -2770,6 +3013,9 @@
   ],
   "services-firefly-iii-declarative-ldap": [
     "services-firefly-iii.html#services-firefly-iii-declarative-ldap"
+  ],
+  "services-firefly-iii-features": [
+    "services-firefly-iii.html#services-firefly-iii-features"
   ],
   "services-firefly-iii-impermanence": [
     "services-firefly-iii.html#services-firefly-iii-impermanence"
@@ -2836,6 +3082,21 @@
   ],
   "services-firefly-iii-options-shb.firefly-iii.backup.result.restoreScript": [
     "services-firefly-iii.html#services-firefly-iii-options-shb.firefly-iii.backup.result.restoreScript"
+  ],
+  "services-firefly-iii-options-shb.firefly-iii.dashboard": [
+    "services-firefly-iii.html#services-firefly-iii-options-shb.firefly-iii.dashboard"
+  ],
+  "services-firefly-iii-options-shb.firefly-iii.dashboard.request": [
+    "services-firefly-iii.html#services-firefly-iii-options-shb.firefly-iii.dashboard.request"
+  ],
+  "services-firefly-iii-options-shb.firefly-iii.dashboard.request.externalUrl": [
+    "services-firefly-iii.html#services-firefly-iii-options-shb.firefly-iii.dashboard.request.externalUrl"
+  ],
+  "services-firefly-iii-options-shb.firefly-iii.dashboard.request.internalUrl": [
+    "services-firefly-iii.html#services-firefly-iii-options-shb.firefly-iii.dashboard.request.internalUrl"
+  ],
+  "services-firefly-iii-options-shb.firefly-iii.dashboard.result": [
+    "services-firefly-iii.html#services-firefly-iii-options-shb.firefly-iii.dashboard.result"
   ],
   "services-firefly-iii-options-shb.firefly-iii.dbPassword": [
     "services-firefly-iii.html#services-firefly-iii-options-shb.firefly-iii.dbPassword"
@@ -3050,8 +3311,14 @@
   "services-firefly-iii-usage": [
     "services-firefly-iii.html#services-firefly-iii-usage"
   ],
+  "services-firefly-iii-usage-applicationdashboard": [
+    "services-firefly-iii.html#services-firefly-iii-usage-applicationdashboard"
+  ],
   "services-firefly-iii-usage-backup": [
     "services-firefly-iii.html#services-firefly-iii-usage-backup"
+  ],
+  "services-firefly-iii-usage-configuration": [
+    "services-firefly-iii.html#services-firefly-iii-usage-configuration"
   ],
   "services-forgejo": [
     "services-forgejo.html#services-forgejo"
@@ -3097,6 +3364,21 @@
   ],
   "services-forgejo-options-shb.forgejo.backup.result.restoreScript": [
     "services-forgejo.html#services-forgejo-options-shb.forgejo.backup.result.restoreScript"
+  ],
+  "services-forgejo-options-shb.forgejo.dashboard": [
+    "services-forgejo.html#services-forgejo-options-shb.forgejo.dashboard"
+  ],
+  "services-forgejo-options-shb.forgejo.dashboard.request": [
+    "services-forgejo.html#services-forgejo-options-shb.forgejo.dashboard.request"
+  ],
+  "services-forgejo-options-shb.forgejo.dashboard.request.externalUrl": [
+    "services-forgejo.html#services-forgejo-options-shb.forgejo.dashboard.request.externalUrl"
+  ],
+  "services-forgejo-options-shb.forgejo.dashboard.request.internalUrl": [
+    "services-forgejo.html#services-forgejo-options-shb.forgejo.dashboard.request.internalUrl"
+  ],
+  "services-forgejo-options-shb.forgejo.dashboard.result": [
+    "services-forgejo.html#services-forgejo-options-shb.forgejo.dashboard.result"
   ],
   "services-forgejo-options-shb.forgejo.databasePassword": [
     "services-forgejo.html#services-forgejo-options-shb.forgejo.databasePassword"
@@ -3359,6 +3641,9 @@
   "services-forgejo-usage": [
     "services-forgejo.html#services-forgejo-usage"
   ],
+  "services-forgejo-usage-applicationdashboard": [
+    "services-forgejo.html#services-forgejo-usage-applicationdashboard"
+  ],
   "services-forgejo-usage-backup": [
     "services-forgejo.html#services-forgejo-usage-backup"
   ],
@@ -3446,6 +3731,21 @@
   "services-home-assistant-options-shb.home-assistant.config.unit_system": [
     "services-home-assistant.html#services-home-assistant-options-shb.home-assistant.config.unit_system"
   ],
+  "services-home-assistant-options-shb.home-assistant.dashboard": [
+    "services-home-assistant.html#services-home-assistant-options-shb.home-assistant.dashboard"
+  ],
+  "services-home-assistant-options-shb.home-assistant.dashboard.request": [
+    "services-home-assistant.html#services-home-assistant-options-shb.home-assistant.dashboard.request"
+  ],
+  "services-home-assistant-options-shb.home-assistant.dashboard.request.externalUrl": [
+    "services-home-assistant.html#services-home-assistant-options-shb.home-assistant.dashboard.request.externalUrl"
+  ],
+  "services-home-assistant-options-shb.home-assistant.dashboard.request.internalUrl": [
+    "services-home-assistant.html#services-home-assistant-options-shb.home-assistant.dashboard.request.internalUrl"
+  ],
+  "services-home-assistant-options-shb.home-assistant.dashboard.result": [
+    "services-home-assistant.html#services-home-assistant-options-shb.home-assistant.dashboard.result"
+  ],
   "services-home-assistant-options-shb.home-assistant.domain": [
     "services-home-assistant.html#services-home-assistant-options-shb.home-assistant.domain"
   ],
@@ -3503,6 +3803,9 @@
   "services-home-assistant-usage": [
     "services-home-assistant.html#services-home-assistant-usage"
   ],
+  "services-home-assistant-usage-applicationdashboard": [
+    "services-home-assistant.html#services-home-assistant-usage-applicationdashboard"
+  ],
   "services-home-assistant-usage-backup": [
     "services-home-assistant.html#services-home-assistant-usage-backup"
   ],
@@ -3538,6 +3841,132 @@
   ],
   "services-home-assistant-usage-voice": [
     "services-home-assistant.html#services-home-assistant-usage-voice"
+  ],
+  "services-homepage": [
+    "services-homepage.html#services-homepage"
+  ],
+  "services-homepage-features": [
+    "services-homepage.html#services-homepage-features"
+  ],
+  "services-homepage-options": [
+    "services-homepage.html#services-homepage-options"
+  ],
+  "services-homepage-options-shb.homepage.domain": [
+    "services-homepage.html#services-homepage-options-shb.homepage.domain"
+  ],
+  "services-homepage-options-shb.homepage.enable": [
+    "services-homepage.html#services-homepage-options-shb.homepage.enable"
+  ],
+  "services-homepage-options-shb.homepage.ldap": [
+    "services-homepage.html#services-homepage-options-shb.homepage.ldap"
+  ],
+  "services-homepage-options-shb.homepage.ldap.userGroup": [
+    "services-homepage.html#services-homepage-options-shb.homepage.ldap.userGroup"
+  ],
+  "services-homepage-options-shb.homepage.servicesGroups": [
+    "services-homepage.html#services-homepage-options-shb.homepage.servicesGroups"
+  ],
+  "services-homepage-options-shb.homepage.servicesGroups._name_.name": [
+    "services-homepage.html#services-homepage-options-shb.homepage.servicesGroups._name_.name"
+  ],
+  "services-homepage-options-shb.homepage.servicesGroups._name_.services": [
+    "services-homepage.html#services-homepage-options-shb.homepage.servicesGroups._name_.services"
+  ],
+  "services-homepage-options-shb.homepage.servicesGroups._name_.services._name_.apiKey": [
+    "services-homepage.html#services-homepage-options-shb.homepage.servicesGroups._name_.services._name_.apiKey"
+  ],
+  "services-homepage-options-shb.homepage.servicesGroups._name_.services._name_.apiKey.request": [
+    "services-homepage.html#services-homepage-options-shb.homepage.servicesGroups._name_.services._name_.apiKey.request"
+  ],
+  "services-homepage-options-shb.homepage.servicesGroups._name_.services._name_.apiKey.request.group": [
+    "services-homepage.html#services-homepage-options-shb.homepage.servicesGroups._name_.services._name_.apiKey.request.group"
+  ],
+  "services-homepage-options-shb.homepage.servicesGroups._name_.services._name_.apiKey.request.mode": [
+    "services-homepage.html#services-homepage-options-shb.homepage.servicesGroups._name_.services._name_.apiKey.request.mode"
+  ],
+  "services-homepage-options-shb.homepage.servicesGroups._name_.services._name_.apiKey.request.owner": [
+    "services-homepage.html#services-homepage-options-shb.homepage.servicesGroups._name_.services._name_.apiKey.request.owner"
+  ],
+  "services-homepage-options-shb.homepage.servicesGroups._name_.services._name_.apiKey.request.restartUnits": [
+    "services-homepage.html#services-homepage-options-shb.homepage.servicesGroups._name_.services._name_.apiKey.request.restartUnits"
+  ],
+  "services-homepage-options-shb.homepage.servicesGroups._name_.services._name_.apiKey.result": [
+    "services-homepage.html#services-homepage-options-shb.homepage.servicesGroups._name_.services._name_.apiKey.result"
+  ],
+  "services-homepage-options-shb.homepage.servicesGroups._name_.services._name_.apiKey.result.path": [
+    "services-homepage.html#services-homepage-options-shb.homepage.servicesGroups._name_.services._name_.apiKey.result.path"
+  ],
+  "services-homepage-options-shb.homepage.servicesGroups._name_.services._name_.dashboard": [
+    "services-homepage.html#services-homepage-options-shb.homepage.servicesGroups._name_.services._name_.dashboard"
+  ],
+  "services-homepage-options-shb.homepage.servicesGroups._name_.services._name_.dashboard.request": [
+    "services-homepage.html#services-homepage-options-shb.homepage.servicesGroups._name_.services._name_.dashboard.request"
+  ],
+  "services-homepage-options-shb.homepage.servicesGroups._name_.services._name_.dashboard.request.externalUrl": [
+    "services-homepage.html#services-homepage-options-shb.homepage.servicesGroups._name_.services._name_.dashboard.request.externalUrl"
+  ],
+  "services-homepage-options-shb.homepage.servicesGroups._name_.services._name_.dashboard.request.internalUrl": [
+    "services-homepage.html#services-homepage-options-shb.homepage.servicesGroups._name_.services._name_.dashboard.request.internalUrl"
+  ],
+  "services-homepage-options-shb.homepage.servicesGroups._name_.services._name_.dashboard.result": [
+    "services-homepage.html#services-homepage-options-shb.homepage.servicesGroups._name_.services._name_.dashboard.result"
+  ],
+  "services-homepage-options-shb.homepage.servicesGroups._name_.services._name_.name": [
+    "services-homepage.html#services-homepage-options-shb.homepage.servicesGroups._name_.services._name_.name"
+  ],
+  "services-homepage-options-shb.homepage.servicesGroups._name_.services._name_.settings": [
+    "services-homepage.html#services-homepage-options-shb.homepage.servicesGroups._name_.services._name_.settings"
+  ],
+  "services-homepage-options-shb.homepage.servicesGroups._name_.services._name_.sortOrder": [
+    "services-homepage.html#services-homepage-options-shb.homepage.servicesGroups._name_.services._name_.sortOrder"
+  ],
+  "services-homepage-options-shb.homepage.servicesGroups._name_.sortOrder": [
+    "services-homepage.html#services-homepage-options-shb.homepage.servicesGroups._name_.sortOrder"
+  ],
+  "services-homepage-options-shb.homepage.ssl": [
+    "services-homepage.html#services-homepage-options-shb.homepage.ssl"
+  ],
+  "services-homepage-options-shb.homepage.ssl.paths": [
+    "services-homepage.html#services-homepage-options-shb.homepage.ssl.paths"
+  ],
+  "services-homepage-options-shb.homepage.ssl.paths.cert": [
+    "services-homepage.html#services-homepage-options-shb.homepage.ssl.paths.cert"
+  ],
+  "services-homepage-options-shb.homepage.ssl.paths.key": [
+    "services-homepage.html#services-homepage-options-shb.homepage.ssl.paths.key"
+  ],
+  "services-homepage-options-shb.homepage.ssl.systemdService": [
+    "services-homepage.html#services-homepage-options-shb.homepage.ssl.systemdService"
+  ],
+  "services-homepage-options-shb.homepage.sso": [
+    "services-homepage.html#services-homepage-options-shb.homepage.sso"
+  ],
+  "services-homepage-options-shb.homepage.sso.authEndpoint": [
+    "services-homepage.html#services-homepage-options-shb.homepage.sso.authEndpoint"
+  ],
+  "services-homepage-options-shb.homepage.sso.authorization_policy": [
+    "services-homepage.html#services-homepage-options-shb.homepage.sso.authorization_policy"
+  ],
+  "services-homepage-options-shb.homepage.sso.enable": [
+    "services-homepage.html#services-homepage-options-shb.homepage.sso.enable"
+  ],
+  "services-homepage-options-shb.homepage.subdomain": [
+    "services-homepage.html#services-homepage-options-shb.homepage.subdomain"
+  ],
+  "services-homepage-usage": [
+    "services-homepage.html#services-homepage-usage"
+  ],
+  "services-homepage-usage-custom": [
+    "services-homepage.html#services-homepage-usage-custom"
+  ],
+  "services-homepage-usage-main": [
+    "services-homepage.html#services-homepage-usage-main"
+  ],
+  "services-homepage-usage-service": [
+    "services-homepage.html#services-homepage-usage-service"
+  ],
+  "services-homepage-usage-widget": [
+    "services-homepage.html#services-homepage-usage-widget"
   ],
   "services-jellyfin": [
     "services-jellyfin.html#services-jellyfin"
@@ -3622,6 +4051,21 @@
   ],
   "services-jellyfin-options-shb.jellyfin.backup.result.restoreScript": [
     "services-jellyfin.html#services-jellyfin-options-shb.jellyfin.backup.result.restoreScript"
+  ],
+  "services-jellyfin-options-shb.jellyfin.dashboard": [
+    "services-jellyfin.html#services-jellyfin-options-shb.jellyfin.dashboard"
+  ],
+  "services-jellyfin-options-shb.jellyfin.dashboard.request": [
+    "services-jellyfin.html#services-jellyfin-options-shb.jellyfin.dashboard.request"
+  ],
+  "services-jellyfin-options-shb.jellyfin.dashboard.request.externalUrl": [
+    "services-jellyfin.html#services-jellyfin-options-shb.jellyfin.dashboard.request.externalUrl"
+  ],
+  "services-jellyfin-options-shb.jellyfin.dashboard.request.internalUrl": [
+    "services-jellyfin.html#services-jellyfin-options-shb.jellyfin.dashboard.request.internalUrl"
+  ],
+  "services-jellyfin-options-shb.jellyfin.dashboard.result": [
+    "services-jellyfin.html#services-jellyfin-options-shb.jellyfin.dashboard.result"
   ],
   "services-jellyfin-options-shb.jellyfin.debug": [
     "services-jellyfin.html#services-jellyfin-options-shb.jellyfin.debug"
@@ -3776,8 +4220,14 @@
   "services-jellyfin-usage": [
     "services-jellyfin.html#services-jellyfin-usage"
   ],
+  "services-jellyfin-usage-applicationdashboard": [
+    "services-jellyfin.html#services-jellyfin-usage-applicationdashboard"
+  ],
   "services-jellyfin-usage-backup": [
     "services-jellyfin.html#services-jellyfin-usage-backup"
+  ],
+  "services-jellyfin-usage-configuration": [
+    "services-jellyfin.html#services-jellyfin-usage-configuration"
   ],
   "services-karakeep": [
     "services-karakeep.html#services-karakeep"
@@ -3823,6 +4273,21 @@
   ],
   "services-karakeep-options-shb.karakeep.backup.result.restoreScript": [
     "services-karakeep.html#services-karakeep-options-shb.karakeep.backup.result.restoreScript"
+  ],
+  "services-karakeep-options-shb.karakeep.dashboard": [
+    "services-karakeep.html#services-karakeep-options-shb.karakeep.dashboard"
+  ],
+  "services-karakeep-options-shb.karakeep.dashboard.request": [
+    "services-karakeep.html#services-karakeep-options-shb.karakeep.dashboard.request"
+  ],
+  "services-karakeep-options-shb.karakeep.dashboard.request.externalUrl": [
+    "services-karakeep.html#services-karakeep-options-shb.karakeep.dashboard.request.externalUrl"
+  ],
+  "services-karakeep-options-shb.karakeep.dashboard.request.internalUrl": [
+    "services-karakeep.html#services-karakeep-options-shb.karakeep.dashboard.request.internalUrl"
+  ],
+  "services-karakeep-options-shb.karakeep.dashboard.result": [
+    "services-karakeep.html#services-karakeep-options-shb.karakeep.dashboard.result"
   ],
   "services-karakeep-options-shb.karakeep.domain": [
     "services-karakeep.html#services-karakeep-options-shb.karakeep.domain"
@@ -3973,6 +4438,12 @@
   ],
   "services-karakeep-usage": [
     "services-karakeep.html#services-karakeep-usage"
+  ],
+  "services-karakeep-usage-applicationdashboard": [
+    "services-karakeep.html#services-karakeep-usage-applicationdashboard"
+  ],
+  "services-karakeep-usage-configuration": [
+    "services-karakeep.html#services-karakeep-usage-configuration"
   ],
   "services-mailserver": [
     "services-mailserver.html#services-mailserver"
@@ -4583,6 +5054,21 @@
   "services-nextcloudserver-options-shb.nextcloud.backup.result.restoreScript": [
     "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.backup.result.restoreScript"
   ],
+  "services-nextcloudserver-options-shb.nextcloud.dashboard": [
+    "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.dashboard"
+  ],
+  "services-nextcloudserver-options-shb.nextcloud.dashboard.request": [
+    "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.dashboard.request"
+  ],
+  "services-nextcloudserver-options-shb.nextcloud.dashboard.request.externalUrl": [
+    "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.dashboard.request.externalUrl"
+  ],
+  "services-nextcloudserver-options-shb.nextcloud.dashboard.request.internalUrl": [
+    "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.dashboard.request.internalUrl"
+  ],
+  "services-nextcloudserver-options-shb.nextcloud.dashboard.result": [
+    "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.dashboard.result"
+  ],
   "services-nextcloudserver-options-shb.nextcloud.dataDir": [
     "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.dataDir"
   ],
@@ -4666,6 +5152,9 @@
   ],
   "services-nextcloudserver-usage": [
     "services-nextcloud.html#services-nextcloudserver-usage"
+  ],
+  "services-nextcloudserver-usage-applicationdashboard": [
+    "services-nextcloud.html#services-nextcloudserver-usage-applicationdashboard"
   ],
   "services-nextcloudserver-usage-backup": [
     "services-nextcloud.html#services-nextcloudserver-usage-backup"
@@ -4753,6 +5242,21 @@
   ],
   "services-open-webui-options-shb.open-webui.backup.result.restoreScript": [
     "services-open-webui.html#services-open-webui-options-shb.open-webui.backup.result.restoreScript"
+  ],
+  "services-open-webui-options-shb.open-webui.dashboard": [
+    "services-open-webui.html#services-open-webui-options-shb.open-webui.dashboard"
+  ],
+  "services-open-webui-options-shb.open-webui.dashboard.request": [
+    "services-open-webui.html#services-open-webui-options-shb.open-webui.dashboard.request"
+  ],
+  "services-open-webui-options-shb.open-webui.dashboard.request.externalUrl": [
+    "services-open-webui.html#services-open-webui-options-shb.open-webui.dashboard.request.externalUrl"
+  ],
+  "services-open-webui-options-shb.open-webui.dashboard.request.internalUrl": [
+    "services-open-webui.html#services-open-webui-options-shb.open-webui.dashboard.request.internalUrl"
+  ],
+  "services-open-webui-options-shb.open-webui.dashboard.result": [
+    "services-open-webui.html#services-open-webui-options-shb.open-webui.dashboard.result"
   ],
   "services-open-webui-options-shb.open-webui.domain": [
     "services-open-webui.html#services-open-webui-options-shb.open-webui.domain"
@@ -4859,11 +5363,20 @@
   "services-open-webui-usage": [
     "services-open-webui.html#services-open-webui-usage"
   ],
+  "services-open-webui-usage-applicationdashboard": [
+    "services-open-webui.html#services-open-webui-usage-applicationdashboard"
+  ],
   "services-open-webui-usage-backup": [
     "services-open-webui.html#services-open-webui-usage-backup"
   ],
+  "services-open-webui-usage-configuration": [
+    "services-open-webui.html#services-open-webui-usage-configuration"
+  ],
   "services-pinchflat": [
     "services-pinchflat.html#services-pinchflat"
+  ],
+  "services-pinchflat-features": [
+    "services-pinchflat.html#services-pinchflat-features"
   ],
   "services-pinchflat-options": [
     "services-pinchflat.html#services-pinchflat-options"
@@ -4900,6 +5413,21 @@
   ],
   "services-pinchflat-options-shb.pinchflat.backup.result.restoreScript": [
     "services-pinchflat.html#services-pinchflat-options-shb.pinchflat.backup.result.restoreScript"
+  ],
+  "services-pinchflat-options-shb.pinchflat.dashboard": [
+    "services-pinchflat.html#services-pinchflat-options-shb.pinchflat.dashboard"
+  ],
+  "services-pinchflat-options-shb.pinchflat.dashboard.request": [
+    "services-pinchflat.html#services-pinchflat-options-shb.pinchflat.dashboard.request"
+  ],
+  "services-pinchflat-options-shb.pinchflat.dashboard.request.externalUrl": [
+    "services-pinchflat.html#services-pinchflat-options-shb.pinchflat.dashboard.request.externalUrl"
+  ],
+  "services-pinchflat-options-shb.pinchflat.dashboard.request.internalUrl": [
+    "services-pinchflat.html#services-pinchflat-options-shb.pinchflat.dashboard.request.internalUrl"
+  ],
+  "services-pinchflat-options-shb.pinchflat.dashboard.result": [
+    "services-pinchflat.html#services-pinchflat-options-shb.pinchflat.dashboard.result"
   ],
   "services-pinchflat-options-shb.pinchflat.domain": [
     "services-pinchflat.html#services-pinchflat-options-shb.pinchflat.domain"
@@ -4982,8 +5510,14 @@
   "services-pinchflat-usage": [
     "services-pinchflat.html#services-pinchflat-usage"
   ],
+  "services-pinchflat-usage-applicationdashboard": [
+    "services-pinchflat.html#services-pinchflat-usage-applicationdashboard"
+  ],
   "services-pinchflat-usage-backup": [
     "services-pinchflat.html#services-pinchflat-usage-backup"
+  ],
+  "services-pinchflat-usage-configuration": [
+    "services-pinchflat.html#services-pinchflat-usage-configuration"
   ],
   "services-vaultwarden": [
     "services-vaultwarden.html#services-vaultwarden"
@@ -5038,6 +5572,21 @@
   ],
   "services-vaultwarden-options-shb.vaultwarden.backup.result.restoreScript": [
     "services-vaultwarden.html#services-vaultwarden-options-shb.vaultwarden.backup.result.restoreScript"
+  ],
+  "services-vaultwarden-options-shb.vaultwarden.dashboard": [
+    "services-vaultwarden.html#services-vaultwarden-options-shb.vaultwarden.dashboard"
+  ],
+  "services-vaultwarden-options-shb.vaultwarden.dashboard.request": [
+    "services-vaultwarden.html#services-vaultwarden-options-shb.vaultwarden.dashboard.request"
+  ],
+  "services-vaultwarden-options-shb.vaultwarden.dashboard.request.externalUrl": [
+    "services-vaultwarden.html#services-vaultwarden-options-shb.vaultwarden.dashboard.request.externalUrl"
+  ],
+  "services-vaultwarden-options-shb.vaultwarden.dashboard.request.internalUrl": [
+    "services-vaultwarden.html#services-vaultwarden-options-shb.vaultwarden.dashboard.request.internalUrl"
+  ],
+  "services-vaultwarden-options-shb.vaultwarden.dashboard.result": [
+    "services-vaultwarden.html#services-vaultwarden-options-shb.vaultwarden.dashboard.result"
   ],
   "services-vaultwarden-options-shb.vaultwarden.databasePassword": [
     "services-vaultwarden.html#services-vaultwarden-options-shb.vaultwarden.databasePassword"
@@ -5149,6 +5698,9 @@
   ],
   "services-vaultwarden-usage": [
     "services-vaultwarden.html#services-vaultwarden-usage"
+  ],
+  "services-vaultwarden-usage-applicationdashboard": [
+    "services-vaultwarden.html#services-vaultwarden-usage-applicationdashboard"
   ],
   "services-vaultwarden-usage-configuration": [
     "services-vaultwarden.html#services-vaultwarden-usage-configuration"
