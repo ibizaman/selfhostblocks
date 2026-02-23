@@ -1,5 +1,5 @@
 <!-- Read these docs at https://shb.skarabox.com -->
-# Self-Host a DNS server making {#recipes-dnsServer}
+# Self-Host a DNS server {#recipes-dnsServer}
 
 This recipe will show how to setup [dnsmasq][] as a local DNS server
 that forwards all queries to your own domain `example.com` to a local IP - your server running SelfHostBlocks for example.
