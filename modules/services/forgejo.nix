@@ -47,13 +47,14 @@ in
 
     (lib.mkRemovedOptionModule [ "shb" "forgejo" "adminPassword" ] ''
       Instead, define an admin user in shb.forgejo.users and give it the same password, like so:
-            shb.forgejo.users = {
-              "forgejoadmin" = {
-                isAdmin = true;
-                email = "forgejoadmin@example.com";
-                password.result = <path/to/password>;
-              };
+
+          shb.forgejo.users = {
+            "forgejoadmin" = {
+              isAdmin = true;
+              email = "forgejoadmin@example.com";
+              password.result = <path/to/password>;
             };
+          };
     '')
   ];
 
@@ -233,6 +234,7 @@ in
 
     users = mkOption {
       description = "Users managed declaratively.";
+      default = { };
       type = attrsOf (submodule {
         options = {
           isAdmin = mkOption {
@@ -245,7 +247,7 @@ in
             description = ''
               Email of user.
 
-                          This is only set when the user is created, changing this later on will have no effect.
+              This is only set when the user is created, changing this later on will have no effect.
             '';
             type = str;
           };
@@ -331,7 +333,7 @@ in
         options = shb.contracts.backup.mkRequester {
           user = options.services.forgejo.user.value;
           sourceDirectories = [
-            options.services.forgejo.dump.backupDir.value
+            config.services.forgejo.dump.backupDir
           ]
           ++ optionals (cfg.repositoryRoot != null) [
             cfg.repositoryRoot
