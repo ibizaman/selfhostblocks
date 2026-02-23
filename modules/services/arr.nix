@@ -317,7 +317,7 @@ let
         {
           domain = "${c.subdomain}.${c.domain}";
           policy = "two_factor";
-          subject = [ "group:arr_user" ];
+          subject = [ "group:${c.ldapUserGroup}" ];
         }
       ];
     };
@@ -356,6 +356,16 @@ let
               default = null;
             };
 
+            ldapUserGroup = lib.mkOption {
+              description = ''
+                LDAP group a user must belong to be able to login.
+
+                Note that all users are admins too.
+              '';
+              type = lib.types.str;
+              default = "arr_user";
+            };
+
             authEndpoint = lib.mkOption {
               type = lib.types.nullOr lib.types.str;
               default = null;
@@ -392,6 +402,7 @@ in
   imports = [
     ../../lib/module.nix
     ../blocks/nginx.nix
+    ../blocks/lldap.nix
   ];
 
   options.shb.arr = lib.listToAttrs (lib.mapAttrsToList appOption apps);
@@ -422,6 +433,10 @@ in
         };
 
         shb.nginx.vhosts = [ (vhosts { } cfg') ];
+
+        shb.lldap.ensureGroups = {
+          ${cfg'.ldapUserGroup} = { };
+        };
       }
     ))
 
@@ -453,6 +468,10 @@ in
         };
 
         shb.nginx.vhosts = [ (vhosts { } cfg') ];
+
+        shb.lldap.ensureGroups = {
+          ${cfg'.ldapUserGroup} = { };
+        };
       }
     ))
 
@@ -486,6 +505,10 @@ in
         # };
 
         shb.nginx.vhosts = [ (vhosts { } cfg') ];
+
+        shb.lldap.ensureGroups = {
+          ${cfg'.ldapUserGroup} = { };
+        };
       }
     ))
 
@@ -508,6 +531,10 @@ in
         };
 
         shb.nginx.vhosts = [ (vhosts { } cfg') ];
+
+        shb.lldap.ensureGroups = {
+          ${cfg'.ldapUserGroup} = { };
+        };
       }
     ))
 
@@ -536,6 +563,10 @@ in
         };
 
         shb.nginx.vhosts = [ (vhosts { } cfg') ];
+
+        shb.lldap.ensureGroups = {
+          ${cfg'.ldapUserGroup} = { };
+        };
       }
     ))
 
@@ -563,6 +594,10 @@ in
             extraBypassResources = [ "^/dl.*" ];
           } cfg')
         ];
+
+        shb.lldap.ensureGroups = {
+          ${cfg'.ldapUserGroup} = { };
+        };
       }
     ))
   ];
