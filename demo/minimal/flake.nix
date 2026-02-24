@@ -181,6 +181,40 @@
                 )
               ];
             };
+
+          # Test with:
+          #   nix build .#nixosConfigurations.contractsDirect.config.system.build.toplevel
+          contractsDirect =
+            let
+              nixosSystem' = import "${selfhostblocks.inputs.nixpkgs}/nixos/lib/eval-config.nix";
+            in
+            nixosSystem' {
+              inherit system;
+              modules = [
+                filesystemModule
+                (import "${selfhostblocks}/lib/module.nix")
+                (
+                  {
+                    config,
+                    lib,
+                    shb,
+                    ...
+                  }:
+                  {
+                    options.myOption = lib.mkOption {
+                      # Using provided nixosSystem directly.
+                      # SHB's lib is available under `shb` thanks to the overlay.
+                      type = shb.secretFileType;
+                    };
+                    config = {
+                      myOption.source = "/a/path";
+                      # Use the option.
+                      environment.etc.myOption.text = config.myOption.source;
+                    };
+                  }
+                )
+              ];
+            };
         };
     };
 }
