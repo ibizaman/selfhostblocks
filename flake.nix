@@ -222,10 +222,14 @@
 
         packages.manualHtml-watch = pkgs.writeShellApplication {
           name = "manualHtml-watch";
+          runtimeInputs = [
+            pkgs.findutils
+            pkgs.entr
+          ];
           text = ''
             while sleep 1; do
               find . -name "*.nix" -o -name "*.md" \
-                | entr -d sh -c '(nix run --offline .#update-redirects && nix build --offline .#manualHtml || :)'
+                | entr -d sh -c '(nix run --offline .#update-redirects && nix build --offline .#manualHtml)' || :
             done
           '';
         };
