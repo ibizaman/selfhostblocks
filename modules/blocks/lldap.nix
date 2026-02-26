@@ -331,7 +331,7 @@ in
     enforceGroups = mkOption {
       description = "Remove groups not set declaratively.";
       type = types.bool;
-      default = true;
+      default = false;
     };
 
     dashboard = lib.mkOption {

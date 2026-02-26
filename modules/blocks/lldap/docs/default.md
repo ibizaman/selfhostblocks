@@ -83,7 +83,7 @@ Also, all other groups will be deleted and only the "family" group will remain.
 Note that the `lldap_admin`, `lldap_password_manager` and `lldap_strict_readonly` groups, which are internal to LLDAP, will always exist.
 
 If you want existing groups not declared in the `shb.lldap.ensureGroups` to be deleted,
-set [`shb.lldap.enforceGroups`](#blocks-lldap-options-shb.lldap.enforceGroups) to `false`.
+set [`shb.lldap.enforceGroups`](#blocks-lldap-options-shb.lldap.enforceGroups) to `true`.
 
 ```nix
 {
