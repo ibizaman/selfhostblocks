@@ -553,6 +553,13 @@ in
     # For Forgejo config: https://forgejo.org/docs/latest/admin/config-cheat-sheet
     # For cli info: https://docs.gitea.com/usage/command-line
     (mkIf (cfg.enable && cfg.sso.enable != false) {
+      assertions = [
+        {
+          assertion = cfg.ldap.enable == true;
+          message = "'shb.forgejo.ldap.enable' must be set to true and ldap configured when 'shb.forgejo.sso.enable' is true. Otherwise you will never be able to register new accounts.";
+        }
+      ];
+
       services.forgejo.settings = {
         oauth2 = {
           ENABLED = true;

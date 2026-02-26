@@ -330,6 +330,7 @@ in
           basic
           shb.test.certs
           https
+          ldap
           shb.test.ldap
           (shb.test.sso config.shb.certs.certs.selfsigned.n)
           sso
