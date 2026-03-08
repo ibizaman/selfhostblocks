@@ -1,8 +1,8 @@
 { lib, shb, ... }:
 let
   supportedVersion = [
-    31
     32
+    33
   ];
 
   adminUser = "root";

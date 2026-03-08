@@ -91,10 +91,10 @@ in
     version = lib.mkOption {
       description = "Nextcloud version to choose from.";
       type = lib.types.enum [
-        31
         32
+        33
       ];
-      default = 31;
+      default = 32;
     };
 
     dataDir = lib.mkOption {
