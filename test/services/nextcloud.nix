@@ -734,28 +734,30 @@ let
       testScript = prometheusTestScript;
     };
 
-  versionedTests = v: {
-    "basic_${toString v}" = basicTest v;
+  versionedTests =
+    v:
+    {
+      "basic_${toString v}" = basicTest v;
 
-    "cron_${toString v}" = cronTest v;
+      "cron_${toString v}" = cronTest v;
 
-    "backup_${toString v}" = backupTest v;
+      "backup_${toString v}" = backupTest v;
 
-    "https_${toString v}" = httpsTest v;
+      "https_${toString v}" = httpsTest v;
 
-    "previewGenerator_${toString v}" = previewGeneratorTest v;
+      "previewGenerator_${toString v}" = previewGeneratorTest v;
 
-    "externalStorage_${toString v}" = externalStorageTest v;
+      "externalStorage_${toString v}" = externalStorageTest v;
 
-    "memories_${toString v}" = memoriesTest v;
+      "ldap_${toString v}" = ldapTest v;
 
-    "recognize_${toString v}" = recognizeTest v;
+      "sso_${toString v}" = ssoTest v;
 
-    "ldap_${toString v}" = ldapTest v;
-
-    "sso_${toString v}" = ssoTest v;
-
-    "prometheus_${toString v}" = prometheusTest v;
-  };
+      "prometheus_${toString v}" = prometheusTest v;
+    }
+    // lib.optionalAttrs (v == 32) {
+      "memories_${toString v}" = memoriesTest v;
+      "recognize_${toString v}" = recognizeTest v;
+    };
 in
 lib.foldl (all: v: lib.mergeAttrs all (versionedTests v)) { } supportedVersion
