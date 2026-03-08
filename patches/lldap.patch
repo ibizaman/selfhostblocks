@@ -72,7 +72,8 @@ index 00000000000000..8b9a915b18f4d9
 +  };
 +}
 
-From 850339f833113255afca5c6038e9fafa5b59bbb8 Mon Sep 17 00:00:00 2001
+
+From 6666c710b77e53ea274af4c4dddcb9251b0ccf18 Mon Sep 17 00:00:00 2001
 From: ibizaman <ibizaman@tiserbox.com>
 Date: Wed, 13 Aug 2025 08:15:12 +0200
 Subject: [PATCH 2/2] lldap: add ensure options
@@ -83,13 +84,13 @@ Subject: [PATCH 2/2] lldap: add ensure options
  2 files changed, 498 insertions(+), 17 deletions(-)
 
 diff --git a/nixos/modules/services/databases/lldap.nix b/nixos/modules/services/databases/lldap.nix
-index e21deef91f3366..03f321996a3c99 100644
+index fe956c943281..6097f8d06216 100644
 --- a/nixos/modules/services/databases/lldap.nix
 +++ b/nixos/modules/services/databases/lldap.nix
-@@ -8,6 +8,84 @@
- let
-   cfg = config.services.lldap;
-   format = pkgs.formats.toml { };
+@@ -12,6 +12,84 @@ let
+   dbUser = "lldap";
+   localPostgresql = cfg.database.createLocally && cfg.database.type == "postgresql";
+   localMysql = cfg.database.createLocally && cfg.database.type == "mariadb";
 +
 +  inherit (lib) mkOption types;
 +
@@ -171,7 +172,7 @@ index e21deef91f3366..03f321996a3c99 100644
  in
  {
    options.services.lldap = with lib; {
-@@ -15,6 +93,8 @@ in
+@@ -19,6 +97,8 @@ in
  
      package = mkPackageOption pkgs "lldap" { };
  
@@ -180,7 +181,7 @@ index e21deef91f3366..03f321996a3c99 100644
      environment = mkOption {
        type = with types; attrsOf str;
        default = { };
-@@ -169,6 +249,198 @@ in
+@@ -203,6 +283,198 @@ in
          If that is okay for you and you want to silence the warning, set this option to `true`.
        '';
      };
@@ -379,7 +380,7 @@ index e21deef91f3366..03f321996a3c99 100644
    };
  
    config = lib.mkIf cfg.enable {
-@@ -185,25 +457,77 @@ in
+@@ -219,25 +491,77 @@ in
            (cfg.settings.ldap_user_pass_file or null) == null || (cfg.settings.ldap_user_pass or null) == null;
          message = "lldap: Both `ldap_user_pass` and `ldap_user_pass_file` settings should not be set at the same time. Set one to `null`.";
        }
@@ -426,13 +427,13 @@ index e21deef91f3366..03f321996a3c99 100644
      ];
  
      warnings =
--      lib.optionals (cfg.settings.ldap_user_pass or null != null) [
+-      lib.optionals ((cfg.settings.ldap_user_pass or null) != null) [
 +      (lib.optionals (cfg.ensureAdminPassword != null) [
 +        ''
 +          lldap: Unsecure option `ensureAdminPassword` is used. Prefer `ensureAdminPasswordFile` instead.
 +        ''
 +      ])
-+      ++ (lib.optionals (cfg.settings.ldap_user_pass or null != null) [
++      ++ (lib.optionals ((cfg.settings.ldap_user_pass or null) != null) [
          ''
            lldap: Unsecure `ldap_user_pass` setting is used. Prefer `ldap_user_pass_file` instead.
          ''
@@ -468,11 +469,11 @@ index e21deef91f3366..03f321996a3c99 100644
 +        ''
 +      ]);
  
-     systemd.services.lldap = {
-       description = "Lightweight LDAP server (lldap)";
-@@ -226,6 +550,28 @@ in
+     services.lldap.settings.database_url = lib.mkIf cfg.database.createLocally (
+       lib.mkDefault (
+@@ -279,6 +603,28 @@ in
          + ''
-           ${lib.getExe cfg.package} run --config-file ${format.generate "lldap_config.toml" cfg.settings}
+           exec ${lib.getExe cfg.package} run --config-file ${format.generate "lldap_config.toml" cfg.settings}
          '';
 +      postStart = ''
 +        export LLDAP_URL=http://127.0.0.1:${toString cfg.settings.http_port}
@@ -500,7 +501,7 @@ index e21deef91f3366..03f321996a3c99 100644
          StateDirectory = "lldap";
          StateDirectoryMode = "0750";
 diff --git a/nixos/tests/lldap.nix b/nixos/tests/lldap.nix
-index 8e38d4bdefa31d..47d32c7a2a7bbc 100644
+index 8e38d4bdefa3..47d32c7a2a7b 100644
 --- a/nixos/tests/lldap.nix
 +++ b/nixos/tests/lldap.nix
 @@ -1,6 +1,9 @@
@@ -697,3 +698,4 @@ index 8e38d4bdefa31d..47d32c7a2a7bbc 100644
 +              raise Exception(f'Unexpected value for attribute "mygroupattribute": {othergroup.get('mygroupattribute')}')
      '';
  }
+-- 
