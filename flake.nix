@@ -20,11 +20,10 @@
       nmdsrc,
       ...
     }:
-    flake-utils.lib.eachDefaultSystem (
-      system:
-      let
-        originPkgs = nixpkgs.legacyPackages.${system};
-        shbPatches = originPkgs.lib.optionals (system == "x86_64-linux") [
+    let
+      shbPatches =
+        system:
+        nixpkgs.legacyPackages.${system}.lib.optionals (system == "x86_64-linux") [
           # Get rid of lldap patches when https://github.com/NixOS/nixpkgs/pull/425923 is merged.
           ./patches/lldap.patch
           ./patches/0001-nixos-borgbackup-add-option-to-override-state-direct.patch
@@ -35,33 +34,42 @@
           #   hash = "sha256-hoLrqV7XtR1hP/m0rV9hjYUBtrSjay0qcPUYlKKuVWk=";
           # })
         ];
-        patchNixpkgs =
-          {
-            nixpkgs,
-            patches,
-            system,
-          }:
-          nixpkgs.legacyPackages.${system}.applyPatches {
-            name = "nixpkgs-patched";
-            src = nixpkgs;
-            inherit patches;
+
+      patchNixpkgs =
+        {
+          nixpkgs,
+          patches,
+          system,
+        }:
+        nixpkgs.legacyPackages.${system}.applyPatches {
+          name = "nixpkgs-patched";
+          src = nixpkgs;
+          inherit patches;
+        };
+      patchedNixpkgs =
+        system:
+        let
+          patched = patchNixpkgs {
+            nixpkgs = inputs.nixpkgs;
+            patches = shbPatches system;
+            inherit system;
           };
-        patchedNixpkgs =
-          let
-            patched = patchNixpkgs {
-              nixpkgs = inputs.nixpkgs;
-              patches = shbPatches;
-              inherit system;
-            };
-          in
-          patched
-          // {
-            nixosSystem = args: import "${patched}/nixos/lib/eval-config.nix" args;
-          };
-        pkgs = import patchedNixpkgs {
+        in
+        patched
+        // {
+          nixosSystem = args: import "${patched}/nixos/lib/eval-config.nix" args;
+        };
+      pkgs' =
+        system:
+        import (patchedNixpkgs system) {
           inherit system;
           config.allowUnfree = true;
         };
+    in
+    flake-utils.lib.eachDefaultSystem (
+      system:
+      let
+        pkgs = pkgs' system;
 
         # The contract dummies are used to show options for contracts.
         contractDummyModules = [
@@ -239,104 +247,10 @@
           contracts = pkgs.callPackage ./modules/contracts {
             shb = self.lib.${system};
           };
-          patches = shbPatches;
-          inherit patchNixpkgs patchedNixpkgs;
+          patches = shbPatches system;
+          inherit patchNixpkgs;
+          patchedNixpkgs = patchedNixpkgs system;
         };
-
-        checks =
-          let
-            inherit (pkgs.lib)
-              foldl
-              foldlAttrs
-              mergeAttrs
-              optionalAttrs
-              ;
-
-            importFiles =
-              files:
-              map (
-                m:
-                pkgs.callPackage m {
-                  shb = self.lib.${system};
-                }
-              ) files;
-
-            mergeTests = foldl mergeAttrs { };
-
-            flattenAttrs =
-              root: attrset:
-              foldlAttrs (
-                acc: name: value:
-                acc
-                // {
-                  "${root}_${name}" = value;
-                }
-              ) { } attrset;
-
-            vm_test =
-              name: path:
-              flattenAttrs "vm_${name}" (
-                removeAttrs
-                  (pkgs.callPackage path {
-                    shb = self.lib.${system};
-                  })
-                  [
-                    "override"
-                    "overrideDerivation"
-                  ]
-              );
-          in
-          (optionalAttrs (system == "x86_64-linux") (
-            {
-              modules = self.lib.${system}.check {
-                inherit pkgs;
-                tests = mergeTests (importFiles [
-                  ./test/modules/davfs.nix
-                  # TODO: Make this not use IFD
-                  ./test/modules/lib.nix
-                ]);
-              };
-
-              # TODO: Make this not use IFD
-              lib = nix-flake-tests.lib.check {
-                inherit pkgs;
-                tests = pkgs.callPackage ./test/modules/lib.nix {
-                  shb = self.lib.${system};
-                };
-              };
-            }
-            // (vm_test "arr" ./test/services/arr.nix)
-            // (vm_test "audiobookshelf" ./test/services/audiobookshelf.nix)
-            // (vm_test "deluge" ./test/services/deluge.nix)
-            // (vm_test "firefly-iii" ./test/services/firefly-iii.nix)
-            // (vm_test "forgejo" ./test/services/forgejo.nix)
-            // (vm_test "grocy" ./test/services/grocy.nix)
-            // (vm_test "hledger" ./test/services/hledger.nix)
-            // (vm_test "immich" ./test/services/immich.nix)
-            // (vm_test "homeassistant" ./test/services/home-assistant.nix)
-            // (vm_test "homepage" ./test/services/homepage.nix)
-            // (vm_test "jellyfin" ./test/services/jellyfin.nix)
-            // (vm_test "karakeep" ./test/services/karakeep.nix)
-            // (vm_test "nextcloud" ./test/services/nextcloud.nix)
-            // (vm_test "open-webui" ./test/services/open-webui.nix)
-            // (vm_test "paperless" ./test/services/paperless.nix)
-            // (vm_test "pinchflat" ./test/services/pinchflat.nix)
-            // (vm_test "vaultwarden" ./test/services/vaultwarden.nix)
-
-            // (vm_test "authelia" ./test/blocks/authelia.nix)
-            // (vm_test "borgbackup" ./test/blocks/borgbackup.nix)
-            // (vm_test "lldap" ./test/blocks/lldap.nix)
-            // (vm_test "lib" ./test/blocks/lib.nix)
-            // (vm_test "mitmdump" ./test/blocks/mitmdump.nix)
-            // (vm_test "monitoring" ./test/blocks/monitoring.nix)
-            // (vm_test "postgresql" ./test/blocks/postgresql.nix)
-            // (vm_test "restic" ./test/blocks/restic.nix)
-            // (vm_test "ssl" ./test/blocks/ssl.nix)
-
-            // (vm_test "contracts-backup" ./test/contracts/backup.nix)
-            // (vm_test "contracts-databasebackup" ./test/contracts/databasebackup.nix)
-            // (vm_test "contracts-secret" ./test/contracts/secret.nix)
-          ));
 
         # To see the traces, run:
         #   nix run .#playwright -- show-trace $(nix eval .#checks.x86_64-linux.vm_grocy_basic --raw)/trace/0.zip
@@ -391,6 +305,108 @@
             }
           }/bin/update-redirects";
         };
+      }
+    )
+    // flake-utils.lib.eachSystem [ "x86_64-linux" ] (
+      system:
+      let
+        pkgs = pkgs' system;
+      in
+      {
+        checks =
+          let
+            inherit (pkgs.lib)
+              foldl
+              foldlAttrs
+              mergeAttrs
+              ;
+
+            importFiles =
+              files:
+              map (
+                m:
+                pkgs.callPackage m {
+                  shb = self.lib.${system};
+                }
+              ) files;
+
+            mergeTests = foldl mergeAttrs { };
+
+            flattenAttrs =
+              root: attrset:
+              foldlAttrs (
+                acc: name: value:
+                acc
+                // {
+                  "${root}_${name}" = value;
+                }
+              ) { } attrset;
+
+            vm_test =
+              name: path:
+              flattenAttrs "vm_${name}" (
+                removeAttrs
+                  (pkgs.callPackage path {
+                    shb = self.lib.${system};
+                  })
+                  [
+                    "override"
+                    "overrideDerivation"
+                  ]
+              );
+          in
+          (
+            {
+              modules = self.lib.${system}.check {
+                inherit pkgs;
+                tests = mergeTests (importFiles [
+                  ./test/modules/davfs.nix
+                  # TODO: Make this not use IFD
+                  ./test/modules/lib.nix
+                ]);
+              };
+
+              # TODO: Make this not use IFD
+              lib = nix-flake-tests.lib.check {
+                inherit pkgs;
+                tests = pkgs.callPackage ./test/modules/lib.nix {
+                  shb = self.lib.${system};
+                };
+              };
+            }
+            // (vm_test "arr" ./test/services/arr.nix)
+            // (vm_test "audiobookshelf" ./test/services/audiobookshelf.nix)
+            // (vm_test "deluge" ./test/services/deluge.nix)
+            // (vm_test "firefly-iii" ./test/services/firefly-iii.nix)
+            // (vm_test "forgejo" ./test/services/forgejo.nix)
+            // (vm_test "grocy" ./test/services/grocy.nix)
+            // (vm_test "hledger" ./test/services/hledger.nix)
+            // (vm_test "immich" ./test/services/immich.nix)
+            // (vm_test "homeassistant" ./test/services/home-assistant.nix)
+            // (vm_test "homepage" ./test/services/homepage.nix)
+            // (vm_test "jellyfin" ./test/services/jellyfin.nix)
+            // (vm_test "karakeep" ./test/services/karakeep.nix)
+            // (vm_test "nextcloud" ./test/services/nextcloud.nix)
+            // (vm_test "open-webui" ./test/services/open-webui.nix)
+            // (vm_test "paperless" ./test/services/paperless.nix)
+            // (vm_test "pinchflat" ./test/services/pinchflat.nix)
+            // (vm_test "vaultwarden" ./test/services/vaultwarden.nix)
+
+            // (vm_test "authelia" ./test/blocks/authelia.nix)
+            // (vm_test "borgbackup" ./test/blocks/borgbackup.nix)
+            // (vm_test "lldap" ./test/blocks/lldap.nix)
+            // (vm_test "lib" ./test/blocks/lib.nix)
+            // (vm_test "mitmdump" ./test/blocks/mitmdump.nix)
+            // (vm_test "monitoring" ./test/blocks/monitoring.nix)
+            // (vm_test "postgresql" ./test/blocks/postgresql.nix)
+            // (vm_test "restic" ./test/blocks/restic.nix)
+            // (vm_test "ssl" ./test/blocks/ssl.nix)
+
+            // (vm_test "contracts-backup" ./test/contracts/backup.nix)
+            // (vm_test "contracts-databasebackup" ./test/contracts/databasebackup.nix)
+            // (vm_test "contracts-secret" ./test/contracts/secret.nix)
+          );
+
       }
     )
     // {
