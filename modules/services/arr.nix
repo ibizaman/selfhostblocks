@@ -460,6 +460,10 @@ in
         isSSOEnabled = !(isNull cfg'.authEndpoint);
       in
       {
+        systemd.tmpfiles.rules = [
+          "d ${cfg'.dataDir} 0700 ${config.services.sonarr.user} ${config.services.sonarr.user}"
+        ];
+
         services.nginx.enable = true;
 
         services.sonarr = {
