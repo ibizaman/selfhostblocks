@@ -1043,6 +1043,27 @@
   "blocks-monitoring-options-shb.monitoring.prometheusPort": [
     "blocks-monitoring.html#blocks-monitoring-options-shb.monitoring.prometheusPort"
   ],
+  "blocks-monitoring-options-shb.monitoring.scrutiny.dashboard": [
+    "blocks-monitoring.html#blocks-monitoring-options-shb.monitoring.scrutiny.dashboard"
+  ],
+  "blocks-monitoring-options-shb.monitoring.scrutiny.dashboard.request": [
+    "blocks-monitoring.html#blocks-monitoring-options-shb.monitoring.scrutiny.dashboard.request"
+  ],
+  "blocks-monitoring-options-shb.monitoring.scrutiny.dashboard.request.externalUrl": [
+    "blocks-monitoring.html#blocks-monitoring-options-shb.monitoring.scrutiny.dashboard.request.externalUrl"
+  ],
+  "blocks-monitoring-options-shb.monitoring.scrutiny.dashboard.request.internalUrl": [
+    "blocks-monitoring.html#blocks-monitoring-options-shb.monitoring.scrutiny.dashboard.request.internalUrl"
+  ],
+  "blocks-monitoring-options-shb.monitoring.scrutiny.dashboard.result": [
+    "blocks-monitoring.html#blocks-monitoring-options-shb.monitoring.scrutiny.dashboard.result"
+  ],
+  "blocks-monitoring-options-shb.monitoring.scrutiny.enable": [
+    "blocks-monitoring.html#blocks-monitoring-options-shb.monitoring.scrutiny.enable"
+  ],
+  "blocks-monitoring-options-shb.monitoring.scrutiny.subdomain": [
+    "blocks-monitoring.html#blocks-monitoring-options-shb.monitoring.scrutiny.subdomain"
+  ],
   "blocks-monitoring-options-shb.monitoring.secretKey": [
     "blocks-monitoring.html#blocks-monitoring-options-shb.monitoring.secretKey"
   ],
@@ -1195,6 +1216,9 @@
   ],
   "blocks-monitoring-usage-log-optimization": [
     "blocks-monitoring.html#blocks-monitoring-usage-log-optimization"
+  ],
+  "blocks-monitoring-usage-scrutiny": [
+    "blocks-monitoring.html#blocks-monitoring-usage-scrutiny"
   ],
   "blocks-monitoring-usage-smtp": [
     "blocks-monitoring.html#blocks-monitoring-usage-smtp"

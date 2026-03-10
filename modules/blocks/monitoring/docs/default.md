@@ -18,6 +18,7 @@ This block sets up the monitoring stack for Self Host Blocks. It is composed of:
 - Access through [subdomain](#blocks-monitoring-options-shb.monitoring.subdomain) using reverse proxy.
 - Access through [HTTPS](#blocks-monitoring-options-shb.monitoring.ssl) using reverse proxy.
 - Integration with the [dashboard contract](contracts-dashboard.html) for displaying user facing application in a dashboard. [Manual](#blocks-monitoring-usage-applicationdashboard)
+- Out of the box integration with [Scrutiny](https://github.com/AnalogJ/scrutiny) service for Hard Drives monitoring. [Manual](#blocks-monitoring-usage-scrutiny)
 
 ## Usage {#blocks-monitoring-usage}
 
@@ -125,6 +126,26 @@ For example using the [Homepage](services-homepage.html) service:
   shb.homepage.servicesGroups.Admin.services.Grafana = {
     sortOrder = 10;
     dashboard.request = config.shb.monitoring.dashboard.request;
+  };
+}
+```
+
+There is also an integration for the scrutiny service, see next section.
+
+### Scrutiny {#blocks-monitoring-usage-scrutiny}
+
+Integration with the [Scrutiny](https://github.com/AnalogJ/scrutiny) service is enabled by default and setup automatically.
+
+The web interface will be served under the [scrutiny.subdomain](#blocks-monitoring-options-shb.monitoring.scrutiny.subdomain) option.
+If you don't want the web interface, set the option to `null`.
+
+For integration with the [dashboard contract](contracts-dashboard.html):
+
+```nix
+{
+  shb.homepage.servicesGroups.Admin.services.Scrutiny = {
+    sortOrder = 11;
+    dashboard.request = config.shb.monitoring.scrutiny.dashboard.request;
   };
 }
 ```

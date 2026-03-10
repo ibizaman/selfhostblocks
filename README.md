@@ -153,7 +153,7 @@ SelfHostBlocks provides building blocks that take care of common self-hosting ne
 - Backup for all services.
 - Automatic creation of ZFS datasets per service.
 - LDAP and SSO integration for most services.
-- Monitoring with Grafana and Prometheus stack with provided dashboards.
+- Monitoring with Grafana and Prometheus stack with provided dashboards and integration with Scrutiny.
 - Automatic reverse proxy and certificate management for HTTPS.
 - VPN and proxy tunneling services.
 
@@ -208,7 +208,7 @@ which altogether provides a solid foundation for self-hosting services:
 - BorgBackup
 - Davfs
 - LDAP
-- Monitoring (Grafana - Prometheus - Loki stack)
+- Monitoring (Grafana - Prometheus - Loki stack + Scrutiny)
 - Nginx
 - PostgreSQL
 - Restic

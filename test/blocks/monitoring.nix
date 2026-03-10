@@ -32,6 +32,7 @@ let
       shb.monitoring = {
         enable = true;
         inherit (config.test) subdomain domain;
+        scrutiny.enable = false;
 
         contactPoints = [ "me@example.com" ];
 
@@ -139,6 +140,90 @@ let
       };
     };
 
+  scrutiny =
+    { lib, ... }:
+    {
+      shb.monitoring = {
+        scrutiny.enable = lib.mkForce true;
+      };
+    };
+
+  clientScrutinyLoginSso =
+    { config, ... }:
+    {
+      imports = [
+        shb.test.baseModule
+        shb.test.clientLoginModule
+      ];
+      test = {
+        subdomain = "scrutiny";
+      };
+
+      test.login = {
+        startUrl = "https://${config.test.fqdn}";
+        usernameFieldLabelRegex = "Username";
+        passwordFieldLabelRegex = "Password";
+        loginButtonNameRegex = "[sS]ign [iI]n";
+        testLoginWith = [
+          {
+            username = "alice";
+            password = "NotAlicePassword";
+            nextPageExpect = [
+              "expect(page.get_by_text(re.compile('[Ii]ncorrect'))).to_be_visible(timeout=10000)"
+            ];
+          }
+          {
+            username = "alice";
+            password = "AlicePassword";
+            nextPageExpect = [
+              ''
+                if page.get_by_role('button', name=re.compile('Accept')).count() > 0:
+                    page.get_by_role('button', name=re.compile('Accept')).click()
+              ''
+              "expect(page.get_by_text(re.compile('[Ii]ncorrect'))).not_to_be_visible(timeout=10000)"
+              "expect(page.get_by_role('button', name=re.compile('Sign In'))).not_to_be_visible()"
+              "expect(page.get_by_text('Temperature history for each device')).to_be_visible()"
+            ];
+          }
+          {
+            username = "bob";
+            password = "NotBobPassword";
+            nextPageExpect = [
+              "expect(page.get_by_text(re.compile('[Ii]ncorrect'))).to_be_visible(timeout=10000)"
+            ];
+          }
+          {
+            username = "bob";
+            password = "BobPassword";
+            nextPageExpect = [
+              ''
+                if page.get_by_role('button', name=re.compile('Accept')).count() > 0:
+                    page.get_by_role('button', name=re.compile('Accept')).click()
+              ''
+              "expect(page.get_by_text(re.compile('[Ii]ncorrect'))).not_to_be_visible(timeout=10000)"
+              "expect(page.get_by_role('button', name=re.compile('Sign In'))).not_to_be_visible()"
+              "expect(page.get_by_text('Temperature history for each device')).to_be_visible()"
+            ];
+          }
+          {
+            username = "charlie";
+            password = "NotCharliePassword";
+            nextPageExpect = [
+              "expect(page.get_by_text(re.compile('[Ii]ncorrect'))).to_be_visible(timeout=10000)"
+            ];
+          }
+          {
+            username = "charlie";
+            password = "CharliePassword";
+            nextPageExpect = [
+              "page.get_by_role('button', name=re.compile('Accept')).click()" # I don't understand why this is not needed. Maybe it keeps somewhere the previous token?
+              "expect(page.get_by_text(re.compile('[Ll]ogin failed'))).to_be_visible(timeout=10000)"
+            ];
+          }
+        ];
+      };
+    };
+
   sso =
     { config, ... }:
     {
@@ -214,6 +299,38 @@ in
       {
         imports = [
           basic
+          shb.test.certs
+          https
+          shb.test.ldap
+          ldap
+          (shb.test.sso config.shb.certs.certs.selfsigned.n)
+          sso
+        ];
+
+        # virtualisation.memorySize = 4096;
+      };
+
+    testScript = commonTestScript;
+  };
+
+  scrutiny_sso = shb.test.runNixOSTest {
+    name = "monitoring_scrutiny_sso";
+
+    node.pkgsReadOnly = false;
+
+    nodes.client = {
+      imports = [
+        clientScrutinyLoginSso
+      ];
+
+      virtualisation.memorySize = 4096;
+    };
+    nodes.server =
+      { config, pkgs, ... }:
+      {
+        imports = [
+          basic
+          scrutiny
           shb.test.certs
           https
           shb.test.ldap
