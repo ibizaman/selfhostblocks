@@ -27,8 +27,10 @@ let
 in
 {
   imports = [
+    ../../lib/module.nix
     ../blocks/authelia.nix
     ../blocks/lldap.nix
+    ../blocks/nginx.nix
   ];
 
   options.shb.monitoring = {
@@ -106,6 +108,35 @@ in
       type = lib.types.listOf lib.types.str;
       description = "List of email addresses to send alerts to";
       default = [ ];
+    };
+
+    scrutiny = {
+      enable = lib.mkEnableOption "scrutiny service" // {
+        default = true;
+      };
+      subdomain = lib.mkOption {
+        type = lib.types.nullOr lib.types.str;
+        description = ''
+          If a string, this will be the subdomain under which the scrutiny web interface will be servced.
+
+          If null, the web interface will not be served and only the prometheus metrics will be accessible.
+        '';
+        default = "scrutiny";
+      };
+      dashboard = lib.mkOption {
+        description = ''
+          Dashboard contract consumer
+        '';
+        default = { };
+        type = lib.types.submodule {
+          options = shb.contracts.dashboard.mkRequester {
+            externalUrl = "https://${cfg.scrutiny.subdomain}.${cfg.domain}";
+            externalUrlText = "https://\${config.shb.monitoring.scrutiny.subdomain}.\${config.shb.monitoring.domain}";
+            internalUrl = "http://127.0.0.1:${toString config.services.scrutiny.settings.web.listen.port}";
+            internalUrlText = "https://127.0.0.1.\${config.services.scrutiny.settings.web.listen.port}";
+          };
+        };
+      };
     };
 
     adminPassword = lib.mkOption {
@@ -847,6 +878,78 @@ in
           response_types = [ "code" ];
           token_endpoint_auth_method = "client_secret_basic";
         }
+      ];
+    })
+
+    (lib.mkIf (cfg.enable && cfg.scrutiny.enable) {
+      services.scrutiny = {
+        enable = true;
+
+        openFirewall = false;
+
+        # This src includes Prometheus metrics exporter.
+        package = pkgs.scrutiny.overrideAttrs ({
+          src = pkgs.fetchFromGitHub {
+            owner = "ibizaman";
+            repo = "scrutiny";
+            rev = "7ff9a0530d3e54dd1323c2de34f32be330bfb48c";
+            hash = "sha256-dE4HuZzaGZKBEkzXwBLQL3h+D55tJMm/EOTpr3wqGAI=";
+          };
+
+          vendorHash = "sha256-j3aGTeHNTr/FoVfFLwASkS96Ks0B/Ka9hPuLAKGZECs=";
+        });
+
+        settings = {
+          web = {
+            metrics.enabled = true; # Enables Prometheus exporter
+            listenHost = "127.0.0.1";
+          };
+        };
+
+        collector = {
+          enable = true;
+        };
+      };
+
+      services.prometheus.scrapeConfigs = [
+        {
+          job_name = "scrutiny";
+          metrics_path = "/api/metrics";
+          static_configs = [
+            {
+              targets = [ "127.0.0.1:${toString config.services.scrutiny.settings.web.listen.port}" ];
+              labels = commonLabels;
+            }
+          ];
+        }
+      ];
+
+      shb.monitoring.dashboards = [
+        ./monitoring/dashboards/Health.json
+      ];
+
+      shb.nginx.vhosts = lib.mkIf (cfg.scrutiny.subdomain != null) [
+        (
+          {
+            inherit (cfg) domain ssl;
+            subdomain = cfg.scrutiny.subdomain;
+
+            upstream = "http://127.0.0.1:${toString config.services.scrutiny.settings.web.listen.port}";
+            autheliaRules = lib.optionals (cfg.sso.enable) [
+              {
+                domain = "${cfg.subdomain}.${cfg.domain}";
+                policy = cfg.sso.authorization_policy;
+                subject = [
+                  "group:${cfg.ldap.userGroup}"
+                  "group:${cfg.ldap.adminGroup}"
+                ];
+              }
+            ];
+          }
+          // lib.optionalAttrs cfg.sso.enable {
+            inherit (cfg.sso) authEndpoint;
+          }
+        )
       ];
     })
   ];
