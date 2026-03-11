@@ -33,6 +33,8 @@ let
         enable = true;
         inherit (config.test) subdomain domain;
 
+        contactPoints = [ "me@example.com" ];
+
         grafanaPort = 3000;
         adminPassword.result = config.shb.hardcodedsecret."admin_password".result;
         secretKey.result = config.shb.hardcodedsecret."secret_key".result;

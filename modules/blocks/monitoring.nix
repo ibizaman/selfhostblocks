@@ -268,7 +268,7 @@ in
     (lib.mkIf cfg.enable {
       assertions = [
         {
-          assertion = (!(isNull cfg.smtp)) -> builtins.length cfg.contactPoints > 0;
+          assertion = builtins.length cfg.contactPoints > 0;
           message = "Must have at least one contact point for alerting";
         }
       ];
