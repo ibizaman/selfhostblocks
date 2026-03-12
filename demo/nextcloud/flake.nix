@@ -1,5 +1,5 @@
 {
-  description = "Home Assistant example for Self Host Blocks";
+  description = "Nextcloud example for Self Host Blocks";
 
   inputs = {
     selfhostblocks.url = "github:ibizaman/selfhostblocks";
