@@ -23,17 +23,19 @@
     let
       shbPatches =
         system:
-        nixpkgs.legacyPackages.${system}.lib.optionals (system == "x86_64-linux") [
-          # Get rid of lldap patches when https://github.com/NixOS/nixpkgs/pull/425923 is merged.
-          ./patches/lldap.patch
-          ./patches/0001-nixos-borgbackup-add-option-to-override-state-direct.patch
+        nixpkgs.legacyPackages.${system}.lib.optionals
+          (system == "x86_64-linux" || system == "aarch64-linux")
+          [
+            # Get rid of lldap patches when https://github.com/NixOS/nixpkgs/pull/425923 is merged.
+            ./patches/lldap.patch
+            ./patches/0001-nixos-borgbackup-add-option-to-override-state-direct.patch
 
-          # Leaving commented out as an example.
-          # (originPkgs.fetchpatch {
-          #   url = "https://github.com/NixOS/nixpkgs/pull/317107.patch";
-          #   hash = "sha256-hoLrqV7XtR1hP/m0rV9hjYUBtrSjay0qcPUYlKKuVWk=";
-          # })
-        ];
+            # Leaving commented out as an example.
+            # (originPkgs.fetchpatch {
+            #   url = "https://github.com/NixOS/nixpkgs/pull/317107.patch";
+            #   hash = "sha256-hoLrqV7XtR1hP/m0rV9hjYUBtrSjay0qcPUYlKKuVWk=";
+            # })
+          ];
 
       patchNixpkgs =
         {
