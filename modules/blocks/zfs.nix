@@ -43,7 +43,39 @@ in
 
             path = lib.mkOption {
               type = lib.types.str;
-              description = "Path this dataset should be mounted on.";
+              description = "Path this dataset should be mounted on. If the string 'none' is given, the dataset will not be mounted.";
+            };
+
+            mode = lib.mkOption {
+              type = lib.types.nullOr lib.types.str;
+              description = "If non null, unix mode to apply to the dataset root folder.";
+              default = null;
+              example = "ug=rwx,g+s";
+            };
+
+            owner = lib.mkOption {
+              type = lib.types.nullOr lib.types.str;
+              description = "If non null, unix user to apply to the dataset root folder.";
+              default = null;
+              example = "syncthing";
+            };
+
+            group = lib.mkOption {
+              type = lib.types.nullOr lib.types.str;
+              description = "If non null, unix group to apply to the dataset root folder.";
+              default = null;
+              example = "syncthing";
+            };
+
+            defaultACLs = lib.mkOption {
+              type = lib.types.nullOr lib.types.str;
+              description = ''
+                If non null, default ACL to set on the dataset root folder.
+
+                Executes "setfacl -d -m $acl $path"
+              '';
+              default = null;
+              example = "g:syncthing:rwX";
             };
           };
         }
@@ -75,8 +107,21 @@ in
 
           [ "$(${pkgs.zfs}/bin/zfs get -H mountpoint -o value ${dataset})" = ${cfg'.path} ] \
             || ${pkgs.zfs}/bin/zfs set \
-               mountpoint=${cfg'.path} \
+               mountpoint="${cfg'.path}" \
                ${dataset}
+
+        ''
+        + lib.optionalString (cfg'.path != "none" && cfg'.mode != null) ''
+          chmod "${cfg'.mode}" "${cfg'.path}"
+        ''
+        + lib.optionalString (cfg'.path != "none" && cfg'.owner != null) ''
+          chown "${cfg'.owner}" "${cfg'.path}"
+        ''
+        + lib.optionalString (cfg'.path != "none" && cfg'.group != null) ''
+          chown :"${cfg'.group}" "${cfg'.path}"
+        ''
+        + lib.optionalString (cfg'.path != "none" && cfg'.defaultACLs != null) ''
+          ${pkgs.acl}/bin/setfacl -d -m "${cfg'.defaultACLs}" "${cfg'.path}"
         '';
       }
     ) cfg.datasets;
