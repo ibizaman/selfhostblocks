@@ -4835,9 +4835,6 @@
   "services-nextcloudserver-options-shb.nextcloud.adminPass.result.path": [
     "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.adminPass.result.path"
   ],
-  "services-nextcloudserver-options-shb.nextcloud.adminUser": [
-    "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.adminUser"
-  ],
   "services-nextcloudserver-options-shb.nextcloud.alwaysApplyExpensiveMigrations": [
     "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.alwaysApplyExpensiveMigrations"
   ],
@@ -5116,6 +5113,9 @@
   ],
   "services-nextcloudserver-options-shb.nextcloud.extraApps": [
     "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.extraApps"
+  ],
+  "services-nextcloudserver-options-shb.nextcloud.initialAdminUsername": [
+    "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.initialAdminUsername"
   ],
   "services-nextcloudserver-options-shb.nextcloud.maxUploadSize": [
     "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.maxUploadSize"
