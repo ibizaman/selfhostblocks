@@ -681,6 +681,11 @@ in
         Upon starting the service, disable maintenance mode if set.
 
         This is useful if a deploy failed and you try to redeploy.
+
+        Note that even if the disabling of maintenance mode fails,
+        SHB will still allow the startup to continue
+        because there are valid reasons for maintenance mode
+        to not be able to be lifted, like for example this is a brand new installation.
       '';
     };
 
@@ -691,7 +696,10 @@ in
         Run `occ maintenance:repair --include-expensive` on service start.
 
         Larger instances should disable this and run the command at a convenient time
-        but Self Host Blocks assumes that it will not be the case for most users.
+        but SHB assumes that it will not be the case for most users.
+
+        Note that SHB will still allow the startup
+        even if the repair failed.
       '';
     };
 
@@ -1254,7 +1262,7 @@ in
     (lib.mkIf (cfg.enable && cfg.autoDisableMaintenanceModeOnStart) {
       systemd.services.nextcloud-setup.preStart = lib.mkBefore ''
         if [[ -e /var/lib/nextcloud/config/config.php ]]; then
-            ${occ} maintenance:mode --no-interaction --quiet --off
+            ${occ} maintenance:mode --no-interaction --quiet --off || true
         fi
       '';
     })
@@ -1262,7 +1270,7 @@ in
     (lib.mkIf (cfg.enable && cfg.alwaysApplyExpensiveMigrations) {
       systemd.services.nextcloud-setup.script = ''
         if [[ -e /var/lib/nextcloud/config/config.php ]]; then
-            ${occ} maintenance:repair --include-expensive
+            ${occ} maintenance:repair --include-expensive || true
         fi
       '';
     })
