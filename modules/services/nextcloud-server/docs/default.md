@@ -72,6 +72,7 @@ shb.nextcloud = {
   domain = "example.com";
   subdomain = "n";
   defaultPhoneRegion = "US";
+  initialAdminUsername = "root";
   adminPass.result = config.shb.sops.secret."nextcloud/adminpass".result;
 };
 
@@ -85,7 +86,7 @@ Note though that Nextcloud will not be very happy to be accessed through HTTP,
 it much prefers - rightfully - to be accessed through HTTPS.
 We will set that up in the next section.
 
-You can now login as the admin user using the username `admin`
+You can now login as the admin user using the username `root`
 and the password defined in `sops.secrets."nextcloud/adminpass"`.
 
 ### Nextcloud through HTTPS {#services-nextcloudserver-usage-https}

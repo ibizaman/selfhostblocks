@@ -30,6 +30,11 @@ in
     ../../lib/module.nix
     ../blocks/authelia.nix
     ../blocks/monitoring.nix
+
+    (lib.mkRenamedOptionModule
+      [ "shb" "nextcloud" "adminUser" ]
+      [ "shb" "nextcloud" "initialAdminUsername" ]
+    )
   ];
 
   options.shb.nextcloud = {
@@ -110,9 +115,9 @@ in
       example = lib.literalExpression ''["var.mount"]'';
     };
 
-    adminUser = lib.mkOption {
+    initialAdminUsername = lib.mkOption {
       type = lib.types.str;
-      description = "Username of the initial admin user.";
+      description = "Initial username of the admin user. Once it is set, it cannot be changed!";
       default = "root";
     };
 
@@ -758,7 +763,7 @@ in
 
         config = {
           dbtype = "pgsql";
-          adminuser = cfg.adminUser;
+          adminuser = cfg.initialAdminUsername;
           adminpassFile = cfg.adminPass.result.path;
         };
         database.createLocally = true;
