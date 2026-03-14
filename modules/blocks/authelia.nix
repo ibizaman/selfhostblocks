@@ -114,7 +114,7 @@ in
             };
           };
           storageEncryptionKey = lib.mkOption {
-            description = "Storage encryption key.";
+            description = "Storage encryption key. Must be >= 20 characters.";
             type = lib.types.submodule {
               options = shb.contracts.secret.mkRequester {
                 mode = "0400";
@@ -124,7 +124,7 @@ in
             };
           };
           identityProvidersOIDCHMACSecret = lib.mkOption {
-            description = "Identity provider OIDC HMAC secret.";
+            description = "Identity provider OIDC HMAC secret. Must be >= 40 characters.";
             type = lib.types.submodule {
               options = shb.contracts.secret.mkRequester {
                 mode = "0400";
