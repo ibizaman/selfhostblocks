@@ -99,7 +99,7 @@ in
     };
 
     ldapUserPassword = lib.mkOption {
-      description = "LDAP admin user secret.";
+      description = "LDAP admin user secret. Must be >= 8 characters.";
       type = lib.types.submodule {
         options = shb.contracts.secret.mkRequester {
           mode = "0440";
