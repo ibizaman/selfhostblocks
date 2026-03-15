@@ -399,21 +399,25 @@ in
               crl_signing_key
               EOF
 
-              mkdir -p "$(dirname -- "${caCfg.paths.key}")"
-              ${pkgs.gnutls}/bin/certtool  \
-                --generate-privkey         \
-                --key-type rsa             \
-                --sec-param High           \
-                --outfile ${caCfg.paths.key}
-              chmod 666 ${caCfg.paths.key}
+              keyfile="${caCfg.paths.key}"
+              keydir="$(dirname -- "$keyfile")"
+              mkdir -p "$keydir"
+              [ -f "$keyfile" ] || ${pkgs.gnutls}/bin/certtool \
+                --generate-privkey \
+                --key-type rsa \
+                --sec-param High \
+                --outfile "$keyfile"
+              chmod 666 "$keyfile"
 
-              mkdir -p "$(dirname -- "${caCfg.paths.cert}")"
-              ${pkgs.gnutls}/bin/certtool         \
-                --generate-self-signed            \
-                --load-privkey ${caCfg.paths.key} \
-                --template ca.template            \
-                --outfile ${caCfg.paths.cert}
-              chmod 666 ${caCfg.paths.cert}
+              certfile="${caCfg.paths.cert}"
+              certdir="$(dirname -- "$certfile")"
+              mkdir -p "$certdir"
+              [ -f "$certfile" ] || ${pkgs.gnutls}/bin/certtool \
+                --generate-self-signed \
+                --load-privkey "$keyfile" \
+                --template ca.template \
+                --outfile "$certfile"
+              chmod 666 "$certfile"
             '';
           }
         ) cfg.cas.selfsigned;
@@ -426,6 +430,8 @@ in
             serviceConfig.Type = "oneshot";
             script = ''
               mkdir -p /etc/ssl/certs
+
+              # This file is automatically idempotent since the source files used are idempotent.
 
               rm -f /etc/ssl/certs/ca-bundle.crt
               rm -f /etc/ssl/certs/ca-certificates.crt
@@ -456,8 +462,8 @@ in
               let
                 extraDnsNames = lib.strings.concatStringsSep "\n" (map (n: "dns_name = ${n}") certCfg.extraDomains);
                 chmod = cert: ''
-                  chown root:${certCfg.group} ${cert}
-                  chmod 640 ${cert}
+                  chown root:${certCfg.group} "${cert}"
+                  chmod 640 "${cert}"
                 '';
               in
               ''
@@ -474,23 +480,27 @@ in
                 signing_key
                 EOF
 
-                mkdir -p "$(dirname -- "${certCfg.paths.key}")"
-                ${pkgs.gnutls}/bin/certtool  \
-                  --generate-privkey         \
-                  --key-type rsa             \
-                  --sec-param High           \
-                  --outfile ${certCfg.paths.key}
-                ${chmod certCfg.paths.key}
+                keyfile="${certCfg.paths.key}"
+                keydir="$(dirname -- "$keyfile")"
+                mkdir -p "$keydir"
+                [ -f "$keyfile" ] || ${pkgs.gnutls}/bin/certtool \
+                  --generate-privkey \
+                  --key-type rsa \
+                  --sec-param High \
+                  --outfile "$keyfile"
+                ${chmod "$keyfile"}
 
-                mkdir -p "$(dirname -- "${certCfg.paths.cert}")"
-                ${pkgs.gnutls}/bin/certtool                      \
-                  --generate-certificate                         \
-                  --load-privkey ${certCfg.paths.key}            \
-                  --load-ca-privkey ${certCfg.ca.paths.key}      \
-                  --load-ca-certificate ${certCfg.ca.paths.cert} \
-                  --template server.template                     \
-                  --outfile ${certCfg.paths.cert}
-                ${chmod certCfg.paths.cert}
+                certfile="${certCfg.paths.cert}"
+                certdir="$(dirname -- "$certfile")"
+                mkdir -p "$certdir"
+                [ -f "$certfile" ] || ${pkgs.gnutls}/bin/certtool \
+                  --generate-certificate \
+                  --load-privkey "$keyfile" \
+                  --load-ca-privkey "${certCfg.ca.paths.key}" \
+                  --load-ca-certificate "${certCfg.ca.paths.cert}" \
+                  --template server.template \
+                  --outfile "$certfile"
+                ${chmod "$certfile"}
               '';
 
             postStart = lib.optionalString (certCfg.reloadServices != [ ]) ''
