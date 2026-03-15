@@ -187,8 +187,9 @@ This section corresponds to the `sso` section of the [Nextcloud
 manual](services-nextcloud.html#services-nextcloudserver-usage-oidc).
 ::::
 
-At this point, it is assumed you already deployed the `sso` demo. There is no host to add to
-`/etc/hosts` here. Instead, there is a `dnsmasq` server running in the VM and you must create a
+At this point, it is assumed you already deployed the `sso` demo. This time, we cannot simply edit local
+`/etc/hosts`, because Nextcloud SSO addon must be able to connect to Authelia by domain name
+(`auth.example.com`). Instead, there is a `dnsmasq` server running in the VM and you must create a
 SOCKS proxy to connect to it like so:
 
 ```bash
