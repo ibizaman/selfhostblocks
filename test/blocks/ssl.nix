@@ -172,6 +172,32 @@ in
             if perm != want_perm:
                 raise Exception('Unexpected perm for {}: wanted "{}", got: "{}"'.format(path, want_perm, perm))
 
+        with subtest("Certificates content seem correct"):
+            myca_key = server.succeed("cat {}".format("${myca.paths.key}")).strip();
+            myca_cert = server.succeed("cat {}".format("${myca.paths.cert}")).strip();
+            cert1_key = server.succeed("cat {}".format("${cert1.paths.key}")).strip();
+            cert1_cert = server.succeed("cat {}".format("${cert1.paths.cert}")).strip();
+            cert2_key = server.succeed("cat {}".format("${cert2.paths.key}")).strip();
+            cert2_cert = server.succeed("cat {}".format("${cert2.paths.cert}")).strip();
+            ca_bundle = server.succeed("cat /etc/ssl/certs/ca-bundle.crt").strip();
+
+            if myca_cert == "":
+              raise Exception("CA cert was empty")
+            if cert1_key == "":
+              raise Exception("Cert1 key was empty")
+            if cert1_cert == "":
+              raise Exception("Cert1 cert was empty")
+            if cert2_key == "":
+              raise Exception("Cert2 key was empty")
+            if cert2_cert == "":
+              raise Exception("Cert2 cert was empty")
+            if cert1_key == cert2_key:
+              raise Exception("Cert1 key and cert2 key are the same")
+            if cert1_cert == cert2_cert:
+              raise Exception("Cert1 cert and cert2 cert are the same")
+            if ca_bundle == "":
+              raise Exception("CA bundle was empty")
+
         with subtest("Certificate is trusted in curl"):
             resp = server.succeed("curl --fail-with-body -v https://example.com")
             if resp != "Top domain":
@@ -204,11 +230,52 @@ in
             assert_perm("${cert2.paths.key}", "640")
             assert_perm("${cert2.paths.cert}", "640")
 
+        with subtest("Certificates content seem correct"):
+            if cert1_key == "":
+              raise Exception("Cert1 key was empty")
+            if cert1_cert == "":
+              raise Exception("Cert1 cert was empty")
+            if cert2_key == "":
+              raise Exception("Cert2 key was empty")
+            if cert2_cert == "":
+              raise Exception("Cert2 cert was empty")
+            if cert1_key == cert2_key:
+              raise Exception("Cert1 key and cert2 key are the same")
+            if cert1_cert == cert2_cert:
+              raise Exception("Cert1 cert and cert2 cert are the same")
+
         with subtest("Fail if certificate is not in CA bundle"):
             server.fail("curl --cacert /etc/static/ssl/certs/ca-bundle.crt --fail-with-body -v https://example.com")
             server.fail("curl --cacert /etc/static/ssl/certs/ca-bundle.crt --fail-with-body -v https://subdomain.example.com")
             server.fail("curl --cacert /etc/static/ssl/certs/ca-certificates.crt --fail-with-body -v https://example.com")
             server.fail("curl --cacert /etc/static/ssl/certs/ca-certificates.crt --fail-with-body -v https://subdomain.example.com")
+
+        with subtest("Idempotency"):
+            server.succeed("systemctl restart shb-certs-ca-myca")
+            server.succeed("systemctl restart shb-certs-cert-selfsigned-cert1")
+            server.succeed("systemctl restart shb-certs-cert-selfsigned-cert2")
+
+            new_myca_key = server.succeed("cat {}".format("${myca.paths.key}")).strip();
+            new_myca_cert = server.succeed("cat {}".format("${myca.paths.cert}")).strip();
+            new_cert1_key = server.succeed("cat {}".format("${cert1.paths.key}")).strip();
+            new_cert1_cert = server.succeed("cat {}".format("${cert1.paths.cert}")).strip();
+            new_cert2_key = server.succeed("cat {}".format("${cert2.paths.key}")).strip();
+            new_cert2_cert = server.succeed("cat {}".format("${cert2.paths.cert}")).strip();
+            new_ca_bundle = server.succeed("cat /etc/ssl/certs/ca-bundle.crt").strip();
+            if new_myca_key != myca_key:
+                raise Exception("New CA key is different from old one.")
+            if new_myca_cert != myca_cert:
+                raise Exception("New CA cert is different from old one.")
+            if new_cert1_key != cert1_key:
+                raise Exception("New Cert1 key is different from old one.")
+            if new_cert1_cert != cert1_cert:
+                raise Exception("New Cert1 cert is different from old one.")
+            if new_cert2_key != cert2_key:
+                raise Exception("New Cert2 key is different from old one.")
+            if new_cert2_cert != cert2_cert:
+                raise Exception("New Cert2 cert is different from old one.")
+            if new_ca_bundle != ca_bundle:
+                raise Exception("New CA bundle is different from old one.")
       '';
   };
 }
