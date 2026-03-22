@@ -463,6 +463,9 @@ in
       services.prometheus = {
         enable = true;
         port = cfg.prometheusPort;
+        globalConfig = {
+          scrape_interval = "15s";
+        };
       };
 
       services.loki = {
