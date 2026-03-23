@@ -77,7 +77,7 @@ jobs:
             keep-outputs = true
             keep-failed = true
 
-      - uses: cachix/cachix-action@v16
+      - uses: cachix/cachix-action@v17
         with:
           name: selfhostblocks
           authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'
