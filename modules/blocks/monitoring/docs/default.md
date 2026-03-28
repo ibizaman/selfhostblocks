@@ -38,16 +38,16 @@ The following snippet assumes a few blocks have been setup already:
     subdomain = "grafana";
     inherit domain;
     contactPoints = [ "me@example.com" ];
-    adminPassword.result = config.sops.secrets."monitoring/admin_password".result;
-    secretKey.result = config.sops.secrets."monitoring/secret_key".result;
-  
-      sso = {
-        enable = true;
-        authEndpoint = "https://${config.shb.authelia.subdomain}.${config.shb.authelia.domain}";
-  
-        sharedSecret.result = config.shb.sops.secret.oidcSecret.result;
-        sharedSecretForAuthelia.result = config.shb.sops.secret.oidcAutheliaSecret.result;
-      };
+    adminPassword.result = config.shb.sops.secret."monitoring/admin_password".result;
+    secretKey.result = config.shb.sops.secret."monitoring/secret_key".result;
+
+    sso = {
+      enable = true;
+      authEndpoint = "https://${config.shb.authelia.subdomain}.${config.shb.authelia.domain}";
+
+      sharedSecret.result = config.shb.sops.secret."monitoring/oidcSecret".result;
+      sharedSecretForAuthelia.result = config.shb.sops.secret."monitoring/oidcAutheliaSecret".result;
+    };
   };
   
   shb.sops.secret."monitoring/admin_password".request = config.shb.monitoring.adminPassword.request;
