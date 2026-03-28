@@ -71,7 +71,7 @@ LDAP groups are created automatically.
 
 ### SMTP {#blocks-monitoring-usage-smtp}
 
-I recommend adding a STMP server configuration so you receive alerts by email:
+I recommend adding an SMTP server configuration so you receive alerts by email:
 
 ```nix
 shb.monitoring.smtp = {
