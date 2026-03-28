@@ -85,7 +85,7 @@ the snippet above becomes:
 
 ```nix
 shb.restic.instances."myservice" = {
-  request = config.myservice.backup;
+  request = config.myservice.backup.request;
 
   settings = {
     enable = true;
