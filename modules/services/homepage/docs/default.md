@@ -89,10 +89,12 @@ The names are arbitrary and you can order them as you wish through the `sortOrde
 
     widgets = [
       {
-        locale = "fr";
-        format = {
-          dateStyle = "long";
-          timeStyle = "long";
+        datetime = {
+          locale = "fr";
+          format = {
+            dateStyle = "long";
+            timeStyle = "long";
+          };
         };
       }
     ];
