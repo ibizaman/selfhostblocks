@@ -505,12 +505,6 @@ in
 
       # Database configuration defaults to Unix socket /run/postgresql
 
-      # Database configuration
-      database = {
-        # Disable pgvecto.rs, as it was deprecated before SHB integration
-        enableVectors = false;
-      };
-
       # Machine learning configuration
       machine-learning = mkIf cfg.machineLearning.enable {
         enable = true;
