@@ -259,6 +259,8 @@ in
 
     nodes.client = { };
 
-    testScript = inputs: (commonTestScript.access inputs) + (prometheusTestScript inputs);
+    # The inputs attrset must be named out explicitly
+    testScript =
+      inputs@{ nodes, ... }: (commonTestScript.access inputs) + (prometheusTestScript inputs);
   };
 }
