@@ -230,7 +230,6 @@ in
           package = pkgs.open-webui.overrideAttrs (finalAttrs: {
             patches = [
               ../../patches/0001-selfhostblocks-never-onboard.patch
-              ../../patches/0002-selfhostblocks-do-not-allow-unauthorized-roles.patch
             ];
           });
           environment = {
