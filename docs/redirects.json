@@ -4472,6 +4472,9 @@
   "services-mailserver": [
     "services-mailserver.html#services-mailserver"
   ],
+  "services-mailserver-applicationdashboard": [
+    "services-mailserver.html#services-mailserver-applicationdashboard"
+  ],
   "services-mailserver-certs": [
     "services-mailserver.html#services-mailserver-certs"
   ],
@@ -4600,6 +4603,21 @@
   ],
   "services-mailserver-options-shb.mailserver.backupDKIM.result.restoreScript": [
     "services-mailserver.html#services-mailserver-options-shb.mailserver.backupDKIM.result.restoreScript"
+  ],
+  "services-mailserver-options-shb.mailserver.dashboard": [
+    "services-mailserver.html#services-mailserver-options-shb.mailserver.dashboard"
+  ],
+  "services-mailserver-options-shb.mailserver.dashboard.request": [
+    "services-mailserver.html#services-mailserver-options-shb.mailserver.dashboard.request"
+  ],
+  "services-mailserver-options-shb.mailserver.dashboard.request.externalUrl": [
+    "services-mailserver.html#services-mailserver-options-shb.mailserver.dashboard.request.externalUrl"
+  ],
+  "services-mailserver-options-shb.mailserver.dashboard.request.internalUrl": [
+    "services-mailserver.html#services-mailserver-options-shb.mailserver.dashboard.request.internalUrl"
+  ],
+  "services-mailserver-options-shb.mailserver.dashboard.result": [
+    "services-mailserver.html#services-mailserver-options-shb.mailserver.dashboard.result"
   ],
   "services-mailserver-options-shb.mailserver.domain": [
     "services-mailserver.html#services-mailserver-options-shb.mailserver.domain"

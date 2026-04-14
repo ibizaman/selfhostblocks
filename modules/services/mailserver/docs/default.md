@@ -200,6 +200,22 @@ shb.lldap.ensureUsers.USERNAME.groups = [
 ];
 ```
 
+### Application Dashboard {#services-mailserver-applicationdashboard}
+
+Integration with the [dashboard contract](contracts-dashboard.html) is provided
+by the [dashboard option](#services-mailserver-options-shb.mailserver.dashboard).
+
+For example using the [Homepage](services-homepage.html) service:
+
+```nix
+{
+  shb.homepage.servicesGroups.Home.services.Mailserver = {
+    sortOrder = 1;
+    dashboard.request = config.shb.mailserver.dashboard.request;
+  };
+}
+```
+
 ## Debug {#services-mailserver-debug}
 
 Debugging this will be certainly necessary.

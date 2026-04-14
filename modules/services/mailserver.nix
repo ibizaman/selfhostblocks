@@ -398,6 +398,19 @@ in
         }
       '';
     };
+
+    dashboard = lib.mkOption {
+      description = ''
+        Dashboard contract consumer
+      '';
+      default = { };
+      type = lib.types.submodule {
+        options = shb.contracts.dashboard.mkRequester {
+          externalUrl = "https://${cfg.subdomain}.${cfg.domain}";
+          externalUrlText = "https://\${config.shb.mailserver.subdomain}.\${config.shb.mailserver.domain}";
+        };
+      };
+    };
   };
 
   config = lib.mkMerge [
