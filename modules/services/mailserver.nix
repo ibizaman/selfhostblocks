@@ -458,7 +458,7 @@ in
                   <outgoingServer type="smtp">
                     <hostname>${cfg.subdomain}.${cfg.domain}</hostname>
                     <port>465</port>
-                    <socketType>STARTTLS</socketType>
+                    <socketType>SSL</socketType>
                     <authentication>password-cleartext</authentication>
                     <username>%EMAILADDRESS%</username>
                   </outgoingServer>
