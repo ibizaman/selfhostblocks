@@ -477,6 +477,25 @@ in
               '';
             };
           };
+        virtualHosts."${cfg.subdomain}.${cfg.domain}" =
+          let
+            landingPage = pkgs.writeTextDir "index.html" ''
+              <html><body>
+              <p>Configuration of the mailserver is done automatically thanks to
+              <a href="https://${cfg.domain}/.well-known/autoconfig/mail/config-v1.1.xml">${cfg.domain}/.well-known/autoconfig/mail/config-v1.1.xml</a>.</p>
+              </body></html>
+            '';
+          in
+          {
+            forceSSL = true; # Redirect HTTP → HTTPS
+            root = "/var/www"; # Dummy root
+            locations."/" = {
+              alias = "${landingPage}/";
+              extraConfig = ''
+                default_type application/html;
+              '';
+            };
+          };
       };
     })
     (lib.mkIf (cfg.enable && cfg.adminUsername != null) {
