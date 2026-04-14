@@ -16,6 +16,31 @@ Template:
 
 # Upcoming Release
 
+## Breaking Changes
+
+- Bump of Nextcloud version to 32 and 33 because of nixpkgs bump. All provided apps are verified compatible with Nextcloud 33 thanks to new tests.
+
+## New Features
+
+- Added Immich Public Proxy service
+- Add homepage service with dashboard contract implemented by all services
+- Add scrutiny service.
+- ZFS module now supports setting permissions
+- Add landing page for mailserver and dashboard contract integration
+
+## Bug Fixes
+
+- Use configurable dataDir in arr stack
+- Forgejo ensures ldap is setup when sso is configured
+- Add nixpkgs patches on aarch64-linux too
+- Self-signed certs are now idempotent
+- Prometheus scrapes metrics at 15s interval instead of 1m
+
+## Other Changes
+
+- Arr stack declares ldap groups, declare ApiKeys and bypasses auth for readarr when sso is enabled
+- Forgejo declares ldap group
+
 # v0.7.3
 
 ## New Features
