@@ -16,6 +16,8 @@ Template:
 
 # Upcoming Release
 
+# v0.8.0
+
 ## Breaking Changes
 
 - Bump of Nextcloud version to 32 and 33 because of nixpkgs bump. All provided apps are verified compatible with Nextcloud 33 thanks to new tests.
