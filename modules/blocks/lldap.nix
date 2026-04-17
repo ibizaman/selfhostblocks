@@ -418,6 +418,41 @@ in
       ) cfg.ensureUsers;
     };
 
+    # Harden lldap following https://github.com/NixOS/nixpkgs/pull/487933
+    systemd.services.lldap.serviceConfig = {
+      RemoveIPC = true;
+      RestrictNamespaces = true;
+      RestrictRealtime = true;
+      RestrictSUIDSGID = true;
+      RestrictAddressFamilies = [
+        "AF_UNIX"
+        "AF_INET"
+        "AF_INET6"
+      ];
+      SystemCallFilter = [
+        "@system-service"
+        "~@privileged"
+        "~@resources"
+      ];
+      SystemCallArchitectures = "native";
+      CapabilityBoundingSet = "";
+      LockPersonality = true;
+      NoNewPrivileges = true;
+      PrivateTmp = true;
+      PrivateDevices = true;
+      ProtectClock = true;
+      ProtectControlGroups = true;
+      ProtectHome = true;
+      ProtectHostname = true;
+      ProtectKernelLogs = true;
+      ProtectKernelModules = true;
+      ProtectKernelTunables = true;
+      ProtectSystem = "strict";
+      ProtectProc = "invisible";
+      ProcSubset = "pid";
+      MemoryDenyWriteExecute = true;
+    };
+
     shb.mitmdump.instances."lldap-web" = lib.mkIf cfg.debug {
       listenPort = config.shb.lldap.webUIListenPort;
       upstreamPort = config.shb.lldap.webUIListenPort + 1;
