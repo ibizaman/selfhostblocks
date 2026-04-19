@@ -116,6 +116,7 @@
             "blocks/postgresql" = ./modules/blocks/postgresql.nix;
             "blocks/restic" = ./modules/blocks/restic.nix;
             "blocks/sops" = ./modules/blocks/sops.nix;
+            "blocks/zfs" = ./modules/blocks/zfs.nix;
             "services/arr" = ./modules/services/arr.nix;
             "services/firefly-iii" = ./modules/services/firefly-iii.nix;
             "services/forgejo" = [
@@ -403,6 +404,7 @@
             // (vm_test "postgresql" ./test/blocks/postgresql.nix)
             // (vm_test "restic" ./test/blocks/restic.nix)
             // (vm_test "ssl" ./test/blocks/ssl.nix)
+            // (vm_test "zfs" ./test/blocks/zfs.nix)
 
             // (vm_test "contracts-backup" ./test/contracts/backup.nix)
             // (vm_test "contracts-databasebackup" ./test/contracts/databasebackup.nix)

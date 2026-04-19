@@ -43,6 +43,12 @@ modules/blocks/postgresql/docs/default.md
 modules/blocks/sops/docs/default.md
 ```
 
+## Filesystem {#blocks-category-filesystem}
+
+```{=include=} chapters html:into-file=//blocks-zfs.html
+modules/blocks/zfs/docs/default.md
+```
+
 ## Network {#blocks-category-network}
 
 ```{=include=} chapters html:into-file=//blocks-ssl.html

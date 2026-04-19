@@ -587,6 +587,9 @@
   "blocks-category-database": [
     "blocks.html#blocks-category-database"
   ],
+  "blocks-category-filesystem": [
+    "blocks.html#blocks-category-filesystem"
+  ],
   "blocks-category-introspection": [
     "blocks.html#blocks-category-introspection"
   ],
@@ -1771,6 +1774,78 @@
   ],
   "blocks-ssl-options-shb.certs.systemdService": [
     "blocks-ssl.html#blocks-ssl-options-shb.certs.systemdService"
+  ],
+  "blocks-zfs": [
+    "blocks-zfs.html#blocks-zfs"
+  ],
+  "blocks-zfs-features": [
+    "blocks-zfs.html#blocks-zfs-features"
+  ],
+  "blocks-zfs-options": [
+    "blocks-zfs.html#blocks-zfs-options"
+  ],
+  "blocks-zfs-options-shb.zfs.pools": [
+    "blocks-zfs.html#blocks-zfs-options-shb.zfs.pools"
+  ],
+  "blocks-zfs-options-shb.zfs.pools._name_.datasets": [
+    "blocks-zfs.html#blocks-zfs-options-shb.zfs.pools._name_.datasets"
+  ],
+  "blocks-zfs-options-shb.zfs.pools._name_.datasets._name_.after": [
+    "blocks-zfs.html#blocks-zfs-options-shb.zfs.pools._name_.datasets._name_.after"
+  ],
+  "blocks-zfs-options-shb.zfs.pools._name_.datasets._name_.backup": [
+    "blocks-zfs.html#blocks-zfs-options-shb.zfs.pools._name_.datasets._name_.backup"
+  ],
+  "blocks-zfs-options-shb.zfs.pools._name_.datasets._name_.backup.request": [
+    "blocks-zfs.html#blocks-zfs-options-shb.zfs.pools._name_.datasets._name_.backup.request"
+  ],
+  "blocks-zfs-options-shb.zfs.pools._name_.datasets._name_.backup.request.excludePatterns": [
+    "blocks-zfs.html#blocks-zfs-options-shb.zfs.pools._name_.datasets._name_.backup.request.excludePatterns"
+  ],
+  "blocks-zfs-options-shb.zfs.pools._name_.datasets._name_.backup.request.hooks": [
+    "blocks-zfs.html#blocks-zfs-options-shb.zfs.pools._name_.datasets._name_.backup.request.hooks"
+  ],
+  "blocks-zfs-options-shb.zfs.pools._name_.datasets._name_.backup.request.hooks.afterBackup": [
+    "blocks-zfs.html#blocks-zfs-options-shb.zfs.pools._name_.datasets._name_.backup.request.hooks.afterBackup"
+  ],
+  "blocks-zfs-options-shb.zfs.pools._name_.datasets._name_.backup.request.hooks.beforeBackup": [
+    "blocks-zfs.html#blocks-zfs-options-shb.zfs.pools._name_.datasets._name_.backup.request.hooks.beforeBackup"
+  ],
+  "blocks-zfs-options-shb.zfs.pools._name_.datasets._name_.backup.request.sourceDirectories": [
+    "blocks-zfs.html#blocks-zfs-options-shb.zfs.pools._name_.datasets._name_.backup.request.sourceDirectories"
+  ],
+  "blocks-zfs-options-shb.zfs.pools._name_.datasets._name_.backup.request.user": [
+    "blocks-zfs.html#blocks-zfs-options-shb.zfs.pools._name_.datasets._name_.backup.request.user"
+  ],
+  "blocks-zfs-options-shb.zfs.pools._name_.datasets._name_.backup.result": [
+    "blocks-zfs.html#blocks-zfs-options-shb.zfs.pools._name_.datasets._name_.backup.result"
+  ],
+  "blocks-zfs-options-shb.zfs.pools._name_.datasets._name_.backup.result.backupService": [
+    "blocks-zfs.html#blocks-zfs-options-shb.zfs.pools._name_.datasets._name_.backup.result.backupService"
+  ],
+  "blocks-zfs-options-shb.zfs.pools._name_.datasets._name_.backup.result.restoreScript": [
+    "blocks-zfs.html#blocks-zfs-options-shb.zfs.pools._name_.datasets._name_.backup.result.restoreScript"
+  ],
+  "blocks-zfs-options-shb.zfs.pools._name_.datasets._name_.defaultACLs": [
+    "blocks-zfs.html#blocks-zfs-options-shb.zfs.pools._name_.datasets._name_.defaultACLs"
+  ],
+  "blocks-zfs-options-shb.zfs.pools._name_.datasets._name_.enable": [
+    "blocks-zfs.html#blocks-zfs-options-shb.zfs.pools._name_.datasets._name_.enable"
+  ],
+  "blocks-zfs-options-shb.zfs.pools._name_.datasets._name_.group": [
+    "blocks-zfs.html#blocks-zfs-options-shb.zfs.pools._name_.datasets._name_.group"
+  ],
+  "blocks-zfs-options-shb.zfs.pools._name_.datasets._name_.mode": [
+    "blocks-zfs.html#blocks-zfs-options-shb.zfs.pools._name_.datasets._name_.mode"
+  ],
+  "blocks-zfs-options-shb.zfs.pools._name_.datasets._name_.owner": [
+    "blocks-zfs.html#blocks-zfs-options-shb.zfs.pools._name_.datasets._name_.owner"
+  ],
+  "blocks-zfs-options-shb.zfs.pools._name_.datasets._name_.path": [
+    "blocks-zfs.html#blocks-zfs-options-shb.zfs.pools._name_.datasets._name_.path"
+  ],
+  "blocks-zfs-usage": [
+    "blocks-zfs.html#blocks-zfs-usage"
   ],
   "build-time-validation": [
     "service-implementation-guide.html#build-time-validation"
