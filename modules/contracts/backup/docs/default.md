@@ -20,27 +20,22 @@ source: @OPTIONS_JSON@
 ## Usage {#contract-backup-usage}
 
 A service that can be backed up will provide a `backup` option.
-Such a service is a `requester` providing a `request` for a module `provider` of this contract. 
 
-What this option defines is, from the user perspective - that is _you_ - an implementation detail
-but it will at least define what directories to backup,
-the user to backup with
-and possibly hooks to run before or after the backup job runs.
-
-Here is an example module defining such a `backup` option:
+Here is an example module defining such a `backup` option,
+which defines what directories to backup (`sourceDirectories`)
+and the user to backup with (`user`).
 
 ```nix
 {
   options = {
     myservice.backup = mkOption {
       type = lib.types.submodule {
-        options = contracts.backup.request;
-      };
-      default = {
-        user = "myservice";
-        sourceDirectories = [
-          "/var/lib/myservice"
-        ];
+        options = shb.contracts.backup.mkRequester {
+          user = "nextcloud";
+          sourceDirectories = [
+            "/var/lib/nextcloud"
+          ];
+        };
       };
     };
   };
@@ -50,13 +45,13 @@ Here is an example module defining such a `backup` option:
 Now, on the other side we have a service that uses this `backup` option and actually backs up files.
 This service is a `provider` of this contract and will provide a `result` option.
 
-Let's assume such a module is available under the `backupservice` option
-and that one can create multiple backup instances under `backupservice.instances`.
+Let's assume such a module is available under the `backupService` option
+and that one can create multiple backup instances under `backupService.instances`.
 Then, to actually backup the `myservice` service, one would write:
 
 ```nix
-backupservice.instances.myservice = {
-  request = myservice.backup;
+backupService.instances.myservice = {
+  request = myservice.backup.request;
   
   settings = {
     enable = true;
@@ -65,17 +60,17 @@ backupservice.instances.myservice = {
       path = "/srv/backup/myservice";
     };
 
-    # ... Other options specific to backupservice like scheduling.
+    # ... Other options specific to backupService like scheduling.
   };
 };
 ```
 
 It is advised to backup files to different location, to improve redundancy.
-Thanks to using contracts, this can be made easily either with the same `backupservice`:
+Thanks to using contracts, this can be made easily either with the same `backupService`:
 
 ```nix
-backupservice.instances.myservice_2 = {
-  request = myservice.backup;
+backupService.instances.myservice_2 = {
+  request = myservice.backup.request;
   
   settings = {
     enable = true;
@@ -87,12 +82,12 @@ backupservice.instances.myservice_2 = {
 };
 ```
 
-Or with another module `backupservice_2`!
+Or with another module `backupService_2`!
 
 ## Providers of the Backup Contract {#contract-backup-providers}
 
 - [Restic block](blocks-restic.html).
-- [Borgbackup block](blocks-borgbackup.html) [WIP].
+- [Borgbackup block](blocks-borgbackup.html).
 
 ## Requester Blocks and Services {#contract-backup-requesters}
 

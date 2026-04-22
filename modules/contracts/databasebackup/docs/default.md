@@ -20,21 +20,21 @@ source: @OPTIONS_JSON@
 ## Usage {#contract-databasebackup-usage}
 
 A database that can be backed up will provide a `databasebackup` option.
-Such a service is a `requester` providing a `request` for a module `provider` of this contract. 
 
 What this option defines is, from the user perspective - that is _you_ - an implementation detail
 but it will at least define how to create a database dump,
 the user to backup with
 and how to restore from a database dump.
 
-Here is an example module defining such a `databasebackup` option:
+Here is an example module defining such a `databasebackup` option,
+which defines the user to backup with (`user`)
+and how to backup (`backupCmd`) and restore (`restoreCmd`) the database:
 
 ```nix
 {
   options = {
     myservice.databasebackup = mkOption {
-      type = contracts.databasebackup.request;
-      default = {
+      type = shb.contracts.databasebackup.mkRequester = {
         user = "myservice";
         backupCmd = ''
           ${pkgs.postgresql}/bin/pg_dumpall | ${pkgs.gzip}/bin/gzip --rsyncable
@@ -48,16 +48,16 @@ Here is an example module defining such a `databasebackup` option:
 };
 ```
 
-Now, on the other side we have a service that uses this `backup` option and actually backs up files.
+Now, on the other side we have a service that uses this `databasebackup` option and actually backs up files.
 This service is a `provider` of this contract and will provide a `result` option.
 
-Let's assume such a module is available under the `databasebackupservice` option
-and that one can create multiple backup instances under `databasebackupservice.instances`.
+Let's assume such a module is available under the `databaseBackupService` option
+and that one can create multiple backup instances under `databaseBackupService.instances`.
 Then, to actually backup the `myservice` service, one would write:
 
 ```nix
-databasebackupservice.instances.myservice = {
-  request = myservice.databasebackup;
+databaseBackupService.instances.myservice = {
+  request = myservice.databasebackup.request;
   
   settings = {
     enable = true;
@@ -72,11 +72,11 @@ databasebackupservice.instances.myservice = {
 ```
 
 It is advised to backup files to different location, to improve redundancy.
-Thanks to using contracts, this can be made easily either with the same `databasebackupservice`:
+Thanks to using contracts, this can be made easily either with the same `databaseBackupService`:
 
 ```nix
-databasebackupservice.instances.myservice_2 = {
-  request = myservice.backup;
+databaseBackupService.instances.myservice_2 = {
+  request = myservice.databasebackup.request;
   
   settings = {
     enable = true;
@@ -88,12 +88,12 @@ databasebackupservice.instances.myservice_2 = {
 };
 ```
 
-Or with another module `databasebackupservice_2`!
+Or with another module `databaseBackupService_2`!
 
 ## Providers of the Database Backup Contract {#contract-databasebackup-providers}
 
 - [Restic block](blocks-restic.html).
-- [Borgbackup block](blocks-borgbackup.html) [WIP].
+- [Borgbackup block](blocks-borgbackup.html).
 
 ## Requester Blocks and Services {#contract-databasebackup-requesters}
 
