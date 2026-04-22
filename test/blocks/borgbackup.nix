@@ -143,7 +143,7 @@ let
               })
 
           with subtest("First backup in repo A"):
-              machine.succeed("systemctl start ${backupService}")
+              machine.succeed("systemctl start --wait ${backupService}")
 
           with subtest("New content"):
               machine.succeed("""

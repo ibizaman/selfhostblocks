@@ -386,8 +386,13 @@ in
                 ${serviceName} = mkMerge [
                   {
                     serviceConfig = {
-                      # Makes the systemd service wait for the backup to be done before changing state to inactive.
-                      Type = "oneshot";
+                      # Purposely not a oneshot systemd service otherwise
+                      # the service waits on the completion the backup before deactivating.
+                      # This seems like a nice property at first but there is one annoying
+                      # edge case when deploying. If a backup job somehow is started when
+                      # the deploy happens, the deploy will wait on the service to finish
+                      # before considering the deploy done. And worse, it will consider the
+                      # deploy as failed if the backup fails, which is not what you want.
                       Nice = lib.mkForce cfg.performance.niceness;
                       IOSchedulingClass = lib.mkForce cfg.performance.ioSchedulingClass;
                       IOSchedulingPriority = lib.mkForce cfg.performance.ioPriority;
@@ -414,6 +419,7 @@ in
                   in
                   {
                     script = script.preStart;
+                    # Makes the systemd service wait for the backup to be done before changing state to inactive.
                     serviceConfig.Type = "oneshot";
                     serviceConfig.LoadCredential = script.loadCredentials;
                   }

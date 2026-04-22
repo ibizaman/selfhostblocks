@@ -85,7 +85,7 @@ shb.test.runNixOSTest {
       with subtest("backup"):
           print(machine.succeed("systemctl cat ${provider.result.backupService}"))
           print(machine.succeed("ls -l /run/hardcodedsecrets/hardcodedsecret_passphrase"))
-          machine.succeed("systemctl start ${provider.result.backupService}")
+          machine.succeed("systemctl start --wait ${provider.result.backupService}")
 
       with subtest("drop database"):
           machine.succeed(peer_cmd("DROP DATABASE ${database}", db="postgres"))
