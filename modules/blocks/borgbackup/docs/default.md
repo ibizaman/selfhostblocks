@@ -3,6 +3,7 @@
 Defined in [`/modules/blocks/borgbackup.nix`](@REPO@/modules/blocks/borgbackup.nix).
 
 This block sets up a backup job using [BorgBackup][].
+It is heavily based on the nixpkgs BorgBackup module.
 
 [borgbackup]: https://www.borgbackup.org/
 
@@ -228,6 +229,36 @@ A generic dashboard for all backup solutions is provided.
 See [Backups Dashboard and Alert](blocks-monitoring.html#blocks-monitoring-backup) section in the monitoring chapter.
 
 ## Maintenance {#blocks-borgbackup-maintenance}
+
+### Manual Backup {#blocks-borgbackup-maintenance-manuql}
+
+To launch a backup manually, just run:
+
+```bash
+systemctl start <systemd-service-name>
+```
+
+You can easily discover the systemd service name you need by either listing the units:
+
+```bash
+systemctl list-units 'borgbackup*'
+```
+
+Or by autocompleting the unit name with `<TAB>`:
+
+```bash
+systemctl start borgbackup<TAB><TAB>
+```
+
+Note that the systemd services are of `Type=simple` which means the systemd service
+will not wait for the backup completion to terminate.
+If you want instead to wait for the backup to complete, use the `--wait` flag:
+
+```bash
+systemctl start --wait <systemd-service-name>
+```
+
+### Restore {#blocks-borgbackup-maintenance-restore}
 
 One command-line helper is provided per backup instance and repository pair to automatically supply the needed secrets.
 

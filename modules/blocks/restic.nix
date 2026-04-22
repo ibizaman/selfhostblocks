@@ -413,7 +413,13 @@ in
               nameValuePair "${fullName name instance.settings.repository}_restore_gen" {
                 enable = true;
                 wantedBy = [ "multi-user.target" ];
-                serviceConfig.Type = "oneshot";
+                # Purposely not a oneshot systemd service otherwise
+                # the service waits on the completion the backup before deactivating.
+                # This seems like a nice property at first but there is one annoying
+                # edge case when deploying. If a backup job somehow is started when
+                # the deploy happens, the deploy will wait on the service to finish
+                # before considering the deploy done. And worse, it will consider the
+                # deploy as failed if the backup fails, which is not what you want.
                 script = (
                   shb.replaceSecrets {
                     userConfig = instance.settings.repository.secrets // {

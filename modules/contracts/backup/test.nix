@@ -105,7 +105,7 @@ shb.test.runNixOSTest {
 
       with subtest("First backup in repo"):
           print(machine.succeed("systemctl cat ${provider.backupService}"))
-          machine.succeed("systemctl start ${provider.backupService}")
+          machine.succeed("systemctl start --wait ${provider.backupService}")
 
       with subtest("New content"):
           for path in sourceDirectories:

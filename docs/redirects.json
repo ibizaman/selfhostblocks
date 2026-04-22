@@ -347,6 +347,12 @@
   "blocks-borgbackup-maintenance": [
     "blocks-borgbackup.html#blocks-borgbackup-maintenance"
   ],
+  "blocks-borgbackup-maintenance-manuql": [
+    "blocks-borgbackup.html#blocks-borgbackup-maintenance-manuql"
+  ],
+  "blocks-borgbackup-maintenance-restore": [
+    "blocks-borgbackup.html#blocks-borgbackup-maintenance-restore"
+  ],
   "blocks-borgbackup-maintenance-troubleshooting": [
     "blocks-borgbackup.html#blocks-borgbackup-maintenance-troubleshooting"
   ],
@@ -1372,6 +1378,12 @@
   ],
   "blocks-restic-maintenance": [
     "blocks-restic.html#blocks-restic-maintenance"
+  ],
+  "blocks-restic-maintenance-manuql": [
+    "blocks-restic.html#blocks-restic-maintenance-manuql"
+  ],
+  "blocks-restic-maintenance-restore": [
+    "blocks-restic.html#blocks-restic-maintenance-restore"
   ],
   "blocks-restic-maintenance-troubleshooting": [
     "blocks-restic.html#blocks-restic-maintenance-troubleshooting"
