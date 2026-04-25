@@ -457,39 +457,16 @@ in
           let
             mkBorgBackupBinary =
               name: instance:
-              pkgs.writeShellApplication {
+              shb.contracts.backup.mkRestoreScript {
                 name = fullName name instance.settings.repository;
-                text = ''
-                  usage() {
-                    echo "$0 restore latest"
-                  }
-
-                  if ! [ "$1" = "restore" ]; then
-                    usage
-                    exit 1
-                  fi
-                  shift
-
-                  if ! [ "$1" = "latest" ]; then
-                    usage
-                    exit 1
-                  fi
-                  shift
-
-                  sudocmd() {
-                    sudo --preserve-env=BORG_REPO,BORG_PASSCOMMAND -u ${instance.request.user} "$@"
-                  }
-
-                  set -a
-                  # shellcheck disable=SC1090
-                  source <(sudocmd cat "/run/secrets_borgbackup_env/${fullName name instance.settings.repository}")
-                  set +a
-
-                  archive="$(sudocmd borg list --short "$BORG_REPO" | tail -n 1)"
-                  echo "Will restore archive $archive"
-
-                  (cd / && sudocmd ${pkgs.borgbackup}/bin/borg extract "$BORG_REPO"::"$archive")
-                '';
+                user = instance.request.user;
+                sudoPreserveEnvs = [
+                  "BORG_REPO"
+                  "BORG_PASSCOMMAND"
+                ];
+                secretsFile = "/run/secrets_borgbackup_env/${fullName name instance.settings.repository}";
+                restoreCmd = ''(cd / && ${pkgs.borgbackup}/bin/borg extract \"$BORG_REPO::$snapshot\")'';
+                listCmd = ''if [ -e \"$BORG_REPO/data\" ]; then borg list --short \"$BORG_REPO\"; fi'';
               };
           in
           flatten (mapAttrsToList mkBorgBackupBinary cfg.instances);
@@ -499,39 +476,16 @@ in
           let
             mkBorgBackupBinary =
               name: instance:
-              pkgs.writeShellApplication {
+              shb.contracts.backup.mkRestoreScript {
                 name = fullName name instance.settings.repository;
-                text = ''
-                  usage() {
-                    echo "$0 restore latest"
-                  }
-
-                  if ! [ "$1" = "restore" ]; then
-                    usage
-                    exit 1
-                  fi
-                  shift
-
-                  if ! [ "$1" = "latest" ]; then
-                    usage
-                    exit 1
-                  fi
-                  shift
-
-                  sudocmd() {
-                    sudo --preserve-env=BORG_REPO,BORG_PASSCOMMAND -u ${instance.request.user} "$@"
-                  }
-
-                  set -a
-                  # shellcheck disable=SC1090
-                  source <(sudocmd cat "/run/secrets_borgbackup_env/${fullName name instance.settings.repository}")
-                  set +a
-
-                  archive="$(sudocmd borg list --short "$BORG_REPO" | tail -n 1)"
-                  echo "Will restore archive $archive"
-
-                  sudocmd sh -c "${pkgs.borgbackup}/bin/borg extract $BORG_REPO::$archive --stdout | ${instance.request.restoreCmd}"
-                '';
+                user = instance.request.user;
+                sudoPreserveEnvs = [
+                  "BORG_REPO"
+                  "BORG_PASSCOMMAND"
+                ];
+                secretsFile = "/run/secrets_borgbackup_env/${fullName name instance.settings.repository}";
+                restoreCmd = ''${pkgs.borgbackup}/bin/borg extract \"$BORG_REPO::$snapshot\" --stdout | ${instance.request.restoreCmd}'';
+                listCmd = ''if [ -e \"$BORG_REPO/data\" ]; then borg list --short \"$BORG_REPO\"; fi'';
               };
           in
           flatten (mapAttrsToList mkBorgBackupBinary cfg.databases);

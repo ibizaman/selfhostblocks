@@ -73,7 +73,7 @@ in
           backupName = "postgres.sql";
 
           backupCmd = ''
-            ${pkgs.postgresql}/bin/pg_dumpall | ${pkgs.gzip}/bin/gzip --rsyncable
+            ${pkgs.postgresql}/bin/pg_dumpall --clean --if-exists | ${pkgs.gzip}/bin/gzip --rsyncable
           '';
 
           restoreCmd = ''

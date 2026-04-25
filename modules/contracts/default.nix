@@ -54,9 +54,10 @@ let
         };
       };
     in
-    mkContractFunctions {
+    (mkContractFunctions {
       inherit (importedModule) mkRequest mkResult;
-    };
+    })
+    // (importedModule.passthru or { });
 
   contracts = {
     databasebackup = importContract ./databasebackup.nix;

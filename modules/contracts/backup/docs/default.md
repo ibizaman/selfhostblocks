@@ -88,6 +88,7 @@ Or with another module `backupService_2`!
 
 - [Restic block](blocks-restic.html).
 - [Borgbackup block](blocks-borgbackup.html).
+- [ZFS block](blocks-zfs.html).
 
 ## Requester Blocks and Services {#contract-backup-requesters}
 
