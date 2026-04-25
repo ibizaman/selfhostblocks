@@ -1826,6 +1826,24 @@
   "blocks-zfs-options-shb.zfs.pools._name_.datasets._name_.backup.result.restoreScript": [
     "blocks-zfs.html#blocks-zfs-options-shb.zfs.pools._name_.datasets._name_.backup.result.restoreScript"
   ],
+  "blocks-zfs-options-shb.zfs.pools._name_.datasets._name_.datasetbackup": [
+    "blocks-zfs.html#blocks-zfs-options-shb.zfs.pools._name_.datasets._name_.datasetbackup"
+  ],
+  "blocks-zfs-options-shb.zfs.pools._name_.datasets._name_.datasetbackup.request": [
+    "blocks-zfs.html#blocks-zfs-options-shb.zfs.pools._name_.datasets._name_.datasetbackup.request"
+  ],
+  "blocks-zfs-options-shb.zfs.pools._name_.datasets._name_.datasetbackup.request.dataset": [
+    "blocks-zfs.html#blocks-zfs-options-shb.zfs.pools._name_.datasets._name_.datasetbackup.request.dataset"
+  ],
+  "blocks-zfs-options-shb.zfs.pools._name_.datasets._name_.datasetbackup.result": [
+    "blocks-zfs.html#blocks-zfs-options-shb.zfs.pools._name_.datasets._name_.datasetbackup.result"
+  ],
+  "blocks-zfs-options-shb.zfs.pools._name_.datasets._name_.datasetbackup.result.backupService": [
+    "blocks-zfs.html#blocks-zfs-options-shb.zfs.pools._name_.datasets._name_.datasetbackup.result.backupService"
+  ],
+  "blocks-zfs-options-shb.zfs.pools._name_.datasets._name_.datasetbackup.result.restoreScript": [
+    "blocks-zfs.html#blocks-zfs-options-shb.zfs.pools._name_.datasets._name_.datasetbackup.result.restoreScript"
+  ],
   "blocks-zfs-options-shb.zfs.pools._name_.datasets._name_.defaultACLs": [
     "blocks-zfs.html#blocks-zfs-options-shb.zfs.pools._name_.datasets._name_.defaultACLs"
   ],
@@ -1906,6 +1924,21 @@
   ],
   "contract-databasebackup-usage": [
     "contracts-databasebackup.html#contract-databasebackup-usage"
+  ],
+  "contract-dataset-backup": [
+    "contracts-datasetbackup.html#contract-dataset-backup"
+  ],
+  "contract-datasetbackup-providers": [
+    "contracts-datasetbackup.html#contract-datasetbackup-providers"
+  ],
+  "contract-datasetbackup-requesters": [
+    "contracts-datasetbackup.html#contract-datasetbackup-requesters"
+  ],
+  "contract-datasetbackup-usage": [
+    "contracts-datasetbackup.html#contract-datasetbackup-usage"
+  ],
+  "contract-datatsetbackup-options": [
+    "contracts-datasetbackup.html#contract-datatsetbackup-options"
   ],
   "contract-secret": [
     "contracts-secret.html#contract-secret"
@@ -2035,6 +2068,27 @@
   ],
   "contracts-databasebackup-options-shb.contracts.databasebackup.settings": [
     "contracts-databasebackup.html#contracts-databasebackup-options-shb.contracts.databasebackup.settings"
+  ],
+  "contracts-datasetbackup-options-shb.contracts.datasetbackup": [
+    "contracts-datasetbackup.html#contracts-datasetbackup-options-shb.contracts.datasetbackup"
+  ],
+  "contracts-datasetbackup-options-shb.contracts.datasetbackup.request": [
+    "contracts-datasetbackup.html#contracts-datasetbackup-options-shb.contracts.datasetbackup.request"
+  ],
+  "contracts-datasetbackup-options-shb.contracts.datasetbackup.request.dataset": [
+    "contracts-datasetbackup.html#contracts-datasetbackup-options-shb.contracts.datasetbackup.request.dataset"
+  ],
+  "contracts-datasetbackup-options-shb.contracts.datasetbackup.result": [
+    "contracts-datasetbackup.html#contracts-datasetbackup-options-shb.contracts.datasetbackup.result"
+  ],
+  "contracts-datasetbackup-options-shb.contracts.datasetbackup.result.backupService": [
+    "contracts-datasetbackup.html#contracts-datasetbackup-options-shb.contracts.datasetbackup.result.backupService"
+  ],
+  "contracts-datasetbackup-options-shb.contracts.datasetbackup.result.restoreScript": [
+    "contracts-datasetbackup.html#contracts-datasetbackup-options-shb.contracts.datasetbackup.result.restoreScript"
+  ],
+  "contracts-datasetbackup-options-shb.contracts.datasetbackup.settings": [
+    "contracts-datasetbackup.html#contracts-datasetbackup-options-shb.contracts.datasetbackup.settings"
   ],
   "contracts-nixpkgs": [
     "contracts.html#contracts-nixpkgs"

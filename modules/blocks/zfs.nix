@@ -122,6 +122,19 @@ in
                           };
                         };
                       };
+
+                      datasetbackup = lib.mkOption {
+                        description = ''
+                          ZFS dataset backup contract configuration.
+
+                          This contract will take snaphots of the dataset.
+                        '';
+                        type = lib.types.submodule {
+                          options = shb.contracts.datasetbackup.mkRequester {
+                            dataset = name;
+                          };
+                        };
+                      };
                     };
                   }
                 )
