@@ -21,8 +21,8 @@ in
     "/opt/files/A"
     "/opt/files/B"
   ],
-  settings, # { repository, config } -> attrset
-  extraConfig ? null, # { username, config } -> attrset
+  settings ? { ... }: { }, # { filesRoot, config } -> attrset
+  extraConfig ? null, # { filesRoot, username, config } -> attrset
 }:
 shb.test.runNixOSTest {
   inherit name;
@@ -40,7 +40,7 @@ shb.test.runNixOSTest {
           };
           settings = settings {
             inherit config;
-            repository = "/opt/repos/${name}";
+            filesRoot = "/opt/files";
           };
         })
         (mkIf (username != "root") {
@@ -52,6 +52,7 @@ shb.test.runNixOSTest {
         })
         (optionalAttrs (extraConfig != null) (extraConfig {
           inherit username config;
+          filesRoot = "/opt/files";
         }))
       ];
     };
@@ -65,7 +66,9 @@ shb.test.runNixOSTest {
       provider = (getAttrFromPath providerRoot nodes.machine).result;
     in
     ''
+      from datetime import datetime, timedelta
       from dictdiffer import diff
+      import re
 
       username = "${username}"
       sourceDirectories = [ ${concatMapStringsSep ", " (x: ''"${x}"'') sourceDirectories} ]
@@ -103,9 +106,25 @@ shb.test.runNixOSTest {
                   f'{path}/fileB': 'repo_fileB_1',
               })
 
+      with subtest("Initial snapshot"):
+          out = machine.succeed("${provider.restoreScript} snapshots").splitlines()
+          if len(out) != 0:
+            raise Exception(f"Unexpected snapshots:\n{out}")
+
       with subtest("First backup in repo"):
           print(machine.succeed("systemctl cat ${provider.backupService}"))
           machine.succeed("systemctl start --wait ${provider.backupService}")
+
+      with subtest("One snapshot"):
+          out = machine.succeed("${provider.restoreScript} snapshots").splitlines()
+          print(f"Found snapshots:\n{out}")
+          if len(out) != 1:
+            raise Exception(f"Unexpected snapshots:\n{out}")
+
+      # To accomodate for snapshot orchestrators which keep only a given amount
+      # of snapshots per unit of time, we set the time to now + 2h.
+      new_date = (datetime.now() + timedelta(hours=2)).strftime("%Y-%m-%d %H:%M:%S")
+      machine.succeed(f"timedatectl set-time '{new_date}'")
 
       with subtest("New content"):
           for path in sourceDirectories:
@@ -119,14 +138,37 @@ shb.test.runNixOSTest {
                   f'{path}/fileB': 'repo_fileB_2',
               })
 
+      with subtest("Second backup in repo"):
+          machine.succeed("systemctl start --wait ${provider.backupService}")
+
+      with subtest("two snapshots"):
+          out = machine.succeed("${provider.restoreScript} snapshots").splitlines()
+          print(f"Found snapshots:\n{out}")
+          if len(out) != 2:
+              raise Exception(f"Unexpected snapshots:\n{out}")
+
+      firstSnapshot = re.split("[ \t+]", out[0], maxsplit=1)[0]
+      secondSnapshot = re.split("[ \t+]", out[1], maxsplit=1)[0]
+      print(f"First snapshot {firstSnapshot}")
+      print(f"Second snapshot {secondSnapshot}")
+
       with subtest("Delete content"):
           for path in sourceDirectories:
               machine.succeed(f"""rm -r {path}/*""")
 
               assert_files(path, {})
 
-      with subtest("Restore initial content from repo"):
-          machine.succeed("""${provider.restoreScript} restore latest""")
+      with subtest("Restore second backup"):
+          machine.succeed(f"${provider.restoreScript} restore {secondSnapshot}")
+
+          for path in sourceDirectories:
+              assert_files(path, {
+                  f'{path}/fileA': 'repo_fileA_2',
+                  f'{path}/fileB': 'repo_fileB_2',
+              })
+
+      with subtest("Restore first backup"):
+          machine.succeed(f"${provider.restoreScript} restore {firstSnapshot}")
 
           for path in sourceDirectories:
               assert_files(path, {

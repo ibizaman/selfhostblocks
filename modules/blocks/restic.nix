@@ -440,38 +440,16 @@ in
           let
             mkResticBinary =
               name: instance:
-              pkgs.writeShellApplication {
+              shb.contracts.backup.mkRestoreScript {
                 name = fullName name instance.settings.repository;
-                text = ''
-                  usage() {
-                    echo "$0 restore latest"
-                  }
-
-                  if ! [ "$1" = "restore" ]; then
-                    usage
-                    exit 1
-                  fi
-                  shift
-
-                  if ! [ "$1" = "latest" ]; then
-                    usage
-                    exit 1
-                  fi
-                  shift
-
-                  sudocmd() {
-                    sudo --preserve-env=RESTIC_REPOSITORY,RESTIC_PASSWORD_FILE -u ${instance.request.user} "$@"
-                  }
-
-                  set -a
-                  # shellcheck disable=SC1090
-                  source <(sudocmd cat "/run/secrets_restic_env/${fullName name instance.settings.repository}")
-                  set +a
-
-                  echo "Will restore archive 'latest'"
-
-                  sudocmd ${pkgs.restic}/bin/restic restore latest --target /
-                '';
+                user = instance.request.user;
+                sudoPreserveEnvs = [
+                  "RESTIC_REPOSITORY"
+                  "RESTIC_PASSWORD_FILE"
+                ];
+                secretsFile = "/run/secrets_restic_env/${fullName name instance.settings.repository}";
+                restoreCmd = ''${pkgs.restic}/bin/restic restore \"$snapshot\" --target /'';
+                listCmd = ''if [ -e \"$RESTIC_REPOSITORY/index\" ]; then ${pkgs.restic}/bin/restic snapshots --json | ${pkgs.jq}/bin/jq '.[].id'; fi'';
               };
           in
           flatten (mapAttrsToList mkResticBinary cfg.instances);
@@ -481,38 +459,16 @@ in
           let
             mkResticBinary =
               name: instance:
-              pkgs.writeShellApplication {
+              shb.contracts.backup.mkRestoreScript {
                 name = fullName name instance.settings.repository;
-                text = ''
-                  usage() {
-                    echo "$0 restore latest"
-                  }
-
-                  if ! [ "$1" = "restore" ]; then
-                    usage
-                    exit 1
-                  fi
-                  shift
-
-                  if ! [ "$1" = "latest" ]; then
-                    usage
-                    exit 1
-                  fi
-                  shift
-
-                  sudocmd() {
-                    sudo --preserve-env=RESTIC_REPOSITORY,RESTIC_PASSWORD_FILE -u ${instance.request.user} "$@"
-                  }
-
-                  set -a
-                  # shellcheck disable=SC1090
-                  source <(sudocmd cat "/run/secrets_restic_env/${fullName name instance.settings.repository}")
-                  set +a
-
-                  echo "Will restore archive 'latest'"
-
-                  sudocmd sh -c "${pkgs.restic}/bin/restic dump latest ${instance.request.backupName} | ${instance.request.restoreCmd}"
-                '';
+                user = instance.request.user;
+                sudoPreserveEnvs = [
+                  "RESTIC_REPOSITORY"
+                  "RESTIC_PASSWORD_FILE"
+                ];
+                secretsFile = "/run/secrets_restic_env/${fullName name instance.settings.repository}";
+                restoreCmd = ''${pkgs.restic}/bin/restic dump \"$snapshot\" ${instance.request.backupName} | ${instance.request.restoreCmd}'';
+                listCmd = ''if [ -e \"$RESTIC_REPOSITORY/index\" ]; then ${pkgs.restic}/bin/restic snapshots --json | ${pkgs.jq}/bin/jq '.[].id'; fi'';
               };
           in
           flatten (mapAttrsToList mkResticBinary cfg.databases);

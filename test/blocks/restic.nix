@@ -168,8 +168,12 @@ let
               assert_files("/opt/files", {})
 
           with subtest("Restore initial content from repo A"):
-              machine.succeed("""
-              ${restoreScript} restore latest
+              snapshot = machine.succeed("""
+              ${restoreScript} snapshots
+              """)
+              print(snapshot)
+              machine.succeed(f"""
+              ${restoreScript} restore {snapshot}
               """)
 
               assert_files("/opt/files", {

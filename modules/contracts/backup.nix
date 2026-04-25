@@ -1,4 +1,9 @@
-{ lib, shb, ... }:
+{
+  lib,
+  shb,
+  pkgs,
+  ...
+}:
 let
   inherit (lib)
     concatStringsSep
@@ -187,12 +192,14 @@ in
 
                 ```bash
                 $ ${if restoreScriptText != null then restoreScriptText else restoreScript} snapshots
+                <snapshot 1> <metadata>
+                <snapshot 2> <metadata>
                 ```
 
                 And restore the database with:
 
                 ```bash
-                $ ${if restoreScriptText != null then restoreScriptText else restoreScript} restore latest
+                $ ${if restoreScriptText != null then restoreScriptText else restoreScript} restore <snapshot 1>
                 ```
               '';
               type = str;
@@ -222,4 +229,56 @@ in
         };
       };
     };
+
+  passthru.mkRestoreScript =
+    {
+      name,
+      user,
+      sudoPreserveEnvs ? [ ],
+      secretsFile,
+      restoreCmd,
+      listCmd,
+    }:
+    pkgs.writeShellApplication {
+      inherit name;
+
+      text = ''
+        usage() {
+          echo "$0 snapshots"
+          echo "$0 restore <snapshot>"
+        }
+
+        sudocmd() {
+          sudo --preserve-env=${lib.concatStringsSep "," sudoPreserveEnvs} -u ${user} "$@"
+        }
+
+        loadenv() {
+          set -a
+          # shellcheck disable=SC1090
+          source <(sudocmd cat "${secretsFile}")
+          set +a
+        }
+
+        if [ "$1" = "restore" ]; then
+          shift
+          snapshot="$1"
+
+          loadenv
+
+          echo "Will restore snapshot '$snapshot'"
+
+          sudocmd sh -c "${restoreCmd}"
+        elif [ "$1" = "snapshots" ]; then
+          shift
+
+          loadenv
+
+          sudocmd sh -c "${listCmd}"
+        else
+          usage
+          exit 1
+        fi
+      '';
+    };
+
 }

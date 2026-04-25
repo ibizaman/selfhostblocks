@@ -14,12 +14,12 @@
       ../../modules/blocks/hardcodedsecret.nix
     ];
     settings =
-      { repository, config, ... }:
+      { config, ... }:
       {
         enable = true;
         passphrase.result = config.shb.hardcodedsecret.passphrase.result;
         repository = {
-          path = repository;
+          path = "/opt/repos/mytest";
           timerConfig = {
             OnCalendar = "00:00:00";
           };
@@ -49,12 +49,12 @@
       ../../modules/blocks/hardcodedsecret.nix
     ];
     settings =
-      { repository, config, ... }:
+      { config, ... }:
       {
         enable = true;
         passphrase.result = config.shb.hardcodedsecret.passphrase.result;
         repository = {
-          path = repository;
+          path = "/opt/repos/mytest";
           timerConfig = {
             OnCalendar = "00:00:00";
           };
@@ -84,12 +84,12 @@
       ../../modules/blocks/hardcodedsecret.nix
     ];
     settings =
-      { repository, config, ... }:
+      { config, ... }:
       {
         enable = true;
         passphrase.result = config.shb.hardcodedsecret.passphrase.result;
         repository = {
-          path = repository;
+          path = "/opt/repos/mytest";
           timerConfig = {
             OnCalendar = "00:00:00";
           };
@@ -119,12 +119,12 @@
       ../../modules/blocks/hardcodedsecret.nix
     ];
     settings =
-      { repository, config, ... }:
+      { config, ... }:
       {
         enable = true;
         passphrase.result = config.shb.hardcodedsecret.passphrase.result;
         repository = {
-          path = repository;
+          path = "/opt/repos/mytest";
           timerConfig = {
             OnCalendar = "00:00:00";
           };
