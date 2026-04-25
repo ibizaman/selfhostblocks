@@ -20,6 +20,11 @@ This block creates ZFS datasets, optionally mounts them and sets permissions on 
 
 - Creates ZFS dataset which is [optionally mounted](#blocks-zfs-options-shb.zfs.pools._name_.datasets._name_.path).
 - Sets permissions, [owner](#blocks-zfs-options-shb.zfs.pools._name_.datasets._name_.owner), [group](#blocks-zfs-options-shb.zfs.pools._name_.datasets._name_.group) and [ACL](#blocks-zfs-options-shb.zfs.pools._name_.datasets._name_.defaultACLs) on the mount point.
+- Backup of the files in the dataset [`shb.zfs.<name>.backup`][backup] through the [backup contract](./contracts-backup.html).
+- Backup of the dataset itself [`shb.zfs.<name>.datasetbackup`][datasetbackup] through the [dataset backup contract](./contracts-datasetbackup.html).
+
+[backup]: #blocks-zfs-options-shb.zfs.pools._name_.datasets._name_.backup
+[datasetbackup]: #blocks-zfs-options-shb.zfs.pools._name_.datasets._name_.datasetbackup
 
 ## Usage {#blocks-zfs-usage}
 

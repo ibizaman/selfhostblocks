@@ -78,6 +78,7 @@
           modules/contracts/backup/dummyModule.nix
           modules/contracts/dashboard/dummyModule.nix
           modules/contracts/databasebackup/dummyModule.nix
+          modules/contracts/datasetbackup/dummyModule.nix
           modules/contracts/secret/dummyModule.nix
           modules/contracts/ssl/dummyModule.nix
         ];
@@ -103,6 +104,13 @@
             "blocks/authelia" = ./modules/blocks/authelia.nix;
             "blocks/borgbackup" = ./modules/blocks/borgbackup.nix;
             "blocks/lldap" = ./modules/blocks/lldap.nix;
+            "blocks/mitmdump" = ./modules/blocks/mitmdump.nix;
+            "blocks/monitoring" = ./modules/blocks/monitoring.nix;
+            "blocks/nginx" = ./modules/blocks/nginx.nix;
+            "blocks/postgresql" = ./modules/blocks/postgresql.nix;
+            "blocks/restic" = ./modules/blocks/restic.nix;
+            "blocks/sanoid" = ./modules/blocks/sanoid.nix;
+            "blocks/sops" = ./modules/blocks/sops.nix;
             "blocks/ssl" = {
               module = ./modules/blocks/ssl.nix;
               optionRoot = [
@@ -110,13 +118,8 @@
                 "certs"
               ];
             };
-            "blocks/mitmdump" = ./modules/blocks/mitmdump.nix;
-            "blocks/monitoring" = ./modules/blocks/monitoring.nix;
-            "blocks/nginx" = ./modules/blocks/nginx.nix;
-            "blocks/postgresql" = ./modules/blocks/postgresql.nix;
-            "blocks/restic" = ./modules/blocks/restic.nix;
-            "blocks/sops" = ./modules/blocks/sops.nix;
             "blocks/zfs" = ./modules/blocks/zfs.nix;
+
             "services/arr" = ./modules/services/arr.nix;
             "services/firefly-iii" = ./modules/services/firefly-iii.nix;
             "services/forgejo" = [
@@ -138,6 +141,7 @@
             "services/open-webui" = ./modules/services/open-webui.nix;
             "services/pinchflat" = ./modules/services/pinchflat.nix;
             "services/vaultwarden" = ./modules/services/vaultwarden.nix;
+
             "contracts/backup" = {
               module = ./modules/contracts/backup/dummyModule.nix;
               optionRoot = [
@@ -160,6 +164,14 @@
                 "shb"
                 "contracts"
                 "databasebackup"
+              ];
+            };
+            "contracts/datasetbackup" = {
+              module = ./modules/contracts/datasetbackup/dummyModule.nix;
+              optionRoot = [
+                "shb"
+                "contracts"
+                "datasetbackup"
               ];
             };
             "contracts/secret" = {
@@ -397,8 +409,8 @@
 
             // (vm_test "authelia" ./test/blocks/authelia.nix)
             // (vm_test "borgbackup" ./test/blocks/borgbackup.nix)
-            // (vm_test "lldap" ./test/blocks/lldap.nix)
             // (vm_test "lib" ./test/blocks/lib.nix)
+            // (vm_test "lldap" ./test/blocks/lldap.nix)
             // (vm_test "mitmdump" ./test/blocks/mitmdump.nix)
             // (vm_test "monitoring" ./test/blocks/monitoring.nix)
             // (vm_test "postgresql" ./test/blocks/postgresql.nix)
@@ -408,6 +420,7 @@
 
             // (vm_test "contracts-backup" ./test/contracts/backup.nix)
             // (vm_test "contracts-databasebackup" ./test/contracts/databasebackup.nix)
+            // (vm_test "contracts-datasetbackup" ./test/contracts/datasetbackup.nix)
             // (vm_test "contracts-secret" ./test/contracts/secret.nix)
           );
 
@@ -429,6 +442,7 @@
           self.nixosModules.nginx
           self.nixosModules.postgresql
           self.nixosModules.restic
+          self.nixosModules.sanoid
           self.nixosModules.ssl
           self.nixosModules.tinyproxy
           self.nixosModules.vpn
@@ -468,8 +482,9 @@
       nixosModules.nginx = modules/blocks/nginx.nix;
       nixosModules.postgresql = modules/blocks/postgresql.nix;
       nixosModules.restic = modules/blocks/restic.nix;
-      nixosModules.ssl = modules/blocks/ssl.nix;
+      nixosModules.sanoid = modules/blocks/sanoid.nix;
       nixosModules.sops = modules/blocks/sops.nix;
+      nixosModules.ssl = modules/blocks/ssl.nix;
       nixosModules.tinyproxy = modules/blocks/tinyproxy.nix;
       nixosModules.vpn = modules/blocks/vpn.nix;
       nixosModules.zfs = modules/blocks/zfs.nix;

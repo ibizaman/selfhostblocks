@@ -61,6 +61,7 @@ let
 
   contracts = {
     databasebackup = importContract ./databasebackup.nix;
+    datasetbackup = importContract ./datasetbackup.nix;
     dashboard = importContract ./dashboard.nix;
     backup = importContract ./backup.nix;
     mount = pkgs.callPackage ./mount.nix { };
@@ -69,6 +70,7 @@ let
     test = {
       secret = pkgs.callPackage ./secret/test.nix { inherit shb; };
       databasebackup = pkgs.callPackage ./databasebackup/test.nix { inherit shb; };
+      datasetbackup = pkgs.callPackage ./datasetbackup/test.nix { inherit shb; };
       backup = pkgs.callPackage ./backup/test.nix { inherit shb; };
     };
   };

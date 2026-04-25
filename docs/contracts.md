@@ -39,7 +39,9 @@ Provided contracts are:
 - [Backup contract][] to backup directories.
   Two providers are implemented: [BorgBackup][] and [Restic][].
 - [Database Backup contract](contracts-databasebackup.html) to backup database dumps.
-  One provider is implemented: [BorgBackup][] and [Restic][].
+  Two providers are implemented: [BorgBackup][] and [Restic][].
+- [Dataset Backup contract](contracts-datasetbackup.html) to backup ZFS datasets.
+  One provider is implemented: [Sanoid][]
 - [Contract for Secrets](contracts-secret.html) to provide secrets that are deployed outside of the Nix store.
   One provider is implemented: [SOPS][].
 - [Dashboard contract](contracts-dashboard.html) to show services in a nice user-facing dashboard.
@@ -49,6 +51,7 @@ Provided contracts are:
 [borgbackup]: blocks-borgbackup.html
 [homepage]: services-homepage.html
 [restic]: blocks-restic.html
+[sanoid]: blocks-sanoid.html
 [sops]: blocks-sops.html
 
 ```{=include=} chapters html:into-file=//contracts-ssl.html
@@ -61,6 +64,10 @@ modules/contracts/backup/docs/default.md
 
 ```{=include=} chapters html:into-file=//contracts-databasebackup.html
 modules/contracts/databasebackup/docs/default.md
+```
+
+```{=include=} chapters html:into-file=//contracts-datasetbackup.html
+modules/contracts/datasetbackup/docs/default.md
 ```
 
 ```{=include=} chapters html:into-file=//contracts-secret.html
