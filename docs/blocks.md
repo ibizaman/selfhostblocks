@@ -31,6 +31,10 @@ modules/blocks/borgbackup/docs/default.md
 modules/blocks/restic/docs/default.md
 ```
 
+```{=include=} chapters html:into-file=//blocks-sanoid.html
+modules/blocks/sanoid/docs/default.md
+```
+
 ## Database {#blocks-category-database}
 
 ```{=include=} chapters html:into-file=//blocks-postgresql.html

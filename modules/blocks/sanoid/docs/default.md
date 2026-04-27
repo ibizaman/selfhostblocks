@@ -14,10 +14,10 @@ Defined in [`/modules/blocks/sanoid.nix`](@REPO@/modules/blocks/sanoid.nix):
 
 This block provides the following contracts:
 
-- [backup contract](contracts-backup.html) under the [`shb.sanoid.backup`][backup] option.
+- [dataset backup contract](contracts-datasetbackup.html) under the [`shb.sanoid.backup`][backup] option.
   It is tested with the [generic contract tests][backup contract tests].
 
-[backup]: #blocks-sanoid-options-shb.restic.backup
+[backup]: #blocks-sanoid-options-shb.sanoid.backup
 [backup contract tests]: @REPO@/test/contracts/backup.nix
 
 ## Usage {#blocks-sanoid-usage}
@@ -34,9 +34,13 @@ Backup a dataset using the default Sanoid template:
     path = "/home";
   };
 
-  shb.sanoid.backup."root/home" = { };
+  shb.sanoid.backup."root/home" = {
+    request = shb.zfs.pools.root.datasets.home.datasetBackup.request;
+  };
 }
 ```
+
+This uses the dataset backup contract which is exposed through the ZFS module's [`shb.zfs.pools.<name>.datasets.<name>.datasetBackup`](blocks-zfs.html#blocks-zfs-options-shb.zfs.pools._name_.datasets._name_.datasetbackup) option.
 
 ### Custom Template {#blocks-sanoid-usage-custom-template}
 
@@ -56,6 +60,7 @@ Create a custom template and use it:
   };
 
   shb.sanoid.backup."root/home" = {
+    request = shb.zfs.pools.root.datasets.home.datasetBackup.request;
     template = "yearly";
   };
 }
@@ -63,9 +68,10 @@ Create a custom template and use it:
 
 Note we use the upstream `services.sanoid.templates` option to define the templates.
 
-### Custom Template {#blocks-sanoid-usage-custom-template}
+### Without contract {#blocks-sanoid-usage-without-contract}
 
-Create a custom template and use it:
+To backup a dataset that does not provide the dataset backup contract,
+we can just set the request manually:
 
 ```nix
 {
@@ -73,9 +79,14 @@ Create a custom template and use it:
     path = "/home";
   };
 
-  shb.sanoid.backup."root/home";
+  shb.sanoid.backup."root/home" = {
+    request.dataset = "root/home";
+  };
 }
 ```
+
+Note the attr name under the `shb.sanoid.backup` option does not
+set the dataset name.
 
 ## Options Reference {#blocks-sanoid-options}
 
