@@ -1604,6 +1604,63 @@
   "blocks-restic-usage-provider-remote": [
     "blocks-restic.html#blocks-restic-usage-provider-remote"
   ],
+  "blocks-sanoid": [
+    "blocks-sanoid.html#blocks-sanoid"
+  ],
+  "blocks-sanoid-contract-provider": [
+    "blocks-sanoid.html#blocks-sanoid-contract-provider"
+  ],
+  "blocks-sanoid-options": [
+    "blocks-sanoid.html#blocks-sanoid-options"
+  ],
+  "blocks-sanoid-options-shb.sanoid.backup": [
+    "blocks-sanoid.html#blocks-sanoid-options-shb.sanoid.backup"
+  ],
+  "blocks-sanoid-options-shb.sanoid.backup._name_.request": [
+    "blocks-sanoid.html#blocks-sanoid-options-shb.sanoid.backup._name_.request"
+  ],
+  "blocks-sanoid-options-shb.sanoid.backup._name_.request.excludePatterns": [
+    "blocks-sanoid.html#blocks-sanoid-options-shb.sanoid.backup._name_.request.excludePatterns"
+  ],
+  "blocks-sanoid-options-shb.sanoid.backup._name_.request.hooks": [
+    "blocks-sanoid.html#blocks-sanoid-options-shb.sanoid.backup._name_.request.hooks"
+  ],
+  "blocks-sanoid-options-shb.sanoid.backup._name_.request.hooks.afterBackup": [
+    "blocks-sanoid.html#blocks-sanoid-options-shb.sanoid.backup._name_.request.hooks.afterBackup"
+  ],
+  "blocks-sanoid-options-shb.sanoid.backup._name_.request.hooks.beforeBackup": [
+    "blocks-sanoid.html#blocks-sanoid-options-shb.sanoid.backup._name_.request.hooks.beforeBackup"
+  ],
+  "blocks-sanoid-options-shb.sanoid.backup._name_.request.sourceDirectories": [
+    "blocks-sanoid.html#blocks-sanoid-options-shb.sanoid.backup._name_.request.sourceDirectories"
+  ],
+  "blocks-sanoid-options-shb.sanoid.backup._name_.request.user": [
+    "blocks-sanoid.html#blocks-sanoid-options-shb.sanoid.backup._name_.request.user"
+  ],
+  "blocks-sanoid-options-shb.sanoid.backup._name_.result": [
+    "blocks-sanoid.html#blocks-sanoid-options-shb.sanoid.backup._name_.result"
+  ],
+  "blocks-sanoid-options-shb.sanoid.backup._name_.result.backupService": [
+    "blocks-sanoid.html#blocks-sanoid-options-shb.sanoid.backup._name_.result.backupService"
+  ],
+  "blocks-sanoid-options-shb.sanoid.backup._name_.result.restoreScript": [
+    "blocks-sanoid.html#blocks-sanoid-options-shb.sanoid.backup._name_.result.restoreScript"
+  ],
+  "blocks-sanoid-options-shb.sanoid.backup._name_.settings": [
+    "blocks-sanoid.html#blocks-sanoid-options-shb.sanoid.backup._name_.settings"
+  ],
+  "blocks-sanoid-usage": [
+    "blocks-sanoid.html#blocks-sanoid-usage"
+  ],
+  "blocks-sanoid-usage-custom-template": [
+    "blocks-sanoid.html#blocks-sanoid-usage-custom-template"
+  ],
+  "blocks-sanoid-usage-default-template": [
+    "blocks-sanoid.html#blocks-sanoid-usage-default-template"
+  ],
+  "blocks-sanoid-usage-without-contract": [
+    "blocks-sanoid.html#blocks-sanoid-usage-without-contract"
+  ],
   "blocks-sops": [
     "blocks-sops.html#blocks-sops"
   ],
