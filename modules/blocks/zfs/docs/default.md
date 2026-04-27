@@ -54,6 +54,45 @@ shb.zfs.pools.root.datasets."syncthing" = {
 };
 ```
 
+### Backup dataset {#blocks-zfs-usage-backup-dataset}
+
+To backup the dataset directly, use the [dataset backup contract](contracts-datasetbackup.html).
+For example, with the sanoid module as the dataset backup contract provider:
+
+```nix
+{
+  shb.zfs.pools.root.datasets.home = {
+    path = "/home";
+  };
+
+  shb.sanoid.backup."root/home" = {
+    request = shb.zfs.pools.root.datasets.home.datasetBackup.request;
+    template = "yearly";
+  };
+}
+```
+
+See the [Sanoid block](blocks-sanoid.html) for more examples.
+
+### Backup files {#blocks-zfs-usage-backup-files}
+
+To backup the files in the dataset, use the [file backup contract](contracts-backup.html).
+For example, with the restic module as the file backup contract provider:
+
+```nix
+{
+  shb.zfs.pools.root.datasets.home = {
+    path = "/home";
+  };
+
+  shb.restic.instances."myservice" = {
+    request = shb.zfs.pools.root.datasets.home.backup.request;
+  };
+}
+```
+
+See the [Restic block](blocks-restic.html) for more examples.
+
 ## Options Reference {#blocks-zfs-options}
 
 ```{=include=} options

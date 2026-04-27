@@ -1922,6 +1922,12 @@
   "blocks-zfs-usage": [
     "blocks-zfs.html#blocks-zfs-usage"
   ],
+  "blocks-zfs-usage-backup-dataset": [
+    "blocks-zfs.html#blocks-zfs-usage-backup-dataset"
+  ],
+  "blocks-zfs-usage-backup-files": [
+    "blocks-zfs.html#blocks-zfs-usage-backup-files"
+  ],
   "build-time-validation": [
     "service-implementation-guide.html#build-time-validation"
   ],
