@@ -257,6 +257,8 @@
           '';
         };
 
+        packages.update-flake-lock-pr = pkgs.callPackage ./.github/workflows/update-flake-lock-pr.nix { };
+
         lib = (pkgs.callPackage ./lib { }) // {
           test = pkgs.callPackage ./test/common.nix { };
           contracts = pkgs.callPackage ./modules/contracts {

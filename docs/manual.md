@@ -28,6 +28,10 @@ blocks.md
 recipes.md
 ```
 
+```{=include=} chapters html:into-file=//misc.html
+misc.md
+```
+
 ```{=include=} chapters html:into-file=//demos.html
 demos.md
 ```
