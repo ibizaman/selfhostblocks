@@ -1,9 +1,16 @@
+# See shb.skarabox.com/misc.html
 name: Update Flake Lock
 
 on:
-  workflow_dispatch:
   schedule:
-    - cron: '0 0 * * *' # runs daily at 00:00
+    - cron: '0 */3 * * *' # runs every 3 hours at :00
+
+  workflow_dispatch:
+    inputs:
+      bisect_future:
+        description: "Bisect in the future instead of the past"
+        required: false
+        default: "false"
 
 jobs:
   lockfile:
@@ -15,9 +22,12 @@ jobs:
         uses: cachix/install-nix-action@v31
         with:
           github_access_token: ${{ secrets.GITHUB_TOKEN }}
-      - name: Update flake.lock
-        uses: DeterminateSystems/update-flake-lock@main
+      - name: Cache nixpkgs mirror
+        uses: actions/cache@v4
         with:
-          token: ${{ secrets.GH_TOKEN_FOR_UPDATES }}
-          pr-labels: |
-            automerge
+          path: .cache/nixpkgs.git
+          key: nixpkgs-mirror-v1
+      - name: Update flake.lock
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN_FOR_UPDATES }}
+        script: nix .#update-flake-lock-pr
