@@ -16,6 +16,7 @@ in
           (pkgs'.path + "/nixos/modules/profiles/qemu-guest.nix")
           ../../modules/blocks/authelia.nix
           ../../modules/blocks/hardcodedsecret.nix
+          ../../modules/blocks/ssl.nix
         ];
 
         networking.hosts = {
@@ -28,11 +29,29 @@ in
           ];
         };
 
+        shb.certs.cas.selfsigned.myca = {
+          name = "My CA";
+        };
+        shb.certs.certs.selfsigned = {
+          "machine.com" = {
+            ca = config.shb.certs.cas.selfsigned.myca;
+
+            domain = "*.machine.com";
+            group = "nginx";
+          };
+        };
+        systemd.services.nginx.after = [ config.shb.certs.certs.selfsigned."machine.com".systemdService ];
+        systemd.services.nginx.requires = [
+          config.shb.certs.certs.selfsigned."machine.com".systemdService
+        ];
+
         shb.lldap = {
           enable = true;
           dcdomain = "dc=example,dc=com";
           subdomain = "ldap";
           domain = "machine.com";
+          ssl = config.shb.certs.certs.selfsigned."machine.com";
+
           ldapUserPassword.result = config.shb.hardcodedsecret.ldapUserPassword.result;
           jwtSecret.result = config.shb.hardcodedsecret.jwtSecret.result;
         };
@@ -50,6 +69,8 @@ in
           enable = true;
           subdomain = "authelia";
           domain = "machine.com";
+          ssl = config.shb.certs.certs.selfsigned."machine.com";
+
           ldapHostname = "${config.shb.lldap.subdomain}.${config.shb.lldap.domain}";
           ldapPort = config.shb.lldap.ldapPort;
           dcdomain = config.shb.lldap.dcdomain;
@@ -136,10 +157,10 @@ in
             machine.wait_for_unit("authelia-authelia.machine.com.target")
             machine.wait_for_open_port(9091)
 
-            endpoints = json.loads(machine.succeed("curl -s http://machine.com/.well-known/openid-configuration"))
+            endpoints = json.loads(machine.succeed("curl -s https://authelia.machine.com/.well-known/openid-configuration"))
             auth_endpoint = endpoints['authorization_endpoint']
             print(f"auth_endpoint: {auth_endpoint}")
-            if auth_endpoint != "http://machine.com/api/oidc/authorization":
+            if auth_endpoint != "https://authelia.machine.com/api/oidc/authorization":
                 raise Exception("Unexpected auth_endpoint")
 
             resp = machine.succeed(
