@@ -645,6 +645,7 @@ in
     shb.mitmdump.instances."authelia-${fqdn}" = lib.mkIf cfg.debug {
       listenPort = 9091;
       upstreamPort = 9090;
+      timeout = 30;
       after = [ "authelia-${fqdn}.service" ];
       enabledAddons = [ config.shb.mitmdump.addons.logger ];
       extraArgs = [
