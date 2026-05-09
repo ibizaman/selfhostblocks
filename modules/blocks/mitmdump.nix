@@ -48,7 +48,7 @@ let
         logging.basicConfig(level=logging.INFO, format='%(message)s')
 
 
-        def wait_for_port(host, port, timeout=10):
+        def wait_for_port(host, port, timeout):
             deadline = time.time() + timeout
             while time.time() < deadline:
                 try:
@@ -68,6 +68,7 @@ let
         parser.add_argument("--listen_port", required=True, help="Port mitmdump will listen on")
         parser.add_argument("--upstream_host", default="http://127.0.0.1", help="Host mitmdump will connect to for upstream. Example: http://127.0.0.1 or https://otherhost")
         parser.add_argument("--upstream_port", required=True, help="Port mitmdump will connect to for upstream")
+        parser.add_argument("--timeout", required=False, type=int, default=10, help="Timeout to wait for port availability")
         args, rest = parser.parse_known_args()
 
         MITMDUMP_BIN = os.environ.get("MITMDUMP_BIN")
@@ -75,7 +76,7 @@ let
             raise Exception("MITMDUMP_BIN env var must be set to the path of the mitmdump binary")
 
         logging.info(f"Waiting for upstream address '{args.upstream_host}:{args.upstream_port}' to be up.")
-        wait_for_port(args.upstream_host, args.upstream_port, timeout=10)
+        wait_for_port(args.upstream_host, args.upstream_port, timeout=args.timeout)
         logging.info(f"Upstream address '{args.upstream_host}:{args.upstream_port}' is up.")
 
         proc = subprocess.Popen(
@@ -90,10 +91,11 @@ let
         )
 
         logging.info(f"Waiting for mitmdump instance to start on port {args.listen_port}.")
-        if wait_for_port("127.0.0.1", args.listen_port, timeout=10):
+        if wait_for_port("127.0.0.1", args.listen_port, timeout=args.timeout):
             logging.info(f"Mitmdump is started on port {args.listen_port}.")
             notify("READY=1")
         else:
+            print(f"Mitmdump instance did not start before the timeout of {args.timeout} seconds, consider increasing the timeout")
             proc.terminate()
             exit(1)
 
@@ -222,6 +224,14 @@ in
                 '';
               };
 
+              timeout = mkOption {
+                type = types.int;
+                default = 30;
+                description = ''
+                  Time to wait for upstream to start and mitmdump to start.
+                '';
+              };
+
               after = mkOption {
                 type = listOf str;
                 default = [ ];
@@ -282,7 +292,7 @@ in
               addons = lib.concatMapStringsSep " " (addon: "-s ${addon}") cfg'.enabledAddons;
               extraArgs = lib.concatStringsSep " " cfg'.extraArgs;
             in
-            "${lib.getExe mitmdumpScript} --listen_host ${cfg'.listenHost} --listen_port ${toString cfg'.listenPort} --upstream_host ${cfg'.upstreamHost} --upstream_port ${toString cfg'.upstreamPort} ${addons} ${extraArgs}";
+            "${lib.getExe mitmdumpScript} --listen_host ${cfg'.listenHost} --listen_port ${toString cfg'.listenPort} --upstream_host ${cfg'.upstreamHost} --upstream_port ${toString cfg'.upstreamPort} --timeout ${toString cfg'.timeout} ${addons} ${extraArgs}";
         };
         requires = cfg'.after;
         after = cfg'.after;
