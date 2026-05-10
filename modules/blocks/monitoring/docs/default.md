@@ -284,6 +284,16 @@ Graphs:
 
 ![Late SSL Jobs Alert Firing](./assets/alert_rules_LateSSL_1.png)
 
+## Impermanence {#blocks-monitoring-impermanence}
+
+To save the fluent-bit folder in an impermanence setup, add:
+
+```nix
+{
+  shb.zfs.datasets."safe/monitoring-fluent-bit".path = config.shb.jellyfin.impermanence.fluent-bit;
+}
+```
+
 ## Options Reference {#blocks-monitoring-options}
 
 ```{=include=} options
