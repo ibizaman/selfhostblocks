@@ -143,6 +143,8 @@ let
   sso =
     { config, ... }:
     {
+      virtualisation.memorySize = 4096;
+
       shb.open-webui = {
         sso = {
           enable = true;
