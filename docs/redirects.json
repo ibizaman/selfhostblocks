@@ -971,6 +971,9 @@
   "blocks-monitoring-error-dashboard": [
     "blocks-monitoring.html#blocks-monitoring-error-dashboard"
   ],
+  "blocks-monitoring-impermanence": [
+    "blocks-monitoring.html#blocks-monitoring-impermanence"
+  ],
   "blocks-monitoring-nextcloud-dashboard": [
     "blocks-monitoring.html#blocks-monitoring-nextcloud-dashboard"
   ],
@@ -1033,6 +1036,9 @@
   ],
   "blocks-monitoring-options-shb.monitoring.grafanaPort": [
     "blocks-monitoring.html#blocks-monitoring-options-shb.monitoring.grafanaPort"
+  ],
+  "blocks-monitoring-options-shb.monitoring.impermanence": [
+    "blocks-monitoring.html#blocks-monitoring-options-shb.monitoring.impermanence"
   ],
   "blocks-monitoring-options-shb.monitoring.ldap": [
     "blocks-monitoring.html#blocks-monitoring-options-shb.monitoring.ldap"

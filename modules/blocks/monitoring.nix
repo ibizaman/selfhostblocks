@@ -293,6 +293,16 @@ in
         };
       };
     };
+
+    impermanence = lib.mkOption {
+      description = ''
+        Paths to save when using impermanence setup.
+      '';
+      type = lib.types.attrsOf lib.types.str;
+      default = {
+        fluent-bit = "/var/fluent-bit";
+      };
+    };
   };
 
   config = lib.mkMerge [
@@ -575,41 +585,62 @@ in
         };
       };
 
-      services.promtail = {
+      # I decided to switch to fluent-bit because it can be tested locally https://docs.fluentbit.io/manual/local-testing/logging-pipeline
+      services.fluent-bit = {
         enable = true;
-        configuration = {
-          server = {
-            http_listen_port = 9080;
-            grpc_listen_port = 0;
+        settings = {
+          service = {
+            flush = 1;
+            log_level = "info";
+            http_server = "true";
+            http_listen = "127.0.0.1";
+            http_port = 9080;
+            grace = 30;
           };
 
-          positions.filename = "/tmp/positions.yaml";
+          pipeline = {
+            inputs = [
+              {
+                name = "systemd";
 
-          client.url = "http://localhost:${toString config.services.loki.configuration.server.http_listen_port}/api/prom/push";
+                # The asterisk appends the _SYSTEMD_UNIT to the prefix.
+                tag = "systemd.*";
 
-          scrape_configs = [
-            {
-              job_name = "systemd";
-              journal = {
-                json = false;
-                max_age = "12h";
+                # Read logs from this systemd journal directory.
                 path = "/var/log/journal";
-                # matches = "_TRANSPORT=kernel";
+
+                # Database file to keep track of the journald cursor.
+                db = "/var/fluent-bit/systemd.db";
+
+                # Start reading new entries. Skip entries already stored in journald.
+                read_from_tail = true;
+
+                # Max entries to lookback on start.
+                max_entries = 10000;
+              }
+            ];
+
+            outputs = [
+              {
+                name = "loki";
+
+                match = "systemd.*";
+
+                host = "localhost";
+                port = config.services.loki.configuration.server.http_listen_port;
+
                 labels = {
+                  job = "systemd-journal";
                   domain = cfg.domain;
                   hostname = config.networking.hostName;
-                  job = "systemd-journal";
                 };
-              };
-              relabel_configs = [
-                {
-                  source_labels = [ "__journal__systemd_unit" ];
-                  target_label = "unit";
-                }
-              ];
-            }
-          ];
+
+                label_keys = "unit";
+              }
+            ];
+          };
         };
+        graceLimit = "1m";
       };
 
       services.nginx = {
