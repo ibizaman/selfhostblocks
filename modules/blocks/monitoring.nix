@@ -926,11 +926,11 @@ in
           src = pkgs.fetchFromGitHub {
             owner = "ibizaman";
             repo = "scrutiny";
-            rev = "7ff9a0530d3e54dd1323c2de34f32be330bfb48c";
-            hash = "sha256-dE4HuZzaGZKBEkzXwBLQL3h+D55tJMm/EOTpr3wqGAI=";
+            rev = "74faf06f77df83f29e7e1806cd88b2fafc0bbb82";
+            hash = "sha256-r0AVWL+E046xHxitwMPfRNTOpjuOk+W6tB41YgmLTPg=";
           };
 
-          vendorHash = "sha256-j3aGTeHNTr/FoVfFLwASkS96Ks0B/Ka9hPuLAKGZECs=";
+          vendorHash = "sha256-kAlnlWnBMFCdgdak5L5hRquRtyLi5MTmDa/kxwqPs4E=";
         });
 
         settings = {
