@@ -1,20 +1,20 @@
-From 6897dd86a41b336c7c03a466990f7e981c5c649c Mon Sep 17 00:00:00 2001
+From fa1659eeb26375677b19fa5c3b2393f3faa05234 Mon Sep 17 00:00:00 2001
 From: ibizaman <ibizaman@tiserbox.com>
-Date: Tue, 23 Sep 2025 11:36:24 +0200
-Subject: [PATCH] selfhostblocks: never onboard
+Date: Sun, 10 May 2026 08:58:10 +0200
+Subject: [PATCH] never onboard
 
 ---
  backend/open_webui/main.py | 4 +---
  1 file changed, 1 insertion(+), 3 deletions(-)
 
 diff --git a/backend/open_webui/main.py b/backend/open_webui/main.py
-index 5630a5883..5c7c88a64 100644
+index ba7f74c83..d9bab576a 100644
 --- a/backend/open_webui/main.py
 +++ b/backend/open_webui/main.py
-@@ -1654,11 +1654,9 @@ async def get_app_config(request: Request):
-             user = Users.get_user_by_id(data["id"])
+@@ -2192,11 +2192,9 @@ async def get_app_config(request: Request):
+             user = await Users.get_user_by_id(data['id'])
  
-     user_count = Users.get_num_users()
+     user_count = await Users.get_num_users()
 +    # Never onboard
      onboarding = False
  
@@ -22,8 +22,7 @@ index 5630a5883..5c7c88a64 100644
 -        onboarding = user_count == 0
 -
      return {
-         **({"onboarding": True} if onboarding else {}),
-         "status": True,
+         **({'onboarding': True} if onboarding else {}),
+         'status': True,
 -- 
-2.50.1
-
+2.53.0
