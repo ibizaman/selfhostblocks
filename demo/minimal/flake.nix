@@ -24,7 +24,10 @@
           # This module makes the assertions happy and the build succeed.
           # This is of course wrong and will not work on any real system.
           filesystemModule = {
-            fileSystems."/".device = "/dev/null";
+            fileSystems."/" = {
+              device = "/dev/null";
+              fsType = "none";
+            };
             boot.loader.grub.devices = [ "/dev/null" ];
           };
         in
