@@ -30,4 +30,12 @@ jobs:
       - name: Update flake.lock
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN_FOR_UPDATES }}
-        run: nix run .#update-flake-lock-pr ${{ inputs.bisect_future }}
+          BISECT_FUTURE: ${{ inputs.bisect_future }}
+        run: |
+          git config user.email "update-flake-lock-pr@selfhostblocks.com"
+          git config user.name "Update Flake Lock PR"
+          if [ -n "$BISECT_FUTURE" ]; then
+            BISECT_FUTURE=future
+          fi
+          nix run .#update-flake-lock-pr $BISECT_FUTURE
+
