@@ -30,4 +30,4 @@ jobs:
       - name: Update flake.lock
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN_FOR_UPDATES }}
-        script: nix .#update-flake-lock-pr
+        run: nix .#update-flake-lock-pr
