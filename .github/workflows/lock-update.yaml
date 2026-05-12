@@ -34,7 +34,9 @@ jobs:
         run: |
           git config user.email "update-flake-lock-pr@selfhostblocks.com"
           git config user.name "Update Flake Lock PR"
-          if [ -n "$BISECT_FUTURE" ]; then
+          if [ "$BISECT_FUTURE" = false ]; then
+            BISECT_FUTURE=
+          elif [ -n "$BISECT_FUTURE" ]; then
             BISECT_FUTURE=future
           fi
           nix run .#update-flake-lock-pr $BISECT_FUTURE
