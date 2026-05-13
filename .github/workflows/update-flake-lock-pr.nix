@@ -141,7 +141,7 @@ writeShellApplication {
 
       current_commit="$(get_main_branch_commit)"
       gh pr create \
-        --title "Update nixpkgs" \
+        --title "update nixpkgs to $test_commit" \
         --body "$(printf "%s\n\n%s" "Automated nixpkgs update. Latest tries:" " - https://github.com/NixOS/nixpkgs/compare/$current_commit...$test_commit")" \
         --label automerge-merge
     }
@@ -182,6 +182,10 @@ writeShellApplication {
       else
         future_text="bisected in the past"
       fi
+
+      gh pr edit "$pr" \
+        --title "update nixpkgs to $test_commit"
+
       append_pr_body "$pr" \
         " ❌\n - https://github.com/NixOS/nixpkgs/compare/$current_commit...$test_commit ($future_text)"
     }
