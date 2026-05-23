@@ -5009,6 +5009,9 @@
   "services-mailserver-options-shb.mailserver.ssl.systemdService": [
     "services-mailserver.html#services-mailserver-options-shb.mailserver.ssl.systemdService"
   ],
+  "services-mailserver-options-shb.mailserver.stateVersion": [
+    "services-mailserver.html#services-mailserver-options-shb.mailserver.stateVersion"
+  ],
   "services-mailserver-options-shb.mailserver.subdomain": [
     "services-mailserver.html#services-mailserver-options-shb.mailserver.subdomain"
   ],

@@ -14,7 +14,7 @@ in
       builtins.fetchGit {
         url = "https://gitlab.com/simple-nixos-mailserver/nixos-mailserver.git";
         ref = "master";
-        rev = "7d433bf89882f61621f95082e90a4ab91eb0bdd3";
+        rev = "e33fbde199eaad513ef5d0746db19d5878150232";
       }
       + "/default.nix"
     )
@@ -105,7 +105,7 @@ in
               description = ''
                 Accounts to sync emails from using IMAP.
 
-                Emails will be stored under `''${config.mailserver.mailDirectory}/''${name}/''${username}`
+                Emails will be stored under `''${config.mailserver.storage.path}/''${name}/''${username}`
               '';
               type = lib.types.attrsOf (
                 lib.types.submodule {
@@ -137,7 +137,7 @@ in
                       type = lib.types.submodule {
                         options = shb.contracts.secret.mkRequester {
                           mode = "0400";
-                          owner = config.mailserver.vmailUserName;
+                          owner = config.mailserver.storage.owner;
                           restartUnits = [ "mbsync.service" ];
                         };
                       };
@@ -267,7 +267,7 @@ in
         Enabling this app will create a new LDAP configuration or update one that exists with
         the given host.
       '';
-      default = { };
+      default = null;
       type = lib.types.nullOr (
         lib.types.submodule {
           options = {
@@ -333,6 +333,26 @@ in
       );
     };
 
+    stateVersion = lib.mkOption {
+      type = lib.types.ints.positive;
+      # SHB started at stateVersion 3.
+      default = 4;
+      description = ''
+        Tracking stateful version changes as an incrementing number.
+
+        When a new release comes out we may require manual migration steps to
+        be completed, before the new version can be put into production.
+
+        If your `stateVersion` is too low one or multiple assertions may
+        trigger to give you instructions on what migrations steps are required
+        to continue. Increase the `stateVersion` as instructed by the assertion
+        message.
+
+        See https://nixos-mailserver.readthedocs.io/en/latest/release-notes.html
+        and https://nixos-mailserver.readthedocs.io/en/latest/migrations.html
+      '';
+    };
+
     backup = lib.mkOption {
       description = ''
         Backup emails, index and sieve.
@@ -340,16 +360,16 @@ in
       default = { };
       type = lib.types.submodule {
         options = shb.contracts.backup.mkRequester {
-          user = config.mailserver.vmailUserName;
+          user = config.mailserver.storage.owner;
           sourceDirectories = builtins.filter (x: x != null) [
             config.mailserver.indexDir
-            config.mailserver.mailDirectory
+            config.mailserver.storage.path
             config.mailserver.sieveDirectory
           ];
           sourceDirectoriesText = ''
             [
               config.mailserver.indexDir
-              config.mailserver.mailDirectory
+              config.mailserver.storage.path
               config.mailserver.sieveDirectory
             ]
           '';
@@ -367,7 +387,7 @@ in
           user = config.services.rspamd.user;
           userText = "services.rspamd.user";
           sourceDirectories = builtins.filter (x: x != null) [
-            config.mailserver.dkimKeyDirectory
+            config.mailserver.dkim.keyDirectory
           ];
           sourceDirectoriesText = ''
             [
@@ -385,14 +405,14 @@ in
       type = lib.types.attrsOf lib.types.str;
       default = {
         index = config.mailserver.indexDir;
-        mail = config.mailserver.mailDirectory;
+        mail = config.mailserver.storage.path;
         sieve = config.mailserver.sieveDirectory;
         dkim = config.mailserver.dkimKeyDirectory;
       };
       defaultText = lib.literalExpression ''
         {
           index = config.mailserver.indexDir;
-          mail = config.mailserver.mailDirectory;
+          mail = config.mailserver.storage.path;
           sieve = config.mailserver.sieveDirectory;
           dkim = config.mailserver.dkimKeyDirectory;
         }
@@ -417,8 +437,8 @@ in
     (lib.mkIf cfg.enable {
       mailserver = {
         enable = true;
-        stateVersion = 3;
         fqdn = "${cfg.subdomain}.${cfg.domain}";
+        inherit (cfg) stateVersion;
         domains = [ cfg.domain ];
 
         localDnsResolver = false;
@@ -433,18 +453,22 @@ in
         # Using / is needed for iOS mail.
         # Both following options are used to organize subfolders in subdirectories.
         hierarchySeparator = "/";
-        useFsLayout = true;
+        storage = {
+          directoryLayout = "fs";
+        };
       };
 
-      services.postfix.config = {
+      services.postfix.settings.main = {
         smtpd_tls_security_level = lib.mkForce "encrypt";
       };
 
       # Is probably needed for iOS mail.
-      services.dovecot2.extraConfig = ''
-        ssl_min_protocol = TLSv1.2
-        ssl_cipher_list = HIGH:!aNULL:!MD5
-      '';
+      services.dovecot2.settings = {
+        ssl_min_protocol = "TLSv1.2";
+        # This conflicts with the default setting which seems much better than this one.
+        # So I'm leaving the default settings and we'll see if something breaks.
+        # ssl_cipher_list = "HIGH:!aNULL:!MD5";
+      };
 
       services.nginx = {
         enable = true;
@@ -482,6 +506,8 @@ in
           in
           {
             forceSSL = true; # Redirect HTTP → HTTPS
+            sslCertificate = cfg.ssl.paths.cert;
+            sslCertificateKey = cfg.ssl.paths.key;
             root = "/var/www"; # Dummy root
             locations."/.well-known/autoconfig/mail/" = {
               alias = "${announce}/";
@@ -501,6 +527,8 @@ in
           in
           {
             forceSSL = true; # Redirect HTTP → HTTPS
+            sslCertificate = cfg.ssl.paths.cert;
+            sslCertificateKey = cfg.ssl.paths.key;
             root = "/var/www"; # Dummy root
             locations."/" = {
               alias = "${landingPage}/";
@@ -548,35 +576,42 @@ in
           uris = [
             "ldap://${cfg.ldap.host}:${toString cfg.ldap.port}"
           ];
-          searchBase = "ou=people,${cfg.ldap.dcdomain}";
-          searchScope = "sub";
+          base = "ou=people,${cfg.ldap.dcdomain}";
+          scope = "sub";
           bind = {
             dn = "uid=${cfg.ldap.adminName},ou=people,${cfg.ldap.dcdomain}";
             passwordFile = cfg.ldap.adminPassword.result.path;
           };
-          # Note that nixos simple mailserver sets auth_bind=yes
-          # which means authentication binds are used.
-          # https://doc.dovecot.org/2.3/configuration_manual/authentication/ldap_bind/#authentication-ldap-bind
           dovecot =
             let
               filter = "(&(objectClass=inetOrgPerson)(mail=%{user})(memberOf=cn=${cfg.ldap.userGroup},ou=groups,${cfg.ldap.dcdomain}))";
             in
             {
-              passAttrs = "user=user";
               passFilter = filter;
-              userAttrs = lib.concatStringsSep "," [
-                "=home=${config.mailserver.mailDirectory}/${cfg.ldap.account}/%u"
-                # "mail=maildir:${config.mailserver.mailDirectory}/${cfg.ldap.account}/%u/mail"
-                "uid=${config.mailserver.vmailUserName}"
-                "gid=${config.mailserver.vmailGroupName}"
-              ];
               userFilter = filter;
             };
+          # username needs to be set to mail so postfix maps correctly the mail address.
+          # Otherwise we get error messages when sending
+          #   Sender address rejected: not owned by user
+          attributes = {
+            username = "mail";
+          };
           postfix = {
             filter = "(&(objectClass=inetOrgPerson)(mail=%s)(memberOf=cn=${cfg.ldap.userGroup},ou=groups,${cfg.ldap.dcdomain}))";
-            mailAttribute = "mail";
-            uidAttribute = "mail";
           };
+        };
+      };
+      services.dovecot2.settings = {
+        "userdb ldap" = {
+          fields.home = lib.mkForce "${config.mailserver.storage.path}/${cfg.ldap.account}/%{user}";
+          fields.mail_index_path = lib.mkForce "${config.mailserver.storage.path}/${cfg.ldap.account}/%{user}";
+        };
+        "passdb ldap" = {
+          # LLDAP does not understand ldap user password setup.
+          fields.password = lib.mkForce null;
+          # We use bind DN auth.
+          # https://doc.dovecot.org/2.3/configuration_manual/authentication/ldap_bind/#authentication-ldap-bind
+          bind = true;
         };
       };
     })
@@ -601,11 +636,11 @@ in
                 Account ${name}
 
                 MaildirStore ${name}-local
-                INBOX ${config.mailserver.mailDirectory}/${name}/${acct.username}/mail/
+                INBOX ${config.mailserver.storage.path}/${name}/${acct.username}/mail/
                 # Maps subfolders on far side to actual subfolders on disk.
                 # The other option is Maildir++ but then the mailserver.hierarchySeparator must be set to a dot '.'
                 SubFolders Verbatim
-                Path ${config.mailserver.mailDirectory}/${name}/${acct.username}/mail/
+                Path ${config.mailserver.storage.path}/${name}/${acct.username}/mail/
 
                 Channel ${name}-main
                 Far :${name}-remote:
@@ -672,7 +707,7 @@ in
           description = "Sync mailbox";
           serviceConfig = {
             Type = "oneshot";
-            User = config.mailserver.vmailUserName;
+            User = config.mailserver.storage.owner;
           };
           script =
             let
@@ -689,8 +724,8 @@ in
             name: acct:
             # The equal sign makes sure parent directories have the corret user and group too.
             [
-              "d '${config.mailserver.mailDirectory}/${name}' 0750 ${config.mailserver.vmailUserName} ${config.mailserver.vmailGroupName} - -"
-              "d '${config.mailserver.mailDirectory}/${name}/${acct.username}' 0750 ${config.mailserver.vmailUserName} ${config.mailserver.vmailGroupName} - -"
+              "d '${config.mailserver.storage.path}/${name}' 0750 ${config.mailserver.storage.owner} ${config.mailserver.storage.group} - -"
+              "d '${config.mailserver.storage.path}/${name}/${acct.username}' 0750 ${config.mailserver.storage.owner} ${config.mailserver.storage.group} - -"
             ];
         in
         lib.flatten (lib.mapAttrsToList mkAccount cfg.imapSync.accounts);

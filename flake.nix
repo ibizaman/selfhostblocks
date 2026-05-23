@@ -403,6 +403,7 @@
             // (vm_test "homepage" ./test/services/homepage.nix)
             // (vm_test "jellyfin" ./test/services/jellyfin.nix)
             // (vm_test "karakeep" ./test/services/karakeep.nix)
+            // (vm_test "mailserver" ./test/services/mailserver.nix)
             // (vm_test "nextcloud" ./test/services/nextcloud.nix)
             // (vm_test "open-webui" ./test/services/open-webui.nix)
             // (vm_test "paperless" ./test/services/paperless.nix)
