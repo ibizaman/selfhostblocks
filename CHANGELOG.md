@@ -16,6 +16,19 @@ Template:
 
 # Upcoming Release
 
+## Breaking Changes
+
+- Updated simple-nixos-mailserver. Update all options following this pattern:
+
+  ```diff
+  - mailserver.mailboxes.<name>.specialUse = "value"
+  + mailserver.mailboxes.<name>.special_use = "\\value"
+  ```
+
+  Note that simple-nixos-mailserver wanted to upgrade the location of the storage path
+  to include the ldap UID instead of the email but I kept the email address.
+  This means there is no migration to do.
+
 # v0.8.0
 
 ## Breaking Changes

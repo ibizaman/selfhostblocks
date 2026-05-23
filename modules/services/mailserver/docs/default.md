@@ -128,6 +128,8 @@ in
 }
 ```
 
+With the example above, the mails are stored under `/var/vmail/fastmail/<email address>`.
+
 ### Secrets {#services-mailserver-usage-secrets}
 
 Secrets can be randomly generated with `nix run nixpkgs#openssl -- rand -hex 64`.
