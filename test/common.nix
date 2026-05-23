@@ -494,6 +494,19 @@ in
         settings.content = "jwtSecrets";
       };
 
+      shb.hardcodedsecret.alice = {
+        request = config.shb.lldap.ensureUsers.alice.password.request;
+        settings.content = "alicePassword";
+      };
+      shb.hardcodedsecret.bob = {
+        request = config.shb.lldap.ensureUsers.bob.password.request;
+        settings.content = "bobPassword";
+      };
+      shb.hardcodedsecret.charlie = {
+        request = config.shb.lldap.ensureUsers.charlie.password.request;
+        settings.content = "charliePassword";
+      };
+
       shb.lldap = {
         enable = true;
         inherit (config.test) domain;
@@ -509,7 +522,7 @@ in
           alice = {
             email = "alice@example.com";
             groups = [ "user_group" ];
-            password.result.path = pkgs.writeText "alicePassword" "AlicePassword";
+            password.result = config.shb.hardcodedsecret.alice.result;
           };
           bob = {
             email = "bob@example.com";
@@ -517,12 +530,12 @@ in
             # so we can make sure users only part admins
             # can also login normally.
             groups = [ "admin_group" ];
-            password.result.path = pkgs.writeText "bobPassword" "BobPassword";
+            password.result = config.shb.hardcodedsecret.bob.result;
           };
           charlie = {
             email = "charlie@example.com";
             groups = [ "other_group" ];
-            password.result.path = pkgs.writeText "charliePassword" "CharliePassword";
+            password.result = config.shb.hardcodedsecret.charlie.result;
           };
         };
 
