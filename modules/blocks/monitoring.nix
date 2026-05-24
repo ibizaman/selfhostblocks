@@ -629,13 +629,15 @@ in
                 host = "localhost";
                 port = config.services.loki.configuration.server.http_listen_port;
 
-                labels = {
-                  job = "systemd-journal";
-                  domain = cfg.domain;
-                  hostname = config.networking.hostName;
-                };
+                labels = lib.traceValSeq (
+                  lib.concatMapAttrsStringSep ", " (n: v: "${n}=${v}") {
+                    job = "systemd-journal";
+                    domain = cfg.domain;
+                    hostname = config.networking.hostName;
+                  }
+                );
 
-                label_keys = "unit";
+                label_keys = "$unit";
               }
             ];
           };
