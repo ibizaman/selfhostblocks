@@ -249,7 +249,9 @@ in
         let
           recursiveFlag = lib.optionalString cfg.snapshotBeforeActivation.recursive "-r";
         in
-        lib.concatMapStringsSep "\n" (ds: "zfs snapshot ${recursiveFlag} ${ds}@\"$name\"") datasets
+        lib.concatMapStringsSep "\n" (ds: "zfs snapshot ${recursiveFlag} ${ds}@\"$name\"") (
+          lib.uniqueStrings datasets
+        )
       )
     );
   };
