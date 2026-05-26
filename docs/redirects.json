@@ -1928,6 +1928,18 @@
   "blocks-zfs-options-shb.zfs.pools._name_.datasets._name_.path": [
     "blocks-zfs.html#blocks-zfs-options-shb.zfs.pools._name_.datasets._name_.path"
   ],
+  "blocks-zfs-options-shb.zfs.snapshotBeforeActivation.datasets": [
+    "blocks-zfs.html#blocks-zfs-options-shb.zfs.snapshotBeforeActivation.datasets"
+  ],
+  "blocks-zfs-options-shb.zfs.snapshotBeforeActivation.enable": [
+    "blocks-zfs.html#blocks-zfs-options-shb.zfs.snapshotBeforeActivation.enable"
+  ],
+  "blocks-zfs-options-shb.zfs.snapshotBeforeActivation.recursive": [
+    "blocks-zfs.html#blocks-zfs-options-shb.zfs.snapshotBeforeActivation.recursive"
+  ],
+  "blocks-zfs-options-shb.zfs.snapshotBeforeActivation.template": [
+    "blocks-zfs.html#blocks-zfs-options-shb.zfs.snapshotBeforeActivation.template"
+  ],
   "blocks-zfs-usage": [
     "blocks-zfs.html#blocks-zfs-usage"
   ],
@@ -1936,6 +1948,9 @@
   ],
   "blocks-zfs-usage-backup-files": [
     "blocks-zfs.html#blocks-zfs-usage-backup-files"
+  ],
+  "blocks-zfs-usage-snapshot-before-activation": [
+    "blocks-zfs.html#blocks-zfs-usage-snapshot-before-activation"
   ],
   "build-time-validation": [
     "service-implementation-guide.html#build-time-validation"

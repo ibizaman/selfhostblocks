@@ -15,6 +15,7 @@ Defined in [`/modules/blocks/zfs.nix`](@REPO@/modules/blocks/zfs.nix):
 ```
 
 This block creates ZFS datasets, optionally mounts them and sets permissions on the mount point.
+It also enables taking snapshots on activation.
 
 ## Features {#blocks-zfs-features}
 
@@ -22,9 +23,11 @@ This block creates ZFS datasets, optionally mounts them and sets permissions on 
 - Sets permissions, [owner](#blocks-zfs-options-shb.zfs.pools._name_.datasets._name_.owner), [group](#blocks-zfs-options-shb.zfs.pools._name_.datasets._name_.group) and [ACL](#blocks-zfs-options-shb.zfs.pools._name_.datasets._name_.defaultACLs) on the mount point.
 - Backup of the files in the dataset [`shb.zfs.<name>.backup`][backup] through the [backup contract](./contracts-backup.html).
 - Backup of the dataset itself [`shb.zfs.<name>.datasetbackup`][datasetbackup] through the [dataset backup contract](./contracts-datasetbackup.html).
+- Take a snapshot [before activating or deploying][activationsnapshot] allowing a safe rollback.
 
 [backup]: #blocks-zfs-options-shb.zfs.pools._name_.datasets._name_.backup
 [datasetbackup]: #blocks-zfs-options-shb.zfs.pools._name_.datasets._name_.datasetbackup
+[activationsnapshot]: #blocks-zfs-options-shb.zfs.snapshotBeforeActivation.enable
 
 ## Usage {#blocks-zfs-usage}
 
@@ -92,6 +95,39 @@ For example, with the restic module as the file backup contract provider:
 ```
 
 See the [Restic block](blocks-restic.html) for more examples.
+
+### Snapshot before activation {#blocks-zfs-usage-snapshot-before-activation}
+
+To take a snapshot of all datasets before activating a new configuration:
+
+```nix
+{
+  shb.zfs.snapshotBeforeActivation.enable = true;
+}
+```
+
+This does not take a recursive snapshot by default, to do it recursively, do:
+
+```nix
+{
+  shb.zfs.snapshotBeforeActivation = {
+    enable = true;
+    recursive = true;
+  };
+}
+```
+
+We did not specify datasets manually, which means the datasets list comes from `boot.zfs.extraPools`.
+To specify the datasets manually, you can use:
+
+```nix
+{
+  shb.zfs.snapshotBeforeActivation = {
+    enable = true;
+    datasets = [ "root" "root/var" ];
+  };
+}
+```
 
 ## Options Reference {#blocks-zfs-options}
 

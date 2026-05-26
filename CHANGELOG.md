@@ -29,6 +29,11 @@ Template:
   to include the ldap UID instead of the email but I kept the email address.
   This means there is no migration to do.
 
+## New Features
+
+- Add `shb.zfs.snapshotBeforeActivation` option to take a ZFS snapshot of given datasets before activation.
+  See [the manual](https://shb.skarabox.com/blocks-zfs.html) for more details.
+
 # v0.8.0
 
 ## Breaking Changes
