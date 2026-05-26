@@ -9,6 +9,12 @@
 
 let
   cfg = config.shb.zfs;
+
+  datasets =
+    if cfg.snapshotBeforeActivation.datasets != null then
+      cfg.snapshotBeforeActivation.datasets
+    else
+      config.boot.zfs.extraPools;
 in
 {
   imports = [
@@ -145,6 +151,37 @@ in
 
       );
     };
+
+    snapshotBeforeActivation = {
+      enable = lib.mkOption {
+        type = lib.types.bool;
+        description = "Take a snapshot of all datasets before activation";
+        default = false;
+      };
+
+      template = lib.mkOption {
+        type = lib.types.str;
+        description = "Bash command to generate the snapshot name. $1 is the path to the new generation.";
+        default = ''pre-$(date --utc '+%y%m%dT%H%M%S')-$(basename "$1")'';
+      };
+
+      datasets = lib.mkOption {
+        type = lib.types.nullOr (lib.types.listOf lib.types.str);
+        description = ''
+          Defines all datasets to take a snapshot of.
+
+          If set to `null`, the default, take the list of datasets from `config.boot.zfs.extraPools`.
+
+          The snapshots are not recursive unless specificed in the `recursive` option.
+        '';
+      };
+
+      recursive = lib.mkOption {
+        type = lib.types.bool;
+        description = "If true, take snapshots recurisevly on the given datasets.";
+        default = false;
+      };
+    };
   };
 
   # The implementation is greatly inspired by https://discourse.nixos.org/t/configure-zfs-filesystems-after-install/48633/3
@@ -203,5 +240,17 @@ in
         mergeAttrs = lib.foldl lib.mergeAttrs { };
       in
       mergeAttrs (lib.mapAttrsToList mkPool cfg.pools);
+
+    system.preSwitchChecks."shb-zfs-snapshot" = lib.mkIf cfg.snapshotBeforeActivation.enable (
+      ''
+        name="${cfg.snapshotBeforeActivation.template}"
+      ''
+      + (
+        let
+          recursiveFlag = lib.optionalString cfg.snapshotBeforeActivation.recursive "-r";
+        in
+        lib.concatMapStringsSep "\n" (ds: "zfs snapshot ${recursiveFlag} ${ds}@\"$name\"") datasets
+      )
+    );
   };
 }
