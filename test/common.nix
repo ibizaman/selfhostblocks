@@ -156,7 +156,7 @@ let
                 mkdir -p /tmp/shared/
                 cp -r trace /tmp/shared/
               """)
-              server.copy_from_vm("trace")
+              server.copy_from_machine("trace")
           except:
               print("No trace found on server")
           if code != 0:
@@ -171,7 +171,7 @@ let
                 mkdir -p /tmp/shared/
                 cp -r trace /tmp/shared/
               """)
-              client.copy_from_vm("trace")
+              client.copy_from_machine("trace")
           except:
               print("No trace found on client")
           if code != 0:
