@@ -61,6 +61,25 @@ If the test includes playwright tests, you can see the playwright trace with:
 $ nix run .#playwright -- show-trace $(nix eval .#checks.x86_64-linux.vm_grocy_basic --raw)/trace/0.zip
 ```
 
+If the test fails, you won't have the output directory available.
+Instead, run the test with `--keep-failed` and at the end you will see a line saying
+
+```
+Keeping build directory '/nix/var/nix/builds/nix-31776-4270051001/build'
+```
+
+Copy the path and run:
+
+```bash
+sudo cp -r /nix/var/nix/builds/nix-31776-4270051001/build/shared-xchg/trace trace && sudo chown -R $USER: trace
+```
+
+Now, open that file with playwright:
+
+```bash
+nix run .#playwright -- show-trace trace/0.zip
+```
+
 ### Debug Tests {#contributing-debug-tests}
 
 Run the test in driver interactive mode:
