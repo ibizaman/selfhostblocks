@@ -40,6 +40,36 @@ let
           unit_system = "metric";
         };
       };
+      services.home-assistant.extraComponents = [
+        # this is effecitvely default_config (2026.5.0), but with components
+        # skipped that would cause ERRORs in the sandbox
+        "bluetooth"
+        "cloud"
+        "conversation"
+        "dhcp"
+        "energy"
+        "file"
+        # Requires go2rtc service
+        # "go2rtc"
+        "history"
+        # Requires DNS and HTTP queries
+        # "homeassistant_alerts"
+        "logbook"
+        "media_source"
+        "mobile_app"
+        "my"
+        "ssdp"
+        "stream"
+        "sun"
+        "usage_prediction"
+        "usb"
+        "webhook"
+        "zeroconf"
+
+        # include some popular integrations, that absolutely shouldn't break
+        "knx"
+        "zha"
+      ];
     };
 
   clientLogin =
@@ -63,10 +93,10 @@ let
               "page.get_by_role('button', name=re.compile('Create my smart home')).click()"
 
               "expect(page.get_by_text('Create user')).to_be_visible()"
-              "page.get_by_label(re.compile('Name')).fill('Admin')"
-              "page.get_by_label(re.compile('Username')).fill('admin')"
-              "page.get_by_label(re.compile('Password')).fill('adminpassword')"
-              "page.get_by_label(re.compile('Confirm password')).fill('adminpassword')"
+              ''page.get_by_role("textbox", name="Name*", exact=True).fill('Admin')''
+              ''page.get_by_role("textbox", name="Username*").fill('admin')''
+              ''page.get_by_role("textbox", name="Password*", exact=True).fill('adminpassword')''
+              ''page.get_by_role("textbox", name="Confirm password*").fill('adminpassword')''
               "page.get_by_role('button', name=re.compile('Create account')).click()"
 
               "expect(page.get_by_text('All set!')).to_be_visible()"
