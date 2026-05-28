@@ -152,6 +152,10 @@ let
           code, logs = server.execute("login_playwright")
           print(logs)
           try:
+              server.succeed("""
+                mkdir -p /tmp/shared/
+                cp -r trace /tmp/shared/
+              """)
               server.copy_from_vm("trace")
           except:
               print("No trace found on server")
@@ -163,6 +167,10 @@ let
           code, logs = client.execute("login_playwright")
           print(logs)
           try:
+              client.succeed("""
+                mkdir -p /tmp/shared/
+                cp -r trace /tmp/shared/
+              """)
               client.copy_from_vm("trace")
           except:
               print("No trace found on client")
