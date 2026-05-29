@@ -504,15 +504,15 @@ in
 
       shb.hardcodedsecret.alice = {
         request = config.shb.lldap.ensureUsers.alice.password.request;
-        settings.content = "alicePassword";
+        settings.content = "AlicePassword";
       };
       shb.hardcodedsecret.bob = {
         request = config.shb.lldap.ensureUsers.bob.password.request;
-        settings.content = "bobPassword";
+        settings.content = "BobPassword";
       };
       shb.hardcodedsecret.charlie = {
         request = config.shb.lldap.ensureUsers.charlie.password.request;
-        settings.content = "charliePassword";
+        settings.content = "CharliePassword";
       };
 
       shb.lldap = {
