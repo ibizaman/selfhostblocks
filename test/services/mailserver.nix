@@ -167,11 +167,11 @@ in
               };
               shb.hardcodedsecret.alice = {
                 request = config.shb.lldap.ensureUsers.alice.password.request;
-                settings.content = "alicePassword";
+                settings.content = "AlicePassword";
               };
               shb.hardcodedsecret.charlie = {
                 request = config.shb.lldap.ensureUsers.charlie.password.request;
-                settings.content = "charliePassword";
+                settings.content = "CharliePassword";
               };
 
               shb.lldap = {
@@ -254,22 +254,22 @@ in
             server.succeed("${switch "ldap"}")
 
             server.wait_for_unit("lldap")
-            print(server.succeed("${ldapSearch} -LLL -D uid=alice,ou=people,dc=example,dc=com -w alicePassword -b cn=user_group,ou=groups,dc=example,dc=com | grep uniquemember | grep alice"))
+            print(server.succeed("${ldapSearch} -LLL -D uid=alice,ou=people,dc=example,dc=com -w AlicePassword -b cn=user_group,ou=groups,dc=example,dc=com | grep uniquemember | grep alice"))
             print(server.succeed("${ldapSearchAdmin} -LLL -b cn=user_group,ou=groups,dc=example,dc=com | grep uniquemember | grep alice"))
 
             server.wait_for_unit("dovecot")
             print(server.fail("doveadm auth test auser@example.com apassword"))
-            print(server.fail("doveadm auth test charlie@example.com charliePassword"))
-            print(server.succeed("doveadm auth test alice@example.com alicePassword"))
+            print(server.fail("doveadm auth test charlie@example.com CharliePassword"))
+            print(server.succeed("doveadm auth test alice@example.com AlicePassword"))
 
             server.wait_for_unit("postfix")
             print(server.fail("trySendMail alice@example.com"))
             print(server.fail("trySendMail auser@example.com apassword"))
-            print(server.fail("trySendMail charlie@example.com charliePassword"))
-            print(server.succeed("trySendMail alice@example.com alicePassword"))
+            print(server.fail("trySendMail charlie@example.com CharliePassword"))
+            print(server.succeed("trySendMail alice@example.com AlicePassword"))
 
-            print(server.fail("tryRcvMail charlie@example.com charliePassword"))
-            print(server.succeed("tryRcvMail alice@example.com alicePassword"))
+            print(server.fail("tryRcvMail charlie@example.com CharliePassword"))
+            print(server.succeed("tryRcvMail alice@example.com AlicePassword"))
 
             print(server.succeed("find /var/vmail"))
             print(server.succeed("find /var/vmail/fastmail/alice@example.com"))
