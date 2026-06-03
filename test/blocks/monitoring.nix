@@ -226,7 +226,6 @@ let
             username = "charlie";
             password = "CharliePassword";
             nextPageExpect = [
-              "page.get_by_role('button', name=re.compile('Accept')).click()" # I don't understand why this is not needed. Maybe it keeps somewhere the previous token?
               "expect(page.get_by_text(re.compile('[Ll]ogin failed'))).to_be_visible(timeout=10000)"
             ];
           }
