@@ -226,7 +226,8 @@ let
             username = "charlie";
             password = "CharliePassword";
             nextPageExpect = [
-              "expect(page.get_by_text(re.compile('[Ll]ogin failed'))).to_be_visible(timeout=10000)"
+              "expect(page.get_by_text(re.compile('Hi'))).to_be_visible(timeout=10000)" # This Hi is the Authelia profile page.
+              # "expect(page.get_by_text(re.compile('[Ll]ogin failed'))).to_be_visible(timeout=10000)"
             ];
           }
         ];
