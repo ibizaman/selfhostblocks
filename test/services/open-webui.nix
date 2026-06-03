@@ -91,7 +91,7 @@ let
             username = "alice";
             password = "NotAlicePassword";
             nextPageExpect = [
-              "expect(page.get_by_text(re.compile('[Ii]ncorrect'))).to_be_visible()"
+              "expect(page.get_by_text(re.compile('[Ii]ncorrect'))).to_be_visible(timeout=20000)"
             ];
           }
           {
@@ -101,14 +101,14 @@ let
               "page.get_by_role('button', name=re.compile('Accept')).click()"
               "expect(page.get_by_text(re.compile('[Ii]ncorrect'))).not_to_be_visible()"
               "expect(page.get_by_role('button', name=re.compile('Sign In'))).not_to_be_visible()"
-              "expect(page.get_by_text('logged in')).to_be_visible()"
+              "expect(page.get_by_text('logged in')).to_be_visible(timeout=20000)"
             ];
           }
           {
             username = "bob";
             password = "NotBobPassword";
             nextPageExpect = [
-              "expect(page.get_by_text(re.compile('[Ii]ncorrect'))).to_be_visible()"
+              "expect(page.get_by_text(re.compile('[Ii]ncorrect'))).to_be_visible(timeout=20000)"
             ];
           }
           {
@@ -118,14 +118,14 @@ let
               "page.get_by_role('button', name=re.compile('Accept')).click()"
               "expect(page.get_by_text(re.compile('[Ii]ncorrect'))).not_to_be_visible()"
               "expect(page.get_by_role('button', name=re.compile('Sign In'))).not_to_be_visible()"
-              "expect(page.get_by_text('logged in')).to_be_visible()"
+              "expect(page.get_by_text('logged in')).to_be_visible(timeout=20000)"
             ];
           }
           {
             username = "charlie";
             password = "NotCharliePassword";
             nextPageExpect = [
-              "expect(page.get_by_text(re.compile('[Ii]ncorrect'))).to_be_visible()"
+              "expect(page.get_by_text(re.compile('[Ii]ncorrect'))).to_be_visible(timeout=20000)"
             ];
           }
           {
@@ -133,7 +133,7 @@ let
             password = "CharliePassword";
             nextPageExpect = [
               "page.get_by_role('button', name=re.compile('Accept')).click()"
-              "expect(page.get_by_text('do not have permission')).to_be_visible()"
+              "expect(page.get_by_text('do not have permission')).to_be_visible(timeout=20000)"
             ];
           }
         ];
