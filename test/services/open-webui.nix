@@ -133,7 +133,7 @@ let
             password = "CharliePassword";
             nextPageExpect = [
               "page.get_by_role('button', name=re.compile('Accept')).click()"
-              "expect(page.get_by_text('unauthorized')).to_be_visible()"
+              "expect(page.get_by_text('do not have permission')).to_be_visible()"
             ];
           }
         ];
