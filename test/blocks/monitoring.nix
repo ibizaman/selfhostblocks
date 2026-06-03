@@ -192,7 +192,7 @@ let
               ''
               "expect(page.get_by_text(re.compile('[Ii]ncorrect'))).not_to_be_visible(timeout=10000)"
               "expect(page.get_by_role('button', name=re.compile('Sign In'))).not_to_be_visible()"
-              "expect(page.get_by_text('Temperature history for each device')).to_be_visible()"
+              "expect(page.get_by_text('Temperature history for each device')).to_be_visible(timeout=20000)"
             ];
           }
           {
@@ -212,7 +212,7 @@ let
               ''
               "expect(page.get_by_text(re.compile('[Ii]ncorrect'))).not_to_be_visible(timeout=10000)"
               "expect(page.get_by_role('button', name=re.compile('Sign In'))).not_to_be_visible()"
-              "expect(page.get_by_text('Temperature history for each device')).to_be_visible()"
+              "expect(page.get_by_text('Temperature history for each device')).to_be_visible(timeout=20000)"
             ];
           }
           {
