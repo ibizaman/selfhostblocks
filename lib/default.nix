@@ -81,43 +81,33 @@ let
         generatedReplacements = map genReplacement replacements;
 
         writeSecretFiles = concatMapStringsSep "\n" (pattern: ''
-          printf '%s' "${pattern.value}" > "$tmpDir/secret-${pattern.name}"
+          printf '%s' "${pattern.value}" > "$tmpDir"/${escapeShellArg ("secret-" + pattern.name)}
         '') generatedReplacements;
 
-        replacementArgs = concatMapStringsSep " " (
-          pattern: "${escapeShellArg pattern.name} \"$tmpDir/secret-${pattern.name}\""
-        ) generatedReplacements;
+        replaceCommands = concatMapStringsSep "\n" (pattern: ''
+          ${replaceScript} \
+            --file ${escapeShellArg resultPath} \
+            --marker ${escapeShellArg pattern.name} \
+            --secret-file "$tmpDir"/${escapeShellArg ("secret-" + pattern.name)}
+        '') generatedReplacements;
 
-        replaceScript = pkgs.writers.writePython3 "replace-secrets" { } ''
+        replaceScript = pkgs.writers.writePython3 "replace-secret" { } ''
           import argparse
           import pathlib
 
 
           def parse_args() -> argparse.Namespace:
               parser = argparse.ArgumentParser()
-              parser.add_argument("template_path", type=pathlib.Path)
-              parser.add_argument("result_path", type=pathlib.Path)
-              parser.add_argument(
-                  "replacements",
-                  nargs="*",
-                  help="marker/file pairs: MARKER SECRET_FILE [MARKER SECRET_FILE ...]",
-              )
-              args = parser.parse_args()
-
-              if len(args.replacements) % 2 != 0:
-                  parser.error("replacements must be marker/file pairs")
-
-              return args
+              parser.add_argument("--file", required=True, type=pathlib.Path)
+              parser.add_argument("--marker", required=True)
+              parser.add_argument("--secret-file", required=True, type=pathlib.Path)
+              return parser.parse_args()
 
 
           args = parse_args()
-          content = args.template_path.read_text()
-
-          for marker, secret_path in zip(args.replacements[0::2], args.replacements[1::2]):
-              secret = pathlib.Path(secret_path).read_text()
-              content = content.replace(marker, secret)
-
-          args.result_path.write_text(content)
+          content = args.file.read_text()
+          secret = args.secret_file.read_text()
+          args.file.write_text(content.replace(args.marker, secret))
         '';
 
         replaceCmd =
@@ -127,8 +117,9 @@ let
             ''
               tmpDir=$(mktemp -d)
               trap 'rm -rf "$tmpDir"' EXIT
+              cat ${escapeShellArg templatePath} > ${escapeShellArg resultPath}
               ${writeSecretFiles}
-              ${replaceScript} ${escapeShellArg templatePath} ${escapeShellArg resultPath} ${replacementArgs}
+              ${replaceCommands}
             '';
       in
       ''
