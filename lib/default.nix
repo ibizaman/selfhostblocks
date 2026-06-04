@@ -1,7 +1,12 @@
 { pkgs, lib }:
 let
   inherit (builtins) isAttrs hasAttr;
-  inherit (lib) any concatMapStringsSep concatStringsSep escapeShellArg;
+  inherit (lib)
+    any
+    concatMapStringsSep
+    concatStringsSep
+    escapeShellArg
+    ;
   shb = rec {
     # Replace secrets in a file.
     # - userConfig is an attrset that will produce a config file.
@@ -54,9 +59,9 @@ let
           }:
           if isNull transform then x: x else transform;
       in
-      lib.attrsets.nameValuePair
-        (secretName secret.name)
-        ((t secret) "$(cat ${escapeShellArg (toString secret.source)})");
+      lib.attrsets.nameValuePair (secretName secret.name) (
+        (t secret) "$(cat ${escapeShellArg (toString secret.source)})"
+      );
 
     replaceSecretsScript =
       {
