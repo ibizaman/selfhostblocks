@@ -80,15 +80,11 @@ let
 
         generatedReplacements = map genReplacement replacements;
 
-        writeSecretFiles = concatMapStringsSep "\n" (pattern: ''
-          printf '%s' "${pattern.value}" > "$tmpDir"/${escapeShellArg ("secret-" + pattern.name)}
-        '') generatedReplacements;
-
         replaceCommands = concatMapStringsSep "\n" (pattern: ''
           ${replaceScript} \
             --file ${escapeShellArg resultPath} \
             --marker ${escapeShellArg pattern.name} \
-            --secret-file "$tmpDir"/${escapeShellArg ("secret-" + pattern.name)}
+            --replacement "${pattern.value}"
         '') generatedReplacements;
 
         replaceScript = pkgs.writers.writePython3 "replace-secret" { } ''
@@ -100,14 +96,13 @@ let
               parser = argparse.ArgumentParser()
               parser.add_argument("--file", required=True, type=pathlib.Path)
               parser.add_argument("--marker", required=True)
-              parser.add_argument("--secret-file", required=True, type=pathlib.Path)
+              parser.add_argument("--replacement", required=True)
               return parser.parse_args()
 
 
           args = parse_args()
           content = args.file.read_text()
-          secret = args.secret_file.read_text()
-          args.file.write_text(content.replace(args.marker, secret))
+          args.file.write_text(content.replace(args.marker, args.replacement))
         '';
 
         replaceCmd =
@@ -115,10 +110,7 @@ let
             "cat ${escapeShellArg templatePath} > ${escapeShellArg resultPath}"
           else
             ''
-              tmpDir=$(mktemp -d)
-              trap 'rm -rf "$tmpDir"' EXIT
               cat ${escapeShellArg templatePath} > ${escapeShellArg resultPath}
-              ${writeSecretFiles}
               ${replaceCommands}
             '';
       in
