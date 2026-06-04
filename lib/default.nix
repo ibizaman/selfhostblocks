@@ -80,13 +80,6 @@ let
 
         generatedReplacements = map genReplacement replacements;
 
-        replaceCommands = concatMapStringsSep "\n" (pattern: ''
-          ${replaceScript} \
-            --file ${escapeShellArg resultPath} \
-            --marker ${escapeShellArg pattern.name} \
-            --replacement "${pattern.value}"
-        '') generatedReplacements;
-
         replaceScript = pkgs.writers.writePython3 "replace-secret" { } ''
           import argparse
           import pathlib
@@ -104,6 +97,13 @@ let
           content = args.file.read_text()
           args.file.write_text(content.replace(args.marker, args.replacement))
         '';
+
+        replaceCommands = concatMapStringsSep "\n" (pattern: ''
+          ${replaceScript} \
+            --file ${escapeShellArg resultPath} \
+            --marker ${escapeShellArg pattern.name} \
+            --replacement "${pattern.value}"
+        '') generatedReplacements;
 
         replaceCmd =
           if replacements == [ ] then
