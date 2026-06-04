@@ -1,7 +1,7 @@
 { pkgs, lib }:
 let
   inherit (builtins) isAttrs hasAttr;
-  inherit (lib) any concatMapStringsSep concatStringsSep;
+  inherit (lib) any concatMapStringsSep concatStringsSep escapeShellArg;
   shb = rec {
     # Replace secrets in a file.
     # - userConfig is an attrset that will produce a config file.
@@ -54,7 +54,9 @@ let
           }:
           if isNull transform then x: x else transform;
       in
-      lib.attrsets.nameValuePair (secretName secret.name) ((t secret) "$(cat ${toString secret.source})");
+      lib.attrsets.nameValuePair
+        (secretName secret.name)
+        ((t secret) "$(cat ${escapeShellArg (toString secret.source)})");
 
     replaceSecretsScript =
       {
@@ -76,11 +78,58 @@ let
           pattern: "cat ${pattern.source} > /dev/null"
         ) replacements;
 
-        sedPatterns = concatMapStringsSep " " (pattern: "-e \"s|${pattern.name}|${pattern.value}|\"") (
-          map genReplacement replacements
-        );
+        generatedReplacements = map genReplacement replacements;
 
-        sedCmd = if replacements == [ ] then "cat" else "${pkgs.gnused}/bin/sed ${sedPatterns}";
+        writeSecretFiles = concatMapStringsSep "\n" (pattern: ''
+          printf '%s' "${pattern.value}" > "$tmpDir/secret-${pattern.name}"
+        '') generatedReplacements;
+
+        replacementArgs = concatMapStringsSep " " (
+          pattern: "${escapeShellArg pattern.name} \"$tmpDir/secret-${pattern.name}\""
+        ) generatedReplacements;
+
+        replaceScript = pkgs.writers.writePython3 "replace-secrets" { } ''
+          import argparse
+          import pathlib
+
+
+          def parse_args() -> argparse.Namespace:
+              parser = argparse.ArgumentParser()
+              parser.add_argument("template_path", type=pathlib.Path)
+              parser.add_argument("result_path", type=pathlib.Path)
+              parser.add_argument(
+                  "replacements",
+                  nargs="*",
+                  help="marker/file pairs: MARKER SECRET_FILE [MARKER SECRET_FILE ...]",
+              )
+              args = parser.parse_args()
+
+              if len(args.replacements) % 2 != 0:
+                  parser.error("replacements must be marker/file pairs")
+
+              return args
+
+
+          args = parse_args()
+          content = args.template_path.read_text()
+
+          for marker, secret_path in zip(args.replacements[0::2], args.replacements[1::2]):
+              secret = pathlib.Path(secret_path).read_text()
+              content = content.replace(marker, secret)
+
+          args.result_path.write_text(content)
+        '';
+
+        replaceCmd =
+          if replacements == [ ] then
+            "cat ${escapeShellArg templatePath} > ${escapeShellArg resultPath}"
+          else
+            ''
+              tmpDir=$(mktemp -d)
+              trap 'rm -rf "$tmpDir"' EXIT
+              ${writeSecretFiles}
+              ${replaceScript} ${escapeShellArg templatePath} ${escapeShellArg resultPath} ${replacementArgs}
+            '';
       in
       ''
         set -euo pipefail
@@ -96,7 +145,7 @@ let
         chown ${user} ${resultPath}
       '')
       + ''
-        ${sedCmd} ${templatePath} > ${resultPath}
+        ${replaceCmd}
         chmod ${permissions} ${resultPath}
       '';
 
