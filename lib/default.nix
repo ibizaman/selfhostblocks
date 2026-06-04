@@ -60,7 +60,7 @@ let
           if isNull transform then x: x else transform;
       in
       lib.attrsets.nameValuePair (secretName secret.name) (
-        (t secret) "$(cat ${escapeShellArg (toString secret.source)})"
+        (t secret) "$(cat ${toString secret.source})"
       );
 
     replaceSecretsScript =
