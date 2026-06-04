@@ -101,7 +101,8 @@ let
               "page.get_by_role('button', name=re.compile('Accept')).click()"
               "expect(page.get_by_text(re.compile('[Ii]ncorrect'))).not_to_be_visible()"
               "expect(page.get_by_role('button', name=re.compile('Sign In'))).not_to_be_visible()"
-              "expect(page.get_by_text('logged in')).to_be_visible(timeout=20000)"
+              "expect(page).to_have_url(re.compile('https://o.example.com/$'), timeout=20000)"
+              "assert page.evaluate(\"async () => { const r = await fetch('/api/v1/auths/'); if (!r.ok) return false; const u = await r.json(); return u.email === 'alice@example.com'; }\")"
             ];
           }
           {
@@ -118,7 +119,8 @@ let
               "page.get_by_role('button', name=re.compile('Accept')).click()"
               "expect(page.get_by_text(re.compile('[Ii]ncorrect'))).not_to_be_visible()"
               "expect(page.get_by_role('button', name=re.compile('Sign In'))).not_to_be_visible()"
-              "expect(page.get_by_text('logged in')).to_be_visible(timeout=20000)"
+              "expect(page).to_have_url(re.compile('https://o.example.com/$'), timeout=20000)"
+              "assert page.evaluate(\"async () => { const r = await fetch('/api/v1/auths/'); if (!r.ok) return false; const u = await r.json(); return u.email === 'bob@example.com'; }\")"
             ];
           }
           {
