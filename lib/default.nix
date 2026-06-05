@@ -1,7 +1,12 @@
 { pkgs, lib }:
 let
   inherit (builtins) isAttrs hasAttr;
-  inherit (lib) any concatMapStringsSep concatStringsSep;
+  inherit (lib)
+    any
+    concatMapStringsSep
+    concatStringsSep
+    escapeShellArg
+    ;
   shb = rec {
     # Replace secrets in a file.
     # - userConfig is an attrset that will produce a config file.
@@ -76,11 +81,41 @@ let
           pattern: "cat ${pattern.source} > /dev/null"
         ) replacements;
 
-        sedPatterns = concatMapStringsSep " " (pattern: "-e \"s|${pattern.name}|${pattern.value}|\"") (
-          map genReplacement replacements
-        );
+        generatedReplacements = map genReplacement replacements;
 
-        sedCmd = if replacements == [ ] then "cat" else "${pkgs.gnused}/bin/sed ${sedPatterns}";
+        replaceScript = pkgs.writers.writePython3 "replace-secret" { } ''
+          import argparse
+          import pathlib
+
+
+          def parse_args() -> argparse.Namespace:
+              parser = argparse.ArgumentParser()
+              parser.add_argument("--file", required=True, type=pathlib.Path)
+              parser.add_argument("--marker", required=True)
+              parser.add_argument("--replacement", required=True)
+              return parser.parse_args()
+
+
+          args = parse_args()
+          content = args.file.read_text()
+          args.file.write_text(content.replace(args.marker, args.replacement))
+        '';
+
+        replaceCommands = concatMapStringsSep "\n" (pattern: ''
+          ${replaceScript} \
+            --file ${escapeShellArg resultPath} \
+            --marker ${escapeShellArg pattern.name} \
+            --replacement "${pattern.value}"
+        '') generatedReplacements;
+
+        replaceCmd =
+          if replacements == [ ] then
+            "cat ${escapeShellArg templatePath} > ${escapeShellArg resultPath}"
+          else
+            ''
+              cat ${escapeShellArg templatePath} > ${escapeShellArg resultPath}
+              ${replaceCommands}
+            '';
       in
       ''
         set -euo pipefail
@@ -96,7 +131,7 @@ let
         chown ${user} ${resultPath}
       '')
       + ''
-        ${sedCmd} ${templatePath} > ${resultPath}
+        ${replaceCmd}
         chmod ${permissions} ${resultPath}
       '';
 
