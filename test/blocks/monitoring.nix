@@ -97,9 +97,6 @@ let
               "expect(page.get_by_text(re.compile('[Ii]ncorrect'))).to_be_visible(timeout=10000)"
             ];
           }
-          # TODO: fix this. I tried a lot of stuff but can't figure out why it broke recently.
-          # For those reading this, it seems the call to Authelias's /userinfo endpoint returned a json response
-          # with the value Editor in the field "grafana_groups". So I don't know what's wrong.
           {
             username = "alice";
             password = "AlicePassword";
@@ -107,7 +104,19 @@ let
               "page.get_by_role('button', name=re.compile('Accept')).click()"
               "expect(page.get_by_text(re.compile('[Ii]ncorrect'))).not_to_be_visible(timeout=10000)"
               "expect(page.get_by_role('button', name=re.compile('Sign In'))).not_to_be_visible()"
-              "expect(page.get_by_text('Welcome to Grafana')).to_be_visible()"
+              ''
+                assert page.evaluate("""
+                    async () => {
+                        const r = await fetch('/api/user');
+                        if (!r.ok) return false;
+
+                        const u = await r.json();
+                        return u.login === 'alice'
+                            && u.email === 'alice@example.com'
+                            && u.orgId === 1;
+                    }
+                """)
+              ''
             ];
           }
           {
@@ -117,8 +126,6 @@ let
               "expect(page.get_by_text(re.compile('[Ii]ncorrect'))).to_be_visible(timeout=10000)"
             ];
           }
-          # TODO: fix this. I tried a lot of stuff but can't figure out why it broke recently.
-          # Same error as above.
           {
             username = "bob";
             password = "BobPassword";
@@ -126,7 +133,19 @@ let
               "page.get_by_role('button', name=re.compile('Accept')).click()"
               "expect(page.get_by_text(re.compile('[Ii]ncorrect'))).not_to_be_visible(timeout=10000)"
               "expect(page.get_by_role('button', name=re.compile('Sign In'))).not_to_be_visible()"
-              "expect(page.get_by_text('Welcome to Grafana')).to_be_visible()"
+              ''
+                assert page.evaluate("""
+                    async () => {
+                        const r = await fetch('/api/user');
+                        if (!r.ok) return false;
+
+                        const u = await r.json();
+                        return u.login === 'bob'
+                            && u.email === 'bob@example.com'
+                            && u.orgId === 1;
+                    }
+                """)
+              ''
             ];
           }
           {
@@ -136,14 +155,23 @@ let
               "expect(page.get_by_text(re.compile('[Ii]ncorrect'))).to_be_visible(timeout=10000)"
             ];
           }
-          # TODO: fix this. This fails with:
-          # "If you're seeing this Grafana has failed to load its application files"
           {
             username = "charlie";
             password = "CharliePassword";
             nextPageExpect = [
-              "page.get_by_role('button', name=re.compile('Accept')).click()" # I don't understand why this is not needed. Maybe it keeps somewhere the previous token?
-              "expect(page.get_by_text(re.compile('[Ll]ogin failed'))).to_be_visible(timeout=10000)"
+              "page.get_by_role('button', name=re.compile('Accept')).click()"
+              "expect(page).to_have_url('https://${config.test.fqdn}/login', timeout=10000)"
+              ''
+                assert page.evaluate("""
+                    async () => {
+                        const r = await fetch('/api/user');
+                        if (r.status !== 401) return false;
+
+                        const u = await r.json();
+                        return u.message === 'Unauthorized';
+                    }
+                """)
+              ''
             ];
           }
         ];
