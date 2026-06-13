@@ -108,6 +108,11 @@ let
         request = config.shb.deluge.localclientPassword.request;
         settings.content = "localpw";
       };
+
+      systemd.services.deluged.serviceConfig = {
+        Restart = lib.mkForce "on-failure";
+        RestartSec = "1s";
+      };
     };
 
   clientLogin =
