@@ -25,6 +25,14 @@ let
       ''
         print(${node.name}.succeed('journalctl -n100 -u deluged'))
         print(${node.name}.succeed('systemctl status deluged'))
+        ${node.name}.succeed("""
+          restarts="$(systemctl show deluged.service -P NRestarts)"
+          if [ "$restarts" -gt 1 ]; then
+            systemctl status deluged.service --no-pager
+            journalctl -u deluged.service -b --no-pager
+            exit 1
+          fi
+        """)
         print(${node.name}.succeed('systemctl status delugeweb'))
 
         with subtest("web connect"):
@@ -107,6 +115,18 @@ let
       shb.hardcodedsecret."localclientpassword" = {
         request = config.shb.deluge.localclientPassword.request;
         settings.content = "localpw";
+      };
+
+      systemd.services.deluged = {
+        unitConfig = {
+          StartLimitIntervalSec = "30s";
+          StartLimitBurst = 2;
+        };
+
+        serviceConfig = {
+          Restart = lib.mkForce "on-failure";
+          RestartSec = "1s";
+        };
       };
     };
 
