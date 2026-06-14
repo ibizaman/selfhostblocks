@@ -5,6 +5,36 @@ let
   adminUser = "jellyfin2";
   adminPassword = "admin";
 
+  commonExtraScript =
+    { node, ... }:
+    ''
+      server.wait_until_succeeds("journalctl --since -1m --unit jellyfin --grep 'Startup complete'")
+      headers = unline_with(" ", """
+          -H 'Content-Type: application/json'
+          -H 'Authorization: MediaBrowser Client="Android TV", Device="Nvidia Shield", DeviceId="ZQ9YQHHrUzk24vV", Version="0.15.3"'
+      """)
+      import time
+      with subtest("api login success"):
+          ok = False
+          for i in range(1, 5):
+              response = curl(client, """{"code":%{response_code}}""", "${node.config.test.proto_fqdn}/Users/AuthenticateByName",
+                  data="""{"Username": "${adminUser}", "Pw": "${adminPassword}"}""",
+                  extra=headers)
+              if response['code'] == 200:
+                  ok = True
+                  break
+              time.sleep(5)
+          if not ok:
+              raise Exception(f"Expected success, got: {response['code']}")
+
+      with subtest("api login failure"):
+          response = curl(client, """{"code":%{response_code}}""", "${node.config.test.proto_fqdn}/Users/AuthenticateByName",
+              data="""{"Username": "${adminUser}", "Pw": "badpassword"}""",
+              extra=headers)
+          if response['code'] != 401:
+              raise Exception(f"Expected failure, got: {response['code']}")
+    '';
+
   commonTestScript = shb.test.mkScripts {
     hasSSL = { node, ... }: !(isNull node.config.shb.jellyfin.ssl);
     waitForServices =
@@ -27,35 +57,7 @@ let
           status = 401;
         }
       ];
-    extraScript =
-      { node, ... }:
-      ''
-        server.wait_until_succeeds("journalctl --since -1m --unit jellyfin --grep 'Startup complete'")
-        headers = unline_with(" ", """
-            -H 'Content-Type: application/json'
-            -H 'Authorization: MediaBrowser Client="Android TV", Device="Nvidia Shield", DeviceId="ZQ9YQHHrUzk24vV", Version="0.15.3"'
-        """)
-        import time
-        with subtest("api login success"):
-            ok = False
-            for i in range(1, 5):
-                response = curl(client, """{"code":%{response_code}}""", "${node.config.test.proto_fqdn}/Users/AuthenticateByName",
-                    data="""{"Username": "${adminUser}", "Pw": "${adminPassword}"}""",
-                    extra=headers)
-                if response['code'] == 200:
-                    ok = True
-                    break
-                time.sleep(5)
-            if not ok:
-                raise Exception(f"Expected success, got: {response['code']}")
-
-        with subtest("api login failure"):
-            response = curl(client, """{"code":%{response_code}}""", "${node.config.test.proto_fqdn}/Users/AuthenticateByName",
-                data="""{"Username": "${adminUser}", "Pw": "badpassword"}""",
-                extra=headers)
-            if response['code'] != 401:
-                raise Exception(f"Expected failure, got: {response['code']}")
-      '';
+    extraScript = commonExtraScript;
   };
 
   basic =
@@ -452,12 +454,13 @@ in
 
     testScript = commonTestScript.access.override {
       extraScript =
-        {
+        args@{
           node,
           ...
         }:
+        (commonExtraScript args)
         # I have no idea why the LDAP Authentication_19.0.0.0 plugin disappears.
-        ''
+        + ''
           r = server.execute('cat "${node.config.services.jellyfin.dataDir}/plugins/LDAP Authentication_19.0.0.0/meta.json"')
           if r[0] != 0:
               print("meta.json for plugin LDAP Authentication_19.0.0.0 not found")
