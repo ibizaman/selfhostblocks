@@ -551,7 +551,7 @@ in
                     // lib.optionalAttrs (certCfg.dnsProvider != null) {
                       inherit (certCfg) dnsProvider dnsResolver;
                       inherit (certCfg) group reloadServices;
-                      credentialsFile = certCfg.credentialsFile;
+                      environmentFile = certCfg.credentialsFile;
                     };
                   }
                 ]
