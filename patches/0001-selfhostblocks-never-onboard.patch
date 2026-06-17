@@ -1,28 +1,24 @@
-From fa1659eeb26375677b19fa5c3b2393f3faa05234 Mon Sep 17 00:00:00 2001
+From 8d38721322bc47ce089f8d246513be610e22c187 Mon Sep 17 00:00:00 2001
 From: ibizaman <ibizaman@tiserbox.com>
 Date: Sun, 10 May 2026 08:58:10 +0200
 Subject: [PATCH] never onboard
 
 ---
- backend/open_webui/main.py | 4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ backend/open_webui/main.py | 2 --
+ 1 file changed, 2 deletions(-)
 
 diff --git a/backend/open_webui/main.py b/backend/open_webui/main.py
-index ba7f74c83..d9bab576a 100644
+index e05497c..826af7b 100644
 --- a/backend/open_webui/main.py
 +++ b/backend/open_webui/main.py
-@@ -2192,11 +2192,9 @@ async def get_app_config(request: Request):
+@@ -2391,8 +2391,6 @@ async def get_app_config(request: Request):
              user = await Users.get_user_by_id(data['id'])
  
-     user_count = await Users.get_num_users()
-+    # Never onboard
      onboarding = False
- 
 -    if user is None:
--        onboarding = user_count == 0
--
-     return {
-         **({'onboarding': True} if onboarding else {}),
-         'status': True,
+-        onboarding = not await Users.has_users()
+ 
+     user_count = await Users.get_num_users() if app.state.LICENSE_METADATA else None
+ 
 -- 
 2.53.0
