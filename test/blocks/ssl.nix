@@ -3,6 +3,28 @@ let
   pkgs' = pkgs;
 in
 {
+  letsencryptDnsProvider = shb.test.runNixOSTest {
+    name = "ssl-letsencrypt-dns-provider";
+
+    nodes.server =
+      { config, ... }:
+      {
+        imports = [
+          shb.test.baseImports
+          ../../modules/blocks/ssl.nix
+        ];
+
+        shb.certs.certs.letsencrypt.dns = {
+          domain = "dns.example.com";
+          dnsProvider = "namecheap";
+          credentialsFile = "/run/this-file-does-not-exist-acme-env";
+          adminEmail = "admin@example.com";
+        };
+      };
+
+    testScript = "";
+  };
+
   test = shb.test.runNixOSTest {
     name = "ssl-test";
 
