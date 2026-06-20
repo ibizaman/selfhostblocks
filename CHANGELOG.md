@@ -16,6 +16,10 @@ Template:
 
 # Upcoming Release
 
+# v0.9.0
+
+Commits: https://github.com/ibizaman/selfhostblocks/compare/v0.8.0...v0.9.0
+
 ## Breaking Changes
 
 - Updated simple-nixos-mailserver. Update all options following this pattern:
@@ -28,13 +32,28 @@ Template:
   Note that simple-nixos-mailserver wanted to upgrade the location of the storage path
   to include the ldap UID instead of the email but I kept the email address.
   This means there is no migration to do.
+- Update nixpkgs [from 6201e2 to abd1ea](https://github.com/ibizaman/selfhostblocks/compare/6201e203d09599479a3b3450ed24fa81537ebc4e...abd1ea17fdbedd48cbca770847b39e3a7a09ab5b).
 
 ## New Features
 
 - Add `shb.zfs.snapshotBeforeActivation` option to take a ZFS snapshot of given datasets before activation.
   See [the manual](https://shb.skarabox.com/blocks-zfs.html) for more details.
+- Add [sanoid block](https://shb.skarabox.com/blocks-sanoid.html)
+- Add option to take snapshot before activation with ZFS block.
 
-# v0.8.0
+## Fixes
+
+- Fix oidc_login build for Nextcloud
+- Fix mailserver build
+
+## Other Changes
+
+- Harden lldap configuration
+- Convert ZFS block to system and [add documentation](https://shb.skarabox.com/blocks-zfs.html)
+- Switch monitoring log fetching from deprecated promtail to fluent-bit
+- Add test to catch drift for Let's Encrypt DNS provider
+
+# [BROKEN] v0.8.0
 
 ## Breaking Changes
 
