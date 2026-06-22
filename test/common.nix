@@ -533,11 +533,14 @@ in
         ensureUsers = {
           alice = {
             email = "alice@example.com";
+            # Display name is required by at least home-assistant.
+            displayName = "Alice Alice";
             groups = [ "user_group" ];
             password.result = config.shb.hardcodedsecret.alice.result;
           };
           bob = {
             email = "bob@example.com";
+            displayName = "Bob Bob";
             # Purposely not adding bob to the user_group
             # so we can make sure users only part admins
             # can also login normally.
@@ -546,6 +549,7 @@ in
           };
           charlie = {
             email = "charlie@example.com";
+            displayName = "Charlie Charlie";
             groups = [ "other_group" ];
             password.result = config.shb.hardcodedsecret.charlie.result;
           };

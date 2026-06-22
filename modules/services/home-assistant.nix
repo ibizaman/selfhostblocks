@@ -139,8 +139,14 @@ in
 
           userGroup = lib.mkOption {
             type = lib.types.str;
-            description = "Group users must belong to to be able to login to Nextcloud.";
+            description = "Group users must belong to to be able to login as a user.";
             default = "homeassistant_user";
+          };
+
+          adminGroup = lib.mkOption {
+            type = lib.types.str;
+            description = "Group users must belong to to be able to login as an admin.";
+            default = "homeassistant_admin";
           };
 
           keepDefaultAuth = lib.mkOption {
@@ -277,6 +283,7 @@ in
                 args = [
                   "http://${cfg.ldap.host}:${toString cfg.ldap.port}"
                   cfg.ldap.userGroup
+                  cfg.ldap.adminGroup
                 ];
                 meta = true;
               }
