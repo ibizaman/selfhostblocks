@@ -11,22 +11,12 @@ let
 
   fqdn = "${cfg.subdomain}.${cfg.domain}";
 
-  ldap_auth_script_repo = pkgs.fetchFromGitHub {
-    owner = "lldap";
-    repo = "lldap";
-    rev = "7d1f5abc137821c500de99c94f7579761fc949d8";
-    sha256 = "sha256-8D+7ww70Ja6Qwdfa+7MpjAAHewtCWNf/tuTAExoUrg0=";
-  };
-
-  ldap_auth_script = pkgs.writeShellScriptBin "ldap_auth.sh" ''
-    export PATH=${pkgs.gnused}/bin:${pkgs.curl}/bin:${pkgs.jq}/bin
-    exec ${pkgs.bash}/bin/bash ${ldap_auth_script_repo}/example_configs/lldap-ha-auth.sh $@
-  '';
-
   # Filter secrets from config. Secrets are those of the form { source = <path>; }
   secrets = lib.attrsets.filterAttrs (k: v: builtins.isAttrs v) cfg.config;
 
   nonSecrets = (lib.attrsets.filterAttrs (k: v: !(builtins.isAttrs v)) cfg.config);
+
+  lldap_ha_auth = pkgs.callPackage ./home-assistant/lldap_ha_auth.nix { };
 
   configWithSecretsIncludes = nonSecrets // (lib.attrsets.mapAttrs (k: v: "!secret ${k}") secrets);
 in
@@ -280,9 +270,10 @@ in
               }
             ])
             ++ (lib.optionals cfg.ldap.enable [
+              # https://www.home-assistant.io/docs/authentication/providers/#command-line
               {
                 type = "command_line";
-                command = ldap_auth_script + "/bin/ldap_auth.sh";
+                command = lldap_ha_auth + "/bin/lldap-ha-auth";
                 args = [
                   "http://${cfg.ldap.host}:${toString cfg.ldap.port}"
                   cfg.ldap.userGroup
