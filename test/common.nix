@@ -295,6 +295,10 @@ in
           type = str;
           default = "[Ll]ogin";
         };
+        loginButtonSelector = mkOption {
+          type = str;
+          default = ''get_by_role("button", name=re.compile('${cfg.loginButtonNameRegex}'))'';
+        };
         loginSpawnsNewPage = mkOption {
           type = bool;
           default = false;
@@ -412,8 +416,8 @@ in
 
                             # Assumes we don't need to login, so skip this.
                             if u['username'] is not None or u['password'] is not None:
-                                print(f"Clicking button {testCfg['loginButtonNameRegex']}")
-                                page.get_by_role("button", name=re.compile(testCfg['loginButtonNameRegex'])).click()
+                                print("Clicking login button")
+                                page.${cfg.loginButtonSelector}.click()
 
                             for line in u['nextPageExpect']:
                                 print(f"Running: {line}")
