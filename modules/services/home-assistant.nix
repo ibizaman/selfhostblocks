@@ -117,6 +117,8 @@ in
         options = {
           enable = lib.mkEnableOption "LDAP app.";
 
+          debug = lib.mkEnableOption "verbose output for LDAP app.";
+
           host = lib.mkOption {
             type = lib.types.str;
             description = ''
@@ -139,8 +141,14 @@ in
 
           userGroup = lib.mkOption {
             type = lib.types.str;
-            description = "Group users must belong to to be able to login to Nextcloud.";
+            description = "Group users must belong to to be able to login as a user.";
             default = "homeassistant_user";
+          };
+
+          adminGroup = lib.mkOption {
+            type = lib.types.str;
+            description = "Group users must belong to to be able to login as an admin.";
+            default = "homeassistant_admin";
           };
 
           keepDefaultAuth = lib.mkOption {
@@ -277,6 +285,10 @@ in
                 args = [
                   "http://${cfg.ldap.host}:${toString cfg.ldap.port}"
                   cfg.ldap.userGroup
+                  cfg.ldap.adminGroup
+                ]
+                ++ lib.optionals cfg.ldap.debug [
+                  "-v"
                 ];
                 meta = true;
               }
@@ -368,7 +380,6 @@ in
     systemd.services.home-assistant.preStart =
       (
         let
-          # TODO: this probably does not work anymore
           onboarding = pkgs.writeText "onboarding" ''
             {
               "version": 4,
@@ -376,7 +387,6 @@ in
               "key": "onboarding",
               "data": {
                 "done": [
-                  ${lib.optionalString cfg.ldap.enable ''"user",''}
                   "core_config",
                   "analytics"
                 ]

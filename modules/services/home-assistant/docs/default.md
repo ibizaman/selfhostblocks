@@ -127,16 +127,34 @@ shb.home-assistant.ldap
   enable = true;
   host = "127.0.0.1";
   port = config.shb.lldap.webUIListenPort;
-  userGroup = "homeassistant_user";
+
+  # This is the default:
+  # userGroup = "homeassistant_user";
+  # adminGroup = "homeassistant_admin";
+};
+
+shb.lldap.ensureGroups = {
+  ${config.shb.home-assistant.ldap.userGroup} = { };
+  ${config.shb.home-assistant.ldap.adminGroup} = { };
+};
+
+shb.lldap.ensureUsers.homeAssistantAdmin = {
+  groups = [
+    config.shb.home-assistant.ldap.adminGroup
+  ];
+};
+
+shb.lldap.ensureUsers.homeAssistantUser = {
+  groups = [
+    config.shb.home-assistant.ldap.userGroup
+  ];
 };
 ```
 
-And that's it.
-Now, go to the LDAP server at `http://ldap.example.com`,
-create the `home-assistant_user` group,
-create a user and add it to one or both groups.
-When that's done, go back to the Home-Assistant server at
-`http://home-assistant.example.com` and login with that user.
+This will create a LDAP group declaratively
+and add the user `homeAssitantUser` as a user
+and the user `homeAssitantAdmin` as an admin.
+LDAP users can be added to the groups imperatively too through the LLDAP web UI.
 
 ### With SSO Support {#services-home-assistant-usage-sso}
 

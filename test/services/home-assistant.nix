@@ -1,4 +1,9 @@
-{ pkgs, shb, ... }:
+{
+  pkgs,
+  shb,
+  lib,
+  ...
+}:
 let
   commonTestScript = shb.test.mkScripts {
     hasSSL = { node, ... }: !(isNull node.config.shb.home-assistant.ssl);
@@ -87,6 +92,9 @@ let
 
       test.login = {
         startUrl = "http://${config.test.fqdn}";
+        usernameFieldSelector = ''get_by_role("textbox", name="Username")'';
+        passwordFieldSelector = ''get_by_role("textbox", name="Password")'';
+        loginButtonSelector = ''get_by_role("button", name="Log in")'';
         testLoginWith = [
           {
             nextPageExpect = [
@@ -109,6 +117,90 @@ let
       };
     };
 
+  clientLdapLogin =
+    { config, ... }:
+    {
+      imports = [
+        shb.test.baseModule
+        shb.test.clientLoginModule
+      ];
+
+      config = {
+        virtualisation.memorySize = 4096;
+
+        test = {
+          subdomain = "ha";
+        };
+
+        test.login = {
+          startUrl = "http://${config.test.fqdn}";
+          usernameFieldSelector = ''get_by_role("textbox", name="Username")'';
+          passwordFieldSelector = ''get_by_role("textbox", name="Password")'';
+          loginButtonSelector = ''get_by_role("button", name="Log in")'';
+          testLoginWith = [
+            {
+              # Create and login as owner user.
+              # This shouldn't be needed. See https://github.com/ibizaman/selfhostblocks/issues/718
+              username = null;
+              nextPageExpect = [
+                "page.get_by_role('button', name=re.compile('Create my smart home')).click()"
+
+                "expect(page.get_by_text('Create user')).to_be_visible()"
+                ''page.get_by_role("textbox", name="Name*", exact=True).fill('Admin')''
+                ''page.get_by_role("textbox", name="Username*").fill('admin')''
+                ''page.get_by_role("textbox", name="Password*", exact=True).fill('AdminPassword')''
+                ''page.get_by_role("textbox", name="Confirm password*").fill('AdminPassword')''
+                "page.get_by_role('button', name=re.compile('Create account')).click()"
+
+                "expect(page.get_by_text('All set!')).to_be_visible()"
+                "page.get_by_role('button', name=re.compile('Finish')).click()"
+              ];
+            }
+            {
+              beforeHook = "page.get_by_text(re.compile('Command Line')).click()";
+              username = "alice";
+              password = "AlicePassword";
+              nextPageExpect = [
+                "expect(page.get_by_text('Welcome Alice Alice')).to_be_visible(timeout=30000)"
+              ];
+            }
+            {
+              beforeHook = "page.get_by_text(re.compile('Command Line')).click()";
+              username = "alice";
+              password = "notAlicePassword";
+              nextPageExpect = [
+                "expect(page.get_by_text('Invalid')).to_be_visible()"
+              ];
+            }
+            {
+              beforeHook = "page.get_by_text(re.compile('Command Line')).click()";
+              username = "bob";
+              password = "BobPassword";
+              nextPageExpect = [
+                "expect(page.get_by_text('Welcome Bob Bob')).to_be_visible(timeout=30000)"
+              ];
+            }
+            {
+              beforeHook = "page.get_by_text(re.compile('Command Line')).click()";
+              username = "bob";
+              password = "notBobPassword";
+              nextPageExpect = [
+                "expect(page.get_by_text('Invalid')).to_be_visible()"
+              ];
+            }
+            {
+              beforeHook = "page.get_by_text(re.compile('Command Line')).click()";
+              username = "charlie";
+              password = "CharliePassword";
+              nextPageExpect = [
+                "expect(page.get_by_text('Invalid')).to_be_visible()"
+              ];
+            }
+          ];
+        };
+      };
+    };
+
   https =
     { config, ... }:
     {
@@ -120,12 +212,16 @@ let
   ldap =
     { config, ... }:
     {
+      shb.lldap.debug = lib.mkForce true;
       shb.home-assistant = {
         ldap = {
           enable = true;
+          debug = true;
+          keepDefaultAuth = true; # Needed for admin login
           host = "127.0.0.1";
           port = config.shb.lldap.webUIListenPort;
-          userGroup = "homeassistant_user";
+          userGroup = "user_group";
+          adminGroup = "admin_group";
         };
       };
     };
@@ -248,6 +344,11 @@ in
   ldap = shb.test.runNixOSTest {
     name = "homeassistant_ldap";
 
+    nodes.client = {
+      imports = [
+        clientLdapLogin
+      ];
+    };
     nodes.server = {
       imports = [
         basic
@@ -256,9 +357,14 @@ in
       ];
     };
 
-    nodes.client = { };
-
-    testScript = commonTestScript.access;
+    testScript = commonTestScript.access.override {
+      waitForPorts =
+        { node, ... }:
+        [
+          8123
+          node.config.shb.lldap.webUIListenPort
+        ];
+    };
   };
 
   # Not yet supported

@@ -314,6 +314,10 @@ in
                 type = nullOr str;
                 default = null;
               };
+              beforeHook = mkOption {
+                type = str;
+                default = "";
+              };
               nextPageExpect = mkOption {
                 type = listOf str;
               };
@@ -406,6 +410,9 @@ in
                                     page = p.value
                                 else:
                                     exec(testCfg.get("beforeHook"))
+
+                            if u['beforeHook'] is not None:
+                                exec(u['beforeHook'])
 
                             if u['username'] is not None:
                                 print(f"Filling field username with {u['username']}")
@@ -533,11 +540,14 @@ in
         ensureUsers = {
           alice = {
             email = "alice@example.com";
+            # Display name is required by at least home-assistant.
+            displayName = "Alice Alice";
             groups = [ "user_group" ];
             password.result = config.shb.hardcodedsecret.alice.result;
           };
           bob = {
             email = "bob@example.com";
+            displayName = "Bob Bob";
             # Purposely not adding bob to the user_group
             # so we can make sure users only part admins
             # can also login normally.
@@ -546,6 +556,7 @@ in
           };
           charlie = {
             email = "charlie@example.com";
+            displayName = "Charlie Charlie";
             groups = [ "other_group" ];
             password.result = config.shb.hardcodedsecret.charlie.result;
           };

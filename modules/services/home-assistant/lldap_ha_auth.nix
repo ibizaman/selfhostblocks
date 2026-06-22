@@ -7,10 +7,10 @@ stdenvNoCC.mkDerivation {
   name = "lldap-ha-auth";
 
   src = pkgs.fetchFromGitHub {
-    owner = "lldap";
+    owner = "ibizaman";
     repo = "lldap";
-    rev = "7d1f5abc137821c500de99c94f7579761fc949d8";
-    sha256 = "sha256-8D+7ww70Ja6Qwdfa+7MpjAAHewtCWNf/tuTAExoUrg0=";
+    rev = "888a75c21e30b66ee7037bedefad2b49313216bd";
+    sha256 = "sha256-d9ZCfNoI6yRHDgxZF9ZQAuyMeWs49OwuUO/0b5o/tcU=";
   };
 
   nativeBuildInputs = [
