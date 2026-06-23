@@ -4013,6 +4013,9 @@
   "services-home-assistant-options-shb.home-assistant.ldap": [
     "services-home-assistant.html#services-home-assistant-options-shb.home-assistant.ldap"
   ],
+  "services-home-assistant-options-shb.home-assistant.ldap.adminGroup": [
+    "services-home-assistant.html#services-home-assistant-options-shb.home-assistant.ldap.adminGroup"
+  ],
   "services-home-assistant-options-shb.home-assistant.ldap.enable": [
     "services-home-assistant.html#services-home-assistant-options-shb.home-assistant.ldap.enable"
   ],
