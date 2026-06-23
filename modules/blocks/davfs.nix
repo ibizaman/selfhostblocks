@@ -75,6 +75,30 @@ in
   config = {
     services.davfs2.enable = builtins.length cfg.mounts > 0;
 
+    systemd.services = lib.optionalAttrs (builtins.length cfg.mounts > 0) {
+      davfs2-password-generation = {
+        wantedBy = [ "multi-user.target" ];
+        serviceConfig.Type = "oneshot";
+        script = ''
+          mkdir -p /etc/davfs2
+          [ -f /etc/davfs2/secrets ] && mv /etc/davfs2/secrets /etc/davfs2/secrets.prev
+          touch /etc/davfs2/secrets
+          chown root: /etc/davfs2
+          chown root: /etc/davfs2/secrets
+          chmod 700 /etc/davfs2
+          chmod 600 /etc/davfs2/secrets
+        ''
+        + (
+          let
+            mkPasswordCmd = cfg': ''
+              printf "%s %s %s\n" "${cfg'.mountPoint}" "${cfg'.username}" "$(cat ${cfg'.passwordFile})" >> /etc/davfs2/secrets
+            '';
+          in
+          lib.concatStringsSep "\n" (map mkPasswordCmd cfg.mounts)
+        );
+      };
+    };
+
     systemd.mounts =
       let
         mkMountCfg = c: {
@@ -82,6 +106,7 @@ in
           description = "Webdav mount point";
           after = [ "network-online.target" ];
           wants = [ "network-online.target" ];
+          wantedBy = [ "multi-user.target" ];
 
           what = c.remoteUrl;
           where = c.mountPoint;
