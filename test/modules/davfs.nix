@@ -34,6 +34,7 @@ in
     expected = {
       services.davfs2.enable = false;
       systemd.mounts = [ ];
+      systemd.services = { };
     };
     expr = testConfig { };
   };
