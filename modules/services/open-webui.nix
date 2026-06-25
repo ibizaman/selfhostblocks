@@ -59,12 +59,12 @@ in
           WEBUI_NAME = "SelfHostBlocks";
 
           OLLAMA_BASE_URL = "http://127.0.0.1:''${toString config.services.ollama.port}";
+          RAG_EMBEDDING_ENGINE = "ollama";
           RAG_EMBEDDING_MODEL = "nomic-embed-text:v1.5";
 
           ENABLE_OPENAI_API = "True";
           OPENAI_API_BASE_URL = "http://127.0.0.1:''${toString config.services.llama-cpp.port}";
           ENABLE_WEB_SEARCH = "True";
-          RAG_EMBEDDING_ENGINE = "openai";
         }
       '';
     };
