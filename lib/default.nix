@@ -352,12 +352,16 @@ let
                   "expected"
                   "result"
                 ];
+
+                nativeBuildInputs = [
+                  (pkgs.python3.withPackages (ps: [ ps.deepdiff ] ++ ps.deepdiff.optional-dependencies.cli))
+                ];
               }
               ''
                 echo "${name} failed (- expected, + result)" > $out
                 cp ''${expectedPath} ''${expectedPath}.json
                 cp ''${resultPath} ''${resultPath}.json
-                ${pkgs.deepdiff}/bin/deep diff ''${expectedPath}.json ''${resultPath}.json >> $out
+                deep diff ''${expectedPath}.json ''${resultPath}.json >> $out
               ''
           );
 
