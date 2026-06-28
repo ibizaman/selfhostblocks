@@ -116,7 +116,7 @@
                 raise Exception(f"Unexpected mounts:\n{"\n".join(diff)}")
 
         def assert_count_snapshots(name, count):
-            out = machine.succeed("zfs list -Ht snapshot root/one")
+            out = machine.succeed(f"zfs list -Ht snapshot {name}")
             print(out)
             if count != len(out.splitlines()):
                 raise Exception(f"Expected {count} dataset")
