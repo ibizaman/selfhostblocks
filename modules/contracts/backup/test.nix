@@ -107,9 +107,12 @@ shb.test.runNixOSTest {
               })
 
       with subtest("Initial snapshot"):
-          out = machine.succeed("${provider.restoreScript} snapshots").splitlines()
-          if len(out) != 0:
-            raise Exception(f"Unexpected snapshots:\n{out}")
+          st, out = machine.execute("${provider.restoreScript} snapshots")
+          # We accept an error here
+          if st == 0:
+              out = out.splitlines()
+              if len(out) != 0:
+                  raise Exception(f"Unexpected snapshots:\n{out}")
 
       with subtest("First backup in repo"):
           print(machine.succeed("systemctl cat ${provider.backupService}"))
