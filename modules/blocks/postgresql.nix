@@ -77,7 +77,7 @@ in
           '';
 
           restoreCmd = ''
-            ${pkgs.gzip}/bin/gunzip | ${pkgs.postgresql}/bin/psql postgres
+            ${pkgs.gzip}/bin/gunzip | sudo -u postgres ${pkgs.postgresql}/bin/psql
           '';
         };
       };

@@ -234,10 +234,10 @@ in
     {
       name,
       user,
-      sudoPreserveEnvs ? [ ],
-      secretsFile,
+      backupCmd,
       restoreCmd,
       listCmd,
+      execCmd,
     }:
     pkgs.writeShellApplication {
       inherit name;
@@ -245,40 +245,47 @@ in
       text = ''
         usage() {
           echo "$0 snapshots"
+          echo "$0 backup"
           echo "$0 restore <snapshot>"
+          echo "$0 exec <arg> [<args>...]"
         }
 
-        sudocmd() {
-          sudo --preserve-env=${lib.concatStringsSep "," sudoPreserveEnvs} -u ${user} "$@"
-        }
-
-        loadenv() {
-          set -a
-          # shellcheck disable=SC1090
-          source <(sudocmd cat "${secretsFile}")
-          set +a
-        }
-
-        if [ "$1" = "restore" ]; then
-          shift
-          snapshot="$1"
-
-          loadenv
-
-          echo "Will restore snapshot '$snapshot'"
-
-          sudocmd sh -c "${restoreCmd}"
-        elif [ "$1" = "snapshots" ]; then
-          shift
-
-          loadenv
-
-          sudocmd sh -c "${listCmd}"
-        else
+        if [ -z "''${1:-}" ]; then
           usage
-          exit 1
+          exit 0
         fi
+
+        set -x
+
+        case "$1" in
+          restore)
+            shift
+            snapshot="$1"
+
+            echo "Will restore snapshot '$snapshot'"
+
+            ${restoreCmd}
+            ;;
+          backup)
+            shift
+
+            ${backupCmd}
+            ;;
+          snapshots) 
+            shift
+
+            ${listCmd}
+            ;;
+          exec)
+            shift
+
+            ${execCmd}
+            ;;
+          *)
+            usage
+            exit 1
+            ;;
+        esac
       '';
     };
-
 }

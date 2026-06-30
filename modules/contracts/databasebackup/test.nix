@@ -84,10 +84,11 @@ shb.test.runNixOSTest {
           cmp_tables(res, table)
 
       with subtest("Initial snapshots"):
-          out = machine.succeed("${provider.restoreScript} snapshots").splitlines()
-          print(f"Found snapshots:\n{out}")
-          if len(out) != 0:
-              raise Exception(f"Unexpected snapshots:\n{out}")
+          st, out = machine.execute("${provider.restoreScript} snapshots")
+          if st == 0:
+              out = out.splitlines()
+              if len(out) != 0:
+                  raise Exception(f"Unexpected snapshots:\n{out}")
 
       with subtest("backup"):
           machine.succeed("systemctl start --wait ${provider.backupService}")

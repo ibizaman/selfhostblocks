@@ -145,6 +145,7 @@ let
 
   repoSlugName = name: builtins.replaceStrings [ "/" ":" ] [ "_" "_" ] (removePrefix "/" name);
   fullName = name: repository: "restic-backups-${name}_${repoSlugName repository.path}";
+  scriptName = name: repository: "restic-${name}_${repoSlugName repository.path}";
 in
 {
   imports = [
@@ -292,6 +293,7 @@ in
                 passwordFile = toString instance.settings.passphrase.result.path;
 
                 initialize = true;
+                createWrapper = true;
 
                 inherit (instance.settings.repository) timerConfig;
 
@@ -332,6 +334,7 @@ in
                 passwordFile = toString instance.settings.passphrase.result.path;
 
                 initialize = true;
+                createWrapper = true;
 
                 inherit (instance.settings.repository) timerConfig;
 
@@ -406,50 +409,21 @@ in
           mkMerge (flatten (mapAttrsToList mkSettings (enabledInstances // enabledDatabases)));
       }
       {
-        systemd.services =
-          let
-            mkEnv =
-              name: instance:
-              nameValuePair "${fullName name instance.settings.repository}_restore_gen" {
-                enable = true;
-                wantedBy = [ "multi-user.target" ];
-                # Purposely not a oneshot systemd service otherwise
-                # the service waits on the completion the backup before deactivating.
-                # This seems like a nice property at first but there is one annoying
-                # edge case when deploying. If a backup job somehow is started when
-                # the deploy happens, the deploy will wait on the service to finish
-                # before considering the deploy done. And worse, it will consider the
-                # deploy as failed if the backup fails, which is not what you want.
-                script = (
-                  shb.replaceSecrets {
-                    userConfig = instance.settings.repository.secrets // {
-                      RESTIC_PASSWORD_FILE = toString instance.settings.passphrase.result.path;
-                      RESTIC_REPOSITORY = instance.settings.repository.path;
-                    };
-                    resultPath = "/run/secrets_restic_env/${fullName name instance.settings.repository}";
-                    generator = shb.toEnvVar;
-                    user = instance.request.user;
-                  }
-                );
-              };
-          in
-          listToAttrs (flatten (mapAttrsToList mkEnv (cfg.instances // cfg.databases)));
-      }
-      {
         environment.systemPackages =
           let
             mkResticBinary =
-              name: instance:
+              n: instance:
+              let
+                sname = scriptName n instance.settings.repository;
+                fname = fullName n instance.settings.repository;
+              in
               shb.contracts.backup.mkRestoreScript {
-                name = fullName name instance.settings.repository;
+                name = fname;
                 user = instance.request.user;
-                sudoPreserveEnvs = [
-                  "RESTIC_REPOSITORY"
-                  "RESTIC_PASSWORD_FILE"
-                ];
-                secretsFile = "/run/secrets_restic_env/${fullName name instance.settings.repository}";
-                restoreCmd = ''${pkgs.restic}/bin/restic restore \"$snapshot\" --target /'';
-                listCmd = ''if [ -e \"$RESTIC_REPOSITORY/index\" ]; then ${pkgs.restic}/bin/restic snapshots --json | ${pkgs.jq}/bin/jq '.[].id'; fi'';
+                backupCmd = "systemctl start --wait ${fname}";
+                restoreCmd = ''exec ${sname} restore "$snapshot" --target /'';
+                listCmd = "exec ${sname} snapshots --json | ${pkgs.jq}/bin/jq -r '.[].id' ";
+                execCmd = "exec ${sname}";
               };
           in
           flatten (mapAttrsToList mkResticBinary cfg.instances);
@@ -458,17 +432,18 @@ in
         environment.systemPackages =
           let
             mkResticBinary =
-              name: instance:
+              n: instance:
+              let
+                sname = scriptName n instance.settings.repository;
+                fname = fullName n instance.settings.repository;
+              in
               shb.contracts.backup.mkRestoreScript {
-                name = fullName name instance.settings.repository;
+                name = fname;
                 user = instance.request.user;
-                sudoPreserveEnvs = [
-                  "RESTIC_REPOSITORY"
-                  "RESTIC_PASSWORD_FILE"
-                ];
-                secretsFile = "/run/secrets_restic_env/${fullName name instance.settings.repository}";
-                restoreCmd = ''${pkgs.restic}/bin/restic dump \"$snapshot\" ${instance.request.backupName} | ${instance.request.restoreCmd}'';
-                listCmd = ''if [ -e \"$RESTIC_REPOSITORY/index\" ]; then ${pkgs.restic}/bin/restic snapshots --json | ${pkgs.jq}/bin/jq '.[].id'; fi'';
+                backupCmd = "systemctl start --wait ${fname}";
+                restoreCmd = ''${sname} dump "$snapshot" ${instance.request.backupName} | ${instance.request.restoreCmd}'';
+                listCmd = "exec ${sname} snapshots --json | ${pkgs.jq}/bin/jq -r '.[].id' ";
+                execCmd = "exec ${sname}";
               };
           in
           flatten (mapAttrsToList mkResticBinary cfg.databases);

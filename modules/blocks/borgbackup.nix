@@ -154,6 +154,8 @@ let
 
   repoSlugName = name: builtins.replaceStrings [ "/" ":" ] [ "_" "_" ] (removePrefix "/" name);
   fullName = name: repository: "borgbackup-job-${name}_${repoSlugName repository.path}";
+  scriptName =
+    name: repository: config.services.borgbackup.jobs."${name}_${repoSlugName repository.path}".wrapper;
 in
 {
   imports = [
@@ -429,44 +431,21 @@ in
           mkMerge (flatten (mapAttrsToList mkSettings (enabledInstances // enabledDatabases)));
       }
       {
-        systemd.services =
-          let
-            mkEnv =
-              name: instance:
-              nameValuePair "${fullName name instance.settings.repository}_restore_gen" {
-                enable = true;
-                wantedBy = [ "multi-user.target" ];
-                serviceConfig.Type = "oneshot";
-                script = (
-                  shb.replaceSecrets {
-                    userConfig = instance.settings.repository.secrets // {
-                      BORG_PASSCOMMAND = ''"cat ${instance.settings.passphrase.result.path}"'';
-                      BORG_REPO = instance.settings.repository.path;
-                    };
-                    resultPath = "/run/secrets_borgbackup_env/${fullName name instance.settings.repository}";
-                    generator = shb.toEnvVar;
-                    user = instance.request.user;
-                  }
-                );
-              };
-          in
-          listToAttrs (flatten (mapAttrsToList mkEnv (cfg.instances // cfg.databases)));
-      }
-      {
         environment.systemPackages =
           let
             mkBorgBackupBinary =
-              name: instance:
+              n: instance:
+              let
+                sname = scriptName n instance.settings.repository;
+                fname = fullName n instance.settings.repository;
+              in
               shb.contracts.backup.mkRestoreScript {
-                name = fullName name instance.settings.repository;
+                name = fname;
                 user = instance.request.user;
-                sudoPreserveEnvs = [
-                  "BORG_REPO"
-                  "BORG_PASSCOMMAND"
-                ];
-                secretsFile = "/run/secrets_borgbackup_env/${fullName name instance.settings.repository}";
-                restoreCmd = ''(cd / && ${pkgs.borgbackup}/bin/borg extract \"$BORG_REPO::$snapshot\")'';
-                listCmd = ''if [ -e \"$BORG_REPO/data\" ]; then borg list --short \"$BORG_REPO\"; fi'';
+                backupCmd = "systemctl start --wait ${fname}";
+                restoreCmd = ''(cd / && exec ${sname} extract "::$snapshot")'';
+                listCmd = "exec ${sname} list --short";
+                execCmd = "exec ${sname}";
               };
           in
           flatten (mapAttrsToList mkBorgBackupBinary cfg.instances);
@@ -475,17 +454,18 @@ in
         environment.systemPackages =
           let
             mkBorgBackupBinary =
-              name: instance:
+              n: instance:
+              let
+                sname = scriptName n instance.settings.repository;
+                fname = fullName n instance.settings.repository;
+              in
               shb.contracts.backup.mkRestoreScript {
-                name = fullName name instance.settings.repository;
+                name = fname;
                 user = instance.request.user;
-                sudoPreserveEnvs = [
-                  "BORG_REPO"
-                  "BORG_PASSCOMMAND"
-                ];
-                secretsFile = "/run/secrets_borgbackup_env/${fullName name instance.settings.repository}";
-                restoreCmd = ''${pkgs.borgbackup}/bin/borg extract \"$BORG_REPO::$snapshot\" --stdout | ${instance.request.restoreCmd}'';
-                listCmd = ''if [ -e \"$BORG_REPO/data\" ]; then borg list --short \"$BORG_REPO\"; fi'';
+                backupCmd = "systemctl start --wait ${fname}";
+                restoreCmd = ''exec ${sname} extract "::$snapshot" --stdout | ${instance.request.restoreCmd}'';
+                listCmd = "exec ${sname} list --short";
+                execCmd = "exec ${sname}";
               };
           in
           flatten (mapAttrsToList mkBorgBackupBinary cfg.databases);
