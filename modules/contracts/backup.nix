@@ -255,8 +255,6 @@ in
           exit 0
         fi
 
-        set -x
-
         case "$1" in
           restore)
             shift
@@ -279,7 +277,7 @@ in
           exec)
             shift
 
-            ${execCmd}
+            ${execCmd} "$@"
             ;;
           *)
             usage
