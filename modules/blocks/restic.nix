@@ -294,6 +294,9 @@ in
 
                 initialize = true;
                 createWrapper = true;
+                environmentFile = lib.mkIf (
+                  instance.settings.repository.secrets != { }
+                ) "/run/secrets_restic/${fullName name instance.settings.repository}";
 
                 inherit (instance.settings.repository) timerConfig;
 
@@ -335,6 +338,9 @@ in
 
                 initialize = true;
                 createWrapper = true;
+                environmentFile = lib.mkIf (
+                  instance.settings.repository.secrets != { }
+                ) "/run/secrets_restic/${fullName name instance.settings.repository}";
 
                 inherit (instance.settings.repository) timerConfig;
 
@@ -381,9 +387,6 @@ in
                     };
                   }
                   (optionalAttrs (instance.settings.repository.secrets != { }) {
-                    serviceConfig.EnvironmentFile = [
-                      "/run/secrets_restic/${serviceName}"
-                    ];
                     after = [ "${serviceName}-pre.service" ];
                     requires = [ "${serviceName}-pre.service" ];
                   })
