@@ -16,14 +16,12 @@ let
     flatten
     literalExpression
     optionals
-    listToAttrs
     mapAttrsToList
     mkOption
     mkMerge
     ;
   inherit (lib)
     mkIf
-    nameValuePair
     optionalAttrs
     removePrefix
     ;
