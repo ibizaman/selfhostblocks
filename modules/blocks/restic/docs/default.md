@@ -75,6 +75,9 @@ shb.sops.secret."passphrase".request =
   config.shb.restic.instances."myservice".settings.passphrase.request;
 ```
 
+The related systemd service is named `restic-backups-myservice.service`
+and the [script](#blocks-restic-maintenance-restore) is `restic-backups-myservice`.
+
 ### One folder backed up with contract {#blocks-restic-usage-provider-contract}
 
 With the same example as before but assuming the `myservice` service
@@ -262,11 +265,13 @@ systemctl start --wait <systemd-service-name>
 
 One command-line helper is provided per backup instance and repository pair which allows to:
 
-- list snapshots: `<script> snapshots`
-- to restore a snapshot: `<script> restore <snapshot>`
+- list snapshots: `sudo <script> snapshots`
+- to restore a snapshot: `sudo <script> restore <snapshot>`
+- to take a snapshot: `sudo <script> backup`
+- to execute a custom command where arguments are sent: `sudo <script> exec <args>`
+  for example to unlock the repo, run: `sudo <script> unlock`
 
-The restore script has all the secrets needed to access the repo,
-it will run `sudo` automatically
+The restore script has all the secrets needed to access the repo
 and the user running it needs to have correct permissions for privilege escalation.
 
 In the [multiple directories example](#blocks-restic-usage-multiple) above, the following 6 helpers are provided in the `$PATH`:
@@ -285,7 +290,7 @@ Discovering those is easy thanks to tab-completion.
 One can then restore a backup from a given repository with:
 
 ```bash
-restic-myfolder1_srv_pool1_backups restore latest
+restic-myfolder1_srv_pool1_backups restore <snapshot>
 ```
 
 ### Troubleshooting {#blocks-restic-maintenance-troubleshooting}

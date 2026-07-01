@@ -90,6 +90,23 @@ Or with another module `backupService_2`!
 - [Borgbackup block](blocks-borgbackup.html).
 - [ZFS block](blocks-zfs.html).
 
+### Script {#contract-backup-providers-script}
+
+Every provider instance generates a script with the needed credentials embedded in it.
+
+The name of the script is derived from the name of the provider.
+For example with the [service `restic`](blocks-restic.html#blocks-restic-maintenance-restore), a backup instance
+`shb.restic.instances."myservice"` would create a script named
+`restic-backups-myservice`.
+
+The available commands are:
+
+- list snapshots: `sudo <script> snapshots`
+- to restore a snapshot: `sudo <script> restore <snapshot>`
+- to take a snapshot: `sudo <script> backup`
+- to execute a custom command where arguments are sent: `sudo <script> exec <args>`
+  the available commands depend on the provider but they all accept `--help`.
+
 ## Requester Blocks and Services {#contract-backup-requesters}
 
 - <!-- [ -->Audiobookshelf<!-- ](services-audiobookshelf.html). --> (no manual yet)

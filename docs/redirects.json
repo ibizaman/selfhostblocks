@@ -1982,6 +1982,9 @@
   "contract-backup-providers": [
     "contracts-backup.html#contract-backup-providers"
   ],
+  "contract-backup-providers-script": [
+    "contracts-backup.html#contract-backup-providers-script"
+  ],
   "contract-backup-requesters": [
     "contracts-backup.html#contract-backup-requesters"
   ],
