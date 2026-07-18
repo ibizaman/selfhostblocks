@@ -1,0 +1,72 @@
+--- a/pkgs/by-name/ka/karakeep/package.nix
++++ b/pkgs/by-name/ka/karakeep/package.nix
+@@ -14 +14,2 @@
+-  pnpm_9,
++  util-linux,
++  pnpm,
+@@ -18,0 +20,29 @@
++let
++  # pnpm >= 10 intermittently fails to link nested esbuild copies during a
++  # parallel install (ERR_PNPM_ENOENT rename race). See:
++  # https://github.com/pnpm/pnpm/issues/10179
++  # The Karakeep pnpm 11 update follows unmerged work from this nixpkgs fork:
++  # https://github.com/three/nixpkgs/commit/ddd7f64e62beaed81fff7f534dd12236a5ec0434
++  # Constrain only `pnpm install`; keep the actual package build unconstrained.
++  pnpmForKarakeep = pnpm.overrideAttrs (oldAttrs: {
++    postFixup = (oldAttrs.postFixup or "") + ''
++      mv "$out/bin/pnpm" "$out/bin/.pnpm-unwrapped"
++      cat > "$out/bin/pnpm" <<EOF
++#!${stdenv.shell}
++if [ "\''${1-}" = install ]; then
++  cpuMask="\$(${lib.getExe' util-linux "taskset"} -cp "\$\$")"
++  # Keep only the cpuset reported after the colon.
++  cpuMask="\''${cpuMask##*: }"
++  # Pick the first comma-separated segment from the cpuset.
++  firstCpu="\''${cpuMask%%,*}"
++  # If that segment is a range, pick its first CPU.
++  firstCpu="\''${firstCpu%%-*}"
++  exec ${lib.getExe' util-linux "taskset"} -c "\$firstCpu" "$out/bin/.pnpm-unwrapped" "\$@"
++else
++  exec "$out/bin/.pnpm-unwrapped" "\$@"
++fi
++EOF
++      chmod +x "$out/bin/pnpm"
++    '';
++  });
++in
+@@ -26,2 +56,4 @@
+-    tag = "cli/v${finalAttrs.version}";
+-    hash = "sha256-P88DQi0T7tmBH7cjs8/Hz77bU0oG7u67XPoLsdePNhI=";
++    # Newer than current nixpkgs' cli/v0.32.0 tag, but still an unreleased
++    # Karakeep commit; the pnpm workaround follows https://github.com/three/nixpkgs/commit/ddd7f64e62beaed81fff7f534dd12236a5ec0434.
++    rev = "4af8bb2fd15beff338a791b7a8e0bbf9b72814d6";
++    hash = "sha256-H3SRXax+upFf9bHEg2Og9xuDlSnsnlokoWw1Bc89ZUQ=";
+@@ -32 +64,0 @@
+-    ./patches/dont-lock-pnpm-version.patch
+@@ -47 +78 @@
+-    pnpm_9
++    pnpmForKarakeep
+@@ -61,3 +92,3 @@
+-    pnpm = pnpm_9;
+-    fetcherVersion = 3;
+-    hash = "sha256-aT4JPx3iYw4kw8GHXKWMnelSVT0q2S3PK8DgSCQCyKQ=";
++    pnpm = pnpmForKarakeep;
++    fetcherVersion = 4;
++    hash = "sha256-/FTfQBuZrQljz5AiEKHLQoX0CJXmSNT0qXIG4K44Xvk=";
+--- a/pkgs/by-name/ka/karakeep/patches/cache-from-env-not-nix-store.patch
++++ b/pkgs/by-name/ka/karakeep/patches/cache-from-env-not-nix-store.patch
+@@ -5,10 +5,4 @@
+-@@ -495,7 +495,8 @@ class ImageOptimizerCache {
+-         ]);
+-     }
+-     constructor({ distDir, nextConfig }){
+--        this.cacheDir = (0, _path.join)(distDir, 'cache', 'images');
+-+        const cacheDir = process.env['NEXT_CACHE_DIR'] || (0, _path.join)(distDir, 'cache');
+-+        this.cacheDir = (0, _path.join)(cacheDir, 'images');
+-         this.nextConfig = nextConfig;
+-     }
+-     async get(cacheKey) {
++@@ -687 +687,2 @@ class ImageOptimizerCache {
++-        this.cacheDir = (0, _path.join)(/* turbopackIgnore: true */ distDir, 'cache', 'images');
+++        const cacheDir = process.env['NEXT_CACHE_DIR'] || (0, _path.join)(/* turbopackIgnore: true */ distDir, 'cache');
+++        this.cacheDir = (0, _path.join)(cacheDir, 'images');

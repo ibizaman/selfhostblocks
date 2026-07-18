@@ -29,6 +29,8 @@
             # Get rid of lldap patches when https://github.com/NixOS/nixpkgs/pull/425923 is merged.
             ./patches/lldap.patch
             ./patches/0001-nixos-borgbackup-add-option-to-override-state-direct.patch
+            ./patches/nixpkgs-deluge-upstream-fixes.patch
+            ./patches/nixpkgs-karakeep-pnpm11.patch
 
             # Leaving commented out as an example.
             # (originPkgs.fetchpatch {
