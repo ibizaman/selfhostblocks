@@ -90,7 +90,7 @@ let
     )
     + ''
       if ${if hasSSL args then "True" else "False"}:
-          server.copy_from_vm("/etc/ssl/certs/ca-certificates.crt")
+          server.copy_from_machine("/etc/ssl/certs/ca-certificates.crt")
           client.succeed("rm -r /etc/ssl/certs")
           client.copy_from_host(str(pathlib.Path(os.environ.get("out", os.getcwd())) / "ca-certificates.crt"), "/etc/ssl/certs/ca-certificates.crt")
 
