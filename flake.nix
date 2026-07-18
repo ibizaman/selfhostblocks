@@ -443,6 +443,7 @@
           self.nixosModules.mitmdump
           self.nixosModules.monitoring
           self.nixosModules.nginx
+          self.nixosModules.package-versions
           self.nixosModules.postgresql
           self.nixosModules.restic
           self.nixosModules.sanoid
@@ -483,6 +484,7 @@
       nixosModules.mitmdump = modules/blocks/mitmdump.nix;
       nixosModules.monitoring = modules/blocks/monitoring.nix;
       nixosModules.nginx = modules/blocks/nginx.nix;
+      nixosModules.package-versions = modules/blocks/package-versions.nix;
       nixosModules.postgresql = modules/blocks/postgresql.nix;
       nixosModules.restic = modules/blocks/restic.nix;
       nixosModules.sanoid = modules/blocks/sanoid.nix;
