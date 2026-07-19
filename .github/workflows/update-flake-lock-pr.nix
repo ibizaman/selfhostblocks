@@ -129,6 +129,7 @@ writeShellApplication {
       echo "Creating PR on nixpkgs' latest commit $test_commit"
 
       git checkout -B "$branch"
+      git reset --hard origin/main
 
       nix flake lock \
         --override-input nixpkgs "github:NixOS/nixpkgs/$test_commit"

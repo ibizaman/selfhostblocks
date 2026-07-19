@@ -36,15 +36,3 @@ jobs:
           review: ${{ github.event.inputs.review }}
           dry-run: false
 
-  automerge-merge:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: reitermarkus/automerge@v2
-        with:
-          token: ${{ secrets.GH_TOKEN_FOR_UPDATES }}
-          merge-method: merge
-          do-not-merge-labels: never-merge
-          required-labels: automerge-merge
-          pull-request: ${{ github.event.inputs.pull-request }}
-          review: ${{ github.event.inputs.review }}
-          dry-run: false
