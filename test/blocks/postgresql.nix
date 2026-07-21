@@ -32,7 +32,7 @@ in
       { nodes, ... }:
       ''
         start_all()
-        machine.wait_for_unit("postgresql.service")
+        machine.wait_for_unit("postgresql.target")
         machine.wait_for_open_port(5432)
 
         def peer_cmd(user, database):
@@ -80,7 +80,7 @@ in
       { nodes, ... }:
       ''
         start_all()
-        machine.wait_for_unit("postgresql.service")
+        machine.wait_for_unit("postgresql.target")
         machine.wait_for_open_port(5432)
 
         def peer_cmd(user, database):
@@ -128,7 +128,7 @@ in
       { nodes, ... }:
       ''
         start_all()
-        machine.wait_for_unit("postgresql.service")
+        machine.wait_for_unit("postgresql.target")
         machine.wait_for_open_port(5432)
 
         def peer_cmd(user, database):
@@ -185,7 +185,7 @@ in
         { nodes, ... }:
         ''
           start_all()
-          machine.wait_for_unit("postgresql.service")
+          machine.wait_for_unit("postgresql.target")
           machine.wait_for_open_port(5432)
 
           def peer_cmd(user, database):
