@@ -144,7 +144,7 @@ writeShellApplication {
       gh pr create \
         --title "update nixpkgs to $test_commit" \
         --body "$(printf "%s\n\n%s" "Automated nixpkgs update. Latest tries:" " - https://github.com/NixOS/nixpkgs/compare/$current_commit...$test_commit")" \
-        --label automerge-merge
+        --label automerge
     }
 
     append_pr_body() {
