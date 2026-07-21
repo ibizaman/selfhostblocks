@@ -203,6 +203,13 @@ stdenv.mkDerivation {
             "${ghRoot}" 2>/dev/null
       done
 
+    # Support both old and new nixos-render-docs option names.
+    if nixos-render-docs manual html --help | grep -q -- --sidebar-depth; then
+      sidebarDepthArgs="--sidebar-depth 1"
+    else
+      sidebarDepthArgs="--toc-depth 1 --section-toc-depth 1"
+    fi
+
     nixos-render-docs manual html \
       --manpage-urls ${manpage-urls} \
       --redirects ./redirects.json \
@@ -212,8 +219,7 @@ stdenv.mkDerivation {
       --stylesheet static/tomorrow-night.min.css \
       --script static/highlight.min.js \
       --script static/highlight.load.js \
-      --toc-depth 1 \
-      --section-toc-depth 1 \
+      $sidebarDepthArgs \
       manual.md \
       out/index.html
   '';
