@@ -479,22 +479,19 @@ let
             ...
           }:
           ''
-            import time
-
             def find_in_logs(unit, text):
                 return server.systemctl("status {}".format(unit))[1].find(text) != -1
 
             with subtest("cron job succeeds"):
-                # This call does not block until the service is done.
-                server.succeed("systemctl start nextcloud-cron.service&")
+                server.succeed("systemctl start nextcloud-cron.service")
 
-                # If the service failed, then we're not happy.
-                status = "active"
-                while status == "active":
+                def cron_finished(_):
                     status = server.get_unit_info("nextcloud-cron")["ActiveState"]
-                    time.sleep(5)
-                if status != "inactive":
-                    raise Exception("Cron job did not finish correctly")
+                    if status == "failed":
+                        raise Exception("Nextcloud cron job failed")
+                    return status == "inactive"
+
+                retry(cron_finished, timeout_seconds=300)
 
                 if not find_in_logs("nextcloud-cron", "nextcloud-cron.service: Deactivated successfully."):
                     raise Exception("Nextcloud cron job did not finish successfully.")
