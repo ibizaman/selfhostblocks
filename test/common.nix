@@ -49,6 +49,7 @@ let
       import pathlib
 
       start_all()
+      client.wait_for_unit("multi-user.target")
 
       def curl(target, format, endpoint, data="", extra=""):
           cmd = ("curl --show-error --location"
