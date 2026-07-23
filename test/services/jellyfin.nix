@@ -8,24 +8,19 @@ let
   commonExtraScript =
     { node, ... }:
     ''
-      server.wait_until_succeeds("journalctl --since -1m --unit jellyfin --grep 'Startup complete'")
       headers = unline_with(" ", """
           -H 'Content-Type: application/json'
           -H 'Authorization: MediaBrowser Client="Android TV", Device="Nvidia Shield", DeviceId="ZQ9YQHHrUzk24vV", Version="0.15.3"'
       """)
-      import time
+
       with subtest("api login success"):
-          ok = False
-          for i in range(1, 5):
+          def admin_login_succeeds(_):
               response = curl(client, """{"code":%{response_code}}""", "${node.config.test.proto_fqdn}/Users/AuthenticateByName",
                   data="""{"Username": "${adminUser}", "Pw": "${adminPassword}"}""",
                   extra=headers)
-              if response['code'] == 200:
-                  ok = True
-                  break
-              time.sleep(5)
-          if not ok:
-              raise Exception(f"Expected success, got: {response['code']}")
+              return isinstance(response, dict) and response.get('code') == 200
+
+          retry(admin_login_succeeds, timeout_seconds=300)
 
       with subtest("api login failure"):
           response = curl(client, """{"code":%{response_code}}""", "${node.config.test.proto_fqdn}/Users/AuthenticateByName",
