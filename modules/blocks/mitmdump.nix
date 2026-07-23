@@ -43,6 +43,7 @@ let
         import socket
         import sys
         import time
+        from urllib.parse import urlparse
 
 
         logging.basicConfig(level=logging.INFO, format='%(message)s')
@@ -66,7 +67,7 @@ let
         parser = argparse.ArgumentParser()
         parser.add_argument("--listen_host", default="127.0.0.1", help="Host mitmdump will listen on")
         parser.add_argument("--listen_port", required=True, help="Port mitmdump will listen on")
-        parser.add_argument("--upstream_host", default="http://127.0.0.1", help="Host mitmdump will connect to for upstream. Example: http://127.0.0.1 or https://otherhost")
+        parser.add_argument("--upstream_host", default="http://127.0.0.1", help="URL of the upstream host. Must include an http:// or https:// scheme. Example: http://127.0.0.1 or https://otherhost")
         parser.add_argument("--upstream_port", required=True, help="Port mitmdump will connect to for upstream")
         parser.add_argument("--timeout", required=False, type=int, default=10, help="Timeout to wait for port availability")
         args, rest = parser.parse_known_args()
@@ -75,8 +76,13 @@ let
         if MITMDUMP_BIN is None:
             raise Exception("MITMDUMP_BIN env var must be set to the path of the mitmdump binary")
 
+        upstream_hostname = urlparse(args.upstream_host).hostname
+        if upstream_hostname is None:
+            parser.error(f"Could not determine hostname from upstream host '{args.upstream_host}'")
+
         logging.info(f"Waiting for upstream address '{args.upstream_host}:{args.upstream_port}' to be up.")
-        wait_for_port(args.upstream_host, args.upstream_port, timeout=args.timeout)
+        if not wait_for_port(upstream_hostname, args.upstream_port, timeout=args.timeout):
+            raise TimeoutError(f"Upstream address '{args.upstream_host}:{args.upstream_port}' did not become available within {args.timeout} seconds")
         logging.info(f"Upstream address '{args.upstream_host}:{args.upstream_port}' is up.")
 
         proc = subprocess.Popen(
@@ -207,11 +213,10 @@ in
                 type = str;
                 default = "http://127.0.0.1";
                 description = ''
-                  Host the mitmdump instance will connect to.
+                  URL of the upstream host the mitmdump instance will connect to.
 
-                  If only an IP or domain is provided,
-                  mitmdump will default to connect using HTTPS.
-                  If this is not wanted, prefix the IP or domain with the 'http://' protocol.
+                  Must include an `http://` or `https://` scheme.
+                  Configure the port separately with `upstreamPort`.
                 '';
               };
 
