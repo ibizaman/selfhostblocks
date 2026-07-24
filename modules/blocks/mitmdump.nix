@@ -54,10 +54,12 @@ let
             while time.time() < deadline:
                 try:
                     with socket.create_connection((host, port), timeout=0.5):
-                        return True
+                        return
                 except Exception:
                     time.sleep(0.1)
-            return False
+            raise TimeoutError(
+                f"Address '{host}:{port}' did not become available within {timeout} seconds"
+            )
 
 
         def flatten(xss):
@@ -81,8 +83,7 @@ let
             parser.error(f"Could not determine hostname from upstream host '{args.upstream_host}'")
 
         logging.info(f"Waiting for upstream address '{args.upstream_host}:{args.upstream_port}' to be up.")
-        if not wait_for_port(upstream_hostname, args.upstream_port, timeout=args.timeout):
-            raise TimeoutError(f"Upstream address '{args.upstream_host}:{args.upstream_port}' did not become available within {args.timeout} seconds")
+        wait_for_port(upstream_hostname, args.upstream_port, timeout=args.timeout)
         logging.info(f"Upstream address '{args.upstream_host}:{args.upstream_port}' is up.")
 
         proc = subprocess.Popen(
@@ -97,13 +98,14 @@ let
         )
 
         logging.info(f"Waiting for mitmdump instance to start on port {args.listen_port}.")
-        if wait_for_port("127.0.0.1", args.listen_port, timeout=args.timeout):
-            logging.info(f"Mitmdump is started on port {args.listen_port}.")
-            notify("READY=1")
-        else:
+        try:
+            wait_for_port("127.0.0.1", args.listen_port, timeout=args.timeout)
+        except TimeoutError:
             print(f"Mitmdump instance did not start before the timeout of {args.timeout} seconds, consider increasing the timeout")
             proc.terminate()
-            exit(1)
+            raise
+        logging.info(f"Mitmdump is started on port {args.listen_port}.")
+        notify("READY=1")
 
         proc.wait()
       '';
