@@ -290,7 +290,8 @@ let
             password = "CharliePassword";
             nextPageExpect = [
               "page.get_by_role('button', name=re.compile('Accept')).click(timeout=2 * 60 * 1000)"
-              "expect(page.get_by_text('not member of the allowed groups')).to_be_visible()"
+              # The Nextcloud error page can exceed Playwright's assertion timeout while rendering.
+              "expect(page.get_by_text('not member of the allowed groups')).to_be_visible(timeout=2 * 60 * 1000)"
             ];
           }
         ];
