@@ -99,7 +99,7 @@ in
         32
         33
       ];
-      default = 32;
+      default = 33;
     };
 
     dataDir = lib.mkOption {
