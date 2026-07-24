@@ -125,8 +125,12 @@ To choose the version and upgrade at the time of your liking,
 just use the [version](#services-nextcloudserver-options-shb.nextcloud.version) option:
 
 ```nix
-shb.nextcloud.version = 29;
+shb.nextcloud.version = 34;
 ```
+
+Nextcloud only supports upgrading one major version at a time. When upgrading from
+an older version, select each supported major version in sequence and let the
+upgrade complete before selecting the next one.
 
 ### Mount Point {#services-nextcloudserver-usage-mount-point}
 
