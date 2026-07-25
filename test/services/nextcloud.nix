@@ -733,6 +733,66 @@ let
       testScript = prometheusTestScript;
     };
 
+  upgradeTest = shb.test.runNixOSTest {
+    name = "nextcloud_upgrade_32_33";
+
+    nodes.server = {
+      imports = [
+        basic
+        {
+          shb.nextcloud.version = 32;
+
+          specialisation.nextcloud33.configuration = {
+            shb.nextcloud.version = lib.mkForce 33;
+          };
+        }
+      ];
+    };
+
+    nodes.client = { };
+
+    testScript =
+      { nodes, ... }:
+      let
+        nextcloud32Occ = "${nodes.server.services.nextcloud.occ}/bin/nextcloud-occ";
+        nextcloud33Occ = "${nodes.server.specialisation.nextcloud33.configuration.services.nextcloud.occ}/bin/nextcloud-occ";
+        switch = "${nodes.server.system.build.toplevel}/specialisation/nextcloud33/bin/switch-to-configuration test";
+        webdavUrl = "http://${nodes.server.test.fqdn}/remote.php/dav/files/${adminUser}/upgrade-marker";
+        curl =
+          "curl --fail --silent --show-error --user ${adminUser}:${adminPass}"
+          + " --resolve ${nodes.server.test.fqdn}:80:127.0.0.1";
+      in
+      ''
+        import json
+
+        start_all()
+        server.wait_for_unit("multi-user.target")
+        server.wait_for_unit("phpfpm-nextcloud.service")
+
+        with subtest("Nextcloud 32 is ready"):
+            status = json.loads(server.succeed("${nextcloud32Occ} status --output=json"))
+            assert status["installed"]
+            assert status["versionstring"].startswith("32.")
+            assert not status["maintenance"]
+
+        with subtest("create data before the upgrade"):
+            server.succeed("printf 'survives upgrade' > /tmp/upgrade-marker")
+            server.succeed("${curl} --upload-file /tmp/upgrade-marker ${webdavUrl}")
+
+        with subtest("upgrade to Nextcloud 33"):
+            server.succeed("${switch}")
+            server.wait_for_unit("phpfpm-nextcloud.service")
+            status = json.loads(server.succeed("${nextcloud33Occ} status --output=json"))
+            assert status["installed"]
+            assert status["versionstring"].startswith("33.")
+            assert not status["maintenance"]
+
+        with subtest("data survives the upgrade"):
+            content = server.succeed("${curl} ${webdavUrl}")
+            assert content == "survives upgrade"
+      '';
+  };
+
   versionedTests =
     v:
     {
@@ -759,4 +819,7 @@ let
       "recognize_${toString v}" = recognizeTest v;
     };
 in
-lib.foldl (all: v: lib.mergeAttrs all (versionedTests v)) { } supportedVersion
+(lib.foldl (all: v: lib.mergeAttrs all (versionedTests v)) { } supportedVersion)
+// {
+  upgrade_32_33 = upgradeTest;
+}
