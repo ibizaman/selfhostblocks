@@ -889,6 +889,9 @@ in
 
       systemd.services.nextcloud-setup.requires = cfg.mountPointServices;
       systemd.services.nextcloud-setup.after = cfg.mountPointServices;
+
+      # Ensure setup is in the same transaction when activation restarts this unit.
+      systemd.services.nextcloud-update-db.requires = [ "nextcloud-setup.service" ];
     })
 
     (lib.mkIf (cfg.enable && cfg.phpFpmPrometheusExporter.enable) {
