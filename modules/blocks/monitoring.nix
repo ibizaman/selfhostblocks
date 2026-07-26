@@ -123,6 +123,12 @@ in
         '';
         default = "scrutiny";
       };
+      ssl = lib.mkOption {
+        description = "SSL certificate for the Scrutiny web interface. Defaults to `shb.monitoring.ssl` for backwards compatibility.";
+        type = lib.types.nullOr shb.contracts.ssl.certs;
+        default = cfg.ssl;
+        defaultText = lib.literalExpression "config.shb.monitoring.ssl";
+      };
       dashboard = lib.mkOption {
         description = ''
           Dashboard contract consumer
@@ -965,8 +971,8 @@ in
       shb.nginx.vhosts = lib.mkIf (cfg.scrutiny.subdomain != null) [
         (
           {
-            inherit (cfg) domain ssl;
-            subdomain = cfg.scrutiny.subdomain;
+            inherit (cfg) domain;
+            inherit (cfg.scrutiny) ssl subdomain;
 
             upstream = "http://127.0.0.1:${toString config.services.scrutiny.settings.web.listen.port}";
             autheliaRules = lib.optionals (cfg.sso.enable) [
