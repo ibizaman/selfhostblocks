@@ -57,6 +57,7 @@ in
       { config, pkgs, ... }:
       {
         imports = [
+          shb.test.baseImports
           ../../modules/blocks/mitmdump.nix
         ];
 
