@@ -8,13 +8,15 @@ It complements the upstream nixpkgs with some authentication and debugging impro
 
 ## Usage {#blocks-nginx-usage}
 
-### Access Logging {#blocks-nginx-usage-accesslog}
+### Access Logging with Request Bodies {#blocks-nginx-usage-accesslog}
 
-JSON access logging is enabled with the [`shb.nginx.accessLog`](#blocks-nginx-options-shb.nginx.accessLog) option:
+JSON access logging, including potentially sensitive request bodies, is enabled
+with the [`shb.nginx.insecureAccessLogWithRequestBody`](#blocks-nginx-options-shb.nginx.insecureAccessLogWithRequestBody)
+option:
 
 ```nix
 {
-  shb.nginx.accessLog = true;
+  shb.nginx.insecureAccessLogWithRequestBody = true;
 }
 ```
 
@@ -45,7 +47,9 @@ nginx[969]: server nginx:
   }
 ```
 
-This _will_ log the body of POST queries so it should only be enabled for debug logging.
+This logs request bodies and can expose passwords, authentication tokens, and
+other private data in the system journal. It should only be enabled temporarily
+for debugging.
 
 ### Debug Logging {#blocks-nginx-usage-debuglog}
 

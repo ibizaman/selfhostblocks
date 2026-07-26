@@ -1247,11 +1247,12 @@
   "blocks-nginx-options": [
     "blocks-nginx.html#blocks-nginx-options"
   ],
-  "blocks-nginx-options-shb.nginx.accessLog": [
-    "blocks-nginx.html#blocks-nginx-options-shb.nginx.accessLog"
-  ],
   "blocks-nginx-options-shb.nginx.debugLog": [
     "blocks-nginx.html#blocks-nginx-options-shb.nginx.debugLog"
+  ],
+  "blocks-nginx-options-shb.nginx.insecureAccessLogWithRequestBody": [
+    "blocks-nginx.html#blocks-nginx-options-shb.nginx.insecureAccessLogWithRequestBody",
+    "blocks-nginx.html#blocks-nginx-options-shb.nginx.accessLog"
   ],
   "blocks-nginx-options-shb.nginx.vhosts": [
     "blocks-nginx.html#blocks-nginx-options-shb.nginx.vhosts"
