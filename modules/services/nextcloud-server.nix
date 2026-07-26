@@ -619,7 +619,10 @@ in
         `appinfo/info.xml`.
         Search in [nixpkgs](https://github.com/NixOS/nixpkgs/tree/master/pkgs/servers/nextcloud/packages) for the `NN.json` files for existing apps.
 
-        You can still install apps through the appstore.
+        When this option installs at least one app, the nixpkgs Nextcloud module disables app-store
+        installation and updates by default. This prevents Nextcloud from replacing declaratively
+        managed packages with mutable copies. Set `services.nextcloud.appstoreEnable = true` to
+        override that policy.
       '';
       default = null;
       example = lib.literalExpression ''
@@ -782,7 +785,6 @@ in
 
         extraApps = if isNull cfg.extraApps then { } else cfg.extraApps nextcloudApps;
         extraAppsEnable = true;
-        appstoreEnable = true;
 
         settings =
           let
