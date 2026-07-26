@@ -51,7 +51,7 @@
           shb.sops.secret."nextcloud/adminpass".request = config.shb.nextcloud.adminPass.request;
 
           # Set to true for more debug info with `journalctl -f -u nginx`.
-          shb.nginx.accessLog = true;
+          shb.nginx.insecureAccessLogWithRequestBody = true;
           shb.nginx.debugLog = false;
         };
 

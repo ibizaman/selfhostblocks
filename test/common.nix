@@ -250,7 +250,7 @@ in
           80
           443
         ];
-        shb.nginx.accessLog = true;
+        shb.nginx.insecureAccessLogWithRequestBody = true;
 
         networking.hosts = {
           "192.168.1.2" = [

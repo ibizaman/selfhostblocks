@@ -95,13 +95,17 @@ let
 in
 {
   imports = [
+    (lib.mkRenamedOptionModule
+      [ "shb" "nginx" "accessLog" ]
+      [ "shb" "nginx" "insecureAccessLogWithRequestBody" ]
+    )
     ./authelia.nix
   ];
 
   options.shb.nginx = {
-    accessLog = lib.mkOption {
+    insecureAccessLogWithRequestBody = lib.mkOption {
       type = lib.types.bool;
-      description = "Log all requests";
+      description = "Log all requests, including potentially sensitive request bodies";
       default = false;
       example = true;
     };
@@ -128,7 +132,7 @@ in
 
     services.nginx.enable = true;
     services.nginx.logError = lib.mkIf cfg.debugLog "stderr warn";
-    services.nginx.appendHttpConfig = lib.mkIf cfg.accessLog ''
+    services.nginx.appendHttpConfig = lib.mkIf cfg.insecureAccessLogWithRequestBody ''
       log_format apm
         '{'
         '"remote_addr":"$remote_addr",'

@@ -16,6 +16,11 @@ Template:
 
 # Upcoming Release
 
+## User Facing Backwards Compatible Changes
+
+- Rename `shb.nginx.accessLog` to `shb.nginx.insecureAccessLogWithRequestBody`.
+  The old option remains available as a deprecated alias.
+
 # v0.9.0
 
 Commits: https://github.com/ibizaman/selfhostblocks/compare/v0.8.0...v0.9.0
