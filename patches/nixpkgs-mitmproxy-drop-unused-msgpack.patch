@@ -1,0 +1,30 @@
+diff --git a/pkgs/development/python-modules/mitmproxy/default.nix b/pkgs/development/python-modules/mitmproxy/default.nix
+--- a/pkgs/development/python-modules/mitmproxy/default.nix
++++ b/pkgs/development/python-modules/mitmproxy/default.nix
+@@ -17,7 +17,6 @@
+   kaitaistruct,
+   ldap3,
+   mitmproxy-rs,
+-  msgpack,
+   nixosTests,
+   publicsuffix2,
+   pyopenssl,
+@@ -65,6 +64,10 @@ buildPythonPackage rec {
+     "wsproto"
+   ];
+ 
++  # msgpack is unused and was removed upstream:
++  # https://github.com/mitmproxy/mitmproxy/pull/8319
++  pythonRemoveDeps = [ "msgpack" ];
++
+   build-system = [ setuptools ];
+ 
+   dependencies = [
+@@ -82,7 +85,6 @@ buildPythonPackage rec {
+     kaitaistruct
+     ldap3
+     mitmproxy-rs
+-    msgpack
+     publicsuffix2
+     pyopenssl
+     pyparsing
