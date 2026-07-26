@@ -25,7 +25,7 @@ in
             "client1.machine.com"
             "client2.machine.com"
             "ldap.machine.com"
-            "authelia.machine.com"
+            "auth.machine.com"
           ];
         };
 
@@ -67,7 +67,7 @@ in
 
         shb.authelia = {
           enable = true;
-          subdomain = "authelia";
+          subdomain = "auth";
           domain = "machine.com";
           ssl = config.shb.certs.certs.selfsigned."machine.com";
 
@@ -154,13 +154,13 @@ in
 
         def tests():
             machine.wait_for_unit("lldap.service")
-            machine.wait_for_unit("authelia-authelia.machine.com.target")
+            machine.wait_for_unit("authelia-auth.machine.com.target")
             machine.wait_for_open_port(9091)
 
-            endpoints = json.loads(machine.succeed("curl -s https://authelia.machine.com/.well-known/openid-configuration"))
+            endpoints = json.loads(machine.succeed("curl -s https://auth.machine.com/.well-known/openid-configuration"))
             auth_endpoint = endpoints['authorization_endpoint']
             print(f"auth_endpoint: {auth_endpoint}")
-            if auth_endpoint != "https://authelia.machine.com/api/oidc/authorization":
+            if auth_endpoint != "https://auth.machine.com/api/oidc/authorization":
                 raise Exception("Unexpected auth_endpoint")
 
             resp = machine.succeed(

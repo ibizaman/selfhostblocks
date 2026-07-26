@@ -355,7 +355,7 @@ in
       '';
       readOnly = true;
       default = {
-        path = "/var/lib/authelia-authelia.${cfg.domain}";
+        path = "/var/lib/authelia-${fqdn}";
       };
       defaultText = {
         path = "/var/lib/authelia-authelia.example.com";
