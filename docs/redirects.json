@@ -1079,6 +1079,21 @@
   "blocks-monitoring-options-shb.monitoring.scrutiny.enable": [
     "blocks-monitoring.html#blocks-monitoring-options-shb.monitoring.scrutiny.enable"
   ],
+  "blocks-monitoring-options-shb.monitoring.scrutiny.ssl": [
+    "blocks-monitoring.html#blocks-monitoring-options-shb.monitoring.scrutiny.ssl"
+  ],
+  "blocks-monitoring-options-shb.monitoring.scrutiny.ssl.paths": [
+    "blocks-monitoring.html#blocks-monitoring-options-shb.monitoring.scrutiny.ssl.paths"
+  ],
+  "blocks-monitoring-options-shb.monitoring.scrutiny.ssl.paths.cert": [
+    "blocks-monitoring.html#blocks-monitoring-options-shb.monitoring.scrutiny.ssl.paths.cert"
+  ],
+  "blocks-monitoring-options-shb.monitoring.scrutiny.ssl.paths.key": [
+    "blocks-monitoring.html#blocks-monitoring-options-shb.monitoring.scrutiny.ssl.paths.key"
+  ],
+  "blocks-monitoring-options-shb.monitoring.scrutiny.ssl.systemdService": [
+    "blocks-monitoring.html#blocks-monitoring-options-shb.monitoring.scrutiny.ssl.systemdService"
+  ],
   "blocks-monitoring-options-shb.monitoring.scrutiny.subdomain": [
     "blocks-monitoring.html#blocks-monitoring-options-shb.monitoring.scrutiny.subdomain"
   ],

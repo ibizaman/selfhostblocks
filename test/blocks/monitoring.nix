@@ -188,6 +188,39 @@ let
       };
     };
 
+  scrutinySsl =
+    { config, ... }:
+    {
+      shb.certs.certs.selfsigned = {
+        monitoring = {
+          ca = config.shb.certs.cas.selfsigned.myca;
+          domain = "g.${config.test.domain}";
+          group = "nginx";
+        };
+        scrutiny = {
+          ca = config.shb.certs.cas.selfsigned.myca;
+          domain = "scrutiny.${config.test.domain}";
+          group = "nginx";
+        };
+      };
+
+      shb.monitoring = {
+        ssl = config.shb.certs.certs.selfsigned.monitoring;
+        scrutiny.ssl = config.shb.certs.certs.selfsigned.scrutiny;
+      };
+
+      systemd.services.nginx = {
+        after = [
+          config.shb.certs.certs.selfsigned.monitoring.systemdService
+          config.shb.certs.certs.selfsigned.scrutiny.systemdService
+        ];
+        requires = [
+          config.shb.certs.certs.selfsigned.monitoring.systemdService
+          config.shb.certs.certs.selfsigned.scrutiny.systemdService
+        ];
+      };
+    };
+
   clientScrutinyLoginSso =
     { config, ... }:
     {
@@ -372,7 +405,7 @@ in
           basic
           scrutiny
           shb.test.certs
-          https
+          scrutinySsl
           shb.test.ldap
           ldap
           (shb.test.sso config.shb.certs.certs.selfsigned.n)
@@ -382,6 +415,20 @@ in
         # virtualisation.memorySize = 4096;
       };
 
-    testScript = commonTestScript;
+    testScript = commonTestScript.override {
+      extraScript =
+        { node, ... }:
+        let
+          scrutinyFqdn = "${node.config.shb.monitoring.scrutiny.subdomain}.${node.config.shb.monitoring.domain}";
+        in
+        ''
+          with subtest("Scrutiny uses its own SSL certificate"):
+              client.succeed(
+                  "curl --fail --silent --show-error"
+                  + " --connect-to ${scrutinyFqdn}:443:server:443"
+                  + " https://${scrutinyFqdn}/"
+              )
+        '';
+    };
   };
 }
