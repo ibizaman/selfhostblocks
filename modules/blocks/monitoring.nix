@@ -936,7 +936,7 @@ in
         settings = {
           web = {
             metrics.enabled = true; # Enables Prometheus exporter
-            listenHost = "127.0.0.1";
+            listen.host = "127.0.0.1";
           };
         };
 
