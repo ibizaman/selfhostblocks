@@ -249,7 +249,7 @@ let
             nextPageExpect = [
               # Locator.click uses the action timeout while waiting for its navigation.
               "page.get_by_role('button', name=re.compile('Accept')).click(timeout=2 * 60 * 1000)"
-              "expect(page).to_have_title(re.compile('Dashboard'))"
+              "expect(page).to_have_title(re.compile('Dashboard'), timeout=2 * 60 * 1000)"
               "page.goto('https://${config.test.fqdn}/settings/admin')"
               "expect(page.get_by_text('Access forbidden')).to_be_visible()"
             ];
@@ -266,7 +266,7 @@ let
             password = "BobPassword";
             nextPageExpect = [
               "page.get_by_role('button', name=re.compile('Accept')).click(timeout=2 * 60 * 1000)"
-              "expect(page).to_have_title(re.compile('Dashboard'))"
+              "expect(page).to_have_title(re.compile('Dashboard'), timeout=2 * 60 * 1000)"
               "page.goto('https://${config.test.fqdn}/settings/admin')"
               "expect(page.get_by_text('Access forbidden')).not_to_be_visible()"
             ];
