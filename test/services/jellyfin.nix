@@ -35,7 +35,7 @@ let
     waitForServices =
       { ... }:
       [
-        "jellyfin.service"
+        "multi-user.target"
         "nginx.service"
       ];
     waitForPorts =
