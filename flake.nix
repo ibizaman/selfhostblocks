@@ -3,6 +3,10 @@
 
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
+    nixos-mailserver = {
+      url = "gitlab:simple-nixos-mailserver/nixos-mailserver/main";
+      flake = false;
+    };
     nix-flake-tests.url = "github:antifuchs/nix-flake-tests";
     flake-utils.url = "github:numtide/flake-utils";
     nmdsrc = {
@@ -15,6 +19,7 @@
     inputs@{
       self,
       nixpkgs,
+      nixos-mailserver,
       nix-flake-tests,
       flake-utils,
       nmdsrc,
@@ -133,7 +138,9 @@
             "services/homepage" = ./modules/services/homepage.nix;
             "services/jellyfin" = ./modules/services/jellyfin.nix;
             "services/karakeep" = ./modules/services/karakeep.nix;
-            "services/mailserver" = ./modules/services/mailserver.nix;
+            "services/mailserver" = {
+              module = self.nixosModules.mailserver;
+            };
             "services/nextcloud-server" = {
               module = ./modules/services/nextcloud-server.nix;
               optionRoot = [
@@ -368,6 +375,7 @@
                 removeAttrs
                   (pkgs.callPackage path {
                     shb = self.lib.${system};
+                    inherit (self) nixosModules;
                   })
                   [
                     "override"
@@ -509,7 +517,13 @@
       nixosModules.homepage = modules/services/homepage.nix;
       nixosModules.jellyfin = modules/services/jellyfin.nix;
       nixosModules.karakeep = modules/services/karakeep.nix;
-      nixosModules.mailserver = modules/services/mailserver.nix;
+      # Unlike the other modules, mailserver composes an external flake input with the SHB module.
+      nixosModules.mailserver = {
+        imports = [
+          (nixos-mailserver + "/default.nix")
+          modules/services/mailserver.nix
+        ];
+      };
       nixosModules.nextcloud-server = modules/services/nextcloud-server.nix;
       nixosModules.open-webui = modules/services/open-webui.nix;
       nixosModules.paperless = modules/services/paperless.nix;

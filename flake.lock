@@ -33,6 +33,23 @@
         "type": "github"
       }
     },
+    "nixos-mailserver": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1777287493,
+        "narHash": "sha256-Fj7S91TuZm6+DG/v6SFme/p+sWrYMQICGX6yQ5KD43Q=",
+        "owner": "simple-nixos-mailserver",
+        "repo": "nixos-mailserver",
+        "rev": "e33fbde199eaad513ef5d0746db19d5878150232",
+        "type": "gitlab"
+      },
+      "original": {
+        "owner": "simple-nixos-mailserver",
+        "ref": "main",
+        "repo": "nixos-mailserver",
+        "type": "gitlab"
+      }
+    },
     "nixpkgs": {
       "locked": {
         "lastModified": 1784796856,
@@ -69,6 +86,7 @@
       "inputs": {
         "flake-utils": "flake-utils",
         "nix-flake-tests": "nix-flake-tests",
+        "nixos-mailserver": "nixos-mailserver",
         "nixpkgs": "nixpkgs",
         "nmdsrc": "nmdsrc"
       }
