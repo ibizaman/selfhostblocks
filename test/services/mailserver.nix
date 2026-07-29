@@ -1,5 +1,6 @@
 {
   lib,
+  nixosModules,
   pkgs,
   shb,
   ...
@@ -80,7 +81,7 @@ in
       {
         imports = [
           ../../modules/blocks/ssl.nix
-          ../../modules/services/mailserver.nix
+          nixosModules.mailserver
         ];
 
         networking.hosts = {

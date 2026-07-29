@@ -9,17 +9,7 @@ let
   cfg = config.shb.mailserver;
 in
 {
-  imports = [
-    (
-      builtins.fetchGit {
-        url = "https://gitlab.com/simple-nixos-mailserver/nixos-mailserver.git";
-        ref = "master";
-        rev = "e33fbde199eaad513ef5d0746db19d5878150232";
-      }
-      + "/default.nix"
-    )
-    ../blocks/lldap.nix
-  ];
+  imports = [ ../blocks/lldap.nix ];
 
   options.shb.mailserver = {
     enable = lib.mkEnableOption "SHB's nixos-mailserver module";

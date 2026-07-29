@@ -2,6 +2,7 @@
   pkgs,
   lib,
   shb,
+  ...
 }:
 let
   subdomain = "p";
