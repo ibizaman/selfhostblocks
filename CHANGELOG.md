@@ -23,6 +23,13 @@ Template:
 - Remove the ignored `shb.zfs.pools.<pool>.datasets.<dataset>.enable` option.
   Remove the option from existing configurations and conditionally omit the dataset attribute instead.
 
+- Update NixOS Mailserver to the 26.11 development branch. The
+  `shb.mailserver.impermanence.sieve` output is removed because user-managed
+  Sieve scripts now live under `mailserver.storage.path`. Users with
+  `mailserver.enableManageSieve = true` must complete the
+  [upstream Sieve migration](https://nixos-mailserver.readthedocs.io/en/nixos-26.05/migrations.html#sieve-script-directory-migration)
+  before setting `shb.mailserver.stateVersion = 5`.
+
 ## User Facing Backwards Compatible Changes
 
 - Rename `shb.nginx.accessLog` to `shb.nginx.insecureAccessLogWithRequestBody`.
