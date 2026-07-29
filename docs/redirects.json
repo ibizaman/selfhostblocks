@@ -1266,8 +1266,7 @@
     "blocks-nginx.html#blocks-nginx-options-shb.nginx.debugLog"
   ],
   "blocks-nginx-options-shb.nginx.insecureAccessLogWithRequestBody": [
-    "blocks-nginx.html#blocks-nginx-options-shb.nginx.insecureAccessLogWithRequestBody",
-    "blocks-nginx.html#blocks-nginx-options-shb.nginx.accessLog"
+    "blocks-nginx.html#blocks-nginx-options-shb.nginx.insecureAccessLogWithRequestBody"
   ],
   "blocks-nginx-options-shb.nginx.vhosts": [
     "blocks-nginx.html#blocks-nginx-options-shb.nginx.vhosts"
@@ -1631,6 +1630,9 @@
   ],
   "blocks-sanoid": [
     "blocks-sanoid.html#blocks-sanoid"
+  ],
+  "blocks-sanoid-best-pactices": [
+    "blocks-sanoid.html#blocks-sanoid-best-pactices"
   ],
   "blocks-sanoid-contract-provider": [
     "blocks-sanoid.html#blocks-sanoid-contract-provider"
