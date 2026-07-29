@@ -88,6 +88,63 @@ we can just set the request manually:
 Note the attr name under the `shb.sanoid.backup` option does not
 set the dataset name.
 
+## Best Practices {#blocks-sanoid-best-pactices}
+
+Let's assume you have a few datasets you want to backup on one hard drive,
+say `root/safe/home` and `data/nextcloud` and
+and a destination dataset on a second hard drive where backups will be sent for replication, say `backup/syncoid`.
+
+The following configuration creates a new snapshot every hour on the `root/safe/home` and `data/nextcloud` dataset and keeps:
+
+- the last 5 hourly snapshots
+- one snapshot per day for the last 10 days
+- one snapshot per month for the last 15 months
+- one snapshot per year for the last 20 years
+
+The same configuration is set for the `backup/syncoid` dataset.
+
+```nix
+{
+  services.sanoid = {
+    enable = true;
+    templates.main = {
+      autosnap = true;
+      autoprune = true;
+      hourly = 5;
+      daily = 10;
+      monthly = 15;
+      yearly = 20;
+    };
+    templates.backup = {
+      autosnap = false;
+      autoprune = true;
+      hourly = 5;
+      daily = 10;
+      monthly = 15;
+      yearly = 20;
+    };
+  };
+
+  shb.zfs.pools.root.datasets."safe/nextcloud".path = "/var/lib/nextcloud";
+  shb.sanoid.backup."root/safe/nextcloud" = {
+    request = config.shb.zfs.pools.root.datasets."safe/nextcloud".datasetBackup.request;
+    settings.useTemplate = [ "main" ];
+  };
+
+  shb.zfs.pools.data.datasets."nextcloud".path = "/home";
+  shb.sanoid.backup."root/safe/home" = {
+    request = config.shb.zfs.pools.root.datasets."safe/home".datasetBackup.request;
+    settings.useTemplate = [ "main" ];
+  };
+
+  shb.zfs.pools.backup.datasets."syncoid".path = "none";
+  shb.sanoid.backup."backup/syncoid" = {
+    request = config.shb.zfs.pools.backup.datasets."syncoid".datasetBackup.request;
+    settings.useTemplate = [ "backup" ];
+  };
+}
+```
+
 ## Options Reference {#blocks-sanoid-options}
 
 ```{=include=} options
