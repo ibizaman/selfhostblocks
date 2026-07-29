@@ -345,7 +345,7 @@ in
 
     backup = lib.mkOption {
       description = ''
-        Backup emails, index and sieve.
+        Backup emails, index and Sieve scripts.
       '';
       default = { };
       type = lib.types.submodule {
@@ -354,13 +354,11 @@ in
           sourceDirectories = builtins.filter (x: x != null) [
             config.mailserver.indexDir
             config.mailserver.storage.path
-            config.mailserver.sieveDirectory
           ];
           sourceDirectoriesText = ''
             [
               config.mailserver.indexDir
               config.mailserver.storage.path
-              config.mailserver.sieveDirectory
             ]
           '';
         };
@@ -395,7 +393,6 @@ in
       type = lib.types.attrsOf lib.types.str;
       default = {
         mail = config.mailserver.storage.path;
-        sieve = config.mailserver.sieveDirectory;
         dkim = config.mailserver.dkim.keyDirectory;
       }
       // lib.optionalAttrs (config.mailserver.indexDir != null) {
@@ -404,7 +401,6 @@ in
       defaultText = lib.literalExpression ''
         {
           mail = config.mailserver.storage.path;
-          sieve = config.mailserver.sieveDirectory;
           dkim = config.mailserver.dkim.keyDirectory;
         }
         // lib.optionalAttrs (config.mailserver.indexDir != null) {
@@ -599,13 +595,6 @@ in
         "userdb ldap" = {
           fields.home = lib.mkForce "${config.mailserver.storage.path}/${cfg.ldap.account}/%{user}";
           fields.mail_index_path = lib.mkForce "${config.mailserver.storage.path}/${cfg.ldap.account}/%{user}";
-        };
-        "passdb ldap" = {
-          # LLDAP does not understand ldap user password setup.
-          fields.password = lib.mkForce null;
-          # We use bind DN auth.
-          # https://doc.dovecot.org/2.3/configuration_manual/authentication/ldap_bind/#authentication-ldap-bind
-          bind = true;
         };
       };
     })

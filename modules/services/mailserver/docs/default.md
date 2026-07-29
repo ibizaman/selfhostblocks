@@ -236,7 +236,6 @@ To save the data folder in an impermanence setup, add:
 ```nix
 {
   shb.zfs.datasets."safe/mailserver/mail".path = config.shb.mailserver.impermanence.mail;
-  shb.zfs.datasets."safe/mailserver/sieve".path = config.shb.mailserver.impermanence.sieve;
   shb.zfs.datasets."safe/mailserver/dkim".path = config.shb.mailserver.impermanence.dkim;
 }
 ```
@@ -292,12 +291,11 @@ The 3 systemd services setup by this module are:
 
 ### Folders {#services-mailserver-debug-folders}
 
-The folders where state is stored are:
+The persistent locations used by the module are:
 
 - `config.mailserver.indexDir`, when configured, stores disposable search indices.
-- `config.mailserver.storage.path` = `/var/vmail`
-- `config.mailserver.sieveDirectory` = `/var/sieve`
-- `config.mailserver.dkim.keyDirectory` = `/var/dkim`
+- `config.mailserver.storage.path` = `/var/vmail` stores mail and user-managed Sieve scripts.
+- `config.mailserver.dkim.keyDirectory` = `/var/dkim` stores DKIM keys.
 
 ### Open Ports {#services-mailserver-debug-ports}
 
@@ -309,7 +307,7 @@ The ports opened by default in this module are:
 You will need to forward those ports on your router
 if you want to access to your emails from the internet.
 
-The complete list can be found in the [upstream repository](https://gitlab.com/simple-nixos-mailserver/nixos-mailserver/-/blob/5965fae920b6b97f39f94bdb6195631e274c93a5/mail-server/networking.nix).
+The complete list can be found in the [upstream repository](https://gitlab.com/simple-nixos-mailserver/nixos-mailserver/-/blob/d4165c1dc93aa7bb3019e5a90960c121e228cad5/mail-server/networking.nix).
 
 ### List Email Provider Folder Mapping {#services-mailserver-debug-folder-mapping}
 
