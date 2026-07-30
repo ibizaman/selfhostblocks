@@ -125,16 +125,38 @@ The same configuration is set for the `backup/syncoid` dataset.
     };
   };
 
-  shb.zfs.pools.root.datasets."safe/nextcloud".path = "/var/lib/nextcloud";
-  shb.sanoid.backup."root/safe/nextcloud" = {
-    request = config.shb.zfs.pools.root.datasets."safe/nextcloud".datasetBackup.request;
+  shb.zfs.pools.data.datasets."nextcloud".path = "/var/lib/nextcloud";
+  shb.sanoid.backup."data/nextcloud" = {
+    request = config.shb.zfs.pools.data.datasets."nextcloud".datasetBackup.request;
     settings.useTemplate = [ "main" ];
   };
 
-  shb.zfs.pools.data.datasets."nextcloud".path = "/home";
+  shb.zfs.pools.root.datasets."safe/home".path = "/home";
   shb.sanoid.backup."root/safe/home" = {
     request = config.shb.zfs.pools.root.datasets."safe/home".datasetBackup.request;
     settings.useTemplate = [ "main" ];
+  };
+
+  services.syncoid = {
+    enable = true;
+
+    commands."root/safe/home" = {
+      recursive = true;
+      target = "backup/syncoid/root/safe/home";
+      extraArgs = [
+        "--create-bookmark"
+        "--no-sync-snap"
+      ];
+    };
+
+    commands."data/nextcloud" = {
+      recursive = true;
+      target = "backup/syncoid/data/nextcloud";
+      extraArgs = [
+        "--create-bookmark"
+        "--no-sync-snap"
+      ];
+    };
   };
 
   shb.zfs.pools.backup.datasets."syncoid".path = "none";
