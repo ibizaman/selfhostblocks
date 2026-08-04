@@ -24,7 +24,7 @@ let
         [
           node.config.shb.arr.${appname}.settings.Port
         ];
-      extraScript =
+      preLoginScript =
         {
           node,
           fqdn,

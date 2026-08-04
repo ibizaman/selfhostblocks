@@ -52,7 +52,7 @@ let
           status = 401;
         }
       ];
-    extraScript = commonExtraScript;
+    preLoginScript = commonExtraScript;
   };
 
   basic =
@@ -448,7 +448,7 @@ in
     };
 
     testScript = commonTestScript.access.override {
-      extraScript =
+      preLoginScript =
         args@{
           node,
           ...

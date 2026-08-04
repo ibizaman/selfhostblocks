@@ -15,7 +15,7 @@ let
       [
         node.config.services.forgejo.settings.server.HTTP_ADDR
       ];
-    extraScript =
+    preLoginScript =
       { node, ... }:
       ''
         server.wait_for_unit("gitea-runner-local.service", timeout=10)

@@ -14,7 +14,7 @@ let
         node.config.shb.audiobookshelf.webPort
       ];
     # TODO: Test login
-    # extraScript = { ... }: ''
+    # preLoginScript = { ... }: ''
     # '';
   };
 

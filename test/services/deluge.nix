@@ -20,7 +20,7 @@ let
         node.config.shb.deluge.daemonPort
         node.config.shb.deluge.webPort
       ];
-    extraScript =
+    preLoginScript =
       { node, proto_fqdn, ... }:
       ''
         print(${node.name}.succeed('journalctl -n100 -u deluged'))
