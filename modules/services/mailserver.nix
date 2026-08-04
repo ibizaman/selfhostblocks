@@ -606,6 +606,18 @@ in
       };
     })
     (lib.mkIf (cfg.enable && cfg.imapSync != null) {
+      systemd.tmpfiles.settings."10-shb-mailserver" =
+        let
+          mkSettings =
+            name: acct:
+            lib.nameValuePair "${config.mailserver.storage.path}/${name}/${acct.username}/mail/" {
+              d = {
+                user = "virtualMail";
+              };
+            };
+        in
+        lib.mapAttrs' mkSettings cfg.imapSync.accounts;
+
       systemd.services.mbsync =
         let
           configFile =
