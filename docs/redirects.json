@@ -3254,6 +3254,12 @@
   "services-authelia-usage-applicationdashboard": [
     "blocks-authelia.html#services-authelia-usage-applicationdashboard"
   ],
+  "services-authelia-usage-declarative-ldap": [
+    "blocks-authelia.html#services-authelia-usage-declarative-ldap"
+  ],
+  "services-authelia-usage-smtp": [
+    "blocks-authelia.html#services-authelia-usage-smtp"
+  ],
   "services-category-ai": [
     "services.html#services-category-ai"
   ],
@@ -5071,6 +5077,9 @@
   ],
   "services-mailserver-usage-secrets": [
     "services-mailserver.html#services-mailserver-usage-secrets"
+  ],
+  "services-mailserver-usage-smtp": [
+    "services-mailserver.html#services-mailserver-usage-smtp"
   ],
   "services-monitoring-features": [
     "blocks-monitoring.html#services-monitoring-features"
