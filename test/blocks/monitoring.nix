@@ -416,7 +416,7 @@ in
       };
 
     testScript = commonTestScript.override {
-      extraScript =
+      preLoginScript =
         { node, ... }:
         let
           scrutinyFqdn = "${node.config.shb.monitoring.scrutiny.subdomain}.${node.config.shb.monitoring.domain}";

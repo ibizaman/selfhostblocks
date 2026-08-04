@@ -107,7 +107,7 @@ let
               ''page.get_by_role("textbox", name="Confirm password*").fill('adminpassword')''
               "page.get_by_role('button', name=re.compile('Create account')).click()"
 
-              "expect(page.get_by_text('All set!')).to_be_visible()"
+              "expect(page.get_by_text('All set!')).to_be_visible(timeout=20000)"
               "page.get_by_role('button', name=re.compile('Finish')).click()"
 
               "expect(page).to_have_title(re.compile('Overview'), timeout=15000)"
@@ -152,7 +152,7 @@ let
                 ''page.get_by_role("textbox", name="Confirm password*").fill('AdminPassword')''
                 "page.get_by_role('button', name=re.compile('Create account')).click()"
 
-                "expect(page.get_by_text('All set!')).to_be_visible()"
+                "expect(page.get_by_text('All set!')).to_be_visible(timeout=20000)"
                 "page.get_by_role('button', name=re.compile('Finish')).click()"
               ];
             }
@@ -197,6 +197,94 @@ let
               ];
             }
           ];
+        };
+      };
+    };
+
+  clientUsersLogin =
+    { config, ... }:
+    {
+      options.test.init = lib.mkOption {
+        type = lib.types.bool;
+        default = true;
+      };
+
+      imports = [
+        shb.test.baseModule
+        shb.test.clientLoginModule
+      ];
+
+      config = {
+        virtualisation.memorySize = 4096;
+
+        test = {
+          subdomain = "ha";
+        };
+
+        test.login = {
+          startUrl = "http://${config.test.fqdn}";
+          usernameFieldSelector = ''get_by_role("textbox", name="Username")'';
+          passwordFieldSelector = ''get_by_role("textbox", name="Password")'';
+          loginButtonSelector = ''get_by_role("button", name="Log in")'';
+          testLoginWith =
+            # The first user to login is the owner. LDAP users are users or admins, not owners.
+            if config.test.init then
+              [
+                {
+                  username = null;
+                  nextPageExpect = [
+                    # Create and login as owner user
+                    "page.get_by_role('button', name=re.compile('Create my smart home')).click()"
+
+                    "expect(page.get_by_text('Create user')).to_be_visible()"
+                    ''page.get_by_role("textbox", name="Name*", exact=True).fill('Admin')''
+                    ''page.get_by_role("textbox", name="Username*").fill('admin')''
+                    ''page.get_by_role("textbox", name="Password*", exact=True).fill('AdminPassword')''
+                    ''page.get_by_role("textbox", name="Confirm password*").fill('AdminPassword')''
+                    "page.get_by_role('button', name=re.compile('Create account')).click()"
+
+                    "expect(page.get_by_text('All set!')).to_be_visible(timeout=20000)"
+                    "page.get_by_role('button', name=re.compile('Finish')).click()"
+
+                    "expect(page).to_have_title(re.compile('Overview'), timeout=15000)"
+
+                    # Create user alice
+                    "page.goto('http://${config.test.fqdn}/config/users')"
+                    "page.get_by_role('button', name=re.compile('Add user')).click()"
+                    ''page.get_by_role("textbox", name="Username*").fill('alice')''
+                    ''page.get_by_role("textbox", name="Display Name*").fill('Alice Alice')''
+                    ''page.get_by_role("textbox", name="Password*", exact=True).fill('AlicePassword')''
+                    ''page.get_by_role("textbox", name="Confirm password*").fill('AlicePassword')''
+                    "page.get_by_role('button', name=re.compile('Create')).click()"
+                    "page.wait_for_timeout(5000)"
+
+                    # Logout from owner user
+                    "page.goto('http://${config.test.fqdn}/profile/general')"
+                    "page.get_by_role('button', name=re.compile('Log out')).click()"
+                    "page.get_by_label('Log out?').get_by_role('button', name='Log out').click()"
+
+                    # Login as user alice
+                    "page.goto('http://${config.test.fqdn}')"
+                    ''page.get_by_role("textbox", name="Username").fill('alice')''
+                    ''page.get_by_role("textbox", name="Password", exact=True).fill('AlicePassword')''
+                    ''page.get_by_role("button", name="Log in").click()''
+                    "expect(page).to_have_title(re.compile('Overview'), timeout=15000)"
+                  ];
+                }
+              ]
+            else
+              [
+                {
+                  username = "alice";
+                  password = "AlicePassword";
+                  nextPageExpect = [
+                    "expect(page).to_have_title(re.compile('Overview'), timeout=15000)"
+
+                    "page.goto('http://${config.test.fqdn}/profile/general')"
+                    ''expect(page.get_by_role("heading", name="Alice Alice")).to_be_visible(timeout=20000)''
+                  ];
+                }
+              ];
         };
       };
     };
@@ -364,6 +452,27 @@ in
           8123
           node.config.shb.lldap.webUIListenPort
         ];
+      postLoginScript = { ... }: ''
+        auth_db = json.loads(server.succeed("cat /var/lib/hass/.storage/auth"))
+        users = auth_db["data"]["users"]
+
+        user_ids = [u['id'] for u in users if u['name'] == 'Alice Alice']
+        if len(user_ids) != 1:
+            raise Exception(f"Could not find alice in users:\n{json.dumps(auth_db, indent=4)}")
+        user_id = user_ids[0]
+
+        creds = auth_db["data"]["credentials"]
+        creds_for_user = [c for c in creds if c['user_id'] == user_id]
+        if len(creds_for_user) != 1:
+            raise Exception(f"Expected 1 cred for alice, got {len(creds_for_user)}:\n{json.dumps(auth_db, indent=4)}")
+        if creds_for_user[0]["auth_provider_type"] != "command_line":
+            raise Exception(f"Unexpected auth provider, want 'command_line', got {creds_for_user[0]["auth_provider_type"]}:\n{json.dumps(auth_db, indent=4)}")
+
+        refresh_tokens = auth_db["data"]["refresh_tokens"]
+        rt_for_user = [r for r in refresh_tokens if r['user_id'] == user_id]
+        if len(rt_for_user) != 1:
+            raise Exception(f"Expected 1 refresh token for alice, got {len(rt_for_user)}:\n{json.dumps(auth_db, indent=4)}")
+      '';
     };
   };
 
@@ -400,5 +509,84 @@ in
     nodes.client = { };
 
     testScript = commonTestScript.access;
+  };
+
+  users = shb.test.runNixOSTest {
+    name = "homeassistant_user";
+
+    nodes.server = {
+      imports = [
+        basic
+      ];
+
+      specialisation.ldap.configuration = {
+        imports = [
+          shb.test.ldap
+          ldap
+        ];
+      };
+    };
+
+    nodes.client = {
+      imports = [
+        clientUsersLogin
+      ];
+      test.init = true;
+      specialisation.ldap.configuration = {
+        test.init = lib.mkForce false;
+      };
+    };
+
+    testScript =
+      args@{ nodes, ... }:
+      let
+        specializationsServer = "${nodes.server.system.build.toplevel}/specialisation";
+        specializationsClient = "${nodes.client.system.build.toplevel}/specialisation";
+      in
+      ''
+        def switch_to_specialization(name):
+            client.succeed('${specializationsClient}/ldap/bin/switch-to-configuration test')
+            server.succeed('${specializationsServer}/ldap/bin/switch-to-configuration test')
+            server.wait_for_unit("multi-user.target")
+            client.wait_for_unit("multi-user.target")
+
+        start_all()
+        server.wait_for_unit("multi-user.target")
+      ''
+      + commonTestScript.access (args)
+      + ''
+        switch_to_specialization("ldap")
+      ''
+      + (commonTestScript.access.override { init = false; }) (
+        lib.recursiveUpdate args {
+          nodes.server = nodes.server.specialisation.ldap.configuration;
+          nodes.client = nodes.client.specialisation.ldap.configuration;
+        }
+      )
+      + ''
+        auth_db = json.loads(server.succeed("cat /var/lib/hass/.storage/auth"))
+        users = auth_db["data"]["users"]
+
+        user_ids = [u['id'] for u in users if u['name'] == 'Alice Alice']
+        if len(user_ids) != 1:
+            raise Exception(f"Could not find alice in users:\n{json.dumps(auth_db, indent=4)}")
+        user_id = user_ids[0]
+
+        creds = auth_db["data"]["credentials"]
+        creds_for_user = [c for c in creds if c['user_id'] == user_id]
+        if len(creds_for_user) != 1:
+            raise Exception(f"Expected 1 cred for alice, got {len(creds_for_user)}:\n{json.dumps(auth_db, indent=4)}")
+
+        # Home Assistant will only create 1 cred, showing it correctly matched the
+        # ldap login to the previously created one.
+        # But we will still see two refresh tokens, proving we did login twice.
+        if creds_for_user[0]["auth_provider_type"] != "homeassistant":
+            raise Exception(f"Unexpected auth provider, want 'homeassistant', got {creds_for_user[0]["auth_provider_type"]}:\n{json.dumps(auth_db, indent=4)}")
+
+        refresh_tokens = auth_db["data"]["refresh_tokens"]
+        rt_for_user = [r for r in refresh_tokens if r['user_id'] == user_id]
+        if len(rt_for_user) != 2:
+            raise Exception(f"Expected 2 refresh tokens for alice, got {len(rt_for_user)}:\n{json.dumps(auth_db, indent=4)}")
+      '';
   };
 }

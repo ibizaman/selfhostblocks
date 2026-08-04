@@ -24,8 +24,11 @@ let
       waitForPorts ? p: [ ],
       waitForUnixSocket ? u: [ ],
       waitForUrls ? u: [ ],
-      extraScript ? { ... }: "",
+      postWaitAfterStartScript ? { ... }: "",
+      preLoginScript ? { ... }: "",
+      postLoginScript ? { ... }: "",
       redirectSSO ? false,
+      init ? true,
     }:
     { nodes, ... }:
     let
@@ -43,7 +46,7 @@ let
       autheliaEnabled = (hasAttr "authelia" nodes.server.shb) && nodes.server.shb.authelia.enable;
       lldapEnabled = (hasAttr "lldap" nodes.server.shb) && nodes.server.shb.lldap.enable;
     in
-    ''
+    (lib.optionalString init ''
       import json
       import os
       import pathlib
@@ -73,7 +76,13 @@ let
 
       def unline_with(j, s):
           return j.join((x.strip() for x in s.split("\n")))
-    ''
+    '')
+    + (
+      let
+        script = postWaitAfterStartScript args;
+      in
+      lib.optionalString (script != "") script
+    )
     + lib.strings.concatMapStrings (s: ''server.wait_for_unit("${s}")'' + "\n") (
       waitForServices args
       ++ (lib.optionals autheliaEnabled [ "authelia-auth.${cfg.domain}.service" ])
@@ -144,7 +153,7 @@ let
     )
     + (
       let
-        script = extraScript args;
+        script = preLoginScript args;
       in
       lib.optionalString (script != "") script
     )
@@ -178,12 +187,18 @@ let
           if code != 0:
               raise Exception("login_playwright did not succeed")
     '')
+    + (
+      let
+        script = postLoginScript args;
+      in
+      lib.optionalString (script != "") script
+    )
   );
 
   backupScript =
     args:
     (accessScript args).override {
-      extraScript =
+      postWaitAfterStartScript =
         { proto_fqdn, ... }:
         ''
           with subtest("backup"):

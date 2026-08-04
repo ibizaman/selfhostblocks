@@ -203,7 +203,7 @@ in
     nodes.client = { };
 
     testScript = commonTestScript.backup.override {
-      extraScript =
+      preLoginScript =
         { node, ... }:
         let
           provider = node.config.shb.restic.instances."testinstance";

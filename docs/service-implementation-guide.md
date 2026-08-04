@@ -263,7 +263,7 @@ let
     waitForPorts = { node, ... }: [ node.config.services.servicename.port ];
     
     # Service-specific connectivity test
-    extraScript = { node, proto_fqdn, ... }: ''
+    preLoginScript = { node, proto_fqdn, ... }: ''
       with subtest("service connectivity"):
           response = curl(client, "", "${proto_fqdn}/api/health")
           # Add service-specific checks

@@ -21,7 +21,7 @@ let
     # 4. go to the Vaultwarden /admin endpoint
     # 5. create a Vaultwarden user
     # 6. now login with that new user to Vaultwarden
-    extraScript =
+    preLoginScript =
       { node, proto_fqdn, ... }:
       ''
         with subtest("prelogin"):
@@ -180,7 +180,7 @@ in
           5432
           9091
         ];
-      extraScript =
+      preLoginScript =
         { node, proto_fqdn, ... }:
         ''
           with subtest("unauthenticated access is not granted to /admin"):

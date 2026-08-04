@@ -22,7 +22,7 @@ let
       [
         node.config.services.phpfpm.pools.nextcloud.socket
       ];
-    extraScript =
+    preLoginScript =
       {
         node,
         fqdn,
@@ -485,7 +485,7 @@ let
       nodes.client = { };
 
       testScript = commonTestScript.access.override {
-        extraScript =
+        preLoginScript =
           {
             node,
             fqdn,
