@@ -63,7 +63,9 @@ shb.authelia = {
   };
 };
 
-shb.certs.certs.letsencrypt."example.com".extraDomains = [ "auth.example.com" ];
+shb.certs.certs.letsencrypt.${domain}.extraDomains = [
+  "${config.shb.mailserver.subdomain}.${config.shb.mailserver.domain}"
+];
 
 shb.sops.secret."authelia/jwt_secret".request = config.shb.authelia.secrets.jwtSecret.request;
 shb.sops.secret."authelia/ldap_admin_password" = {
@@ -85,6 +87,57 @@ Use `nix run nixpkgs#openssl -- rand -hex 64` to generate them.
 Crucially, the `shb.authelia.secrets.ldapAdminPasswordFile` must be the same
 as the `shb.lldap.ldapUserPassword` defined for the [LLDAP block][].
 This is done using Sops' `key` option.
+
+### Declarative LDAP {#services-authelia-usage-declarative-ldap}
+
+When using [declarative LDAP](blocks-lldap.html#blocks-lldap-manage-users),
+add this nix config to setup your user to have access to the mailserver:
+
+```nix
+{
+  shb.lldap.ensureUsers.${username}.groups = [
+    config.shb.mailserver.ldap.userGroup
+  ];
+}
+```
+
+### Use mailserver block for SMTP {#services-authelia-usage-smtp}
+
+```nix
+let
+  username = ...;
+in
+{
+  shb.authelia.smtp = {
+    host = "${config.shb.mailserver.subdomain}.${config.shb.mailserver.domain}";
+    port = 465;
+    scheme = "submissions";
+    username = "${username}@${config.shb.mailserver.domain}";
+    password.result = config.shb.sops.secret."authelia/smtp_password".result;
+  };
+
+  shb.sops.secret."authelia/smtp_password" = {
+    request = config.shb.authelia.smtp.password.request;
+  };
+}
+```
+
+The smtp password is the one set in LDAP for that user.
+
+With declarative LDAP users,
+the sops key used to set the LDAP user can be reused:
+
+```nix
+let
+  username = ...;
+in
+{
+  shb.sops.secret."authelia/smtp_password" = {
+    request = config.shb.authelia.smtp.password.request;
+    settings.key = "users/${username}/password";
+  };
+}
+```
 
 ### Application Dashboard {#services-authelia-usage-applicationdashboard}
 

@@ -139,6 +139,51 @@ Secrets can be randomly generated with `nix run nixpkgs#openssl -- rand -hex 64`
 The [user](#services-mailserver-options-shb.mailserver.ldap.userGroup)
 LDAP group is created automatically.
 
+### SMTP {#services-mailserver-usage-smtp}
+
+The mailserver can be used as an smtp server for all services in SHB and nixpkgs that require a SMTP server.
+
+The following nix code should work in most cases,
+some minor adaptations could be required if the options are slightly different:
+
+```nix
+let
+  username = ...;
+in
+{
+  shb.service.smtp = {
+    host = "${config.shb.mailserver.subdomain}.${config.shb.mailserver.domain}";
+    port = 465;
+    scheme = "submissions";
+    username = "${username}@${config.shb.mailserver.domain}";
+    password.result = config.shb.sops.secret."myservice/smtp_password".result;
+  };
+
+  shb.sops.secret."service/smtp_password" = {
+    request = config.shb.authelia.smtp.password.request;
+  };
+}
+```
+
+`username` is the principal user set up with LDAP.
+
+With [declarative LDAP users](blocks-lldap.html#blocks-lldap-manage-users),
+the sops key used to set the LDAP user can be reused:
+
+```nix
+let
+  username = ...;
+in
+{
+  shb.sops.secret."authelia/smtp_password" = {
+    request = config.shb.authelia.smtp.password.request;
+    settings.key = "users/${username}/password";
+  };
+}
+```
+
+See [a concrete example with Authelia](blocks-authelia.html#services-authelia-usage-mailserver).
+
 ### Disk Layout {#services-mailserver-usage-disk-layout}
 
 The disk layout has been purposely set to use slashes `/` for subfolders.
@@ -194,7 +239,7 @@ To save the data folder in an impermanence setup, add:
 
 ### Declarative LDAP {#services-mailserver-declarative-ldap}
 
-To add a user `USERNAME` to the user group, add:
+To add a user `USERNAME` to the user group when using [declarative LDAP users](blocks-lldap.html#blocks-lldap-manage-users), add:
 
 ```nix
 shb.lldap.ensureUsers.USERNAME.groups = [

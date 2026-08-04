@@ -289,6 +289,8 @@ in
                 type = lib.types.str;
                 description = "SMTP address from which the emails originate.";
                 example = "authelia@mydomain.com";
+                default = "${cfg.subdomain}@${cfg.domain}";
+                defaultText = "\${config.shb.authelia.subdomain}@\${config.shb.authelia.domain}";
               };
               from_name = lib.mkOption {
                 type = lib.types.str;
