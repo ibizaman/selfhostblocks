@@ -297,7 +297,7 @@ The folders where state is stored are:
 - `config.mailserver.indexDir`, when configured, stores disposable search indices.
 - `config.mailserver.mailDirectory` = `/var/vmail`
 - `config.mailserver.sieveDirectory` = `/var/sieve`
-- `config.mailserver.dkimKeyDirectory` = `/var/dkim`
+- `config.mailserver.dkim.keyDirectory` = `/var/dkim`
 
 ### Open Ports {#services-mailserver-debug-ports}
 
