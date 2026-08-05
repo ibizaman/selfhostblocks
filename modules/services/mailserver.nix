@@ -381,7 +381,7 @@ in
           ];
           sourceDirectoriesText = ''
             [
-              config.mailserver.dkimKeyDirectory
+              config.mailserver.dkim.keyDirectory
             ]
           '';
         };
@@ -396,7 +396,7 @@ in
       default = {
         mail = config.mailserver.storage.path;
         sieve = config.mailserver.sieveDirectory;
-        dkim = config.mailserver.dkimKeyDirectory;
+        dkim = config.mailserver.dkim.keyDirectory;
       }
       // lib.optionalAttrs (config.mailserver.indexDir != null) {
         index = config.mailserver.indexDir;
@@ -405,7 +405,7 @@ in
         {
           mail = config.mailserver.storage.path;
           sieve = config.mailserver.sieveDirectory;
-          dkim = config.mailserver.dkimKeyDirectory;
+          dkim = config.mailserver.dkim.keyDirectory;
         }
         // lib.optionalAttrs (config.mailserver.indexDir != null) {
           index = config.mailserver.indexDir;
