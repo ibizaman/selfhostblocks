@@ -410,8 +410,9 @@ in
       script = replaceSecretsScript;
       serviceConfig.Type = "oneshot";
       wantedBy = [ "multi-user.target" ];
-      before = [ "paperless-scheduler.service" ];
-      requiredBy = [ "paperless-scheduler.service" ];
+      # Generate the SSO environment file before paperless-secret-key attempts to load it.
+      before = [ "paperless-secret-key.service" ];
+      requiredBy = [ "paperless-secret-key.service" ];
     };
 
     shb.nginx.vhosts = [

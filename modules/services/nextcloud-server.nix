@@ -23,21 +23,6 @@ let
   nextcloudApps =
     (builtins.getAttr ("nextcloud" + builtins.toString cfg.version + "Packages") pkgs).apps;
 
-  oidcLoginApp =
-    if cfg.version == 34 then
-      pkgs.nextcloud33Packages.apps.oidc_login.overrideAttrs (old: {
-        patches = (old.patches or [ ]) ++ [
-          # https://github.com/pulsejet/nextcloud-oidc-login/issues/335
-          # Upstream fix: https://github.com/pulsejet/nextcloud-oidc-login/pull/337
-          (pkgs.fetchpatch {
-            url = "https://github.com/pulsejet/nextcloud-oidc-login/commit/f8c6ae6053d36effed688195f551a1f1e6be24a0.patch";
-            hash = "sha256-KBx7Oh6xyNGyx6ryYTdWt6Y6zbpvzkp4bRAKwTcXjmg=";
-          })
-        ];
-      })
-    else
-      nextcloudApps.oidc_login;
-
   occ = "${config.services.nextcloud.occ}/bin/nextcloud-occ";
 in
 {
@@ -1164,7 +1149,7 @@ in
           }
         ];
 
-        services.nextcloud.extraApps.oidc_login = oidcLoginApp;
+        services.nextcloud.extraApps.oidc_login = nextcloudApps.oidc_login;
 
         systemd.services.nextcloud-setup-pre = {
           wantedBy = [ "multi-user.target" ];
@@ -1250,8 +1235,9 @@ in
         };
 
         shb.authelia.extraDefinitions = {
+          # Work around https://github.com/pulsejet/nextcloud-oidc-login/issues/339.
           user_attributes."is_nextcloud_admin".expression =
-            ''type(groups) == list && "${cfg.apps.sso.adminGroup}" in groups'';
+            ''type(groups) == list && "${cfg.apps.sso.adminGroup}" in groups ? "1" : "0"'';
         };
         shb.authelia.extraOidcClaimsPolicies."nextcloud_userinfo" = {
           custom_claims = {
