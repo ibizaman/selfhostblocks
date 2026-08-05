@@ -324,16 +324,17 @@ in
                 recommendedSettings = lib.mkOption {
                   type = lib.types.bool;
                   description = ''
-                    Better defaults than the defaults. Taken from [this article](http://web.archive.org/web/20200513043150/https://ownyourbits.com/2019/06/29/understanding-and-improving-nextcloud-previews/).
+                    Configure the minimal preview set recommended by [Preview Generator](https://github.com/nextcloud/previewgenerator/blob/edcd988b963e034a0ea7d5a1c6a72744b822f7c8/README.md#i-dont-want-to-generate-all-the-preview-sizes).
 
                     Sets the following options:
 
                     ```
-                    nextcloud-occ config:app:set previewgenerator squareSizes --value="32 256"
-                    nextcloud-occ config:app:set previewgenerator widthSizes  --value="256 384"
-                    nextcloud-occ config:app:set previewgenerator heightSizes --value="256"
-                    nextcloud-occ config:system:set preview_max_x --type integer --value 2048
-                    nextcloud-occ config:system:set preview_max_y --type integer --value 2048
+                    nextcloud-occ config:app:set previewgenerator squareSizes --value="64 256"
+                    nextcloud-occ config:app:set previewgenerator fillWidthHeightSizes --value="256 4096"
+                    nextcloud-occ config:app:set previewgenerator widthSizes --value=""
+                    nextcloud-occ config:app:set previewgenerator heightSizes --value=""
+                    nextcloud-occ config:system:set preview_max_x --type integer --value 4096
+                    nextcloud-occ config:system:set preview_max_y --type integer --value 4096
                     nextcloud-occ config:system:set jpeg_quality --value 60
                     nextcloud-occ config:app:set preview jpeg_quality --value=60
                     ```
@@ -1011,14 +1012,15 @@ in
 
       };
 
-      # Values taken from
-      # http://web.archive.org/web/20200513043150/https://ownyourbits.com/2019/06/29/understanding-and-improving-nextcloud-previews/
+      # Minimal preview set recommended by
+      # https://github.com/nextcloud/previewgenerator/blob/edcd988b963e034a0ea7d5a1c6a72744b822f7c8/README.md#i-dont-want-to-generate-all-the-preview-sizes
       systemd.services.nextcloud-setup.script = lib.mkIf cfg.apps.previewgenerator.recommendedSettings ''
-        ${occ} config:app:set previewgenerator squareSizes --value="32 256"
-        ${occ} config:app:set previewgenerator widthSizes  --value="256 384"
-        ${occ} config:app:set previewgenerator heightSizes --value="256"
-        ${occ} config:system:set preview_max_x --type integer --value 2048
-        ${occ} config:system:set preview_max_y --type integer --value 2048
+        ${occ} config:app:set previewgenerator squareSizes --value="64 256"
+        ${occ} config:app:set previewgenerator fillWidthHeightSizes --value="256 4096"
+        ${occ} config:app:set previewgenerator widthSizes --value=""
+        ${occ} config:app:set previewgenerator heightSizes --value=""
+        ${occ} config:system:set preview_max_x --type integer --value 4096
+        ${occ} config:system:set preview_max_y --type integer --value 4096
         ${occ} config:system:set jpeg_quality --value 60
         ${occ} config:app:set preview jpeg_quality --value=60
       '';
