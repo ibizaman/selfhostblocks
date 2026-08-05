@@ -394,17 +394,21 @@ in
       '';
       type = lib.types.attrsOf lib.types.str;
       default = {
-        index = config.mailserver.indexDir;
         mail = config.mailserver.storage.path;
         sieve = config.mailserver.sieveDirectory;
         dkim = config.mailserver.dkimKeyDirectory;
+      }
+      // lib.optionalAttrs (config.mailserver.indexDir != null) {
+        index = config.mailserver.indexDir;
       };
       defaultText = lib.literalExpression ''
         {
-          index = config.mailserver.indexDir;
           mail = config.mailserver.storage.path;
           sieve = config.mailserver.sieveDirectory;
           dkim = config.mailserver.dkimKeyDirectory;
+        }
+        // lib.optionalAttrs (config.mailserver.indexDir != null) {
+          index = config.mailserver.indexDir;
         }
       '';
     };
