@@ -235,11 +235,18 @@ To save the data folder in an impermanence setup, add:
 
 ```nix
 {
-  shb.zfs.datasets."safe/mailserver/index".path = config.shb.mailserver.impermanence.index;
   shb.zfs.datasets."safe/mailserver/mail".path = config.shb.mailserver.impermanence.mail;
   shb.zfs.datasets."safe/mailserver/sieve".path = config.shb.mailserver.impermanence.sieve;
   shb.zfs.datasets."safe/mailserver/dkim".path = config.shb.mailserver.impermanence.dkim;
 }
+```
+
+By default, search indices live under `mailserver.storage.path` and are covered
+by the mail dataset. If you configure a separate `mailserver.indexDir` and want
+to persist it, also add:
+
+```nix
+shb.zfs.datasets."safe/mailserver/index".path = config.shb.mailserver.impermanence.index;
 ```
 
 ### Declarative LDAP {#services-mailserver-declarative-ldap}
@@ -285,9 +292,9 @@ The 3 systemd services setup by this module are:
 
 ### Folders {#services-mailserver-debug-folders}
 
-The 4 folders where state is stored are:
+The folders where state is stored are:
 
-- `config.mailserver.indexDir` = `/var/lib/dovecot/indices`
+- `config.mailserver.indexDir`, when configured, stores disposable search indices.
 - `config.mailserver.mailDirectory` = `/var/vmail`
 - `config.mailserver.sieveDirectory` = `/var/sieve`
 - `config.mailserver.dkimKeyDirectory` = `/var/dkim`
