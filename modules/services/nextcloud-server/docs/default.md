@@ -381,9 +381,10 @@ Note that you still need to generate the previews for any pre-existing files wit
 nextcloud-occ -vvv preview:generate-all
 ```
 
-The default settings generates all possible sizes which is a waste since most are not used. SHB will
-change the generation settings to optimize disk space and CPU usage as outlined in [this
-article](http://web.archive.org/web/20200513043150/https://ownyourbits.com/2019/06/29/understanding-and-improving-nextcloud-previews/).
+The default settings generate all possible sizes, even though most are not used. SHB configures the
+[minimal preview set recommended by Preview
+Generator](https://github.com/nextcloud/previewgenerator/blob/edcd988b963e034a0ea7d5a1c6a72744b822f7c8/README.md#i-dont-want-to-generate-all-the-preview-sizes)
+to reduce disk and CPU usage.
 You can opt-out with:
 
 ```nix
