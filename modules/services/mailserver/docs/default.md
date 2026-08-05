@@ -295,7 +295,7 @@ The 3 systemd services setup by this module are:
 The folders where state is stored are:
 
 - `config.mailserver.indexDir`, when configured, stores disposable search indices.
-- `config.mailserver.mailDirectory` = `/var/vmail`
+- `config.mailserver.storage.path` = `/var/vmail`
 - `config.mailserver.sieveDirectory` = `/var/sieve`
 - `config.mailserver.dkim.keyDirectory` = `/var/dkim`
 
