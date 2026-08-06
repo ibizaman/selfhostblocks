@@ -808,11 +808,10 @@ in
           {
             "default_phone_region" = cfg.defaultPhoneRegion;
 
+            # These settings ensure Nextcloud generates HTTPS polling URLs when behind a reverse proxy:
+            # https://help.nextcloud.com/t/the-polling-url-does-not-start-with-https-despite-the-login-url-started-with-https/137576/2
             "overwrite.cli.url" = "${protocol}://${fqdn}";
             "overwritehost" = fqdnWithPort;
-            # 'trusted_domains' needed otherwise we get this issue https://help.nextcloud.com/t/the-polling-url-does-not-start-with-https-despite-the-login-url-started-with-https/137576/2
-            # TODO: could instead set extraTrustedDomains
-            "trusted_domains" = [ fqdn ];
             "trusted_proxies" = [ "127.0.0.1" ];
             # TODO: could instead set overwriteProtocol
             "overwriteprotocol" = protocol; # Needed if behind a reverse_proxy
