@@ -103,6 +103,9 @@ add this nix config to setup your user to have access to the mailserver:
 
 ### Use mailserver block for SMTP {#services-authelia-usage-smtp}
 
+Instead of relying on an external service to send mails,
+why not use the provided [SHB mailserver](services-mailserver.html)?
+
 ```nix
 let
   username = ...;
@@ -113,31 +116,14 @@ in
     port = 465;
     scheme = "submissions";
     username = "${username}@${config.shb.mailserver.domain}";
+    from_address = config.shb.authelia.smtp.username;
     password.result = config.shb.sops.secret."authelia/smtp_password".result;
   };
-
-  shb.sops.secret."authelia/smtp_password" = {
-    request = config.shb.authelia.smtp.password.request;
-  };
 }
 ```
 
-The smtp password is the one set in LDAP for that user.
-
-With declarative LDAP users,
-the sops key used to set the LDAP user can be reused:
-
-```nix
-let
-  username = ...;
-in
-{
-  shb.sops.secret."authelia/smtp_password" = {
-    request = config.shb.authelia.smtp.password.request;
-    settings.key = "users/${username}/password";
-  };
-}
-```
+See the [mailserver documentation](services-mailserver.html#services-mailserver-usage-smtp)
+for more possible configurations, for example with declarative LDAP users.
 
 ### Application Dashboard {#services-authelia-usage-applicationdashboard}
 

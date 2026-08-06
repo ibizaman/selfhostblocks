@@ -6021,6 +6021,9 @@
   "services-vaultwarden-usage-https": [
     "services-vaultwarden.html#services-vaultwarden-usage-https"
   ],
+  "services-vaultwarden-usage-smtp": [
+    "services-vaultwarden.html#services-vaultwarden-usage-smtp"
+  ],
   "services-vaultwarden-usage-sso": [
     "services-vaultwarden.html#services-vaultwarden-usage-sso"
   ],
