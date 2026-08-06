@@ -75,6 +75,30 @@ shb.forgejo = {
 };
 ```
 
+### Use mailserver block for SMTP {#services-vaultwarden-usage-smtp}
+
+Instead of relying on an external service to send mails,
+why not use the provided [SHB mailserver](services-mailserver.html)?
+
+```nix
+let
+  username = ...;
+in
+{
+  shb.vaultwarden.smtp = {
+    host = "${config.shb.mailserver.subdomain}.${config.shb.mailserver.domain}";
+    port = 465;
+    security = "force_tls";
+    username = "${username}@${config.shb.mailserver.domain}";
+    from_address = config.shb.vaultwarden.smtp.username;
+    password.result = config.shb.sops.secret."vaultwarden/smtp_password".result;
+  };
+}
+```
+
+See the [mailserver documentation](services-mailserver.html#services-mailserver-usage-smtp)
+for more possible configurations, for example with declarative LDAP users.
+
 ### SSO {#services-vaultwarden-usage-sso}
 
 To protect the `/admin` endpoint and avoid needing a secret passphrase for it, we can use SSO.

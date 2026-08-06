@@ -149,23 +149,28 @@ some minor adaptations could be required if the options are slightly different:
 ```nix
 let
   username = ...;
+  service = ...;
 in
 {
-  shb.service.smtp = {
+  shb.${service}.smtp = {
     host = "${config.shb.mailserver.subdomain}.${config.shb.mailserver.domain}";
     port = 465;
     scheme = "submissions";
     username = "${username}@${config.shb.mailserver.domain}";
-    password.result = config.shb.sops.secret."myservice/smtp_password".result;
+    from_address = config.shb.${service}.smtp.username;
+    password.result = config.shb.sops.secret."${service}/smtp_password".result;
   };
 
-  shb.sops.secret."service/smtp_password" = {
-    request = config.shb.authelia.smtp.password.request;
+  shb.sops.secret."${service}/smtp_password" = {
+    request = config.shb.${service}.smtp.password.request;
   };
 }
 ```
 
-`username` is the principal user set up with LDAP.
+- `username` is a user set up with LDAP that is part of the `shb.mailserver.ldap.userGroup` LDAP group.
+- The smtp password is the one set in LDAP for user with the given `username`.
+- Note `shb.vaultwarden.smtp.from_address` must be the same as the `username`
+  as currently authentication to the mailserver requires it.
 
 With [declarative LDAP users](blocks-lldap.html#blocks-lldap-manage-users),
 the sops key used to set the LDAP user can be reused:
@@ -182,7 +187,7 @@ in
 }
 ```
 
-See [a concrete example with Authelia](blocks-authelia.html#services-authelia-usage-mailserver).
+See each service's documentation for tailored examples.
 
 ### Disk Layout {#services-mailserver-usage-disk-layout}
 
