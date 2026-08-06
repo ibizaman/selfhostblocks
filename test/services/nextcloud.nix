@@ -111,6 +111,16 @@ let
         ../../modules/services/nextcloud-server.nix
       ];
 
+      assertions = [
+        {
+          assertion =
+            config.services.nextcloud.settings.trusted_domains == [
+              config.services.nextcloud.hostName
+            ];
+          message = "Nextcloud's hostname must occur exactly once in trusted_domains";
+        }
+      ];
+
       test = {
         subdomain = "n";
       };
