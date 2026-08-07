@@ -136,7 +136,7 @@ let
         # This option is only needed because we do not access Nextcloud at the default port in the VM.
         externalFqdn = "${config.test.fqdn}:8080";
 
-        adminUser = adminUser;
+        initialAdminUsername = adminUser;
         adminPass.result = config.shb.hardcodedsecret.adminPass.result;
         debug = false; # Enable this if needed, but beware it is _very_ verbose.
       };
