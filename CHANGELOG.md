@@ -20,6 +20,8 @@ Template:
 
 - Nextcloud 33 and 34 are now supported, replacing versions 32 and 33. The default is now 33.
   Deploy version 33 before selecting version 34 because Nextcloud does not support skipping major versions.
+- Remove the ignored `shb.zfs.pools.<pool>.datasets.<dataset>.enable` option.
+  Remove the option from existing configurations and conditionally omit the dataset attribute instead.
 
 ## User Facing Backwards Compatible Changes
 
