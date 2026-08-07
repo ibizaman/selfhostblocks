@@ -202,7 +202,42 @@ in
 
     nodes.client = { };
 
-    testScript = commonTestScript.backup;
+    testScript = commonTestScript.backup.override {
+      extraScript =
+        { node, ... }:
+        let
+          provider = node.config.shb.restic.instances."testinstance";
+          restoreScript = provider.result.restoreScript;
+        in
+        ''
+          state_directory = pathlib.Path("/var/lib/private/open-webui")
+          database = state_directory / "data" / "webui.db"
+          sentinel = state_directory / "backup-sentinel"
+          restore_target = pathlib.Path("/tmp/open-webui-restore")
+
+          with subtest("Prepare state for backup"):
+              server.succeed(f"test -s {database}")
+              server.succeed(
+                  f"printf '%s\\n' 'included in backup' > {sentinel}"
+              )
+
+          with subtest("Back up and restore state"):
+              server.succeed("${restoreScript} backup")
+              server.succeed(
+                  f"${restoreScript} exec restore latest --target {restore_target}"
+              )
+
+          with subtest("Restored backup contains application state"):
+              restored_state = restore_target / state_directory.relative_to("/")
+              restored_database = restored_state / "data" / "webui.db"
+              restored_sentinel = restored_state / "backup-sentinel"
+              server.succeed(f"test -s {restored_database}")
+              server.succeed(
+                  f"grep --fixed-strings --line-regexp 'included in backup' "
+                  f"{restored_sentinel}"
+              )
+        '';
+    };
   };
 
   https = shb.test.runNixOSTest {
