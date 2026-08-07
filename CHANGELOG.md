@@ -28,6 +28,11 @@ Template:
 - Rename `shb.nginx.accessLog` to `shb.nginx.insecureAccessLogWithRequestBody`.
   The old option remains available as a deprecated alias.
 
+## Fixes
+
+- Fix Open WebUI backups omitting state stored in systemd's private DynamicUser directory
+  ([issue #721](https://github.com/ibizaman/selfhostblocks/issues/721)).
+
 # v0.9.0
 
 Commits: https://github.com/ibizaman/selfhostblocks/compare/v0.8.0...v0.9.0

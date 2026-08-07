@@ -152,11 +152,12 @@ in
       default = { };
       type = lib.types.submodule {
         options = shb.contracts.backup.mkRequester {
-          user = "open-webui";
+          # Restic does not follow the compatibility symlink created for DynamicUser state.
+          # See https://github.com/ibizaman/selfhostblocks/issues/721.
+          user = "root";
           sourceDirectories = [
-            config.services.open-webui.stateDir
+            "/var/lib/private/open-webui"
           ];
-          sourceDirectoriesText = "[ config.services.open-webui.stateDir ]";
         };
       };
     };
