@@ -574,7 +574,13 @@ let
 
       nodes.client = { };
 
-      testScript = commonTestScript.access;
+      testScript =
+        inputs@{ nodes, ... }:
+        (commonTestScript.access inputs)
+        + ''
+          with subtest("preview generator job succeeds"):
+              server.succeed("systemctl start nextcloud-cron-previewgenerator.service")
+        '';
     };
 
   externalStorageTest =
