@@ -1872,7 +1872,8 @@
     "blocks-zfs.html#blocks-zfs-options-shb.zfs.pools"
   ],
   "blocks-zfs-options-shb.zfs.pools._name_.datasets": [
-    "blocks-zfs.html#blocks-zfs-options-shb.zfs.pools._name_.datasets"
+    "blocks-zfs.html#blocks-zfs-options-shb.zfs.pools._name_.datasets",
+    "blocks-zfs.html#blocks-zfs-options-shb.zfs.pools._name_.datasets._name_.enable"
   ],
   "blocks-zfs-options-shb.zfs.pools._name_.datasets._name_.after": [
     "blocks-zfs.html#blocks-zfs-options-shb.zfs.pools._name_.datasets._name_.after"
@@ -1930,9 +1931,6 @@
   ],
   "blocks-zfs-options-shb.zfs.pools._name_.datasets._name_.defaultACLs": [
     "blocks-zfs.html#blocks-zfs-options-shb.zfs.pools._name_.datasets._name_.defaultACLs"
-  ],
-  "blocks-zfs-options-shb.zfs.pools._name_.datasets._name_.enable": [
-    "blocks-zfs.html#blocks-zfs-options-shb.zfs.pools._name_.datasets._name_.enable"
   ],
   "blocks-zfs-options-shb.zfs.pools._name_.datasets._name_.group": [
     "blocks-zfs.html#blocks-zfs-options-shb.zfs.pools._name_.datasets._name_.group"

@@ -53,8 +53,6 @@ in
                   { config, name, ... }:
                   {
                     options = {
-                      enable = lib.mkEnableOption "shb.zfs.datasets";
-
                       path = lib.mkOption {
                         type = lib.types.str;
                         description = "Path this dataset should be mounted on. If the string 'none' is given, the dataset will not be mounted.";
