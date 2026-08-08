@@ -377,7 +377,9 @@ let
     {
       systemd.tmpfiles.rules = [
         "d '/srv/nextcloud' 0750 nextcloud nextcloud - -"
+        "f /run/nextcloud-instanceid 0400 nextcloud nextcloud - oc12345abcde"
       ];
+      services.nextcloud.secrets.instanceid = "/run/nextcloud-instanceid";
 
       shb.nextcloud = {
         apps.previewgenerator.enable = true;

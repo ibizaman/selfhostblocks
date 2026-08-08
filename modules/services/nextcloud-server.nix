@@ -1030,6 +1030,7 @@ in
         environment.NEXTCLOUD_CONFIG_DIR = "${config.services.nextcloud.datadir}/config";
         serviceConfig.Type = "oneshot";
         serviceConfig.User = "nextcloud";
+        serviceConfig.LoadCredential = config.systemd.services.nextcloud-cron.serviceConfig.LoadCredential;
         serviceConfig.ExecStart =
           let
             debug = if cfg.debug or cfg.apps.previewgenerator.debug then "-vvv" else "";
