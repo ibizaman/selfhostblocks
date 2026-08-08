@@ -292,8 +292,10 @@ in
             description = ''
               Preview Generator App. [Nextcloud App Store](https://apps.nextcloud.com/apps/previewgenerator)
 
-              Enabling this app will create a cron job running every minute to generate thumbnails
-              for new and updated files.
+              Enabling this app will create a systemd timer that generates thumbnails for new and
+              updated files every 10 minutes by default. Using a dedicated timer allows deployments
+              to customize the schedule through systemd. The app's background job is disabled so
+              only this timer processes the preview queue.
 
               To generate thumbnails for already existing files, run:
 
@@ -999,16 +1001,20 @@ in
 
       # Minimal preview set recommended by
       # https://github.com/nextcloud/previewgenerator/blob/edcd988b963e034a0ea7d5a1c6a72744b822f7c8/README.md#i-dont-want-to-generate-all-the-preview-sizes
-      systemd.services.nextcloud-setup.script = lib.mkIf cfg.apps.previewgenerator.recommendedSettings ''
-        ${occ} config:app:set previewgenerator squareSizes --value="64 256"
-        ${occ} config:app:set previewgenerator fillWidthHeightSizes --value="256 4096"
-        ${occ} config:app:set previewgenerator widthSizes --value=""
-        ${occ} config:app:set previewgenerator heightSizes --value=""
-        ${occ} config:system:set preview_max_x --type integer --value 4096
-        ${occ} config:system:set preview_max_y --type integer --value 4096
-        ${occ} config:system:set jpeg_quality --value 60
-        ${occ} config:app:set preview jpeg_quality --value=60
-      '';
+      systemd.services.nextcloud-setup.script =
+        lib.optionalString cfg.apps.previewgenerator.recommendedSettings ''
+          ${occ} config:app:set previewgenerator squareSizes --value="64 256"
+          ${occ} config:app:set previewgenerator fillWidthHeightSizes --value="256 4096"
+          ${occ} config:app:set previewgenerator widthSizes --value=""
+          ${occ} config:app:set previewgenerator heightSizes --value=""
+          ${occ} config:system:set preview_max_x --type integer --value 4096
+          ${occ} config:system:set preview_max_y --type integer --value 4096
+          ${occ} config:system:set jpeg_quality --value 60
+          ${occ} config:app:set preview jpeg_quality --value=60
+        ''
+        + ''
+          ${occ} config:app:set previewgenerator job_disabled --type=boolean --value=true
+        '';
 
       # Configured as defined in https://github.com/nextcloud/previewgenerator
       systemd.timers.nextcloud-cron-previewgenerator = {

@@ -368,8 +368,11 @@ For example using the [Homepage](services-homepage.html) service:
 ### Enable Preview Generator App {#services-nextcloudserver-usage-previewgenerator}
 
 The following snippet installs and enables the [Preview
-Generator](https://apps.nextcloud.com/apps/previewgenerator) application as well as creates the
-required cron job that generates previews every 10 minutes.
+Generator](https://apps.nextcloud.com/apps/previewgenerator) application as well as creates a
+systemd timer that generates previews every 10 minutes by default. Using a dedicated timer allows
+deployments to customize the schedule through
+`systemd.timers.nextcloud-cron-previewgenerator.timerConfig`. The app's own background job is
+disabled so the timer is the only scheduler processing the preview queue.
 
 ```nix
 shb.nextcloud.apps.previewgenerator.enable = true;
