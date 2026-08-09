@@ -1,4 +1,9 @@
-{ pkgs, shb, ... }:
+{
+  pkgs,
+  lib,
+  shb,
+  ...
+}:
 let
   port = 9096;
 
@@ -488,5 +493,79 @@ in
     };
 
     testScript = commonTestScript.access;
+  };
+
+  users = shb.test.runNixOSTest {
+    name = "jellyfin_user";
+
+    nodes.server = {
+      imports = [
+        basic
+        shb.test.certs
+        https
+      ];
+
+      specialisation.ldap.configuration = {
+        imports = [
+          shb.test.ldap
+          ldap
+        ];
+      };
+    };
+
+    nodes.client = {
+      imports = [
+        clientLoginLdap
+      ];
+      # test.init = true;
+      specialisation.ldap.configuration = {
+        # test.init = lib.mkForce false;
+      };
+    };
+
+    testScript =
+      args@{ nodes, ... }:
+      let
+        specializationsServer = "${nodes.server.system.build.toplevel}/specialisation";
+        specializationsClient = "${nodes.client.system.build.toplevel}/specialisation";
+      in
+      ''
+        def switch_to_specialization(name):
+            client.succeed('${specializationsClient}/ldap/bin/switch-to-configuration test')
+            server.succeed('${specializationsServer}/ldap/bin/switch-to-configuration test')
+            server.wait_for_unit("multi-user.target")
+            client.wait_for_unit("multi-user.target")
+
+        start_all()
+        server.wait_for_unit("multi-user.target")
+      ''
+      + commonTestScript.access (args)
+      + ''
+        switch_to_specialization("ldap")
+      ''
+      + (commonTestScript.access.override { init = false; }) (
+        lib.recursiveUpdate args {
+          nodes.server = nodes.server.specialisation.ldap.configuration;
+          nodes.client = nodes.client.specialisation.ldap.configuration;
+        }
+      )
+      + ''
+        with subtest("find alice"):
+            users = json.loads(server.succeed("sqlite3 /var/lib/jellyfin/data/jellyfin.db -json 'SELECT * FROM Users;'"))
+            aliceUsers = [u for u in users if u["Username"] == "alice"]
+            if len(aliceUsers) != 1:
+                raise Exception(f"Unexpected number of users for alice, got {len(aliceUsers)}\n{json.dumps(users, indent=4)}")
+            alice = aliceUsers[0]
+            if alice["AuthenticationProviderId"] != "Jellyfin.Plugin.LDAP_Auth.LdapAuthenticationProviderPlugin":
+                raise Exception("Unexpected authentication provider id, got {alice['AuthenticationProviderId']}")
+            if alice["PasswordResetProviderId"] != "Jellyfin.Plugin.LDAP_Auth.LdapAuthenticationProviderPlugin":
+                raise Exception("Unexpected password resiet provider id, got {alice['PasswordResetProviderId']}")
+
+        with subtest("find alice devices"):
+            devices = json.loads(server.succeed("sqlite3 /var/lib/jellyfin/data/jellyfin.db -json 'SELECT * FROM Devices;'"))
+            aliceDevices = [d for d in devices if d["UserId"] == alice["Id"]]
+            if len(aliceDevices) != 2:
+                raise Exception(f"Unexpected number of devices for alice, got {len(aliceDevices)}\n{json.dumps(devices, indent=4)}")
+      '';
   };
 }
