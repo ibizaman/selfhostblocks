@@ -292,8 +292,17 @@ in
       in
       lib.mkMerge (lib.mapAttrsToList instanceConfig cfg);
 
-    systemd.tmpfiles.rules = map (name: "d /tmp/openvpn/${name}.status 0700 root root") (
-      lib.attrNames cfg
+    systemd.tmpfiles.settings."10-shb-vpn" = lib.listToAttrs (
+      map (
+        name:
+        lib.nameValuePair "/tmp/openvpn/${name}.status" {
+          d = {
+            mode = "0700";
+            user = "root";
+            group = "root";
+          };
+        }
+      ) (lib.attrNames cfg)
     );
 
     networking.iproute2.enable = true;

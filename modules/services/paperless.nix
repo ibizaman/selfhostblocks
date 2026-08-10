@@ -399,12 +399,30 @@ in
 
     # Database defaults to local sqlite
 
-    systemd.tmpfiles.rules = [
-      "d ${cfg.dataDir} 0700 paperless paperless"
-      "d ${cfg.consumptionDir} 0700 paperless paperless"
-      "d ${cfg.mediaDir} 0700 paperless paperless"
-    ]
-    ++ lib.optionals cfg.sso.enable [ "d '/run/paperless' 0750 root root - -" ];
+    systemd.tmpfiles.settings."10-shb-paperless" = {
+      "${cfg.dataDir}".d = {
+        mode = "0700";
+        user = "paperless";
+        group = "paperless";
+      };
+      "${cfg.consumptionDir}".d = {
+        mode = "0700";
+        user = "paperless";
+        group = "paperless";
+      };
+      "${cfg.mediaDir}".d = {
+        mode = "0700";
+        user = "paperless";
+        group = "paperless";
+      };
+    }
+    // lib.optionalAttrs cfg.sso.enable {
+      "/run/paperless".d = {
+        mode = "0750";
+        user = "root";
+        group = "root";
+      };
+    };
 
     systemd.services.paperless-pre = lib.mkIf cfg.sso.enable {
       script = replaceSecretsScript;

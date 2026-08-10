@@ -533,9 +533,13 @@ in
     };
 
     # Create basic directories for Immich
-    systemd.tmpfiles.rules = [
-      "d /var/lib/immich 0700 immich immich"
-    ];
+    systemd.tmpfiles.settings."10-shb-immich" = {
+      "/var/lib/immich".d = {
+        mode = "0700";
+        user = "immich";
+        group = "immich";
+      };
+    };
 
     # Configuration setup service - generates config only for SHB-managed settings
     systemd.services.immich-setup-config =
