@@ -602,29 +602,27 @@ in
       systemd.tmpfiles.settings."10-shb-mailserver" =
         let
           # The equal sign makes sure parent directories have the corret user and group too.
-          mkAccount =
-            name: acct:
-            [
-              (lib.nameValuePair "${config.mailserver.storage.path}/${name}" {
-                d = {
-                  mode = "0750";
-                  user = config.mailserver.storage.owner;
-                  group = config.mailserver.storage.group;
-                };
-              })
-              (lib.nameValuePair "${config.mailserver.storage.path}/${name}/${acct.username}" {
-                d = {
-                  mode = "0750";
-                  user = config.mailserver.storage.owner;
-                  group = config.mailserver.storage.group;
-                };
-              })
-              (lib.nameValuePair "${config.mailserver.storage.path}/${name}/${acct.username}/mail/" {
-                d = {
-                  user = "virtualMail";
-                };
-              })
-            ];
+          mkAccount = name: acct: [
+            (lib.nameValuePair "${config.mailserver.storage.path}/${name}" {
+              d = {
+                mode = "0750";
+                user = config.mailserver.storage.owner;
+                group = config.mailserver.storage.group;
+              };
+            })
+            (lib.nameValuePair "${config.mailserver.storage.path}/${name}/${acct.username}" {
+              d = {
+                mode = "0750";
+                user = config.mailserver.storage.owner;
+                group = config.mailserver.storage.group;
+              };
+            })
+            (lib.nameValuePair "${config.mailserver.storage.path}/${name}/${acct.username}/mail/" {
+              d = {
+                user = "virtualMail";
+              };
+            })
+          ];
         in
         lib.listToAttrs (lib.flatten (lib.mapAttrsToList mkAccount cfg.imapSync.accounts));
 
