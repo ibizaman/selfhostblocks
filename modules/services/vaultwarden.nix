@@ -217,10 +217,18 @@ in
     };
     # We create a blank environment file for the service to start. Then, ExecPreStart kicks in and
     # fills out the environment file for ExecStart to pick it up.
-    systemd.tmpfiles.rules = [
-      "d ${dataFolder} 0750 vaultwarden vaultwarden"
-      "f ${dataFolder}/vaultwarden.env 0640 vaultwarden vaultwarden"
-    ];
+    systemd.tmpfiles.settings."10-shb-vaultwarden" = {
+      "${dataFolder}".d = {
+        mode = "0750";
+        user = "vaultwarden";
+        group = "vaultwarden";
+      };
+      "${dataFolder}/vaultwarden.env".f = {
+        mode = "0640";
+        user = "vaultwarden";
+        group = "vaultwarden";
+      };
+    };
     # Needed to be able to write template config.
     systemd.services.vaultwarden.serviceConfig.ProtectHome = lib.mkForce false;
     systemd.services.vaultwarden.preStart = shb.replaceSecrets {

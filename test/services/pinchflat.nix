@@ -36,9 +36,13 @@ let
         secretKeyBase.result = config.shb.hardcodedsecret.secretKeyBase.result;
       };
 
-      systemd.tmpfiles.rules = [
-        "d '/src/pinchflat' 0750 pinchflat pinchflat - -"
-      ];
+      systemd.tmpfiles.settings."10-shb-pinchflat" = {
+        "/src/pinchflat".d = {
+          mode = "0750";
+          user = "pinchflat";
+          group = "pinchflat";
+        };
+      };
 
       # Needed for gitea-runner-local to be able to ping pinchflat.
       networking.hosts = {

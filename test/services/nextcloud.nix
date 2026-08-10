@@ -375,10 +375,19 @@ let
   previewgenerator =
     { config, ... }:
     {
-      systemd.tmpfiles.rules = [
-        "d '/srv/nextcloud' 0750 nextcloud nextcloud - -"
-        "f /run/nextcloud-instanceid 0400 nextcloud nextcloud - oc12345abcde"
-      ];
+      systemd.tmpfiles.settings."10-shb-nextcloud" = {
+        "/srv/nextcloud".d = {
+          mode = "0750";
+          user = "nextcloud";
+          group = "nextcloud";
+        };
+        "/run/nextcloud-instanceid".f = {
+          mode = "0400";
+          user = "nextcloud";
+          group = "nextcloud";
+          argument = "oc12345abcde";
+        };
+      };
       services.nextcloud.secrets.instanceid = "/run/nextcloud-instanceid";
 
       shb.nextcloud = {
@@ -387,9 +396,13 @@ let
     };
 
   externalstorage = {
-    systemd.tmpfiles.rules = [
-      "d '/srv/nextcloud' 0750 nextcloud nextcloud - -"
-    ];
+    systemd.tmpfiles.settings."10-shb-nextcloud" = {
+      "/srv/nextcloud".d = {
+        mode = "0750";
+        user = "nextcloud";
+        group = "nextcloud";
+      };
+    };
 
     shb.nextcloud = {
       apps.externalStorage = {
@@ -403,9 +416,13 @@ let
   memories =
     { config, ... }:
     {
-      systemd.tmpfiles.rules = [
-        "d '/srv/nextcloud' 0750 nextcloud nextcloud - -"
-      ];
+      systemd.tmpfiles.settings."10-shb-nextcloud" = {
+        "/srv/nextcloud".d = {
+          mode = "0750";
+          user = "nextcloud";
+          group = "nextcloud";
+        };
+      };
 
       shb.nextcloud = {
         apps.memories.enable = true;
@@ -416,9 +433,13 @@ let
   recognize =
     { config, ... }:
     {
-      systemd.tmpfiles.rules = [
-        "d '/srv/nextcloud' 0750 nextcloud nextcloud - -"
-      ];
+      systemd.tmpfiles.settings."10-shb-nextcloud" = {
+        "/srv/nextcloud".d = {
+          mode = "0750";
+          user = "nextcloud";
+          group = "nextcloud";
+        };
+      };
 
       shb.nextcloud = {
         apps.recognize.enable = true;
