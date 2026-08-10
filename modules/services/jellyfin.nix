@@ -745,9 +745,13 @@ in
       lib.optionals cfg.ldap.enable [ cfg.ldap.plugin ]
       ++ lib.optionals cfg.sso.enable [ cfg.sso.plugin ];
 
-    systemd.tmpfiles.rules = lib.optionals cfg.ldap.enable [
-      "d '${config.services.jellyfin.dataDir}/plugins' 0750 jellyfin jellyfin - -"
-    ];
+    systemd.tmpfiles.settings."10-shb-jellyfin" = lib.optionalAttrs cfg.ldap.enable {
+      "${config.services.jellyfin.dataDir}/plugins".d = {
+        mode = "0750";
+        user = "jellyfin";
+        group = "jellyfin";
+      };
+    };
 
     systemd.services.jellyfin.serviceConfig.ExecStartPost =
       let

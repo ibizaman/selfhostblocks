@@ -280,9 +280,13 @@ in
         ];
 
         systemd.services.open-webui.serviceConfig.EnvironmentFile = "/run/open-webui/secrets.env";
-        systemd.tmpfiles.rules = [
-          "d '/run/open-webui' 0750 root root - -"
-        ];
+        systemd.tmpfiles.settings."10-shb-open-webui" = {
+          "/run/open-webui".d = {
+            mode = "0750";
+            user = "root";
+            group = "root";
+          };
+        };
         systemd.services.open-webui-pre = {
           script = shb.replaceSecrets {
             userConfig = {
