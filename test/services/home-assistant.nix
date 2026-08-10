@@ -247,6 +247,8 @@ let
                     "page.get_by_role('button', name=re.compile('Finish')).click()"
 
                     "expect(page).to_have_title(re.compile('Overview'), timeout=15000)"
+                    # Confirm Home Assistant's one-time migration of YAML HTTP settings.
+                    "page.get_by_role('button', name='Confirm', exact=True).click()"
 
                     # Create user alice
                     "page.goto('http://${config.test.fqdn}/config/users')"
