@@ -278,9 +278,9 @@ in
                 group = "root";
               };
             };
-            instances = filterAttrs (
-              name: instance: hasPrefix "/" instance.settings.repository.path
-            ) (cfg.instances // cfg.databases);
+            instances = filterAttrs (name: instance: hasPrefix "/" instance.settings.repository.path) (
+              cfg.instances // cfg.databases
+            );
           in
           listToAttrs (
             mapAttrsToList (
