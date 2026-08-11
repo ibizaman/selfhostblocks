@@ -18,6 +18,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
+        with:
+          token: ${{ secrets.GH_TOKEN_FOR_UPDATES }}
       - name: Install Nix
         uses: cachix/install-nix-action@v31
         with:
