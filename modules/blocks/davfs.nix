@@ -102,7 +102,6 @@ in
     systemd.mounts =
       let
         mkMountCfg = c: {
-          enable = true;
           description = "Webdav mount point";
           after = [ "network-online.target" ];
           wants = [ "network-online.target" ];

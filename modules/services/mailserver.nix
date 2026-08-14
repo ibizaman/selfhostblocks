@@ -433,8 +433,6 @@ in
 
         localDnsResolver = false;
 
-        enableImapSsl = true;
-        enableSubmissionSsl = true;
         x509 = {
           certificateFile = cfg.ssl.paths.cert;
           privateKeyFile = cfg.ssl.paths.key;

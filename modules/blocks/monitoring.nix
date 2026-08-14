@@ -486,7 +486,6 @@ in
 
       services.loki = {
         enable = true;
-        dataDir = "/var/lib/loki";
         package =
           if cfg.lokiMajorVersion == 3 then
             pkgs.grafana-loki
@@ -925,8 +924,6 @@ in
       services.scrutiny = {
         enable = true;
 
-        openFirewall = false;
-
         # This src includes Prometheus metrics exporter.
         package = pkgs.scrutiny.overrideAttrs ({
           src = pkgs.fetchFromGitHub {
@@ -946,9 +943,6 @@ in
           };
         };
 
-        collector = {
-          enable = true;
-        };
       };
 
       services.prometheus.scrapeConfigs = [

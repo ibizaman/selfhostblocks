@@ -774,9 +774,6 @@ in
         };
         database.createLocally = true;
 
-        # Enable caching using redis https://nixos.wiki/wiki/Nextcloud#Caching.
-        configureRedis = true;
-
         # Adds appropriate nginx rewrite rules.
         webfinger = true;
 
@@ -784,7 +781,6 @@ in
         https = !(isNull cfg.ssl);
 
         extraApps = if isNull cfg.extraApps then { } else cfg.extraApps nextcloudApps;
-        extraAppsEnable = true;
 
         settings =
           let
