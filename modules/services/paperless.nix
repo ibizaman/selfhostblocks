@@ -375,7 +375,6 @@ in
     # Configure paperless service
     services.paperless = {
       enable = true;
-      address = "127.0.0.1";
       port = cfg.port;
       consumptionDirIsPublic = true;
       dataDir = cfg.dataDir;

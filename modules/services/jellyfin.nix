@@ -379,8 +379,6 @@ in
       sslCertificate = lib.mkIf (!(isNull cfg.ssl)) cfg.ssl.paths.cert;
       sslCertificateKey = lib.mkIf (!(isNull cfg.ssl)) cfg.ssl.paths.key;
 
-      http2 = true;
-
       extraConfig = ''
         # The default `client_max_body_size` is 1M, this might not be enough for some posters, etc.
         client_max_body_size 20M;

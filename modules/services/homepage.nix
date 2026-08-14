@@ -230,11 +230,7 @@ in
         disableUpdateCheck = true;
       };
 
-      bookmarks = [ ];
-
       services = shb.homepage.asServiceGroup cfg.servicesGroups;
-
-      widgets = [ ];
     };
 
     systemd.services.homepage-dashboard.serviceConfig =

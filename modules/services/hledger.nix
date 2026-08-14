@@ -108,7 +108,6 @@ in
       stateDir = cfg.dataDir;
       journalFiles = [ "hledger.journal" ];
 
-      host = "127.0.0.1";
       port = cfg.port;
 
       allow = "edit";

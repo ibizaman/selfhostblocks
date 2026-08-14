@@ -293,7 +293,6 @@ in
                 passwordFile = toString instance.settings.passphrase.result.path;
 
                 initialize = true;
-                createWrapper = true;
                 environmentFile = lib.mkIf (
                   instance.settings.repository.secrets != { }
                 ) "/run/secrets_restic/${fullName name instance.settings.repository}";
@@ -337,7 +336,6 @@ in
                 passwordFile = toString instance.settings.passphrase.result.path;
 
                 initialize = true;
-                createWrapper = true;
                 environmentFile = lib.mkIf (
                   instance.settings.repository.secrets != { }
                 ) "/run/secrets_restic/${fullName name instance.settings.repository}";
