@@ -196,7 +196,6 @@ in
       (lib.mkIf cfg.enable {
         services.karakeep = {
           enable = true;
-          meilisearch.enable = true;
 
           extraEnvironment = {
             PORT = toString cfg.port;

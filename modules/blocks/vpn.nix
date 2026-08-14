@@ -278,8 +278,6 @@ in
           name: c:
           lib.mkIf c.enable {
             ${name} = {
-              autoStart = true;
-
               up = "mkdir -p /run/openvpn/${name}";
 
               config = nordvpnConfig {

@@ -242,7 +242,6 @@ in
         "met"
         "radio_browser"
       ];
-      configDir = "/var/lib/hass";
       # If you can't find a component in component-packages.nix, you can add them manually with something similar to:
       # extraPackages = python3Packages: [
       #   (python3Packages.simplisafe-python.overrideAttrs (old: rec {
@@ -362,8 +361,6 @@ in
     services.wyoming.openwakeword = cfg.voice.wakeword;
 
     services.nginx.virtualHosts."${fqdn}" = {
-      http2 = true;
-
       forceSSL = !(isNull cfg.ssl);
       sslCertificate = lib.mkIf (!(isNull cfg.ssl)) cfg.ssl.paths.cert;
       sslCertificateKey = lib.mkIf (!(isNull cfg.ssl)) cfg.ssl.paths.key;

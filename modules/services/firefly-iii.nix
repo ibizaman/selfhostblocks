@@ -319,7 +319,6 @@ in
       {
         services.firefly-iii = {
           enable = true;
-          group = "nginx";
 
           virtualHost = "${cfg.subdomain}.${cfg.domain}";
 
