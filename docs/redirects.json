@@ -5132,6 +5132,138 @@
   "services-monitoring-features": [
     "blocks-monitoring.html#services-monitoring-features"
   ],
+  "services-navidrome": [
+    "services-navidrome.html#services-navidrome"
+  ],
+  "services-navidrome-features": [
+    "services-navidrome.html#services-navidrome-features"
+  ],
+  "services-navidrome-options": [
+    "services-navidrome.html#services-navidrome-options"
+  ],
+  "services-navidrome-options-shb.navidrome.backup": [
+    "services-navidrome.html#services-navidrome-options-shb.navidrome.backup"
+  ],
+  "services-navidrome-options-shb.navidrome.backup.request": [
+    "services-navidrome.html#services-navidrome-options-shb.navidrome.backup.request"
+  ],
+  "services-navidrome-options-shb.navidrome.backup.request.excludePatterns": [
+    "services-navidrome.html#services-navidrome-options-shb.navidrome.backup.request.excludePatterns"
+  ],
+  "services-navidrome-options-shb.navidrome.backup.request.hooks": [
+    "services-navidrome.html#services-navidrome-options-shb.navidrome.backup.request.hooks"
+  ],
+  "services-navidrome-options-shb.navidrome.backup.request.hooks.afterBackup": [
+    "services-navidrome.html#services-navidrome-options-shb.navidrome.backup.request.hooks.afterBackup"
+  ],
+  "services-navidrome-options-shb.navidrome.backup.request.hooks.beforeBackup": [
+    "services-navidrome.html#services-navidrome-options-shb.navidrome.backup.request.hooks.beforeBackup"
+  ],
+  "services-navidrome-options-shb.navidrome.backup.request.sourceDirectories": [
+    "services-navidrome.html#services-navidrome-options-shb.navidrome.backup.request.sourceDirectories"
+  ],
+  "services-navidrome-options-shb.navidrome.backup.request.user": [
+    "services-navidrome.html#services-navidrome-options-shb.navidrome.backup.request.user"
+  ],
+  "services-navidrome-options-shb.navidrome.backup.result": [
+    "services-navidrome.html#services-navidrome-options-shb.navidrome.backup.result"
+  ],
+  "services-navidrome-options-shb.navidrome.backup.result.backupService": [
+    "services-navidrome.html#services-navidrome-options-shb.navidrome.backup.result.backupService"
+  ],
+  "services-navidrome-options-shb.navidrome.backup.result.restoreScript": [
+    "services-navidrome.html#services-navidrome-options-shb.navidrome.backup.result.restoreScript"
+  ],
+  "services-navidrome-options-shb.navidrome.dashboard": [
+    "services-navidrome.html#services-navidrome-options-shb.navidrome.dashboard"
+  ],
+  "services-navidrome-options-shb.navidrome.dashboard.request": [
+    "services-navidrome.html#services-navidrome-options-shb.navidrome.dashboard.request"
+  ],
+  "services-navidrome-options-shb.navidrome.dashboard.request.externalUrl": [
+    "services-navidrome.html#services-navidrome-options-shb.navidrome.dashboard.request.externalUrl"
+  ],
+  "services-navidrome-options-shb.navidrome.dashboard.request.internalUrl": [
+    "services-navidrome.html#services-navidrome-options-shb.navidrome.dashboard.request.internalUrl"
+  ],
+  "services-navidrome-options-shb.navidrome.dashboard.result": [
+    "services-navidrome.html#services-navidrome-options-shb.navidrome.dashboard.result"
+  ],
+  "services-navidrome-options-shb.navidrome.dataDir": [
+    "services-navidrome.html#services-navidrome-options-shb.navidrome.dataDir"
+  ],
+  "services-navidrome-options-shb.navidrome.domain": [
+    "services-navidrome.html#services-navidrome-options-shb.navidrome.domain"
+  ],
+  "services-navidrome-options-shb.navidrome.enable": [
+    "services-navidrome.html#services-navidrome-options-shb.navidrome.enable"
+  ],
+  "services-navidrome-options-shb.navidrome.enableSharing": [
+    "services-navidrome.html#services-navidrome-options-shb.navidrome.enableSharing"
+  ],
+  "services-navidrome-options-shb.navidrome.mount": [
+    "services-navidrome.html#services-navidrome-options-shb.navidrome.mount"
+  ],
+  "services-navidrome-options-shb.navidrome.mount.path": [
+    "services-navidrome.html#services-navidrome-options-shb.navidrome.mount.path"
+  ],
+  "services-navidrome-options-shb.navidrome.musicDir": [
+    "services-navidrome.html#services-navidrome-options-shb.navidrome.musicDir"
+  ],
+  "services-navidrome-options-shb.navidrome.port": [
+    "services-navidrome.html#services-navidrome-options-shb.navidrome.port"
+  ],
+  "services-navidrome-options-shb.navidrome.settings": [
+    "services-navidrome.html#services-navidrome-options-shb.navidrome.settings"
+  ],
+  "services-navidrome-options-shb.navidrome.ssl": [
+    "services-navidrome.html#services-navidrome-options-shb.navidrome.ssl"
+  ],
+  "services-navidrome-options-shb.navidrome.ssl.paths": [
+    "services-navidrome.html#services-navidrome-options-shb.navidrome.ssl.paths"
+  ],
+  "services-navidrome-options-shb.navidrome.ssl.paths.cert": [
+    "services-navidrome.html#services-navidrome-options-shb.navidrome.ssl.paths.cert"
+  ],
+  "services-navidrome-options-shb.navidrome.ssl.paths.key": [
+    "services-navidrome.html#services-navidrome-options-shb.navidrome.ssl.paths.key"
+  ],
+  "services-navidrome-options-shb.navidrome.ssl.systemdService": [
+    "services-navidrome.html#services-navidrome-options-shb.navidrome.ssl.systemdService"
+  ],
+  "services-navidrome-options-shb.navidrome.sso": [
+    "services-navidrome.html#services-navidrome-options-shb.navidrome.sso"
+  ],
+  "services-navidrome-options-shb.navidrome.sso.authorization_policy": [
+    "services-navidrome.html#services-navidrome-options-shb.navidrome.sso.authorization_policy"
+  ],
+  "services-navidrome-options-shb.navidrome.sso.enable": [
+    "services-navidrome.html#services-navidrome-options-shb.navidrome.sso.enable"
+  ],
+  "services-navidrome-options-shb.navidrome.sso.endpoint": [
+    "services-navidrome.html#services-navidrome-options-shb.navidrome.sso.endpoint"
+  ],
+  "services-navidrome-options-shb.navidrome.sso.logoutURL": [
+    "services-navidrome.html#services-navidrome-options-shb.navidrome.sso.logoutURL"
+  ],
+  "services-navidrome-options-shb.navidrome.sso.userGroup": [
+    "services-navidrome.html#services-navidrome-options-shb.navidrome.sso.userGroup"
+  ],
+  "services-navidrome-options-shb.navidrome.subdomain": [
+    "services-navidrome.html#services-navidrome-options-shb.navidrome.subdomain"
+  ],
+  "services-navidrome-usage": [
+    "services-navidrome.html#services-navidrome-usage"
+  ],
+  "services-navidrome-usage-backup": [
+    "services-navidrome.html#services-navidrome-usage-backup"
+  ],
+  "services-navidrome-usage-configuration": [
+    "services-navidrome.html#services-navidrome-usage-configuration"
+  ],
+  "services-navidrome-usage-sso": [
+    "services-navidrome.html#services-navidrome-usage-sso"
+  ],
   "services-nextcloudserver": [
     "services-nextcloud.html#services-nextcloudserver"
   ],
