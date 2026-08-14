@@ -28,6 +28,7 @@ information is provided in the respective manual sections.
 | [Pinchflat][]               | Y      | Y             | Y   | Y (4) | Y (5)      | N         |
 | [Simple NixOS Mailserver][] | Y      | Y             | N   | Y     | Y          | N         |
 | [Vaultwarden][]             | Y (1)  | Y             | Y   | Y     | Y (2)      | N         |
+| [Navidrome][]               | Y (1)  | Y             | Y   | N     | Y (2)      | N         |
 
 Legend: **N**: no but WIP; **P**: partial; **Y**: yes
 
@@ -51,6 +52,7 @@ Legend: **N**: no but WIP; **P**: partial; **Y**: yes
 [Pinchflat]: services-pinchflat.html
 [Simple NixOS Mailserver]: services-mailserver.html
 [Vaultwarden]: services-vaultwarden.html
+[Navidrome]: services-navidrome.html
 
 **Dashboard** []{#services-category-dashboard}
 
@@ -87,6 +89,7 @@ Legend: **N**: no but WIP; **P**: partial; **Y**: yes
 - [Immich][]
 - [Pinchflat][]
 - [*arr][]
+- [Navidrome][]
 
 **Finance** []{#services-category-finance}
 
@@ -142,4 +145,8 @@ modules/services/pinchflat/docs/default.md
 
 ```{=include=} chapters html:into-file=//services-vaultwarden.html
 modules/services/vaultwarden/docs/default.md
+```
+
+```{=include=} chapters html:into-file=//services-navidrome.html
+modules/services/navidrome/docs/default.md
 ```
