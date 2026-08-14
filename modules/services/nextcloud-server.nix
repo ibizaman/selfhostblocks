@@ -776,9 +776,6 @@ in
 
         # Enable caching using redis https://nixos.wiki/wiki/Nextcloud#Caching.
         configureRedis = true;
-        caching.apcu = false;
-        # https://docs.nextcloud.com/server/26/admin_manual/configuration_server/caching_configuration.html
-        caching.redis = true;
 
         # Adds appropriate nginx rewrite rules.
         webfinger = true;
