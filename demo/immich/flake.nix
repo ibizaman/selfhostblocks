@@ -29,6 +29,8 @@
 
           sops.defaultSopsFile = ./secrets.yaml;
 
+          shb.postgresql.version = 18;
+
           shb.nginx.debugLog = true;
           shb.nginx.insecureAccessLogWithRequestBody = true;
 
