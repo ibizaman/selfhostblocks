@@ -31,6 +31,8 @@
 
           sops.defaultSopsFile = ./secrets.yaml;
 
+          shb.postgresql.version = 18;
+
           shb.nextcloud = {
             enable = true;
             domain = "example.com";
