@@ -29,6 +29,8 @@
 
           sops.defaultSopsFile = ./secrets.yaml;
 
+          shb.postgresql.version = 18;
+
           environment.systemPackages = [
             # To be able to inspect the jellyfin database.
             pkgs.sqlite
@@ -123,13 +125,13 @@
         };
 
       sso =
-        { config, pkgs, ... }:
+        { config, ... }:
         {
           imports = [
             selfhostblocks.nixosModules.authelia
           ];
 
-          services.postgresql.package = pkgs.postgresql_18;
+          shb.postgresql.version = 18;
 
           shb.authelia = {
             enable = true;

@@ -30,6 +30,8 @@
 
           sops.defaultSopsFile = ./secrets.yaml;
 
+          shb.postgresql.version = 18;
+
           shb.home-assistant = {
             enable = true;
             domain = "example.com";

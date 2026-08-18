@@ -17,7 +17,7 @@
       nixpkgs' = selfhostblocks.lib.${system}.patchedNixpkgs;
 
       basic =
-        { config, pkgs, ... }:
+        { config, ... }:
         {
           imports = [
             ./configuration.nix
@@ -31,7 +31,7 @@
 
           sops.defaultSopsFile = ./secrets.yaml;
 
-          services.postgresql.package = pkgs.postgresql_18;
+          shb.postgresql.version = 18;
 
           shb.nextcloud = {
             enable = true;
