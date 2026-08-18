@@ -18,6 +18,12 @@ Template:
 
 ## Breaking Changes
 
+- Require `shb.postgresql.version` when PostgreSQL is enabled. Existing
+  deployments must first set it to their currently running PostgreSQL major.
+  This does not perform an automatic major upgrade; safe forward major-version
+  upgrade helpers are provided for later explicit upgrades. PostgreSQL backup
+  and restore commands now use tools matching the configured server version
+  ([issue #829](https://github.com/ibizaman/selfhostblocks/issues/829)).
 - Nextcloud 33 and 34 are now supported, replacing versions 32 and 33. The default is now 33.
   Deploy version 33 before selecting version 34 because Nextcloud does not support skipping major versions.
 - Remove the ignored `shb.zfs.pools.<pool>.datasets.<dataset>.enable` option.

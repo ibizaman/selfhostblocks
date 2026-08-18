@@ -29,6 +29,8 @@ in
           ];
         };
 
+        shb.postgresql.version = 18;
+
         shb.certs.cas.selfsigned.myca = {
           name = "My CA";
         };

@@ -33,6 +33,7 @@
     extraConfig =
       { config, database, ... }:
       {
+        shb.postgresql.version = 15;
         shb.postgresql.ensures = [
           {
             inherit database;
@@ -80,6 +81,7 @@
     extraConfig =
       { config, database, ... }:
       {
+        shb.postgresql.version = 15;
         shb.postgresql.ensures = [
           {
             inherit database;

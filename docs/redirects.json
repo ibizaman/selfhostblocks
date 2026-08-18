@@ -1391,11 +1391,20 @@
   "blocks-postgresql-options-shb.postgresql.ensures._.username": [
     "blocks-postgresql.html#blocks-postgresql-options-shb.postgresql.ensures._.username"
   ],
+  "blocks-postgresql-options-shb.postgresql.version": [
+    "blocks-postgresql.html#blocks-postgresql-options-shb.postgresql.version"
+  ],
   "blocks-postgresql-tests": [
     "blocks-postgresql.html#blocks-postgresql-tests"
   ],
+  "blocks-postgresql-upgrade": [
+    "blocks-postgresql.html#blocks-postgresql-upgrade"
+  ],
   "blocks-postgresql-usage": [
     "blocks-postgresql.html#blocks-postgresql-usage"
+  ],
+  "blocks-postgresql-version": [
+    "blocks-postgresql.html#blocks-postgresql-version"
   ],
   "blocks-restic": [
     "blocks-restic.html#blocks-restic"
