@@ -263,8 +263,9 @@ in
             format = "other";
             nativeBuildInputs = [ python3.pkgs.setuptools ];
             buildPhase = '''
-            mkdir "$out"
-            python3 setup.py install --install-lib "$out"
+              mkdir "$out"
+              python3 setup.py bdist_egg
+              cp dist/* "$out"
             ''';
             doInstallPhase = false;
           }) {})
