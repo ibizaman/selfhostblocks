@@ -114,18 +114,19 @@ let
         status = if builtins.isString u then 200 else u.status;
       in
       ''
-        import time
+        with subtest("Wait for URL ${url} returning ${toString status}"):
+            import time
 
-        done = False
-        count = 15
-        while not done and count > 0:
-            response = curl(client, """{"code":%{response_code}}""", "${url}")
-            time.sleep(5)
-            count -= 1
-            if isinstance(response, dict):
-                done = response.get('code') == ${toString status}
-        if not done:
-            raise Exception(f"Response was never ${toString status}, got last: {response}")
+            done = False
+            count = 15
+            while not done and count > 0:
+                response = curl(client, """{"code":%{response_code}}""", "${url}")
+                time.sleep(5)
+                count -= 1
+                if isinstance(response, dict):
+                    done = response.get('code') == ${toString status}
+            if not done:
+                raise Exception(f"Response was never ${toString status}, got last: {response}")
       ''
       + "\n"
     ) (waitForUrls args)
