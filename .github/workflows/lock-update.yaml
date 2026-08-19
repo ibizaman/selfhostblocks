@@ -3,7 +3,7 @@ name: Update Flake Lock
 
 on:
   schedule:
-    - cron: '0 */3 * * *' # runs every 3 hours at :00
+    - cron: '0 */12 * * *' # runs every 12 hours at :00
 
   workflow_dispatch:
     inputs:
