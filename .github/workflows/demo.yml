@@ -86,6 +86,9 @@ jobs:
         run: |
           cd demo/${{ matrix.demo.name }}
           nix flake update --override-input selfhostblocks ../.. selfhostblocks
+          # This is needed because we ignore the demo/*/flake.lock files in the global .gitignore
+          # If we don't add them to git, next nix call will overwrite the override we just did.
+          git add . -f
           nix \
             --print-build-logs \
             --option keep-going true \

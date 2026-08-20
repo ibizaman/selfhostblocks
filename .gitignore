@@ -3,4 +3,5 @@ result
 result-*
 docs/redirects.json.backup
 .nixos-test-history
+demo/*/flake.lock
 \#*#
