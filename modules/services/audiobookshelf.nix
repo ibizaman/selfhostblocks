@@ -175,14 +175,11 @@ in
         services.audiobookshelf = {
           enable = true;
           openFirewall = true;
-          dataDir = "audiobookshelf";
-          host = "127.0.0.1";
           port = cfg.webPort;
         };
 
         services.nginx.enable = true;
         services.nginx.virtualHosts."${fqdn}" = {
-          http2 = true;
           forceSSL = !(isNull cfg.ssl);
           sslCertificate = lib.mkIf (!(isNull cfg.ssl)) cfg.ssl.paths.cert;
           sslCertificateKey = lib.mkIf (!(isNull cfg.ssl)) cfg.ssl.paths.key;

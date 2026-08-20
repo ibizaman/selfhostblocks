@@ -299,8 +299,6 @@ in
                 # We do not set encryption.passphrase here, we set BORG_PASSPHRASE_FD further down.
                 encryption.passCommand = "cat ${instance.settings.passphrase.result.path}";
 
-                doInit = true;
-                failOnWarnings = true;
                 stateDir = instance.settings.stateDir;
 
                 persistentTimer = instance.settings.repository.timerConfig.Persistent or false;
@@ -344,8 +342,6 @@ in
                 # We do not set encryption.passphrase here, we set BORG_PASSPHRASE_FD further down.
                 encryption.passCommand = "cat ${instance.settings.passphrase.result.path}";
 
-                doInit = true;
-                failOnWarnings = true;
                 stateDir = instance.settings.stateDir;
 
                 persistentTimer = instance.settings.repository.timerConfig.Persistent or false;
