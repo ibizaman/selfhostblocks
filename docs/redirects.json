@@ -4518,6 +4518,9 @@
   "services-jellyfin-usage-configuration": [
     "services-jellyfin.html#services-jellyfin-usage-configuration"
   ],
+  "services-jellyfin-sso": [
+    "services-jellyfin.html#services-jellyfin-sso"
+  ],
   "services-karakeep": [
     "services-karakeep.html#services-karakeep"
   ],

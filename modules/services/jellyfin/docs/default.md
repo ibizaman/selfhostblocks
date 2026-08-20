@@ -83,6 +83,30 @@ must have the same content. The former is a file that must be owned by the `jell
 the latter must be owned by the `authelia` user. I want to avoid needing to define the same secret
 twice with a future secrets SHB block.
 
+### LDAP and SSO {#services-jellyfin-sso}
+
+It is important to understand how LDAP and SSO works in Jellyfin.
+Unfortunately, it is not as robust as I wished it were.
+All there is to know is:
+
+- A user created in the Jellyfin UI will take precedence over the same user in the LDAP provider
+  unless an admin manually switched its login provider to the LDAP one.
+  In practice it means if a user tries to login through the login form with their LDAP password,
+  it will fail.
+  But if that same user tries to login through SSO instead, that will work and they will be
+  assigned the user or admin group following the LDAP configuration.
+- A new user logging in for the first time through SSO will not be able to login through the normal
+  login form until an admin switches their login provider to the LDAP one.
+
+For the best experience, I recommend adding an user in this order:
+
+1. An admin creates a user in the LDAP provider, assigning them to the Jellyfin user or admin group.
+2. The user first logs in through the normal login form.
+3. Now the user can login through the SSO provider without issue.
+
+And if they can't login though the login form, the universal fix is to manually set their login provider
+to the LDAP one.
+
 ### Certificates {#services-jellyfin-certs}
 
 For Let's Encrypt certificates, add:
