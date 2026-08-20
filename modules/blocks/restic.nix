@@ -269,15 +269,24 @@ in
       }
       {
         # Create repository if it is a local path.
-        systemd.tmpfiles.rules =
+        systemd.tmpfiles.settings."10-shb-restic" =
           let
-            mkSettings =
-              name: instance:
-              optionals (hasPrefix "/" instance.settings.repository.path) [
-                "d '${instance.settings.repository.path}' 0750 ${instance.request.user} root - -"
-              ];
+            mkSettings = name: instance: {
+              d = {
+                mode = "0750";
+                user = instance.request.user;
+                group = "root";
+              };
+            };
+            instances = filterAttrs (name: instance: hasPrefix "/" instance.settings.repository.path) (
+              cfg.instances // cfg.databases
+            );
           in
-          flatten (mapAttrsToList mkSettings (cfg.instances // cfg.databases));
+          listToAttrs (
+            mapAttrsToList (
+              name: instance: nameValuePair instance.settings.repository.path (mkSettings name instance)
+            ) instances
+          );
       }
       {
         services.restic.backups =

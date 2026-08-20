@@ -406,16 +406,18 @@ in
           )
         );
 
-        systemd.tmpfiles.rules =
+        systemd.tmpfiles.settings."10-shb-deluge" =
           let
             plugins = pkgs.symlinkJoin {
               name = "deluge-plugins";
               paths = cfg.additionalPlugins;
             };
           in
-          [
-            "L+ ${cfg.dataDir}/.config/deluge/plugins - - - - ${plugins}"
-          ];
+          {
+            "${cfg.dataDir}/.config/deluge/plugins"."L+" = {
+              argument = "${plugins}";
+            };
+          };
 
         shb.nginx.vhosts = [
           (
