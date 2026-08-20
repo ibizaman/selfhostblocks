@@ -49,15 +49,15 @@ shb.jellyfin = {
     host = "127.0.0.1";
     port = config.shb.lldap.ldapPort;
     dcdomain = config.shb.lldap.dcdomain;
-    adminPassword.result = config.shb.sops.secret."jellyfin/ldap/adminPassword".result
+    adminPassword.result = config.shb.sops.secret."jellyfin/ldap/adminPassword".result;
   };
 
   sso = {
     enable = true;
     endpoint = "https://${config.shb.authelia.subdomain}.${config.shb.authelia.domain}";
   
-    secretFile = config.shb.sops.secret."jellyfin/sso_secret".result;
-    secretFileForAuthelia = config.shb.sops.secret."jellyfin/authelia/sso_secret".result;
+    sharedSecret.result = config.shb.sops.secret."jellyfin/sso_secret".result;
+    sharedSecretForAuthelia.result = config.shb.sops.secret."jellyfin/authelia/sso_secret".result;
   };
 };
 
