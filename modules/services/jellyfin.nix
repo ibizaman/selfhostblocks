@@ -672,6 +672,7 @@ in
         (shb.replaceSecretsScript {
           file = ldapConfig;
           resultPath = "${config.services.jellyfin.dataDir}/plugins/configurations/LDAP-Auth.xml";
+          permissions = "u=rw,g=r,o=";
           replacements = [
             {
               name = [ "LDAP_PASSWORD" ];
@@ -684,6 +685,7 @@ in
         shb.replaceSecretsScript {
           file = ssoConfig;
           resultPath = "${config.services.jellyfin.dataDir}/plugins/configurations/SSO-Auth.xml";
+          permissions = "u=rw,g=r,o=";
           replacements = [
             {
               name = [ "SSO_SECRET" ];
