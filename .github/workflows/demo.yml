@@ -48,6 +48,13 @@ jobs:
           - name:  homeassistant
             flake: ldap
 
+          - name:  jellyfin
+            flake: basic
+          - name:  jellyfin
+            flake: ldap
+          - name:  jellyfin
+            flake: sso
+
           - name:  nextcloud
             flake: basic
           - name:  nextcloud
