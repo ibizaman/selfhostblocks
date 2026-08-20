@@ -575,15 +575,11 @@ in
         brandingConfig = pkgs.writeText "branding.xml" ''
           <?xml version="1.0" encoding="utf-8"?>
           <BrandingOptions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-            <LoginDisclaimer>&lt;a href="https://${cfg.subdomain}.${cfg.domain}/SSO/OID/p/${cfg.sso.provider}" class="raised cancel block emby-button authentik-sso"&gt;
+            <LoginDisclaimer>&lt;a title="Click here if you are a new Jellyfin user or if you already linked your SSO account before" href="https://${cfg.subdomain}.${cfg.domain}/SSO/OID/p/${cfg.sso.provider}" class="raised cancel block emby-button"&gt;
                 Sign in with ${cfg.sso.provider}&amp;nbsp;
-                &lt;img alt="OpenID Connect (authentik)" title="OpenID Connect (authentik)" class="oauth-login-image" src="https://raw.githubusercontent.com/goauthentik/authentik/master/web/icons/icon.png"&gt;
               &lt;/a&gt;
-              &lt;a href="https://${cfg.subdomain}.${cfg.domain}/SSOViews/linking" class="raised cancel block emby-button authentik-sso"&gt;
-                Link ${cfg.sso.provider} config&amp;nbsp;
-              &lt;/a&gt;
-              &lt;a href="${cfg.sso.endpoint}" class="raised cancel block emby-button authentik-sso"&gt;
-                ${cfg.sso.provider} config&amp;nbsp;
+              &lt;a title="Click here if you already logged into Jellyfin with SSO and want to enable SSO" href="https://${cfg.subdomain}.${cfg.domain}/SSOViews/linking" class="raised cancel block emby-button"&gt;
+                Link existing user to ${cfg.sso.provider}&amp;nbsp;
               &lt;/a&gt;
             </LoginDisclaimer>
             <CustomCss>
@@ -601,11 +597,6 @@ in
               /* Let disclaimer take full width */
               .disclaimerContainer {
                  display: block;
-              }
-
-              /* Optionally, apply some styling to the `.authentik-sso` class, probably let users configure this */
-              .authentik-sso {
-                 /* idk set a background image or something lol */
               }
 
               .oauth-login-image {
