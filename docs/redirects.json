@@ -1872,8 +1872,7 @@
     "blocks-zfs.html#blocks-zfs-options-shb.zfs.pools"
   ],
   "blocks-zfs-options-shb.zfs.pools._name_.datasets": [
-    "blocks-zfs.html#blocks-zfs-options-shb.zfs.pools._name_.datasets",
-    "blocks-zfs.html#blocks-zfs-options-shb.zfs.pools._name_.datasets._name_.enable"
+    "blocks-zfs.html#blocks-zfs-options-shb.zfs.pools._name_.datasets"
   ],
   "blocks-zfs-options-shb.zfs.pools._name_.datasets._name_.after": [
     "blocks-zfs.html#blocks-zfs-options-shb.zfs.pools._name_.datasets._name_.after"
@@ -2360,6 +2359,54 @@
   ],
   "demo-homeassistant-virtual-machine": [
     "demo-homeassistant.html#demo-homeassistant-virtual-machine"
+  ],
+  "demo-jellyfin": [
+    "demo-jellyfin.html#demo-jellyfin"
+  ],
+  "demo-jellyfin-access": [
+    "demo-jellyfin.html#demo-jellyfin-access"
+  ],
+  "demo-jellyfin-basic": [
+    "demo-jellyfin.html#demo-jellyfin-basic"
+  ],
+  "demo-jellyfin-deploy": [
+    "demo-jellyfin.html#demo-jellyfin-deploy"
+  ],
+  "demo-jellyfin-deploy-colmena": [
+    "demo-jellyfin.html#demo-jellyfin-deploy-colmena"
+  ],
+  "demo-jellyfin-deploy-nixosrebuild": [
+    "demo-jellyfin.html#demo-jellyfin-deploy-nixosrebuild"
+  ],
+  "demo-jellyfin-files": [
+    "demo-jellyfin.html#demo-jellyfin-files"
+  ],
+  "demo-jellyfin-in-more-details": [
+    "demo-jellyfin.html#demo-jellyfin-in-more-details"
+  ],
+  "demo-jellyfin-ldap": [
+    "demo-jellyfin.html#demo-jellyfin-ldap"
+  ],
+  "demo-jellyfin-secrets": [
+    "demo-jellyfin.html#demo-jellyfin-secrets"
+  ],
+  "demo-jellyfin-sso": [
+    "demo-jellyfin.html#demo-jellyfin-sso"
+  ],
+  "demo-jellyfin-tips-deploy": [
+    "demo-jellyfin.html#demo-jellyfin-tips-deploy"
+  ],
+  "demo-jellyfin-tips-public-key-necessity": [
+    "demo-jellyfin.html#demo-jellyfin-tips-public-key-necessity"
+  ],
+  "demo-jellyfin-tips-ssh": [
+    "demo-jellyfin.html#demo-jellyfin-tips-ssh"
+  ],
+  "demo-jellyfin-tips-update-demo": [
+    "demo-jellyfin.html#demo-jellyfin-tips-update-demo"
+  ],
+  "demo-jellyfin-virtual-machine": [
+    "demo-jellyfin.html#demo-jellyfin-virtual-machine"
   ],
   "demo-nextcloud": [
     "demo-nextcloud.html#demo-nextcloud"
@@ -4506,6 +4553,9 @@
   "services-jellyfin-options-shb.jellyfin.subdomain": [
     "services-jellyfin.html#services-jellyfin-options-shb.jellyfin.subdomain"
   ],
+  "services-jellyfin-sso": [
+    "services-jellyfin.html#services-jellyfin-sso"
+  ],
   "services-jellyfin-usage": [
     "services-jellyfin.html#services-jellyfin-usage"
   ],
@@ -4517,9 +4567,6 @@
   ],
   "services-jellyfin-usage-configuration": [
     "services-jellyfin.html#services-jellyfin-usage-configuration"
-  ],
-  "services-jellyfin-sso": [
-    "services-jellyfin.html#services-jellyfin-sso"
   ],
   "services-karakeep": [
     "services-karakeep.html#services-karakeep"
