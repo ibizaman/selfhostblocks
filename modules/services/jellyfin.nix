@@ -572,14 +572,14 @@ in
           </PluginConfiguration>
         '';
 
+        # In SHB we purposely always redirect to the ?isLinking=true link because
+        # it appears this always does the right thing. It takes care of both
+        # an existing Jellyfin user using SSO for the first time or a new user.
         brandingConfig = pkgs.writeText "branding.xml" ''
           <?xml version="1.0" encoding="utf-8"?>
           <BrandingOptions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-            <LoginDisclaimer>&lt;a title="Click here if you are a new Jellyfin user or if you already linked your SSO account before" href="https://${cfg.subdomain}.${cfg.domain}/SSO/OID/p/${cfg.sso.provider}" class="raised cancel block emby-button"&gt;
+            <LoginDisclaimer>&lt;a title="Click here if you are a new Jellyfin user or if you already linked your SSO account before" href="https://${cfg.subdomain}.${cfg.domain}/SSO/oid/p/${cfg.sso.provider}?isLinking=true" class="raised cancel block emby-button"&gt;
                 Sign in with ${cfg.sso.provider}&amp;nbsp;
-              &lt;/a&gt;
-              &lt;a title="Click here if you already logged into Jellyfin with SSO and want to enable SSO" href="https://${cfg.subdomain}.${cfg.domain}/SSOViews/linking" class="raised cancel block emby-button"&gt;
-                Link existing user to ${cfg.sso.provider}&amp;nbsp;
               &lt;/a&gt;
             </LoginDisclaimer>
             <CustomCss>
