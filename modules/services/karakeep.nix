@@ -256,7 +256,6 @@ in
         services.meilisearch = {
           masterKeyFile = cfg.meilisearchMasterKey.result.path;
           settings = {
-            experimental_dumpless_upgrade = true;
             env = "production";
           };
         };
