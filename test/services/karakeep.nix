@@ -12,6 +12,7 @@ let
         "karakeep-browser.service"
         "karakeep-web.service"
         "karakeep-workers.service"
+        "meilisearch.service"
         "nginx.service"
       ];
     waitForPorts =
