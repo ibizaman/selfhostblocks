@@ -1,8 +1,13 @@
-{ pkgs, shb, ... }:
+{
+  pkgs,
+  lib,
+  shb,
+  ...
+}:
 let
   port = 9096;
 
-  adminUser = "jellyfin2";
+  adminUser = "jellyfin";
   adminPassword = "admin";
 
   commonExtraScript =
@@ -180,80 +185,95 @@ let
   clientLoginLdap =
     { config, ... }:
     {
+      options = {
+        test.login.onlyAlice = lib.mkOption {
+          type = lib.types.bool;
+          default = false;
+        };
+      };
+
       imports = [
         shb.test.baseModule
         shb.test.clientLoginModule
       ];
-      virtualisation.memorySize = 4096;
 
-      test = {
-        subdomain = "j";
-      };
+      config = {
+        virtualisation.memorySize = 4096;
 
-      test.login = {
-        startUrl = "${config.test.proto}://${config.test.fqdn}";
-        usernameFieldLabelRegex = "[Uu]ser";
-        loginButtonNameRegex = "Sign In";
-        testLoginWith = [
-          {
-            username = adminUser;
-            password = "badpassword";
-            nextPageExpect = [
-              # "expect(page).to_have_title(re.compile('Jellyfin'))"
-              "expect(page.get_by_text(re.compile('[Ii]nvalid'))).to_be_visible(timeout=10000)"
+        test = {
+          subdomain = "j";
+        };
+
+        test.login = {
+          startUrl = "${config.test.proto}://${config.test.fqdn}";
+          usernameFieldLabelRegex = "[Uu]ser";
+          loginButtonNameRegex = "Sign In";
+          testLoginWith =
+            lib.optionals (!config.test.login.onlyAlice) [
+              {
+                username = adminUser;
+                password = "badpassword";
+                nextPageExpect = [
+                  # "expect(page).to_have_title(re.compile('Jellyfin'))"
+                  "expect(page.get_by_text(re.compile('[Ii]nvalid'))).to_be_visible(timeout=10000)"
+                ];
+              }
+              {
+                username = adminUser;
+                password = adminPassword;
+                nextPageExpect = [
+                  # "expect(page).to_have_title(re.compile('Jellyfin'))"
+                  "expect(page.get_by_text(re.compile('[Ii]nvalid'))).not_to_be_visible(timeout=10000)"
+                  "expect(page.get_by_label(re.compile('^[Uu]ser'))).not_to_be_visible(timeout=10000)"
+                  "expect(page.get_by_label(re.compile('^[Pp]assword$'))).not_to_be_visible(timeout=10000)"
+                ];
+              }
+            ]
+            ++ [
+              {
+                username = "alice";
+                password = "AlicePassword";
+                nextPageExpect = [
+                  # "expect(page).to_have_title(re.compile('Jellyfin'))"
+                  # For a reason I can't explain, redirection needs to happen manually.
+                  "page.goto('${config.test.proto}://${config.test.fqdn}/web/')"
+                  "expect(page.get_by_text(re.compile('[Ii]nvalid'))).not_to_be_visible(timeout=10000)"
+                  "expect(page.get_by_label(re.compile('^[Uu]ser'))).not_to_be_visible(timeout=10000)"
+                  "expect(page.get_by_label(re.compile('^[Pp]assword$'))).not_to_be_visible(timeout=10000)"
+                ];
+              }
+            ]
+            ++ lib.optionals (!config.test.login.onlyAlice) [
+              {
+                username = "alice";
+                password = "NotAlicePassword";
+                nextPageExpect = [
+                  # "expect(page).to_have_title(re.compile('Jellyfin'))"
+                  "expect(page.get_by_text(re.compile('[Ii]nvalid'))).to_be_visible(timeout=10000)"
+                ];
+              }
+              {
+                username = "bob";
+                password = "BobPassword";
+                nextPageExpect = [
+                  # "expect(page).to_have_title(re.compile('Jellyfin'))"
+                  # For a reason I can't explain, redirection needs to happen manually.
+                  "page.goto('${config.test.proto}://${config.test.fqdn}/web/')"
+                  "expect(page.get_by_text(re.compile('[Ii]nvalid'))).not_to_be_visible(timeout=10000)"
+                  "expect(page.get_by_label(re.compile('^[Uu]ser'))).not_to_be_visible(timeout=10000)"
+                  "expect(page.get_by_label(re.compile('^[Pp]assword$'))).not_to_be_visible(timeout=10000)"
+                ];
+              }
+              {
+                username = "bob";
+                password = "NotBobPassword";
+                nextPageExpect = [
+                  # "expect(page).to_have_title(re.compile('Jellyfin'))"
+                  "expect(page.get_by_text(re.compile('[Ii]nvalid'))).to_be_visible(timeout=10000)"
+                ];
+              }
             ];
-          }
-          {
-            username = adminUser;
-            password = adminPassword;
-            nextPageExpect = [
-              # "expect(page).to_have_title(re.compile('Jellyfin'))"
-              "expect(page.get_by_text(re.compile('[Ii]nvalid'))).not_to_be_visible(timeout=10000)"
-              "expect(page.get_by_label(re.compile('^[Uu]ser'))).not_to_be_visible(timeout=10000)"
-              "expect(page.get_by_label(re.compile('^[Pp]assword$'))).not_to_be_visible(timeout=10000)"
-            ];
-          }
-          {
-            username = "alice";
-            password = "AlicePassword";
-            nextPageExpect = [
-              # "expect(page).to_have_title(re.compile('Jellyfin'))"
-              # For a reason I can't explain, redirection needs to happen manually.
-              "page.goto('${config.test.proto}://${config.test.fqdn}/web/')"
-              "expect(page.get_by_text(re.compile('[Ii]nvalid'))).not_to_be_visible(timeout=10000)"
-              "expect(page.get_by_label(re.compile('^[Uu]ser'))).not_to_be_visible(timeout=10000)"
-              "expect(page.get_by_label(re.compile('^[Pp]assword$'))).not_to_be_visible(timeout=10000)"
-            ];
-          }
-          {
-            username = "alice";
-            password = "NotAlicePassword";
-            nextPageExpect = [
-              # "expect(page).to_have_title(re.compile('Jellyfin'))"
-              "expect(page.get_by_text(re.compile('[Ii]nvalid'))).to_be_visible(timeout=10000)"
-            ];
-          }
-          {
-            username = "bob";
-            password = "BobPassword";
-            nextPageExpect = [
-              # "expect(page).to_have_title(re.compile('Jellyfin'))"
-              # For a reason I can't explain, redirection needs to happen manually.
-              "page.goto('${config.test.proto}://${config.test.fqdn}/web/')"
-              "expect(page.get_by_text(re.compile('[Ii]nvalid'))).not_to_be_visible(timeout=10000)"
-              "expect(page.get_by_label(re.compile('^[Uu]ser'))).not_to_be_visible(timeout=10000)"
-              "expect(page.get_by_label(re.compile('^[Pp]assword$'))).not_to_be_visible(timeout=10000)"
-            ];
-          }
-          {
-            username = "bob";
-            password = "NotBobPassword";
-            nextPageExpect = [
-              # "expect(page).to_have_title(re.compile('Jellyfin'))"
-              "expect(page.get_by_text(re.compile('[Ii]nvalid'))).to_be_visible(timeout=10000)"
-            ];
-          }
-        ];
+        };
       };
     };
 
@@ -288,76 +308,88 @@ let
   clientLoginSso =
     { config, ... }:
     {
+      options = {
+        test.login.onlyAlice = lib.mkOption {
+          type = lib.types.bool;
+          default = false;
+        };
+      };
+
       imports = [
         shb.test.baseModule
         shb.test.clientLoginModule
       ];
-      virtualisation.memorySize = 4096;
 
-      test = {
-        subdomain = "j";
-      };
+      config = {
+        virtualisation.memorySize = 4096;
 
-      test.login = {
-        startUrl = "${config.test.proto}://${config.test.fqdn}";
-        beforeHook = ''
-          page.locator('text=Sign in with Authelia').click()
-        '';
-        usernameFieldLabelRegex = "Username";
-        passwordFieldLabelRegex = "Password";
-        loginButtonNameRegex = "[Ss]ign [Ii]n";
-        loginSpawnsNewPage = true;
-        testLoginWith = [
-          {
-            username = "alice";
-            password = "AlicePassword";
-            nextPageExpect = [
-              "page.get_by_text(re.compile('[Aa]ccept')).click()"
-              # For a reason I can't explain, redirection needs to happen manually.
-              "page.goto('${config.test.proto}://${config.test.fqdn}/web/')"
-              # "expect(page).to_have_title(re.compile('Jellyfin'))"
-              "expect(page.get_by_text(re.compile('[Ii]nvalid'))).not_to_be_visible(timeout=10000)"
-              "expect(page.get_by_label(re.compile('^[Uu]ser'))).not_to_be_visible(timeout=10000)"
-              "expect(page.get_by_label(re.compile('^[Pp]assword$'))).not_to_be_visible(timeout=10000)"
-            ];
-          }
-          {
-            username = "alice";
-            password = "NotAlicePassword";
-            nextPageExpect = [
-              # For a reason I can't explain, redirection needs to happen manually.
-              # So for failing auth, we check we're back on the login page.
-              "page.goto('${config.test.proto}://${config.test.fqdn}/web/')"
-              # "expect(page).to_have_title(re.compile('Jellyfin'))"
-              "expect(page.get_by_label(re.compile('^[Uu]ser'))).to_be_visible(timeout=10000)"
-              "expect(page.get_by_label(re.compile('^[Pp]assword$'))).to_be_visible(timeout=10000)"
-            ];
-          }
-          {
-            username = "bob";
-            password = "BobPassword";
-            nextPageExpect = [
-              "page.get_by_text(re.compile('[Aa]ccept')).click()"
-              # For a reason I can't explain, redirection needs to happen manually.
-              "page.goto('${config.test.proto}://${config.test.fqdn}/web/')"
-              # "expect(page).to_have_title(re.compile('Jellyfin'))"
-              "expect(page.get_by_text(re.compile('[Ii]nvalid'))).not_to_be_visible(timeout=10000)"
-              "expect(page.get_by_label(re.compile('^[Uu]ser'))).not_to_be_visible(timeout=10000)"
-              "expect(page.get_by_label(re.compile('^[Pp]assword$'))).not_to_be_visible(timeout=10000)"
-            ];
-          }
-          {
-            username = "bob";
-            password = "NotBobPassword";
-            nextPageExpect = [
-              # For a reason I can't explain, redirection needs to happen manually.
-              "page.goto('${config.test.proto}://${config.test.fqdn}/web/')"
-              # "expect(page).to_have_title(re.compile('Jellyfin'))"
-              "expect(page.get_by_label(re.compile('^[Uu]ser'))).to_be_visible(timeout=10000)"
-              "expect(page.get_by_label(re.compile('^[Pp]assword$'))).to_be_visible(timeout=10000)"
-            ];
-          }
-        ];
+        test = {
+          subdomain = "j";
+        };
+
+        test.login = {
+          startUrl = "${config.test.proto}://${config.test.fqdn}";
+          beforeHook = ''
+            page.locator('text=Sign in with Authelia').click()
+          '';
+          usernameFieldLabelRegex = "Username";
+          passwordFieldLabelRegex = "Password";
+          loginButtonNameRegex = "[Ss]ign [Ii]n";
+          loginSpawnsNewPage = true;
+          testLoginWith = [
+            {
+              username = "alice";
+              password = "AlicePassword";
+              nextPageExpect = [
+                "page.get_by_text(re.compile('[Aa]ccept')).click()"
+                # For a reason I can't explain, redirection needs to happen manually.
+                "page.goto('${config.test.proto}://${config.test.fqdn}/web/')"
+                # "expect(page).to_have_title(re.compile('Jellyfin'))"
+                "expect(page.get_by_text(re.compile('[Ii]nvalid'))).not_to_be_visible(timeout=10000)"
+                "expect(page.get_by_label(re.compile('^[Uu]ser'))).not_to_be_visible(timeout=10000)"
+                "expect(page.get_by_label(re.compile('^[Pp]assword$'))).not_to_be_visible(timeout=10000)"
+              ];
+            }
+          ]
+          ++ lib.optionals (!config.test.login.onlyAlice) [
+            {
+              username = "alice";
+              password = "NotAlicePassword";
+              nextPageExpect = [
+                # For a reason I can't explain, redirection needs to happen manually.
+                # So for failing auth, we check we're back on the login page.
+                "page.goto('${config.test.proto}://${config.test.fqdn}/web/')"
+                # "expect(page).to_have_title(re.compile('Jellyfin'))"
+                "expect(page.get_by_label(re.compile('^[Uu]ser'))).to_be_visible(timeout=10000)"
+                "expect(page.get_by_label(re.compile('^[Pp]assword$'))).to_be_visible(timeout=10000)"
+              ];
+            }
+            {
+              username = "bob";
+              password = "BobPassword";
+              nextPageExpect = [
+                "page.get_by_text(re.compile('[Aa]ccept')).click()"
+                # For a reason I can't explain, redirection needs to happen manually.
+                "page.goto('${config.test.proto}://${config.test.fqdn}/web/')"
+                # "expect(page).to_have_title(re.compile('Jellyfin'))"
+                "expect(page.get_by_text(re.compile('[Ii]nvalid'))).not_to_be_visible(timeout=10000)"
+                "expect(page.get_by_label(re.compile('^[Uu]ser'))).not_to_be_visible(timeout=10000)"
+                "expect(page.get_by_label(re.compile('^[Pp]assword$'))).not_to_be_visible(timeout=10000)"
+              ];
+            }
+            {
+              username = "bob";
+              password = "NotBobPassword";
+              nextPageExpect = [
+                # For a reason I can't explain, redirection needs to happen manually.
+                "page.goto('${config.test.proto}://${config.test.fqdn}/web/')"
+                # "expect(page).to_have_title(re.compile('Jellyfin'))"
+                "expect(page.get_by_label(re.compile('^[Uu]ser'))).to_be_visible(timeout=10000)"
+                "expect(page.get_by_label(re.compile('^[Pp]assword$'))).to_be_visible(timeout=10000)"
+              ];
+            }
+          ];
+        };
       };
     };
 
@@ -488,5 +520,168 @@ in
     };
 
     testScript = commonTestScript.access;
+  };
+
+  users = shb.test.runNixOSTest {
+    name = "jellyfin_user";
+
+    nodes.server = {
+      imports = [
+        basic
+        shb.test.certs
+        https
+      ];
+
+      specialisation.ldap.configuration = {
+        imports = [
+          shb.test.ldap
+          ldap
+        ];
+      };
+
+      specialisation.sso.configuration =
+        { config, ... }:
+        {
+          imports = [
+            shb.test.ldap
+            (shb.test.sso config.shb.certs.certs.selfsigned.n)
+            sso
+          ];
+
+          # https://github.com/ibizaman/selfhostblocks/issues/843
+          shb.jellyfin.admin.username = lib.mkForce "jellyfin2";
+        };
+    };
+
+    nodes.client = {
+      imports = [
+        {
+          # Somehow this needs to be in the top level import otherwise it is not applied.
+          environment.variables = {
+            PLAYWRIGHT_BROWSERS_PATH = pkgs.playwright-driver.browsers;
+          };
+        }
+      ];
+      specialisation.ldap.configuration = {
+        imports = [
+          clientLoginLdap
+        ];
+
+        test.login.onlyAlice = true;
+      };
+      specialisation.sso.configuration = {
+        imports = [
+          clientLoginSso
+        ];
+
+        test.login.onlyAlice = true;
+      };
+    };
+
+    testScript =
+      args@{ nodes, ... }:
+      let
+        specializationsServer = "${nodes.server.system.build.toplevel}/specialisation";
+        specializationsClient = "${nodes.client.system.build.toplevel}/specialisation";
+      in
+      ''
+        def switch_to_specialization(name):
+            with subtest(f"switch specialization to {name}"):
+                client.succeed(f'${specializationsClient}/{name}/bin/switch-to-configuration test')
+                server.succeed(f'${specializationsServer}/{name}/bin/switch-to-configuration test')
+                server.wait_for_unit("multi-user.target")
+                client.wait_for_unit("multi-user.target")
+
+        start_all()
+        server.wait_for_unit("multi-user.target")
+      ''
+      # Logging in as Alice without LDAP is not possible currently declaratively.
+      # Only the Jellyfin admin user can be created declaratively.
+      # I'm leaving this commentted out as a TODO item for later.
+      # +
+      #   (commonTestScript.access.override {
+      #     init = true;
+      #     preLoginScript = _: "";
+      #   })
+      #     args
+      # + ''
+      #   with subtest("find alice"):
+      #       users = json.loads(server.succeed("sqlite3 /var/lib/jellyfin/data/jellyfin.db -json 'SELECT * FROM Users;'"))
+      #       aliceUsers = [u for u in users if u["Username"] == "alice"]
+      #       if len(aliceUsers) != 1:
+      #           raise Exception(f"Unexpected number of users for alice, got {len(aliceUsers)}\n{json.dumps(users, indent=4)}")
+      #       alice = aliceUsers[0]
+      #       if alice["AuthenticationProviderId"] != "Jellyfin.Plugin.LDAP_Auth.LdapAuthenticationProviderPlugin":
+      #           raise Exception("Unexpected authentication provider id, got {alice['AuthenticationProviderId']}")
+      #       if alice["PasswordResetProviderId"] != "Jellyfin.Plugin.LDAP_Auth.LdapAuthenticationProviderPlugin":
+      #           raise Exception("Unexpected password resiet provider id, got {alice['PasswordResetProviderId']}")
+      #       print(f"Users: \n{json.dumps(users, indent=4)}")
+
+      #   with subtest("find alice devices"):
+      #       devices = json.loads(server.succeed("sqlite3 /var/lib/jellyfin/data/jellyfin.db -json 'SELECT * FROM Devices;'"))
+      #       aliceDevices = [d for d in devices if d["UserId"] == alice["Id"]]
+      #       if len(aliceDevices) != 1:
+      #           raise Exception(f"Unexpected number of devices for alice, got {len(aliceDevices)}\nUsers:\n{json.dumps(users, indent=4)}\nDevices:\n{json.dumps(devices, indent=4)}")
+      # ''
+      + ''
+        switch_to_specialization("ldap")
+
+        # This sleep is needed because Jellyfin reports it is ready before it truly is ready.
+        # See ticket https://github.com/ibizaman/selfhostblocks/issues/842
+        print("sleeping 60 seconds...")
+        import time
+        time.sleep(60)
+      ''
+      +
+        (commonTestScript.access.override {
+          init = true;
+          preLoginScript = _: "";
+        })
+          (
+            lib.recursiveUpdate args {
+              nodes.server = nodes.server.specialisation.ldap.configuration;
+              nodes.client = nodes.client.specialisation.ldap.configuration;
+            }
+          )
+      + ''
+        with subtest("find alice"):
+            users = json.loads(server.succeed("sqlite3 /var/lib/jellyfin/data/jellyfin.db -json 'SELECT * FROM Users;'"))
+            aliceUsers = [u for u in users if u["Username"] == "alice"]
+            if len(aliceUsers) != 1:
+                raise Exception(f"Unexpected number of users for alice, got {len(aliceUsers)}\n{json.dumps(users, indent=4)}")
+            alice = aliceUsers[0]
+            print(f"Users: \n{json.dumps(users, indent=4)}")
+            if alice["AuthenticationProviderId"] != "Jellyfin.Plugin.LDAP_Auth.LdapAuthenticationProviderPlugin":
+                raise Exception("Unexpected authentication provider id, got {alice['AuthenticationProviderId']}")
+            if alice["PasswordResetProviderId"] != "Jellyfin.Plugin.LDAP_Auth.LdapAuthenticationProviderPlugin":
+                raise Exception("Unexpected password resiet provider id, got {alice['PasswordResetProviderId']}")
+
+        switch_to_specialization("sso")
+        time.sleep(60)
+      ''
+      +
+        (commonTestScript.access.override {
+          init = false;
+          preLoginScript = _: "";
+        })
+          (
+            lib.recursiveUpdate args {
+              nodes.server = nodes.server.specialisation.sso.configuration;
+              nodes.client = nodes.client.specialisation.sso.configuration;
+            }
+          )
+      + ''
+        with subtest("find alice"):
+            users = json.loads(server.succeed("sqlite3 /var/lib/jellyfin/data/jellyfin.db -json 'SELECT * FROM Users;'"))
+            aliceUsers = [u for u in users if u["Username"] == "alice"]
+            if len(aliceUsers) != 1:
+                raise Exception(f"Unexpected number of users for alice, got {len(aliceUsers)}\n{json.dumps(users, indent=4)}")
+            alice = aliceUsers[0]
+            if alice["AuthenticationProviderId"] != "Jellyfin.Plugin.LDAP_Auth.LdapAuthenticationProviderPlugin":
+                raise Exception("Unexpected authentication provider id, got {alice['AuthenticationProviderId']}")
+            if alice["PasswordResetProviderId"] != "Jellyfin.Plugin.LDAP_Auth.LdapAuthenticationProviderPlugin":
+                raise Exception("Unexpected password resiet provider id, got {alice['PasswordResetProviderId']}")
+            print(f"Users: \n{json.dumps(users, indent=4)}")
+      '';
   };
 }
