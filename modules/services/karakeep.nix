@@ -197,7 +197,6 @@ in
       (lib.mkIf cfg.enable {
         services.karakeep = {
           enable = true;
-          meilisearch.enable = true;
           # Node 24.19 can abort ObjectWrap addons during GC. Use the supported
           # Node 22 LTS until a fixed Node 24 reaches nixpkgs.
           # https://github.com/nodejs/node/issues/65446
