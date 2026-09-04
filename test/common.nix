@@ -268,6 +268,9 @@ in
         ];
         shb.nginx.insecureAccessLogWithRequestBody = true;
 
+        # Tests that enable PostgreSQL use an explicit, stable major version.
+        shb.postgresql.version = 18;
+
         networking.hosts = {
           "192.168.1.2" = [
             config.test.fqdn
