@@ -148,9 +148,13 @@ in
   };
 
   config = lib.mkIf cfg.enable {
-    systemd.tmpfiles.rules = [
-      "d '/run/pinchflat' 0750 root root - -"
-    ];
+    systemd.tmpfiles.settings."10-shb-pinchflat" = {
+      "/run/pinchflat".d = {
+        mode = "0750";
+        user = "root";
+        group = "root";
+      };
+    };
 
     # Pinchflat relies on the global value so for now this is the only way to pass the option in.
     time.timeZone = lib.mkDefault cfg.timeZone;

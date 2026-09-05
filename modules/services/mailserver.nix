@@ -601,15 +601,30 @@ in
     (lib.mkIf (cfg.enable && cfg.imapSync != null) {
       systemd.tmpfiles.settings."10-shb-mailserver" =
         let
-          mkSettings =
-            name: acct:
-            lib.nameValuePair "${config.mailserver.storage.path}/${name}/${acct.username}/mail/" {
+          # The equal sign makes sure parent directories have the corret user and group too.
+          mkAccount = name: acct: [
+            (lib.nameValuePair "${config.mailserver.storage.path}/${name}" {
+              d = {
+                mode = "0750";
+                user = config.mailserver.storage.owner;
+                group = config.mailserver.storage.group;
+              };
+            })
+            (lib.nameValuePair "${config.mailserver.storage.path}/${name}/${acct.username}" {
+              d = {
+                mode = "0750";
+                user = config.mailserver.storage.owner;
+                group = config.mailserver.storage.group;
+              };
+            })
+            (lib.nameValuePair "${config.mailserver.storage.path}/${name}/${acct.username}/mail/" {
               d = {
                 user = "virtualMail";
               };
-            };
+            })
+          ];
         in
-        lib.mapAttrs' mkSettings cfg.imapSync.accounts;
+        lib.listToAttrs (lib.flatten (lib.mapAttrsToList mkAccount cfg.imapSync.accounts));
 
       systemd.services.mbsync =
         let
@@ -712,18 +727,6 @@ in
               ${pkgs.isync}/bin/mbsync --all ${debug} --config ${configFile}
             '';
         };
-
-      systemd.tmpfiles.rules =
-        let
-          mkAccount =
-            name: acct:
-            # The equal sign makes sure parent directories have the corret user and group too.
-            [
-              "d '${config.mailserver.storage.path}/${name}' 0750 ${config.mailserver.storage.owner} ${config.mailserver.storage.group} - -"
-              "d '${config.mailserver.storage.path}/${name}/${acct.username}' 0750 ${config.mailserver.storage.owner} ${config.mailserver.storage.group} - -"
-            ];
-        in
-        lib.flatten (lib.mapAttrsToList mkAccount cfg.imapSync.accounts);
 
       systemd.timers.mbsync = {
         wantedBy = [ "timers.target" ];
