@@ -548,6 +548,7 @@ in
             sso
           ];
 
+          # Changing the initial admin setting after setup must not rename an existing user.
           # https://github.com/ibizaman/selfhostblocks/issues/843
           shb.jellyfin.admin.username = lib.mkForce "jellyfin2";
         };

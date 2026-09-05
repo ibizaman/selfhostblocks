@@ -114,7 +114,7 @@ in
     };
 
     admin = lib.mkOption {
-      description = "Default admin user info. Only needed if LDAP or SSO is not configured.";
+      description = "Initial admin user info. Only needed if LDAP or SSO is not configured.";
       default = null;
       type = types.nullOr (
         types.submodule {
@@ -744,56 +744,49 @@ in
 
     systemd.services.jellyfin.serviceConfig.ExecStartPost =
       let
-        # We must always wait for the service to be fully initialized,
-        # even if we're planning on changing the config and restarting.
-        # And the service is not initialized until this URL returns a 200 and not a 503.
-        waitForCurl = pkgs.writeShellApplication {
-          name = "waitForCurl";
-          runtimeInputs = [ pkgs.curl ];
+        # Pass restart state from the unprivileged initializer to the privileged
+        # restart step. Remove it before restarting to prevent a restart loop.
+        restartNeededFile = "${config.services.jellyfin.dataDir}/shb-jellyfin-restart-needed";
+
+        initializeJellyfin = pkgs.writeShellApplication {
+          name = "initializeJellyfin";
+          runtimeInputs = [
+            pkgs.curl
+            pkgs.jq
+          ];
           text = ''
             URL="http://127.0.0.1:${toString cfg.port}/System/Info/Public"
             SLEEP_INTERVAL_SEC=2
-            TIMEOUT=60
 
             start_time=$(date +%s)
 
-            echo "Waiting for $URL to return HTTP 200..."
+            # Use Jellyfin's public API to identify readiness and initial setup state.
+            echo "Waiting for Jellyfin's public API..."
 
             while true; do
-                status_code=$(curl -s -o /dev/null -w "%{http_code}" "$URL" || true)
-                if [ "$status_code" = "200" ]; then
-                    echo "Service is up (HTTP 200 received)."
-                    exit 0
-                fi
+              if startupWizardCompleted="$(
+                curl \
+                  --fail \
+                  --header 'Accept: application/json' \
+                  --silent \
+                  "$URL" \
+                  | jq --raw-output '
+                      .StartupWizardCompleted
+                      | if type == "boolean" then . else error("StartupWizardCompleted is not a boolean") end
+                    '
+              )" 2>/dev/null; then
+                echo "Jellyfin is ready (StartupWizardCompleted=$startupWizardCompleted)."
+                break
+              fi
 
-                now=$(date +%s)
-                elapsed=$(( now - start_time ))
+              now=$(date +%s)
+              elapsed=$(( now - start_time ))
 
-                if [ $elapsed -ge $TIMEOUT ]; then
-                    echo "Timeout reached ($TIMEOUT seconds). Exiting with failure."
-                    exit 1
-                fi
-
-                echo "Waiting for service... (status: $status_code), elapsed: ''${elapsed}s"
-                sleep "$SLEEP_INTERVAL_SEC"
+              echo "Waiting for Jellyfin... elapsed: ''${elapsed}s"
+              sleep "$SLEEP_INTERVAL_SEC"
             done
 
-            echo "Finished waiting, curl returned a 200."
-          '';
-        };
-
-        # This file is used to know if the jellyfin service has been restarted
-        # because a new config just got written to.
-        #
-        # If the file does not exist, write the config, create the file then restart.
-        # If the file exists, do nothing and remove the file, resetting the state for the next time.
-        restartedFile = "${config.services.jellyfin.dataDir}/shb-jellyfin-restarted";
-
-        writeConfig = pkgs.writeShellApplication {
-          name = "writeConfig";
-          runtimeInputs = [ pkgs.systemd ];
-          text = ''
-            if ! [ -f "${restartedFile}" ]; then
+            if [ "$startupWizardCompleted" = "false" ]; then
               ${lib.getExe config.services.jellyfin.package} config \
                 --datadir='${config.services.jellyfin.dataDir}' \
                 --configdir='${config.services.jellyfin.configDir}' \
@@ -803,32 +796,33 @@ in
                 --password-file=${cfg.admin.password.result.path} \
                 --enable-remote-access=true \
                 --write
+
+              echo "Jellyfin must be restarted after completing initial setup" > '${restartNeededFile}'
+            else
+              echo "Jellyfin initial setup is already complete; leaving users unchanged"
             fi
           '';
         };
 
-        restartJellyfinOnce = pkgs.writeShellApplication {
-          name = "restartJellyfin";
+        restartJellyfinIfNeeded = pkgs.writeShellApplication {
+          name = "restartJellyfinIfNeeded";
           runtimeInputs = [ pkgs.systemd ];
           text = ''
-            if [ -f "${restartedFile}" ]; then
-              echo "jellyfin.service has been restarted"
-              rm "${restartedFile}"
-            else
+            if [ -f '${restartNeededFile}' ]; then
+              rm '${restartNeededFile}'
               echo "Restarting jellyfin.service"
-              echo "This file is used by SelfHostBlocks to know when to restart jellyfin" > "${restartedFile}"
               systemctl reload-or-restart jellyfin.service
+            else
+              echo "Jellyfin configuration was unchanged; no restart is needed"
             fi
           '';
         };
       in
       lib.optionals (cfg.admin != null) [
-        (lib.getExe waitForCurl)
-
-        (lib.getExe writeConfig)
+        (lib.getExe initializeJellyfin)
 
         # The '+' is to get elevated privileges to be able to restart the service.
-        "+${lib.getExe restartJellyfinOnce}"
+        "+${lib.getExe restartJellyfinIfNeeded}"
       ];
 
     systemd.services.jellyfin.serviceConfig.TimeoutStartSec = 300;
