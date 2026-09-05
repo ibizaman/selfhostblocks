@@ -1,7 +1,6 @@
 {
   config,
   lib,
-  pkgs,
   shb,
   ...
 }:
@@ -198,22 +197,6 @@ in
         services.karakeep = {
           enable = true;
           meilisearch.enable = true;
-          # Node 24.19 can abort ObjectWrap addons during GC. Use the supported
-          # Node 22 LTS until a fixed Node 24 reaches nixpkgs.
-          # https://github.com/nodejs/node/issues/65446
-          # Manually landed on main: https://github.com/nodejs/node/commit/68321eff80918e324e9fdaf1aa8cee6db14b84f7
-          # Pending Node 24 backport: https://github.com/nodejs/node/pull/65042
-          # https://github.com/nodejs/Release#release-schedule
-          package = lib.mkDefault (
-            assert lib.assertMsg (pkgs.nodejs.version == "24.19.0") ''
-              The Karakeep Node 22 workaround expected nixpkgs to provide Node
-              24.19.0, but it now provides ${pkgs.nodejs.version}. Check whether
-              https://github.com/nodejs/node/pull/65042 has landed and retry
-              Karakeep with pkgs.karakeep. If fixed, remove the Node 22 override;
-              otherwise update this guard with evidence for retaining it.
-            '';
-            pkgs.karakeep.override { nodejs = pkgs.nodejs_22; }
-          );
 
           extraEnvironment = {
             PORT = toString cfg.port;
