@@ -133,6 +133,7 @@
             ];
             "services/home-assistant" = ./modules/services/home-assistant.nix;
             "services/homepage" = ./modules/services/homepage.nix;
+            "services/immich" = ./modules/services/immich.nix;
             "services/jellyfin" = ./modules/services/jellyfin.nix;
             "services/karakeep" = ./modules/services/karakeep.nix;
             "services/mailserver" = {
@@ -406,9 +407,9 @@
             // (vm_test "forgejo" ./test/services/forgejo.nix)
             // (vm_test "grocy" ./test/services/grocy.nix)
             // (vm_test "hledger" ./test/services/hledger.nix)
-            // (vm_test "immich" ./test/services/immich.nix)
             // (vm_test "homeassistant" ./test/services/home-assistant.nix)
             // (vm_test "homepage" ./test/services/homepage.nix)
+            // (vm_test "immich" ./test/services/immich.nix)
             // (vm_test "jellyfin" ./test/services/jellyfin.nix)
             // (vm_test "karakeep" ./test/services/karakeep.nix)
             // (vm_test "mailserver" ./test/services/mailserver.nix)
@@ -468,9 +469,9 @@
           self.nixosModules.forgejo
           self.nixosModules.grocy
           self.nixosModules.hledger
-          self.nixosModules.immich
           self.nixosModules.home-assistant
           self.nixosModules.homepage
+          self.nixosModules.immich
           self.nixosModules.jellyfin
           self.nixosModules.karakeep
           self.nixosModules.mailserver
@@ -509,9 +510,9 @@
       nixosModules.forgejo = modules/services/forgejo.nix;
       nixosModules.grocy = modules/services/grocy.nix;
       nixosModules.hledger = modules/services/hledger.nix;
-      nixosModules.immich = modules/services/immich.nix;
       nixosModules.home-assistant = modules/services/home-assistant.nix;
       nixosModules.homepage = modules/services/homepage.nix;
+      nixosModules.immich = modules/services/immich.nix;
       nixosModules.jellyfin = modules/services/jellyfin.nix;
       nixosModules.karakeep = modules/services/karakeep.nix;
       # Unlike the other modules, mailserver composes an external flake input with the SHB module.

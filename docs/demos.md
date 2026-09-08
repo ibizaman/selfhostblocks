@@ -8,6 +8,10 @@ your local machine with minimal manual steps.
 demo/homeassistant/README.md
 ```
 
+```{=include=} chapters html:into-file=//demo-immich.html
+demo/immich/README.md
+```
+
 ```{=include=} chapters html:into-file=//demo-jellyfin.html
 demo/jellyfin/README.md
 ```

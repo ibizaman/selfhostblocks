@@ -181,6 +181,7 @@ Also, the stack fits together nicely thanks to [contracts](#contracts).
 - Hledger
 - Home-Assistant
 - Jellyfin
+- Immich
 - Karakeep
 - Open WebUI
 - Pinchflat
