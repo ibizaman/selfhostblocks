@@ -19,7 +19,8 @@ information is provided in the respective manual sections.
 | [Firefly-iii][]             | Y (1)  | Y             | Y   | Y     | Y (2)      | N         |
 | [Forgejo][]                 | Y (1)  | Y             | Y   | Y     | Y (2)      | N         |
 | [Home-Assistant][]          | Y (1)  | Y             | N   | Y     | Y (2)      | N         |
-| [Homepage][]                | Y (1)  | Y             | N   | Y     | Y (2)      | N         |
+| [Homepage][]                | Y (1)  | Y             | Y   | Y     | Y (2)      | N         |
+| [Immich][]                  | Y (1)  | Y             | Y   | Y     | Y (2)      | N         |
 | [Jellyfin][]                | Y (1)  | Y             | Y   | Y     | Y (2)      | N         |
 | [Karakeep][]                | Y (1)  | Y             | Y   | Y     | Y (2)      | N         |
 | [Nextcloud Server][]        | Y (1)  | Y             | Y   | Y     | Y (2)      | P (3)     |
@@ -42,6 +43,7 @@ Legend: **N**: no but WIP; **P**: partial; **Y**: yes
 [Forgejo]: services-forgejo.html
 [Home-Assistant]: services-home-assistant.html
 [Homepage]: services-homepage.html
+[Immich]: services-immich.html
 [Jellyfin]: services-jellyfin.html
 [Karakeep]: services-karakeep.html
 [Nextcloud Server]: services-nextcloud.html
@@ -100,6 +102,10 @@ modules/services/forgejo/docs/default.md
 
 ```{=include=} chapters html:into-file=//services-arr.html
 modules/services/arr/docs/default.md
+```
+
+```{=include=} chapters html:into-file=//services-immich.html
+modules/services/immich/docs/default.md
 ```
 
 ```{=include=} chapters html:into-file=//services-jellyfin.html

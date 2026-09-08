@@ -2360,6 +2360,54 @@
   "demo-homeassistant-virtual-machine": [
     "demo-homeassistant.html#demo-homeassistant-virtual-machine"
   ],
+  "demo-immich": [
+    "demo-immich.html#demo-immich"
+  ],
+  "demo-immich-access": [
+    "demo-immich.html#demo-immich-access"
+  ],
+  "demo-immich-basic": [
+    "demo-immich.html#demo-immich-basic"
+  ],
+  "demo-immich-deploy": [
+    "demo-immich.html#demo-immich-deploy"
+  ],
+  "demo-immich-deploy-colmena": [
+    "demo-immich.html#demo-immich-deploy-colmena"
+  ],
+  "demo-immich-deploy-nixosrebuild": [
+    "demo-immich.html#demo-immich-deploy-nixosrebuild"
+  ],
+  "demo-immich-files": [
+    "demo-immich.html#demo-immich-files"
+  ],
+  "demo-immich-in-more-details": [
+    "demo-immich.html#demo-immich-in-more-details"
+  ],
+  "demo-immich-ldap": [
+    "demo-immich.html#demo-immich-ldap"
+  ],
+  "demo-immich-secrets": [
+    "demo-immich.html#demo-immich-secrets"
+  ],
+  "demo-immich-sso": [
+    "demo-immich.html#demo-immich-sso"
+  ],
+  "demo-immich-tips-deploy": [
+    "demo-immich.html#demo-immich-tips-deploy"
+  ],
+  "demo-immich-tips-public-key-necessity": [
+    "demo-immich.html#demo-immich-tips-public-key-necessity"
+  ],
+  "demo-immich-tips-ssh": [
+    "demo-immich.html#demo-immich-tips-ssh"
+  ],
+  "demo-immich-tips-update-demo": [
+    "demo-immich.html#demo-immich-tips-update-demo"
+  ],
+  "demo-immich-virtual-machine": [
+    "demo-immich.html#demo-immich-virtual-machine"
+  ],
   "demo-jellyfin": [
     "demo-jellyfin.html#demo-jellyfin"
   ],
@@ -4303,6 +4351,339 @@
   ],
   "services-homepage-usage-widget": [
     "services-homepage.html#services-homepage-usage-widget"
+  ],
+  "services-immich": [
+    "services-immich.html#services-immich"
+  ],
+  "services-immich-certs": [
+    "services-immich.html#services-immich-certs"
+  ],
+  "services-immich-debug": [
+    "services-immich.html#services-immich-debug"
+  ],
+  "services-immich-features": [
+    "services-immich.html#services-immich-features"
+  ],
+  "services-immich-impermanence": [
+    "services-immich.html#services-immich-impermanence"
+  ],
+  "services-immich-options": [
+    "services-immich.html#services-immich-options"
+  ],
+  "services-immich-options-shb.immich.accelerationDevices": [
+    "services-immich.html#services-immich-options-shb.immich.accelerationDevices"
+  ],
+  "services-immich-options-shb.immich.backup": [
+    "services-immich.html#services-immich-options-shb.immich.backup"
+  ],
+  "services-immich-options-shb.immich.backup.request": [
+    "services-immich.html#services-immich-options-shb.immich.backup.request"
+  ],
+  "services-immich-options-shb.immich.backup.request.excludePatterns": [
+    "services-immich.html#services-immich-options-shb.immich.backup.request.excludePatterns"
+  ],
+  "services-immich-options-shb.immich.backup.request.hooks": [
+    "services-immich.html#services-immich-options-shb.immich.backup.request.hooks"
+  ],
+  "services-immich-options-shb.immich.backup.request.hooks.afterBackup": [
+    "services-immich.html#services-immich-options-shb.immich.backup.request.hooks.afterBackup"
+  ],
+  "services-immich-options-shb.immich.backup.request.hooks.beforeBackup": [
+    "services-immich.html#services-immich-options-shb.immich.backup.request.hooks.beforeBackup"
+  ],
+  "services-immich-options-shb.immich.backup.request.sourceDirectories": [
+    "services-immich.html#services-immich-options-shb.immich.backup.request.sourceDirectories"
+  ],
+  "services-immich-options-shb.immich.backup.request.user": [
+    "services-immich.html#services-immich-options-shb.immich.backup.request.user"
+  ],
+  "services-immich-options-shb.immich.backup.result": [
+    "services-immich.html#services-immich-options-shb.immich.backup.result"
+  ],
+  "services-immich-options-shb.immich.backup.result.backupService": [
+    "services-immich.html#services-immich-options-shb.immich.backup.result.backupService"
+  ],
+  "services-immich-options-shb.immich.backup.result.restoreScript": [
+    "services-immich.html#services-immich-options-shb.immich.backup.result.restoreScript"
+  ],
+  "services-immich-options-shb.immich.dashboard": [
+    "services-immich.html#services-immich-options-shb.immich.dashboard"
+  ],
+  "services-immich-options-shb.immich.dashboard.request": [
+    "services-immich.html#services-immich-options-shb.immich.dashboard.request"
+  ],
+  "services-immich-options-shb.immich.dashboard.request.externalUrl": [
+    "services-immich.html#services-immich-options-shb.immich.dashboard.request.externalUrl"
+  ],
+  "services-immich-options-shb.immich.dashboard.request.internalUrl": [
+    "services-immich.html#services-immich-options-shb.immich.dashboard.request.internalUrl"
+  ],
+  "services-immich-options-shb.immich.dashboard.result": [
+    "services-immich.html#services-immich-options-shb.immich.dashboard.result"
+  ],
+  "services-immich-options-shb.immich.debug": [
+    "services-immich.html#services-immich-options-shb.immich.debug"
+  ],
+  "services-immich-options-shb.immich.domain": [
+    "services-immich.html#services-immich-options-shb.immich.domain"
+  ],
+  "services-immich-options-shb.immich.enable": [
+    "services-immich.html#services-immich-options-shb.immich.enable"
+  ],
+  "services-immich-options-shb.immich.initialAdmin": [
+    "services-immich.html#services-immich-options-shb.immich.initialAdmin"
+  ],
+  "services-immich-options-shb.immich.initialAdmin.email": [
+    "services-immich.html#services-immich-options-shb.immich.initialAdmin.email"
+  ],
+  "services-immich-options-shb.immich.initialAdmin.name": [
+    "services-immich.html#services-immich-options-shb.immich.initialAdmin.name"
+  ],
+  "services-immich-options-shb.immich.initialAdmin.passwordFile": [
+    "services-immich.html#services-immich-options-shb.immich.initialAdmin.passwordFile"
+  ],
+  "services-immich-options-shb.immich.initialAdmin.passwordFile.request": [
+    "services-immich.html#services-immich-options-shb.immich.initialAdmin.passwordFile.request"
+  ],
+  "services-immich-options-shb.immich.initialAdmin.passwordFile.request.group": [
+    "services-immich.html#services-immich-options-shb.immich.initialAdmin.passwordFile.request.group"
+  ],
+  "services-immich-options-shb.immich.initialAdmin.passwordFile.request.mode": [
+    "services-immich.html#services-immich-options-shb.immich.initialAdmin.passwordFile.request.mode"
+  ],
+  "services-immich-options-shb.immich.initialAdmin.passwordFile.request.owner": [
+    "services-immich.html#services-immich-options-shb.immich.initialAdmin.passwordFile.request.owner"
+  ],
+  "services-immich-options-shb.immich.initialAdmin.passwordFile.request.restartUnits": [
+    "services-immich.html#services-immich-options-shb.immich.initialAdmin.passwordFile.request.restartUnits"
+  ],
+  "services-immich-options-shb.immich.initialAdmin.passwordFile.result": [
+    "services-immich.html#services-immich-options-shb.immich.initialAdmin.passwordFile.result"
+  ],
+  "services-immich-options-shb.immich.initialAdmin.passwordFile.result.path": [
+    "services-immich.html#services-immich-options-shb.immich.initialAdmin.passwordFile.result.path"
+  ],
+  "services-immich-options-shb.immich.jwtSecretFile": [
+    "services-immich.html#services-immich-options-shb.immich.jwtSecretFile"
+  ],
+  "services-immich-options-shb.immich.jwtSecretFile.request": [
+    "services-immich.html#services-immich-options-shb.immich.jwtSecretFile.request"
+  ],
+  "services-immich-options-shb.immich.jwtSecretFile.request.group": [
+    "services-immich.html#services-immich-options-shb.immich.jwtSecretFile.request.group"
+  ],
+  "services-immich-options-shb.immich.jwtSecretFile.request.mode": [
+    "services-immich.html#services-immich-options-shb.immich.jwtSecretFile.request.mode"
+  ],
+  "services-immich-options-shb.immich.jwtSecretFile.request.owner": [
+    "services-immich.html#services-immich-options-shb.immich.jwtSecretFile.request.owner"
+  ],
+  "services-immich-options-shb.immich.jwtSecretFile.request.restartUnits": [
+    "services-immich.html#services-immich-options-shb.immich.jwtSecretFile.request.restartUnits"
+  ],
+  "services-immich-options-shb.immich.jwtSecretFile.result": [
+    "services-immich.html#services-immich-options-shb.immich.jwtSecretFile.result"
+  ],
+  "services-immich-options-shb.immich.jwtSecretFile.result.path": [
+    "services-immich.html#services-immich-options-shb.immich.jwtSecretFile.result.path"
+  ],
+  "services-immich-options-shb.immich.machineLearning": [
+    "services-immich.html#services-immich-options-shb.immich.machineLearning"
+  ],
+  "services-immich-options-shb.immich.machineLearning.enable": [
+    "services-immich.html#services-immich-options-shb.immich.machineLearning.enable"
+  ],
+  "services-immich-options-shb.immich.machineLearning.environment": [
+    "services-immich.html#services-immich-options-shb.immich.machineLearning.environment"
+  ],
+  "services-immich-options-shb.immich.mediaLocation": [
+    "services-immich.html#services-immich-options-shb.immich.mediaLocation"
+  ],
+  "services-immich-options-shb.immich.newVersionCheck": [
+    "services-immich.html#services-immich-options-shb.immich.newVersionCheck"
+  ],
+  "services-immich-options-shb.immich.port": [
+    "services-immich.html#services-immich-options-shb.immich.port"
+  ],
+  "services-immich-options-shb.immich.publicProxyEnable": [
+    "services-immich.html#services-immich-options-shb.immich.publicProxyEnable"
+  ],
+  "services-immich-options-shb.immich.publicProxyPort": [
+    "services-immich.html#services-immich-options-shb.immich.publicProxyPort"
+  ],
+  "services-immich-options-shb.immich.settings": [
+    "services-immich.html#services-immich-options-shb.immich.settings"
+  ],
+  "services-immich-options-shb.immich.skipOnboarding": [
+    "services-immich.html#services-immich-options-shb.immich.skipOnboarding"
+  ],
+  "services-immich-options-shb.immich.smtp": [
+    "services-immich.html#services-immich-options-shb.immich.smtp"
+  ],
+  "services-immich-options-shb.immich.smtp.from": [
+    "services-immich.html#services-immich-options-shb.immich.smtp.from"
+  ],
+  "services-immich-options-shb.immich.smtp.host": [
+    "services-immich.html#services-immich-options-shb.immich.smtp.host"
+  ],
+  "services-immich-options-shb.immich.smtp.ignoreTLS": [
+    "services-immich.html#services-immich-options-shb.immich.smtp.ignoreTLS"
+  ],
+  "services-immich-options-shb.immich.smtp.password": [
+    "services-immich.html#services-immich-options-shb.immich.smtp.password"
+  ],
+  "services-immich-options-shb.immich.smtp.password.request": [
+    "services-immich.html#services-immich-options-shb.immich.smtp.password.request"
+  ],
+  "services-immich-options-shb.immich.smtp.password.request.group": [
+    "services-immich.html#services-immich-options-shb.immich.smtp.password.request.group"
+  ],
+  "services-immich-options-shb.immich.smtp.password.request.mode": [
+    "services-immich.html#services-immich-options-shb.immich.smtp.password.request.mode"
+  ],
+  "services-immich-options-shb.immich.smtp.password.request.owner": [
+    "services-immich.html#services-immich-options-shb.immich.smtp.password.request.owner"
+  ],
+  "services-immich-options-shb.immich.smtp.password.request.restartUnits": [
+    "services-immich.html#services-immich-options-shb.immich.smtp.password.request.restartUnits"
+  ],
+  "services-immich-options-shb.immich.smtp.password.result": [
+    "services-immich.html#services-immich-options-shb.immich.smtp.password.result"
+  ],
+  "services-immich-options-shb.immich.smtp.password.result.path": [
+    "services-immich.html#services-immich-options-shb.immich.smtp.password.result.path"
+  ],
+  "services-immich-options-shb.immich.smtp.port": [
+    "services-immich.html#services-immich-options-shb.immich.smtp.port"
+  ],
+  "services-immich-options-shb.immich.smtp.replyTo": [
+    "services-immich.html#services-immich-options-shb.immich.smtp.replyTo"
+  ],
+  "services-immich-options-shb.immich.smtp.secure": [
+    "services-immich.html#services-immich-options-shb.immich.smtp.secure"
+  ],
+  "services-immich-options-shb.immich.smtp.username": [
+    "services-immich.html#services-immich-options-shb.immich.smtp.username"
+  ],
+  "services-immich-options-shb.immich.ssl": [
+    "services-immich.html#services-immich-options-shb.immich.ssl"
+  ],
+  "services-immich-options-shb.immich.ssl.paths": [
+    "services-immich.html#services-immich-options-shb.immich.ssl.paths"
+  ],
+  "services-immich-options-shb.immich.ssl.paths.cert": [
+    "services-immich.html#services-immich-options-shb.immich.ssl.paths.cert"
+  ],
+  "services-immich-options-shb.immich.ssl.paths.key": [
+    "services-immich.html#services-immich-options-shb.immich.ssl.paths.key"
+  ],
+  "services-immich-options-shb.immich.ssl.systemdService": [
+    "services-immich.html#services-immich-options-shb.immich.ssl.systemdService"
+  ],
+  "services-immich-options-shb.immich.sso": [
+    "services-immich.html#services-immich-options-shb.immich.sso"
+  ],
+  "services-immich-options-shb.immich.sso.adminUserGroup": [
+    "services-immich.html#services-immich-options-shb.immich.sso.adminUserGroup"
+  ],
+  "services-immich-options-shb.immich.sso.authorization_policy": [
+    "services-immich.html#services-immich-options-shb.immich.sso.authorization_policy"
+  ],
+  "services-immich-options-shb.immich.sso.autoLaunch": [
+    "services-immich.html#services-immich-options-shb.immich.sso.autoLaunch"
+  ],
+  "services-immich-options-shb.immich.sso.autoRegister": [
+    "services-immich.html#services-immich-options-shb.immich.sso.autoRegister"
+  ],
+  "services-immich-options-shb.immich.sso.buttonText": [
+    "services-immich.html#services-immich-options-shb.immich.sso.buttonText"
+  ],
+  "services-immich-options-shb.immich.sso.clientID": [
+    "services-immich.html#services-immich-options-shb.immich.sso.clientID"
+  ],
+  "services-immich-options-shb.immich.sso.enable": [
+    "services-immich.html#services-immich-options-shb.immich.sso.enable"
+  ],
+  "services-immich-options-shb.immich.sso.endpoint": [
+    "services-immich.html#services-immich-options-shb.immich.sso.endpoint"
+  ],
+  "services-immich-options-shb.immich.sso.passwordLogin": [
+    "services-immich.html#services-immich-options-shb.immich.sso.passwordLogin"
+  ],
+  "services-immich-options-shb.immich.sso.port": [
+    "services-immich.html#services-immich-options-shb.immich.sso.port"
+  ],
+  "services-immich-options-shb.immich.sso.provider": [
+    "services-immich.html#services-immich-options-shb.immich.sso.provider"
+  ],
+  "services-immich-options-shb.immich.sso.sharedSecret": [
+    "services-immich.html#services-immich-options-shb.immich.sso.sharedSecret"
+  ],
+  "services-immich-options-shb.immich.sso.sharedSecret.request": [
+    "services-immich.html#services-immich-options-shb.immich.sso.sharedSecret.request"
+  ],
+  "services-immich-options-shb.immich.sso.sharedSecret.request.group": [
+    "services-immich.html#services-immich-options-shb.immich.sso.sharedSecret.request.group"
+  ],
+  "services-immich-options-shb.immich.sso.sharedSecret.request.mode": [
+    "services-immich.html#services-immich-options-shb.immich.sso.sharedSecret.request.mode"
+  ],
+  "services-immich-options-shb.immich.sso.sharedSecret.request.owner": [
+    "services-immich.html#services-immich-options-shb.immich.sso.sharedSecret.request.owner"
+  ],
+  "services-immich-options-shb.immich.sso.sharedSecret.request.restartUnits": [
+    "services-immich.html#services-immich-options-shb.immich.sso.sharedSecret.request.restartUnits"
+  ],
+  "services-immich-options-shb.immich.sso.sharedSecret.result": [
+    "services-immich.html#services-immich-options-shb.immich.sso.sharedSecret.result"
+  ],
+  "services-immich-options-shb.immich.sso.sharedSecret.result.path": [
+    "services-immich.html#services-immich-options-shb.immich.sso.sharedSecret.result.path"
+  ],
+  "services-immich-options-shb.immich.sso.sharedSecretForAuthelia": [
+    "services-immich.html#services-immich-options-shb.immich.sso.sharedSecretForAuthelia"
+  ],
+  "services-immich-options-shb.immich.sso.sharedSecretForAuthelia.request": [
+    "services-immich.html#services-immich-options-shb.immich.sso.sharedSecretForAuthelia.request"
+  ],
+  "services-immich-options-shb.immich.sso.sharedSecretForAuthelia.request.group": [
+    "services-immich.html#services-immich-options-shb.immich.sso.sharedSecretForAuthelia.request.group"
+  ],
+  "services-immich-options-shb.immich.sso.sharedSecretForAuthelia.request.mode": [
+    "services-immich.html#services-immich-options-shb.immich.sso.sharedSecretForAuthelia.request.mode"
+  ],
+  "services-immich-options-shb.immich.sso.sharedSecretForAuthelia.request.owner": [
+    "services-immich.html#services-immich-options-shb.immich.sso.sharedSecretForAuthelia.request.owner"
+  ],
+  "services-immich-options-shb.immich.sso.sharedSecretForAuthelia.request.restartUnits": [
+    "services-immich.html#services-immich-options-shb.immich.sso.sharedSecretForAuthelia.request.restartUnits"
+  ],
+  "services-immich-options-shb.immich.sso.sharedSecretForAuthelia.result": [
+    "services-immich.html#services-immich-options-shb.immich.sso.sharedSecretForAuthelia.result"
+  ],
+  "services-immich-options-shb.immich.sso.sharedSecretForAuthelia.result.path": [
+    "services-immich.html#services-immich-options-shb.immich.sso.sharedSecretForAuthelia.result.path"
+  ],
+  "services-immich-options-shb.immich.sso.storageLabelClaim": [
+    "services-immich.html#services-immich-options-shb.immich.sso.storageLabelClaim"
+  ],
+  "services-immich-options-shb.immich.sso.userGroup": [
+    "services-immich.html#services-immich-options-shb.immich.sso.userGroup"
+  ],
+  "services-immich-options-shb.immich.subdomain": [
+    "services-immich.html#services-immich-options-shb.immich.subdomain"
+  ],
+  "services-immich-usage": [
+    "services-immich.html#services-immich-usage"
+  ],
+  "services-immich-usage-applicationdashboard": [
+    "services-immich.html#services-immich-usage-applicationdashboard"
+  ],
+  "services-immich-usage-backup": [
+    "services-immich.html#services-immich-usage-backup"
+  ],
+  "services-immich-usage-configuration": [
+    "services-immich.html#services-immich-usage-configuration"
   ],
   "services-jellyfin": [
     "services-jellyfin.html#services-jellyfin"

@@ -30,6 +30,9 @@ let
   # Generate Immich configuration file only for SHB-managed settings
   shbManagedSettings =
     lib.optionalAttrs (cfg.settings != { }) cfg.settings
+    // {
+      newVersionCheck.enabled = cfg.newVersionCheck;
+    }
     // lib.optionalAttrs (cfg.sso.enable) {
       oauth = {
         enabled = true;
@@ -107,6 +110,11 @@ in
   imports = [
     ../../lib/module.nix
     ../blocks/nginx.nix
+
+    (lib.mkRemovedOptionModule [ "shb" "immich" "mount" ] ''
+      The mount contract is deprecated. Use instead the
+      `shb.immich.mediaLocation` option.
+    '')
   ];
 
   options.shb.immich = {
@@ -142,6 +150,78 @@ in
       '';
       type = port;
       default = 2283;
+    };
+
+    skipOnboarding = mkOption {
+      description = ''
+        This allows you to skip onboarding.
+
+        If set to true, you are required to fill out the shb.immich.admin options.
+      '';
+      type = bool;
+      default = false;
+    };
+
+    initialAdmin = mkOption {
+      description = ''
+        Declaratively create an admin.
+
+        If set, this means the admin user will be created when Immich server starts.
+        If the admin already exists, nothing will be done.
+
+        This does not skip onboarding unless you set
+        shb.immich.skipOnboarding to true.
+      '';
+      default = null;
+      type = nullOr (submodule {
+        options = {
+          name = mkOption {
+            description = ''
+              Initial name of declaratively setup admin.
+
+              Subsequent changes in the UI will override this value.
+              Also, changing this value will not update the actual name.
+            '';
+            type = str;
+          };
+          email = mkOption {
+            description = ''
+              Initial email of declaratively setup admin.
+
+              Subsequent changes in the UI will override this value.
+              Also, changing this value will not update the actual email.
+            '';
+            type = str;
+          };
+          passwordFile = mkOption {
+            description = ''
+              Initial password of declaratively setup admin.
+
+              Subsequent changes in the UI will override this value.
+              Also, changing this value will not update the actual password.
+            '';
+            type = submodule {
+              options = shb.contracts.secret.mkRequester {
+                mode = "0400";
+                owner = "immich";
+                restartUnits = [ "immich-server.service" ];
+              };
+            };
+          };
+        };
+      });
+    };
+
+    newVersionCheck = mkOption {
+      description = ''
+        Set to true to allow Immich to phone home 
+        so it can check if a new version is available.
+
+        In the spirit of not sending any telemetry by default,
+        this option is set to false by default.
+      '';
+      type = bool;
+      default = false;
     };
 
     publicProxyEnable = mkOption {
@@ -185,26 +265,6 @@ in
         };
       });
       default = null;
-    };
-
-    mount = mkOption {
-      type = shb.contracts.mount;
-      description = ''
-        Mount configuration. This is an output option.
-
-        Use it to initialize a block implementing the "mount" contract.
-        For example, with a zfs dataset:
-
-        ```
-        shb.zfs.datasets."immich" = {
-          poolName = "root";
-        } // config.shb.immich.mount;
-        ```
-      '';
-      readOnly = true;
-      default = {
-        path = dataFolder;
-      };
     };
 
     backup = mkOption {
@@ -491,6 +551,10 @@ in
         assertion = cfg.sso.enable -> cfg.ssl != null;
         message = "To integrate SSO, SSL must be enabled, set the shb.immich.ssl option.";
       }
+      {
+        assertion = cfg.skipOnboarding -> cfg.initialAdmin != null;
+        message = "To skip onboarding, the admin user must be set declaratively, set shb.immich.initialAdmin option.";
+      }
     ];
 
     # Configure Immich service
@@ -634,6 +698,97 @@ in
       ++ optionals (cfg.settings != { } || cfg.sso.enable || cfg.smtp != null) [
         "immich-setup-config.service"
       ];
+
+      serviceConfig.ExecStartPost =
+        let
+          waitForReady = pkgs.writeShellApplication {
+            name = "waitForReady";
+            runtimeInputs = [
+              pkgs.curl
+            ];
+            text = ''
+              URL="http://127.0.0.1:${toString cfg.port}/api/server/config"
+              SLEEP_INTERVAL_SEC=2
+
+              start_time=$(date +%s)
+
+              echo "Waiting for Immich's public API..."
+
+              while true; do
+                if curl \
+                    --fail \
+                    --header 'Accept: application/json' \
+                    --silent \
+                    "$URL" \
+                    2>/dev/null
+                then
+                  echo "Immich is ready."
+                  break
+                fi
+
+                now=$(date +%s)
+                elapsed=$(( now - start_time ))
+
+                echo "Waiting for Immich... elapsed: ''${elapsed}s"
+                sleep "$SLEEP_INTERVAL_SEC"
+              done
+            '';
+          };
+
+          declarativeAdminScript = pkgs.writeShellApplication {
+            name = "declarativeAdminScript";
+            runtimeInputs = [
+              pkgs.curl
+              pkgs.jq
+            ];
+            text = ''
+              echo "Creating or updating declarative admin user..."
+              password="$(cat "${cfg.initialAdmin.passwordFile.result.path}")"
+              isInitialized="$(curl 127.0.0.1:${toString cfg.port}/api/server/config | jq .isInitialized)"
+              if [ "$isInitialized" = "false" ]; then
+                  curl -X POST 127.0.0.1:${toString cfg.port}/api/auth/admin-sign-up \
+                       -H "Content-Type: application/json" \
+                       --data "{\"email\":\"${cfg.initialAdmin.email}\",\"name\":\"${cfg.initialAdmin.name}\",\"password\":\"$password\"}"
+                  echo "Admin user created successfully."
+              else
+                  echo "Admin user exists already, nothing to do."
+              fi
+            '';
+          };
+
+          skipOnboardingScript = pkgs.writeShellApplication {
+            name = "skipOnboardingScript";
+            runtimeInputs = [
+              pkgs.curl
+              pkgs.jq
+            ];
+            text = ''
+              echo "Skipping onboarding..."
+              password="$(cat "${cfg.initialAdmin.passwordFile.result.path}")"
+              isOnboarded="$(curl 127.0.0.1:${toString cfg.port}/api/server/config | jq .isOnboarded)"
+              if [ "$isOnboarded" = "false" ]; then
+                  accessToken="$(curl -X POST 127.0.0.1:${toString cfg.port}/api/auth/login \
+                       -H "Content-Type: application/json" \
+                       --data "{\"email\":\"${cfg.initialAdmin.email}\",\"password\":\"$password\"}" \
+                       | jq -r .accessToken)"
+                  curl -X PUT 127.0.0.1:${toString cfg.port}/api/users/me/onboarding \
+                       -H "Content-Type: application/json" \
+                       -H "x-immich-session-token: $accessToken" \
+                       --data "{\"isOnboarded\":true}"
+                  curl -X POST 127.0.0.1:${toString cfg.port}/api/system-metadata/admin-onboarding \
+                       -H "Content-Type: application/json" \
+                       -H "x-immich-session-token: $accessToken" \
+                       --data "{\"isOnboarded\":true}"
+                  echo "Onboarding skipped successfully."
+              else
+                  echo "Onboarding already skipped."
+              fi
+            '';
+          };
+        in
+        [ (lib.getExe waitForReady) ]
+        ++ (lib.optionals (cfg.initialAdmin != null) [ (lib.getExe declarativeAdminScript) ])
+        ++ (lib.optionals (cfg.skipOnboarding) [ (lib.getExe skipOnboardingScript) ]);
     };
 
     systemd.services.immich-machine-learning = mkIf cfg.machineLearning.enable {

@@ -1,14 +1,14 @@
 {
-  pkgs,
-  lib,
   shb,
   ...
 }:
 let
-  subdomain = "i";
-  domain = "example.com";
+  port = 2283;
 
-  commonTestScript = shb.test.accessScript {
+  adminEmail = "admin@example.com";
+  adminPassword = "immichadmin";
+
+  commonTestScript = shb.test.mkScripts {
     hasSSL = { node, ... }: !(isNull node.config.shb.immich.ssl);
     waitForServices =
       { ... }:
@@ -20,65 +20,91 @@ let
     waitForPorts =
       { ... }:
       [
-        2283
+        port
         80
       ];
     waitForUrls = { proto_fqdn, ... }: [ "${proto_fqdn}" ];
   };
 
-  base =
+  basic =
     { config, ... }:
     {
       imports = [
         shb.test.baseModule
         ../../modules/services/immich.nix
       ];
-
+      # Immich requires that much memory
       virtualisation.memorySize = 4096;
       virtualisation.cores = 2;
 
       test = {
-        inherit subdomain domain;
+        subdomain = "i";
       };
 
       shb.immich = {
         enable = true;
-        inherit subdomain domain;
+        inherit (config.test) subdomain domain;
+
+        initialAdmin = {
+          name = "Admin";
+          email = adminEmail;
+          passwordFile.result = config.shb.hardcodedsecret.adminPassword.result;
+        };
+        skipOnboarding = true;
 
         debug = true;
       };
-
-      # Required for tests
-      environment.systemPackages = [ pkgs.curl ];
+      shb.hardcodedsecret.adminPassword = {
+        request = config.shb.immich.initialAdmin.passwordFile.request;
+        settings.content = adminPassword;
+      };
     };
 
-  basic =
+  clientLogin =
     { config, ... }:
     {
-      imports = [ base ];
+      imports = [
+        shb.test.baseModule
+        shb.test.clientLoginModule
+      ];
+      virtualisation.memorySize = 4096;
 
-      test.hasSSL = false;
+      test = {
+        subdomain = "j";
+      };
+
+      test.login = {
+        browser = "firefox";
+        startUrl = "${config.test.proto}://${config.test.fqdn}";
+        usernameFieldLabelRegex = "[Ee]mail";
+        loginButtonNameRegex = "Login";
+        testLoginWith = [
+          {
+            username = adminEmail;
+            password = "badpassword";
+            nextPageExpect = [
+              "expect(page.get_by_text(re.compile('[Ii]ncorrect'))).to_be_visible(timeout=10000)"
+            ];
+          }
+          {
+            username = adminEmail;
+            password = adminPassword;
+            nextPageExpect = [
+              "expect(page.get_by_text(re.compile('[Ii]ncorrect'))).not_to_be_visible(timeout=10000)"
+              "expect(page.get_by_label(re.compile('^[Ee]mail'))).not_to_be_visible(timeout=10000)"
+              "expect(page.get_by_label(re.compile('^[Pp]assword$'))).not_to_be_visible(timeout=10000)"
+              "expect(page.get_by_text(re.compile('Click to upload'))).to_be_visible(timeout=10000)"
+            ];
+          }
+        ];
+      };
     };
 
   https =
     { config, ... }:
     {
-      imports = [
-        base
-        shb.test.certs
-      ];
-
       test.hasSSL = true;
       shb.immich.ssl = config.shb.certs.certs.selfsigned.n;
-    };
-
-  backup =
-    { config, ... }:
-    {
-      imports = [
-        https
-        (shb.test.backup config.shb.immich.backup)
-      ];
     };
 
   sso =
@@ -138,42 +164,59 @@ let
 in
 {
   basic = shb.test.runNixOSTest {
-    name = "immich-basic";
+    name = "immich_basic";
 
-    nodes.server = basic;
-    nodes.client = { };
+    nodes.server = {
+      imports = [
+        basic
+      ];
+    };
 
-    testScript = commonTestScript;
+    nodes.client = {
+      imports = [
+        clientLogin
+      ];
+    };
+
+    testScript = commonTestScript.access;
   };
 
   https = shb.test.runNixOSTest {
-    name = "immich-https";
+    name = "immich_https";
 
-    nodes.server = https;
-    nodes.client = { };
+    nodes.server = {
+      imports = [
+        basic
+        shb.test.certs
+        https
+      ];
+    };
 
-    testScript = commonTestScript;
+    nodes.client =
+      { config, lib, ... }:
+      {
+        imports = [
+          clientLogin
+        ];
+      };
+
+    testScript = commonTestScript.access;
   };
 
   backup = shb.test.runNixOSTest {
-    name = "immich-backup";
+    name = "immich_backup";
 
-    nodes.server = backup;
+    nodes.server =
+      { config, ... }:
+      {
+        imports = [
+          basic
+          (shb.test.backup config.shb.immich.backup)
+        ];
+      };
+
     nodes.client = { };
 
-    testScript =
-      (shb.test.mkScripts {
-        hasSSL = args: !(isNull args.node.config.shb.immich.ssl);
-        waitForServices = args: [
-          "immich-server.service"
-          "postgresql.service"
-          "nginx.service"
-        ];
-        waitForPorts = args: [
-          2283
-          80
-        ];
-        waitForUrls = args: [ "${args.proto_fqdn}" ];
-      }).backup;
+    testScript = commonTestScript.backup;
   };
 }
