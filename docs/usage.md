@@ -61,7 +61,6 @@ To list all modules, run:
 $ nix flake show github:ibizaman/selfhostblocks --allow-import-from-derivation
 
 ...
-
 ├───nixosModules
 │   ├───arr: NixOS module
 │   ├───audiobookshelf: NixOS module
@@ -70,25 +69,30 @@ $ nix flake show github:ibizaman/selfhostblocks --allow-import-from-derivation
 │   ├───davfs: NixOS module
 │   ├───default: NixOS module
 │   ├───deluge: NixOS module
+│   ├───firefly-iii: NixOS module
 │   ├───forgejo: NixOS module
 │   ├───grocy: NixOS module
 │   ├───hardcodedsecret: NixOS module
 │   ├───hledger: NixOS module
 │   ├───home-assistant: NixOS module
+│   ├───homepage: NixOS module
 │   ├───immich: NixOS module
 │   ├───jellyfin: NixOS module
 │   ├───karakeep: NixOS module
 │   ├───lib: NixOS module
 │   ├───lldap: NixOS module
+│   ├───mailserver: NixOS module
 │   ├───mitmdump: NixOS module
 │   ├───monitoring: NixOS module
 │   ├───nextcloud-server: NixOS module
 │   ├───nginx: NixOS module
 │   ├───open-webui: NixOS module
+│   ├───package-versions: NixOS module
 │   ├───paperless: NixOS module
 │   ├───pinchflat: NixOS module
 │   ├───postgresql: NixOS module
 │   ├───restic: NixOS module
+│   ├───sanoid: NixOS module
 │   ├───sops: NixOS module
 │   ├───ssl: NixOS module
 │   ├───tinyproxy: NixOS module

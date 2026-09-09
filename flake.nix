@@ -138,6 +138,7 @@
             "services/mailserver" = {
               module = self.nixosModules.mailserver;
             };
+            "services/navidrome" = ./modules/services/navidrome.nix;
             "services/nextcloud-server" = {
               module = ./modules/services/nextcloud-server.nix;
               optionRoot = [
@@ -412,6 +413,7 @@
             // (vm_test "jellyfin" ./test/services/jellyfin.nix)
             // (vm_test "karakeep" ./test/services/karakeep.nix)
             // (vm_test "mailserver" ./test/services/mailserver.nix)
+            // (vm_test "navidrome" ./test/services/navidrome.nix)
             // (vm_test "nextcloud" ./test/services/nextcloud.nix)
             // (vm_test "open-webui" ./test/services/open-webui.nix)
             // (vm_test "paperless" ./test/services/paperless.nix)
@@ -474,6 +476,7 @@
           self.nixosModules.jellyfin
           self.nixosModules.karakeep
           self.nixosModules.mailserver
+          self.nixosModules.navidrome
           self.nixosModules.nextcloud-server
           self.nixosModules.open-webui
           self.nixosModules.pinchflat
@@ -521,6 +524,7 @@
           modules/services/mailserver.nix
         ];
       };
+      nixosModules.navidrome = modules/services/navidrome.nix;
       nixosModules.nextcloud-server = modules/services/nextcloud-server.nix;
       nixosModules.open-webui = modules/services/open-webui.nix;
       nixosModules.paperless = modules/services/paperless.nix;
