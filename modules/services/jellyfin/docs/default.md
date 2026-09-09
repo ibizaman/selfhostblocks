@@ -109,13 +109,24 @@ to the LDAP one.
 
 ### Certificates {#services-jellyfin-certs}
 
-For Let's Encrypt certificates, add:
+For Let's Encrypt certificates with the [`shb.ssl` block](blocks-ssl.html#usage), add:
 
 ```nix
 {
-  shb.certs.certs.letsencrypt.${domain}.extraDomains = [
+  shb.certs.certs.letsencrypt."example.com" = {
+    domain = "example.com";
+
+    group = "nginx";
+    reloadServices = [ "nginx.service" ];
+
+    adminEmail = "shb@example.com";
+  };
+
+  shb.certs.certs.letsencrypt."example.com".extraDomains = [
     "${config.shb.jellyfin.subdomain}.${config.shb.jellyfin.domain}"
   ];
+
+  shb.jellyfin.ssl = config.shb.certs.certs.letsencrypt."example.com";
 }
 ```
 
