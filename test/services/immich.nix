@@ -110,20 +110,18 @@ let
   sso =
     { config, ... }:
     {
-      imports = [
-        https
-        shb.test.ldap
-        (shb.test.sso config.shb.certs.certs.selfsigned.n)
-      ];
+      shb.immich = {
+        ldap = {
+          userGroup = "user_group";
+          adminGroup = "admin_group";
+        };
 
-      shb.immich.sso = {
-        enable = true;
-        provider = "Authelia";
-        endpoint = "https://${config.shb.authelia.subdomain}.${config.shb.authelia.domain}";
-        clientID = "immich";
-        autoLaunch = true;
-        sharedSecret.result = config.shb.hardcodedsecret.immichSSOSecret.result;
-        sharedSecretForAuthelia.result = config.shb.hardcodedsecret.immichSSOSecretAuthelia.result;
+        sso = {
+          enable = true;
+          endpoint = "https://${config.shb.authelia.subdomain}.${config.shb.authelia.domain}";
+          sharedSecret.result = config.shb.hardcodedsecret.immichSSOSecret.result;
+          sharedSecretForAuthelia.result = config.shb.hardcodedsecret.immichSSOSecretAuthelia.result;
+        };
       };
 
       shb.hardcodedsecret.immichSSOSecret = {
@@ -137,28 +135,106 @@ let
       };
 
       # Configure LDAP groups for group-based access control
-      shb.lldap.ensureGroups.immich_user = { };
+      # shb.lldap.ensureGroups.immich_user = { };
 
-      shb.lldap.ensureUsers.immich_test_user = {
-        email = "immich_user@example.com";
-        groups = [ "immich_user" ];
-        password.result = config.shb.hardcodedsecret.ldapImmichUserPassword.result;
+      # shb.lldap.ensureUsers.immich_test_user = {
+      #   email = "immich_user@example.com";
+      #   groups = [ "immich_user" ];
+      #   password.result = config.shb.hardcodedsecret.ldapImmichUserPassword.result;
+      # };
+
+      # shb.lldap.ensureUsers.regular_test_user = {
+      #   email = "regular_user@example.com";
+      #   groups = [ ];
+      #   password.result = config.shb.hardcodedsecret.ldapRegularUserPassword.result;
+      # };
+
+      # shb.hardcodedsecret.ldapImmichUserPassword = {
+      #   request = config.shb.lldap.ensureUsers.immich_test_user.password.request;
+      #   settings.content = "immich_user_password";
+      # };
+
+      # shb.hardcodedsecret.ldapRegularUserPassword = {
+      #   request = config.shb.lldap.ensureUsers.regular_test_user.password.request;
+      #   settings.content = "regular_user_password";
+      # };
+    };
+
+  clientLoginSso =
+    { config, lib, ... }:
+    {
+      options = {
+        test.login.onlyAlice = lib.mkOption {
+          type = lib.types.bool;
+          default = false;
+        };
       };
 
-      shb.lldap.ensureUsers.regular_test_user = {
-        email = "regular_user@example.com";
-        groups = [ ];
-        password.result = config.shb.hardcodedsecret.ldapRegularUserPassword.result;
-      };
+      imports = [
+        shb.test.baseModule
+        shb.test.clientLoginModule
+      ];
 
-      shb.hardcodedsecret.ldapImmichUserPassword = {
-        request = config.shb.lldap.ensureUsers.immich_test_user.password.request;
-        settings.content = "immich_user_password";
-      };
+      config = {
+        virtualisation.memorySize = 4096;
 
-      shb.hardcodedsecret.ldapRegularUserPassword = {
-        request = config.shb.lldap.ensureUsers.regular_test_user.password.request;
-        settings.content = "regular_user_password";
+        test = {
+          subdomain = "i";
+        };
+
+        test.login = {
+          startUrl = "${config.test.proto}://${config.test.fqdn}";
+          usernameFieldLabelRegex = "Username";
+          passwordFieldLabelRegex = "Password";
+          loginButtonNameRegex = "[Ss]ign [Ii]n";
+          loginSpawnsNewPage = false;
+          testLoginWith = [
+            {
+              username = "alice";
+              password = "AlicePassword";
+              nextPageExpect = [
+                "page.get_by_text(re.compile('[Aa]ccept')).click()"
+                "expect(page.get_by_text(re.compile('[Ii]ncorrect'))).not_to_be_visible(timeout=10000)"
+                "expect(page.get_by_label(re.compile('^[Uu]sername'))).not_to_be_visible(timeout=10000)"
+                "expect(page.get_by_label(re.compile('^[Pp]assword'))).not_to_be_visible(timeout=10000)"
+              ];
+            }
+          ]
+          ++ lib.optionals (!config.test.login.onlyAlice) [
+            {
+              username = "alice";
+              password = "NotAlicePassword";
+              nextPageExpect = [
+                "expect(page.get_by_text(re.compile('[Ii]ncorrect'))).to_be_visible(timeout=10000)"
+                "expect(page.get_by_label(re.compile('^[Uu]ser'))).to_be_visible(timeout=10000)"
+              ];
+            }
+            {
+              username = "bob";
+              password = "BobPassword";
+              nextPageExpect = [
+                "page.get_by_text(re.compile('[Aa]ccept')).click()"
+                "expect(page.get_by_text(re.compile('[Ii]ncorrect'))).not_to_be_visible(timeout=10000)"
+                "expect(page.get_by_label(re.compile('^[Uu]sername'))).not_to_be_visible(timeout=10000)"
+              ];
+            }
+            {
+              username = "bob";
+              password = "NotBobPassword";
+              nextPageExpect = [
+                "expect(page.get_by_text(re.compile('[Ii]ncorrect'))).to_be_visible(timeout=10000)"
+                "expect(page.get_by_label(re.compile('^[Uu]ser'))).to_be_visible(timeout=10000)"
+              ];
+            }
+            {
+              username = "charlie";
+              password = "CharliePassword";
+              nextPageExpect = [
+                "expect(page.get_by_text(re.compile('Authenticated'))).to_be_visible(timeout=10000)"
+              ];
+            }
+          ];
+        };
       };
     };
 in
@@ -218,5 +294,30 @@ in
     nodes.client = { };
 
     testScript = commonTestScript.backup;
+  };
+
+  sso = shb.test.runNixOSTest {
+    name = "immich_sso";
+
+    nodes.server =
+      { config, pkgs, ... }:
+      {
+        imports = [
+          basic
+          shb.test.certs
+          https
+          shb.test.ldap
+          (shb.test.sso config.shb.certs.certs.selfsigned.n)
+          sso
+        ];
+      };
+
+    nodes.client = {
+      imports = [
+        clientLoginSso
+      ];
+    };
+
+    testScript = commonTestScript.access;
   };
 }

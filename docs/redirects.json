@@ -4487,6 +4487,15 @@
   "services-immich-options-shb.immich.jwtSecretFile.result.path": [
     "services-immich.html#services-immich-options-shb.immich.jwtSecretFile.result.path"
   ],
+  "services-immich-options-shb.immich.ldap": [
+    "services-immich.html#services-immich-options-shb.immich.ldap"
+  ],
+  "services-immich-options-shb.immich.ldap.adminGroup": [
+    "services-immich.html#services-immich-options-shb.immich.ldap.adminGroup"
+  ],
+  "services-immich-options-shb.immich.ldap.userGroup": [
+    "services-immich.html#services-immich-options-shb.immich.ldap.userGroup"
+  ],
   "services-immich-options-shb.immich.machineLearning": [
     "services-immich.html#services-immich-options-shb.immich.machineLearning"
   ],
@@ -4583,9 +4592,6 @@
   "services-immich-options-shb.immich.sso": [
     "services-immich.html#services-immich-options-shb.immich.sso"
   ],
-  "services-immich-options-shb.immich.sso.adminUserGroup": [
-    "services-immich.html#services-immich-options-shb.immich.sso.adminUserGroup"
-  ],
   "services-immich-options-shb.immich.sso.authorization_policy": [
     "services-immich.html#services-immich-options-shb.immich.sso.authorization_policy"
   ],
@@ -4606,9 +4612,6 @@
   ],
   "services-immich-options-shb.immich.sso.endpoint": [
     "services-immich.html#services-immich-options-shb.immich.sso.endpoint"
-  ],
-  "services-immich-options-shb.immich.sso.passwordLogin": [
-    "services-immich.html#services-immich-options-shb.immich.sso.passwordLogin"
   ],
   "services-immich-options-shb.immich.sso.port": [
     "services-immich.html#services-immich-options-shb.immich.sso.port"
@@ -4666,9 +4669,6 @@
   ],
   "services-immich-options-shb.immich.sso.storageLabelClaim": [
     "services-immich.html#services-immich-options-shb.immich.sso.storageLabelClaim"
-  ],
-  "services-immich-options-shb.immich.sso.userGroup": [
-    "services-immich.html#services-immich-options-shb.immich.sso.userGroup"
   ],
   "services-immich-options-shb.immich.subdomain": [
     "services-immich.html#services-immich-options-shb.immich.subdomain"

@@ -49,7 +49,6 @@ let
         buttonText = cfg.sso.buttonText;
         autoRegister = cfg.sso.autoRegister;
         autoLaunch = cfg.sso.autoLaunch;
-        passwordLogin = cfg.sso.passwordLogin;
         mobileOverrideEnabled = false;
         mobileRedirectUri = "";
       };
@@ -115,6 +114,16 @@ in
       The mount contract is deprecated. Use instead the
       `shb.immich.mediaLocation` option.
     '')
+
+    # TODO: I don't understand why but these 3 imports fail saying it can't find anything
+    # under shb.immich.sso. It's the same in the sibling jellyfin.nix module.
+    #
+    # (lib.mkRemovedOptionModule [ "shb" "immich" "sso" "passwordLogin" ] ''
+    #   The passwordLogin option does not exist anymore on upstream Immich.
+    #   To enable passwordLogin as before, set `shb.immich.sso.autoLaunch` to false.
+    # '')
+    # (lib.mkRenamedOptionModule [ "shb" "immich" "sso" "adminUserGroup" ] [ "shb" "immich" "ldap" "adminGroup" ])
+    # (lib.mkRenamedOptionModule [ "shb" "immich" "sso" "userGroup" ] [ "shb" "immich" "ldap" "userGroup" ])
   ];
 
   options.shb.immich = {
@@ -322,6 +331,26 @@ in
       };
     };
 
+    ldap = mkOption {
+      description = "Setup LDAP integration.";
+      default = { };
+      type = submodule {
+        options = {
+          adminGroup = lib.mkOption {
+            type = lib.types.str;
+            description = "OIDC admin group";
+            default = "immich_admin";
+          };
+
+          userGroup = lib.mkOption {
+            type = lib.types.str;
+            description = "OIDC user group";
+            default = "immich_user";
+          };
+        };
+      };
+    };
+
     sso = mkOption {
       description = ''
         Setup SSO integration.
@@ -332,11 +361,7 @@ in
           enable = mkEnableOption "SSO integration.";
 
           provider = mkOption {
-            type = enum [
-              "Authelia"
-              "Keycloak"
-              "Generic"
-            ];
+            type = str;
             description = "OIDC provider name, used for display.";
             default = "Authelia";
           };
@@ -351,18 +376,6 @@ in
             type = str;
             description = "Client ID for the OIDC endpoint.";
             default = "immich";
-          };
-
-          adminUserGroup = lib.mkOption {
-            type = lib.types.str;
-            description = "OIDC admin group";
-            default = "immich_admin";
-          };
-
-          userGroup = lib.mkOption {
-            type = lib.types.str;
-            description = "OIDC user group";
-            default = "immich_user";
           };
 
           port = mkOption {
@@ -392,12 +405,6 @@ in
           autoLaunch = mkOption {
             type = bool;
             description = "Automatically redirect to SSO provider.";
-            default = true;
-          };
-
-          passwordLogin = mkOption {
-            type = bool;
-            description = "Enable password login.";
             default = true;
           };
 
@@ -656,8 +663,8 @@ in
             domain = fqdn;
             policy = cfg.sso.authorization_policy;
             subject = [
-              "group:immich_user"
-              "group:immich_admin"
+              "group:${cfg.ldap.userGroup}"
+              "group:${cfg.ldap.adminGroup}"
             ];
           }
         ];
@@ -800,8 +807,7 @@ in
       # Immich expects all users that get a token to be granted access. So users can either be part of the
       # "admin" group or the "user" group. Users that are not part of either should be blocked by
       # the ID provider (Authelia).
-      user_attributes.${roleClaim}.expression =
-        ''"${cfg.sso.adminUserGroup}" in groups ? "admin" : "user"'';
+      user_attributes.${roleClaim}.expression = ''"${cfg.ldap.adminGroup}" in groups ? "admin" : "user"'';
     };
     shb.authelia.extraOidcClaimsPolicies.immich_policy = {
       custom_claims = {
@@ -820,6 +826,12 @@ in
         public = false;
         authorization_policy = cfg.sso.authorization_policy;
         claims_policy = "immich_policy";
+        response_types = [ "code" ];
+        grant_types = [ "authorization_code" ];
+        require_pkce = true;
+        pkce_challenge_method = "S256";
+        id_token_signed_response_alg = "RS256";
+        userinfo_signed_response_alg = "RS256";
         token_endpoint_auth_method = "client_secret_post";
         redirect_uris = [
           "${protocol}://${fqdn}/auth/login"
