@@ -5,3 +5,4 @@ docs/redirects.json.backup
 .nixos-test-history
 # demo/*/flake.lock
 \#*#
+trace
