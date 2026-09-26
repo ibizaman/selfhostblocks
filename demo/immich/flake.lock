@@ -52,11 +52,11 @@
     },
     "nixpkgs": {
       "locked": {
-        "lastModified": 1788752844,
-        "narHash": "sha256-VaWGJ6+cIYN2erfSecbRV+4ljI185Ty2wUrXyvQbgOw=",
+        "lastModified": 1788881743,
+        "narHash": "sha256-2V9GZGvPfrNzxFozhI9dcqV+c3QdA8YZrvAAzqEB+dI=",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "dc5d91f840324650bac8c379428c7037a416959a",
+        "rev": "d6524aaca2ff07876657ae2b323f24be4874944b",
         "type": "github"
       },
       "original": {
@@ -113,11 +113,11 @@
         "nmdsrc": "nmdsrc"
       },
       "locked": {
-        "lastModified": 1788907538,
-        "narHash": "sha256-9dTbHRUH0tGQMx5HztmQ4FeMcVexamdYm+CUaqLV3/E=",
+        "lastModified": 1789250609,
+        "narHash": "sha256-leHgyrPZsBSFGSH05udAK5Df445qmOy4Qs4ni8eg2ow=",
         "ref": "refs/heads/immich",
-        "rev": "5a429fa75b468fc0a95f10917cf50baa7f7dab9b",
-        "revCount": 1243,
+        "rev": "8c9680a4d911cba968bee62af225cc4289309c59",
+        "revCount": 1251,
         "type": "git",
         "url": "file:///home/timi/Projects/selfhostblocks"
       },

@@ -85,21 +85,10 @@
           shb.sops.secret."lldap/user_password".request = config.shb.lldap.ldapUserPassword.request;
           shb.sops.secret."lldap/jwt_secret".request = config.shb.lldap.jwtSecret.request;
 
-          shb.immich.ldap = {
-            enable = true;
-            host = "127.0.0.1";
-            port = config.shb.lldap.ldapPort;
-            dcdomain = config.shb.lldap.dcdomain;
-            adminPassword.result = config.shb.sops.secret."immich/ldap/admin_password".result;
-          };
-          shb.sops.secret."immich/ldap/admin_password" = {
-            request = config.shb.immich.ldap.adminPassword.request;
-            settings.key = "lldap/user_password";
-          };
-
           shb.lldap.ensureGroups = {
             "${config.shb.immich.ldap.userGroup}" = { };
             "${config.shb.immich.ldap.adminGroup}" = { };
+            "other_group" = { };
           };
           shb.lldap.ensureUsers = {
             alice = {
@@ -107,8 +96,23 @@
               displayName = "Alice";
               password.result = config.shb.sops.secret."users/alice/password".result;
               groups = [
-                config.shb.immich.ldap.userGroup
                 config.shb.immich.ldap.adminGroup
+              ];
+            };
+            bob = {
+              email = "bob@example.com";
+              displayName = "Bob";
+              password.result = config.shb.sops.secret."users/alice/password".result;
+              groups = [
+                config.shb.immich.ldap.userGroup
+              ];
+            };
+            charlie = {
+              email = "charlie@example.com";
+              displayName = "Charlie";
+              password.result = config.shb.sops.secret."users/alice/password".result;
+              groups = [
+                "other_group"
               ];
             };
           };
@@ -131,6 +135,7 @@
             ldapPort = config.shb.lldap.ldapPort;
             ldapHostname = "127.0.0.1";
             dcdomain = config.shb.lldap.dcdomain;
+            debug = true;
 
             secrets = {
               jwtSecret.result = config.shb.sops.secret."authelia/jwt_secret".result;
@@ -184,15 +189,6 @@
           ];
         };
 
-        ldap = nixpkgs'.nixosSystem {
-          system = "x86_64-linux";
-          modules = [
-            basic
-            ldap
-            sopsConfig
-          ];
-        };
-
         sso = nixpkgs'.nixosSystem {
           system = "x86_64-linux";
           modules = [
@@ -217,22 +213,6 @@
           {
             imports = [
               basic
-            ];
-
-            # Used by colmena to know which target host to deploy to.
-            deployment = {
-              targetHost = "example";
-              targetUser = "nixos";
-              targetPort = 2222;
-            };
-          };
-
-        ldap =
-          { config, ... }:
-          {
-            imports = [
-              basic
-              ldap
             ];
 
             # Used by colmena to know which target host to deploy to.
