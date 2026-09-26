@@ -330,6 +330,12 @@
             }
           }/bin/update-redirects";
         };
+
+        shells = pkgs.mkShell {
+          packages = [
+            self.playwright
+          ];
+        };
       }
     )
     // flake-utils.lib.eachSystem [ "x86_64-linux" ] (
