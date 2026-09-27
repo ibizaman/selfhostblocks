@@ -308,9 +308,9 @@ in
 
                 prune.keep = instance.settings.retention;
 
-                preHook = concatStringsSep "\n" instance.request.hooks.beforeBackup;
+                preHook = concatStringsSep "\n" instance.request.beforeBackup;
 
-                postHook = concatStringsSep "\n" instance.request.hooks.afterBackup;
+                postHook = concatStringsSep "\n" instance.request.afterBackup;
 
                 extraArgs = (
                   optionals (instance.settings.limitUploadKiBs != null) [
@@ -441,7 +441,13 @@ in
                 name = fname;
                 user = instance.request.user;
                 backupCmd = "systemctl start --wait ${fname}";
-                restoreCmd = ''(cd / && exec ${sname} extract "::$snapshot")'';
+                restoreCmd = lib.concatStringsSep "\n" (
+                  instance.request.beforeRestore
+                  ++ [
+                    ''(cd / && exec ${sname} extract "::$snapshot")''
+                  ]
+                  ++ instance.request.afterRestore
+                );
                 listCmd = "exec ${sname} list --short";
                 execCmd = "exec ${sname}";
               };

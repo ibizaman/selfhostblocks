@@ -33,6 +33,10 @@ in
       beforeBackupText ? null,
       afterBackup ? [ ],
       afterBackupText ? null,
+      beforeRestore ? [ ],
+      beforeRestoreText ? null,
+      afterRestore ? [ ],
+      afterRestoreText ? null,
     }:
     mkOption {
       description = ''
@@ -44,9 +48,8 @@ in
 
       default = {
         inherit user sourceDirectories excludePatterns;
-        hooks = {
-          inherit beforeBackup afterBackup;
-        };
+        inherit beforeBackup afterBackup;
+        inherit beforeRestore afterRestore;
       };
 
       defaultText =
@@ -57,6 +60,8 @@ in
             excludePatternsText
             beforeBackupText
             afterBackupText
+            beforeRestoreText
+            afterRestoreText
           ])
           (literalMD ''
             {
@@ -81,6 +86,18 @@ in
               };
               hooks.afterBackup = ${
                 if afterBackupText != null then afterBackupText else "[ " + concatStringsSep " " afterBackup + " ]"
+              };
+              hooks.beforeRestore = ${
+                if beforeRestoreText != null then
+                  beforeRestoreText
+                else
+                  "[ " + concatStringsSep " " beforeRestore + " ]"
+              };
+              hooks.afterRestore = ${
+                if afterRestoreText != null then
+                  afterRestoreText
+                else
+                  "[ " + concatStringsSep " " afterRestore + " ]"
               };
             };
           '');
@@ -121,33 +138,45 @@ in
               defaultText = literalMD excludePatternsText;
             };
 
-          hooks = mkOption {
-            description = "Hooks to run around the backup.";
-            default = { };
-            type = submodule {
-              options = {
-                beforeBackup =
-                  mkOption {
-                    description = "Hooks to run before backup.";
-                    type = listOf str;
-                    default = beforeBackup;
-                  }
-                  // optionalAttrs (beforeBackupText != null) {
-                    defaultText = literalMD beforeBackupText;
-                  };
-
-                afterBackup =
-                  mkOption {
-                    description = "Hooks to run after backup.";
-                    type = listOf str;
-                    default = afterBackup;
-                  }
-                  // optionalAttrs (afterBackupText != null) {
-                    defaultText = literalMD afterBackupText;
-                  };
-              };
+          beforeBackup =
+            mkOption {
+              description = "Hooks to run before a backup.";
+              type = listOf str;
+              default = beforeBackup;
+            }
+            // optionalAttrs (beforeBackupText != null) {
+              defaultText = literalMD beforeBackupText;
             };
-          };
+
+          afterBackup =
+            mkOption {
+              description = "Hooks to run after a backup.";
+              type = listOf str;
+              default = afterBackup;
+            }
+            // optionalAttrs (afterBackupText != null) {
+              defaultText = literalMD afterBackupText;
+            };
+
+          beforeRestore =
+            mkOption {
+              description = "Hooks to run before a restore.";
+              type = listOf str;
+              default = beforeBackup;
+            }
+            // optionalAttrs (beforeBackupText != null) {
+              defaultText = literalMD beforeBackupText;
+            };
+
+          afterRestore =
+            mkOption {
+              description = "Hooks to run after a restore.";
+              type = listOf str;
+              default = afterBackup;
+            }
+            // optionalAttrs (afterBackupText != null) {
+              defaultText = literalMD afterBackupText;
+            };
         };
       };
     };

@@ -313,9 +313,9 @@ in
                   name: value: "--${builtins.replaceStrings [ "_" ] [ "-" ] name} ${builtins.toString value}"
                 ) instance.settings.retention;
 
-                backupPrepareCommand = concatStringsSep "\n" instance.request.hooks.beforeBackup;
+                backupPrepareCommand = concatStringsSep "\n" instance.request.beforeBackup;
 
-                backupCleanupCommand = concatStringsSep "\n" instance.request.hooks.afterBackup;
+                backupCleanupCommand = concatStringsSep "\n" instance.request.afterBackup;
 
                 extraBackupArgs =
                   (optionals (instance.settings.limitUploadKiBs != null) [
@@ -428,12 +428,19 @@ in
               let
                 sname = scriptName n instance.settings.repository;
                 fname = fullName n instance.settings.repository;
+
               in
               shb.contracts.backup.mkRestoreScript {
                 name = fname;
                 user = instance.request.user;
                 backupCmd = "systemctl start --wait ${fname}";
-                restoreCmd = ''exec ${sname} restore "$snapshot" --target /'';
+                restoreCmd = lib.concatStringsSep "\n" (
+                  instance.request.beforeRestore
+                  ++ [
+                    ''${sname} restore "$snapshot" --target /''
+                  ]
+                  ++ instance.request.afterRestore
+                );
                 listCmd = "exec ${sname} snapshots --json | ${pkgs.jq}/bin/jq -r '.[].id' ";
                 execCmd = "exec ${sname}";
               };

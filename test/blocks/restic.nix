@@ -1,4 +1,4 @@
-{ lib, shb, ... }:
+{ shb, ... }:
 let
   commonTest =
     user:
@@ -66,7 +66,7 @@ let
                 "/opt/files/B"
               ];
 
-              hooks.beforeBackup = [
+              beforeBackup = [
                 ''
                   echo $RUNTIME_DIRECTORY
                   if [ "$RUNTIME_DIRECTORY" = /run/restic-backups-testinstance_opt_repos_A ]; then

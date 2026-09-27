@@ -42,6 +42,10 @@ Template:
 - Fix Open WebUI backups omitting state stored in systemd's private DynamicUser directory
   ([issue #721](https://github.com/ibizaman/selfhostblocks/issues/721)).
 
+## Other Changes
+
+- Add hooks in backup contract before and after a restore command.
+
 # v0.9.0
 
 Commits: https://github.com/ibizaman/selfhostblocks/compare/v0.8.0...v0.9.0

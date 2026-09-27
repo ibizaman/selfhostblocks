@@ -96,12 +96,20 @@
         };
       };
     extraConfig =
-      { username, config, ... }:
+      {
+        username,
+        config,
+        hookPath,
+        ...
+      }:
       {
         shb.hardcodedsecret.passphrase = {
           request = config.shb.borgbackup.instances."mytest".settings.passphrase.request;
           settings.content = "passphrase";
         };
+        systemd.services.borgbackup-job-mytest_opt_repos_mytest.serviceConfig.ReadWritePaths = [
+          hookPath
+        ];
       };
   };
 
@@ -131,12 +139,20 @@
         };
       };
     extraConfig =
-      { username, config, ... }:
+      {
+        username,
+        config,
+        hookPath,
+        ...
+      }:
       {
         shb.hardcodedsecret.passphrase = {
           request = config.shb.borgbackup.instances."mytest".settings.passphrase.request;
           settings.content = "passphrase";
         };
+        systemd.services.borgbackup-job-mytest_opt_repos_mytest.serviceConfig.ReadWritePaths = [
+          hookPath
+        ];
       };
   };
 }
