@@ -18,6 +18,8 @@ Template:
 
 ## Breaking Changes
 
+- Jellyfin now uses the nixpkgs package (10.11.11) instead of the custom 10.11.6 CLI fork.
+  Initial setup uses Jellyfin's HTTP API, and the LDAP plugin is updated to version 23.
 - Nextcloud 33 and 34 are now supported, replacing versions 32 and 33. The default is now 33.
   Deploy version 33 before selecting version 34 because Nextcloud does not support skipping major versions.
 - Remove the ignored `shb.zfs.pools.<pool>.datasets.<dataset>.enable` option.
