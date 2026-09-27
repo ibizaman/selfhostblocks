@@ -13,58 +13,6 @@ let
 
   fqdn = "${cfg.subdomain}.${cfg.domain}";
 
-  jellyfin = pkgs.buildDotnetModule rec {
-    pname = "jellyfin";
-    version = "10.11.6";
-
-    src = pkgs.fetchFromGitHub {
-      owner = "ibizaman";
-      repo = "jellyfin";
-      rev = "c58ca41d9ee76d137be788cd6f2d089e288ad561";
-      hash = "sha256-gTHsz5qRT+9FjAqBb4hDBkHChYDU52snBWu6cQb10i4=";
-    };
-
-    propagatedBuildInputs = [ pkgs.sqlite ];
-
-    projectFile = "Jellyfin.Server/Jellyfin.Server.csproj";
-    executables = [ "jellyfin" ];
-    nugetDeps = "${pkgs.path}/pkgs/by-name/je/jellyfin/nuget-deps.json";
-    runtimeDeps = [
-      pkgs.jellyfin-ffmpeg
-      pkgs.fontconfig
-      pkgs.freetype
-    ];
-    dotnet-sdk = pkgs.dotnetCorePackages.sdk_9_0;
-    dotnet-runtime = pkgs.dotnetCorePackages.aspnetcore_9_0;
-    dotnetBuildFlags = [ "--no-self-contained" ];
-
-    makeWrapperArgs = [
-      "--append-flags"
-      "--ffmpeg=${pkgs.jellyfin-ffmpeg}/bin/ffmpeg"
-      "--append-flags"
-      "--webdir=${pkgs.jellyfin-web}/share/jellyfin-web"
-    ];
-
-    passthru.tests = {
-      smoke-test = pkgs.nixosTests.jellyfin;
-    };
-
-    meta = with pkgs.lib; {
-      description = "Free Software Media System";
-      homepage = "https://jellyfin.org/";
-      # https://github.com/jellyfin/jellyfin/issues/610#issuecomment-537625510
-      license = licenses.gpl2Plus;
-      maintainers = with maintainers; [
-        nyanloutre
-        minijackson
-        purcell
-        jojosch
-      ];
-      mainProgram = "jellyfin";
-      platforms = dotnet-runtime.meta.platforms;
-    };
-  };
-
   pluginName =
     src:
     let
@@ -176,9 +124,9 @@ in
             description = "Pluging used for LDAP authentication.";
             default = shb.mkJellyfinPlugin (rec {
               pname = "jellyfin-plugin-ldapauth";
-              version = "22";
+              version = "23";
               url = "https://github.com/jellyfin/${pname}/releases/download/v${version}/ldap-authentication_${version}.0.0.0.zip";
-              hash = "sha256-m2oD9woEuoSRiV9OeifAxZN7XQULMKS0Yq4TF+LjjpI=";
+              hash = "sha256-yuOAJTj+QKj6bxlJ+irDE2BjxH1ZbsgAri7fauDMOBM=";
             });
           };
 
@@ -361,7 +309,6 @@ in
     ];
 
     services.jellyfin.enable = true;
-    services.jellyfin.package = jellyfin;
 
     networking.firewall = {
       # from https://jellyfin.org/docs/general/networking/index.html, for auto-discovery
@@ -662,8 +609,6 @@ in
       ''
       + (shb.replaceSecretsScript {
         file = networkConfig;
-        # Write permissions are needed otherwise the jellyfin-cli tool will not work correctly.
-        permissions = "u=rw,g=rw,o=";
         resultPath = "${config.services.jellyfin.dataDir}/config/network.xml";
         replacements = [
         ];
@@ -748,10 +693,6 @@ in
 
     systemd.services.jellyfin.serviceConfig.ExecStartPost =
       let
-        # Pass restart state from the unprivileged initializer to the privileged
-        # restart step. Remove it before restarting to prevent a restart loop.
-        restartNeededFile = "${config.services.jellyfin.dataDir}/shb-jellyfin-restart-needed";
-
         initializeJellyfin = pkgs.writeShellApplication {
           name = "initializeJellyfin";
           runtimeInputs = [
@@ -791,43 +732,26 @@ in
             done
 
             if [ "$startupWizardCompleted" = "false" ]; then
-              ${lib.getExe config.services.jellyfin.package} config \
-                --datadir='${config.services.jellyfin.dataDir}' \
-                --configdir='${config.services.jellyfin.configDir}' \
-                --cachedir='${config.services.jellyfin.cacheDir}' \
-                --logdir='${config.services.jellyfin.logDir}' \
-                --username=${cfg.admin.username} \
-                --password-file=${cfg.admin.password.result.path} \
-                --enable-remote-access=true \
-                --write
+              # The setup API permits unauthenticated requests until setup is complete.
+              URL="http://127.0.0.1:${toString cfg.port}/Startup"
+              # GET creates the initial user before POST sets its credentials.
+              curl --fail --silent --show-error "$URL/User" > /dev/null
 
-              echo "Jellyfin must be restarted after completing initial setup" > '${restartNeededFile}'
+              # Pass the password through stdin, not the process command line.
+              jq --null-input \
+                --arg name ${lib.escapeShellArg cfg.admin.username} \
+                --rawfile password ${lib.escapeShellArg cfg.admin.password.result.path} \
+                '{Name: $name, Password: $password}' \
+                | curl --fail --silent --show-error --json @- "$URL/User"
+
+              curl --fail --silent --show-error --request POST "$URL/Complete"
             else
               echo "Jellyfin initial setup is already complete; leaving users unchanged"
             fi
           '';
         };
-
-        restartJellyfinIfNeeded = pkgs.writeShellApplication {
-          name = "restartJellyfinIfNeeded";
-          runtimeInputs = [ pkgs.systemd ];
-          text = ''
-            if [ -f '${restartNeededFile}' ]; then
-              rm '${restartNeededFile}'
-              echo "Restarting jellyfin.service"
-              systemctl reload-or-restart jellyfin.service
-            else
-              echo "Jellyfin configuration was unchanged; no restart is needed"
-            fi
-          '';
-        };
       in
-      lib.optionals (cfg.admin != null) [
-        (lib.getExe initializeJellyfin)
-
-        # The '+' is to get elevated privileges to be able to restart the service.
-        "+${lib.getExe restartJellyfinIfNeeded}"
-      ];
+      lib.optional (cfg.admin != null) (lib.getExe initializeJellyfin);
 
     systemd.services.jellyfin.serviceConfig.TimeoutStartSec = 300;
 
