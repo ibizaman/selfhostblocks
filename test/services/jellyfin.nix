@@ -117,7 +117,7 @@ let
       test.login = {
         browser = "firefox";
         startUrl = "${config.test.proto}://${config.test.fqdn}";
-        usernameFieldLabelRegex = "[Uu]ser";
+        usernameFieldLabelRegex = "^[Uu]ser$";
         loginButtonNameRegex = "Sign In";
         testLoginWith = [
           {
@@ -207,7 +207,7 @@ let
 
         test.login = {
           startUrl = "${config.test.proto}://${config.test.fqdn}";
-          usernameFieldLabelRegex = "[Uu]ser";
+          usernameFieldLabelRegex = "^[Uu]ser$";
           loginButtonNameRegex = "Sign In";
           testLoginWith =
             lib.optionals (!config.test.login.onlyAlice) [
@@ -328,7 +328,7 @@ let
                 "page.goto('${config.test.proto}://${config.test.fqdn}/web/')"
                 # "expect(page).to_have_title(re.compile('Jellyfin'))"
                 "expect(page.get_by_text(re.compile('[Ii]nvalid'))).not_to_be_visible(timeout=10000)"
-                "expect(page.get_by_label(re.compile('^[Uu]ser'))).not_to_be_visible(timeout=10000)"
+                "expect(page.get_by_label(re.compile('^[Uu]ser$'))).not_to_be_visible(timeout=10000)"
                 "expect(page.get_by_label(re.compile('^[Pp]assword$'))).not_to_be_visible(timeout=10000)"
               ];
             }
@@ -342,7 +342,7 @@ let
                 # So for failing auth, we check we're back on the login page.
                 "page.goto('${config.test.proto}://${config.test.fqdn}/web/')"
                 # "expect(page).to_have_title(re.compile('Jellyfin'))"
-                "expect(page.get_by_label(re.compile('^[Uu]ser'))).to_be_visible(timeout=10000)"
+                "expect(page.get_by_label(re.compile('^[Uu]ser$'))).to_be_visible(timeout=10000)"
                 "expect(page.get_by_label(re.compile('^[Pp]assword$'))).to_be_visible(timeout=10000)"
               ];
             }
@@ -355,7 +355,7 @@ let
                 "page.goto('${config.test.proto}://${config.test.fqdn}/web/')"
                 # "expect(page).to_have_title(re.compile('Jellyfin'))"
                 "expect(page.get_by_text(re.compile('[Ii]nvalid'))).not_to_be_visible(timeout=10000)"
-                "expect(page.get_by_label(re.compile('^[Uu]ser'))).not_to_be_visible(timeout=10000)"
+                "expect(page.get_by_label(re.compile('^[Uu]ser$'))).not_to_be_visible(timeout=10000)"
                 "expect(page.get_by_label(re.compile('^[Pp]assword$'))).not_to_be_visible(timeout=10000)"
               ];
             }
@@ -366,7 +366,7 @@ let
                 # For a reason I can't explain, redirection needs to happen manually.
                 "page.goto('${config.test.proto}://${config.test.fqdn}/web/')"
                 # "expect(page).to_have_title(re.compile('Jellyfin'))"
-                "expect(page.get_by_label(re.compile('^[Uu]ser'))).to_be_visible(timeout=10000)"
+                "expect(page.get_by_label(re.compile('^[Uu]ser$'))).to_be_visible(timeout=10000)"
                 "expect(page.get_by_label(re.compile('^[Pp]assword$'))).to_be_visible(timeout=10000)"
               ];
             }

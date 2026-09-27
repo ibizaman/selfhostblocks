@@ -124,9 +124,9 @@ in
             description = "Pluging used for LDAP authentication.";
             default = shb.mkJellyfinPlugin (rec {
               pname = "jellyfin-plugin-ldapauth";
-              version = "23";
+              version = "24";
               url = "https://github.com/jellyfin/${pname}/releases/download/v${version}/ldap-authentication_${version}.0.0.0.zip";
-              hash = "sha256-yuOAJTj+QKj6bxlJ+irDE2BjxH1ZbsgAri7fauDMOBM=";
+              hash = "sha256-yiyoLahv+tzNWB4JVPoC4fxl+gj8IoYVXv0bi2FGlmM=";
             });
           };
 
