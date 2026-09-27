@@ -186,7 +186,7 @@ in
                 + "&state=11111111'"
             )
             print(resp)
-            if "Found" not in resp:
+            if "See Other" not in resp:
                 raise Exception("unexpected response")
 
             resp = machine.succeed(
@@ -199,7 +199,7 @@ in
                 + "&state=22222222'"
             )
             print(resp)
-            if "Found" not in resp:
+            if "See Other" not in resp:
                 raise Exception("unexpected response")
 
         with subtest("no debug"):
