@@ -21,6 +21,7 @@ in
     "/opt/files/A"
     "/opt/files/B"
   ],
+  hookPath ? "/run/hooks",
   settings ? { ... }: { }, # { filesRoot, config } -> attrset
   extraConfig ? null, # { filesRoot, username, config } -> attrset
 }:
@@ -33,10 +34,46 @@ shb.test.runNixOSTest {
       imports = [ shb.test.baseImports ] ++ modules;
 
       config = lib.mkMerge [
+        {
+          systemd.tmpfiles.settings."10-hooks-marker" = {
+            "${hookPath}".d = {
+              mode = "0700";
+              user = username;
+            };
+          };
+        }
         (setAttrByPath providerRoot {
           request = {
             inherit sourceDirectories;
             user = username;
+            beforeBackup = [
+              ''
+                touch ${hookPath}/beforeBackup
+              ''
+            ];
+            afterBackup = [
+              ''
+                touch ${hookPath}/afterBackup
+              ''
+            ];
+            beforeRestore = [
+              ''
+                echo "Running beforeRestore..."
+                ls -l ${hookPath}
+                touch ${hookPath}/beforeRestore
+                ls -l ${hookPath}
+                echo "Done running beforeRestore"
+              ''
+            ];
+            afterRestore = [
+              ''
+                echo "Running afterRestore..."
+                ls -l ${hookPath}
+                touch ${hookPath}/afterRestore
+                ls -l ${hookPath}
+                echo "Done running afterRestore"
+              ''
+            ];
           };
           settings = settings {
             inherit config;
@@ -51,7 +88,7 @@ shb.test.runNixOSTest {
           };
         })
         (optionalAttrs (extraConfig != null) (extraConfig {
-          inherit username config;
+          inherit username config hookPath;
           filesRoot = "/opt/files";
         }))
       ];
@@ -72,6 +109,7 @@ shb.test.runNixOSTest {
 
       username = "${username}"
       sourceDirectories = [ ${concatMapStringsSep ", " (x: ''"${x}"'') sourceDirectories} ]
+      hook_path = "${hookPath}"
 
       def list_files(dir):
           files_and_content = {}
@@ -88,6 +126,10 @@ shb.test.runNixOSTest {
           result = list(diff(list_files(dir), files))
           if len(result) > 0:
               raise Exception("Unexpected files:", result)
+
+      def assert_latest_hooks(files):
+          assert_files(hook_path, files)
+          machine.succeed(f"""find {hook_path} -mindepth 1 -delete""")
 
       with subtest("Create initial content"):
           for path in sourceDirectories:
@@ -114,9 +156,15 @@ shb.test.runNixOSTest {
               if len(out) != 0:
                   raise Exception(f"Unexpected snapshots:\n{out}")
 
+          assert_latest_hooks({})
+
       with subtest("First backup in repo"):
           print(machine.succeed("systemctl cat ${provider.backupService}"))
           machine.succeed("systemctl start --wait ${provider.backupService}")
+          assert_latest_hooks({
+              f'{hook_path}/beforeBackup': "",
+              f'{hook_path}/afterBackup': "",
+          })
 
       with subtest("One snapshot"):
           out = machine.succeed("${provider.restoreScript} snapshots").splitlines()
@@ -143,6 +191,10 @@ shb.test.runNixOSTest {
 
       with subtest("Second backup in repo"):
           machine.succeed("systemctl start --wait ${provider.backupService}")
+          assert_latest_hooks({
+              f'{hook_path}/beforeBackup': "",
+              f'{hook_path}/afterBackup': "",
+          })
 
       with subtest("two snapshots"):
           out = machine.succeed("${provider.restoreScript} snapshots").splitlines()
@@ -162,21 +214,29 @@ shb.test.runNixOSTest {
               assert_files(path, {})
 
       with subtest("Restore second backup"):
-          machine.succeed(f"${provider.restoreScript} restore {secondSnapshot}")
+          print(machine.succeed(f"${provider.restoreScript} restore {secondSnapshot}"))
 
           for path in sourceDirectories:
               assert_files(path, {
                   f'{path}/fileA': 'repo_fileA_2',
                   f'{path}/fileB': 'repo_fileB_2',
               })
+          assert_latest_hooks({
+              f'{hook_path}/beforeRestore': "",
+              f'{hook_path}/afterRestore': "",
+          })
 
       with subtest("Restore first backup"):
-          machine.succeed(f"${provider.restoreScript} restore {firstSnapshot}")
+          print(machine.succeed(f"${provider.restoreScript} restore {firstSnapshot}"))
 
           for path in sourceDirectories:
               assert_files(path, {
                   f'{path}/fileA': 'repo_fileA_1',
                   f'{path}/fileB': 'repo_fileB_1',
               })
+          assert_latest_hooks({
+              f'{hook_path}/beforeRestore': "",
+              f'{hook_path}/afterRestore': "",
+          })
     '';
 }

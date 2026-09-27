@@ -88,7 +88,6 @@ Or with another module `backupService_2`!
 
 - [Restic block](blocks-restic.html).
 - [Borgbackup block](blocks-borgbackup.html).
-- [ZFS block](blocks-zfs.html).
 
 ### Script {#contract-backup-providers-script}
 
@@ -109,7 +108,7 @@ The available commands are:
 
 ## Requester Blocks and Services {#contract-backup-requesters}
 
-- <!-- [ -->Audiobookshelf<!-- ](services-audiobookshelf.html). --> (no manual yet)
+- [Audiobookshelf](services-audiobookshelf.html).
 - <!-- [ -->Deluge<!--](services-deluge.html). --> (no manual yet)
 - <!-- [ -->Grocy<!--](services-grocy.html). --> (no manual yet)
 - <!-- [ -->Hledger<!--](services-hledger.html). --> (no manual yet)
@@ -119,3 +118,4 @@ The available commands are:
 - [Nextcloud](services-nextcloud.html#services-nextcloudserver-usage-backup).
 - [Vaultwarden](services-vaultwarden.html#services-vaultwarden-backup).
 - <!-- [ -->*arr<!--](services-arr.html). --> (no manual yet)
+- [ZFS block](blocks-zfs.html#blocks-zfs-usage-backup-files).

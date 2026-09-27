@@ -461,17 +461,20 @@
   "blocks-borgbackup-options-shb.borgbackup.instances._name_.request": [
     "blocks-borgbackup.html#blocks-borgbackup-options-shb.borgbackup.instances._name_.request"
   ],
+  "blocks-borgbackup-options-shb.borgbackup.instances._name_.request.afterBackup": [
+    "blocks-borgbackup.html#blocks-borgbackup-options-shb.borgbackup.instances._name_.request.afterBackup"
+  ],
+  "blocks-borgbackup-options-shb.borgbackup.instances._name_.request.afterRestore": [
+    "blocks-borgbackup.html#blocks-borgbackup-options-shb.borgbackup.instances._name_.request.afterRestore"
+  ],
+  "blocks-borgbackup-options-shb.borgbackup.instances._name_.request.beforeBackup": [
+    "blocks-borgbackup.html#blocks-borgbackup-options-shb.borgbackup.instances._name_.request.beforeBackup"
+  ],
+  "blocks-borgbackup-options-shb.borgbackup.instances._name_.request.beforeRestore": [
+    "blocks-borgbackup.html#blocks-borgbackup-options-shb.borgbackup.instances._name_.request.beforeRestore"
+  ],
   "blocks-borgbackup-options-shb.borgbackup.instances._name_.request.excludePatterns": [
     "blocks-borgbackup.html#blocks-borgbackup-options-shb.borgbackup.instances._name_.request.excludePatterns"
-  ],
-  "blocks-borgbackup-options-shb.borgbackup.instances._name_.request.hooks": [
-    "blocks-borgbackup.html#blocks-borgbackup-options-shb.borgbackup.instances._name_.request.hooks"
-  ],
-  "blocks-borgbackup-options-shb.borgbackup.instances._name_.request.hooks.afterBackup": [
-    "blocks-borgbackup.html#blocks-borgbackup-options-shb.borgbackup.instances._name_.request.hooks.afterBackup"
-  ],
-  "blocks-borgbackup-options-shb.borgbackup.instances._name_.request.hooks.beforeBackup": [
-    "blocks-borgbackup.html#blocks-borgbackup-options-shb.borgbackup.instances._name_.request.hooks.beforeBackup"
   ],
   "blocks-borgbackup-options-shb.borgbackup.instances._name_.request.sourceDirectories": [
     "blocks-borgbackup.html#blocks-borgbackup-options-shb.borgbackup.instances._name_.request.sourceDirectories"
@@ -620,17 +623,20 @@
   "blocks-lldap-options-shb.lldap.backup.request": [
     "blocks-lldap.html#blocks-lldap-options-shb.lldap.backup.request"
   ],
+  "blocks-lldap-options-shb.lldap.backup.request.afterBackup": [
+    "blocks-lldap.html#blocks-lldap-options-shb.lldap.backup.request.afterBackup"
+  ],
+  "blocks-lldap-options-shb.lldap.backup.request.afterRestore": [
+    "blocks-lldap.html#blocks-lldap-options-shb.lldap.backup.request.afterRestore"
+  ],
+  "blocks-lldap-options-shb.lldap.backup.request.beforeBackup": [
+    "blocks-lldap.html#blocks-lldap-options-shb.lldap.backup.request.beforeBackup"
+  ],
+  "blocks-lldap-options-shb.lldap.backup.request.beforeRestore": [
+    "blocks-lldap.html#blocks-lldap-options-shb.lldap.backup.request.beforeRestore"
+  ],
   "blocks-lldap-options-shb.lldap.backup.request.excludePatterns": [
     "blocks-lldap.html#blocks-lldap-options-shb.lldap.backup.request.excludePatterns"
-  ],
-  "blocks-lldap-options-shb.lldap.backup.request.hooks": [
-    "blocks-lldap.html#blocks-lldap-options-shb.lldap.backup.request.hooks"
-  ],
-  "blocks-lldap-options-shb.lldap.backup.request.hooks.afterBackup": [
-    "blocks-lldap.html#blocks-lldap-options-shb.lldap.backup.request.hooks.afterBackup"
-  ],
-  "blocks-lldap-options-shb.lldap.backup.request.hooks.beforeBackup": [
-    "blocks-lldap.html#blocks-lldap-options-shb.lldap.backup.request.hooks.beforeBackup"
   ],
   "blocks-lldap-options-shb.lldap.backup.request.sourceDirectories": [
     "blocks-lldap.html#blocks-lldap-options-shb.lldap.backup.request.sourceDirectories"
@@ -1514,17 +1520,20 @@
   "blocks-restic-options-shb.restic.instances._name_.request": [
     "blocks-restic.html#blocks-restic-options-shb.restic.instances._name_.request"
   ],
+  "blocks-restic-options-shb.restic.instances._name_.request.afterBackup": [
+    "blocks-restic.html#blocks-restic-options-shb.restic.instances._name_.request.afterBackup"
+  ],
+  "blocks-restic-options-shb.restic.instances._name_.request.afterRestore": [
+    "blocks-restic.html#blocks-restic-options-shb.restic.instances._name_.request.afterRestore"
+  ],
+  "blocks-restic-options-shb.restic.instances._name_.request.beforeBackup": [
+    "blocks-restic.html#blocks-restic-options-shb.restic.instances._name_.request.beforeBackup"
+  ],
+  "blocks-restic-options-shb.restic.instances._name_.request.beforeRestore": [
+    "blocks-restic.html#blocks-restic-options-shb.restic.instances._name_.request.beforeRestore"
+  ],
   "blocks-restic-options-shb.restic.instances._name_.request.excludePatterns": [
     "blocks-restic.html#blocks-restic-options-shb.restic.instances._name_.request.excludePatterns"
-  ],
-  "blocks-restic-options-shb.restic.instances._name_.request.hooks": [
-    "blocks-restic.html#blocks-restic-options-shb.restic.instances._name_.request.hooks"
-  ],
-  "blocks-restic-options-shb.restic.instances._name_.request.hooks.afterBackup": [
-    "blocks-restic.html#blocks-restic-options-shb.restic.instances._name_.request.hooks.afterBackup"
-  ],
-  "blocks-restic-options-shb.restic.instances._name_.request.hooks.beforeBackup": [
-    "blocks-restic.html#blocks-restic-options-shb.restic.instances._name_.request.hooks.beforeBackup"
   ],
   "blocks-restic-options-shb.restic.instances._name_.request.sourceDirectories": [
     "blocks-restic.html#blocks-restic-options-shb.restic.instances._name_.request.sourceDirectories"
@@ -1646,17 +1655,20 @@
   "blocks-sanoid-options-shb.sanoid.backup._name_.request": [
     "blocks-sanoid.html#blocks-sanoid-options-shb.sanoid.backup._name_.request"
   ],
+  "blocks-sanoid-options-shb.sanoid.backup._name_.request.afterBackup": [
+    "blocks-sanoid.html#blocks-sanoid-options-shb.sanoid.backup._name_.request.afterBackup"
+  ],
+  "blocks-sanoid-options-shb.sanoid.backup._name_.request.afterRestore": [
+    "blocks-sanoid.html#blocks-sanoid-options-shb.sanoid.backup._name_.request.afterRestore"
+  ],
+  "blocks-sanoid-options-shb.sanoid.backup._name_.request.beforeBackup": [
+    "blocks-sanoid.html#blocks-sanoid-options-shb.sanoid.backup._name_.request.beforeBackup"
+  ],
+  "blocks-sanoid-options-shb.sanoid.backup._name_.request.beforeRestore": [
+    "blocks-sanoid.html#blocks-sanoid-options-shb.sanoid.backup._name_.request.beforeRestore"
+  ],
   "blocks-sanoid-options-shb.sanoid.backup._name_.request.excludePatterns": [
     "blocks-sanoid.html#blocks-sanoid-options-shb.sanoid.backup._name_.request.excludePatterns"
-  ],
-  "blocks-sanoid-options-shb.sanoid.backup._name_.request.hooks": [
-    "blocks-sanoid.html#blocks-sanoid-options-shb.sanoid.backup._name_.request.hooks"
-  ],
-  "blocks-sanoid-options-shb.sanoid.backup._name_.request.hooks.afterBackup": [
-    "blocks-sanoid.html#blocks-sanoid-options-shb.sanoid.backup._name_.request.hooks.afterBackup"
-  ],
-  "blocks-sanoid-options-shb.sanoid.backup._name_.request.hooks.beforeBackup": [
-    "blocks-sanoid.html#blocks-sanoid-options-shb.sanoid.backup._name_.request.hooks.beforeBackup"
   ],
   "blocks-sanoid-options-shb.sanoid.backup._name_.request.sourceDirectories": [
     "blocks-sanoid.html#blocks-sanoid-options-shb.sanoid.backup._name_.request.sourceDirectories"
@@ -1883,17 +1895,20 @@
   "blocks-zfs-options-shb.zfs.pools._name_.datasets._name_.backup.request": [
     "blocks-zfs.html#blocks-zfs-options-shb.zfs.pools._name_.datasets._name_.backup.request"
   ],
+  "blocks-zfs-options-shb.zfs.pools._name_.datasets._name_.backup.request.afterBackup": [
+    "blocks-zfs.html#blocks-zfs-options-shb.zfs.pools._name_.datasets._name_.backup.request.afterBackup"
+  ],
+  "blocks-zfs-options-shb.zfs.pools._name_.datasets._name_.backup.request.afterRestore": [
+    "blocks-zfs.html#blocks-zfs-options-shb.zfs.pools._name_.datasets._name_.backup.request.afterRestore"
+  ],
+  "blocks-zfs-options-shb.zfs.pools._name_.datasets._name_.backup.request.beforeBackup": [
+    "blocks-zfs.html#blocks-zfs-options-shb.zfs.pools._name_.datasets._name_.backup.request.beforeBackup"
+  ],
+  "blocks-zfs-options-shb.zfs.pools._name_.datasets._name_.backup.request.beforeRestore": [
+    "blocks-zfs.html#blocks-zfs-options-shb.zfs.pools._name_.datasets._name_.backup.request.beforeRestore"
+  ],
   "blocks-zfs-options-shb.zfs.pools._name_.datasets._name_.backup.request.excludePatterns": [
     "blocks-zfs.html#blocks-zfs-options-shb.zfs.pools._name_.datasets._name_.backup.request.excludePatterns"
-  ],
-  "blocks-zfs-options-shb.zfs.pools._name_.datasets._name_.backup.request.hooks": [
-    "blocks-zfs.html#blocks-zfs-options-shb.zfs.pools._name_.datasets._name_.backup.request.hooks"
-  ],
-  "blocks-zfs-options-shb.zfs.pools._name_.datasets._name_.backup.request.hooks.afterBackup": [
-    "blocks-zfs.html#blocks-zfs-options-shb.zfs.pools._name_.datasets._name_.backup.request.hooks.afterBackup"
-  ],
-  "blocks-zfs-options-shb.zfs.pools._name_.datasets._name_.backup.request.hooks.beforeBackup": [
-    "blocks-zfs.html#blocks-zfs-options-shb.zfs.pools._name_.datasets._name_.backup.request.hooks.beforeBackup"
   ],
   "blocks-zfs-options-shb.zfs.pools._name_.datasets._name_.backup.request.sourceDirectories": [
     "blocks-zfs.html#blocks-zfs-options-shb.zfs.pools._name_.datasets._name_.backup.request.sourceDirectories"
@@ -2090,17 +2105,20 @@
   "contracts-backup-options-shb.contracts.backup.request": [
     "contracts-backup.html#contracts-backup-options-shb.contracts.backup.request"
   ],
+  "contracts-backup-options-shb.contracts.backup.request.afterBackup": [
+    "contracts-backup.html#contracts-backup-options-shb.contracts.backup.request.afterBackup"
+  ],
+  "contracts-backup-options-shb.contracts.backup.request.afterRestore": [
+    "contracts-backup.html#contracts-backup-options-shb.contracts.backup.request.afterRestore"
+  ],
+  "contracts-backup-options-shb.contracts.backup.request.beforeBackup": [
+    "contracts-backup.html#contracts-backup-options-shb.contracts.backup.request.beforeBackup"
+  ],
+  "contracts-backup-options-shb.contracts.backup.request.beforeRestore": [
+    "contracts-backup.html#contracts-backup-options-shb.contracts.backup.request.beforeRestore"
+  ],
   "contracts-backup-options-shb.contracts.backup.request.excludePatterns": [
     "contracts-backup.html#contracts-backup-options-shb.contracts.backup.request.excludePatterns"
-  ],
-  "contracts-backup-options-shb.contracts.backup.request.hooks": [
-    "contracts-backup.html#contracts-backup-options-shb.contracts.backup.request.hooks"
-  ],
-  "contracts-backup-options-shb.contracts.backup.request.hooks.afterBackup": [
-    "contracts-backup.html#contracts-backup-options-shb.contracts.backup.request.hooks.afterBackup"
-  ],
-  "contracts-backup-options-shb.contracts.backup.request.hooks.beforeBackup": [
-    "contracts-backup.html#contracts-backup-options-shb.contracts.backup.request.hooks.beforeBackup"
   ],
   "contracts-backup-options-shb.contracts.backup.request.sourceDirectories": [
     "contracts-backup.html#contracts-backup-options-shb.contracts.backup.request.sourceDirectories"
@@ -2702,17 +2720,20 @@
   "services-arr-options-shb.arr.bazarr.backup.request": [
     "services-arr.html#services-arr-options-shb.arr.bazarr.backup.request"
   ],
+  "services-arr-options-shb.arr.bazarr.backup.request.afterBackup": [
+    "services-arr.html#services-arr-options-shb.arr.bazarr.backup.request.afterBackup"
+  ],
+  "services-arr-options-shb.arr.bazarr.backup.request.afterRestore": [
+    "services-arr.html#services-arr-options-shb.arr.bazarr.backup.request.afterRestore"
+  ],
+  "services-arr-options-shb.arr.bazarr.backup.request.beforeBackup": [
+    "services-arr.html#services-arr-options-shb.arr.bazarr.backup.request.beforeBackup"
+  ],
+  "services-arr-options-shb.arr.bazarr.backup.request.beforeRestore": [
+    "services-arr.html#services-arr-options-shb.arr.bazarr.backup.request.beforeRestore"
+  ],
   "services-arr-options-shb.arr.bazarr.backup.request.excludePatterns": [
     "services-arr.html#services-arr-options-shb.arr.bazarr.backup.request.excludePatterns"
-  ],
-  "services-arr-options-shb.arr.bazarr.backup.request.hooks": [
-    "services-arr.html#services-arr-options-shb.arr.bazarr.backup.request.hooks"
-  ],
-  "services-arr-options-shb.arr.bazarr.backup.request.hooks.afterBackup": [
-    "services-arr.html#services-arr-options-shb.arr.bazarr.backup.request.hooks.afterBackup"
-  ],
-  "services-arr-options-shb.arr.bazarr.backup.request.hooks.beforeBackup": [
-    "services-arr.html#services-arr-options-shb.arr.bazarr.backup.request.hooks.beforeBackup"
   ],
   "services-arr-options-shb.arr.bazarr.backup.request.sourceDirectories": [
     "services-arr.html#services-arr-options-shb.arr.bazarr.backup.request.sourceDirectories"
@@ -2804,17 +2825,20 @@
   "services-arr-options-shb.arr.jackett.backup.request": [
     "services-arr.html#services-arr-options-shb.arr.jackett.backup.request"
   ],
+  "services-arr-options-shb.arr.jackett.backup.request.afterBackup": [
+    "services-arr.html#services-arr-options-shb.arr.jackett.backup.request.afterBackup"
+  ],
+  "services-arr-options-shb.arr.jackett.backup.request.afterRestore": [
+    "services-arr.html#services-arr-options-shb.arr.jackett.backup.request.afterRestore"
+  ],
+  "services-arr-options-shb.arr.jackett.backup.request.beforeBackup": [
+    "services-arr.html#services-arr-options-shb.arr.jackett.backup.request.beforeBackup"
+  ],
+  "services-arr-options-shb.arr.jackett.backup.request.beforeRestore": [
+    "services-arr.html#services-arr-options-shb.arr.jackett.backup.request.beforeRestore"
+  ],
   "services-arr-options-shb.arr.jackett.backup.request.excludePatterns": [
     "services-arr.html#services-arr-options-shb.arr.jackett.backup.request.excludePatterns"
-  ],
-  "services-arr-options-shb.arr.jackett.backup.request.hooks": [
-    "services-arr.html#services-arr-options-shb.arr.jackett.backup.request.hooks"
-  ],
-  "services-arr-options-shb.arr.jackett.backup.request.hooks.afterBackup": [
-    "services-arr.html#services-arr-options-shb.arr.jackett.backup.request.hooks.afterBackup"
-  ],
-  "services-arr-options-shb.arr.jackett.backup.request.hooks.beforeBackup": [
-    "services-arr.html#services-arr-options-shb.arr.jackett.backup.request.hooks.beforeBackup"
   ],
   "services-arr-options-shb.arr.jackett.backup.request.sourceDirectories": [
     "services-arr.html#services-arr-options-shb.arr.jackett.backup.request.sourceDirectories"
@@ -2924,17 +2948,20 @@
   "services-arr-options-shb.arr.lidarr.backup.request": [
     "services-arr.html#services-arr-options-shb.arr.lidarr.backup.request"
   ],
+  "services-arr-options-shb.arr.lidarr.backup.request.afterBackup": [
+    "services-arr.html#services-arr-options-shb.arr.lidarr.backup.request.afterBackup"
+  ],
+  "services-arr-options-shb.arr.lidarr.backup.request.afterRestore": [
+    "services-arr.html#services-arr-options-shb.arr.lidarr.backup.request.afterRestore"
+  ],
+  "services-arr-options-shb.arr.lidarr.backup.request.beforeBackup": [
+    "services-arr.html#services-arr-options-shb.arr.lidarr.backup.request.beforeBackup"
+  ],
+  "services-arr-options-shb.arr.lidarr.backup.request.beforeRestore": [
+    "services-arr.html#services-arr-options-shb.arr.lidarr.backup.request.beforeRestore"
+  ],
   "services-arr-options-shb.arr.lidarr.backup.request.excludePatterns": [
     "services-arr.html#services-arr-options-shb.arr.lidarr.backup.request.excludePatterns"
-  ],
-  "services-arr-options-shb.arr.lidarr.backup.request.hooks": [
-    "services-arr.html#services-arr-options-shb.arr.lidarr.backup.request.hooks"
-  ],
-  "services-arr-options-shb.arr.lidarr.backup.request.hooks.afterBackup": [
-    "services-arr.html#services-arr-options-shb.arr.lidarr.backup.request.hooks.afterBackup"
-  ],
-  "services-arr-options-shb.arr.lidarr.backup.request.hooks.beforeBackup": [
-    "services-arr.html#services-arr-options-shb.arr.lidarr.backup.request.hooks.beforeBackup"
   ],
   "services-arr-options-shb.arr.lidarr.backup.request.sourceDirectories": [
     "services-arr.html#services-arr-options-shb.arr.lidarr.backup.request.sourceDirectories"
@@ -3026,17 +3053,20 @@
   "services-arr-options-shb.arr.radarr.backup.request": [
     "services-arr.html#services-arr-options-shb.arr.radarr.backup.request"
   ],
+  "services-arr-options-shb.arr.radarr.backup.request.afterBackup": [
+    "services-arr.html#services-arr-options-shb.arr.radarr.backup.request.afterBackup"
+  ],
+  "services-arr-options-shb.arr.radarr.backup.request.afterRestore": [
+    "services-arr.html#services-arr-options-shb.arr.radarr.backup.request.afterRestore"
+  ],
+  "services-arr-options-shb.arr.radarr.backup.request.beforeBackup": [
+    "services-arr.html#services-arr-options-shb.arr.radarr.backup.request.beforeBackup"
+  ],
+  "services-arr-options-shb.arr.radarr.backup.request.beforeRestore": [
+    "services-arr.html#services-arr-options-shb.arr.radarr.backup.request.beforeRestore"
+  ],
   "services-arr-options-shb.arr.radarr.backup.request.excludePatterns": [
     "services-arr.html#services-arr-options-shb.arr.radarr.backup.request.excludePatterns"
-  ],
-  "services-arr-options-shb.arr.radarr.backup.request.hooks": [
-    "services-arr.html#services-arr-options-shb.arr.radarr.backup.request.hooks"
-  ],
-  "services-arr-options-shb.arr.radarr.backup.request.hooks.afterBackup": [
-    "services-arr.html#services-arr-options-shb.arr.radarr.backup.request.hooks.afterBackup"
-  ],
-  "services-arr-options-shb.arr.radarr.backup.request.hooks.beforeBackup": [
-    "services-arr.html#services-arr-options-shb.arr.radarr.backup.request.hooks.beforeBackup"
   ],
   "services-arr-options-shb.arr.radarr.backup.request.sourceDirectories": [
     "services-arr.html#services-arr-options-shb.arr.radarr.backup.request.sourceDirectories"
@@ -3131,17 +3161,20 @@
   "services-arr-options-shb.arr.readarr.backup.request": [
     "services-arr.html#services-arr-options-shb.arr.readarr.backup.request"
   ],
+  "services-arr-options-shb.arr.readarr.backup.request.afterBackup": [
+    "services-arr.html#services-arr-options-shb.arr.readarr.backup.request.afterBackup"
+  ],
+  "services-arr-options-shb.arr.readarr.backup.request.afterRestore": [
+    "services-arr.html#services-arr-options-shb.arr.readarr.backup.request.afterRestore"
+  ],
+  "services-arr-options-shb.arr.readarr.backup.request.beforeBackup": [
+    "services-arr.html#services-arr-options-shb.arr.readarr.backup.request.beforeBackup"
+  ],
+  "services-arr-options-shb.arr.readarr.backup.request.beforeRestore": [
+    "services-arr.html#services-arr-options-shb.arr.readarr.backup.request.beforeRestore"
+  ],
   "services-arr-options-shb.arr.readarr.backup.request.excludePatterns": [
     "services-arr.html#services-arr-options-shb.arr.readarr.backup.request.excludePatterns"
-  ],
-  "services-arr-options-shb.arr.readarr.backup.request.hooks": [
-    "services-arr.html#services-arr-options-shb.arr.readarr.backup.request.hooks"
-  ],
-  "services-arr-options-shb.arr.readarr.backup.request.hooks.afterBackup": [
-    "services-arr.html#services-arr-options-shb.arr.readarr.backup.request.hooks.afterBackup"
-  ],
-  "services-arr-options-shb.arr.readarr.backup.request.hooks.beforeBackup": [
-    "services-arr.html#services-arr-options-shb.arr.readarr.backup.request.hooks.beforeBackup"
   ],
   "services-arr-options-shb.arr.readarr.backup.request.sourceDirectories": [
     "services-arr.html#services-arr-options-shb.arr.readarr.backup.request.sourceDirectories"
@@ -3233,17 +3266,20 @@
   "services-arr-options-shb.arr.sonarr.backup.request": [
     "services-arr.html#services-arr-options-shb.arr.sonarr.backup.request"
   ],
+  "services-arr-options-shb.arr.sonarr.backup.request.afterBackup": [
+    "services-arr.html#services-arr-options-shb.arr.sonarr.backup.request.afterBackup"
+  ],
+  "services-arr-options-shb.arr.sonarr.backup.request.afterRestore": [
+    "services-arr.html#services-arr-options-shb.arr.sonarr.backup.request.afterRestore"
+  ],
+  "services-arr-options-shb.arr.sonarr.backup.request.beforeBackup": [
+    "services-arr.html#services-arr-options-shb.arr.sonarr.backup.request.beforeBackup"
+  ],
+  "services-arr-options-shb.arr.sonarr.backup.request.beforeRestore": [
+    "services-arr.html#services-arr-options-shb.arr.sonarr.backup.request.beforeRestore"
+  ],
   "services-arr-options-shb.arr.sonarr.backup.request.excludePatterns": [
     "services-arr.html#services-arr-options-shb.arr.sonarr.backup.request.excludePatterns"
-  ],
-  "services-arr-options-shb.arr.sonarr.backup.request.hooks": [
-    "services-arr.html#services-arr-options-shb.arr.sonarr.backup.request.hooks"
-  ],
-  "services-arr-options-shb.arr.sonarr.backup.request.hooks.afterBackup": [
-    "services-arr.html#services-arr-options-shb.arr.sonarr.backup.request.hooks.afterBackup"
-  ],
-  "services-arr-options-shb.arr.sonarr.backup.request.hooks.beforeBackup": [
-    "services-arr.html#services-arr-options-shb.arr.sonarr.backup.request.hooks.beforeBackup"
   ],
   "services-arr-options-shb.arr.sonarr.backup.request.sourceDirectories": [
     "services-arr.html#services-arr-options-shb.arr.sonarr.backup.request.sourceDirectories"
@@ -3434,17 +3470,20 @@
   "services-firefly-iii-options-shb.firefly-iii.backup.request": [
     "services-firefly-iii.html#services-firefly-iii-options-shb.firefly-iii.backup.request"
   ],
+  "services-firefly-iii-options-shb.firefly-iii.backup.request.afterBackup": [
+    "services-firefly-iii.html#services-firefly-iii-options-shb.firefly-iii.backup.request.afterBackup"
+  ],
+  "services-firefly-iii-options-shb.firefly-iii.backup.request.afterRestore": [
+    "services-firefly-iii.html#services-firefly-iii-options-shb.firefly-iii.backup.request.afterRestore"
+  ],
+  "services-firefly-iii-options-shb.firefly-iii.backup.request.beforeBackup": [
+    "services-firefly-iii.html#services-firefly-iii-options-shb.firefly-iii.backup.request.beforeBackup"
+  ],
+  "services-firefly-iii-options-shb.firefly-iii.backup.request.beforeRestore": [
+    "services-firefly-iii.html#services-firefly-iii-options-shb.firefly-iii.backup.request.beforeRestore"
+  ],
   "services-firefly-iii-options-shb.firefly-iii.backup.request.excludePatterns": [
     "services-firefly-iii.html#services-firefly-iii-options-shb.firefly-iii.backup.request.excludePatterns"
-  ],
-  "services-firefly-iii-options-shb.firefly-iii.backup.request.hooks": [
-    "services-firefly-iii.html#services-firefly-iii-options-shb.firefly-iii.backup.request.hooks"
-  ],
-  "services-firefly-iii-options-shb.firefly-iii.backup.request.hooks.afterBackup": [
-    "services-firefly-iii.html#services-firefly-iii-options-shb.firefly-iii.backup.request.hooks.afterBackup"
-  ],
-  "services-firefly-iii-options-shb.firefly-iii.backup.request.hooks.beforeBackup": [
-    "services-firefly-iii.html#services-firefly-iii-options-shb.firefly-iii.backup.request.hooks.beforeBackup"
   ],
   "services-firefly-iii-options-shb.firefly-iii.backup.request.sourceDirectories": [
     "services-firefly-iii.html#services-firefly-iii-options-shb.firefly-iii.backup.request.sourceDirectories"
@@ -3716,17 +3755,20 @@
   "services-forgejo-options-shb.forgejo.backup.request": [
     "services-forgejo.html#services-forgejo-options-shb.forgejo.backup.request"
   ],
+  "services-forgejo-options-shb.forgejo.backup.request.afterBackup": [
+    "services-forgejo.html#services-forgejo-options-shb.forgejo.backup.request.afterBackup"
+  ],
+  "services-forgejo-options-shb.forgejo.backup.request.afterRestore": [
+    "services-forgejo.html#services-forgejo-options-shb.forgejo.backup.request.afterRestore"
+  ],
+  "services-forgejo-options-shb.forgejo.backup.request.beforeBackup": [
+    "services-forgejo.html#services-forgejo-options-shb.forgejo.backup.request.beforeBackup"
+  ],
+  "services-forgejo-options-shb.forgejo.backup.request.beforeRestore": [
+    "services-forgejo.html#services-forgejo-options-shb.forgejo.backup.request.beforeRestore"
+  ],
   "services-forgejo-options-shb.forgejo.backup.request.excludePatterns": [
     "services-forgejo.html#services-forgejo-options-shb.forgejo.backup.request.excludePatterns"
-  ],
-  "services-forgejo-options-shb.forgejo.backup.request.hooks": [
-    "services-forgejo.html#services-forgejo-options-shb.forgejo.backup.request.hooks"
-  ],
-  "services-forgejo-options-shb.forgejo.backup.request.hooks.afterBackup": [
-    "services-forgejo.html#services-forgejo-options-shb.forgejo.backup.request.hooks.afterBackup"
-  ],
-  "services-forgejo-options-shb.forgejo.backup.request.hooks.beforeBackup": [
-    "services-forgejo.html#services-forgejo-options-shb.forgejo.backup.request.hooks.beforeBackup"
   ],
   "services-forgejo-options-shb.forgejo.backup.request.sourceDirectories": [
     "services-forgejo.html#services-forgejo-options-shb.forgejo.backup.request.sourceDirectories"
@@ -4061,17 +4103,20 @@
   "services-home-assistant-options-shb.home-assistant.backup.request": [
     "services-home-assistant.html#services-home-assistant-options-shb.home-assistant.backup.request"
   ],
+  "services-home-assistant-options-shb.home-assistant.backup.request.afterBackup": [
+    "services-home-assistant.html#services-home-assistant-options-shb.home-assistant.backup.request.afterBackup"
+  ],
+  "services-home-assistant-options-shb.home-assistant.backup.request.afterRestore": [
+    "services-home-assistant.html#services-home-assistant-options-shb.home-assistant.backup.request.afterRestore"
+  ],
+  "services-home-assistant-options-shb.home-assistant.backup.request.beforeBackup": [
+    "services-home-assistant.html#services-home-assistant-options-shb.home-assistant.backup.request.beforeBackup"
+  ],
+  "services-home-assistant-options-shb.home-assistant.backup.request.beforeRestore": [
+    "services-home-assistant.html#services-home-assistant-options-shb.home-assistant.backup.request.beforeRestore"
+  ],
   "services-home-assistant-options-shb.home-assistant.backup.request.excludePatterns": [
     "services-home-assistant.html#services-home-assistant-options-shb.home-assistant.backup.request.excludePatterns"
-  ],
-  "services-home-assistant-options-shb.home-assistant.backup.request.hooks": [
-    "services-home-assistant.html#services-home-assistant-options-shb.home-assistant.backup.request.hooks"
-  ],
-  "services-home-assistant-options-shb.home-assistant.backup.request.hooks.afterBackup": [
-    "services-home-assistant.html#services-home-assistant-options-shb.home-assistant.backup.request.hooks.afterBackup"
-  ],
-  "services-home-assistant-options-shb.home-assistant.backup.request.hooks.beforeBackup": [
-    "services-home-assistant.html#services-home-assistant-options-shb.home-assistant.backup.request.hooks.beforeBackup"
   ],
   "services-home-assistant-options-shb.home-assistant.backup.request.sourceDirectories": [
     "services-home-assistant.html#services-home-assistant-options-shb.home-assistant.backup.request.sourceDirectories"
@@ -4379,17 +4424,20 @@
   "services-immich-options-shb.immich.backup.request": [
     "services-immich.html#services-immich-options-shb.immich.backup.request"
   ],
+  "services-immich-options-shb.immich.backup.request.afterBackup": [
+    "services-immich.html#services-immich-options-shb.immich.backup.request.afterBackup"
+  ],
+  "services-immich-options-shb.immich.backup.request.afterRestore": [
+    "services-immich.html#services-immich-options-shb.immich.backup.request.afterRestore"
+  ],
+  "services-immich-options-shb.immich.backup.request.beforeBackup": [
+    "services-immich.html#services-immich-options-shb.immich.backup.request.beforeBackup"
+  ],
+  "services-immich-options-shb.immich.backup.request.beforeRestore": [
+    "services-immich.html#services-immich-options-shb.immich.backup.request.beforeRestore"
+  ],
   "services-immich-options-shb.immich.backup.request.excludePatterns": [
     "services-immich.html#services-immich-options-shb.immich.backup.request.excludePatterns"
-  ],
-  "services-immich-options-shb.immich.backup.request.hooks": [
-    "services-immich.html#services-immich-options-shb.immich.backup.request.hooks"
-  ],
-  "services-immich-options-shb.immich.backup.request.hooks.afterBackup": [
-    "services-immich.html#services-immich-options-shb.immich.backup.request.hooks.afterBackup"
-  ],
-  "services-immich-options-shb.immich.backup.request.hooks.beforeBackup": [
-    "services-immich.html#services-immich-options-shb.immich.backup.request.hooks.beforeBackup"
   ],
   "services-immich-options-shb.immich.backup.request.sourceDirectories": [
     "services-immich.html#services-immich-options-shb.immich.backup.request.sourceDirectories"
@@ -4742,17 +4790,20 @@
   "services-jellyfin-options-shb.jellyfin.backup.request": [
     "services-jellyfin.html#services-jellyfin-options-shb.jellyfin.backup.request"
   ],
+  "services-jellyfin-options-shb.jellyfin.backup.request.afterBackup": [
+    "services-jellyfin.html#services-jellyfin-options-shb.jellyfin.backup.request.afterBackup"
+  ],
+  "services-jellyfin-options-shb.jellyfin.backup.request.afterRestore": [
+    "services-jellyfin.html#services-jellyfin-options-shb.jellyfin.backup.request.afterRestore"
+  ],
+  "services-jellyfin-options-shb.jellyfin.backup.request.beforeBackup": [
+    "services-jellyfin.html#services-jellyfin-options-shb.jellyfin.backup.request.beforeBackup"
+  ],
+  "services-jellyfin-options-shb.jellyfin.backup.request.beforeRestore": [
+    "services-jellyfin.html#services-jellyfin-options-shb.jellyfin.backup.request.beforeRestore"
+  ],
   "services-jellyfin-options-shb.jellyfin.backup.request.excludePatterns": [
     "services-jellyfin.html#services-jellyfin-options-shb.jellyfin.backup.request.excludePatterns"
-  ],
-  "services-jellyfin-options-shb.jellyfin.backup.request.hooks": [
-    "services-jellyfin.html#services-jellyfin-options-shb.jellyfin.backup.request.hooks"
-  ],
-  "services-jellyfin-options-shb.jellyfin.backup.request.hooks.afterBackup": [
-    "services-jellyfin.html#services-jellyfin-options-shb.jellyfin.backup.request.hooks.afterBackup"
-  ],
-  "services-jellyfin-options-shb.jellyfin.backup.request.hooks.beforeBackup": [
-    "services-jellyfin.html#services-jellyfin-options-shb.jellyfin.backup.request.hooks.beforeBackup"
   ],
   "services-jellyfin-options-shb.jellyfin.backup.request.sourceDirectories": [
     "services-jellyfin.html#services-jellyfin-options-shb.jellyfin.backup.request.sourceDirectories"
@@ -4967,17 +5018,20 @@
   "services-karakeep-options-shb.karakeep.backup.request": [
     "services-karakeep.html#services-karakeep-options-shb.karakeep.backup.request"
   ],
+  "services-karakeep-options-shb.karakeep.backup.request.afterBackup": [
+    "services-karakeep.html#services-karakeep-options-shb.karakeep.backup.request.afterBackup"
+  ],
+  "services-karakeep-options-shb.karakeep.backup.request.afterRestore": [
+    "services-karakeep.html#services-karakeep-options-shb.karakeep.backup.request.afterRestore"
+  ],
+  "services-karakeep-options-shb.karakeep.backup.request.beforeBackup": [
+    "services-karakeep.html#services-karakeep-options-shb.karakeep.backup.request.beforeBackup"
+  ],
+  "services-karakeep-options-shb.karakeep.backup.request.beforeRestore": [
+    "services-karakeep.html#services-karakeep-options-shb.karakeep.backup.request.beforeRestore"
+  ],
   "services-karakeep-options-shb.karakeep.backup.request.excludePatterns": [
     "services-karakeep.html#services-karakeep-options-shb.karakeep.backup.request.excludePatterns"
-  ],
-  "services-karakeep-options-shb.karakeep.backup.request.hooks": [
-    "services-karakeep.html#services-karakeep-options-shb.karakeep.backup.request.hooks"
-  ],
-  "services-karakeep-options-shb.karakeep.backup.request.hooks.afterBackup": [
-    "services-karakeep.html#services-karakeep-options-shb.karakeep.backup.request.hooks.afterBackup"
-  ],
-  "services-karakeep-options-shb.karakeep.backup.request.hooks.beforeBackup": [
-    "services-karakeep.html#services-karakeep-options-shb.karakeep.backup.request.hooks.beforeBackup"
   ],
   "services-karakeep-options-shb.karakeep.backup.request.sourceDirectories": [
     "services-karakeep.html#services-karakeep-options-shb.karakeep.backup.request.sourceDirectories"
@@ -5240,17 +5294,20 @@
   "services-mailserver-options-shb.mailserver.backup.request": [
     "services-mailserver.html#services-mailserver-options-shb.mailserver.backup.request"
   ],
+  "services-mailserver-options-shb.mailserver.backup.request.afterBackup": [
+    "services-mailserver.html#services-mailserver-options-shb.mailserver.backup.request.afterBackup"
+  ],
+  "services-mailserver-options-shb.mailserver.backup.request.afterRestore": [
+    "services-mailserver.html#services-mailserver-options-shb.mailserver.backup.request.afterRestore"
+  ],
+  "services-mailserver-options-shb.mailserver.backup.request.beforeBackup": [
+    "services-mailserver.html#services-mailserver-options-shb.mailserver.backup.request.beforeBackup"
+  ],
+  "services-mailserver-options-shb.mailserver.backup.request.beforeRestore": [
+    "services-mailserver.html#services-mailserver-options-shb.mailserver.backup.request.beforeRestore"
+  ],
   "services-mailserver-options-shb.mailserver.backup.request.excludePatterns": [
     "services-mailserver.html#services-mailserver-options-shb.mailserver.backup.request.excludePatterns"
-  ],
-  "services-mailserver-options-shb.mailserver.backup.request.hooks": [
-    "services-mailserver.html#services-mailserver-options-shb.mailserver.backup.request.hooks"
-  ],
-  "services-mailserver-options-shb.mailserver.backup.request.hooks.afterBackup": [
-    "services-mailserver.html#services-mailserver-options-shb.mailserver.backup.request.hooks.afterBackup"
-  ],
-  "services-mailserver-options-shb.mailserver.backup.request.hooks.beforeBackup": [
-    "services-mailserver.html#services-mailserver-options-shb.mailserver.backup.request.hooks.beforeBackup"
   ],
   "services-mailserver-options-shb.mailserver.backup.request.sourceDirectories": [
     "services-mailserver.html#services-mailserver-options-shb.mailserver.backup.request.sourceDirectories"
@@ -5273,17 +5330,20 @@
   "services-mailserver-options-shb.mailserver.backupDKIM.request": [
     "services-mailserver.html#services-mailserver-options-shb.mailserver.backupDKIM.request"
   ],
+  "services-mailserver-options-shb.mailserver.backupDKIM.request.afterBackup": [
+    "services-mailserver.html#services-mailserver-options-shb.mailserver.backupDKIM.request.afterBackup"
+  ],
+  "services-mailserver-options-shb.mailserver.backupDKIM.request.afterRestore": [
+    "services-mailserver.html#services-mailserver-options-shb.mailserver.backupDKIM.request.afterRestore"
+  ],
+  "services-mailserver-options-shb.mailserver.backupDKIM.request.beforeBackup": [
+    "services-mailserver.html#services-mailserver-options-shb.mailserver.backupDKIM.request.beforeBackup"
+  ],
+  "services-mailserver-options-shb.mailserver.backupDKIM.request.beforeRestore": [
+    "services-mailserver.html#services-mailserver-options-shb.mailserver.backupDKIM.request.beforeRestore"
+  ],
   "services-mailserver-options-shb.mailserver.backupDKIM.request.excludePatterns": [
     "services-mailserver.html#services-mailserver-options-shb.mailserver.backupDKIM.request.excludePatterns"
-  ],
-  "services-mailserver-options-shb.mailserver.backupDKIM.request.hooks": [
-    "services-mailserver.html#services-mailserver-options-shb.mailserver.backupDKIM.request.hooks"
-  ],
-  "services-mailserver-options-shb.mailserver.backupDKIM.request.hooks.afterBackup": [
-    "services-mailserver.html#services-mailserver-options-shb.mailserver.backupDKIM.request.hooks.afterBackup"
-  ],
-  "services-mailserver-options-shb.mailserver.backupDKIM.request.hooks.beforeBackup": [
-    "services-mailserver.html#services-mailserver-options-shb.mailserver.backupDKIM.request.hooks.beforeBackup"
   ],
   "services-mailserver-options-shb.mailserver.backupDKIM.request.sourceDirectories": [
     "services-mailserver.html#services-mailserver-options-shb.mailserver.backupDKIM.request.sourceDirectories"
@@ -5768,17 +5828,20 @@
   "services-nextcloudserver-options-shb.nextcloud.backup.request": [
     "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.backup.request"
   ],
+  "services-nextcloudserver-options-shb.nextcloud.backup.request.afterBackup": [
+    "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.backup.request.afterBackup"
+  ],
+  "services-nextcloudserver-options-shb.nextcloud.backup.request.afterRestore": [
+    "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.backup.request.afterRestore"
+  ],
+  "services-nextcloudserver-options-shb.nextcloud.backup.request.beforeBackup": [
+    "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.backup.request.beforeBackup"
+  ],
+  "services-nextcloudserver-options-shb.nextcloud.backup.request.beforeRestore": [
+    "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.backup.request.beforeRestore"
+  ],
   "services-nextcloudserver-options-shb.nextcloud.backup.request.excludePatterns": [
     "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.backup.request.excludePatterns"
-  ],
-  "services-nextcloudserver-options-shb.nextcloud.backup.request.hooks": [
-    "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.backup.request.hooks"
-  ],
-  "services-nextcloudserver-options-shb.nextcloud.backup.request.hooks.afterBackup": [
-    "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.backup.request.hooks.afterBackup"
-  ],
-  "services-nextcloudserver-options-shb.nextcloud.backup.request.hooks.beforeBackup": [
-    "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.backup.request.hooks.beforeBackup"
   ],
   "services-nextcloudserver-options-shb.nextcloud.backup.request.sourceDirectories": [
     "services-nextcloud.html#services-nextcloudserver-options-shb.nextcloud.backup.request.sourceDirectories"
@@ -5960,17 +6023,20 @@
   "services-open-webui-options-shb.open-webui.backup.request": [
     "services-open-webui.html#services-open-webui-options-shb.open-webui.backup.request"
   ],
+  "services-open-webui-options-shb.open-webui.backup.request.afterBackup": [
+    "services-open-webui.html#services-open-webui-options-shb.open-webui.backup.request.afterBackup"
+  ],
+  "services-open-webui-options-shb.open-webui.backup.request.afterRestore": [
+    "services-open-webui.html#services-open-webui-options-shb.open-webui.backup.request.afterRestore"
+  ],
+  "services-open-webui-options-shb.open-webui.backup.request.beforeBackup": [
+    "services-open-webui.html#services-open-webui-options-shb.open-webui.backup.request.beforeBackup"
+  ],
+  "services-open-webui-options-shb.open-webui.backup.request.beforeRestore": [
+    "services-open-webui.html#services-open-webui-options-shb.open-webui.backup.request.beforeRestore"
+  ],
   "services-open-webui-options-shb.open-webui.backup.request.excludePatterns": [
     "services-open-webui.html#services-open-webui-options-shb.open-webui.backup.request.excludePatterns"
-  ],
-  "services-open-webui-options-shb.open-webui.backup.request.hooks": [
-    "services-open-webui.html#services-open-webui-options-shb.open-webui.backup.request.hooks"
-  ],
-  "services-open-webui-options-shb.open-webui.backup.request.hooks.afterBackup": [
-    "services-open-webui.html#services-open-webui-options-shb.open-webui.backup.request.hooks.afterBackup"
-  ],
-  "services-open-webui-options-shb.open-webui.backup.request.hooks.beforeBackup": [
-    "services-open-webui.html#services-open-webui-options-shb.open-webui.backup.request.hooks.beforeBackup"
   ],
   "services-open-webui-options-shb.open-webui.backup.request.sourceDirectories": [
     "services-open-webui.html#services-open-webui-options-shb.open-webui.backup.request.sourceDirectories"
@@ -6131,17 +6197,20 @@
   "services-pinchflat-options-shb.pinchflat.backup.request": [
     "services-pinchflat.html#services-pinchflat-options-shb.pinchflat.backup.request"
   ],
+  "services-pinchflat-options-shb.pinchflat.backup.request.afterBackup": [
+    "services-pinchflat.html#services-pinchflat-options-shb.pinchflat.backup.request.afterBackup"
+  ],
+  "services-pinchflat-options-shb.pinchflat.backup.request.afterRestore": [
+    "services-pinchflat.html#services-pinchflat-options-shb.pinchflat.backup.request.afterRestore"
+  ],
+  "services-pinchflat-options-shb.pinchflat.backup.request.beforeBackup": [
+    "services-pinchflat.html#services-pinchflat-options-shb.pinchflat.backup.request.beforeBackup"
+  ],
+  "services-pinchflat-options-shb.pinchflat.backup.request.beforeRestore": [
+    "services-pinchflat.html#services-pinchflat-options-shb.pinchflat.backup.request.beforeRestore"
+  ],
   "services-pinchflat-options-shb.pinchflat.backup.request.excludePatterns": [
     "services-pinchflat.html#services-pinchflat-options-shb.pinchflat.backup.request.excludePatterns"
-  ],
-  "services-pinchflat-options-shb.pinchflat.backup.request.hooks": [
-    "services-pinchflat.html#services-pinchflat-options-shb.pinchflat.backup.request.hooks"
-  ],
-  "services-pinchflat-options-shb.pinchflat.backup.request.hooks.afterBackup": [
-    "services-pinchflat.html#services-pinchflat-options-shb.pinchflat.backup.request.hooks.afterBackup"
-  ],
-  "services-pinchflat-options-shb.pinchflat.backup.request.hooks.beforeBackup": [
-    "services-pinchflat.html#services-pinchflat-options-shb.pinchflat.backup.request.hooks.beforeBackup"
   ],
   "services-pinchflat-options-shb.pinchflat.backup.request.sourceDirectories": [
     "services-pinchflat.html#services-pinchflat-options-shb.pinchflat.backup.request.sourceDirectories"
@@ -6290,17 +6359,20 @@
   "services-vaultwarden-options-shb.vaultwarden.backup.request": [
     "services-vaultwarden.html#services-vaultwarden-options-shb.vaultwarden.backup.request"
   ],
+  "services-vaultwarden-options-shb.vaultwarden.backup.request.afterBackup": [
+    "services-vaultwarden.html#services-vaultwarden-options-shb.vaultwarden.backup.request.afterBackup"
+  ],
+  "services-vaultwarden-options-shb.vaultwarden.backup.request.afterRestore": [
+    "services-vaultwarden.html#services-vaultwarden-options-shb.vaultwarden.backup.request.afterRestore"
+  ],
+  "services-vaultwarden-options-shb.vaultwarden.backup.request.beforeBackup": [
+    "services-vaultwarden.html#services-vaultwarden-options-shb.vaultwarden.backup.request.beforeBackup"
+  ],
+  "services-vaultwarden-options-shb.vaultwarden.backup.request.beforeRestore": [
+    "services-vaultwarden.html#services-vaultwarden-options-shb.vaultwarden.backup.request.beforeRestore"
+  ],
   "services-vaultwarden-options-shb.vaultwarden.backup.request.excludePatterns": [
     "services-vaultwarden.html#services-vaultwarden-options-shb.vaultwarden.backup.request.excludePatterns"
-  ],
-  "services-vaultwarden-options-shb.vaultwarden.backup.request.hooks": [
-    "services-vaultwarden.html#services-vaultwarden-options-shb.vaultwarden.backup.request.hooks"
-  ],
-  "services-vaultwarden-options-shb.vaultwarden.backup.request.hooks.afterBackup": [
-    "services-vaultwarden.html#services-vaultwarden-options-shb.vaultwarden.backup.request.hooks.afterBackup"
-  ],
-  "services-vaultwarden-options-shb.vaultwarden.backup.request.hooks.beforeBackup": [
-    "services-vaultwarden.html#services-vaultwarden-options-shb.vaultwarden.backup.request.hooks.beforeBackup"
   ],
   "services-vaultwarden-options-shb.vaultwarden.backup.request.sourceDirectories": [
     "services-vaultwarden.html#services-vaultwarden-options-shb.vaultwarden.backup.request.sourceDirectories"

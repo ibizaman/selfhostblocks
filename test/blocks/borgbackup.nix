@@ -66,7 +66,7 @@ let
                 "/opt/files/B"
               ];
 
-              hooks.beforeBackup = [
+              beforeBackup = [
                 ''
                   echo $RUNTIME_DIRECTORY
                   if [ "$RUNTIME_DIRECTORY" = /run/borgbackup-backups-testinstance_opt_repos_A ]; then
