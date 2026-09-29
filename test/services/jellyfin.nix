@@ -10,6 +10,12 @@ let
   adminUser = "jellyfin";
   adminPassword = "admin";
 
+  # Login fields can disappear while loading; wait for authenticated navigation.
+  # Jellyfin 12 retains a hidden copy of this navigation in the DOM.
+  loginSuccess = [
+    "expect(page.get_by_text('Favorites', exact=True).filter(visible=True)).to_be_visible(timeout=30000)"
+  ];
+
   commonExtraScript =
     { node, ... }:
     ''
@@ -125,12 +131,7 @@ let
           {
             username = adminUser;
             password = adminPassword;
-            nextPageExpect = [
-              # "expect(page).to_have_title(re.compile('Jellyfin'))"
-              "expect(page.get_by_text(re.compile('[Ii]nvalid'))).not_to_be_visible(timeout=10000)"
-              "expect(page.get_by_label(re.compile('^[Uu]ser'))).not_to_be_visible(timeout=10000)"
-              "expect(page.get_by_label(re.compile('^[Pp]assword$'))).not_to_be_visible(timeout=10000)"
-            ];
+            nextPageExpect = loginSuccess;
           }
         ];
       };
@@ -221,26 +222,14 @@ let
               {
                 username = adminUser;
                 password = adminPassword;
-                nextPageExpect = [
-                  # "expect(page).to_have_title(re.compile('Jellyfin'))"
-                  "expect(page.get_by_text(re.compile('[Ii]nvalid'))).not_to_be_visible(timeout=10000)"
-                  "expect(page.get_by_label(re.compile('^[Uu]ser'))).not_to_be_visible(timeout=10000)"
-                  "expect(page.get_by_label(re.compile('^[Pp]assword$'))).not_to_be_visible(timeout=10000)"
-                ];
+                nextPageExpect = loginSuccess;
               }
             ]
             ++ [
               {
                 username = "alice";
                 password = "AlicePassword";
-                nextPageExpect = [
-                  # "expect(page).to_have_title(re.compile('Jellyfin'))"
-                  # For a reason I can't explain, redirection needs to happen manually.
-                  "page.goto('${config.test.proto}://${config.test.fqdn}/web/')"
-                  "expect(page.get_by_text(re.compile('[Ii]nvalid'))).not_to_be_visible(timeout=10000)"
-                  "expect(page.get_by_label(re.compile('^[Uu]ser'))).not_to_be_visible(timeout=10000)"
-                  "expect(page.get_by_label(re.compile('^[Pp]assword$'))).not_to_be_visible(timeout=10000)"
-                ];
+                nextPageExpect = loginSuccess;
               }
             ]
             ++ lib.optionals (!config.test.login.onlyAlice) [
@@ -255,14 +244,7 @@ let
               {
                 username = "bob";
                 password = "BobPassword";
-                nextPageExpect = [
-                  # "expect(page).to_have_title(re.compile('Jellyfin'))"
-                  # For a reason I can't explain, redirection needs to happen manually.
-                  "page.goto('${config.test.proto}://${config.test.fqdn}/web/')"
-                  "expect(page.get_by_text(re.compile('[Ii]nvalid'))).not_to_be_visible(timeout=10000)"
-                  "expect(page.get_by_label(re.compile('^[Uu]ser'))).not_to_be_visible(timeout=10000)"
-                  "expect(page.get_by_label(re.compile('^[Pp]assword$'))).not_to_be_visible(timeout=10000)"
-                ];
+                nextPageExpect = loginSuccess;
               }
               {
                 username = "bob";
@@ -495,6 +477,32 @@ in
               c = json.loads(r[1])
               if "status" in c and c["status"] != "Disabled":
                   raise Exception(f'meta.json status: expected Disabled, got: {c["status"]}')
+        '';
+      postLoginScript =
+        { node, ... }:
+        let
+          passwords = lib.genAttrs [ "alice" "bob" "charlie" ] (
+            username: node.config.shb.hardcodedsecret.${username}.settings.content
+          );
+        in
+        ''
+          passwords = json.loads(r"""${builtins.toJSON passwords}""")
+          for username, is_admin in [("alice", False), ("bob", True)]:
+              with subtest(f"LDAP authentication and role for {username}"):
+                  response = curl(client, "", "${node.config.test.proto_fqdn}/Users/AuthenticateByName",
+                      data=json.dumps({"Username": username, "Pw": passwords[username]}),
+                      extra=headers + " --silent")
+                  assert isinstance(response, dict), response
+                  assert response.get("AccessToken"), response
+                  assert response["User"]["Name"] == username, response
+                  assert response["User"]["Policy"]["IsAdministrator"] is is_admin, response
+
+          for username, password in [("alice", "badpassword"), ("bob", "badpassword"), ("charlie", passwords["charlie"])]:
+              with subtest(f"Reject LDAP login for {username}"):
+                  response = curl(client, """{"code":%{response_code}}""", "${node.config.test.proto_fqdn}/Users/AuthenticateByName",
+                      data=json.dumps({"Username": username, "Pw": password}),
+                      extra=headers)
+                  assert response["code"] == 401, response
         '';
     };
   };

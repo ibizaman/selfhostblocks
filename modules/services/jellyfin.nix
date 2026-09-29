@@ -150,13 +150,13 @@ in
 
           userGroup = lib.mkOption {
             type = types.str;
-            description = "LDAP user group";
+            description = "LDAP group whose members can log in. Members of `adminGroup` can also log in.";
             default = "jellyfin_user";
           };
 
           adminGroup = lib.mkOption {
             type = types.str;
-            description = "LDAP admin group";
+            description = "LDAP group whose members can log in and receive administrator privileges.";
             default = "jellyfin_admin";
           };
 
@@ -459,7 +459,7 @@ in
             <LdapBindUser>uid=admin,ou=people,${cfg.ldap.dcdomain}</LdapBindUser>
             <LdapBindPassword>%SECRET_LDAP_PASSWORD%</LdapBindPassword>
             <LdapBaseDn>ou=people,${cfg.ldap.dcdomain}</LdapBaseDn>
-            <LdapSearchFilter>(memberof=cn=${cfg.ldap.userGroup},ou=groups,${cfg.ldap.dcdomain})</LdapSearchFilter>
+            <LdapSearchFilter>(|(memberof=cn=${cfg.ldap.userGroup},ou=groups,${cfg.ldap.dcdomain})(memberof=cn=${cfg.ldap.adminGroup},ou=groups,${cfg.ldap.dcdomain}))</LdapSearchFilter>
             <LdapAdminBaseDn>ou=people,${cfg.ldap.dcdomain}</LdapAdminBaseDn>
             <LdapAdminFilter>(memberof=cn=${cfg.ldap.adminGroup},ou=groups,${cfg.ldap.dcdomain})</LdapAdminFilter>
             <EnableLdapAdminFilterMemberUid>false</EnableLdapAdminFilterMemberUid>
