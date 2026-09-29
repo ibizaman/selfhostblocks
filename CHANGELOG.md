@@ -39,6 +39,7 @@ Template:
 
 ## Fixes
 
+- Allow Jellyfin LDAP administrators to log in without also belonging to the regular user group.
 - Fix Open WebUI backups omitting state stored in systemd's private DynamicUser directory
   ([issue #721](https://github.com/ibizaman/selfhostblocks/issues/721)).
 
