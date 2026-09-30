@@ -29,6 +29,7 @@ let
       postLoginScript ? { ... }: "",
       redirectSSO ? false,
       init ? true,
+      ...
     }:
     { nodes, ... }:
     let
@@ -206,6 +207,73 @@ let
               server.succeed("systemctl start restic-backups-testinstance_opt_repos_A")
         '';
     };
+
+  fullBackupScript =
+    args@{
+      serviceName,
+      dataDir,
+      initialize,
+      rollbackCheck,
+      restoreCheck,
+      ...
+    }:
+    let
+      accessArgs = builtins.removeAttrs args [
+        "serviceName"
+        "dataDir"
+        "initialize"
+        "rollbackCheck"
+        "restoreCheck"
+      ];
+    in
+    (accessScript accessArgs).override {
+      postLoginScript =
+        { ... }:
+        ''
+          with subtest("backup"):
+              server.succeed("systemctl start restic-backups-testinstance_opt_repos_A")
+
+          with subtest("list snapshots"):
+              snapshots = server.succeed("restic-backups-testinstance_opt_repos_A snapshots").splitlines()
+              if len(snapshots) != 1:
+                  raise Exception(f"Expected to find 1 snapshot after the backup, got {len(snapshots)}")
+              snapshot = snapshots[0]
+
+          with subtest("initialize"):
+              ${indent_newlines initialize}
+              ${indent_newlines restoreCheck}
+
+          with subtest("backup"):
+              server.succeed("systemctl start restic-backups-testinstance_opt_repos_A")
+
+          with subtest("list snapshots"):
+              snapshots = server.succeed("restic-backups-testinstance_opt_repos_A snapshots").splitlines()
+              if len(snapshots) != 2:
+                  raise Exception(f"Expected to find 2 snapshots after the backup, got {len(snapshots)}")
+              print(f"Snapshots:\n{"\n".join(snapshots)}")
+
+          with subtest("rollback"):
+              print(f"Rolling back to {snapshots[0]}")
+              server.succeed(f"restic-backups-testinstance_opt_repos_A restore {snapshots[0]}")
+
+          with subtest("rollbackCheck"):
+              ${indent_newlines rollbackCheck}
+
+          with subtest("restore"):
+              print(f"Rolling back to {snapshots[1]}")
+              server.succeed(f"restic-backups-testinstance_opt_repos_A restore {snapshots[1]}")
+
+          with subtest("restoreCheck"):
+              ${indent_newlines restoreCheck}
+        '';
+    };
+
+  indent_newlines =
+    value:
+    let
+      indent = "    ";
+    in
+    builtins.replaceStrings [ "\n" ] [ "\n${indent}" ] value;
 in
 {
   inherit baseImports accessScript;
@@ -222,6 +290,7 @@ in
   mkScripts = args: {
     access = accessScript args;
     backup = backupScript args;
+    fullBackup = fullBackupScript args;
   };
 
   baseModule =
