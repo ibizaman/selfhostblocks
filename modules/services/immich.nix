@@ -24,13 +24,13 @@ let
     "immich_scope"
   ];
 
-  dataFolder = cfg.mediaLocation;
   ssoFqdnWithPort =
     if isNull cfg.sso.port then cfg.sso.endpoint else "${cfg.sso.endpoint}:${toString cfg.sso.port}";
   # Generate Immich configuration file only for SHB-managed settings
   shbManagedSettings =
     lib.optionalAttrs (cfg.settings != { }) cfg.settings
     // {
+      server.externalDomain = "${protocol}://${cfg.subdomain}.${cfg.domain}";
       newVersionCheck.enabled = cfg.newVersionCheck;
     }
     // lib.optionalAttrs (cfg.sso.enable) {
@@ -45,7 +45,8 @@ let
         scope = builtins.concatStringsSep " " scopes;
         storageLabelClaim = cfg.sso.storageLabelClaim;
         #storageQuotaClaim = quotaClaim; # TODO (commented out, otherwise defaults to 0 bytes!)
-        defaultStorageQuota = 0;
+        # 0 means the user cannot upload anything. Empty means infinity.
+        # defaultStorageQuota = 0;
         buttonText = cfg.sso.buttonText;
         autoRegister = cfg.sso.autoRegister;
         autoLaunch = cfg.sso.autoLaunch;
@@ -104,6 +105,12 @@ let
     str
     path
     ;
+
+  backupApiKeyPath =
+    if cfg.backupApiKey != null then
+      cfg.backupApiKey.result.path
+    else
+      "${cfg.mediaLocation}/backupApiKey";
 in
 {
   imports = [
@@ -276,6 +283,33 @@ in
       default = null;
     };
 
+    backupEmail = mkOption {
+      description = ''
+        Email of the user which owns the api key in shb.immich.backupApiKey.
+      '';
+      type = str;
+      default = cfg.initialAdmin.email;
+      defaultText = "shb.immich.initialAdmin.email";
+    };
+
+    backupApiKey = mkOption {
+      description = ''
+        Api key with permission backup.* used to create and restore backups.
+
+        If null, no backup will be taken. Start immich once, create the api key
+        then fill this field.
+      '';
+      type = nullOr (submodule {
+        options = shb.contracts.secret.mkRequester {
+          mode = "0400";
+          owner = "immich";
+          group = "immich";
+          restartUnits = [ "immich-server.service" ];
+        };
+      });
+      default = null;
+    };
+
     backup = mkOption {
       description = ''
         Backup configuration for Immich media files and database.
@@ -285,12 +319,195 @@ in
         options = shb.contracts.backup.mkRequester {
           user = "immich";
           sourceDirectories = [
-            dataFolder
+            cfg.mediaLocation
           ];
-          excludePatterns = [
-            "*.tmp"
-            "cache/*"
-            "encoded-video/*"
+          beforeBackup = [
+            ''
+              set -euo pipefail
+
+              export PATH="${
+                pkgs.lib.makeBinPath [
+                  pkgs.coreutils
+                  pkgs.curl
+                  pkgs.jq
+                ]
+              }:$PATH"
+
+              if ! [ -f "${backupApiKeyPath}" ]; then
+                echo "No backup api key found. ${
+                  if (cfg.backupApiKey != null) then
+                    "File ${cfg.backkupApiKey} is missing or with wrong permissions."
+                  else
+                    "Run systemd service immich-bootstrap-backup-api-key.service."
+                }"
+                exit 1
+              fi
+              apiKey="$(cat "${backupApiKeyPath}")"
+              endpoint="127.0.0.1:${toString cfg.port}/api"
+
+              response="$( \
+                curl --fail-with-body -X GET "$endpoint/admin/database-backups" \
+                   -H "Content-Type: application/json" \
+                   -H "x-api-key: $apiKey" \
+              )"
+              echo "response=$response"
+              if ! backups_before="$(echo "$response" | jq -r '.backups.[].filename')"; then
+                  echo "Could not parse response as json: $response"
+                  exit 1
+              fi
+              echo "backups_before=$backups_before"
+              if ! before_count=$(echo "$response" | jq '.backups | length'); then
+                  echo "Could not parse response as json: $response"
+                  exit 1
+              fi
+              echo "before_count=$before_count"
+
+              curl --fail-with-body -X POST "$endpoint/jobs" \
+                   -H "Content-Type: application/json" \
+                   -H "x-api-key: $apiKey" \
+                   --data "{\"name\":\"backup-database\"}"
+
+              timeout=300
+              interval=2
+              start=$SECONDS
+
+              while (( $SECONDS - $start < $timeout )); do
+                  response="$( \
+                    curl --fail-with-body -X GET "$endpoint/admin/database-backups" \
+                       -H "Content-Type: application/json" \
+                       -H "x-api-key: $apiKey" \
+                  )"
+                  echo "response=$response"
+                  if ! backups_after="$(echo "$response" | jq -r '.backups.[].filename')"; then
+                    sleep "$interval"
+                    continue
+                  fi
+                  echo "backups_after=$backups_after"
+
+                  after_count=$(echo "$response" | jq '.backups | length')
+                  echo "after_count=$after_count"
+
+                  if (( after_count == before_count + 1 )); then
+                      new_entry=$(comm -13 \
+                          <(printf '%s\n' "$backups_before" | sort) \
+                          <(printf '%s\n' "$backups_after" | sort))
+
+                      break
+                  elif (( after_count != before_count )); then
+                      echo "Unexpected number of backups. We expected to find $(( before_count + 1 )) but there are $after_count backups. Aborting because we don't know which backup to choose. This can happen if two backups run simultaneously. To fix this you can just restatr this backup."
+                  fi
+
+                  sleep "$interval"
+              done
+
+              echo -n "$new_entry" > ${cfg.mediaLocation}/backups/.latest
+            ''
+          ];
+          afterBackup = [
+            ''
+              export PATH="${
+                pkgs.lib.makeBinPath [
+                  pkgs.curl
+                ]
+              }:$PATH"
+
+              if ! [ -f "${backupApiKeyPath}" ]; then
+                echo "No backup api key found. ${
+                  if (cfg.backupApiKey != null) then
+                    "File ${cfg.backkupApiKey} is missing or with wrong permissions."
+                  else
+                    "Run systemd service immich-bootstrap-backup-api-key.service."
+                }"
+                exit 1
+              fi
+              apiKey="$(cat "${backupApiKeyPath}")"
+              endpoint="127.0.0.1:${toString cfg.port}/api"
+
+              if ! [ -f "${cfg.mediaLocation}/backups/.latest" ]; then
+                exit 0
+              fi
+
+              filename="$(cat "${cfg.mediaLocation}/backups/.latest")"
+              endpoint="127.0.0.1:${toString cfg.port}/api"
+              curl --fail-with-body -X DELETE $endpoint/admin/database-backups \
+                 -H "Content-Type: application/json" \
+                 -H "x-api-key: $apiKey" \
+                 --data "{\"backups\":[\"$filename\"]}"
+            ''
+          ];
+          beforeRestore = [ ];
+          afterRestore = [
+            ''
+              export PATH="${
+                pkgs.lib.makeBinPath [
+                  pkgs.curl
+                  pkgs.coreutils
+                  pkgs.jq
+                ]
+              }:$PATH"
+
+              if ! [ -f "${backupApiKeyPath}" ]; then
+                echo "No backup api key found. ${
+                  if (cfg.backupApiKey != null) then
+                    "File ${cfg.backkupApiKey} is missing or with wrong permissions."
+                  else
+                    "Run systemd service immich-bootstrap-backup-api-key.service."
+                }"
+                exit 1
+              fi
+              apiKey="$(cat "${backupApiKeyPath}")"
+              filename="$(cat "${cfg.mediaLocation}/backups/.latest")"
+              endpoint="127.0.0.1:${toString cfg.port}/api"
+
+              cookieJar="$(mktemp)"
+              trap 'rm -f "$cookieJar"' EXIT
+
+              if ! curl --fail-with-body -X POST $endpoint/admin/maintenance \
+                     -H "Content-Type: application/json" \
+                     -H "x-api-key: $apiKey" \
+                     -c "$cookieJar" \
+                     --data "{\"action\":\"restore_database\",\"restoreBackupFilename\":\"$filename\"}" \
+                     ; then
+                   echo "Could not start restore process, aborting."
+                   exit 1
+              fi
+
+              timeout=600
+              interval=2
+              start=$SECONDS
+              success=true
+
+              while (( SECONDS - start < timeout )); do
+                  if response="$( \
+                    curl --fail-with-body -X GET "$endpoint/admin/maintenance/status" \
+                       -H "Content-Type: application/json" \
+                       -H "x-api-key: $apiKey" \
+                  )"; then
+                      if echo "$response" | jq -e '.task == "error"' >/dev/null; then
+                          echo "Database restore failed." >&2
+                          success=false
+                          break
+                      fi
+
+                      if echo "$response" | jq -e '.active == false and .action == "end"' >/dev/null; then
+                          echo "Database restore completed successfully."
+                          break
+                      fi
+                  fi
+
+                  sleep "$interval"
+              done
+
+              curl --fail-with-body -X DELETE $endpoint/admin/database-backups \
+                 -H "Content-Type: application/json" \
+                 -H "x-api-key: $apiKey" \
+                 --data "{\"backups\":[\"$filename\"]}"
+
+              if [ $success = false ]; then
+                echo "Something went wrong during the restore"
+                exit 1
+              fi
+            ''
           ];
         };
       };
@@ -562,6 +779,10 @@ in
         assertion = cfg.skipOnboarding -> cfg.initialAdmin != null;
         message = "To skip onboarding, the admin user must be set declaratively, set shb.immich.initialAdmin option.";
       }
+      {
+        assertion = cfg.backupApiKey == null -> cfg.initialAdmin != null;
+        message = "To let the SHB immich module manage the backup api key, the admin user must be set declaratively, set shb.immich.initialAdmin option.";
+      }
     ];
 
     # Configure Immich service
@@ -626,12 +847,68 @@ in
             Group = "immich";
           };
           script = ''
-            mkdir -p ${dataFolder}
+            mkdir -p ${cfg.mediaLocation}
 
             # Generate config file with only SHB-managed settings
             ${configSetupScript}
           '';
         };
+
+    # We do it ourselves to add SUPERUSER role because immich needs it for restoring a backup.
+    services.immich.database.createDB = false;
+    services.postgresql.ensureDatabases = [ config.services.immich.database.name ];
+    services.postgresql.ensureUsers = [
+      {
+        name = config.services.immich.database.user;
+        ensureDBOwnership = true;
+        ensureClauses = {
+          login = true;
+          superuser = true;
+        };
+      }
+    ];
+
+    systemd.services.immich-bootstrap-backup-api-key = mkIf (cfg.backupApiKey == null) {
+      description = "Bootstrap the Immich declarative backup API token";
+      wantedBy = [ "multi-user.target" ];
+      after = [ "immich-server.service" ];
+      requires = [ "immich-server.service" ];
+      serviceConfig = {
+        Type = "oneshot";
+        RemainAfterExit = true;
+        User = "immich";
+        Group = "immich";
+      };
+      path = [
+        pkgs.coreutils
+        pkgs.curl
+        pkgs.jq
+      ];
+      script = ''
+        set -euo pipefail
+
+        token_file="${backupApiKeyPath}" 
+
+        if [ -s "$token_file" ]; then
+          exit 0
+        fi
+
+        password="$(cat "${cfg.initialAdmin.passwordFile.result.path}")"
+
+        response="$(curl --fail-with-body -X POST 127.0.0.1:${toString cfg.port}/api/auth/login \
+             -H "Content-Type: application/json" \
+             --data "{\"email\":\"${cfg.initialAdmin.email}\",\"password\":\"$password\"}")"
+        accessToken="$(echo "$response" | jq -r .accessToken)" || { echo "response=$response"; exit 1; }
+
+        response="$(curl --fail-with-body -X POST 127.0.0.1:${toString cfg.port}/api/api-keys \
+             -H "Content-Type: application/json" \
+             -H "x-immich-session-token: $accessToken" \
+             --data "{\"name\":\"SHB Declarative Backup Key\",\"permissions\":[\"maintenance\",\"backup.list\",\"backup.delete\",\"job.create\"]}")"
+        apiKey="$(echo "$response" | jq -r .secret)" || { echo "response=$response"; exit 1; }
+
+        echo "$apiKey" > "$token_file"
+      '';
+    };
 
     # Add immich user to video and render groups for hardware acceleration
     users.users.immich.extraGroups = optionals (cfg.accelerationDevices != [ ]) [

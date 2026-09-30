@@ -4454,6 +4454,33 @@
   "services-immich-options-shb.immich.backup.result.restoreScript": [
     "services-immich.html#services-immich-options-shb.immich.backup.result.restoreScript"
   ],
+  "services-immich-options-shb.immich.backupApiKey": [
+    "services-immich.html#services-immich-options-shb.immich.backupApiKey"
+  ],
+  "services-immich-options-shb.immich.backupApiKey.request": [
+    "services-immich.html#services-immich-options-shb.immich.backupApiKey.request"
+  ],
+  "services-immich-options-shb.immich.backupApiKey.request.group": [
+    "services-immich.html#services-immich-options-shb.immich.backupApiKey.request.group"
+  ],
+  "services-immich-options-shb.immich.backupApiKey.request.mode": [
+    "services-immich.html#services-immich-options-shb.immich.backupApiKey.request.mode"
+  ],
+  "services-immich-options-shb.immich.backupApiKey.request.owner": [
+    "services-immich.html#services-immich-options-shb.immich.backupApiKey.request.owner"
+  ],
+  "services-immich-options-shb.immich.backupApiKey.request.restartUnits": [
+    "services-immich.html#services-immich-options-shb.immich.backupApiKey.request.restartUnits"
+  ],
+  "services-immich-options-shb.immich.backupApiKey.result": [
+    "services-immich.html#services-immich-options-shb.immich.backupApiKey.result"
+  ],
+  "services-immich-options-shb.immich.backupApiKey.result.path": [
+    "services-immich.html#services-immich-options-shb.immich.backupApiKey.result.path"
+  ],
+  "services-immich-options-shb.immich.backupEmail": [
+    "services-immich.html#services-immich-options-shb.immich.backupEmail"
+  ],
   "services-immich-options-shb.immich.dashboard": [
     "services-immich.html#services-immich-options-shb.immich.dashboard"
   ],

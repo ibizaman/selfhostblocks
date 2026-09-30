@@ -24,6 +24,80 @@ let
         80
       ];
     waitForUrls = { proto_fqdn, ... }: [ "${proto_fqdn}" ];
+
+    serviceName = "immich-server.service";
+    dataDir = "/var/lib/immich";
+    initialize = ''
+      def immich_curl(path, accessToken=None, data=None, method=None, succeed=True):
+          call = f"curl 127.0.0.1:${toString port}/api{path}" \
+               + " -H 'Content-Type: application/json'"
+          if accessToken is not None:
+              call += f" -H 'x-immich-session-token: {accessToken}'"
+          if data is not None:
+              call += f" --data {json.dumps(json.dumps(data))}"
+
+          if method is not None:
+              call += f" -X {method}"
+          elif data is not None:
+              call += " -X POST"
+
+          exit_code, out = server.execute(call)
+          if not succeed:
+              if exit_code == 0:
+                  raise Exception(f"Curl command did not fail as expected, response:\n{out}")
+          else:
+              if exit_code != 0:
+                  raise Exception(f"Curl command did not succeed as expected, exit code: {exit_code}, response:\n{out}")
+
+          out = json.loads(out)
+          print(json.dumps(out, indent=4))
+          return out
+
+      out = immich_curl("/auth/login", data={
+          "email": "${adminEmail}",
+          "password": "${adminPassword}",
+      })
+      if "accessToken" not in out:
+          raise Exception(out)
+      accessToken = out["accessToken"]
+
+      out = immich_curl("/albums", accessToken=accessToken, data={
+          "albumName": "BackupTest",
+      })
+      if "id" not in out:
+          raise Exception(out)
+      albumId = out["id"]
+      print(f"created: {albumId}")
+    '';
+    rollbackCheck = ''
+      out = immich_curl("/auth/login", data={
+          "email": "${adminEmail}",
+          "password": "${adminPassword}",
+      })
+      if "accessToken" not in out:
+          raise Exception(out)
+      accessToken = out["accessToken"]
+
+      out = immich_curl(f"/albums/{albumId}", accessToken=accessToken)
+      if "message" not in out:
+          raise Exception("Unexpected response")
+    '';
+    restoreCheck = ''
+      out = immich_curl("/auth/login", data={
+          "email": "${adminEmail}",
+          "password": "${adminPassword}",
+      })
+      if "accessToken" not in out:
+          raise Exception(out)
+      accessToken = out["accessToken"]
+
+      out = immich_curl(f"/albums/{albumId}", accessToken=accessToken)
+      if "albumName" not in out:
+          raise Exception(out)
+      albumName = out["albumName"]
+      if albumName != "BackupTest":
+          raise Exception(f"retrieved wrong album {albumName}")
+    '';
   };
 
   basic =
@@ -293,7 +367,7 @@ in
 
     nodes.client = { };
 
-    testScript = commonTestScript.backup;
+    testScript = commonTestScript.fullBackup;
   };
 
   sso = shb.test.runNixOSTest {

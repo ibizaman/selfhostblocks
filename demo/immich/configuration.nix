@@ -19,8 +19,10 @@ in
   # Needed to avoid getting into not available disk space in /boot.
   boot.loader.grub.configurationLimit = 1;
   # The NixOS /nix/.rw-store mountpoint is backed by tmpfs which uses memory. We need to increase
-  # the available disk space to install home-assistant.
+  # the available disk space for immich to be comfortable.
   virtualisation.vmVariantWithBootLoader.virtualisation.memorySize = 8192;
+  # Immich needs a lot of space to restore its database.
+  virtualisation.diskSize = 4 * 1024;
 
   # Options above are needed to deploy in a VM.
 
