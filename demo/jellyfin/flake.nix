@@ -129,6 +129,8 @@
             selfhostblocks.nixosModules.authelia
           ];
 
+          shb.postgresql.version = 18;
+
           shb.authelia = {
             enable = true;
             domain = "example.com";
