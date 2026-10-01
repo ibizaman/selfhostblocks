@@ -27,6 +27,50 @@ SelfHostBlocks is:
 
 [upstreaming]: https://github.com/pulls?page=1&q=created%3A%3E2023-06-01+is%3Apr+author%3Aibizaman+archived%3Afalse+-repo%3Aibizaman%2Fselfhostblocks+-repo%3Aibizaman%2Fskarabox
 
+## Features
+
+SelfHostBlocks provides building blocks that take care of common self-hosting needs:
+
+- Generic backup systemd service and restore script for all services with restic or borgbackup.
+- Automatic creation of ZFS datasets per service.
+- Declarative LDAP and SSO integrations for all services.
+- Monitoring with Grafana and Prometheus stack with provided dashboards and integration with Scrutiny.
+- Automatic reverse proxy and certificate management for HTTPS.
+- VPN and proxy tunneling services.
+
+Great care is taken to make the proposed stack robust.
+This translates into a test suite comprised of automated NixOS VM tests
+which includes playwright tests to verify some important workflow
+like logging in, SSO interation and full backup story.
+
+This test suite also serves as a guaranty that all services provided by SelfHostBlocks
+evaluate, build and work correctly together.
+It works similarly as a distribution but here it's all [automated](#automatic-updates).
+
+Also, the stack fits together nicely thanks to [contracts](#contracts).
+
+## TOC
+
+<!--toc:start-->
+- [Features](#features)
+- [TOC](#toc)
+- [Why Self-Hosting](#why-self-hosting)
+- [Usage](#usage)
+  - [Installation From Scratch](#installation-from-scratch)
+  - [Services](#services)
+  - [Blocks](#blocks)
+  - [Unified Interfaces](#unified-interfaces)
+  - [Contracts](#contracts)
+  - [Interfacing With Other OSes](#interfacing-with-other-oses)
+  - [Sitting on the Shoulders of a Giant](#sitting-on-the-shoulders-of-a-giant)
+  - [Automatic Updates](#automatic-updates)
+  - [Demos](#demos)
+- [Roadmap](#roadmap)
+- [Community](#community)
+- [Funding](#funding)
+- [License](#license)
+<!--toc:end-->
+
 ## Why Self-Hosting
 
 It is obvious by now that
@@ -61,28 +105,6 @@ which SelfHostBlocks sets out to introduce into nixpkgs.
 This will increase modularity, code reuse
 and empower end users to assemble components
 that fit together to build their server.
-
-## TOC
-
-<!--toc:start-->
-- [Usage](#usage)
-  - [At a Glance](#at-a-glance)
-  - [Existing Installation](#existing-installation)
-  - [Installation From Scratch](#installation-from-scratch)
-- [Features](#features)
-  - [Services](#services)
-  - [Blocks](#blocks)
-  - [Unified Interfaces](#unified-interfaces)
-  - [Contracts](#contracts)
-  - [Interfacing With Other OSes](#interfacing-with-other-oses)
-  - [Sitting on the Shoulders of a Giant](#sitting-on-the-shoulders-of-a-giant)
-  - [Automatic Updates](#automatic-updates)
-  - [Demos](#demos)
-- [Roadmap](#roadmap)
-- [Community](#community)
-- [Funding](#funding)
-- [License](#license)
-<!--toc:end-->
 
 ## Usage
 
@@ -145,27 +167,6 @@ which bootstraps a new server and sets up a few tools:
 - [deploy-rs](https://github.com/serokell/deploy-rs) to deploy updates.
 
 [Skarabox]:  https://github.com/ibizaman/skarabox
-
-## Features
-
-SelfHostBlocks provides building blocks that take care of common self-hosting needs:
-
-- Backup for all services.
-- Automatic creation of ZFS datasets per service.
-- LDAP and SSO integration for most services.
-- Monitoring with Grafana and Prometheus stack with provided dashboards and integration with Scrutiny.
-- Automatic reverse proxy and certificate management for HTTPS.
-- VPN and proxy tunneling services.
-
-Great care is taken to make the proposed stack robust.
-This translates into a test suite comprised of automated NixOS VM tests
-which includes playwright tests to verify some important workflow
-like logging in.
-
-This test suite also serves as a guaranty that all services provided by SelfHostBlocks
-all evaluate, build and work correctly together. It works similarly as a distribution but here it's all [automated](#automatic-updates).
-
-Also, the stack fits together nicely thanks to [contracts](#contracts).
 
 ### Services
 
