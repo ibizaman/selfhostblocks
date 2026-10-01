@@ -781,7 +781,13 @@ in
       }
       {
         assertion = cfg.backupApiKey == null -> cfg.initialAdmin != null;
-        message = "To let the SHB immich module manage the backup api key, the admin user must be set declaratively, set shb.immich.initialAdmin option.";
+        message = ''
+          To let the SHB immich module manage the backup api key, the admin user must be set declaratively, set the shb.immich.initialAdmin.* options.
+          Otherwise, set the shb.immich.backupApiKey option.
+
+          If Immich has already been started from a previous deploy and you see this message for the first time, the recommended option is
+          to set the shb.immich.initialAdmin.* options to match the current admin email and password.
+        '';
       }
     ];
 
