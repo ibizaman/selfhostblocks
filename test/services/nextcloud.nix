@@ -1,8 +1,8 @@
 { lib, shb, ... }:
 let
   supportedVersion = [
-    33
     34
+    35
   ];
 
   adminUser = "root";
@@ -773,16 +773,16 @@ let
     };
 
   upgradeTest = shb.test.runNixOSTest {
-    name = "nextcloud_upgrade_33_34";
+    name = "nextcloud_upgrade_34_35";
 
     nodes.server = {
       imports = [
         basic
         {
-          shb.nextcloud.version = 33;
+          shb.nextcloud.version = 34;
 
-          specialisation.nextcloud34.configuration = {
-            shb.nextcloud.version = lib.mkForce 34;
+          specialisation.nextcloud35.configuration = {
+            shb.nextcloud.version = lib.mkForce 35;
           };
         }
       ];
@@ -793,9 +793,9 @@ let
     testScript =
       { nodes, ... }:
       let
-        nextcloud33Occ = "${nodes.server.services.nextcloud.occ}/bin/nextcloud-occ";
-        nextcloud34Occ = "${nodes.server.specialisation.nextcloud34.configuration.services.nextcloud.occ}/bin/nextcloud-occ";
-        switch = "${nodes.server.system.build.toplevel}/specialisation/nextcloud34/bin/switch-to-configuration test";
+        nextcloud34Occ = "${nodes.server.services.nextcloud.occ}/bin/nextcloud-occ";
+        nextcloud35Occ = "${nodes.server.specialisation.nextcloud35.configuration.services.nextcloud.occ}/bin/nextcloud-occ";
+        switch = "${nodes.server.system.build.toplevel}/specialisation/nextcloud35/bin/switch-to-configuration test";
         webdavUrl = "http://${nodes.server.test.fqdn}/remote.php/dav/files/${adminUser}/upgrade-marker";
         curl =
           "curl --fail --silent --show-error --user ${adminUser}:${adminPass}"
@@ -808,22 +808,22 @@ let
         server.wait_for_unit("multi-user.target")
         server.wait_for_unit("phpfpm-nextcloud.service")
 
-        with subtest("Nextcloud 33 is ready"):
-            status = json.loads(server.succeed("${nextcloud33Occ} status --output=json"))
+        with subtest("Nextcloud 34 is ready"):
+            status = json.loads(server.succeed("${nextcloud34Occ} status --output=json"))
             assert status["installed"]
-            assert status["versionstring"].startswith("33.")
+            assert status["versionstring"].startswith("34.")
             assert not status["maintenance"]
 
         with subtest("create data before the upgrade"):
             server.succeed("printf 'survives upgrade' > /tmp/upgrade-marker")
             server.succeed("${curl} --upload-file /tmp/upgrade-marker ${webdavUrl}")
 
-        with subtest("upgrade to Nextcloud 34"):
+        with subtest("upgrade to Nextcloud 35"):
             server.succeed("${switch}")
             server.wait_for_unit("phpfpm-nextcloud.service")
-            status = json.loads(server.succeed("${nextcloud34Occ} status --output=json"))
+            status = json.loads(server.succeed("${nextcloud35Occ} status --output=json"))
             assert status["installed"]
-            assert status["versionstring"].startswith("34.")
+            assert status["versionstring"].startswith("35.")
             assert not status["maintenance"]
 
         with subtest("data survives the upgrade"):
@@ -843,8 +843,6 @@ let
 
       "https_${toString v}" = httpsTest v;
 
-      "previewGenerator_${toString v}" = previewGeneratorTest v;
-
       "externalStorage_${toString v}" = externalStorageTest v;
 
       "ldap_${toString v}" = ldapTest v;
@@ -854,11 +852,12 @@ let
       "prometheus_${toString v}" = prometheusTest v;
     }
     // lib.optionalAttrs (v == 34) {
+      "previewGenerator_${toString v}" = previewGeneratorTest v;
       "memories_${toString v}" = memoriesTest v;
       "recognize_${toString v}" = recognizeTest v;
     };
 in
 (lib.foldl (all: v: lib.mergeAttrs all (versionedTests v)) { } supportedVersion)
 // {
-  upgrade_33_34 = upgradeTest;
+  upgrade_34_35 = upgradeTest;
 }

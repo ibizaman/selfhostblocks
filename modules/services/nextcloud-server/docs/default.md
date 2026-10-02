@@ -120,17 +120,25 @@ shb.nextcloud = {
 
 ### Choose Nextcloud Version {#services-nextcloudserver-usage-version}
 
-Self Host Blocks is conservative in the version of Nextcloud it's using.
-To choose the version and upgrade at the time of your liking,
-just use the [version](#services-nextcloudserver-options-shb.nextcloud.version) option:
+SelfHostBlocks supports Nextcloud 34 and 35. Version 34 remains the default.
+To opt into version 35, set the
+[version](#services-nextcloudserver-options-shb.nextcloud.version) option:
 
 ```nix
-shb.nextcloud.version = 34;
+shb.nextcloud.version = 35;
 ```
 
-Nextcloud only supports upgrading one major version at a time. When upgrading from
-an older version, select each supported major version in sequence and let the
-upgrade complete before selecting the next one.
+Preview Generator, Memories, and Recognize are not yet packaged for Nextcloud 35
+in the pinned nixpkgs. Leave these apps disabled when selecting version 35, or
+stay on version 34 if you need them. Enabling one of them with version 35 fails
+configuration evaluation with an explanatory assertion.
+
+Follow [Nextcloud's upgrade guidance](https://docs.nextcloud.com/server/latest/admin_manual/maintenance/upgrade.html)
+and take and verify a backup before upgrading. Nextcloud only supports upgrading one
+major version at a time: deployments on version 33 must complete the upgrade to
+34 before selecting 35. Let each upgrade and its database migrations finish
+before proceeding. A NixOS generation rollback does not undo database migrations;
+reverting a Nextcloud major upgrade requires restoring the pre-upgrade backup.
 
 ### Mount Point {#services-nextcloudserver-usage-mount-point}
 
