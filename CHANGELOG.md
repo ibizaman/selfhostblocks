@@ -16,6 +16,14 @@ Template:
 
 # Upcoming Release
 
+## Breaking Changes
+
+- Nextcloud 34 and 35 are now supported, replacing versions 33 and 34. The default remains 34.
+  Preview Generator is supported on both Nextcloud 34 and 35.
+  Memories and Recognize remain available only on 34 until the pinned nixpkgs supports them on 35.
+  Deploy version 34 and complete its migrations before selecting 35 because Nextcloud does not support skipping major versions.
+  Take a verified backup before upgrading; a NixOS generation rollback does not undo database migrations.
+
 ## New Features
 
 - Add monitoring dashboard for Immich
