@@ -367,11 +367,9 @@ in
                    -H "x-api-key: $apiKey" \
                    --data "{\"name\":\"backup-database\"}"
 
-              timeout=300
               interval=2
-              start=$SECONDS
 
-              while (( $SECONDS - $start < $timeout )); do
+              while true; do
                   response="$( \
                     curl --fail-with-body -X GET "$endpoint/admin/database-backups" \
                        -H "Content-Type: application/json" \
@@ -472,12 +470,10 @@ in
                    exit 1
               fi
 
-              timeout=600
               interval=2
-              start=$SECONDS
               success=true
 
-              while (( SECONDS - start < timeout )); do
+              while true; do
                   if response="$( \
                     curl --fail-with-body -X GET "$endpoint/admin/maintenance/status" \
                        -H "Content-Type: application/json" \
