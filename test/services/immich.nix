@@ -343,7 +343,7 @@ in
     };
 
     nodes.client =
-      { config, lib, ... }:
+      { ... }:
       {
         imports = [
           clientLogin
@@ -362,6 +362,10 @@ in
         imports = [
           basic
           (shb.test.backup config.shb.immich.backup)
+          {
+            shb.immich.declarativeApiKeys.backupKey.permissions = config.shb.immich.backupApiKey.permissions;
+            shb.immich.backupApiKey.contract.result.path = config.shb.immich.declarativeApiKeys.backupKey.path;
+          }
         ];
       };
 
@@ -374,7 +378,7 @@ in
     name = "immich_sso";
 
     nodes.server =
-      { config, pkgs, ... }:
+      { config, ... }:
       {
         imports = [
           basic
