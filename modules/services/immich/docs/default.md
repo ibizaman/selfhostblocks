@@ -4,17 +4,17 @@ Defined in [`/modules/services/immich.nix`](@REPO@/modules/services/immich.nix).
 
 This NixOS module is a service that sets up an [Immich](https://immich.app/) instance.
 
-Compared to the stock module from nixpkgs,
-this one adds:
-- Declarative [initial admin creation](#services-immich-options-shb.immich.initialAdmin).
-- Onboarding flow [skip](#services-immich-options-shb.immich.skipOnboarding).
-
 ## Features {#services-immich-features}
 
-- Declarative creation of initial admin user.
+Compared to the stock module from nixpkgs,
+this one adds:
+
+- Declarative creation of the [initial admin user](#services-immich-options-shb.immich.initialAdmin).
+- Declarative creation of [API keys](#services-immich-options-shb.immich.declarativeApiKeys) with custom permissions.
 - Access through [subdomain](#services-immich-options-shb.immich.subdomain)
   and [HTTPS](#services-immich-options-shb.immich.ssl) using reverse proxy. [Manual](#services-immich-usage).
 - [Backup](#services-immich-options-shb.immich.backup) through the [backup block](./blocks-backup.html). [Manual](#services-immich-usage-backup).
+- [SSO](#services-immich-options-shb.immich.sso) integration.
 - Integration with the [dashboard contract](contracts-dashboard.html) for displaying user facing application in a dashboard. [Manual](#services-immich-usage-applicationdashboard)
 
 ## Usage {#services-immich-usage}
@@ -69,18 +69,43 @@ For Let's Encrypt certificates with the [`shb.ssl` block](blocks-ssl.html#usage)
 }
 ```
 
+### Declarative API Keys {#services-immich-usage-apikeys}
+
+The SHB Immich module allows you to manage api keys declaratively.
+The only required option is to set the list of `permissions` the key should have.
+
+The list of supported permissions is found in the [Immich documentation](https://api.immich.app/models/Permission).
+
+```nix
+{
+  shb.immich.declarativeApiKeys.backupKey.permissions = [
+    "asset.read"
+    "asset.view"
+  ];
+}
+```
+
 ### Backup {#services-immich-usage-backup}
 
 Backing up Immich using the [Restic block](blocks-restic.html) is done like so:
 
 ```nix
-shb.restic.instances."immich" = {
-  request = config.shb.immich.backup;
-  settings = {
-    enable = true;
+{
+  shb.restic.instances."immich" = {
+    request = config.shb.immich.backup.request;
+    settings = {
+      enable = true;
+    };
   };
-};
+
+  shb.immich.backupApiKey.contract.result.path = config.shb.immich.declarativeApiKeys.backupKey.path;
+  shb.immich.declarativeApiKeys.backupKey.permissions = config.shb.immich.backupApiKey.permissions;
+}
 ```
+
+In the snippet, we create the `backupApiKey` using the `declarativeApiKeys`.
+And no need to bother wondering what permissions to give the key as those are
+given by the `backupApiKey.permissions` option.
 
 The name `"immich"` in the `instances` can be anything.
 The `config.shb.immich.backup` option provides what directories to backup.
@@ -95,10 +120,36 @@ To save the data folder in an impermanence setup, add:
 
 ```nix
 {
-  shb.zfs.datasets."safe/immich" = {
+  shb.zfs.datasets."root/safe/immich" = {
     path = config.shb.immich.mediaLocation;
     owner = "immich";
     group = "immich";
+  };
+}
+```
+
+Automated ZFS snapshots can be then configured thanks to the [sanoid](blocks-sanoid.html) block.
+
+```nix
+{
+  shb.sanoid.backup."root/safe/immich" = {
+    request = config.shb.zfs.pools.root.datasets."safe/immich".datasetBackup.request;
+    settings.useTemplate = [ "main" ];
+  };
+}
+```
+
+And those snapshots can be synced to another `zpool` with:
+
+```nix
+{
+  services.syncoid.commands."root/safe/pictures" = {
+    recursive = true;
+    target = "backup/syncoid/safe/pictures";
+    extraArgs = [
+      "--create-bookmark"
+      "--no-sync-snap"
+    ];
   };
 }
 ```

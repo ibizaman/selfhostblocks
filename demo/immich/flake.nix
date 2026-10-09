@@ -8,16 +8,16 @@
 
   outputs =
     inputs@{
-      self,
       selfhostblocks,
       sops-nix,
+      ...
     }:
     let
       system = "x86_64-linux";
       nixpkgs' = selfhostblocks.lib.${system}.patchedNixpkgs;
 
       basic =
-        { config, pkgs, ... }:
+        { config, ... }:
         {
           imports = [
             ./configuration.nix
@@ -56,10 +56,14 @@
               email = "admin@example.com";
               passwordFile.result = config.shb.sops.secret."immich/admin_password".result;
             };
+
             skipOnboarding = true;
           };
           shb.sops.secret."immich/admin_password".request =
             config.shb.immich.initialAdmin.passwordFile.request;
+
+          shb.immich.backupApiKey.contract.result.path = config.shb.immich.declarativeApiKeys.backupKey.path;
+          shb.immich.declarativeApiKeys.backupKey.permissions = config.shb.immich.backupApiKey.permissions;
         };
 
       ldap =
@@ -209,7 +213,7 @@
         };
 
         basic =
-          { config, ... }:
+          { ... }:
           {
             imports = [
               basic
@@ -224,7 +228,7 @@
           };
 
         sso =
-          { config, ... }:
+          { ... }:
           {
             imports = [
               basic
