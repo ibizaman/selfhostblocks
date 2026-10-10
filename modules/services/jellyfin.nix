@@ -503,6 +503,7 @@ in
                     </AdminRoles>
                     <Roles>
                       <string>${cfg.ldap.userGroup}</string>
+                      <string>${cfg.ldap.adminGroup}</string>
                     </Roles>
                     <EnableFolderRoles>false</EnableFolderRoles>
                     <FolderRoleMappings />

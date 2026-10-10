@@ -322,15 +322,11 @@ let
             {
               username = "alice";
               password = "AlicePassword";
+              # Let the SSO callback finish and redirect; navigating here can abort authorization.
               nextPageExpect = [
                 "page.get_by_text(re.compile('[Aa]ccept')).click()"
-                # For a reason I can't explain, redirection needs to happen manually.
-                "page.goto('${config.test.proto}://${config.test.fqdn}/web/')"
-                # "expect(page).to_have_title(re.compile('Jellyfin'))"
-                "expect(page.get_by_text(re.compile('[Ii]nvalid'))).not_to_be_visible(timeout=10000)"
-                "expect(page.get_by_label(re.compile('^[Uu]ser$'))).not_to_be_visible(timeout=10000)"
-                "expect(page.get_by_label(re.compile('^[Pp]assword$'))).not_to_be_visible(timeout=10000)"
-              ];
+              ]
+              ++ loginSuccess;
             }
           ]
           ++ lib.optionals (!config.test.login.onlyAlice) [
@@ -351,13 +347,8 @@ let
               password = "BobPassword";
               nextPageExpect = [
                 "page.get_by_text(re.compile('[Aa]ccept')).click()"
-                # For a reason I can't explain, redirection needs to happen manually.
-                "page.goto('${config.test.proto}://${config.test.fqdn}/web/')"
-                # "expect(page).to_have_title(re.compile('Jellyfin'))"
-                "expect(page.get_by_text(re.compile('[Ii]nvalid'))).not_to_be_visible(timeout=10000)"
-                "expect(page.get_by_label(re.compile('^[Uu]ser$'))).not_to_be_visible(timeout=10000)"
-                "expect(page.get_by_label(re.compile('^[Pp]assword$'))).not_to_be_visible(timeout=10000)"
-              ];
+              ]
+              ++ loginSuccess;
             }
             {
               username = "bob";
