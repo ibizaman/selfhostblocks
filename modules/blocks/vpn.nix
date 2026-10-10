@@ -16,13 +16,15 @@ let
       dev,
       authFile,
       remoteServerIP,
+      remoteServerProto,
+      remoteServerPort,
       dependentServices ? [ ],
     }:
     ''
       client
       dev ${dev}
-      proto tcp
-      remote ${remoteServerIP} 443
+      proto ${remoteServerProto}
+      remote ${remoteServerIP} ${toString remoteServerPort}
       resolv-retry infinite
       remote-random
       nobind
@@ -250,6 +252,19 @@ in
             type = lib.types.str;
           };
 
+          remoteServerProto = lib.mkOption {
+            description = "Protocol of the VPN server to connect to.";
+            type = lib.types.enum [
+              "udp"
+              "tcp"
+            ];
+          };
+
+          remoteServerPort = lib.mkOption {
+            description = "Port of the VPN server to connect to.";
+            type = lib.types.port;
+          };
+
           authFile = lib.mkOption {
             description = "Location of file holding authentication secrets for provider.";
             type = lib.types.anything;
@@ -284,7 +299,7 @@ in
 
               config = nordvpnConfig {
                 inherit name;
-                inherit (c) dev remoteServerIP authFile;
+                inherit (c) dev remoteServerIP remoteServerProto remoteServerPort authFile;
                 dependentServices = lib.optional (c.proxyPort != null) "tinyproxy-${name}.service";
               };
             };
