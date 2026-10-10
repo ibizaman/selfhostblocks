@@ -28,20 +28,23 @@ let
       resolv-retry infinite
       remote-random
       nobind
-      tun-mtu 1500
-      tun-mtu-extra 32
-      mssfix 1450
+      # tun-mtu 1500
+      # tun-mtu-extra 32
+      # mssfix 1450
       persist-key
       persist-tun
-      ping 15
-      ping-restart 0
+      # ping 15
+      # ping-restart 0
       ping-timer-rem
-      reneg-sec 0
-      comp-lzo no
+      # reneg-sec 0
+      # comp-lzo no
+      explicit-exit-notify
+      verify-x509-name CN=ch513.nordvpn.com
 
       status /tmp/openvpn/${name}.status
 
       remote-cert-tls server
+      tls-version-min 1.2
 
       auth-user-pass ${authFile}
       verb 3
