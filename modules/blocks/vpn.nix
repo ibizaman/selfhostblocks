@@ -15,7 +15,7 @@ let
       name,
       dev,
       authFile,
-      remoteServerIP,
+      remoteServerFQDN,
       remoteServerProto,
       remoteServerPort,
       dependentServices ? [ ],
@@ -24,7 +24,7 @@ let
       client
       dev ${dev}
       proto ${remoteServerProto}
-      remote ${remoteServerIP} ${toString remoteServerPort}
+      remote ${remoteServerFQDN} ${toString remoteServerPort}
       resolv-retry infinite
       remote-random
       nobind
@@ -39,7 +39,7 @@ let
       # reneg-sec 0
       # comp-lzo no
       explicit-exit-notify
-      verify-x509-name CN=ch513.nordvpn.com
+      verify-x509-name CN=${remoteServerFQDN}
 
       status /tmp/openvpn/${name}.status
 
@@ -250,8 +250,8 @@ in
             example = 10;
           };
 
-          remoteServerIP = lib.mkOption {
-            description = "IP of the VPN server to connect to.";
+          remoteServerFQDN = lib.mkOption {
+            description = "FQDN of the VPN server to connect to.";
             type = lib.types.str;
           };
 
@@ -302,7 +302,13 @@ in
 
               config = nordvpnConfig {
                 inherit name;
-                inherit (c) dev remoteServerIP remoteServerProto remoteServerPort authFile;
+                inherit (c)
+                  dev
+                  remoteServerFQDN
+                  remoteServerProto
+                  remoteServerPort
+                  authFile
+                  ;
                 dependentServices = lib.optional (c.proxyPort != null) "tinyproxy-${name}.service";
               };
             };
