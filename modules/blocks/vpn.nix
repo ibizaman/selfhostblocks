@@ -314,7 +314,7 @@ in
       map (
         name:
         lib.nameValuePair "/tmp/openvpn/${name}.status" {
-          d = {
+          f = {
             mode = "0700";
             user = "root";
             group = "root";
