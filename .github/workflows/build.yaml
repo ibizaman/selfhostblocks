@@ -104,6 +104,17 @@ jobs:
             --option keep-going true \
             --show-trace \
             build .#manualHtml
+      - name: Compare manual screenshots
+        run: nix run --print-build-logs .#manual-visual-tests -- test --update-snapshots=none --forbid-only
+      - name: Upload manual screenshot diagnostics
+        uses: actions/upload-artifact@v7
+        if: failure()
+        with:
+          name: manual-visual-tests
+          path: |
+            test/manual/playwright-report/
+            test/manual/test-results/
+          if-no-files-found: ignore
 
   tests:
     runs-on: ubuntu-latest
