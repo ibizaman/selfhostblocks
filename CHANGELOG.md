@@ -18,12 +18,21 @@ Template:
 
 ## Breaking Changes
 
+- Require `shb.postgresql.version` when PostgreSQL is enabled. Existing
+  deployments must first set it to their currently running PostgreSQL major.
+  This does not perform an automatic major upgrade; guarded forward major-version
+  upgrade helpers are provided for later explicit upgrades. PostgreSQL backup
+  and restore commands now use tools matching the configured server version
+  ([issue #829](https://github.com/ibizaman/selfhostblocks/issues/829)).
 - Jellyfin now uses the nixpkgs package (12.1) instead of the custom 10.11.6 CLI fork.
   Initial setup uses Jellyfin's HTTP API, and the LDAP plugin is updated to version 24.
   Take a full backup before upgrading, as recommended in the
   [upstream release notes](https://github.com/jellyfin/jellyfin/releases/tag/v12.1).
-- Nextcloud 33 and 34 are now supported, replacing versions 32 and 33. The default is now 33.
-  Deploy version 33 before selecting version 34 because Nextcloud does not support skipping major versions.
+- Nextcloud 34 and 35 are now supported, replacing versions 33 and 34. The default remains 34.
+  Preview Generator is supported on both Nextcloud 34 and 35.
+  Memories and Recognize remain available only on 34 until the pinned nixpkgs supports them on 35.
+  Deploy version 34 and complete its migrations before selecting 35 because Nextcloud does not support skipping major versions.
+  Take a verified backup before upgrading; a NixOS generation rollback does not undo database migrations.
 - Remove the ignored `shb.zfs.pools.<pool>.datasets.<dataset>.enable` option.
   Remove the option from existing configurations and conditionally omit the dataset attribute instead.
 
