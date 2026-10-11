@@ -288,12 +288,15 @@ in
       description = ''
         Api keys defined here are automatically created and managed by SHB.
 
-        Currently, no mechanism to recreate or rotate a key exist apart from deleting it manually
-        and running the corresponding systemd service once more.
+        The final path of the key depends on the email and permissions embedded in the key.
+        Changing any of those will create a new key at a new path.
+
+        That being said, no mechanism to recreate or rotate a key with the same email and permissions exist
+        apart from deleting it manually and running the corresponding systemd service once more.
       '';
       type = attrsOf (
         submodule (
-          { name, ... }: {
+          { name, config, ... }: {
             options = {
               name = mkOption {
                 description = ''
@@ -316,9 +319,6 @@ in
               permissions = mkOption {
                 description = ''
                   List of permissions to set on the key.
-
-                  Changing this will not recreate the key.
-                  To recreate it, it must be deleted on disk.
                 '';
                 type = listOf str;
               };
@@ -331,7 +331,8 @@ in
                   will end up creating a new key on reboot.
                 '';
                 type = externalPath;
-                default = "${cfg.mediaLocation}/${name}";
+                default = "${cfg.mediaLocation}/${name}-${builtins.hashString "sha512" "${config.email}-${builtins.concatStringsSep "-" config.permissions}"}";
+                defaultText = "${cfg.mediaLocation}/${name}-<hash of email + permissions>";
               };
             };
           }
