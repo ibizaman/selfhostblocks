@@ -143,20 +143,12 @@ stdenv.mkDerivation {
     cp -t . -r ../modules
 
     mkdir -p out/media
-    mkdir -p out/highlightjs
-    mkdir -p out/static
 
-    cp -t out/highlightjs \
-      ${documentation-highlighter}/highlight.pack.js \
-      ${documentation-highlighter}/LICENSE \
-      ${documentation-highlighter}/mono-blue.css \
-      ${documentation-highlighter}/loader.js
-
-    cp -t out/static \
-      ${nmdsrc}/static/style.css \
-      ${nmdsrc}/static/highlightjs/tomorrow-night.min.css \
-      ${nmdsrc}/static/highlightjs/highlight.min.js \
-      ${nmdsrc}/static/highlightjs/highlight.load.js
+    # Use the nixpkgs manual's assets to match nixos-render-docs' HTML structure.
+    cp ${pkgs.path}/doc/style.css out/style.css
+    # Keep the staged directory writable for installPhase's cross-filesystem move.
+    cp -r --no-preserve=mode ${documentation-highlighter} out/highlightjs
+    cp "${pkgs.roboto.src}/web/Roboto[ital,wdth,wght].ttf" out/Roboto.ttf
 
   ''
   + lib.concatStringsSep "\n" (
@@ -215,10 +207,10 @@ stdenv.mkDerivation {
       --redirects ./redirects.json \
       --media-dir media \
       --revision ${lib.trivial.revisionWithDefault release} \
-      --stylesheet static/style.css \
-      --stylesheet static/tomorrow-night.min.css \
-      --script static/highlight.min.js \
-      --script static/highlight.load.js \
+      --stylesheet style.css \
+      --stylesheet highlightjs/mono-blue.css \
+      --script ./highlightjs/highlight.pack.js \
+      --script ./highlightjs/loader.js \
       $sidebarDepthArgs \
       manual.md \
       out/index.html
