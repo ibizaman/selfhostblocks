@@ -16,6 +16,10 @@ Template:
 
 # Upcoming Release
 
+## New Features
+
+- Add monitoring dashboard for Immich
+
 ## User Facing Backwards Compatible Changes
 
 - Monitoring module migrates to using fluent-bit and cadvisor from netdata.
