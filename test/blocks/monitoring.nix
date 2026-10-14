@@ -11,7 +11,6 @@ let
         "grafana.service"
         "fluent-bit.service"
         "loki.service"
-        "netdata.service"
       ];
     waitForPorts =
       { node, ... }:

@@ -133,7 +133,7 @@ in
     services.nginx.enable = true;
     services.nginx.logError = lib.mkIf cfg.debugLog "stderr warn";
     services.nginx.appendHttpConfig = lib.mkIf cfg.insecureAccessLogWithRequestBody ''
-      log_format apm
+      log_format apm escape=json
         '{'
         '"remote_addr":"$remote_addr",'
         '"remote_user":"$remote_user",'
@@ -156,7 +156,7 @@ in
         '"upstream_header_time":"$upstream_header_time"'
         '}';
 
-      access_log syslog:server=unix:/dev/log apm;
+      access_log /var/log/nginx/access.json apm buffer=64k flush=10s;
     '';
 
     services.nginx.virtualHosts =

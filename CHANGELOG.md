@@ -16,6 +16,14 @@ Template:
 
 # Upcoming Release
 
+## User Facing Backwards Compatible Changes
+
+- Monitoring module migrates to using fluent-bit and cadvisor from netdata.
+  This is technically a breaking change although this should be pretty transparent
+  as long as you don't rely on internals on the monitoring module.
+
+# v0.10.0
+
 ## Breaking Changes
 
 - Jellyfin now uses the nixpkgs package (12.1) instead of the custom 10.11.6 CLI fork.

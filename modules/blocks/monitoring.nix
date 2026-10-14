@@ -11,11 +11,6 @@ let
 
   fqdn = "${cfg.subdomain}.${cfg.domain}";
 
-  commonLabels = {
-    hostname = config.networking.hostName;
-    domain = cfg.domain;
-  };
-
   roleClaim = "grafana_groups";
   oauthScopes = [
     "openid"
@@ -74,15 +69,16 @@ in
 
     lokiMajorVersion = lib.mkOption {
       type = lib.types.enum [
-        2
         3
+        2
       ];
       description = ''
         Switching from version 2 to 3 requires manual intervention
-        https://grafana.com/docs/loki/latest/setup/upgrade/#main--unreleased. So this let's the user
-        upgrade at their own pace.
+        https://grafana.com/docs/loki/latest/setup/upgrade/#loki-300.
+        Only version 3 is supported now because it's the only one compatible with recent
+        releases of Grafana.
       '';
-      default = 2;
+      default = 3;
     };
 
     debugLog = lib.mkOption {
@@ -306,7 +302,23 @@ in
       '';
       type = lib.types.attrsOf lib.types.str;
       default = {
-        fluent-bit = "/var/fluent-bit";
+        loki = "/var/lib/loki";
+        fluent-bit = "/var/lib/private/fluent-bit";
+      };
+    };
+
+    commonLabels = lib.mkOption {
+      description = ''
+        Common labels added to all metrics.
+      '';
+      type = lib.types.attrsOf lib.types.str;
+      default = {
+        hostname = config.networking.hostName;
+        domain = cfg.domain;
+      };
+      defaultText = {
+        hostname = "networking.hostName";
+        domain = "shb.monitoring.domain";
       };
     };
   };
@@ -317,6 +329,10 @@ in
         {
           assertion = builtins.length cfg.contactPoints > 0;
           message = "Must have at least one contact point for alerting";
+        }
+        {
+          assertion = cfg.lokiMajorVersion != 2;
+          message = "Loki major version 2 is not supported anymore, set `shb.monitoring.lockMajorVersion = 3` and do the manual migration as described in https://grafana.com/docs/loki/latest/setup/upgrade/#loki-300.";
         }
       ];
 
@@ -487,62 +503,24 @@ in
       services.loki = {
         enable = true;
         dataDir = "/var/lib/loki";
-        package =
-          if cfg.lokiMajorVersion == 3 then
-            pkgs.grafana-loki
-          else
-            # Comes from https://github.com/NixOS/nixpkgs/commit/8f95320f39d7e4e4a29ee70b8718974295a619f4
-            (pkgs.grafana-loki.overrideAttrs (
-              finalAttrs: previousAttrs: rec {
-                version = "2.9.6";
-
-                src = pkgs.fetchFromGitHub {
-                  owner = "grafana";
-                  repo = "loki";
-                  rev = "v${version}";
-                  hash = "sha256-79hK7axHf6soku5DvdXkE/0K4WKc4pnS9VMbVc1FS2I=";
-                };
-
-                subPackages = [
-                  "cmd/loki"
-                  "cmd/loki-canary"
-                  "clients/cmd/promtail"
-                  "cmd/logcli"
-                  # Removes "cmd/lokitool"
-                ];
-
-                ldflags =
-                  let
-                    t = "github.com/grafana/loki/pkg/util/build";
-                  in
-                  [
-                    "-s"
-                    "-w"
-                    "-X ${t}.Version=${version}"
-                    "-X ${t}.BuildUser=nix@nixpkgs"
-                    "-X ${t}.BuildDate=unknown"
-                    "-X ${t}.Branch=unknown"
-                    "-X ${t}.Revision=unknown"
-                  ];
-              }
-            ));
+        package = pkgs.grafana-loki;
         configuration = {
           auth_enabled = false;
+          analytics.reporting_enabled = false;
+
+          common = {
+            path_prefix = config.services.loki.dataDir;
+
+            instance_addr = "127.0.0.1";
+
+            ring = {
+              kvstore.store = "inmemory";
+            };
+
+            replication_factor = 1;
+          };
 
           server.http_listen_port = cfg.lokiPort;
-
-          ingester = {
-            lifecycler = {
-              address = "127.0.0.1";
-              ring = {
-                kvstore.store = "inmemory";
-                replication_factor = 1;
-              };
-              final_sleep = "0s";
-            };
-            chunk_idle_period = "5m";
-            chunk_retain_period = "30s";
-          };
 
           schema_config = {
             configs = [
@@ -554,39 +532,42 @@ in
                 index.prefix = "index_";
                 index.period = "168h";
               }
+              {
+                from = "2026-10-04";
+                store = "tsdb";
+                object_store = "filesystem";
+                schema = "v13";
+                index.prefix = "index_";
+                index.period = "24h";
+              }
             ];
           };
 
           storage_config = {
-            boltdb.directory = "/tmp/loki/index";
-            filesystem.directory = "/tmp/loki/chunks";
+            boltdb.directory = "${config.services.loki.dataDir}/boltdb-index";
+            filesystem.directory = "${config.services.loki.dataDir}/filesystem-index";
+            tsdb_shipper = {
+              active_index_directory = "${config.services.loki.dataDir}/tsdb-index";
+              cache_location = "${config.services.loki.dataDir}/tsdb-cache";
+            };
           };
 
           limits_config = {
-            enforce_metric_name = false;
+            # allow_structured_metadata = false;
+            volume_enabled = true;
             reject_old_samples = true;
             reject_old_samples_max_age = "168h";
+            retention_period = "2520h";
+            # 16 MiB/s sustained ingestion
+            ingestion_rate_mb = 16;
+            # 32 MiB burst allowance
+            ingestion_burst_size_mb = 32;
           };
 
-          chunk_store_config = {
-            max_look_back_period = 0;
-          };
-
-          table_manager = {
-            chunk_tables_provisioning = {
-              inactive_read_throughput = 0;
-              inactive_write_throughput = 0;
-              provisioned_read_throughput = 0;
-              provisioned_write_throughput = 0;
-            };
-            index_tables_provisioning = {
-              inactive_read_throughput = 0;
-              inactive_write_throughput = 0;
-              provisioned_read_throughput = 0;
-              provisioned_write_throughput = 0;
-            };
-            retention_deletes_enabled = false;
-            retention_period = 0;
+          compactor = {
+            working_directory = "${config.services.loki.dataDir}/compactor";
+            retention_enabled = true;
+            delete_request_store = "filesystem";
           };
         };
       };
@@ -594,6 +575,8 @@ in
       # I decided to switch to fluent-bit because it can be tested locally https://docs.fluentbit.io/manual/local-testing/logging-pipeline
       services.fluent-bit = {
         enable = true;
+        # Without this fluent-bit cannot read the systemd journal.
+        package = pkgs.fluent-bit.override { systemdLibs = pkgs.systemd; };
         settings = {
           service = {
             flush = 1;
@@ -603,6 +586,16 @@ in
             http_port = 9080;
             grace = 30;
           };
+
+          parsers = [
+            {
+              name = "nginx_json";
+              format = "json";
+              time_key = "time_local";
+              time_format = "%d/%b/%Y:%H:%M:%S %z";
+              time_keep = false; # Remove the time_local field from the output.
+            }
+          ];
 
           pipeline = {
             inputs = [
@@ -616,21 +609,48 @@ in
                 path = "/var/log/journal";
 
                 # Database file to keep track of the journald cursor.
-                db = "/var/fluent-bit/systemd.db";
-
-                # Start reading new entries. Skip entries already stored in journald.
-                read_from_tail = true;
+                db = "/var/lib/fluent-bit/systemd.db";
 
                 # Max entries to lookback on start.
-                max_entries = 10000;
+                max_entries = 1000;
+
+                # Cap memory.
+                mem_buf_limit = "50MB";
+
+                read_from_tail = true;
               }
+            ]
+            ++ lib.optionals (config.services.nginx.enable) [
+              {
+                name = "tail";
+                tag = "nginx.access";
+                path = "/var/log/nginx/access.json";
+                db = "/var/lib/fluent-bit/nginx-access.db";
+                parser = "nginx_json";
+              }
+            ];
+
+            filters = [
+              {
+                name = "modify";
+                match = "systemd.*";
+                copy = "_SYSTEMD_UNIT unit";
+              }
+              # Do not make fluent-bit read its own logs other we end up looping.
+              # I'm keeping this here because I'm not sure it is needed.
+              # {
+              #   name = "grep";
+              #   match = "systemd.*";
+              #   exclude = "_SYSTEMD_UNIT ^fluent-bit\\.service$";
+              # }
             ];
 
             outputs = [
               {
                 name = "loki";
-
                 match = "systemd.*";
+
+                retry_limit = 5;
 
                 host = "localhost";
                 port = config.services.loki.configuration.server.http_listen_port;
@@ -643,10 +663,36 @@ in
 
                 label_keys = "$unit";
               }
+              {
+                name = "loki";
+                match = "nginx.access";
+
+                host = "localhost";
+                port = config.services.loki.configuration.server.http_listen_port;
+
+                labels = lib.concatMapAttrsStringSep ", " (n: v: "${n}=${v}") {
+                  job = "nginx";
+                  domain = cfg.domain;
+                  hostname = config.networking.hostName;
+                  service = "nginx";
+                };
+
+                label_keys = "$server_name";
+              }
             ];
           };
         };
         graceLimit = "1m";
+      };
+      systemd.services.fluent-bit.after = lib.optionals config.services.nginx.enable [
+        "nginx.service"
+      ];
+      systemd.services.fluent-bit.serviceConfig = {
+        StateDirectory = "fluent-bit";
+      }
+      // lib.optionalAttrs config.services.nginx.enable {
+        BindReadOnlyPaths = [ "/var/log/nginx/access.json" ];
+        SupplementaryGroups = [ "nginx" ];
       };
 
       services.nginx = {
@@ -675,19 +721,16 @@ in
           static_configs = [
             {
               targets = [ "127.0.0.1:${toString config.services.prometheus.exporters.node.port}" ];
-              labels = commonLabels;
+              labels = cfg.commonLabels;
             }
           ];
         }
         {
-          job_name = "netdata";
-          metrics_path = "/api/v1/allmetrics";
-          params.format = [ "prometheus" ];
-          honor_labels = true;
+          job_name = "zfs";
           static_configs = [
             {
-              targets = [ "127.0.0.1:19999" ];
-              labels = commonLabels;
+              targets = [ "127.0.0.1:${toString config.services.prometheus.exporters.zfs.port}" ];
+              labels = cfg.commonLabels;
             }
           ];
         }
@@ -696,7 +739,7 @@ in
           static_configs = [
             {
               targets = [ "127.0.0.1:${toString config.services.prometheus.exporters.smartctl.port}" ];
-              labels = commonLabels;
+              labels = cfg.commonLabels;
             }
           ];
         }
@@ -705,7 +748,7 @@ in
           static_configs = [
             {
               targets = [ "127.0.0.1:${toString config.services.prometheus.port}" ];
-              labels = commonLabels;
+              labels = cfg.commonLabels;
             }
           ];
         }
@@ -714,7 +757,7 @@ in
           static_configs = [
             {
               targets = [ "127.0.0.1:${toString config.services.prometheus.exporters.systemd.port}" ];
-              labels = commonLabels;
+              labels = cfg.commonLabels;
             }
           ];
         }
@@ -724,7 +767,7 @@ in
         static_configs = [
           {
             targets = [ "127.0.0.1:${toString config.services.prometheus.exporters.nginx.port}" ];
-            labels = commonLabels;
+            labels = cfg.commonLabels;
           }
         ];
         # }) ++ (lib.optional (builtins.length (lib.attrNames config.services.redis.servers) > 0) {
@@ -747,7 +790,7 @@ in
         static_configs = [
           {
             targets = [ "127.0.0.1:${toString config.services.prometheus.exporters.dnsmasq.port}" ];
-            labels = commonLabels;
+            labels = cfg.commonLabels;
           }
         ];
       });
@@ -789,7 +832,6 @@ in
           "zfs"
 
           # Disabled by default
-          "cgroups"
           "drm"
           "ethtool"
           "logind"
@@ -803,6 +845,11 @@ in
       services.udev.extraRules = ''
         SUBSYSTEM=="nvme", KERNEL=="nvme[0-9]*", GROUP="disk"
       '';
+      services.prometheus.exporters.zfs = {
+        enable = true;
+        port = 9114;
+        listenAddress = "127.0.0.1";
+      };
       services.prometheus.exporters.smartctl = {
         enable = true;
         port = 9115;
@@ -828,20 +875,20 @@ in
         enable = true;
         port = 9116;
         listenAddress = "127.0.0.1";
+        extraFlags = [
+          "--systemd.collector.enable-ip-accounting"
+        ];
       };
+      # This accounting is then used by the systemd exporter
+      systemd.settings.Manager = {
+        DefaultCPUAccounting = true;
+        DefaultMemoryAccounting = true;
+        DefaultIOAccounting = true;
+        DefaultTasksAccounting = true;
+        DefaultIPAccounting = true;
+      };
+
       services.nginx.statusPage = lib.mkDefault config.services.nginx.enable;
-      services.netdata = {
-        enable = true;
-        config = {
-          # web.mode = "none";
-          # web."bind to" = "127.0.0.1:19999";
-          global = {
-            "debug log" = "syslog";
-            "access log" = "syslog";
-            "error log" = "syslog";
-          };
-        };
-      };
 
       nixpkgs.overlays = [
         (final: prev: {
@@ -857,6 +904,24 @@ in
             vendorHash = "sha256-4hsQ1417jLNOAqGkfCkzrmEtYR4YLLW2j0CiJtPg6GI=";
           };
         })
+      ];
+    })
+    (lib.mkIf cfg.enable {
+      services.cadvisor = {
+        enable = true;
+        port = 9118;
+      };
+
+      services.prometheus.scrapeConfigs = [
+        {
+          job_name = "cadvisor";
+          static_configs = [
+            {
+              targets = [ "127.0.0.1:${toString config.services.cadvisor.port}" ];
+              labels = cfg.commonLabels;
+            }
+          ];
+        }
       ];
     })
     (lib.mkIf (cfg.enable && cfg.sso.enable) {
@@ -958,7 +1023,7 @@ in
           static_configs = [
             {
               targets = [ "127.0.0.1:${toString config.services.scrutiny.settings.web.listen.port}" ];
-              labels = commonLabels;
+              labels = cfg.commonLabels;
             }
           ];
         }

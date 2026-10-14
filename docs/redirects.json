@@ -1010,6 +1010,9 @@
   "blocks-monitoring-options-shb.monitoring.adminPassword.result.path": [
     "blocks-monitoring.html#blocks-monitoring-options-shb.monitoring.adminPassword.result.path"
   ],
+  "blocks-monitoring-options-shb.monitoring.commonLabels": [
+    "blocks-monitoring.html#blocks-monitoring-options-shb.monitoring.commonLabels"
+  ],
   "blocks-monitoring-options-shb.monitoring.contactPoints": [
     "blocks-monitoring.html#blocks-monitoring-options-shb.monitoring.contactPoints"
   ],
