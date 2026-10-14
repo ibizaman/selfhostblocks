@@ -1,0 +1,137 @@
+From ceb0617bfac8f72514cb6ce6bcfd008534b6fb56 Mon Sep 17 00:00:00 2001
+From: ibizaman <ibizaman@tiserbox.com>
+Date: Wed, 7 Oct 2026 00:46:10 +0200
+Subject: [PATCH] prometheus-immich-exporter: init at 3.0.2
+
+---
+ .../monitoring/prometheus/exporters.nix       |  1 +
+ .../prometheus/exporters/immich.nix           | 47 +++++++++++++++++++
+ .../pr/prometheus-immich-exporter/package.nix | 45 ++++++++++++++++++
+ 3 files changed, 93 insertions(+)
+ create mode 100644 nixos/modules/services/monitoring/prometheus/exporters/immich.nix
+ create mode 100644 pkgs/by-name/pr/prometheus-immich-exporter/package.nix
+
+diff --git a/nixos/modules/services/monitoring/prometheus/exporters.nix b/nixos/modules/services/monitoring/prometheus/exporters.nix
+index 60322a3f6b70..0d7f8b26dd09 100644
+--- a/nixos/modules/services/monitoring/prometheus/exporters.nix
++++ b/nixos/modules/services/monitoring/prometheus/exporters.nix
+@@ -72,6 +72,7 @@ let
+         "graphite"
+         "idrac"
+         "imap-mailstat"
++        "immich"
+         "influxdb"
+         "ipmi"
+         "jitsi"
+diff --git a/nixos/modules/services/monitoring/prometheus/exporters/immich.nix b/nixos/modules/services/monitoring/prometheus/exporters/immich.nix
+new file mode 100644
+index 000000000000..9303cca0ac88
+--- /dev/null
++++ b/nixos/modules/services/monitoring/prometheus/exporters/immich.nix
+@@ -0,0 +1,52 @@
++{
++  config,
++  lib,
++  pkgs,
++  ...
++}:
++
++let
++  cfg = config.services.prometheus.exporters.immich;
++  inherit (lib) mkOption types concatStringsSep;
++in
++{
++  port = 9142;
++
++  extraOpts = {
++    apiKeyFile = mkOption {
++      type = types.externalPath;
++      description = ''
++        Path to ApiKey used to access Immich.
++
++        ApiKey permissions are listed in
++        https://git.h.oluflorenzen.de/finkregh/immich-prometheus-exporter/src/tag/3.0.2#api-key-setup
++      '';
++    };
++
++    url = mkOption {
++      type = types.str;
++      description = ''
++        URL of the Immich server.
++      '';
++    };
++  };
++
++  serviceOpts = {
++    serviceConfig = {
++      DynamicUser = true;
++      LoadCredential = [ "api-key:${cfg.apiKeyFile}" ];
++    };
++    script = ''
++      IMMICHEXPORTER_TEST_CONNECTION_API_KEY="$(cat $CREDENTIALS_DIRECTORY/api-key)"
++      export IMMICHEXPORTER_TEST_CONNECTION_API_KEY
++      ${lib.getExe pkgs.prometheus-immich-exporter} test-connection \
++        --url ${cfg.url}
++
++      IMMICHEXPORTER_SERVE_API_KEY="$(cat $CREDENTIALS_DIRECTORY/api-key)"
++      export IMMICHEXPORTER_SERVE_API_KEY
++      ${lib.getExe pkgs.prometheus-immich-exporter} serve \
++        --port ${toString cfg.port} \
++        --url ${cfg.url}
++    '';
++  };
++}
+diff --git a/pkgs/by-name/pr/prometheus-immich-exporter/package.nix b/pkgs/by-name/pr/prometheus-immich-exporter/package.nix
+new file mode 100644
+index 000000000000..ee62d522bf28
+--- /dev/null
++++ b/pkgs/by-name/pr/prometheus-immich-exporter/package.nix
+@@ -0,0 +1,45 @@
++{
++  lib,
++  python3Packages,
++  fetchFromGitHub,
++}:
++
++python3Packages.buildPythonApplication (finalAttrs: {
++  pname = "immich-exporter";
++  version = "3.0.2";
++  pyproject = true;
++
++  src = fetchFromGitHub {
++    owner = "Finkregh";
++    repo = "immich-prometheus-exporter";
++    tag = "${finalAttrs.version}";
++    hash = "sha256-1GXlQ0CZGvwCw4N/9vnwbsVnSuXtuqL5RBr/a7z+iHo=";
++  };
++
++  build-system = [
++    python3Packages.uv-build
++  ];
++
++  dependencies = with python3Packages; [
++    typer
++    prometheus-client
++    requests
++    rich
++  ];
++
++  pythonImportsCheck = [
++    "immich_prometheus_exporter"
++  ];
++
++  doCheck = false; # no tests because it would require declarative user and api key creation
++
++  meta = {
++    description = "Prometheus exporter for Immich";
++    homepage = "https://git.h.oluflorenzen.de/finkregh/immich-prometheus-exporter";
++    license = lib.licenses.mit;
++    maintainers = with lib.maintainers; [
++      ibizaman
++    ];
++    mainProgram = "immich-prometheus-exporter";
++  };
++})
+-- 
+2.54.0
+
