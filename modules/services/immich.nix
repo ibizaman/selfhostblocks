@@ -1159,6 +1159,42 @@ in
         }
       ];
     })
+    (lib.mkIf (cfg.enable && config.shb.monitoring.enable) {
+      # https://git.h.oluflorenzen.de/finkregh/immich-prometheus-exporter/src/tag/3.0.2#api-key-setup
+      shb.immich.declarativeApiKeys.prometheus_exporter.permissions = [
+        "activity.statistics"
+        "adminUser.read"
+        "album.statistics"
+        "asset.statistics"
+        "job.read"
+        "library.read"
+        "library.statistics"
+        "memory.statistics"
+        "person.statistics"
+        "server.about"
+        "server.statistics"
+        "server.storage"
+      ];
+      services.prometheus.exporters.immich = {
+        enable = true;
+        port = 9142;
+        listenAddress = "127.0.0.1";
+        url = "${protocol}://${cfg.subdomain}.${cfg.domain}";
+        apiKeyFile = config.shb.immich.declarativeApiKeys.prometheus_exporter.path;
+      };
+
+      services.prometheus.scrapeConfigs = [
+        {
+          job_name = "immich";
+          static_configs = [
+            {
+              targets = [ "127.0.0.1:${toString config.services.prometheus.exporters.immich.port}" ];
+              labels = config.shb.monitoring.commonLabels;
+            }
+          ];
+        }
+      ];
+    })
     {
       systemd.services =
         let
