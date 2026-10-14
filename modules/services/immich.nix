@@ -1,5 +1,6 @@
 {
   config,
+  options,
   pkgs,
   lib,
   shb,
@@ -88,7 +89,6 @@ let
   );
 
   inherit (lib)
-    filterAttrs
     mapAttrs'
     mkEnableOption
     mkIf
@@ -136,6 +136,10 @@ in
 
   options.shb.immich = {
     enable = mkEnableOption "selfhostblocks.immich";
+
+    enableDashboard = lib.mkEnableOption "the Immich SHB monitoring dashboard" // {
+      default = true;
+    };
 
     subdomain = mkOption {
       type = str;
@@ -1160,7 +1164,7 @@ in
         }
       ];
     })
-    (lib.mkIf (cfg.enable && config.shb.monitoring.enable) {
+    (lib.mkIf (cfg.enable && cfg.enableDashboard) {
       # https://git.h.oluflorenzen.de/finkregh/immich-prometheus-exporter/src/tag/3.0.2#api-key-setup
       shb.immich.declarativeApiKeys.prometheus_exporter.permissions = [
         "activity.statistics"
@@ -1245,5 +1249,13 @@ in
         in
         mapAttrs' mkService cfg.declarativeApiKeys;
     }
+
+    (lib.mkIf (cfg.enable && cfg.enableDashboard) (
+      lib.optionalAttrs (builtins.hasAttr "monitoring" options.shb) {
+        shb.monitoring.dashboards = [
+          ./immich/dashboard/Immich.json
+        ];
+      }
+    ))
   ];
 }

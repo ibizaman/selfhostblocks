@@ -4526,6 +4526,9 @@
   "services-immich-options-shb.immich.enable": [
     "services-immich.html#services-immich-options-shb.immich.enable"
   ],
+  "services-immich-options-shb.immich.enableDashboard": [
+    "services-immich.html#services-immich-options-shb.immich.enableDashboard"
+  ],
   "services-immich-options-shb.immich.initialAdmin": [
     "services-immich.html#services-immich-options-shb.immich.initialAdmin"
   ],
@@ -4783,6 +4786,9 @@
   ],
   "services-immich-usage-configuration": [
     "services-immich.html#services-immich-usage-configuration"
+  ],
+  "services-immich-usage-monitoringdashboard": [
+    "services-immich.html#services-immich-usage-monitoringdashboard"
   ],
   "services-jellyfin": [
     "services-jellyfin.html#services-jellyfin"

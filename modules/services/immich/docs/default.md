@@ -15,6 +15,7 @@ this one adds:
   and [HTTPS](#services-immich-options-shb.immich.ssl) using reverse proxy. [Manual](#services-immich-usage).
 - [Backup](#services-immich-options-shb.immich.backup) through the [backup block](./blocks-backup.html). [Manual](#services-immich-usage-backup).
 - [SSO](#services-immich-options-shb.immich.sso) integration.
+- Integration with Prometheus and Grafana with a dedicated dashboard.
 - Integration with the [dashboard contract](contracts-dashboard.html) for displaying user facing application in a dashboard. [Manual](#services-immich-usage-applicationdashboard)
 
 ## Usage {#services-immich-usage}
@@ -153,6 +154,18 @@ And those snapshots can be synced to another `zpool` with:
   };
 }
 ```
+
+### Monitoring Dashboard {#services-immich-usage-monitoringdashboard}
+
+When enabling the [`shb.monitoring`](blocks-monitoring.html) module,
+an Immich specific dashboard is provisioned automatically.
+
+![](./assets/dashboard_1_service.png)
+![](./assets/dashboard_2_disk.png)
+![](./assets/dashboard_3_cpu.png)
+![](./assets/dashboard_4_memory.png)
+![](./assets/dashboard_5_network.png)
+![](./assets/dashboard_6_logs.png)
 
 ### Application Dashboard {#services-immich-usage-applicationdashboard}
 
