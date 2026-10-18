@@ -52,56 +52,64 @@ Legend: **N**: no but WIP; **P**: partial; **Y**: yes
 [Simple NixOS Mailserver]: services-mailserver.html
 [Vaultwarden]: services-vaultwarden.html
 
-## Dashboard {#services-category-dashboard}
+**Dashboard** []{#services-category-dashboard}
 
-```{=include=} chapters html:into-file=//services-homepage.html
-modules/services/homepage/docs/default.md
+- [Homepage][]
+
+**Documents** []{#services-category-documents}
+
+- [Nextcloud Server][]
+
+**Emails** []{#services-category-emails}
+
+- [Simple NixOS Mailserver][]
+
+**Passwords** []{#services-category-passwords}
+
+- [Vaultwarden][]
+
+**Automation** []{#services-category-automation}
+
+- [Home-Assistant][]
+
+**AI** []{#services-category-ai}
+
+- [Karakeep][]
+- [Open WebUI][]
+
+**Code** []{#services-category-code}
+
+- [Forgejo][]
+
+**Media** []{#services-category-media}
+
+- [Jellyfin][]
+- [Immich][]
+- [Pinchflat][]
+- [*arr][]
+
+**Finance** []{#services-category-finance}
+
+- [Firefly-iii][]
+
+```{=include=} chapters html:into-file=//services-arr.html
+modules/services/arr/docs/default.md
 ```
 
-## Documents {#services-category-documents}
-
-```{=include=} chapters html:into-file=//services-nextcloud.html
-modules/services/nextcloud-server/docs/default.md
+```{=include=} chapters html:into-file=//services-firefly-iii.html
+modules/services/firefly-iii/docs/default.md
 ```
-
-## Emails {#services-category-emails}
-
-```{=include=} chapters html:into-file=//services-mailserver.html
-modules/services/mailserver/docs/default.md
-```
-
-## Passwords {#services-category-passwords}
-
-```{=include=} chapters html:into-file=//services-vaultwarden.html
-modules/services/vaultwarden/docs/default.md
-```
-
-## Automation {#services-category-automation}
-
-```{=include=} chapters html:into-file=//services-home-assistant.html
-modules/services/home-assistant/docs/default.md
-```
-
-## AI {#services-category-ai}
-
-```{=include=} chapters html:into-file=//services-karakeep.html
-modules/services/karakeep/docs/default.md
-```
-
-```{=include=} chapters html:into-file=//services-open-webui.html
-modules/services/open-webui/docs/default.md
-```
-
-## Code {#services-category-code}
 
 ```{=include=} chapters html:into-file=//services-forgejo.html
 modules/services/forgejo/docs/default.md
 ```
 
-## Media {#services-category-media}
+```{=include=} chapters html:into-file=//services-home-assistant.html
+modules/services/home-assistant/docs/default.md
+```
 
-```{=include=} chapters html:into-file=//services-arr.html
-modules/services/arr/docs/default.md
+```{=include=} chapters html:into-file=//services-homepage.html
+modules/services/homepage/docs/default.md
 ```
 
 ```{=include=} chapters html:into-file=//services-immich.html
@@ -112,12 +120,26 @@ modules/services/immich/docs/default.md
 modules/services/jellyfin/docs/default.md
 ```
 
+```{=include=} chapters html:into-file=//services-karakeep.html
+modules/services/karakeep/docs/default.md
+```
+
+```{=include=} chapters html:into-file=//services-mailserver.html
+modules/services/mailserver/docs/default.md
+```
+
+```{=include=} chapters html:into-file=//services-nextcloud.html
+modules/services/nextcloud-server/docs/default.md
+```
+
+```{=include=} chapters html:into-file=//services-open-webui.html
+modules/services/open-webui/docs/default.md
+```
+
 ```{=include=} chapters html:into-file=//services-pinchflat.html
 modules/services/pinchflat/docs/default.md
 ```
 
-## Finance {#services-category-finance}
-
-```{=include=} chapters html:into-file=//services-firefly-iii.html
-modules/services/firefly-iii/docs/default.md
+```{=include=} chapters html:into-file=//services-vaultwarden.html
+modules/services/vaultwarden/docs/default.md
 ```

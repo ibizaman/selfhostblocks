@@ -153,12 +153,12 @@ stdenv.mkDerivation {
   ''
   + lib.concatStringsSep "\n" (
     map (m: ''
-      substituteInPlace ${m} --replace '@VERSION@' ${version}
+      substituteInPlace ${m} --replace-fail '@VERSION@' ${version}
     '') substituteVersionIn
   )
   + ''
     substituteInPlace ./options.md \
-      --replace \
+      --replace-fail \
         '@OPTIONS_JSON@' \
         ${
           allOptionsDocs [
@@ -196,11 +196,7 @@ stdenv.mkDerivation {
       done
 
     # Support both old and new nixos-render-docs option names.
-    if nixos-render-docs manual html --help | grep -q -- --sidebar-depth; then
-      sidebarDepthArgs="--sidebar-depth 1"
-    else
-      sidebarDepthArgs="--toc-depth 1 --section-toc-depth 1"
-    fi
+    sidebarDepthArgs="--sidebar-depth 2"
 
     nixos-render-docs manual html \
       --manpage-urls ${manpage-urls} \
