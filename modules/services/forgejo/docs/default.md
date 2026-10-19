@@ -61,6 +61,72 @@ This assumes secrets are setup with SOPS
 as mentioned in [the secrets setup section](usage.html#usage-secrets) of the manual.
 Secrets can be randomly generated with `nix run nixpkgs#openssl -- rand -hex 64`.
 
+### Local Actions runner {#services-forgejo-usage-runner}
+
+The local runner uses `services.forgejo-runner.instances.local` and executes jobs
+with the `native` label on the host. Add tools through `shb.forgejo.hostPackages`.
+Set `shb.forgejo.localActionRunner = false` to disable it.
+
+Registering a Forgejo runner establishes its identity: a UUID that identifies it
+to the server and a token that authenticates it. SHB saves both so registration
+happens once and the runner reconnects with the same identity after restarts.
+
+For fresh installations, SHB automatically registers the local runner through
+`forgejo-runner-initialize.service`. If you are upgrading an installation that used
+the Gitea Actions runner module, follow the [migration steps below](#services-forgejo-usage-runner-migration)
+before activating the new configuration.
+
+#### Migrating from the Gitea runner {#services-forgejo-usage-runner-migration}
+
+For an existing installation, first move overrides under
+`services.gitea-actions-runner.instances.local` to the corresponding native runner
+options; labels now belong under `settings.runner.labels`. Then build the new
+configuration and migrate before switching to it. A pre-switch check rejects
+activation until migration is complete, leaving the running configuration intact:
+
+```bash
+sudo nixos-rebuild build
+sudo systemctl stop gitea-runner-local.service
+sudo ./result/sw/bin/shb-forgejo-runner-migrate
+sudo nixos-rebuild switch
+```
+
+Use your usual configuration selection arguments, such as `--flake`, with both
+`nixos-rebuild` commands. If migration fails, stop before switching; restart the
+old runner with `sudo systemctl start gitea-runner-local.service` while resolving
+the error. Failed migration attempts can be retried.
+
+The migration imports the UUID and operational token from
+`/var/lib/gitea-runner/local/.runner` without changing that file or its workspace.
+The native runner uses `/var/lib/forgejo-runner/local`, so job caches are rebuilt.
+
+To roll back a migration, switch to the previous NixOS generation, for example
+with `sudo nixos-rebuild switch --rollback`; the preserved legacy registration
+allows the old runner to reconnect with its original identity.
+
+#### Identity storage and backups {#services-forgejo-usage-runner-state}
+
+SHB stores the runner's UUID and token in `runner-registration/initialized` under
+`services.forgejo.customDir`. The default location is
+`/var/lib/forgejo/custom/runner-registration/initialized`. These credentials are
+private Forgejo data and must be preserved with it.
+
+Persist `services.forgejo.stateDir` using `shb.forgejo.mount`. When the local runner
+is enabled, `services.forgejo.customDir` must stay inside that directory. This keeps
+the runner's identity on the existing Forgejo dataset, including on systems with
+an impermanent root.
+The runner workspace and caches can remain ephemeral.
+
+The regular Forgejo dump and SHB backup include the identity automatically.
+When recovering, keep Forgejo and its runner stopped and restore the identity
+from the same recovery point as the database. With the default directory layout,
+restore the archive's `custom/` contents into `services.forgejo.customDir`, including
+the complete `runner-registration/initialized` directory, preserving ownership
+and permissions. Starting the runner then reuses that identity.
+
+Use `journalctl -u forgejo-runner-initialize -u forgejo-runner-local` to diagnose
+initialization and execution failures. Disabling the runner retains its state.
+
 ### Forgejo through HTTPS {#services-forgejo-usage-https}
 
 :::: {.note}

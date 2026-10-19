@@ -16,6 +16,16 @@ Template:
 
 # Upcoming Release
 
+## Breaking Changes
+
+- Forgejo's local Actions runner now uses `services.forgejo-runner` instead of
+  `services.gitea-actions-runner`. Existing installations must complete the
+  [one-time runner migration](https://shb.skarabox.com/services-forgejo.html#services-forgejo-usage-runner-migration)
+  before activating the new configuration; activation is blocked until migration
+  is complete. Move any custom runner overrides to the corresponding native module
+  options as described in the migration instructions. Fresh installations still
+  register automatically, and runner credentials are now included in Forgejo backups.
+
 ## New Features
 
 - Add monitoring dashboard for Immich

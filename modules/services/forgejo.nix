@@ -18,7 +18,6 @@ let
     lists
     literalExpression
     mapAttrsToList
-    mkBefore
     mkEnableOption
     mkForce
     mkIf
@@ -659,52 +658,166 @@ in
       };
     })
 
-    # https://wiki.nixos.org/wiki/Forgejo#Runner
     (mkIf cfg.enable {
       services.forgejo.settings.actions = {
         ENABLED = true;
         DEFAULT_ACTIONS_URL = "github";
       };
-
-      services.gitea-actions-runner = mkIf cfg.localActionRunner {
-        package = pkgs.forgejo-runner;
-        instances.local = {
-          enable = true;
-          name = "local";
-          url =
-            let
-              protocol = if cfg.ssl != null then "https" else "http";
-            in
-            "${protocol}://${cfg.subdomain}.${cfg.domain}";
-          tokenFile = ""; # Empty variable to satisfy an assertion.
-          labels = [
-            # "ubuntu-latest:docker://node:16-bullseye"
-            # "ubuntu-22.04:docker://node:16-bullseye"
-            # "ubuntu-20.04:docker://node:16-bullseye"
-            # "ubuntu-18.04:docker://node:16-buster"
-            "native:host"
-          ];
-          inherit (cfg) hostPackages;
-        };
-      };
-
-      # This combined with the next statement takes care of
-      # automatically registering a forgejo runner.
-      systemd.services.forgejo.postStart = mkIf cfg.localActionRunner (mkBefore ''
-        ${pkgs.bash}/bin/bash -c '(while ! ${pkgs.netcat-openbsd}/bin/nc -z -U ${config.services.forgejo.settings.server.HTTP_ADDR}; do echo "Waiting for unix ${config.services.forgejo.settings.server.HTTP_ADDR} to open..."; sleep 2; done); sleep 2'
-        actions="${getExe config.services.forgejo.package} actions"
-        echo -n TOKEN= > /run/forgejo/forgejo-runner-token
-        $actions generate-runner-token >> /run/forgejo/forgejo-runner-token
-      '');
-
-      systemd.services.gitea-runner-local.serviceConfig = {
-        # LoadCredential = "TOKEN_FILE:/run/forgejo/forgejo-runner-token";
-        # EnvironmentFile = [ "$CREDENTIALS_DIRECTORY/TOKEN_FILE" ];
-        EnvironmentFile = [ "/run/forgejo/forgejo-runner-token" ];
-      };
-
-      systemd.services.gitea-runner-local.wants = [ "forgejo.service" ];
-      systemd.services.gitea-runner-local.after = [ "forgejo.service" ];
     })
+
+    (mkIf (cfg.enable && cfg.localActionRunner) (
+      let
+        # Store the identity with Forgejo's persistent, backed-up data. Publishing
+        # identityDir completes initialization or explicit migration once.
+        registrationDir = "${config.services.forgejo.customDir}/runner-registration";
+        identityDir = "${registrationDir}/initialized";
+        legacyDir = "/var/lib/gitea-runner/local";
+        uuidPlaceholder = "@UUID@";
+        runtimeConfig = "./config.yaml";
+        forgejoActions = "${getExe config.services.forgejo.package} forgejo-cli actions";
+        runner = config.services.forgejo-runner;
+      in
+      {
+        assertions = [
+          {
+            assertion = lib.path.hasPrefix (/. + config.services.forgejo.stateDir) (
+              /. + config.services.forgejo.customDir
+            );
+            message = "shb.forgejo.localActionRunner requires services.forgejo.customDir to be inside services.forgejo.stateDir so runner identity is covered by shb.forgejo.mount.";
+          }
+        ];
+
+        environment.systemPackages = [
+          (pkgs.callPackage ./forgejo/migrate-runner.nix {
+            inherit registrationDir identityDir legacyDir;
+            user = config.services.forgejo.user;
+          })
+        ];
+
+        system.preSwitchChecks.shb-forgejo-runner-migration = ''
+          if { [ -e ${lib.escapeShellArg legacyDir} ] || [ -L ${lib.escapeShellArg legacyDir} ]; } \
+            && [ ! -e ${lib.escapeShellArg identityDir} ]; then
+            echo "The local Forgejo runner must be migrated before activating this configuration." >&2
+            echo "Run as root, then retry activation:" >&2
+            echo "  systemctl stop gitea-runner-local.service" >&2
+            echo "  $1/sw/bin/shb-forgejo-runner-migrate" >&2
+            exit 1
+          fi
+        '';
+
+        # Use the native module for runner configuration, credentials and service hardening.
+        # https://wiki.nixos.org/wiki/Forgejo#Actions_Runner
+        services.forgejo-runner = {
+          instances.local = {
+            enable = true;
+            settings = {
+              runner.labels = [ "native:host" ];
+              server.connections.default = {
+                url = "${if cfg.ssl != null then "https" else "http"}://${cfg.subdomain}.${cfg.domain}";
+                uuid = uuidPlaceholder;
+              };
+            };
+            secrets.server.connections.default.token_url = "${identityDir}/token";
+            inherit (cfg) hostPackages;
+          };
+        };
+
+        # Forgejo's offline registration is idempotent when reusing the same secret.
+        # https://forgejo.org/docs/v15.0/admin/command-line/#forgejo-cli-actions-register
+        # SHB retains that secret across interrupted attempts and publishes UUID/token
+        # together, then skips initialization once the identity has been saved.
+        systemd.services.forgejo-runner-initialize = {
+          description = "Initialize a new local Forgejo runner once";
+          wants = [ "forgejo.service" ];
+          after = [ "forgejo.service" ];
+          unitConfig = {
+            # Wait for persistent storage before checking or creating the identity.
+            RequiresMountsFor = [ config.services.forgejo.customDir ];
+            # A completed initialization or migration skips this service on later boots.
+            ConditionPathExists = "!${identityDir}";
+            # Existing installations must use the explicit migration command instead.
+            # PID 1 can check the legacy DynamicUser directory; the Forgejo user cannot.
+            AssertPathExists = "!${legacyDir}";
+            AssertPathIsSymbolicLink = "!${legacyDir}";
+          };
+          path = [ pkgs.coreutils ];
+          environment = {
+            # Point the offline CLI at the running Forgejo instance's configuration and database.
+            FORGEJO_WORK_DIR = config.services.forgejo.stateDir;
+            FORGEJO_CUSTOM = config.services.forgejo.customDir;
+          };
+          serviceConfig = {
+            Type = "oneshot";
+            RemainAfterExit = true;
+            User = config.services.forgejo.user;
+            Group = config.services.forgejo.group;
+            # New credential files must only be readable by the Forgejo user.
+            UMask = "0077";
+          };
+          script = ''
+            # Stop on errors, including a failed registration command inside the pipeline.
+            set -euo pipefail
+
+            # Create the private parent directory on Forgejo's persistent storage.
+            install --directory --mode=0700 ${lib.escapeShellArg registrationDir}
+            cd ${lib.escapeShellArg registrationDir}
+            # Keep unfinished work across failures so retries can reuse the same secret.
+            # Stage beside the destination so the final rename stays on one filesystem.
+            mkdir -p initializing
+            cd initializing
+
+            # Generate a secret only when none has been saved. Rename it into place only
+            # after generation succeeds, so a partial write cannot become the saved token.
+            if [ ! -e token ]; then
+              ${forgejoActions} generate-secret > token.new
+              mv token.new token
+            fi
+            # Refuse an empty saved token instead of silently replacing the runner's identity.
+            test -s token
+
+            # Register through Forgejo's offline CLI, keeping the secret out of process arguments.
+            # Retrying with the saved secret returns the same runner's UUID. Store the UUID
+            # without the CLI's trailing newline for substitution into the runner's YAML.
+            ${forgejoActions} register --name local --secret-stdin=true < token | tr -d '\n' > uuid
+            # Do not publish an identity if registration returned no UUID.
+            test -s uuid
+
+            # Publish both credentials together in one atomic rename. This directory also
+            # tells ConditionPathExists above that initialization must not run again.
+            mv --no-target-directory ${lib.escapeShellArg "${registrationDir}/initializing"} ${lib.escapeShellArg identityDir}
+          '';
+        };
+
+        # The runner's UUID is saved on the target machine, but Forgejo Runner requires
+        # it inline in YAML; only its token supports loading from a file. Substitute the
+        # saved UUID into a runtime config copy, following the native module's test.
+        # Remove this workaround when Forgejo Runner supports uuid_url alongside token_url.
+        # https://github.com/NixOS/nixpkgs/blob/5e867b1db0f219e0e906574cca1175f421a87834/nixos/tests/forgejo.nix#L102-L113
+        systemd.services.forgejo-runner-local = {
+          requires = [ "forgejo-runner-initialize.service" ];
+          wants = [ "nginx.service" ];
+          after = [
+            "forgejo-runner-initialize.service"
+            "gitea-runner-local.service"
+            "nginx.service"
+          ];
+          conflicts = [ "gitea-runner-local.service" ];
+          preStart = ''
+            # Replace the read-only file left by a previous start.
+            install -m 600 ${runner.instances.local.configFile} ${lib.escapeShellArg runtimeConfig}
+            ${getExe pkgs.replace-secret} ${lib.escapeShellArg uuidPlaceholder} "$CREDENTIALS_DIRECTORY/UUID" ${lib.escapeShellArg runtimeConfig}
+            chmod u-w ${lib.escapeShellArg runtimeConfig}
+            # Wait for the API before the runner's first declaration.
+            ${getExe pkgs.curl} --fail --silent --show-error --output /dev/null \
+              --retry 30 --retry-delay 1 --retry-all-errors --retry-max-time 30 --max-time 2 \
+              ${lib.escapeShellArg "${runner.instances.local.settings.server.connections.default.url}/api/healthz"}
+          '';
+          serviceConfig = {
+            ExecStart = mkForce "${getExe runner.package} daemon --config ${runtimeConfig}";
+            LoadCredential = [ "UUID:${identityDir}/uuid" ];
+          };
+        };
+      }
+    ))
   ];
 }
