@@ -993,16 +993,29 @@ in
         openFirewall = false;
 
         # This src includes Prometheus metrics exporter.
-        package = pkgs.scrutiny.overrideAttrs ({
-          src = pkgs.fetchFromGitHub {
-            owner = "ibizaman";
-            repo = "scrutiny";
-            rev = "74faf06f77df83f29e7e1806cd88b2fafc0bbb82";
-            hash = "sha256-r0AVWL+E046xHxitwMPfRNTOpjuOk+W6tB41YgmLTPg=";
-          };
+        package =
+          (pkgs.scrutiny.override {
+            buildNpmPackage =
+              args:
+              pkgs.buildNpmPackage (
+                args
+                // {
+                  # Match the metrics fork's frontend lockfile rather than nixpkgs' source.
+                  # https://github.com/ibizaman/scrutiny/blob/74faf06f77df83f29e7e1806cd88b2fafc0bbb82/webapp/frontend/package-lock.json#L1-L40
+                  npmDepsHash = "sha256-1lOskHEU/3CmhQkUkQExryK6eMOSWvMI+Y+cX4Dlj98=";
+                }
+              );
+          }).overrideAttrs
+            ({
+              src = pkgs.fetchFromGitHub {
+                owner = "ibizaman";
+                repo = "scrutiny";
+                rev = "74faf06f77df83f29e7e1806cd88b2fafc0bbb82";
+                hash = "sha256-r0AVWL+E046xHxitwMPfRNTOpjuOk+W6tB41YgmLTPg=";
+              };
 
-          vendorHash = "sha256-kAlnlWnBMFCdgdak5L5hRquRtyLi5MTmDa/kxwqPs4E=";
-        });
+              vendorHash = "sha256-kAlnlWnBMFCdgdak5L5hRquRtyLi5MTmDa/kxwqPs4E=";
+            });
 
         settings = {
           web = {
