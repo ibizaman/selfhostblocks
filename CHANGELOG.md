@@ -34,6 +34,15 @@ Template:
   [upstream Sieve migration](https://nixos-mailserver.readthedocs.io/en/nixos-26.05/migrations.html#sieve-script-directory-migration)
   before setting `shb.mailserver.stateVersion = 5`.
 
+## New Features
+
+- `davfs2` module now accept a file for a password.
+- Backup script for restic and borgbackup accept any command allowing to run any
+  specific restic and borgbackup command with the env vars and secrets configured
+  automatically.
+- Add new `package-versions` module that prints package version on activation (and dry-run too). @jameysharp @snale @localcat
+- Add full support, including tests, for Immich SSO login flow.
+
 ## User Facing Backwards Compatible Changes
 
 - Rename `shb.nginx.accessLog` to `shb.nginx.insecureAccessLogWithRequestBody`.
@@ -42,12 +51,23 @@ Template:
 ## Fixes
 
 - Allow Jellyfin LDAP and SSO administrators to log in without also belonging to the regular user group.
+- Fix Nextcloud preview generation service permissions.
 - Fix Open WebUI backups omitting state stored in systemd's private DynamicUser directory
   ([issue #721](https://github.com/ibizaman/selfhostblocks/issues/721)).
+- Fix SSO login inconsistencies in Jellyfin.
 
 ## Other Changes
 
 - Add hooks in backup contract before and after a restore command.
+- Print ZFS snapshots on activation
+- Add `default_config` to Home Assistant config so the default dashboards cam be displayed.
+- Test LDAP login with Home Assistant.
+- Much more robust test overall thanks to @dniku.
+- Add user consistency test for Home Assistant making sure logging in through basic or LDAP flow
+  ends up creating the same user.
+- Add user consistency test for Jellyfin making sure logging in through basic, LDAP and SSO flow
+  ends up creating the same user.
+- Switch to using `systemd.tmpfile.settings` by @yottanami.
 
 # v0.9.0
 
@@ -73,6 +93,9 @@ Commits: https://github.com/ibizaman/selfhostblocks/compare/v0.8.0...v0.9.0
   See [the manual](https://shb.skarabox.com/blocks-zfs.html) for more details.
 - Add [sanoid block](https://shb.skarabox.com/blocks-sanoid.html)
 - Add option to take snapshot before activation with ZFS block.
+- Add support for declarative creation of admin using in Immich.
+- Add support, including test, for full backup in Immich.
+- Add declarative creating of API keys in Immich.
 
 ## Fixes
 
@@ -85,6 +108,7 @@ Commits: https://github.com/ibizaman/selfhostblocks/compare/v0.8.0...v0.9.0
 - Convert ZFS block to system and [add documentation](https://shb.skarabox.com/blocks-zfs.html)
 - Switch monitoring log fetching from deprecated promtail to fluent-bit
 - Add test to catch drift for Let's Encrypt DNS provider
+- Add demo for Immich service.
 
 # [BROKEN] v0.8.0
 
