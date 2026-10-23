@@ -16,6 +16,20 @@ Template:
 
 # Upcoming Release
 
+## Breaking Changes
+
+- Require `shb.postgresql.version` when PostgreSQL is enabled. Existing
+  deployments must first set it to their currently running PostgreSQL major.
+  This does not perform an automatic major upgrade; guarded forward major-version
+  upgrade helpers are provided for later explicit upgrades. PostgreSQL backup
+  and restore commands now use tools matching the configured server version
+  ([issue #829](https://github.com/ibizaman/selfhostblocks/issues/829)).
+- Nextcloud 34 and 35 are now supported, replacing versions 33 and 34. The default remains 34.
+  Preview Generator is supported on both Nextcloud 34 and 35.
+  Memories and Recognize remain available only on 34 until the pinned nixpkgs supports them on 35.
+  Deploy version 34 and complete its migrations before selecting 35 because Nextcloud does not support skipping major versions.
+  Take a verified backup before upgrading; a NixOS generation rollback does not undo database migrations.
+
 ## New Features
 
 - Add monitoring dashboard for Immich
