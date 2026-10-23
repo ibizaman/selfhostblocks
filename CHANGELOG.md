@@ -38,6 +38,9 @@ Template:
 
 ## User Facing Backwards Compatible Changes
 
+- Scrutiny now follows SHB's nixpkgs input instead of a separate fork. Its existing
+  Prometheus exporter is carried as a local patch, preserving metric names and
+  the `/api/metrics` endpoint.
 - Monitoring module migrates to using fluent-bit and cadvisor from netdata.
   This is technically a breaking change although this should be pretty transparent
   as long as you don't rely on internals on the monitoring module.
