@@ -457,6 +457,7 @@ in
           sso
         ];
 
+        environment.systemPackages = [ pkgs.jq ];
         virtualisation.memorySize = 4096;
       };
 
@@ -465,6 +466,9 @@ in
         { node, ... }:
         let
           scrutinyFqdn = "${node.config.shb.monitoring.scrutiny.subdomain}.${node.config.shb.monitoring.domain}";
+          scrutinyApi = "http://127.0.0.1:${toString node.config.services.scrutiny.settings.web.listen.port}/api";
+          prometheusApi = "http://127.0.0.1:${toString node.config.services.prometheus.port}/api/v1/query";
+          fixtures = "${node.config.services.scrutiny.package.src}/webapp/backend/pkg/web/testdata";
         in
         ''
           with subtest("local InfluxDB listens only on loopback"):
@@ -472,6 +476,40 @@ in
               server.wait_for_open_port(port)
               assert [line.split()[3] for line in server.succeed(f"ss -H -ltn 'sport = :{port}'").splitlines()] == [f"127.0.0.1:{port}"]
               server.succeed(f"curl --fail http://127.0.0.1:{port}/health")
+          import shlex
+
+          with subtest("Scrutiny exports uploaded SMART data to Prometheus"):
+              server.wait_for_unit("scrutiny.service")
+              server.wait_until_succeeds("curl --fail ${scrutinyApi}/health")
+              devices = json.loads(pathlib.Path("${fixtures}/register-devices-single-req.json").read_text())
+              [device] = devices["data"]
+              smart = json.loads(pathlib.Path("${fixtures}/upload-device-metrics-req.json").read_text())
+              # Keep the upstream test sample within InfluxDB's retention window.
+              smart["local_time"]["time_t"] = int(server.succeed("date +%s"))
+              server.succeed(
+                  "curl --fail --json " + shlex.quote(json.dumps(devices))
+                  + " ${scrutinyApi}/devices/register"
+              )
+              server.succeed(
+                  "curl --fail --json " + shlex.quote(json.dumps(smart))
+                  + " ${scrutinyApi}/device/" + device["scrutiny_uuid"] + "/smart"
+              )
+              hours = smart["power_on_time"]["hours"]
+              query = 'scrutiny_smart_power_on_hours{job="scrutiny",device_name=' + json.dumps(device["device_name"]) + '}'
+              server.wait_until_succeeds(
+                  "curl --fail --get --data-urlencode " + shlex.quote("query=" + query)
+                  + " ${prometheusApi} | jq --exit-status "
+                  + shlex.quote(f'.data.result | length == 1 and .[0].value[1] == "{hours}"')
+              )
+
+          with subtest("Scrutiny reloads persisted SMART metrics after restart"):
+              server.succeed("systemctl restart scrutiny.service")
+              # Query Scrutiny directly so a cached Prometheus sample cannot mask a failed reload.
+              server.wait_until_succeeds(
+                  "curl --fail ${scrutinyApi}/metrics | grep --extended-regexp "
+                  + shlex.quote(r"^scrutiny_smart_power_on_hours\{.*\} " + str(hours) + "$")
+              )
+
           with subtest("Scrutiny uses its own SSL certificate"):
               client.succeed(
                   "curl --fail --silent --show-error"
