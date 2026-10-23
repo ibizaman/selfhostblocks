@@ -1,0 +1,949 @@
+From 74faf06f77df83f29e7e1806cd88b2fafc0bbb82 Mon Sep 17 00:00:00 2001
+From: Jianyun8023 <yihy8023@gmail.com>
+Date: Mon, 17 Nov 2025 21:34:19 +0800
+Subject: [PATCH] Add Prometheus metrics support (ported to Scrutiny v0.9.5)
+
+Source: https://github.com/ibizaman/scrutiny/commit/74faf06f77df83f29e7e1806cd88b2fafc0bbb82
+Upstream proposal: https://github.com/AnalogJ/scrutiny/pull/830
+
+SHB previously used this commit as its entire Scrutiny source. Carry its
+exporter on nixpkgs' source instead, preserving /api/metrics and metric names.
+
+Porting changes: reconcile go.mod/go.sum with v0.9.5 without downgrading
+existing dependencies, and pass the previous one-day aggregation window to
+the updated GetSmartAttributeHistory API. Other application code is unchanged
+from the original patch, including its existing disk-identity limitation.
+
+---
+diff --git a/example.scrutiny.yaml b/example.scrutiny.yaml
+index 8d52d5d..0e12c50 100644
+--- a/example.scrutiny.yaml
++++ b/example.scrutiny.yaml
+@@ -47,6 +47,11 @@ web:
+ #    org: 'my-org'
+ #    bucket: 'bucket'
+     retention_policy: true
++
++  # Prometheus metrics endpoint configuration
++  metrics:
++    # Enable or disable Prometheus metrics endpoint (/api/metrics)
++    enabled: true
+     # if you wish to disable TLS certificate verification,
+     # when using self-signed certificates for example,
+     # then uncomment the lines below and set `insecure_skip_verify: true`
+diff --git a/go.mod b/go.mod
+index 55e32d8..b1d0d13 100644
+--- a/go.mod
++++ b/go.mod
+@@ -13,6 +13,7 @@ require (
+ 	github.com/influxdata/influxdb-client-go/v2 v2.14.0
+ 	github.com/jaypipes/ghw v0.21.2
+ 	github.com/nicholas-fedor/shoutrrr v0.16.3
++	github.com/prometheus/client_golang v1.17.0
+ 	github.com/sirupsen/logrus v1.9.4
+ 	github.com/spf13/viper v1.21.0
+ 	github.com/stretchr/testify v1.11.1
+@@ -24,9 +25,11 @@ require (
+ 
+ require (
+ 	github.com/apapsch/go-jsonmerge/v2 v2.0.0 // indirect
++	github.com/beorn7/perks v1.0.1 // indirect
+ 	github.com/bytedance/gopkg v0.1.3 // indirect
+ 	github.com/bytedance/sonic v1.15.0 // indirect
+ 	github.com/bytedance/sonic/loader v0.5.0 // indirect
++	github.com/cespare/xxhash/v2 v2.2.0 // indirect
+ 	github.com/cloudwego/base64x v0.1.6 // indirect
+ 	github.com/cpuguy83/go-md2man/v2 v2.0.7 // indirect
+ 	github.com/davecgh/go-spew v1.1.1 // indirect
+@@ -42,6 +45,7 @@ require (
+ 	github.com/go-playground/validator/v10 v10.30.1 // indirect
+ 	github.com/goccy/go-json v0.10.5 // indirect
+ 	github.com/goccy/go-yaml v1.19.2 // indirect
++	github.com/golang/protobuf v1.5.3 // indirect
+ 	github.com/google/uuid v1.6.0 // indirect
+ 	github.com/gorilla/websocket v1.5.3 // indirect
+ 	github.com/influxdata/line-protocol v0.0.0-20210922203350-b1ad95c89adf // indirect
+@@ -54,6 +58,7 @@ require (
+ 	github.com/leodido/go-urn v1.4.0 // indirect
+ 	github.com/mattn/go-colorable v0.1.15 // indirect
+ 	github.com/mattn/go-isatty v0.0.24 // indirect
++	github.com/matttproud/golang_protobuf_extensions v1.0.4 // indirect
+ 	github.com/mitchellh/go-homedir v1.1.0 // indirect
+ 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
+ 	github.com/modern-go/reflect2 v1.0.2 // indirect
+@@ -62,6 +67,9 @@ require (
+ 	github.com/pelletier/go-toml/v2 v2.4.3 // indirect
+ 	github.com/pkg/errors v0.9.1 // indirect
+ 	github.com/pmezard/go-difflib v1.0.0 // indirect
++	github.com/prometheus/client_model v0.4.1-0.20230718164431-9a2bf3000d16 // indirect
++	github.com/prometheus/common v0.44.0 // indirect
++	github.com/prometheus/procfs v0.11.1 // indirect
+ 	github.com/quic-go/qpack v0.6.0 // indirect
+ 	github.com/quic-go/quic-go v0.59.1 // indirect
+ 	github.com/remyoudompheng/bigfft v0.0.0-20230129092748-24d4a6f8daec // indirect
+@@ -84,7 +92,6 @@ require (
+ 	golang.org/x/term v0.45.0 // indirect
+ 	golang.org/x/text v0.40.0 // indirect
+ 	google.golang.org/protobuf v1.36.11 // indirect
+-	gopkg.in/yaml.v2 v2.4.0 // indirect
+ 	gopkg.in/yaml.v3 v3.0.1 // indirect
+ 	howett.net/plist v1.0.2-0.20250314012144-ee69052608d9 // indirect
+ 	modernc.org/libc v1.67.7 // indirect
+diff --git a/go.sum b/go.sum
+index 082184a..d6e564d 100644
+--- a/go.sum
++++ b/go.sum
+@@ -5,6 +5,8 @@ github.com/analogj/go-util v0.0.0-20210417161720-39b497cca03b h1:Y/+MfmdKPPpVY7C
+ github.com/analogj/go-util v0.0.0-20210417161720-39b497cca03b/go.mod h1:bRSzJXgXnT5+Ihah7RSC7Cvp16UmoLn3wq6ROciS1Ow=
+ github.com/apapsch/go-jsonmerge/v2 v2.0.0 h1:axGnT1gRIfimI7gJifB699GoE/oq+F2MU7Dml6nw9rQ=
+ github.com/apapsch/go-jsonmerge/v2 v2.0.0/go.mod h1:lvDnEdqiQrp0O42VQGgmlKpxL1AP2+08jFMw88y4klk=
++github.com/beorn7/perks v1.0.1 h1:VlbKKnNfV8bJzeqoa4cOKqO6bYr3WgKZxO8Z16+hsOM=
++github.com/beorn7/perks v1.0.1/go.mod h1:G2ZrVWU2WbWT9wwq4/hrbKbnv/1ERSJQ0ibhJ6rlkpw=
+ github.com/bmatcuk/doublestar v1.1.1/go.mod h1:UD6OnuiIn0yFxxA2le/rnRU1G4RaI4UvFv1sNto9p6w=
+ github.com/bytedance/gopkg v0.1.3 h1:TPBSwH8RsouGCBcMBktLt1AymVo2TVsBVCY4b6TnZ/M=
+ github.com/bytedance/gopkg v0.1.3/go.mod h1:576VvJ+eJgyCzdjS+c4+77QF3p7ubbtiKARP3TxducM=
+@@ -12,6 +14,8 @@ github.com/bytedance/sonic v1.15.0 h1:/PXeWFaR5ElNcVE84U0dOHjiMHQOwNIx3K4ymzh/uS
+ github.com/bytedance/sonic v1.15.0/go.mod h1:tFkWrPz0/CUCLEF4ri4UkHekCIcdnkqXw9VduqpJh0k=
+ github.com/bytedance/sonic/loader v0.5.0 h1:gXH3KVnatgY7loH5/TkeVyXPfESoqSBSBEiDd5VjlgE=
+ github.com/bytedance/sonic/loader v0.5.0/go.mod h1:AR4NYCk5DdzZizZ5djGqQ92eEhCCcdf5x77udYiSJRo=
++github.com/cespare/xxhash/v2 v2.2.0 h1:DC2CZ1Ep5Y4k3ZQ899DldepgrayRUGE6BBZ/cd9Cj44=
++github.com/cespare/xxhash/v2 v2.2.0/go.mod h1:VGX0DQ3Q6kWi7AoAeZDth3/j3BFtOZR5XLFGgcrjCOs=
+ github.com/cloudwego/base64x v0.1.6 h1:t11wG9AECkCDk5fMSoxmufanudBtJ+/HemLstXDLI2M=
+ github.com/cloudwego/base64x v0.1.6/go.mod h1:OFcloc187FXDaYHvrNIjxSe8ncn0OOM8gEHfghB2IPU=
+ github.com/cpuguy83/go-md2man/v2 v2.0.7 h1:zbFlGlXEAKlwXpmvle3d8Oe3YnkKIK4xSRTd3sHPnBo=
+@@ -65,6 +69,11 @@ github.com/goccy/go-yaml v1.19.2 h1:PmFC1S6h8ljIz6gMRBopkjP1TVT7xuwrButHID66PoM=
+ github.com/goccy/go-yaml v1.19.2/go.mod h1:XBurs7gK8ATbW4ZPGKgcbrY1Br56PdM69F7LkFRi1kA=
+ github.com/gofrs/uuid/v5 v5.4.0 h1:EfbpCTjqMuGyq5ZJwxqzn3Cbr2d0rUZU7v5ycAk/e/0=
+ github.com/gofrs/uuid/v5 v5.4.0/go.mod h1:CDOjlDMVAtN56jqyRUZh58JT31Tiw7/oQyEXZV+9bD8=
++github.com/golang/protobuf v1.2.0/go.mod h1:6lQm79b+lXiMfvg/cZm0SGofjICqVBUtrP5yJMmIC1U=
++github.com/golang/protobuf v1.5.0/go.mod h1:FsONVRAS9T7sI+LIUmWTfcYkHO4aIWwzhcaSAoJOfIk=
++github.com/golang/protobuf v1.5.3 h1:KhyjKVUg7Usr/dYsdSqoFveMYd5ko72D+zANwlG1mmg=
++github.com/golang/protobuf v1.5.3/go.mod h1:XVQd3VNwM+JqD3oG2Ue2ip4fOMUkwXdXDdiuN0vRsmY=
++github.com/google/go-cmp v0.5.5/go.mod h1:v8dTdLbMG2kIc/vJvl+f65V22dbkXbowE6jgT/gNBxE=
+ github.com/google/go-cmp v0.7.0 h1:wk8382ETsv4JYUZwIsn6YpYiWiBsYLSJiTsyBybVuN8=
+ github.com/google/go-cmp v0.7.0/go.mod h1:pXiqmnSA92OHEEa9HXL2W4E7lf9JzCmGVUdgjX3N/iU=
+ github.com/google/gofuzz v1.0.0/go.mod h1:dBl0BpW6vV/+mYPU4Po3pmUjxk6FQPldtuIdl/M65Eg=
+@@ -111,6 +120,8 @@ github.com/mattn/go-colorable v0.1.15/go.mod h1:6LmQG8QLFO4G5z1gPvYEzlUgJ2wF+stg
+ github.com/mattn/go-isatty v0.0.6/go.mod h1:Iq45c/XA43vh69/j3iqttzPXn0bhXyGjM0Hdxcsrc5s=
+ github.com/mattn/go-isatty v0.0.24 h1:tGZZoVgT/KiqK1c8ocVLeDS8BSWMRd47J3Lbz7vsReI=
+ github.com/mattn/go-isatty v0.0.24/go.mod h1:nMCL3Zebbrt45jsMDgnfIwz6ydEQApk5oEI3HqDio6A=
++github.com/matttproud/golang_protobuf_extensions v1.0.4 h1:mmDVorXM7PCGKw94cs5zkfA9PSy5pEvNWRP0ET0TIVo=
++github.com/matttproud/golang_protobuf_extensions v1.0.4/go.mod h1:BSXmuO+STAnVfrANrmjBb36TMTDstsz7MSK+HVaYKv4=
+ github.com/mitchellh/go-homedir v1.1.0 h1:lukF9ziXFxDFPkA1vsr5zpc1XuPDn/wFntq5mG+4E0Y=
+ github.com/mitchellh/go-homedir v1.1.0/go.mod h1:SfyaCUpYCn1Vlf4IUYiD9fPX4A5wJrkLzIz1N1q0pr0=
+ github.com/modern-go/concurrent v0.0.0-20180228061459-e0a39a4cb421/go.mod h1:6dJC0mAP4ikYIbvyc7fijjWJddQyLn8Ig3JB5CqoB9Q=
+@@ -134,6 +145,14 @@ github.com/pkg/errors v0.9.1 h1:FEBLx1zS214owpjy7qsBeixbURkuhQAwrK5UwLGTwt4=
+ github.com/pkg/errors v0.9.1/go.mod h1:bwawxfHBFNV+L2hUp1rHADufV3IMtnDRdf1r5NINEl0=
+ github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=
+ github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
++github.com/prometheus/client_golang v1.17.0 h1:rl2sfwZMtSthVU752MqfjQozy7blglC+1SOtjMAMh+Q=
++github.com/prometheus/client_golang v1.17.0/go.mod h1:VeL+gMmOAxkS2IqfCq0ZmHSL+LjWfWDUmp1mBz9JgUY=
++github.com/prometheus/client_model v0.4.1-0.20230718164431-9a2bf3000d16 h1:v7DLqVdK4VrYkVD5diGdl4sxJurKJEMnODWRJlxV9oM=
++github.com/prometheus/client_model v0.4.1-0.20230718164431-9a2bf3000d16/go.mod h1:oMQmHW1/JoDwqLtg57MGgP/Fb1CJEYF2imWWhWtMkYU=
++github.com/prometheus/common v0.44.0 h1:+5BrQJwiBB9xsMygAB3TNvpQKOwlkc25LbISbrdOOfY=
++github.com/prometheus/common v0.44.0/go.mod h1:ofAIvZbQ1e/nugmZGz4/qCb9Ap1VoSTIO7x0VV9VvuY=
++github.com/prometheus/procfs v0.11.1 h1:xRC8Iq1yyca5ypa9n1EZnWZkt7dwcoRPQwX/5gwaUuI=
++github.com/prometheus/procfs v0.11.1/go.mod h1:eesXgaPo1q7lBpVMoMy0ZOFTth9hBn4W/y0/p/ScXhY=
+ github.com/quic-go/qpack v0.6.0 h1:g7W+BMYynC1LbYLSqRt8PBg5Tgwxn214ZZR34VIOjz8=
+ github.com/quic-go/qpack v0.6.0/go.mod h1:lUpLKChi8njB4ty2bFLX2x4gzDqXwUpaO1DP9qMDZII=
+ github.com/quic-go/quic-go v0.59.1 h1:0Gmua0HW1Tv7ANR7hUYwRyD0MG5OJfgvYSZasGZzBic=
+@@ -199,6 +218,7 @@ golang.org/x/mod v0.38.0 h1:MECBjubtXD7yj4HrhIUcywNaGeNVUdfVnxmPajOk4yk=
+ golang.org/x/mod v0.38.0/go.mod h1:V6Xz0pq8TQ3dGqVQ1FVHuelZpAL0uNhSkk9ogYP3c40=
+ golang.org/x/net v0.57.0 h1:K5+3DljvIuDG9/Jv9rvyMywYNFCQ9RSUY6OOTTkT+tE=
+ golang.org/x/net v0.57.0/go.mod h1:KpXc8iv+r3XplLAG/f7Jsf9RPszJzdR0f58q9vGOuEU=
++golang.org/x/sync v0.0.0-20181221193216-37e7f081c4d4/go.mod h1:RxMgew5VJxzue5/jJTE5uejpjVlOe/izrB70Jof72aM=
+ golang.org/x/sync v0.22.0 h1:SZjpbeLmrCk4xhRSZFNZW5gFUeCeFgjekvI/+gfScek=
+ golang.org/x/sync v0.22.0/go.mod h1:9xrNwdLfx4jkKbNva9FpL6vEN7evnE43NNNJQ2LF3+0=
+ golang.org/x/sys v0.0.0-20190215142949-d0b11bdaac8a/go.mod h1:STP8DvDyc/dI5b8T5hshtkjS+E42TnysNCUPdjciGhY=
+@@ -214,6 +234,9 @@ golang.org/x/text v0.40.0 h1:Ub2Z6/xjgF1WrYQz2nuITOEegKFtiIy+rieRJ5lHZKs=
+ golang.org/x/text v0.40.0/go.mod h1:hpnzDAfGV753zIKo+wk3u1bVKCGPbrnF7+7LBF/UHVY=
+ golang.org/x/tools v0.48.0 h1:3+hClM1aLL5mjMKm5ovokw9epgRXPuu2tILgismM6RE=
+ golang.org/x/tools v0.48.0/go.mod h1:08xX0orndb/F7jJxGDicx061tyd5pcMto75YMAXr6lk=
++golang.org/x/xerrors v0.0.0-20191204190536-9bdfabe68543/go.mod h1:I/5z698sn9Ka8TeJc9MKroUUfqBBauWjQqLJ2OPfmY0=
++google.golang.org/protobuf v1.26.0-rc.1/go.mod h1:jlhhOSvTdKEhbULTjvd4ARK9grFBp09yW+WbY/TyQbw=
++google.golang.org/protobuf v1.26.0/go.mod h1:9q0QmTI4eRPtz6boOQmLYwt+qCgq0jsYwAQnmE0givc=
+ google.golang.org/protobuf v1.36.11 h1:fV6ZwhNocDyBLK0dj+fg8ektcVegBBuEolpbTQyBNVE=
+ google.golang.org/protobuf v1.36.11/go.mod h1:HTf+CrKn2C3g5S8VImy6tdcUvCska2kB7j23XfzDpco=
+ gopkg.in/check.v1 v0.0.0-20161208181325-20d25e280405/go.mod h1:Co6ibVJAznAaIkqp8huTwlJQCZ016jof/cbN4VW5Yz0=
+diff --git a/webapp/backend/pkg/config/config.go b/webapp/backend/pkg/config/config.go
+index 605de86..f42921f 100644
+--- a/webapp/backend/pkg/config/config.go
++++ b/webapp/backend/pkg/config/config.go
+@@ -1,12 +1,13 @@
+ package config
+ 
+ import (
+-	"github.com/analogj/go-util/utils"
+-	"github.com/analogj/scrutiny/webapp/backend/pkg/errors"
+-	"github.com/spf13/viper"
+ 	"log"
+ 	"os"
+ 	"strings"
++
++	"github.com/analogj/go-util/utils"
++	"github.com/analogj/scrutiny/webapp/backend/pkg/errors"
++	"github.com/spf13/viper"
+ )
+ 
+ const DB_USER_SETTINGS_SUBKEY = "user"
+@@ -52,6 +53,9 @@ func (c *configuration) Init() error {
+ 	c.SetDefault("web.influxdb.tls.insecure_skip_verify", false)
+ 	c.SetDefault("web.influxdb.retention_policy", true)
+ 
++	// Metrics settings
++	c.SetDefault("web.metrics.enabled", true)
++
+ 	//c.SetDefault("disks.include", []string{})
+ 	//c.SetDefault("disks.exclude", []string{})
+ 
+diff --git a/webapp/backend/pkg/metrics/collector.go b/webapp/backend/pkg/metrics/collector.go
+new file mode 100644
+index 0000000..8e28a04
+--- /dev/null
++++ b/webapp/backend/pkg/metrics/collector.go
+@@ -0,0 +1,264 @@
++package metrics
++
++import (
++	"context"
++	"fmt"
++	"sync"
++	"time"
++
++	"github.com/analogj/scrutiny/webapp/backend/pkg/database"
++	"github.com/analogj/scrutiny/webapp/backend/pkg/models"
++	"github.com/analogj/scrutiny/webapp/backend/pkg/models/measurements"
++	metricsModels "github.com/analogj/scrutiny/webapp/backend/pkg/models/metrics"
++	"github.com/gofrs/uuid/v5"
++	"github.com/prometheus/client_golang/prometheus"
++	"github.com/prometheus/client_golang/prometheus/collectors"
++	"github.com/sirupsen/logrus"
++)
++
++// Collector manages Prometheus metrics for all devices
++type Collector struct {
++	mu       sync.RWMutex
++	devices  map[string]*metricsModels.DeviceMetricsData // key: wwn
++	registry *prometheus.Registry
++	logger   *logrus.Entry
++}
++
++// NewCollector creates a new metrics collector
++func NewCollector(logger *logrus.Entry) *Collector {
++	mc := &Collector{
++		devices:  make(map[string]*metricsModels.DeviceMetricsData),
++		registry: prometheus.NewRegistry(),
++		logger:   logger,
++	}
++
++	// Register Go runtime metrics (memory, GC, goroutines, etc.)
++	mc.registry.MustRegister(collectors.NewGoCollector())
++
++	// Register custom device metrics collector
++	mc.registry.MustRegister(mc)
++	return mc
++}
++
++// UpdateDeviceMetrics updates device metrics (called from UploadDeviceMetrics)
++func (mc *Collector) UpdateDeviceMetrics(wwn string, device models.Device, smartData measurements.Smart) {
++	mc.mu.Lock()
++	defer mc.mu.Unlock()
++
++	mc.devices[wwn] = &metricsModels.DeviceMetricsData{
++		Device:    device,
++		SmartData: smartData,
++		UpdatedAt: time.Now(),
++	}
++	mc.logger.Debugf("Updated metrics for device %s", wwn)
++}
++
++// LoadInitialData loads initial data from database (called at startup)
++func (mc *Collector) LoadInitialData(deviceRepo database.DeviceRepo, ctx context.Context) error {
++	start := time.Now()
++	mc.logger.Info("Loading initial metrics data from database...")
++
++	// Get device summary
++	summary, err := deviceRepo.GetSummary(ctx)
++	if err != nil {
++		return fmt.Errorf("failed to load device summary: %w", err)
++	}
++
++	// Concurrently fetch latest SMART data for each device
++	smartDataMap := make(map[string][]measurements.Smart)
++	var wg sync.WaitGroup
++	var mu sync.Mutex
++
++	for wwn := range summary {
++		wg.Add(1)
++		go func(w uuid.UUID) {
++			defer wg.Done()
++			// Preserve the one-day aggregation used before this API took an explicit window.
++			// https://github.com/ibizaman/scrutiny/blob/5928d68be79d91431afa937b3b233ed792187a1f/webapp/backend/pkg/database/scrutiny_repository_device_smart_attributes.go#L188-L199
++			smarts, err := deviceRepo.GetSmartAttributeHistory(ctx, w, "forever", 24*time.Hour, 1, 0, nil)
++			if err == nil && len(smarts) > 0 {
++				mu.Lock()
++				smartDataMap[w.String()] = smarts
++				mu.Unlock()
++			}
++		}(wwn)
++	}
++
++	wg.Wait()
++
++	// Load into memory
++	mc.mu.Lock()
++	defer mc.mu.Unlock()
++
++	for wwn, deviceSummary := range summary {
++		if smartResults, ok := smartDataMap[wwn.String()]; ok && len(smartResults) > 0 {
++			mc.devices[wwn.String()] = &metricsModels.DeviceMetricsData{
++				Device:    deviceSummary.Device,
++				SmartData: smartResults[0],
++				UpdatedAt: time.Now(),
++			}
++		}
++	}
++
++	mc.logger.Infof("Loaded metrics for %d devices in %v", len(mc.devices), time.Since(start))
++	return nil
++}
++
++// GetRegistry returns the Prometheus registry
++func (mc *Collector) GetRegistry() *prometheus.Registry {
++	return mc.registry
++}
++
++// Describe implements prometheus.Collector interface
++func (mc *Collector) Describe(ch chan<- *prometheus.Desc) {
++	// Dynamic metrics, no need to pre-describe
++}
++
++// Collect implements prometheus.Collector interface
++func (mc *Collector) Collect(ch chan<- prometheus.Metric) {
++	start := time.Now()
++	mc.mu.RLock()
++	defer mc.mu.RUnlock()
++
++	mc.collectDeviceInfo(ch)
++	mc.collectDeviceCapacity(ch)
++	mc.collectDeviceStatus(ch)
++	mc.collectSmartAttributes(ch)
++	mc.collectSummaryMetrics(ch)
++	mc.collectStatistics(ch)
++
++	mc.logger.Debugf("Metrics collected in %v for %d devices", time.Since(start), len(mc.devices))
++}
++
++// collectDeviceInfo generates device information metrics
++func (mc *Collector) collectDeviceInfo(ch chan<- prometheus.Metric) {
++	for wwn, data := range mc.devices {
++		ch <- prometheus.MustNewConstMetric(
++			prometheus.NewDesc("scrutiny_device_info", "Device information",
++				[]string{"wwn", "device_name", "model_name", "serial_number",
++					"firmware", "protocol", "host_id", "form_factor"}, nil),
++			prometheus.GaugeValue, 1,
++			wwn, data.Device.DeviceName, data.Device.ModelName,
++			data.Device.SerialNumber, data.Device.Firmware,
++			data.Device.DeviceProtocol, data.Device.HostId, data.Device.FormFactor,
++		)
++	}
++}
++
++// collectDeviceCapacity generates device capacity metrics
++func (mc *Collector) collectDeviceCapacity(ch chan<- prometheus.Metric) {
++	for wwn, data := range mc.devices {
++		if data.Device.Capacity > 0 {
++			ch <- prometheus.MustNewConstMetric(
++				prometheus.NewDesc("scrutiny_device_capacity_bytes", "Device capacity in bytes",
++					[]string{"wwn", "device_name", "model_name", "protocol", "host_id"}, nil),
++				prometheus.GaugeValue, float64(data.Device.Capacity),
++				wwn, data.Device.DeviceName, data.Device.ModelName,
++				data.Device.DeviceProtocol, data.Device.HostId,
++			)
++		}
++	}
++}
++
++// collectDeviceStatus generates device status metrics
++func (mc *Collector) collectDeviceStatus(ch chan<- prometheus.Metric) {
++	for wwn, data := range mc.devices {
++		ch <- prometheus.MustNewConstMetric(
++			prometheus.NewDesc("scrutiny_device_status", "Device status (0=passed, 1=failed)",
++				[]string{"wwn", "device_name", "model_name", "protocol", "host_id"}, nil),
++			prometheus.GaugeValue, float64(data.Device.DeviceStatus),
++			wwn, data.Device.DeviceName, data.Device.ModelName,
++			data.Device.DeviceProtocol, data.Device.HostId,
++		)
++	}
++}
++
++// collectSmartAttributes generates SMART attribute metrics
++func (mc *Collector) collectSmartAttributes(ch chan<- prometheus.Metric) {
++	for wwn, data := range mc.devices {
++		baseLabels := []string{wwn, data.Device.DeviceName, data.Device.ModelName,
++			data.Device.DeviceProtocol, data.Device.HostId}
++
++		for attrID, attr := range data.SmartData.Attributes {
++			attrLabels := append(baseLabels, attrID)
++			flattenedAttrs := attr.Flatten()
++
++			for key, value := range flattenedAttrs {
++				metricName := SanitizeMetricName(key)
++				if floatVal, ok := TryParseFloat(value); ok {
++					ch <- prometheus.MustNewConstMetric(
++						prometheus.NewDesc(metricName, fmt.Sprintf("SMART attribute %s", key),
++							[]string{"wwn", "device_name", "model_name", "protocol", "host_id", "attribute_id"}, nil),
++						prometheus.GaugeValue, floatVal, attrLabels...,
++					)
++				}
++			}
++		}
++	}
++}
++
++// collectSummaryMetrics generates summary metrics
++func (mc *Collector) collectSummaryMetrics(ch chan<- prometheus.Metric) {
++	for wwn, data := range mc.devices {
++		labels := []string{wwn, data.Device.DeviceName, data.Device.ModelName,
++			data.Device.DeviceProtocol, data.Device.HostId}
++
++		if data.SmartData.Temp > 0 {
++			ch <- prometheus.MustNewConstMetric(
++				prometheus.NewDesc("scrutiny_smart_temperature_celsius",
++					"Device temperature in Celsius",
++					[]string{"wwn", "device_name", "model_name", "protocol", "host_id"}, nil),
++				prometheus.GaugeValue, float64(data.SmartData.Temp), labels...,
++			)
++		}
++
++		if data.SmartData.PowerOnHours > 0 {
++			ch <- prometheus.MustNewConstMetric(
++				prometheus.NewDesc("scrutiny_smart_power_on_hours", "Device power on hours",
++					[]string{"wwn", "device_name", "model_name", "protocol", "host_id"}, nil),
++				prometheus.GaugeValue, float64(data.SmartData.PowerOnHours), labels...,
++			)
++		}
++
++		if data.SmartData.PowerCycleCount > 0 {
++			ch <- prometheus.MustNewConstMetric(
++				prometheus.NewDesc("scrutiny_smart_power_cycle_count", "Device power cycle count",
++					[]string{"wwn", "device_name", "model_name", "protocol", "host_id"}, nil),
++				prometheus.GaugeValue, float64(data.SmartData.PowerCycleCount), labels...,
++			)
++		}
++
++		timestampMs := float64(data.SmartData.Date.Unix() * 1000)
++		ch <- prometheus.MustNewConstMetric(
++			prometheus.NewDesc("scrutiny_smart_collector_timestamp",
++				"Timestamp of last data collection",
++				[]string{"wwn", "device_name", "model_name", "protocol", "host_id"}, nil),
++			prometheus.GaugeValue, timestampMs, labels...,
++		)
++	}
++}
++
++// collectStatistics generates statistics metrics
++func (mc *Collector) collectStatistics(ch chan<- prometheus.Metric) {
++	ch <- prometheus.MustNewConstMetric(
++		prometheus.NewDesc("scrutiny_devices_total", "Total number of monitored devices", nil, nil),
++		prometheus.GaugeValue, float64(len(mc.devices)),
++	)
++
++	protocolCount := make(map[string]int)
++	for _, data := range mc.devices {
++		protocol := data.Device.DeviceProtocol
++		if protocol == "" {
++			protocol = "unknown"
++		}
++		protocolCount[protocol]++
++	}
++
++	for protocol, count := range protocolCount {
++		ch <- prometheus.MustNewConstMetric(
++			prometheus.NewDesc("scrutiny_devices_by_protocol", "Number of devices by protocol",
++				[]string{"protocol"}, nil),
++			prometheus.GaugeValue, float64(count), protocol,
++		)
++	}
++}
+diff --git a/webapp/backend/pkg/metrics/utils.go b/webapp/backend/pkg/metrics/utils.go
+new file mode 100644
+index 0000000..3df0efe
+--- /dev/null
++++ b/webapp/backend/pkg/metrics/utils.go
+@@ -0,0 +1,63 @@
++package metrics
++
++import (
++	"strconv"
++	"strings"
++
++	"github.com/analogj/scrutiny/webapp/backend/pkg/models/measurements"
++)
++
++// SanitizeMetricName converts a string to a valid Prometheus metric name
++// Example: converts "attr.5.raw_value" to "scrutiny_smart_attr_5_raw_value"
++func SanitizeMetricName(name string) string {
++	name = strings.ReplaceAll(name, ".", "_")
++	name = strings.ReplaceAll(name, "-", "_")
++	name = strings.ReplaceAll(name, " ", "_")
++	name = strings.ToLower(name)
++
++	if strings.HasPrefix(name, "attr_") {
++		return "scrutiny_smart_" + name
++	}
++	return name
++}
++
++// TryParseFloat attempts to convert any type to float64
++// Supports: int, int64, float32, float64, string, hexadecimal strings
++func TryParseFloat(value interface{}) (float64, bool) {
++	switch v := value.(type) {
++	case int:
++		return float64(v), true
++	case int64:
++		return float64(v), true
++	case float64:
++		return v, true
++	case float32:
++		return float64(v), true
++	case string:
++		if f, err := strconv.ParseFloat(v, 64); err == nil {
++			return f, true
++		}
++		// Try parsing hexadecimal
++		if strings.HasPrefix(v, "0x") || strings.HasPrefix(v, "0X") {
++			if i, err := strconv.ParseInt(v, 0, 64); err == nil {
++				return float64(i), true
++			}
++		}
++	}
++	return 0, false
++}
++
++// SelectLatestSmartResult selects the latest SMART result from a list (by timestamp)
++func SelectLatestSmartResult(smartResults []measurements.Smart) *measurements.Smart {
++	if len(smartResults) == 0 {
++		return nil
++	}
++
++	latest := &smartResults[0]
++	for i := 1; i < len(smartResults); i++ {
++		if smartResults[i].Date.After(latest.Date) {
++			latest = &smartResults[i]
++		}
++	}
++	return latest
++}
+diff --git a/webapp/backend/pkg/metrics/utils_test.go b/webapp/backend/pkg/metrics/utils_test.go
+new file mode 100644
+index 0000000..e4f078f
+--- /dev/null
++++ b/webapp/backend/pkg/metrics/utils_test.go
+@@ -0,0 +1,218 @@
++package metrics
++
++import (
++	"testing"
++	"time"
++
++	"github.com/analogj/scrutiny/webapp/backend/pkg/models/measurements"
++)
++
++func TestSanitizeMetricName(t *testing.T) {
++	tests := []struct {
++		name     string
++		input    string
++		expected string
++	}{
++		{
++			name:     "convert dots to underscores",
++			input:    "attr.5.raw_value",
++			expected: "scrutiny_smart_attr_5_raw_value",
++		},
++		{
++			name:     "convert hyphens to underscores",
++			input:    "attr-5-raw-value",
++			expected: "scrutiny_smart_attr_5_raw_value",
++		},
++		{
++			name:     "convert spaces to underscores",
++			input:    "attr 5 raw value",
++			expected: "scrutiny_smart_attr_5_raw_value",
++		},
++		{
++			name:     "convert to lowercase",
++			input:    "Attr.5.Raw_Value",
++			expected: "scrutiny_smart_attr_5_raw_value",
++		},
++		{
++			name:     "already valid name",
++			input:    "valid_metric_name",
++			expected: "valid_metric_name",
++		},
++		{
++			name:     "without attr prefix",
++			input:    "some.metric.name",
++			expected: "some_metric_name",
++		},
++	}
++
++	for _, tt := range tests {
++		t.Run(tt.name, func(t *testing.T) {
++			result := SanitizeMetricName(tt.input)
++			if result != tt.expected {
++				t.Errorf("SanitizeMetricName(%q) = %q, want %q", tt.input, result, tt.expected)
++			}
++		})
++	}
++}
++
++func TestTryParseFloat(t *testing.T) {
++	tests := []struct {
++		name     string
++		input    interface{}
++		expected float64
++		shouldOk bool
++	}{
++		{
++			name:     "parse int",
++			input:    42,
++			expected: 42.0,
++			shouldOk: true,
++		},
++		{
++			name:     "parse int64",
++			input:    int64(12345),
++			expected: 12345.0,
++			shouldOk: true,
++		},
++		{
++			name:     "parse float64",
++			input:    3.14159,
++			expected: 3.14159,
++			shouldOk: true,
++		},
++		{
++			name:     "parse float32",
++			input:    float32(2.71),
++			expected: float64(float32(2.71)), // Account for float32 precision
++			shouldOk: true,
++		},
++		{
++			name:     "parse string number",
++			input:    "123.45",
++			expected: 123.45,
++			shouldOk: true,
++		},
++		{
++			name:     "parse hexadecimal with 0x",
++			input:    "0x1A",
++			expected: 26.0,
++			shouldOk: true,
++		},
++		{
++			name:     "parse hexadecimal with 0X",
++			input:    "0XFF",
++			expected: 255.0,
++			shouldOk: true,
++		},
++		{
++			name:     "parse empty string",
++			input:    "",
++			expected: 0,
++			shouldOk: false,
++		},
++		{
++			name:     "parse invalid string",
++			input:    "not_a_number",
++			expected: 0,
++			shouldOk: false,
++		},
++		{
++			name:     "parse nil",
++			input:    nil,
++			expected: 0,
++			shouldOk: false,
++		},
++		{
++			name:     "parse bool",
++			input:    true,
++			expected: 0,
++			shouldOk: false,
++		},
++	}
++
++	for _, tt := range tests {
++		t.Run(tt.name, func(t *testing.T) {
++			result, ok := TryParseFloat(tt.input)
++			if ok != tt.shouldOk {
++				t.Errorf("TryParseFloat(%v) ok = %v, want %v", tt.input, ok, tt.shouldOk)
++			}
++			if tt.shouldOk && result != tt.expected {
++				t.Errorf("TryParseFloat(%v) = %v, want %v", tt.input, result, tt.expected)
++			}
++		})
++	}
++}
++
++func TestSelectLatestSmartResult(t *testing.T) {
++	now := time.Now()
++	older := now.Add(-1 * time.Hour)
++	oldest := now.Add(-2 * time.Hour)
++
++	tests := []struct {
++		name     string
++		input    []measurements.Smart
++		expected *time.Time
++	}{
++		{
++			name:     "empty list",
++			input:    []measurements.Smart{},
++			expected: nil,
++		},
++		{
++			name: "single result",
++			input: []measurements.Smart{
++				{Date: now},
++			},
++			expected: &now,
++		},
++		{
++			name: "multiple results in order",
++			input: []measurements.Smart{
++				{Date: now},
++				{Date: older},
++				{Date: oldest},
++			},
++			expected: &now,
++		},
++		{
++			name: "multiple results out of order",
++			input: []measurements.Smart{
++				{Date: older},
++				{Date: now},
++				{Date: oldest},
++			},
++			expected: &now,
++		},
++		{
++			name: "multiple results reverse order",
++			input: []measurements.Smart{
++				{Date: oldest},
++				{Date: older},
++				{Date: now},
++			},
++			expected: &now,
++		},
++	}
++
++	for _, tt := range tests {
++		t.Run(tt.name, func(t *testing.T) {
++			result := SelectLatestSmartResult(tt.input)
++
++			if tt.expected == nil {
++				if result != nil {
++					t.Errorf("SelectLatestSmartResult() = %v, want nil", result)
++				}
++				return
++			}
++
++			if result == nil {
++				t.Errorf("SelectLatestSmartResult() = nil, want non-nil")
++				return
++			}
++
++			if !result.Date.Equal(*tt.expected) {
++				t.Errorf("SelectLatestSmartResult() date = %v, want %v", result.Date, *tt.expected)
++			}
++		})
++	}
++}
+diff --git a/webapp/backend/pkg/models/metrics/types.go b/webapp/backend/pkg/models/metrics/types.go
+new file mode 100644
+index 0000000..8dd5d9b
+--- /dev/null
++++ b/webapp/backend/pkg/models/metrics/types.go
+@@ -0,0 +1,15 @@
++package metrics
++
++import (
++	"time"
++
++	"github.com/analogj/scrutiny/webapp/backend/pkg/models"
++	"github.com/analogj/scrutiny/webapp/backend/pkg/models/measurements"
++)
++
++// DeviceMetricsData stores metrics data for a single device
++type DeviceMetricsData struct {
++	Device    models.Device      `json:"device"`
++	SmartData measurements.Smart `json:"smart_data"`
++	UpdatedAt time.Time          `json:"updated_at"`
++}
+diff --git a/webapp/backend/pkg/web/handler/get_metrics.go b/webapp/backend/pkg/web/handler/get_metrics.go
+new file mode 100644
+index 0000000..0add264
+--- /dev/null
++++ b/webapp/backend/pkg/web/handler/get_metrics.go
+@@ -0,0 +1,23 @@
++package handler
++
++import (
++	"github.com/analogj/scrutiny/webapp/backend/pkg/metrics"
++	"github.com/gin-gonic/gin"
++	"github.com/prometheus/client_golang/prometheus/promhttp"
++	"github.com/sirupsen/logrus"
++)
++
++// GetMetrics handles Prometheus metrics endpoint
++func GetMetrics(c *gin.Context) {
++	logger := c.MustGet("LOGGER").(*logrus.Entry)
++	collector, exists := c.MustGet("METRICS_COLLECTOR").(*metrics.Collector)
++
++	if !exists || collector == nil {
++		logger.Errorln("Metrics collector not found in context")
++		c.String(500, "Metrics collector not initialized")
++		return
++	}
++
++	handler := promhttp.HandlerFor(collector.GetRegistry(), promhttp.HandlerOpts{})
++	handler.ServeHTTP(c.Writer, c.Request)
++}
+diff --git a/webapp/backend/pkg/web/handler/upload_device_metrics.go b/webapp/backend/pkg/web/handler/upload_device_metrics.go
+index 188c5d6..5333eb8 100644
+--- a/webapp/backend/pkg/web/handler/upload_device_metrics.go
++++ b/webapp/backend/pkg/web/handler/upload_device_metrics.go
+@@ -7,6 +7,7 @@ import (
+ 	"github.com/analogj/scrutiny/webapp/backend/pkg"
+ 	"github.com/analogj/scrutiny/webapp/backend/pkg/config"
+ 	"github.com/analogj/scrutiny/webapp/backend/pkg/database"
++	"github.com/analogj/scrutiny/webapp/backend/pkg/metrics"
+ 	"github.com/analogj/scrutiny/webapp/backend/pkg/models/collector"
+ 	"github.com/analogj/scrutiny/webapp/backend/pkg/notify"
+ 	"github.com/gin-gonic/gin"
+@@ -95,5 +96,12 @@ func UploadDeviceMetrics(c *gin.Context) {
+ 		_ = liveNotify.Send() //we ignore error message when sending notifications.
+ 	}
+ 
++	// Update Prometheus metrics (if enabled)
++	if collectorVal, exists := c.Get("METRICS_COLLECTOR"); exists {
++		if collector, ok := collectorVal.(*metrics.Collector); ok && collector != nil {
++			collector.UpdateDeviceMetrics(c.Param("wwn"), updatedDevice, smartData)
++		}
++	}
++
+ 	c.JSON(http.StatusOK, gin.H{"success": true})
+ }
+diff --git a/webapp/backend/pkg/web/middleware/metrics.go b/webapp/backend/pkg/web/middleware/metrics.go
+new file mode 100644
+index 0000000..373a6ee
+--- /dev/null
++++ b/webapp/backend/pkg/web/middleware/metrics.go
+@@ -0,0 +1,14 @@
++package middleware
++
++import (
++	"github.com/analogj/scrutiny/webapp/backend/pkg/metrics"
++	"github.com/gin-gonic/gin"
++)
++
++// MetricsMiddleware injects metrics collector into gin context
++func MetricsMiddleware(collector *metrics.Collector) gin.HandlerFunc {
++	return func(c *gin.Context) {
++		c.Set("METRICS_COLLECTOR", collector)
++		c.Next()
++	}
++}
+diff --git a/webapp/backend/pkg/web/server.go b/webapp/backend/pkg/web/server.go
+index 0c1baf3..fa06922 100644
+--- a/webapp/backend/pkg/web/server.go
++++ b/webapp/backend/pkg/web/server.go
+@@ -1,6 +1,7 @@
+ package web
+ 
+ import (
++	"context"
+ 	"fmt"
+ 	"net/http"
+ 	"path/filepath"
+@@ -8,7 +9,9 @@ import (
+ 
+ 	"github.com/analogj/go-util/utils"
+ 	"github.com/analogj/scrutiny/webapp/backend/pkg/config"
++	"github.com/analogj/scrutiny/webapp/backend/pkg/database"
+ 	"github.com/analogj/scrutiny/webapp/backend/pkg/errors"
++	"github.com/analogj/scrutiny/webapp/backend/pkg/metrics"
+ 	"github.com/analogj/scrutiny/webapp/backend/pkg/web/handler"
+ 	"github.com/analogj/scrutiny/webapp/backend/pkg/web/middleware"
+ 	"github.com/gin-gonic/gin"
+@@ -16,8 +19,9 @@ import (
+ )
+ 
+ type AppEngine struct {
+-	Config config.Interface
+-	Logger *logrus.Entry
++	Config           config.Interface
++	Logger           *logrus.Entry
++	MetricsCollector *metrics.Collector
+ }
+ 
+ func (ae *AppEngine) Setup(logger *logrus.Entry) *gin.Engine {
+@@ -26,6 +30,17 @@ func (ae *AppEngine) Setup(logger *logrus.Entry) *gin.Engine {
+ 	r.Use(middleware.LoggerMiddleware(logger))
+ 	r.Use(middleware.RepositoryMiddleware(ae.Config, logger))
+ 	r.Use(middleware.ConfigMiddleware(ae.Config))
++
++	// Initialize metrics collector if enabled
++	if ae.Config.GetBool("web.metrics.enabled") {
++		if ae.MetricsCollector == nil {
++			ae.MetricsCollector = metrics.NewCollector(logger)
++		}
++		r.Use(middleware.MetricsMiddleware(ae.MetricsCollector))
++		logger.Info("Prometheus metrics endpoint enabled")
++	} else {
++		logger.Info("Prometheus metrics endpoint disabled")
++	}
+ 	r.Use(gin.Recovery())
+ 
+ 	basePath := ae.Config.GetString("web.listen.basepath")
+@@ -38,9 +53,15 @@ func (ae *AppEngine) Setup(logger *logrus.Entry) *gin.Engine {
+ 			api.GET("/health", handler.HealthCheck)
+ 			api.POST("/health/notify", handler.SendTestNotification) //check if notifications are configured correctly
+ 
+-			api.POST("/devices/register", handler.RegisterDevices)                //used by Collector to register new devices and retrieve filtered list
+-			api.GET("/summary", handler.GetDevicesSummary)                        //used by Dashboard
+-			api.GET("/summary/temp", handler.GetDevicesSummaryTempHistory)        //used by Dashboard (Temperature history dropdown)
++			api.POST("/devices/register", handler.RegisterDevices)         //used by Collector to register new devices and retrieve filtered list
++			api.GET("/summary", handler.GetDevicesSummary)                 //used by Dashboard
++			api.GET("/summary/temp", handler.GetDevicesSummaryTempHistory) //used by Dashboard (Temperature history dropdown)
++
++			// Prometheus metrics endpoint (only registered if enabled)
++			if ae.Config.GetBool("web.metrics.enabled") {
++				api.GET("/metrics", handler.GetMetrics)
++			}
++
+ 			api.POST("/device/:scrutiny_uuid/smart", handler.UploadDeviceMetrics) //used by Collector to upload data
+ 			api.POST("/device/:scrutiny_uuid/selftest", handler.UploadDeviceSelfTests)
+ 			api.GET("/device/:scrutiny_uuid/details", handler.GetDeviceDetails)   //used by Details
+@@ -84,5 +105,21 @@ func (ae *AppEngine) Start() error {
+ 
+ 	r := ae.Setup(ae.Logger)
+ 
++	// Load initial metrics data asynchronously at startup (if metrics enabled)
++	if ae.Config.GetBool("web.metrics.enabled") && ae.MetricsCollector != nil {
++		go func() {
++			deviceRepo, err := database.NewScrutinyRepository(ae.Config, ae.Logger)
++			if err != nil {
++				ae.Logger.Errorln("Failed to create repository for loading metrics:", err)
++				return
++			}
++			defer deviceRepo.Close()
++
++			if err := ae.MetricsCollector.LoadInitialData(deviceRepo, context.Background()); err != nil {
++				ae.Logger.Errorln("Failed to load initial metrics data:", err)
++			}
++		}()
++	}
++
+ 	return r.Run(fmt.Sprintf("%s:%s", ae.Config.GetString("web.listen.host"), ae.Config.GetString("web.listen.port")))
+ }
