@@ -4082,6 +4082,15 @@
   "services-forgejo-usage-ldap": [
     "services-forgejo.html#services-forgejo-usage-ldap"
   ],
+  "services-forgejo-usage-runner": [
+    "services-forgejo.html#services-forgejo-usage-runner"
+  ],
+  "services-forgejo-usage-runner-migration": [
+    "services-forgejo.html#services-forgejo-usage-runner-migration"
+  ],
+  "services-forgejo-usage-runner-state": [
+    "services-forgejo.html#services-forgejo-usage-runner-state"
+  ],
   "services-forgejo-usage-smtp": [
     "services-forgejo.html#services-forgejo-usage-smtp"
   ],
