@@ -1,6 +1,27 @@
-{ shb, ... }:
+{
+  shb,
+  pkgs,
+  lib,
+  ...
+}:
 let
   adminPassword = "AdminPassword";
+
+  # Public test credentials from Forgejo's offline registration example.
+  # https://forgejo.org/docs/v15.0/admin/actions/registration/#offline-registration
+  runnerIdentity = {
+    uuid = "37633331-3539-3165-3862-363732323561";
+    token = "7c31591e8b67225a116d4a4519ea8e507e08f71f";
+  };
+
+  runnerWorkflow = pkgs.writeText "runner-smoke.yaml" ''
+    on: [push]
+    jobs:
+      smoke:
+        runs-on: native
+        steps:
+          - run: hello && git --version
+  '';
 
   commonTestScript = shb.test.mkScripts {
     hasSSL = { node, ... }: !(isNull node.config.shb.forgejo.ssl);
@@ -15,12 +36,6 @@ let
       [
         node.config.services.forgejo.settings.server.HTTP_ADDR
       ];
-    preLoginScript =
-      { node, ... }:
-      ''
-        server.wait_for_unit("gitea-runner-local.service", timeout=10)
-        server.succeed("journalctl -o cat -u gitea-runner-local.service | grep -q 'Runner registered successfully'")
-      '';
   };
 
   basic =
@@ -38,6 +53,7 @@ let
 
       shb.forgejo = {
         enable = true;
+        localActionRunner = lib.mkDefault false;
         inherit (config.test) subdomain domain;
 
         users = {
@@ -54,7 +70,7 @@ let
         databasePassword.result = config.shb.hardcodedsecret.forgejoDatabasePassword.result;
       };
 
-      # Needed for gitea-runner-local to be able to ping forgejo.
+      # Needed for the local runner to be able to reach Forgejo.
       networking.hosts = {
         "127.0.0.1" = [ "${config.test.subdomain}.${config.test.domain}" ];
       };
@@ -183,6 +199,72 @@ let
     };
 in
 {
+  runner = shb.test.runNixOSTest {
+    name = "forgejo_runner";
+    nodes.server =
+      { config, options, ... }:
+      {
+        imports = [ basic ];
+        environment.systemPackages = [
+          pkgs.git
+          pkgs.jq
+        ];
+        shb.forgejo = {
+          localActionRunner = true;
+          runner = {
+            inherit (runnerIdentity) uuid;
+            token.result = config.shb.hardcodedsecret.runnerToken.result;
+          };
+          hostPackages = options.shb.forgejo.hostPackages.default ++ [ pkgs.hello ];
+        };
+        shb.hardcodedsecret.runnerToken = {
+          request = config.shb.forgejo.runner.token.request;
+          settings.content = runnerIdentity.token;
+        };
+        # The test registers the fixture before starting its runner.
+        systemd.services.forgejo-runner-local.wantedBy = lib.mkForce [ ];
+      };
+    testScript =
+      { nodes, ... }:
+      let
+        forgejo = nodes.server.services.forgejo;
+        runner = nodes.server.shb.forgejo.runner;
+      in
+      ''
+        start_all()
+        server.wait_for_unit("forgejo.service")
+        server.wait_for_unit("nginx.service")
+        with subtest("connect with operator-provided credentials"):
+            uuid = server.succeed(
+                "sudo -u ${forgejo.user} env FORGEJO_WORK_DIR=${forgejo.stateDir} FORGEJO_CUSTOM=${forgejo.customDir}"
+                + " ${lib.getExe forgejo.package} forgejo-cli actions register --name local --secret-stdin=true"
+                + " < ${runner.token.result.path}"
+            ).strip()
+            assert uuid == "${runner.uuid}"
+            server.succeed("systemctl start forgejo-runner-local.service")
+            server.wait_for_unit("forgejo-runner-local.service")
+            server.fail("sudo -u nobody test -r ${runner.token.result.path}")
+
+        # Test-only API credentials. The workflow uses no external actions or network downloads.
+        api = "curl --fail --silent --show-error --user theadmin:${adminPassword}"
+        repo = "http://f.example.com/api/v1/repos/theadmin/runner-test"
+        with subtest("execute a workflow with the saved identity and configured host packages"):
+            server.succeed(api + " --json '{\"name\":\"runner-test\",\"private\":false}' http://f.example.com/api/v1/user/repos")
+            server.succeed(api + " --request PATCH --json '{\"has_actions\":true}' " + repo)
+            server.succeed("git init --initial-branch=main /root/runner-test")
+            server.succeed("git -C /root/runner-test config user.email runner-test@example.com")
+            server.succeed("git -C /root/runner-test config user.name 'Runner test'")
+            server.succeed("mkdir -p /root/runner-test/.forgejo/workflows")
+            server.succeed("cp ${runnerWorkflow} /root/runner-test/.forgejo/workflows/smoke.yaml")
+            server.succeed("git -C /root/runner-test add .")
+            server.succeed("git -C /root/runner-test commit --message 'Run smoke workflow'")
+            server.succeed("git -C /root/runner-test remote add origin http://theadmin:${adminPassword}@f.example.com/theadmin/runner-test.git")
+            server.succeed("git -C /root/runner-test push origin main")
+            server.wait_until_succeeds(api + " " + repo + "/actions/tasks | jq --exit-status '.workflow_runs[0].status == \"success\"'", timeout=180)
+
+      '';
+  };
+
   basic = shb.test.runNixOSTest {
     name = "forgejo_basic";
 

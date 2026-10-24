@@ -16,6 +16,16 @@ Template:
 
 # Upcoming Release
 
+## Breaking Changes
+
+- Forgejo's local Actions runner now uses `services.forgejo-runner` instead of
+  `services.gitea-actions-runner`. Supply the registered UUID in `shb.forgejo.runner.uuid`
+  and its operational token through `shb.forgejo.runner.token`, or disable
+  `shb.forgejo.localActionRunner`. Existing installations must
+  [import their existing credentials](https://shb.skarabox.com/services-forgejo.html#services-forgejo-usage-runner-migration)
+  before switching; new installations must register a runner first. Runner tokens
+  are managed and backed up through the chosen secret provider.
+
 ## New Features
 
 - Add monitoring dashboard for Immich
