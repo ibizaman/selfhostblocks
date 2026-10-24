@@ -30,6 +30,7 @@ shb.forgejo = {
   enable = true;
   subdomain = "forgejo";
   domain = "example.com";
+  localActionRunner = false; # Enable after registering a runner as described below.
 
   users = {
     "theadmin" = {
@@ -60,6 +61,148 @@ and `forgejo/user/password` from a SOPS file.
 This assumes secrets are setup with SOPS
 as mentioned in [the secrets setup section](usage.html#usage-secrets) of the manual.
 Secrets can be randomly generated with `nix run nixpkgs#openssl -- rand -hex 64`.
+
+### Local Actions runner {#services-forgejo-usage-runner}
+
+Forgejo runners must be registered once to obtain a UUID and an authentication token.
+Follow the steps below for a new runner, or the
+[migration instructions](#services-forgejo-usage-runner-migration) for an existing one.
+Set `shb.forgejo.localActionRunner` explicitly: `true` to enable the runner with
+its UUID and token, or `false` to run Forgejo without a local runner. Omitting
+this choice or the credentials required for an enabled runner fails evaluation.
+
+The runner uses `services.forgejo-runner.instances.local` and executes jobs with
+the `native` label on the host. Add tools through `shb.forgejo.hostPackages`.
+Only allow trusted workflows: host jobs share a service account and are not
+isolated from one another by containers or virtual machines.
+
+#### Registering a new runner {#services-forgejo-usage-runner-registration}
+
+1. **Start Forgejo without the runner.** Add these settings to your NixOS
+   configuration, alongside the [initial Forgejo configuration](#services-forgejo-usage-configuration):
+
+   ```nix
+   shb.forgejo.localActionRunner = false;
+   environment.systemPackages = [ config.services.forgejo.package ];
+   ```
+
+   Activate with `sudo nixos-rebuild switch`, including your usual configuration
+   selection arguments such as `--flake`.
+
+2. **Generate the token and register the runner.** Run the following on the
+   Forgejo server. These commands assume the default `forgejo` user and
+   `/var/lib/forgejo` state directory; adjust them if you customized those settings.
+
+   ```bash
+   runner_token=$(forgejo forgejo-cli actions generate-secret)
+   printf "%s" "$runner_token" | sudo --user=forgejo env \
+     FORGEJO_WORK_DIR=/var/lib/forgejo \
+     FORGEJO_CUSTOM=/var/lib/forgejo/custom \
+     forgejo forgejo-cli actions register --name local --secret-stdin=true
+   ```
+
+   The last command prints the UUID for this token. Save that UUID for step 4;
+   do not generate a separate random UUID. If registration fails, retry the
+   `register` command with the same `$runner_token` instead of generating another token.
+
+3. **Save the token in SOPS.** Print it in the same shell on the server:
+
+   ```bash
+   echo "$runner_token"
+   ```
+
+   Add `runner-token` under `forgejo` in your existing SOPS file:
+
+   ```yaml
+   forgejo:
+     runner-token: "<paste the token here>"
+   ```
+
+   Save the encrypted file before closing the shell, then run `unset runner_token`.
+   Keep the token out of Nix expressions and the Nix store. See the
+   [SOPS setup instructions](usage.html#usage-secrets) if needed.
+
+4. **Configure and enable the runner.** Replace the example UUID below with the
+   UUID printed in step 2, and change `localActionRunner` from `false` to `true`:
+
+   ```nix
+   {
+     shb.forgejo = {
+       localActionRunner = true;
+       runner.uuid = "c9e50be9-a7c3-4aee-ba35-624c4ff8c519";
+       runner.token.result = config.shb.sops.secret."forgejo/runner-token".result;
+     };
+     shb.sops.secret."forgejo/runner-token".request = config.shb.forgejo.runner.token.request;
+   }
+   ```
+
+   Activate again with `sudo nixos-rebuild switch` and your usual arguments.
+   Confirm that `local` is online in Forgejo's
+   **Site Administration → Actions → Runners** page.
+
+See Forgejo's [offline registration guide](https://forgejo.org/docs/v15.0/admin/actions/registration/#offline-registration)
+and [CLI reference](https://forgejo.org/docs/v15.0/admin/command-line/#forgejo-cli-actions-register).
+
+#### Migrating from the Gitea runner {#services-forgejo-usage-runner-migration}
+
+Reuse the UUID and operational token from `/var/lib/gitea-runner/local/.runner`
+to preserve the existing runner's identity, following the
+[nixpkgs migration instructions](https://github.com/NixOS/nixpkgs/blob/5e867b1db0f219e0e906574cca1175f421a87834/nixos/modules/services/continuous-integration/forgejo-runner.nix#L102-L123).
+Print the UUID followed by the token:
+
+```bash
+sudo jq --raw-output '.uuid, .token' /var/lib/gitea-runner/local/.runner
+```
+
+Set `runner.uuid` to the displayed UUID and save the token in SOPS as
+`forgejo/runner-token`, using the configuration shown above. Move overrides under
+`services.gitea-actions-runner.instances.local` to `services.forgejo-runner.instances.local`;
+labels now belong under `settings.runner.labels`.
+
+For example, replace this override:
+
+```nix
+services.gitea-actions-runner.instances.local.labels = [ "native:host" "nix:host" ];
+```
+
+with:
+
+```nix
+services.forgejo-runner.instances.local.settings.runner.labels = [ "native:host" "nix:host" ];
+```
+
+Let running jobs finish, then stop the old runner and activate the configuration:
+
+```bash
+sudo systemctl stop gitea-runner-local.service
+sudo nixos-rebuild switch
+```
+
+Use your usual configuration selection arguments, such as `--flake`. If activation
+fails, restart the old runner with `sudo systemctl start gitea-runner-local.service`
+while resolving the error. Keep the original `.runner` file and workspace for
+rollback with `sudo nixos-rebuild switch --rollback`. The native runner uses
+`/var/lib/forgejo-runner/local`, so its job caches start empty.
+
+**Optional cleanup:** once the new runner has completed a workflow, its credentials
+are backed up, and you no longer need to roll back to the old runner, remove the
+old local runner's identity file, workspace, and caches:
+
+```bash
+sudo rm -r /var/lib/gitea-runner/local
+```
+
+Remove only `local`; the parent directory may contain other runners. Keep the
+runner's registration in Forgejo's UI, because the new service reuses it.
+
+#### Credentials and backups {#services-forgejo-usage-runner-state}
+
+Keep the UUID in your configuration backup and the token in your SOPS
+backup. Forgejo's database backup preserves the corresponding server registration;
+the external token file is not included in Forgejo's dump. Restore matching
+credentials and database registration when recovering. The runner workspace and
+caches can remain ephemeral because the runner consumes the supplied credentials
+on every start.
 
 ### Forgejo through HTTPS {#services-forgejo-usage-https}
 
