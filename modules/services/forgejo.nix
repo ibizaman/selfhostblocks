@@ -18,7 +18,6 @@ let
     lists
     literalExpression
     mapAttrsToList
-    mkBefore
     mkEnableOption
     mkForce
     mkIf
@@ -289,10 +288,42 @@ in
 
     localActionRunner = mkOption {
       type = bool;
-      default = true;
       description = ''
-        Enable local action runner that runs for all labels.
+        Enable the local Actions runner for the `native` label.
+
+        Set this explicitly when Forgejo is enabled.
+        Requires a registered runner's UUID and token in `shb.forgejo.runner`.
       '';
+    };
+
+    runner = {
+      uuid = mkOption {
+        type = lib.types.strMatching "[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}";
+        description = ''
+          UUID of the registered local runner. Required when `localActionRunner` is enabled.
+          See the [runner setup and migration instructions](#services-forgejo-usage-runner).
+        '';
+        example = "c9e50be9-a7c3-4aee-ba35-624c4ff8c519";
+      };
+
+      token = mkOption {
+        description = ''
+          Operational token of the registered local runner, supplied through the secret contract.
+          Required when `localActionRunner` is enabled. This is the token paired with `runner.uuid`,
+          not the legacy registration token. The file must contain only the token.
+        '';
+        type = submodule {
+          options = shb.contracts.secret.mkRequester {
+            mode = "0400";
+            owner = "root";
+            restartUnits = [ "forgejo-runner-local.service" ];
+          };
+          # The generic secret contract has a placeholder path; this token must be supplied.
+          config.result.path = lib.mkDefault (
+            throw "Set shb.forgejo.runner.token.result from a secret provider, or set its path explicitly."
+          );
+        };
+      };
     };
 
     hostPackages = mkOption {
@@ -659,52 +690,40 @@ in
       };
     })
 
-    # https://wiki.nixos.org/wiki/Forgejo#Runner
     (mkIf cfg.enable {
       services.forgejo.settings.actions = {
         ENABLED = true;
         DEFAULT_ACTIONS_URL = "github";
       };
+    })
 
-      services.gitea-actions-runner = mkIf cfg.localActionRunner {
-        package = pkgs.forgejo-runner;
-        instances.local = {
-          enable = true;
-          name = "local";
-          url =
-            let
-              protocol = if cfg.ssl != null then "https" else "http";
-            in
-            "${protocol}://${cfg.subdomain}.${cfg.domain}";
-          tokenFile = ""; # Empty variable to satisfy an assertion.
-          labels = [
-            # "ubuntu-latest:docker://node:16-bullseye"
-            # "ubuntu-22.04:docker://node:16-bullseye"
-            # "ubuntu-20.04:docker://node:16-bullseye"
-            # "ubuntu-18.04:docker://node:16-buster"
-            "native:host"
-          ];
-          inherit (cfg) hostPackages;
+    (mkIf (cfg.enable && cfg.localActionRunner) {
+      # https://wiki.nixos.org/wiki/Forgejo#Actions_Runner
+      services.forgejo-runner.instances.local = {
+        enable = true;
+        settings = {
+          runner.labels = [ "native:host" ];
+          server.connections.default = {
+            url = "${if cfg.ssl != null then "https" else "http"}://${cfg.subdomain}.${cfg.domain}";
+            uuid = cfg.runner.uuid;
+          };
         };
+        secrets.server.connections.default.token_url = cfg.runner.token.result.path;
+        inherit (cfg) hostPackages;
       };
 
-      # This combined with the next statement takes care of
-      # automatically registering a forgejo runner.
-      systemd.services.forgejo.postStart = mkIf cfg.localActionRunner (mkBefore ''
-        ${pkgs.bash}/bin/bash -c '(while ! ${pkgs.netcat-openbsd}/bin/nc -z -U ${config.services.forgejo.settings.server.HTTP_ADDR}; do echo "Waiting for unix ${config.services.forgejo.settings.server.HTTP_ADDR} to open..."; sleep 2; done); sleep 2'
-        actions="${getExe config.services.forgejo.package} actions"
-        echo -n TOKEN= > /run/forgejo/forgejo-runner-token
-        $actions generate-runner-token >> /run/forgejo/forgejo-runner-token
-      '');
-
-      systemd.services.gitea-runner-local.serviceConfig = {
-        # LoadCredential = "TOKEN_FILE:/run/forgejo/forgejo-runner-token";
-        # EnvironmentFile = [ "$CREDENTIALS_DIRECTORY/TOKEN_FILE" ];
-        EnvironmentFile = [ "/run/forgejo/forgejo-runner-token" ];
+      systemd.services.forgejo-runner-local = {
+        wants = [
+          "forgejo.service"
+          "nginx.service"
+        ];
+        after = [
+          "forgejo.service"
+          "nginx.service"
+          "gitea-runner-local.service"
+        ];
+        conflicts = [ "gitea-runner-local.service" ];
       };
-
-      systemd.services.gitea-runner-local.wants = [ "forgejo.service" ];
-      systemd.services.gitea-runner-local.after = [ "forgejo.service" ];
     })
   ];
 }

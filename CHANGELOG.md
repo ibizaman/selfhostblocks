@@ -23,6 +23,14 @@ Template:
   Memories and Recognize remain available only on 34 until the pinned nixpkgs supports them on 35.
   Deploy version 34 and complete its migrations before selecting 35 because Nextcloud does not support skipping major versions.
   Take a verified backup before upgrading; a NixOS generation rollback does not undo database migrations.
+- Forgejo's local Actions runner now uses `services.forgejo-runner` instead of
+  `services.gitea-actions-runner`. `shb.forgejo.localActionRunner` no longer has a
+  default: set it explicitly to `true` and supply the registered UUID in
+  `shb.forgejo.runner.uuid` and its operational token through `shb.forgejo.runner.token`,
+  or set it to `false` to disable the runner. Existing installations must
+  [import their existing credentials](https://shb.skarabox.com/services-forgejo.html#services-forgejo-usage-runner-migration)
+  before switching; new installations must register a runner first. Runner tokens
+  are managed and backed up through the chosen secret provider.
 
 ## New Features
 
