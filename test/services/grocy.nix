@@ -13,6 +13,10 @@ let
       [
         node.config.services.phpfpm.pools.grocy.socket
       ];
+    preLoginScript = { ... }: ''
+      with subtest("service overrides reach the running unit"):
+          assert server.succeed("systemctl show phpfpm-grocy.service --property=UMask --value").strip() == "0077"
+    '';
   };
 
   basic =
@@ -30,6 +34,7 @@ let
       shb.grocy = {
         enable = true;
         inherit (config.test) subdomain domain;
+        extraServiceConfig.UMask = "0077";
       };
     };
 

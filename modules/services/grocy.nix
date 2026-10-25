@@ -152,7 +152,7 @@ in
         };
       }
       {
-        systemd.services.grocyd.serviceConfig = cfg.extraServiceConfig;
+        systemd.services.phpfpm-grocy.serviceConfig = cfg.extraServiceConfig;
       }
     ]
   );
