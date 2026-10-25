@@ -195,8 +195,8 @@ in
       config = {
         IP_HEADER = "X-Real-IP";
         SIGNUPS_ALLOWED = false;
-        # Disabled because the /admin path is protected by SSO
-        DISABLE_ADMIN_TOKEN = true;
+        # Only disable the token when SSO protects /admin.
+        DISABLE_ADMIN_TOKEN = cfg.authEndpoint != null;
         INVITATIONS_ALLOWED = true;
         DOMAIN = publicUrl;
         USE_SYSLOG = true;
