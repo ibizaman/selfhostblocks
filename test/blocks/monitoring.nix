@@ -54,6 +54,12 @@ let
               + "http://127.0.0.1:${toString node.config.shb.monitoring.lokiPort}/loki/api/v1/query_range"
               + " | grep --fixed-strings SHB-loopback-probe"
           )
+      with subtest("Grafana advertises the public URL"):
+          import json
+          settings = json.loads(server.succeed("curl --fail --silent --user admin:${password} http://127.0.0.1:${toString node.config.shb.monitoring.grafanaPort}/api/frontend/settings"))
+          assert settings["appUrl"].rstrip("/") == '${
+            if node.config.shb.monitoring.ssl == null then "http" else "https"
+          }://${node.config.test.fqdn}'
     '';
   };
 
