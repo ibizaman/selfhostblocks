@@ -169,7 +169,7 @@ in
           users.groups.${username} = { };
 
           system.activationScripts.secret = ''
-            echo secretpw > /run/dbsecret
+            echo "test-only-secret'pw" > /run/dbsecret
           '';
           shb.postgresql.enableTCPIP = true;
           shb.postgresql.ensures = [
@@ -192,13 +192,14 @@ in
               return "sudo -u ${username} psql -U {user} {db} --command \"\"".format(user=user, db=database)
 
           def tcpip_cmd(user, database, port, password):
-              return "PGPASSWORD={password} psql -h 127.0.0.1 -p {port} -U {user} {db} --command \"\"".format(user=user, db=database, port=port, password=password)
+              import shlex
+              return "PGPASSWORD={password} psql -h 127.0.0.1 -p {port} -U {user} {db} --command \"\"".format(user=user, db=database, port=port, password=shlex.quote(password))
 
           with subtest("can peer login with provisioned user and database"):
               machine.succeed(peer_cmd("${username}", "${username}"), timeout=10)
 
           with subtest("can tcpip login with provisioned user and database"):
-              machine.succeed(tcpip_cmd("${username}", "${username}", "5432", "secretpw"), timeout=10)
+              machine.succeed(tcpip_cmd("${username}", "${username}", "5432", "test-only-secret'pw"), timeout=10)
 
           with subtest("cannot tcpip login with wrong password"):
               machine.fail(tcpip_cmd("${username}", "${username}", "5432", "oops"), timeout=10)
