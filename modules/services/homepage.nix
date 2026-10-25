@@ -237,6 +237,8 @@ in
       widgets = [ ];
     };
 
+    systemd.services.homepage-dashboard.environment.HOSTNAME = lib.mkDefault "127.0.0.1";
+
     systemd.services.homepage-dashboard.serviceConfig =
       let
         keys = shb.homepage.allKeys cfg.servicesGroups;
