@@ -498,6 +498,7 @@ in
     (lib.mkIf cfg.enable {
       services.prometheus = {
         enable = true;
+        listenAddress = lib.mkDefault "127.0.0.1";
         port = cfg.prometheusPort;
         globalConfig = {
           scrape_interval = "15s";
@@ -525,6 +526,8 @@ in
           };
 
           server.http_listen_port = cfg.lokiPort;
+          server.http_listen_address = lib.mkDefault "127.0.0.1";
+          server.grpc_listen_address = lib.mkDefault "127.0.0.1";
 
           schema_config = {
             configs = [

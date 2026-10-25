@@ -1,7 +1,18 @@
-{ lib, shb, ... }:
+{
+  lib,
+  pkgs,
+  shb,
+  ...
+}:
 let
   password = "securepw";
   oidcSecret = "oidcSecret";
+
+  backendPorts = node: [
+    node.config.shb.monitoring.prometheusPort
+    node.config.shb.monitoring.lokiPort
+    9095 # Loki gRPC
+  ];
 
   commonTestScript = shb.test.accessScript {
     hasSSL = { node, ... }: !(isNull node.config.shb.monitoring.ssl);
@@ -16,7 +27,8 @@ let
       { node, ... }:
       [
         node.config.shb.monitoring.grafanaPort
-      ];
+      ]
+      ++ backendPorts node;
     preLoginScript = { node, ... }: ''
       server.succeed("test ${
         if node.config.shb.nginx.insecureAccessLogWithRequestBody then "-e" else "! -e"
@@ -27,6 +39,21 @@ let
       ${lib.optionalString node.config.shb.nginx.insecureAccessLogWithRequestBody ''
         server.wait_until_succeeds("""curl --fail --silent --get --data-urlencode 'query={job="nginx"}' http://127.0.0.1:${toString node.config.shb.monitoring.lokiPort}/loki/api/v1/query_range | grep --fixed-strings server_name""")
       ''}
+      with subtest("monitoring backends listen only on loopback"):
+          for port in ${builtins.toJSON (backendPorts node)}:
+              assert [line.split()[3] for line in server.succeed(f"ss -H -ltn 'sport = :{port}'").splitlines()] == [f"127.0.0.1:{port}"]
+          server.wait_until_succeeds(
+              """curl --fail --silent --get --data-urlencode 'query=up{job="node"}' """
+              + "http://127.0.0.1:${toString node.config.shb.monitoring.prometheusPort}/api/v1/query"
+              + """ | ${pkgs.jq}/bin/jq --exit-status '.data.result[0].value[1] == "1"'"""
+          )
+          server.succeed("logger --tag shb-test SHB-loopback-probe")
+          # Keep the query text from matching its own probe.
+          server.wait_until_succeeds(
+              """curl --fail --silent --get --data-urlencode 'query={job="systemd-journal"} |~ "SH[B]-loopback-probe"' """
+              + "http://127.0.0.1:${toString node.config.shb.monitoring.lokiPort}/loki/api/v1/query_range"
+              + " | grep --fixed-strings SHB-loopback-probe"
+          )
     '';
   };
 
