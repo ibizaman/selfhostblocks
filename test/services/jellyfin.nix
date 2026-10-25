@@ -19,6 +19,10 @@ let
   commonExtraScript =
     { node, ... }:
     ''
+      with subtest("Jellyfin listens only on loopback"):
+          port = ${toString port}
+          assert [line.split()[3] for line in server.succeed(f"ss -H -ltn 'sport = :{port}'").splitlines()] == [f"127.0.0.1:{port}"]
+
       headers = unline_with(" ", """
           -H 'Content-Type: application/json'
           -H 'Authorization: MediaBrowser Client="Android TV", Device="Nvidia Shield", DeviceId="ZQ9YQHHrUzk24vV", Version="0.15.3"'
