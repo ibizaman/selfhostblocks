@@ -434,7 +434,7 @@ in
           server = {
             DOMAIN = "${cfg.subdomain}.${cfg.domain}";
             PROTOCOL = "http+unix";
-            ROOT_URL = "https://${cfg.subdomain}.${cfg.domain}/";
+            ROOT_URL = "${if cfg.ssl != null then "https" else "http"}://${cfg.subdomain}.${cfg.domain}/";
           };
 
           service.DISABLE_REGISTRATION = true;

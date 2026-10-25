@@ -16,10 +16,12 @@ let
         node.config.services.forgejo.settings.server.HTTP_ADDR
       ];
     preLoginScript =
-      { node, ... }:
+      { node, proto_fqdn, ... }:
       ''
         server.wait_for_unit("gitea-runner-local.service", timeout=10)
         server.succeed("journalctl -o cat -u gitea-runner-local.service | grep -q 'Runner registered successfully'")
+        http_repository = json.loads(server.succeed("""curl --fail --silent --show-error --unix-socket ${node.config.services.forgejo.settings.server.HTTP_ADDR} --user theadmin:${adminPassword} --json '{"name":"test-only-http-url"}' http://localhost/api/v1/user/repos"""))
+        assert http_repository["clone_url"] == "${proto_fqdn}/theadmin/test-only-http-url.git", http_repository["clone_url"]
       '';
   };
 
