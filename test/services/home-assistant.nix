@@ -264,6 +264,7 @@ let
                     "page.goto('http://${config.test.fqdn}/profile/general')"
                     "page.get_by_role('button', name=re.compile('Log out')).click()"
                     "page.get_by_label('Log out?').get_by_role('button', name='Log out').click()"
+                    ''expect(page.get_by_role("textbox", name="Username")).to_be_visible()''
 
                     # Login as user alice
                     "page.goto('http://${config.test.fqdn}')"
