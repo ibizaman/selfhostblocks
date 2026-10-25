@@ -16,6 +16,9 @@ let
     preLoginScript = { node, proto_fqdn, ... }: ''
       with subtest("the obsolete browser XSS auditor is disabled"):
           client.succeed("curl --fail --silent --head --connect-to ${node.config.test.fqdn}:80:server:80 --connect-to ${node.config.test.fqdn}:443:server:443 ${proto_fqdn}/ | grep --ignore-case '^X-XSS-Protection: 0'")
+      with subtest("Homepage listens only on loopback"):
+          port = ${toString node.config.services.homepage-dashboard.listenPort}
+          assert [line.split()[3] for line in server.succeed(f"ss -H -ltn 'sport = :{port}'").splitlines()] == [f"127.0.0.1:{port}"]
     '';
   };
 
