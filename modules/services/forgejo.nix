@@ -470,6 +470,7 @@ in
           };
 
           service.DISABLE_REGISTRATION = true;
+          session.COOKIE_SECURE = mkIf (cfg.ssl != null) (lib.mkDefault true);
 
           log.LEVEL = if cfg.debug then "Debug" else "Info";
 

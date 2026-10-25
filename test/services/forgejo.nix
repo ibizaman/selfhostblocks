@@ -117,7 +117,7 @@ let
       };
 
       test.login = {
-        startUrl = "http://${config.test.fqdn}/user/login";
+        startUrl = "${config.test.proto}://${config.test.fqdn}/user/login";
         usernameFieldLabelRegex = "Username or email address";
         passwordFieldLabelRegex = "Password";
         loginButtonNameRegex = "[sS]ign [iI]n";
@@ -136,6 +136,7 @@ let
               "expect(page.get_by_text('Username or password is incorrect.')).not_to_be_visible()"
               "expect(page.get_by_role('button', name=re.compile('Sign In'))).not_to_be_visible()"
               "expect(page).to_have_title(re.compile('Dashboard'))"
+              "assert any(cookie['name'] == 'session' and cookie['secure'] == '${config.test.login.startUrl}'.startswith('https://') for cookie in page.context.cookies('${config.test.login.startUrl}'))"
             ];
           }
           {
@@ -326,7 +327,10 @@ in
       ];
     };
 
-    nodes.client = { };
+    nodes.client = {
+      imports = [ clientLogin ];
+      test.hasSSL = true;
+    };
 
     testScript = commonTestScript.access;
   };
