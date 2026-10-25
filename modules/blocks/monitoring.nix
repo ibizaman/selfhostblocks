@@ -358,6 +358,7 @@ in
           };
 
           security = {
+            cookie_secure = lib.mkIf (cfg.ssl != null) (lib.mkDefault true);
             secret_key = "$__file{${cfg.secretKey.result.path}}";
             disable_initial_admin_creation = false; # Enable when LDAP support is configured.
             admin_password = "$__file{${cfg.adminPassword.result.path}}"; # Remove when LDAP support is configured.

@@ -104,6 +104,7 @@ let
               "expect(page.get_by_text(re.compile('[Ii]ncorrect'))).not_to_be_visible(timeout=10000)"
               "expect(page.get_by_role('button', name=re.compile('Sign In'))).not_to_be_visible()"
               "expect(page).to_have_url(re.compile('^https://${config.test.fqdn}/'), timeout=20000)"
+              "assert any(cookie['name'] == 'grafana_session' and cookie['secure'] for cookie in page.context.cookies('https://${config.test.fqdn}'))"
               ''
                 assert page.evaluate("""
                     async () => {
