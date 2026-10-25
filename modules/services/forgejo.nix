@@ -432,7 +432,7 @@ in
         repositoryRoot = mkIf (cfg.repositoryRoot != null) cfg.repositoryRoot;
         settings = {
           server = {
-            DOMAIN = cfg.domain;
+            DOMAIN = "${cfg.subdomain}.${cfg.domain}";
             PROTOCOL = "http+unix";
             ROOT_URL = "https://${cfg.subdomain}.${cfg.domain}/";
           };
