@@ -366,7 +366,10 @@ in
                   ])
                   ++ (
                     let
-                      cmd = pkgs.writeShellScriptBin "dump.sh" instance.request.backupCmd;
+                      cmd = pkgs.writeShellScriptBin "dump.sh" ''
+                        set -e -o pipefail
+                        ${instance.request.backupCmd}
+                      '';
                     in
                     [
                       "--stdin-filename ${instance.request.backupName} --stdin-from-command -- ${cmd}/bin/dump.sh"

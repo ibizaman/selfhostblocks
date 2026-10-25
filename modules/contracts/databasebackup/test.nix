@@ -144,5 +144,12 @@ shb.test.runNixOSTest {
           res = query("SELECT * FROM test ORDER BY name")
           table = [{'name': 'car', 'count': '1'}]
           cmp_tables(res, table)
+
+      with subtest("failed database dumps fail the backup"):
+          snapshots_before = machine.succeed("${provider.restoreScript} snapshots").splitlines()
+          machine.succeed("systemctl stop postgresql.service")
+          machine.fail("systemctl start --wait ${provider.backupService}")
+          snapshots_after = machine.succeed("${provider.restoreScript} snapshots").splitlines()
+          assert snapshots_after == snapshots_before, f"Failed dump changed snapshots: {snapshots_before} -> {snapshots_after}"
     '';
 }
