@@ -10,6 +10,8 @@ let
   cfg = config.shb.home-assistant;
 
   fqdn = "${cfg.subdomain}.${cfg.domain}";
+  protocol = if cfg.ssl == null then "http" else "https";
+  publicUrl = "${protocol}://${fqdn}";
 
   # Filter secrets from config. Secrets are those of the form { source = <path>; }
   secrets = lib.attrsets.filterAttrs (k: v: builtins.isAttrs v) cfg.config;
@@ -224,8 +226,8 @@ in
       default = { };
       type = lib.types.submodule {
         options = shb.contracts.dashboard.mkRequester {
-          externalUrl = "https://${cfg.subdomain}.${cfg.domain}";
-          externalUrlText = "https://\${config.shb.home-assistant.subdomain}.\${config.shb.home-assistant.domain}";
+          externalUrl = publicUrl;
+          externalUrlText = "${protocol}://\${config.shb.home-assistant.subdomain}.\${config.shb.home-assistant.domain}";
           internalUrl = "http://127.0.0.1:${toString config.services.home-assistant.config.http.server_port}";
           internalUrlText = "http://127.0.0.1:\${config.services.home-assistant.config.http.server_port}";
         };
@@ -269,8 +271,8 @@ in
         };
         logger.default = "info";
         homeassistant = configWithSecretsIncludes // {
-          external_url = "https://${cfg.subdomain}.${cfg.domain}";
-          internal_url = "https://${cfg.subdomain}.${cfg.domain}";
+          external_url = publicUrl;
+          internal_url = publicUrl;
           auth_providers =
             (lib.optionals (!cfg.ldap.enable || cfg.ldap.keepDefaultAuth) [
               {
