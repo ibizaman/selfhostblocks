@@ -174,7 +174,7 @@ in
 
         services.audiobookshelf = {
           enable = true;
-          openFirewall = true;
+          openFirewall = false;
           dataDir = "audiobookshelf";
           host = "127.0.0.1";
           port = cfg.webPort;
