@@ -39,7 +39,7 @@ in
               };
 
               resultCfg = {
-                path = "/run/secrets/${name}";
+                path = config.sops.secrets.${name}.path;
                 pathText = "/run/secrets/<name>";
               };
             };
