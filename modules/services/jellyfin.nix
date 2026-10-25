@@ -588,7 +588,9 @@ in
             <EnableIPv6>false</EnableIPv6>
             <EnableRemoteAccess>false</EnableRemoteAccess>
             <LocalNetworkSubnets />
-            <LocalNetworkAddresses />
+            <LocalNetworkAddresses>
+              <string>127.0.0.1</string>
+            </LocalNetworkAddresses>
             <KnownProxies />
             <IgnoreVirtualInterfaces>true</IgnoreVirtualInterfaces>
             <VirtualInterfaceNames>
