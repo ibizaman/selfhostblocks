@@ -8,6 +8,8 @@
 
 let
   cfg = config.shb.monitoring;
+  collectNginxJson =
+    config.services.nginx.enable && config.shb.nginx.insecureAccessLogWithRequestBody;
 
   fqdn = "${cfg.subdomain}.${cfg.domain}";
 
@@ -588,7 +590,7 @@ in
             grace = 30;
           };
 
-          parsers = [
+          parsers = lib.optionals collectNginxJson [
             {
               name = "nginx_json";
               format = "json";
@@ -621,7 +623,7 @@ in
                 read_from_tail = true;
               }
             ]
-            ++ lib.optionals (config.services.nginx.enable) [
+            ++ lib.optionals collectNginxJson [
               {
                 name = "tail";
                 tag = "nginx.access";
@@ -664,6 +666,8 @@ in
 
                 label_keys = "$unit";
               }
+            ]
+            ++ lib.optionals collectNginxJson [
               {
                 name = "loki";
                 match = "nginx.access";
@@ -685,13 +689,13 @@ in
         };
         graceLimit = "1m";
       };
-      systemd.services.fluent-bit.after = lib.optionals config.services.nginx.enable [
+      systemd.services.fluent-bit.after = lib.optionals collectNginxJson [
         "nginx.service"
       ];
       systemd.services.fluent-bit.serviceConfig = {
         StateDirectory = "fluent-bit";
       }
-      // lib.optionalAttrs config.services.nginx.enable {
+      // lib.optionalAttrs collectNginxJson {
         BindReadOnlyPaths = [ "/var/log/nginx/access.json" ];
         SupplementaryGroups = [ "nginx" ];
       };
