@@ -121,7 +121,7 @@ To get started using SelfHostBlocks, the following snippet is enough:
   outputs = { selfhostblocks, ... }: let
     system = "x86_64-linux";
     nixpkgs' = selfhostblocks.lib.${system}.patchedNixpkgs;
-  in
+  in {
     nixosConfigurations = {
       myserver = nixpkgs'.nixosSystem {
         inherit system;
@@ -131,6 +131,7 @@ To get started using SelfHostBlocks, the following snippet is enough:
         ];
       };
     };
+  };
 }
 ```
 
