@@ -9,6 +9,8 @@ let
   cfg = config.shb.vaultwarden;
 
   fqdn = "${cfg.subdomain}.${cfg.domain}";
+  protocol = if cfg.ssl == null then "http" else "https";
+  publicUrl = "${protocol}://${fqdn}";
 
   dataFolder =
     if lib.versionOlder (config.system.stateVersion or "24.11") "24.11" then
@@ -178,8 +180,8 @@ in
       default = { };
       type = lib.types.submodule {
         options = shb.contracts.dashboard.mkRequester {
-          externalUrl = "https://${cfg.subdomain}.${cfg.domain}";
-          externalUrlText = "https://\${config.shb.vaultwarden.subdomain}.\${config.shb.vaultwarden.domain}";
+          externalUrl = publicUrl;
+          externalUrlText = "${protocol}://\${config.shb.vaultwarden.subdomain}.\${config.shb.vaultwarden.domain}";
           internalUrl = "http://127.0.0.1:${toString cfg.port}";
         };
       };
@@ -196,7 +198,7 @@ in
         # Disabled because the /admin path is protected by SSO
         DISABLE_ADMIN_TOKEN = true;
         INVITATIONS_ALLOWED = true;
-        DOMAIN = "https://${fqdn}";
+        DOMAIN = publicUrl;
         USE_SYSLOG = true;
         EXTENDED_LOGGING = cfg.debug;
         LOG_LEVEL = if cfg.debug then "trace" else "info";
