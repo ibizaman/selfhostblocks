@@ -629,7 +629,7 @@ in
               --id       $id \
               --name     ${provider} \
               --provider openidConnect \
-              --key      forgejo \
+              --key      ${lib.escapeShellArg cfg.sso.clientID} \
               --secret   $(tr -d '\n' < ${cfg.sso.sharedSecret.result.path}) \
               --auto-discover-url ${cfg.sso.endpoint}/.well-known/openid-configuration
           else
@@ -637,7 +637,7 @@ in
             $auth add-oauth \
               --name     ${provider} \
               --provider openidConnect \
-              --key      forgejo \
+              --key      ${lib.escapeShellArg cfg.sso.clientID} \
               --secret   $(tr -d '\n' < ${cfg.sso.sharedSecret.result.path}) \
               --auto-discover-url ${cfg.sso.endpoint}/.well-known/openid-configuration
           fi

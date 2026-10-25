@@ -41,6 +41,14 @@ let
       ''
         http_repository = json.loads(server.succeed("""curl --fail --silent --show-error --unix-socket ${node.config.services.forgejo.settings.server.HTTP_ADDR} --user theadmin:${adminPassword} --json '{"name":"test-only-http-url"}' http://localhost/api/v1/user/repos"""))
         assert http_repository["clone_url"] == "${proto_fqdn}/theadmin/test-only-http-url.git", http_repository["clone_url"]
+      ''
+      + lib.optionalString node.config.shb.forgejo.sso.enable ''
+        from urllib import parse
+        for restart in (False, True):
+            if restart:
+                server.succeed("systemctl restart forgejo.service")
+            redirect = client.wait_until_succeeds("curl --fail --silent --show-error --resolve ${node.config.test.fqdn}:443:192.168.1.2 --output /dev/null --write-out '%{redirect_url}' ${proto_fqdn}/user/oauth2/SHB-Authelia")
+            assert parse.parse_qs(parse.urlsplit(redirect).query)["client_id"] == ["test-only-forgejo"]
       '';
   };
 
@@ -187,6 +195,7 @@ let
       shb.forgejo = {
         sso = {
           enable = true;
+          clientID = "test-only-forgejo";
           endpoint = "https://${config.shb.authelia.subdomain}.${config.shb.authelia.domain}";
           sharedSecret.result = config.shb.hardcodedsecret.forgejoSSOPassword.result;
           sharedSecretForAuthelia.result = config.shb.hardcodedsecret.forgejoSSOPasswordAuthelia.result;
