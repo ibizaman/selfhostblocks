@@ -194,6 +194,8 @@ in
 
           environment = {
             WEBUI_URL = "https://${cfg.subdomain}.${cfg.domain}";
+            WEBUI_SESSION_COOKIE_SECURE = lib.mkIf (cfg.ssl != null) (lib.mkDefault "True");
+            WEBUI_AUTH_COOKIE_SECURE = lib.mkIf (cfg.ssl != null) (lib.mkDefault "True");
 
             ENABLE_PERSISTENT_CONFIG = "False";
 
