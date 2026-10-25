@@ -173,7 +173,8 @@ in
                 add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
                 add_header X-Content-Type-Options nosniff;
                 add_header X-Frame-Options "SAMEORIGIN";
-                add_header X-XSS-Protection "1; mode=block";
+                # https://cheatsheetseries.owasp.org/cheatsheets/HTTP_Headers_Cheat_Sheet.html#x-xss-protection
+                add_header X-XSS-Protection "0";
                 add_header X-Robots-Tag "noindex, nofollow, nosnippet, noarchive";
                 add_header X-Download-Options noopen;
                 add_header X-Permitted-Cross-Domain-Policies none;

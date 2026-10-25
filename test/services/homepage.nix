@@ -13,6 +13,10 @@ let
       [
         node.config.services.homepage-dashboard.listenPort
       ];
+    preLoginScript = { node, proto_fqdn, ... }: ''
+      with subtest("the obsolete browser XSS auditor is disabled"):
+          client.succeed("curl --fail --silent --head --connect-to ${node.config.test.fqdn}:80:server:80 --connect-to ${node.config.test.fqdn}:443:server:443 ${proto_fqdn}/ | grep --ignore-case '^X-XSS-Protection: 0'")
+    '';
   };
 
   basic =
