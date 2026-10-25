@@ -1,4 +1,4 @@
-{ shb, ... }:
+{ lib, shb, ... }:
 let
   password = "securepw";
   oidcSecret = "oidcSecret";
@@ -17,6 +17,17 @@ let
       [
         node.config.shb.monitoring.grafanaPort
       ];
+    preLoginScript = { node, ... }: ''
+      server.succeed("test ${
+        if node.config.shb.nginx.insecureAccessLogWithRequestBody then "-e" else "! -e"
+      } /var/log/nginx/access.json")
+      server.succeed("logger --tag shb-test SHB-journal-probe")
+      # Match the probe without also matching the query text.
+      server.wait_until_succeeds("""curl --fail --silent --get --data-urlencode 'query={job="systemd-journal"} |~ "SH[B]-journal-probe"' http://127.0.0.1:${toString node.config.shb.monitoring.lokiPort}/loki/api/v1/query_range | grep --fixed-strings SHB-journal-probe""")
+      ${lib.optionalString node.config.shb.nginx.insecureAccessLogWithRequestBody ''
+        server.wait_until_succeeds("""curl --fail --silent --get --data-urlencode 'query={job="nginx"}' http://127.0.0.1:${toString node.config.shb.monitoring.lokiPort}/loki/api/v1/query_range | grep --fixed-strings server_name""")
+      ''}
+    '';
   };
 
   basic =
@@ -330,6 +341,7 @@ in
       imports = [
         basic
       ];
+      shb.nginx.insecureAccessLogWithRequestBody = lib.mkForce false;
     };
 
     nodes.client = { };
