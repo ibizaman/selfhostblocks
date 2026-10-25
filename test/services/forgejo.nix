@@ -41,6 +41,13 @@ let
       ''
         http_repository = json.loads(server.succeed("""curl --fail --silent --show-error --unix-socket ${node.config.services.forgejo.settings.server.HTTP_ADDR} --user theadmin:${adminPassword} --json '{"name":"test-only-http-url"}' http://localhost/api/v1/user/repos"""))
         assert http_repository["clone_url"] == "${proto_fqdn}/theadmin/test-only-http-url.git", http_repository["clone_url"]
+        with subtest("SMTP settings and credentials are installed"):
+            import configparser
+            settings = configparser.ConfigParser(interpolation=None, allow_unnamed_section=True)
+            settings.read_string(server.succeed("cat /var/lib/forgejo/custom/conf/app.ini"))
+            assert settings["mailer"]["SMTP_ADDR"] == "localhost"
+            assert settings["mailer"]["SMTP_PORT"] == "587"
+            assert settings["mailer"]["PASSWD"] == "test-only-smtp-password"
       ''
       + lib.optionalString node.config.shb.forgejo.sso.enable ''
         from urllib import parse
@@ -69,6 +76,13 @@ let
         enable = true;
         localActionRunner = lib.mkDefault false;
         inherit (config.test) subdomain domain;
+        smtp = {
+          from_address = "forgejo@example.com";
+          host = "localhost";
+          port = 587;
+          username = "test-only-smtp";
+          password.result = config.shb.hardcodedsecret.forgejoSmtpPassword.result;
+        };
 
         users = {
           "theadmin" = {
@@ -102,6 +116,10 @@ let
       shb.hardcodedsecret.forgejoDatabasePassword = {
         request = config.shb.forgejo.databasePassword.request;
         settings.content = "databasePassword";
+      };
+      shb.hardcodedsecret.forgejoSmtpPassword = {
+        request = config.shb.forgejo.smtp.password.request;
+        settings.content = "test-only-smtp-password";
       };
     };
 
