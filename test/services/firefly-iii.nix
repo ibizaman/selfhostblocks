@@ -14,6 +14,11 @@ let
       [
         # node.config.shb.firefly-iii.port
       ];
+    preLoginScript = { node, ... }: ''
+      with subtest("the dashboard link reaches Firefly"):
+          response = curl(client, """{"code":%{response_code}}""", "${node.config.shb.firefly-iii.dashboard.request.externalUrl}")
+          assert response == {"code": 200}, response
+    '';
   };
 
   basic =
