@@ -641,9 +641,6 @@ let
       testScript = commonTestScript.access;
     };
 
-  # TODO: fix memories app
-  # See https://github.com/ibizaman/selfhostblocks/issues/476
-
   memoriesTest =
     version:
     shb.test.runNixOSTest {
@@ -663,7 +660,15 @@ let
 
       nodes.client = { };
 
-      testScript = commonTestScript.access;
+      testScript =
+        inputs@{ nodes, ... }:
+        (commonTestScript.access inputs)
+        + ''
+          with subtest("Memories repair steps complete"):
+              setup_log = server.succeed("journalctl --unit=nextcloud-setup.service --no-pager")
+              assert "exiftool binary is configured:" in setup_log
+              assert "proc_open failed:" not in setup_log
+        '';
     };
 
   recognizeTest =

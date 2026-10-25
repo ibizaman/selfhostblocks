@@ -1309,6 +1309,10 @@ in
     (lib.mkIf (cfg.version == 34 && cfg.apps.memories.enable) (
       let
         cfg' = cfg.apps.memories;
+        repairTools = [
+          pkgs.which
+          pkgs.procps
+        ];
 
         exiftool = pkgs.exiftool.overrideAttrs (
           f: p: {
@@ -1331,6 +1335,13 @@ in
         services.nextcloud.extraApps = {
           inherit (nextcloudApps) memories;
         };
+
+        systemd.services.nextcloud-setup.path = repairTools;
+        systemd.services.nextcloud-update-plugins =
+          lib.mkIf config.services.nextcloud.autoUpdateApps.enable
+            {
+              path = repairTools;
+            };
 
         systemd.services.nextcloud-cron = {
           # required for memories
