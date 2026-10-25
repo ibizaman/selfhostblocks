@@ -13,6 +13,10 @@ let
       [
         node.config.shb.audiobookshelf.webPort
       ];
+    preLoginScript = { ... }: ''
+      with subtest("service overrides reach the running unit"):
+          assert server.succeed("systemctl show audiobookshelf.service --property=UMask --value").strip() == "0077"
+    '';
     # TODO: Test login
     # preLoginScript = { ... }: ''
     # '';
@@ -32,6 +36,7 @@ let
       shb.audiobookshelf = {
         enable = true;
         inherit (config.test) subdomain domain;
+        extraServiceConfig.UMask = "0077";
       };
     };
 

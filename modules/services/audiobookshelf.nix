@@ -247,7 +247,7 @@ in
         ];
       }
       {
-        systemd.services.audiobookshelfd.serviceConfig = cfg.extraServiceConfig;
+        systemd.services.audiobookshelf.serviceConfig = cfg.extraServiceConfig;
       }
     ]
   );
