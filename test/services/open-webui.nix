@@ -88,6 +88,8 @@ let
         startUrl = "https://${config.test.fqdn}/auth";
         beforeHook = ''
           page.get_by_role("button", name="continue").click()
+          expect(page.get_by_label("Username")).to_be_visible()
+          assert any(cookie['name'] == 'owui-session' and cookie['secure'] for cookie in page.context.cookies('https://${config.test.fqdn}'))
         '';
         usernameFieldLabelRegex = "Username";
         passwordFieldLabelRegex = "Password";
@@ -109,6 +111,7 @@ let
               "expect(page.get_by_role('button', name=re.compile('Sign In'))).not_to_be_visible()"
               "expect(page).to_have_url(re.compile('https://o.example.com/$'), timeout=20000)"
               "assert page.evaluate(\"async () => { const r = await fetch('/api/v1/auths/'); if (!r.ok) return false; const u = await r.json(); return u.email === 'alice@example.com'; }\")"
+              "assert any(cookie['name'] == 'token' and cookie['secure'] for cookie in page.context.cookies('https://${config.test.fqdn}'))"
             ];
           }
           {
