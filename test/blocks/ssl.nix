@@ -7,7 +7,7 @@ in
     name = "ssl-letsencrypt-dns-provider";
 
     nodes.server =
-      { config, ... }:
+      { config, lib, ... }:
       {
         imports = [
           shb.test.baseImports
@@ -17,9 +17,14 @@ in
         shb.certs.certs.letsencrypt.dns = {
           domain = "dns.example.com";
           dnsProvider = "namecheap";
-          credentialsFile = "/run/this-file-does-not-exist-acme-env";
+          credentialsFile = pkgs.writeText "test-only-empty-acme-env" "";
+          additionalEnvironment.TEST_ONLY_DNS_SETTING = "propagation-probe";
           adminEmail = "admin@example.com";
         };
+        # Exercise the real unit's environment without contacting an ACME server.
+        systemd.services.acme-order-renew-dns.script = lib.mkForce ''
+          test "$TEST_ONLY_DNS_SETTING" = propagation-probe
+        '';
       };
 
     testScript = { nodes, ... }: ''
@@ -27,6 +32,7 @@ in
       server.succeed("systemctl start ${nodes.server.shb.certs.certs.letsencrypt.dns.systemdService}")
       server.succeed("test -s ${nodes.server.shb.certs.certs.letsencrypt.dns.paths.cert}")
       server.succeed("${pkgs.openssl}/bin/openssl x509 -in ${nodes.server.shb.certs.certs.letsencrypt.dns.paths.cert} -noout -checkhost dns.example.com | grep 'does match certificate'")
+      server.succeed("systemctl start acme-order-renew-dns.service")
     '';
   };
 
