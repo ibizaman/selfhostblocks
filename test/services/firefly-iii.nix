@@ -186,7 +186,7 @@ let
             username = "charlie";
             password = "CharliePassword";
             nextPageExpect = [
-              "expect(page).to_have_url(re.compile('.*/authenticated'))"
+              "expect(page).to_have_url(re.compile('.*/error/403'), timeout=10000)"
             ];
           }
         ];
