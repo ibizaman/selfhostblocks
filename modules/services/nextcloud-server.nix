@@ -525,7 +525,7 @@ in
                 };
 
                 secret = lib.mkOption {
-                  description = "OIDC shared secret.";
+                  description = "Plaintext OIDC client secret supplied to Nextcloud.";
                   type = lib.types.submodule {
                     options = shb.contracts.secret.mkRequester {
                       mode = "0400";
@@ -536,7 +536,7 @@ in
                 };
 
                 secretForAuthelia = lib.mkOption {
-                  description = "OIDC shared secret. Content must be the same as `secretFile` option.";
+                  description = "Authelia's verification value for the same secret. Prefer a PBKDF2-SHA512 hash of the plaintext secret.";
                   type = lib.types.submodule {
                     options = shb.contracts.secret.mkRequester {
                       mode = "0400";
@@ -1169,23 +1169,8 @@ in
 
         services.nextcloud.extraApps.oidc_login = nextcloudApps.oidc_login;
 
-        systemd.services.nextcloud-setup-pre = {
-          wantedBy = [ "multi-user.target" ];
-          before = [ "nextcloud-setup.service" ];
-          serviceConfig.Type = "oneshot";
-          serviceConfig.User = "nextcloud";
-          script = ''
-            mkdir -p ${cfg.dataDir}/config
-            cat <<EOF > "${cfg.dataDir}/config/secretFile"
-            {
-              "oidc_login_client_secret": "$(cat ${cfg.apps.sso.secret.result.path})"
-            }
-            EOF
-          '';
-        };
-
         services.nextcloud = {
-          secretFile = "${cfg.dataDir}/config/secretFile";
+          secrets.oidc_login_client_secret = cfg.apps.sso.secret.result.path;
 
           # See all options at https://github.com/pulsejet/nextcloud-oidc-login
           # Other important url/links are:

@@ -7,7 +7,7 @@ let
 
   adminUser = "root";
   adminPass = "rootpw";
-  oidcSecret = "oidcSecret";
+  oidcSecret = ''test-only-"oidc\secret'';
 
   commonTestScript = shb.test.mkScripts {
     hasSSL = { node, ... }: !(isNull node.config.shb.nextcloud.ssl);
@@ -368,7 +368,8 @@ let
       };
       shb.hardcodedsecret.oidcAutheliaSecret = {
         request = config.shb.nextcloud.apps.sso.secretForAuthelia.request;
-        settings.content = oidcSecret;
+        # Nextcloud receives oidcSecret; Authelia receives its PBKDF2-SHA512 hash.
+        settings.content = "$pbkdf2-sha512$310000$O897iNT9oG46gzDVvG.gJA$Bs4aWTtEUV5ZJXTAZ8Gghc8g4xZV0wEnXFW6L2QqEH3SSg3ynDsrkoPev8IN7qlSukb.6MASrHBfmaxq0g0kgg";
       };
     };
 
