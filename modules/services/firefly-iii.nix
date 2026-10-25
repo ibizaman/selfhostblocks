@@ -7,6 +7,8 @@
 
 let
   cfg = config.shb.firefly-iii;
+  protocol = if cfg.ssl == null then "http" else "https";
+  publicUrl = "${protocol}://${cfg.subdomain}.${cfg.domain}";
 in
 {
   imports = [
@@ -304,11 +306,11 @@ in
       default = { };
       type = lib.types.submodule {
         options = shb.contracts.dashboard.mkRequester {
-          externalUrl = "https://${cfg.subdomain}.${cfg.domain}";
-          externalUrlText = "https://\${config.shb.firefly-iii.subdomain}.\${config.shb.firefly-iii.domain}";
+          externalUrl = publicUrl;
+          externalUrlText = "${protocol}://\${config.shb.firefly-iii.subdomain}.\${config.shb.firefly-iii.domain}";
           # This works thanks to the Personal Access Token.
-          internalUrl = "https://${cfg.subdomain}.${cfg.domain}";
-          internalUrlText = "https://\${config.shb.firefly-iii.subdomain}.\${config.shb.firefly-iii.domain}";
+          internalUrl = publicUrl;
+          internalUrlText = "${protocol}://\${config.shb.firefly-iii.subdomain}.\${config.shb.firefly-iii.domain}";
         };
       };
     };
@@ -326,7 +328,7 @@ in
           # https://github.com/firefly-iii/firefly-iii/blob/main/.env.example
           settings = {
             APP_ENV = "production";
-            APP_URL = "https://${cfg.subdomain}.${cfg.domain}";
+            APP_URL = publicUrl;
 
             APP_DEBUG = cfg.debug;
             APP_LOG_LEVEL = if cfg.debug then "debug" else "notice";
@@ -378,7 +380,7 @@ in
           virtualHost = "${cfg.importer.subdomain}.${cfg.domain}";
 
           settings = {
-            FIREFLY_III_URL = "https://${config.services.firefly-iii.virtualHost}";
+            FIREFLY_III_URL = publicUrl;
           }
           // lib.optionalAttrs (cfg.importer.firefly-iii-accessToken != null) {
             FIREFLY_III_ACCESS_TOKEN_FILE = cfg.importer.firefly-iii-accessToken.result.path;
