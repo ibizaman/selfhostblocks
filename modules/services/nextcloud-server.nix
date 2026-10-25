@@ -1290,7 +1290,7 @@ in
 
     (lib.mkIf (cfg.enable && cfg.autoDisableMaintenanceModeOnStart) {
       systemd.services.nextcloud-setup.preStart = lib.mkBefore ''
-        if [[ -e /var/lib/nextcloud/config/config.php ]]; then
+        if [[ -e ${lib.escapeShellArg "${cfg.dataDir}/config/config.php"} ]]; then
             ${occ} maintenance:mode --no-interaction --quiet --off || true
         fi
       '';
@@ -1298,7 +1298,7 @@ in
 
     (lib.mkIf (cfg.enable && cfg.alwaysApplyExpensiveMigrations) {
       systemd.services.nextcloud-setup.script = ''
-        if [[ -e /var/lib/nextcloud/config/config.php ]]; then
+        if [[ -e ${lib.escapeShellArg "${cfg.dataDir}/config/config.php"} ]]; then
             ${occ} maintenance:repair --include-expensive || true
         fi
       '';

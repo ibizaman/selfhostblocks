@@ -483,11 +483,22 @@ let
           basic
           {
             shb.nextcloud.version = version;
+            shb.nextcloud.dataDir = lib.mkForce "/var/lib/nextcloud-test-data";
           }
         ];
       };
 
-      testScript = commonTestScript.access;
+      testScript =
+        inputs@{ nodes, ... }:
+        (commonTestScript.access inputs)
+        + ''
+          with subtest("startup clears maintenance mode with a custom data directory"):
+              import json
+              occ = "${nodes.server.services.nextcloud.occ}/bin/nextcloud-occ"
+              server.succeed(f"{occ} maintenance:mode --on")
+              server.succeed("systemctl restart nextcloud-setup.service")
+              assert not json.loads(server.succeed(f"{occ} status --output=json"))["maintenance"]
+        '';
     };
 
   cronTest =
