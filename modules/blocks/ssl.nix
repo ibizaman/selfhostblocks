@@ -226,7 +226,7 @@ in
                   This option implements the SSL Generator contract.
                 '';
                 type = lib.types.str;
-                default = "shb-certs-cert-letsencrypt-${config._module.args.name}.service";
+                default = "acme-${config._module.args.name}.service";
               };
 
               afterAndWants = lib.mkOption {
