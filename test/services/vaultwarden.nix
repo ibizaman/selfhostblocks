@@ -24,6 +24,10 @@ let
     preLoginScript =
       { node, proto_fqdn, ... }:
       ''
+        with subtest("clients receive the public vault URL"):
+            response = curl(client, "", "${proto_fqdn}/api/config")
+            assert response["environment"]["vault"] == "${proto_fqdn}"
+
         with subtest("prelogin"):
             response = curl(client, "", "${proto_fqdn}/identity/accounts/prelogin", data=unline_with("", """
                 {"email": "me@example.com"}
