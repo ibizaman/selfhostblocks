@@ -392,6 +392,7 @@ let
 
       shb.nextcloud = {
         apps.previewgenerator.enable = true;
+        apps.previewgenerator.debug = true;
       };
     };
 
@@ -603,6 +604,7 @@ let
         + ''
           with subtest("preview generator job succeeds"):
               server.succeed("systemctl start nextcloud-cron-previewgenerator.service")
+              assert "Specifications:" in server.succeed("journalctl --unit=nextcloud-cron-previewgenerator.service --no-pager")
         '';
     };
 
