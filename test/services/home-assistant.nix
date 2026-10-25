@@ -261,9 +261,9 @@ let
                     "page.wait_for_timeout(5000)"
 
                     # Logout from owner user
-                    "page.goto('http://${config.test.fqdn}/profile/general')"
+                    "page.goto('http://${config.test.fqdn}/profile')"
                     "page.get_by_role('button', name=re.compile('Log out')).click()"
-                    "page.get_by_label('Log out?').get_by_role('button', name='Log out').click()"
+                    "page.locator('ha-dialog').get_by_role('button', name='Log out', exact=True).click()"
                     ''expect(page.get_by_role("textbox", name="Username")).to_be_visible()''
 
                     # Login as user alice
@@ -283,8 +283,7 @@ let
                   nextPageExpect = [
                     "expect(page).to_have_title(re.compile('Overview'), timeout=15000)"
 
-                    "page.goto('http://${config.test.fqdn}/profile/general')"
-                    ''expect(page.get_by_role("heading", name="Alice Alice")).to_be_visible(timeout=20000)''
+                    ''expect(page.get_by_role("link", name="Alice Alice")).to_be_visible(timeout=20000)''
                   ];
                 }
               ];
