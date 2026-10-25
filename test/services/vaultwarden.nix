@@ -28,6 +28,10 @@ let
             response = curl(client, "", "${proto_fqdn}/api/config")
             assert response["environment"]["vault"] == "${proto_fqdn}"
 
+        with subtest("anonymous requests cannot access the admin API"):
+            status = client.succeed("curl --silent --output /dev/null --write-out '%{http_code}' --connect-to ${node.config.test.fqdn}:80:server:80 --connect-to ${node.config.test.fqdn}:443:server:443 ${proto_fqdn}/admin/users")
+            assert status == '404'
+
         with subtest("prelogin"):
             response = curl(client, "", "${proto_fqdn}/identity/accounts/prelogin", data=unline_with("", """
                 {"email": "me@example.com"}
