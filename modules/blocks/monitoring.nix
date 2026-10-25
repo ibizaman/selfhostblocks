@@ -992,6 +992,10 @@ in
     })
 
     (lib.mkIf (cfg.enable && cfg.scrutiny.enable) {
+      services.influxdb2.settings.http-bind-address = lib.mkIf config.services.scrutiny.influxdb.enable (
+        lib.mkDefault "127.0.0.1:${toString config.services.scrutiny.settings.web.influxdb.port}"
+      );
+
       services.scrutiny = {
         enable = true;
 
@@ -1011,6 +1015,7 @@ in
 
         settings = {
           web = {
+            influxdb.host = lib.mkIf config.services.scrutiny.influxdb.enable (lib.mkDefault "127.0.0.1");
             metrics.enabled = true; # Enables Prometheus exporter
             listen.host = "127.0.0.1";
           };
