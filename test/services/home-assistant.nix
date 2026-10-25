@@ -111,6 +111,8 @@ let
               "page.get_by_role('button', name=re.compile('Finish')).click()"
 
               "expect(page).to_have_title(re.compile('Overview'), timeout=15000)"
+              "assert page.evaluate(\"document.querySelector('home-assistant').hass.config.external_url\") == '${config.test.login.startUrl}'"
+              "assert page.evaluate(\"document.querySelector('home-assistant').hass.config.internal_url\") == '${config.test.login.startUrl}'"
             ];
           }
         ];
@@ -426,7 +428,10 @@ in
       ];
     };
 
-    nodes.client = { };
+    nodes.client = { config, ... }: {
+      imports = [ clientLogin ];
+      test.login.startUrl = lib.mkForce "https://${config.test.fqdn}";
+    };
 
     testScript = commonTestScript.access;
   };
