@@ -149,8 +149,8 @@ in
         ]
       );
       description = "Enable logging.";
-      default = false;
-      example = true;
+      default = null;
+      example = "debug";
     };
 
     dashboard = lib.mkOption {
