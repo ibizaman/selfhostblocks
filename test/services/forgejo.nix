@@ -48,6 +48,7 @@ let
             assert settings["mailer"]["SMTP_ADDR"] == "localhost"
             assert settings["mailer"]["SMTP_PORT"] == "587"
             assert settings["mailer"]["PASSWD"] == "test-only-smtp-password"
+        server.succeed("systemctl restart forgejo.service")
       ''
       + lib.optionalString node.config.shb.forgejo.sso.enable ''
         from urllib import parse
@@ -87,11 +88,11 @@ let
         users = {
           "theadmin" = {
             isAdmin = true;
-            email = "theadmin@example.com";
+            email = "theuser@example.com"; # Test-only overlap with the other username.
             password.result = config.shb.hardcodedsecret.forgejoAdminPassword.result;
           };
           "theuser" = {
-            email = "theuser@example.com";
+            email = "theadmin@example.com";
             password.result = config.shb.hardcodedsecret.forgejoUserPassword.result;
           };
         };
