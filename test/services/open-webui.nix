@@ -202,7 +202,7 @@ in
 
     nodes.client = { };
 
-    testScript = commonTestScript.backup.override {
+    testScript = commonTestScript.access.override {
       preLoginScript =
         { node, ... }:
         let
