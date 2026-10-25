@@ -685,11 +685,12 @@ in
     (mkIf (cfg.enable && cfg.smtp != null) {
       services.forgejo.settings.mailer = {
         ENABLED = true;
-        SMTP_ADDR = "${cfg.smtp.host}:${toString cfg.smtp.port}";
+        SMTP_ADDR = cfg.smtp.host;
+        SMTP_PORT = toString cfg.smtp.port;
         FROM = cfg.smtp.from_address;
         USER = cfg.smtp.username;
-        PASSWD = cfg.smtp.password.result.path;
       };
+      services.forgejo.secrets.mailer.PASSWD = cfg.smtp.password.result.path;
     })
 
     (mkIf cfg.enable {
