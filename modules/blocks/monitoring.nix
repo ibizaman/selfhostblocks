@@ -334,7 +334,7 @@ in
         }
         {
           assertion = cfg.lokiMajorVersion != 2;
-          message = "Loki major version 2 is not supported anymore, set `shb.monitoring.lockMajorVersion = 3` and do the manual migration as described in https://grafana.com/docs/loki/latest/setup/upgrade/#loki-300.";
+          message = "Loki major version 2 is not supported anymore, set `shb.monitoring.lokiMajorVersion = 3` and do the manual migration as described in https://grafana.com/docs/loki/latest/setup/upgrade/#loki-300.";
         }
       ];
 
