@@ -434,6 +434,11 @@ in
           scrutinyFqdn = "${node.config.shb.monitoring.scrutiny.subdomain}.${node.config.shb.monitoring.domain}";
         in
         ''
+          with subtest("local InfluxDB listens only on loopback"):
+              port = ${toString node.config.services.scrutiny.settings.web.influxdb.port}
+              server.wait_for_open_port(port)
+              assert [line.split()[3] for line in server.succeed(f"ss -H -ltn 'sport = :{port}'").splitlines()] == [f"127.0.0.1:{port}"]
+              server.succeed(f"curl --fail http://127.0.0.1:{port}/health")
           with subtest("Scrutiny uses its own SSL certificate"):
               client.succeed(
                   "curl --fail --silent --show-error"
