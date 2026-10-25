@@ -26,6 +26,7 @@ in
       start_all()
       server.succeed("systemctl start ${nodes.server.shb.certs.certs.letsencrypt.dns.systemdService}")
       server.succeed("test -s ${nodes.server.shb.certs.certs.letsencrypt.dns.paths.cert}")
+      server.succeed("${pkgs.openssl}/bin/openssl x509 -in ${nodes.server.shb.certs.certs.letsencrypt.dns.paths.cert} -noout -checkhost dns.example.com | grep 'does match certificate'")
     '';
   };
 
