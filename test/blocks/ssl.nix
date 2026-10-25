@@ -22,7 +22,11 @@ in
         };
       };
 
-    testScript = "";
+    testScript = { nodes, ... }: ''
+      start_all()
+      server.succeed("systemctl start ${nodes.server.shb.certs.certs.letsencrypt.dns.systemdService}")
+      server.succeed("test -s ${nodes.server.shb.certs.certs.letsencrypt.dns.paths.cert}")
+    '';
   };
 
   test = shb.test.runNixOSTest {
