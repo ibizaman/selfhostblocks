@@ -384,8 +384,7 @@ in
         gzip_disable "MSIE [1-6]\.";
 
         location = / {
-            return 302 http://$host/web/;
-            #return 302 https://$host/web/;
+            return 302 $scheme://$host/web/;
         }
 
         location / {

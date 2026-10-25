@@ -23,6 +23,10 @@ let
           port = ${toString port}
           assert [line.split()[3] for line in server.succeed(f"ss -H -ltn 'sport = :{port}'").splitlines()] == [f"127.0.0.1:{port}"]
 
+      with subtest("root redirect preserves the public URL scheme"):
+          target = client.succeed("curl --silent --output /dev/null --write-out '%{redirect_url}' --connect-to ${node.config.test.fqdn}:80:server:80 --connect-to ${node.config.test.fqdn}:443:server:443 ${node.config.test.proto_fqdn}/")
+          assert target == "${node.config.test.proto_fqdn}/web/"
+
       headers = unline_with(" ", """
           -H 'Content-Type: application/json'
           -H 'Authorization: MediaBrowser Client="Android TV", Device="Nvidia Shield", DeviceId="ZQ9YQHHrUzk24vV", Version="0.15.3"'
