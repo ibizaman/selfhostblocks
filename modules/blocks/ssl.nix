@@ -599,12 +599,12 @@ in
                   name:
                   lib.optionals (certCfg.additionalEnvironment != { } && certCfg.dnsProvider == null) [
                     {
-                      "acme-${name}".environment = certCfg.additionalEnvironment;
+                      "acme-order-renew-${name}".environment = certCfg.additionalEnvironment;
                     }
                   ]
                   ++ lib.optionals (certCfg.afterAndWants != [ ] && certCfg.dnsProvider == null) [
                     {
-                      "acme-${name}" = {
+                      "acme-order-renew-${name}" = {
                         after = certCfg.afterAndWants;
                         wants = certCfg.afterAndWants;
                       };
@@ -617,14 +617,14 @@ in
             flatten (
               mapAttrsToList (
                 name: certCfg:
-                lib.optionals (certCfg.additionalEnvironment != { } && certCfg.dnsProvider == null) [
+                lib.optionals (certCfg.additionalEnvironment != { }) [
                   {
-                    "acme-${certCfg.domain}".environment = certCfg.additionalEnvironment;
+                    "acme-order-renew-${name}".environment = certCfg.additionalEnvironment;
                   }
                 ]
-                ++ lib.optionals (certCfg.afterAndWants != [ ] && certCfg.dnsProvider == null) [
+                ++ lib.optionals (certCfg.afterAndWants != [ ]) [
                   {
-                    "acme-${certCfg.domain}" = {
+                    "acme-order-renew-${name}" = {
                       after = certCfg.afterAndWants;
                       wants = certCfg.afterAndWants;
                     };
