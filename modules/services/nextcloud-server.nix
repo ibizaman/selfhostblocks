@@ -1044,7 +1044,7 @@ in
         serviceConfig.LoadCredential = config.systemd.services.nextcloud-cron.serviceConfig.LoadCredential;
         serviceConfig.ExecStart =
           let
-            debug = if cfg.debug or cfg.apps.previewgenerator.debug then "-vvv" else "";
+            debug = if cfg.debug || cfg.apps.previewgenerator.debug then "-vvv" else "";
           in
           "${occ} ${debug} preview:pre-generate";
       };
