@@ -3,7 +3,7 @@
 **This whole demo is highly insecure as all the private keys are available publicly. This is
 only done for convenience as it is just a demo. Do not expose the VM to the internet.**
 
-The [`flake.nix`](./flake.nix) file sets up a Home Assistant server with Self Host Blocks. There are actually 2 demos:
+The [`flake.nix`](https://github.com/ibizaman/selfhostblocks/blob/main/demo/homeassistant/flake.nix) file sets up a Home Assistant server with Self Host Blocks. There are actually 2 demos:
 
 - The `basic` demo sets up a lone Home Assistant server accessible through http.
 - The `ldap` demo builds on top of the `basic` demo integrating Home Assistant with a LDAP provider.
@@ -176,25 +176,25 @@ user and password you just created above.
 
 ### Files {#demo-homeassistant-files}
 
-- [`flake.nix`](./flake.nix): nix entry point, defines one target host for
+- [`flake.nix`](https://github.com/ibizaman/selfhostblocks/blob/main/demo/homeassistant/flake.nix): nix entry point, defines one target host for
   [colmena](https://colmena.cli.rs) to deploy to as well as the selfhostblocks' config for
   setting up the home assistant server paired with the LDAP server.
-- [`configuration.nix`](./configuration.nix): defines all configuration required for colmena
+- [`configuration.nix`](https://github.com/ibizaman/selfhostblocks/blob/main/demo/homeassistant/configuration.nix): defines all configuration required for colmena
   to deploy to the VM. The file has comments if you're interested.
-- [`hardware-configuration.nix`](./hardware-configuration.nix): defines VM specific layout.
+- [`hardware-configuration.nix`](https://github.com/ibizaman/selfhostblocks/blob/main/demo/homeassistant/hardware-configuration.nix): defines VM specific layout.
   This was generated with nixos-generate-config on the VM.
 - Secrets related files:
-  - [`keys.txt`](./keys.txt): your private key for sops-nix, allows you to edit the `secrets.yaml`
+  - [`keys.txt`](https://github.com/ibizaman/selfhostblocks/blob/main/demo/homeassistant/keys.txt): your private key for sops-nix, allows you to edit the `secrets.yaml`
     file. This file should never be published but here I did it for convenience, to be able to
     deploy to the VM in less steps.
-  - [`secrets.yaml`](./secrets.yaml): encrypted file containing required secrets for Home Assistant
+  - [`secrets.yaml`](https://github.com/ibizaman/selfhostblocks/blob/main/demo/homeassistant/secrets.yaml): encrypted file containing required secrets for Home Assistant
     and the LDAP server. This file can be publicly accessible.
-  - [`sops.yaml`](./sops.yaml): describes how to create the `secrets.yaml` file. Can be publicly
+  - [`sops.yaml`](https://github.com/ibizaman/selfhostblocks/blob/main/demo/homeassistant/sops.yaml): describes how to create the `secrets.yaml` file. Can be publicly
     accessible.
 - SSH related files:
-  - [`sshkey(.pub)`](./sshkey): your private and public ssh keys. Again, the private key should usually not
+  - [`sshkey(.pub)`](https://github.com/ibizaman/selfhostblocks/blob/main/demo/homeassistant/sshkey): your private and public ssh keys. Again, the private key should usually not
     be published as it is here but this makes it possible to deploy to the VM in less steps.
-  - [`ssh_config`](./ssh_config): the ssh config allowing you to ssh into the VM by just using the
+  - [`ssh_config`](https://github.com/ibizaman/selfhostblocks/blob/main/demo/homeassistant/ssh_config): the ssh config allowing you to ssh into the VM by just using the
     hostname `example`. Usually you would store this info in your `~/.ssh/config` file but it's
     provided here to avoid making you do that.
 
@@ -204,7 +204,7 @@ _More info about the VM._
 
 We use `build-vm-with-bootloader` instead of just `build-vm` as that's the only way to deploy to the VM.
 
-The VM's User and password are both `nixos`, as setup in the [`configuration.nix`](./configuration.nix) file under
+The VM's User and password are both `nixos`, as setup in the [`configuration.nix`](https://github.com/ibizaman/selfhostblocks/blob/main/demo/homeassistant/configuration.nix) file under
 `user.users.nixos.initialPassword`.
 
 You can login with `ssh -F ssh_config example`. You just need to accept the fingerprint.
@@ -250,13 +250,13 @@ If you choose a password too small, some services could refuse to start.
 
 #### Why do we need the VM's public key {#demo-homeassistant-tips-public-key-necessity}
 
-The [`sops.yaml`](./sops.yaml) file describes what private keys can decrypt and encrypt the
-[`secrets.yaml`](./secrets.yaml) file containing the application secrets. Usually, you will create and add
+The [`sops.yaml`](https://github.com/ibizaman/selfhostblocks/blob/main/demo/homeassistant/sops.yaml) file describes what private keys can decrypt and encrypt the
+[`secrets.yaml`](https://github.com/ibizaman/selfhostblocks/blob/main/demo/homeassistant/secrets.yaml) file containing the application secrets. Usually, you will create and add
 secrets to that file and when deploying, it will be decrypted and the secrets will be copied
 in the `/run/secrets` folder on the VM. We thus need one private key for you to edit the
-[`secrets.yaml`](./secrets.yaml) file and one in the VM for it to decrypt the secrets.
+[`secrets.yaml`](https://github.com/ibizaman/selfhostblocks/blob/main/demo/homeassistant/secrets.yaml) file and one in the VM for it to decrypt the secrets.
 
-Your private key is already pre-generated in this repo, it's the [`sshkey`](./sshkey) file. But when
+Your private key is already pre-generated in this repo, it's the [`sshkey`](https://github.com/ibizaman/selfhostblocks/blob/main/demo/homeassistant/sshkey) file. But when
 creating the VM for Colmena, a new private key and its accompanying public key were automatically
 generated under `/etc/ssh/ssh_host_ed25519_key` in the VM. We just need to get the public key and
 add it to the `secrets.yaml` which we did in the Deploy section.
