@@ -13,6 +13,8 @@ let
     config.services.nginx.enable && config.shb.nginx.insecureAccessLogWithRequestBody;
 
   fqdn = "${cfg.subdomain}.${cfg.domain}";
+  protocol = if cfg.ssl == null then "http" else "https";
+  publicUrl = "${protocol}://${fqdn}";
 
   roleClaim = "grafana_groups";
   oauthScopes = [
@@ -291,10 +293,10 @@ in
       default = { };
       type = lib.types.submodule {
         options = shb.contracts.dashboard.mkRequester {
-          externalUrl = "https://${cfg.subdomain}.${cfg.domain}";
-          externalUrlText = "https://\${config.shb.monitoring.subdomain}.\${config.shb.monitoring.domain}";
-          internalUrl = "https://${cfg.subdomain}.${cfg.domain}";
-          internalUrlText = "https://\${config.shb.monitoring.subdomain}.\${config.shb.monitoring.domain}";
+          externalUrl = publicUrl;
+          externalUrlText = "${protocol}://\${config.shb.monitoring.subdomain}.\${config.shb.monitoring.domain}";
+          internalUrl = publicUrl;
+          internalUrlText = "${protocol}://\${config.shb.monitoring.subdomain}.\${config.shb.monitoring.domain}";
         };
       };
     };
@@ -371,7 +373,7 @@ in
             http_addr = "127.0.0.1";
             http_port = cfg.grafanaPort;
             domain = fqdn;
-            root_url = "https://${fqdn}";
+            root_url = publicUrl;
             router_logging = cfg.debugLog;
           };
 
