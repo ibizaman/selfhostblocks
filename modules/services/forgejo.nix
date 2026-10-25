@@ -674,7 +674,7 @@ in
         admin="${getExe config.services.forgejo.package} admin user"
       ''
       + concatMapStringsSep "\n" (u: ''
-        if ! $admin list | grep "${u.name}"; then
+        if ! $admin list | ${getExe pkgs.gawk} 'NR > 1 { print $2 }' | grep -Fx -- ${lib.escapeShellArg u.name}; then
           $admin create ${optionalString u.value.isAdmin "--admin"} --email "${u.value.email}" --must-change-password=false --username "${u.name}" --password "$(tr -d '\n' < ${u.value.password.result.path})"
         else
           $admin change-password --must-change-password=false --username "${u.name}" --password "$(tr -d '\n' < ${u.value.password.result.path})"
