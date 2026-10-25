@@ -19,6 +19,12 @@ let
       with subtest("Homepage listens only on loopback"):
           port = ${toString node.config.services.homepage-dashboard.listenPort}
           assert [line.split()[3] for line in server.succeed(f"ss -H -ltn 'sport = :{port}'").splitlines()] == [f"127.0.0.1:{port}"]
+      with subtest("the web app manifest uses the public URL"):
+          import json
+          manifest = json.loads(server.succeed("curl --fail --silent -H 'Host: ${node.config.test.fqdn}' http://127.0.0.1:${toString node.config.services.homepage-dashboard.listenPort}/site.webmanifest"))
+          assert manifest["start_url"] == '${
+            if node.config.shb.homepage.ssl == null then "http" else "https"
+          }://${node.config.test.fqdn}'
     '';
   };
 

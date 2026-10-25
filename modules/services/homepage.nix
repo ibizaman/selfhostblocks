@@ -6,6 +6,7 @@
 }:
 let
   cfg = config.shb.homepage;
+  publicUrl = "${if cfg.ssl == null then "http" else "https"}://${cfg.subdomain}.${cfg.domain}";
 
   inherit (lib) types;
 in
@@ -225,8 +226,8 @@ in
       allowedHosts = "${cfg.subdomain}.${cfg.domain}";
 
       settings = {
-        baseUrl = "https://${cfg.subdomain}.${cfg.domain}";
-        startUrl = "https://${cfg.subdomain}.${cfg.domain}";
+        baseUrl = publicUrl;
+        startUrl = publicUrl;
         disableUpdateCheck = true;
       };
 
