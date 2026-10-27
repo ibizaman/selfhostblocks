@@ -56,6 +56,7 @@ shb.test.runNixOSTest {
     ''
       import csv
       import re
+      import unittest
 
       start_all()
       machine.wait_for_unit("postgresql.service")
@@ -70,18 +71,22 @@ shb.test.runNixOSTest {
           return list(dict(l) for l in csv.DictReader(res.splitlines()))
 
       def cmp_tables(a, b):
-          for i in range(max(len(a), len(b))):
-              diff = set(a[i]) ^ set(b[i])
-              if len(diff) > 0:
-                  raise Exception(i, diff)
+          assert a == b, f"Unexpected table contents: {a!r} != {b!r}"
 
       with subtest("create fixture"):
           machine.succeed(peer_cmd("CREATE TABLE test (name text, count int)"))
           machine.succeed(peer_cmd("INSERT INTO test VALUES ('car', 1)"))
 
-          res = query("SELECT * FROM test")
+          res = query("SELECT * FROM test ORDER BY name")
           table = [{'name': 'car', 'count': '1'}]
           cmp_tables(res, table)
+
+      with subtest("reject changed row values"):
+          machine.succeed(peer_cmd("UPDATE test SET count = 999"))
+          res = query("SELECT * FROM test ORDER BY name")
+          with unittest.TestCase().assertRaises(AssertionError):
+              cmp_tables(res, table)
+          machine.succeed(peer_cmd("UPDATE test SET count = 1"))
 
       with subtest("Initial snapshots"):
           st, out = machine.execute("${provider.restoreScript} snapshots")
@@ -102,7 +107,7 @@ shb.test.runNixOSTest {
       with subtest("New content"):
           machine.succeed(peer_cmd("INSERT INTO test VALUES ('lollipop', 2)"))
 
-          res = query("SELECT * FROM test")
+          res = query("SELECT * FROM test ORDER BY name")
           table = [{'name': 'car', 'count': '1'}, {'name': 'lollipop', 'count': '2'}]
           cmp_tables(res, table)
 
@@ -128,7 +133,7 @@ shb.test.runNixOSTest {
           print(machine.succeed("readlink -f $(type ${provider.restoreScript})"))
           machine.succeed(f"${provider.restoreScript} restore {secondSnapshot}")
 
-          res = query("SELECT * FROM test")
+          res = query("SELECT * FROM test ORDER BY name")
           table = [{'name': 'car', 'count': '1'}, {'name': 'lollipop', 'count': '2'}]
           cmp_tables(res, table)
 
@@ -136,7 +141,7 @@ shb.test.runNixOSTest {
           print(machine.succeed("readlink -f $(type ${provider.restoreScript})"))
           machine.succeed(f"${provider.restoreScript} restore {firstSnapshot}")
 
-          res = query("SELECT * FROM test")
+          res = query("SELECT * FROM test ORDER BY name")
           table = [{'name': 'car', 'count': '1'}]
           cmp_tables(res, table)
     '';
