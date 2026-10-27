@@ -724,10 +724,10 @@ in
       default = { };
       type = lib.types.submodule {
         options = shb.contracts.dashboard.mkRequester {
-          externalUrl = "https://${fqdn}";
-          externalUrlText = "https://\${config.shb.nextcloud.subdomain}.\${config.shb.nextcloud.domain}";
-          internalUrl = "https://${fqdn}";
-          internalUrlText = "https://\${config.shb.nextcloud.subdomain}.\${config.shb.nextcloud.domain}";
+          externalUrl = "${protocol}://${fqdn}";
+          externalUrlText = "${protocol}://\${config.shb.nextcloud.subdomain}.\${config.shb.nextcloud.domain}";
+          internalUrl = "${protocol}://${fqdn}";
+          internalUrlText = "${protocol}://\${config.shb.nextcloud.subdomain}.\${config.shb.nextcloud.domain}";
         };
       };
     };

@@ -7,6 +7,7 @@
 
 let
   cfg = config.shb.grocy;
+  protocol = if cfg.ssl == null then "http" else "https";
 
   fqdn = "${cfg.subdomain}.${cfg.domain}";
 in
@@ -119,10 +120,10 @@ in
       default = { };
       type = lib.types.submodule {
         options = shb.contracts.dashboard.mkRequester {
-          externalUrl = "https://${cfg.subdomain}.${cfg.domain}";
-          externalUrlText = "https://\${config.shb.grocy.subdomain}.\${config.shb.grocy.domain}";
-          internalUrl = "https://${cfg.subdomain}.${cfg.domain}";
-          internalUrlText = "https://\${config.shb.grocy.subdomain}.\${config.shb.grocy.domain}";
+          externalUrl = "${protocol}://${cfg.subdomain}.${cfg.domain}";
+          externalUrlText = "${protocol}://\${config.shb.grocy.subdomain}.\${config.shb.grocy.domain}";
+          internalUrl = "${protocol}://${cfg.subdomain}.${cfg.domain}";
+          internalUrlText = "${protocol}://\${config.shb.grocy.subdomain}.\${config.shb.grocy.domain}";
         };
       };
     };

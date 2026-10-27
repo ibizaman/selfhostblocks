@@ -9,6 +9,7 @@
 
 let
   cfg = config.shb.forgejo;
+  protocol = if cfg.ssl == null then "http" else "https";
 
   inherit (lib)
     all
@@ -447,10 +448,10 @@ in
       default = { };
       type = lib.types.submodule {
         options = shb.contracts.dashboard.mkRequester {
-          externalUrl = "https://${cfg.subdomain}.${cfg.domain}";
-          externalUrlText = "https://\${config.shb.forgejo.subdomain}.\${config.shb.forgejo.domain}";
-          internalUrl = "https://${cfg.subdomain}.${cfg.domain}";
-          internalUrlText = "https://\${config.shb.forgejo.subdomain}.\${config.shb.forgejo.domain}";
+          externalUrl = "${protocol}://${cfg.subdomain}.${cfg.domain}";
+          externalUrlText = "${protocol}://\${config.shb.forgejo.subdomain}.\${config.shb.forgejo.domain}";
+          internalUrl = "${protocol}://${cfg.subdomain}.${cfg.domain}";
+          internalUrlText = "${protocol}://\${config.shb.forgejo.subdomain}.\${config.shb.forgejo.domain}";
         };
       };
     };

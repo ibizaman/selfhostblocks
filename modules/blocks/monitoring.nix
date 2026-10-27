@@ -8,6 +8,7 @@
 
 let
   cfg = config.shb.monitoring;
+  scrutinyProtocol = if cfg.scrutiny.ssl == null then "http" else "https";
   collectNginxJson =
     config.services.nginx.enable && config.shb.nginx.insecureAccessLogWithRequestBody;
 
@@ -134,8 +135,8 @@ in
         default = { };
         type = lib.types.submodule {
           options = shb.contracts.dashboard.mkRequester {
-            externalUrl = "https://${cfg.scrutiny.subdomain}.${cfg.domain}";
-            externalUrlText = "https://\${config.shb.monitoring.scrutiny.subdomain}.\${config.shb.monitoring.domain}";
+            externalUrl = "${scrutinyProtocol}://${cfg.scrutiny.subdomain}.${cfg.domain}";
+            externalUrlText = "${scrutinyProtocol}://\${config.shb.monitoring.scrutiny.subdomain}.\${config.shb.monitoring.domain}";
             internalUrl = "http://127.0.0.1:${toString config.services.scrutiny.settings.web.listen.port}";
             internalUrlText = "https://127.0.0.1.\${config.services.scrutiny.settings.web.listen.port}";
           };

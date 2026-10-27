@@ -834,8 +834,8 @@ in
       default = { };
       type = lib.types.submodule {
         options = shb.contracts.dashboard.mkRequester {
-          externalUrl = "https://${fqdn}";
-          externalUrlText = "https://\${config.shb.immich.subdomain}.\${config.shb.immich.domain}";
+          externalUrl = "${protocol}://${fqdn}";
+          externalUrlText = "${protocol}://\${config.shb.immich.subdomain}.\${config.shb.immich.domain}";
           internalUrl = "http://127.0.0.1:${toString cfg.port}";
         };
       };

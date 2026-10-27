@@ -8,6 +8,7 @@
 
 let
   cfg = config.shb.lldap;
+  protocol = if cfg.ssl == null then "http" else "https";
 
   fqdn = "${cfg.subdomain}.${cfg.domain}";
 
@@ -341,8 +342,8 @@ in
       default = { };
       type = lib.types.submodule {
         options = shb.contracts.dashboard.mkRequester {
-          externalUrl = "https://${cfg.subdomain}.${cfg.domain}";
-          externalUrlText = "https://\${config.shb.lldap.subdomain}.\${config.shb.lldap.domain}";
+          externalUrl = "${protocol}://${cfg.subdomain}.${cfg.domain}";
+          externalUrlText = "${protocol}://\${config.shb.lldap.subdomain}.\${config.shb.lldap.domain}";
           internalUrl = "http://127.0.0.1:${toString cfg.webUIListenPort}";
         };
       };
