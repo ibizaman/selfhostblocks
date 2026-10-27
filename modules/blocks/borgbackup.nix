@@ -333,12 +333,17 @@ in
 
                 repo = instance.settings.repository.path;
 
-                dumpCommand = lib.getExe (
-                  pkgs.writeShellApplication {
-                    name = "dump-command";
-                    text = instance.request.backupCmd;
-                  }
-                );
+                # Borg must observe dump failures before committing an archive.
+                # https://borgbackup.readthedocs.io/en/1.4.2/usage/create.html#reading-backup-data-from-stdin
+                extraCreateArgs = [ "--content-from-command" ];
+                paths = [
+                  (lib.getExe (
+                    pkgs.writeShellApplication {
+                      name = "dump-command";
+                      text = instance.request.backupCmd;
+                    }
+                  ))
+                ];
 
                 encryption.mode = "repokey-blake2";
                 # We do not set encryption.passphrase here, we set BORG_PASSPHRASE_FD further down.
