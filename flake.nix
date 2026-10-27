@@ -399,6 +399,7 @@
                 inherit pkgs;
                 tests = mergeTests (importFiles [
                   ./test/modules/davfs.nix
+                  ./test/modules/sanoid.nix
                   ./test/modules/zfs.nix
                   # TODO: Make this not use IFD
                   ./test/modules/lib.nix
