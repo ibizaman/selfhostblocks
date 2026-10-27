@@ -6563,6 +6563,9 @@
   "services-pinchflat-usage-configuration": [
     "services-pinchflat.html#services-pinchflat-usage-configuration"
   ],
+  "services-pinchflat-usage-migration": [
+    "services-pinchflat.html#services-pinchflat-usage-migration"
+  ],
   "services-vaultwarden": [
     "services-vaultwarden.html#services-vaultwarden"
   ],
