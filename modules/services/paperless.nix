@@ -352,8 +352,8 @@ in
       default = { };
       type = lib.types.submodule {
         options = shb.contracts.dashboard.mkRequester {
-          externalUrl = "https://${cfg.subdomain}.${cfg.domain}";
-          externalUrlText = "https://\${config.shb.paperless.subdomain}.\${config.shb.paperless.domain}";
+          externalUrl = "${protocol}://${cfg.subdomain}.${cfg.domain}";
+          externalUrlText = "${protocol}://\${config.shb.paperless.subdomain}.\${config.shb.paperless.domain}";
           internalUrl = "http://127.0.0.1:${toString cfg.port}";
         };
       };

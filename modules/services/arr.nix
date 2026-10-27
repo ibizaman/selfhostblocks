@@ -324,6 +324,9 @@ let
 
   appOption =
     name: c:
+    let
+      protocol = if cfg.${name}.ssl == null then "http" else "https";
+    in
     lib.nameValuePair name (
       lib.mkOption {
         description = "Configuration for ${name}";
@@ -400,8 +403,8 @@ let
               default = { };
               type = lib.types.submodule {
                 options = shb.contracts.dashboard.mkRequester {
-                  externalUrl = "https://${cfg.${name}.subdomain}.${cfg.${name}.domain}";
-                  externalUrlText = "https://\${config.shb.arr.${name}.subdomain}.\${config.shb.arr.${name}.domain}";
+                  externalUrl = "${protocol}://${cfg.${name}.subdomain}.${cfg.${name}.domain}";
+                  externalUrlText = "${protocol}://\${config.shb.arr.${name}.subdomain}.\${config.shb.arr.${name}.domain}";
                   internalUrl = "http://127.0.0.1:${toString cfg.${name}.settings.Port}";
                 };
               };

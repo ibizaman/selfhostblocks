@@ -6,6 +6,7 @@
 }:
 let
   cfg = config.shb.pinchflat;
+  protocol = if cfg.ssl == null then "http" else "https";
 
   inherit (lib) types;
 in
@@ -139,8 +140,8 @@ in
       default = { };
       type = lib.types.submodule {
         options = shb.contracts.dashboard.mkRequester {
-          externalUrl = "https://${cfg.subdomain}.${cfg.domain}";
-          externalUrlText = "https://\${config.shb.pinchflat.subdomain}.\${config.shb.pinchflat.domain}";
+          externalUrl = "${protocol}://${cfg.subdomain}.${cfg.domain}";
+          externalUrlText = "${protocol}://\${config.shb.pinchflat.subdomain}.\${config.shb.pinchflat.domain}";
           internalUrl = "http://127.0.0.1:${toString cfg.port}";
         };
       };

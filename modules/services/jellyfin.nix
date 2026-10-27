@@ -10,6 +10,7 @@ let
   inherit (lib) types;
 
   cfg = config.shb.jellyfin;
+  protocol = if cfg.ssl == null then "http" else "https";
 
   fqdn = "${cfg.subdomain}.${cfg.domain}";
 
@@ -273,8 +274,8 @@ in
       default = { };
       type = types.submodule {
         options = shb.contracts.dashboard.mkRequester {
-          externalUrl = "https://${fqdn}";
-          externalUrlText = "https://\${config.shb.jellyfin.subdomain}.\${config.shb.jellyfin.domain}";
+          externalUrl = "${protocol}://${fqdn}";
+          externalUrlText = "${protocol}://\${config.shb.jellyfin.subdomain}.\${config.shb.jellyfin.domain}";
           internalUrl = "http://127.0.0.1:${toString cfg.port}";
         };
       };

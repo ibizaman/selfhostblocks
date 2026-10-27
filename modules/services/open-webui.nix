@@ -7,6 +7,7 @@
 }:
 let
   cfg = config.shb.open-webui;
+  protocol = if cfg.ssl == null then "http" else "https";
 
   roleClaim = "openwebui_groups";
   oauthScopes = [
@@ -169,8 +170,8 @@ in
       default = { };
       type = lib.types.submodule {
         options = shb.contracts.dashboard.mkRequester {
-          externalUrl = "https://${cfg.subdomain}.${cfg.domain}";
-          externalUrlText = "https://\${config.shb.open-webui.subdomain}.\${config.shb.open-webui.domain}";
+          externalUrl = "${protocol}://${cfg.subdomain}.${cfg.domain}";
+          externalUrlText = "${protocol}://\${config.shb.open-webui.subdomain}.\${config.shb.open-webui.domain}";
           internalUrl = "http://127.0.0.1:${toString cfg.port}";
         };
       };

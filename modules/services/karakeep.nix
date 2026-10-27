@@ -6,6 +6,7 @@
 }:
 let
   cfg = config.shb.karakeep;
+  protocol = if cfg.ssl == null then "http" else "https";
 in
 {
   imports = [
@@ -183,8 +184,8 @@ in
       default = { };
       type = lib.types.submodule {
         options = shb.contracts.dashboard.mkRequester {
-          externalUrl = "https://${cfg.subdomain}.${cfg.domain}";
-          externalUrlText = "https://\${config.shb.karakeep.subdomain}.\${config.shb.karakeep.domain}";
+          externalUrl = "${protocol}://${cfg.subdomain}.${cfg.domain}";
+          externalUrlText = "${protocol}://\${config.shb.karakeep.subdomain}.\${config.shb.karakeep.domain}";
           internalUrl = "http://127.0.0.1:${toString cfg.port}";
         };
       };

@@ -8,6 +8,7 @@
 
 let
   cfg = config.shb.deluge;
+  protocol = if cfg.ssl == null then "http" else "https";
 
   fqdn = "${cfg.subdomain}.${cfg.domain}";
 
@@ -310,8 +311,8 @@ in
       default = { };
       type = lib.types.submodule {
         options = shb.contracts.dashboard.mkRequester {
-          externalUrl = "https://${fqdn}";
-          externalUrlText = "https://\${config.shb.deluge.subdomain}.\${config.shb.deluge.domain}";
+          externalUrl = "${protocol}://${fqdn}";
+          externalUrlText = "${protocol}://\${config.shb.deluge.subdomain}.\${config.shb.deluge.domain}";
           internalUrl = "http://127.0.0.1:${toString cfg.webPort}";
         };
       };

@@ -7,6 +7,7 @@
 
 let
   cfg = config.shb.hledger;
+  protocol = if cfg.ssl == null then "http" else "https";
 
   fqdn = "${cfg.subdomain}.${cfg.domain}";
 in
@@ -90,8 +91,8 @@ in
       default = { };
       type = lib.types.submodule {
         options = shb.contracts.dashboard.mkRequester {
-          externalUrl = "https://${cfg.subdomain}.${cfg.domain}";
-          externalUrlText = "https://\${config.shb.hledger.subdomain}.\${config.shb.hledger.domain}";
+          externalUrl = "${protocol}://${cfg.subdomain}.${cfg.domain}";
+          externalUrlText = "${protocol}://\${config.shb.hledger.subdomain}.\${config.shb.hledger.domain}";
           internalUrl = "http://127.0.0.1:${toString config.services.hledger-web.port}";
           internalUrlText = "http://127.0.0.1:\${config.services.hledger-web.port}";
         };
