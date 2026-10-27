@@ -32,120 +32,123 @@ in
       '';
       default = { };
       type = lib.types.attrsOf (
-        lib.types.submodule {
-          options = {
-            datasets = lib.mkOption {
-              description = ''
-                ZFS Datasets.
+        lib.types.submodule (
+          pool@{ name, ... }:
+          {
+            options = {
+              datasets = lib.mkOption {
+                description = ''
+                  ZFS Datasets.
 
-                Each entry in the attrset will be created and mounted in the given path.
-                The attrset name is the dataset name.
+                  Each entry in the attrset will be created and mounted in the given path.
+                  The attrset name is the dataset name.
 
-                This block implements the following contracts:
-                  - mount
-              '';
-              default = { };
-              example = lib.literalExpression ''
-                shb.zfs."safe/postgresql".path = "/var/lib/postgresql";
-              '';
-              type = lib.types.attrsOf (
-                lib.types.submodule (
-                  { config, name, ... }:
-                  {
-                    options = {
-                      path = lib.mkOption {
-                        type = lib.types.str;
-                        description = "Path this dataset should be mounted on. If the string 'none' is given, the dataset will not be mounted.";
-                      };
+                  This block implements the following contracts:
+                    - mount
+                '';
+                default = { };
+                example = lib.literalExpression ''
+                  shb.zfs."safe/postgresql".path = "/var/lib/postgresql";
+                '';
+                type = lib.types.attrsOf (
+                  lib.types.submodule (
+                    { config, name, ... }:
+                    {
+                      options = {
+                        path = lib.mkOption {
+                          type = lib.types.str;
+                          description = "Path this dataset should be mounted on. If the string 'none' is given, the dataset will not be mounted.";
+                        };
 
-                      mode = lib.mkOption {
-                        type = lib.types.nullOr lib.types.str;
-                        description = "If non null, unix mode to apply to the dataset root folder.";
-                        default = null;
-                        example = "ug=rwx,g+s";
-                      };
+                        mode = lib.mkOption {
+                          type = lib.types.nullOr lib.types.str;
+                          description = "If non null, unix mode to apply to the dataset root folder.";
+                          default = null;
+                          example = "ug=rwx,g+s";
+                        };
 
-                      owner = lib.mkOption {
-                        type = lib.types.nullOr lib.types.str;
-                        description = "If non null, unix user to apply to the dataset root folder.";
-                        default = null;
-                        example = "syncthing";
-                      };
+                        owner = lib.mkOption {
+                          type = lib.types.nullOr lib.types.str;
+                          description = "If non null, unix user to apply to the dataset root folder.";
+                          default = null;
+                          example = "syncthing";
+                        };
 
-                      group = lib.mkOption {
-                        type = lib.types.nullOr lib.types.str;
-                        description = "If non null, unix group to apply to the dataset root folder.";
-                        default = null;
-                        example = "syncthing";
-                      };
+                        group = lib.mkOption {
+                          type = lib.types.nullOr lib.types.str;
+                          description = "If non null, unix group to apply to the dataset root folder.";
+                          default = null;
+                          example = "syncthing";
+                        };
 
-                      defaultACLs = lib.mkOption {
-                        type = lib.types.nullOr lib.types.str;
-                        description = ''
-                          If non null, default ACL to set on the dataset root folder.
+                        defaultACLs = lib.mkOption {
+                          type = lib.types.nullOr lib.types.str;
+                          description = ''
+                            If non null, default ACL to set on the dataset root folder.
 
-                          Executes "setfacl -d -m $acl $path"
-                        '';
-                        default = null;
-                        example = "g:syncthing:rwX";
-                      };
+                            Executes "setfacl -d -m $acl $path"
+                          '';
+                          default = null;
+                          example = "g:syncthing:rwX";
+                        };
 
-                      after = lib.mkOption {
-                        type = lib.types.listOf lib.types.str;
-                        description = ''
-                          Order creating this dataset after the mentioned ones.
-                          This only works with datasets managed by this module.
+                        after = lib.mkOption {
+                          type = lib.types.listOf lib.types.str;
+                          description = ''
+                            Order creating this dataset after the mentioned ones.
+                            This only works with datasets managed by this module.
 
-                          Use the name of the dataset without the pool name.
-                        '';
-                        default = [ ];
-                        example = lib.literalExpression ''
-                          [
-                            "backup"
-                          ]
-                        '';
-                      };
+                            Use the name of the dataset without the pool name.
+                          '';
+                          default = [ ];
+                          example = lib.literalExpression ''
+                            [
+                              "backup"
+                            ]
+                          '';
+                        };
 
-                      backup = lib.mkOption {
-                        description = ''
-                          Backup contract consumer configuration.
+                        backup = lib.mkOption {
+                          description = ''
+                            Backup contract consumer configuration.
 
-                          This contract will backup the files inside the dataset.
-                        '';
-                        type = lib.types.submodule {
-                          options = shb.contracts.backup.mkRequester {
-                            user = if config.owner == null then "root" else config.owner;
-                            sourceDirectories = [
-                              config.path
-                            ];
-                            sourceDirectoriesText = ''
-                              [
-                                shb.zfs.pools.<name>.datasets.<name>.path
-                              ]
-                            '';
+                            This contract will backup the files inside the dataset.
+                          '';
+                          type = lib.types.submodule {
+                            options = shb.contracts.backup.mkRequester {
+                              user = if config.owner == null then "root" else config.owner;
+                              sourceDirectories = [
+                                config.path
+                              ];
+                              sourceDirectoriesText = ''
+                                [
+                                  shb.zfs.pools.<name>.datasets.<name>.path
+                                ]
+                              '';
+                            };
+                          };
+                        };
+
+                        datasetbackup = lib.mkOption {
+                          description = ''
+                            ZFS dataset backup contract configuration.
+
+                            This contract will take snaphots of the dataset.
+                          '';
+                          type = lib.types.submodule {
+                            options = shb.contracts.datasetbackup.mkRequester {
+                              dataset = "${pool.name}/${name}";
+                            };
                           };
                         };
                       };
-
-                      datasetbackup = lib.mkOption {
-                        description = ''
-                          ZFS dataset backup contract configuration.
-
-                          This contract will take snaphots of the dataset.
-                        '';
-                        type = lib.types.submodule {
-                          options = shb.contracts.datasetbackup.mkRequester {
-                            dataset = name;
-                          };
-                        };
-                      };
-                    };
-                  }
-                )
-              );
+                    }
+                  )
+                );
+              };
             };
-          };
-        }
+          }
+        )
 
       );
     };
