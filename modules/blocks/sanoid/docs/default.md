@@ -18,35 +18,41 @@ This block provides the following contracts:
   It is tested with the [generic contract tests][backup contract tests].
 
 [backup]: #blocks-sanoid-options-shb.sanoid.backup
-[backup contract tests]: @REPO@/test/contracts/backup.nix
+[backup contract tests]: @REPO@/test/contracts/datasetbackup.nix
 
 ## Usage {#blocks-sanoid-usage}
 
 Sanoid uses templates to know when snapshots should be kept or pruned.
+
+Each job must explicitly set `request.dataset`, including the pool name, either directly or through a ZFS dataset's `datasetbackup.request`. The job's attribute name identifies its restore command; it does not select the dataset. Only one job may target a given dataset, so combine its retention settings in that job. All jobs share `sanoid.service`.
+
+**Migration:** Configurations that previously selected a dataset solely with a key such as `shb.sanoid.backup."root/home"` must add `request.dataset = "root/home";` or connect the ZFS request as shown below. Existing job keys can stay unchanged, preserving restore command names. File-backup request fields such as `sourceDirectories` are not supported by this dataset provider.
 
 ### Default Template {#blocks-sanoid-usage-default-template}
 
 Backup a dataset using the default Sanoid template:
 
 ```nix
+{ config, ... }:
 {
   shb.zfs.pools.root.datasets.home = {
     path = "/home";
   };
 
-  shb.sanoid.backup."root/home" = {
-    request = shb.zfs.pools.root.datasets.home.datasetBackup.request;
+  shb.sanoid.backup.home = {
+    request = config.shb.zfs.pools.root.datasets.home.datasetbackup.request;
   };
 }
 ```
 
-This uses the dataset backup contract which is exposed through the ZFS module's [`shb.zfs.pools.<name>.datasets.<name>.datasetBackup`](blocks-zfs.html#blocks-zfs-options-shb.zfs.pools._name_.datasets._name_.datasetbackup) option.
+This uses the dataset backup contract which is exposed through the ZFS module's [`shb.zfs.pools.<name>.datasets.<name>.datasetbackup`](blocks-zfs.html#blocks-zfs-options-shb.zfs.pools._name_.datasets._name_.datasetbackup) option.
 
 ### Custom Template {#blocks-sanoid-usage-custom-template}
 
 Create a custom template and use it:
 
 ```nix
+{ config, ... }:
 {
   shb.zfs.pools.root.datasets.home = {
     path = "/home";
@@ -59,9 +65,9 @@ Create a custom template and use it:
     yearly = 2;
   };
 
-  shb.sanoid.backup."root/home" = {
-    request = shb.zfs.pools.root.datasets.home.datasetBackup.request;
-    template = "yearly";
+  shb.sanoid.backup.home = {
+    request = config.shb.zfs.pools.root.datasets.home.datasetbackup.request;
+    settings.useTemplate = [ "yearly" ];
   };
 }
 ```
@@ -104,6 +110,7 @@ The following configuration creates a new snapshot every hour on the `root/safe/
 The same configuration is set for the `backup/syncoid` dataset.
 
 ```nix
+{ config, ... }:
 {
   services.sanoid = {
     enable = true;
@@ -127,13 +134,13 @@ The same configuration is set for the `backup/syncoid` dataset.
 
   shb.zfs.pools.data.datasets."nextcloud".path = "/var/lib/nextcloud";
   shb.sanoid.backup."data/nextcloud" = {
-    request = config.shb.zfs.pools.data.datasets."nextcloud".datasetBackup.request;
+    request = config.shb.zfs.pools.data.datasets."nextcloud".datasetbackup.request;
     settings.useTemplate = [ "main" ];
   };
 
   shb.zfs.pools.root.datasets."safe/home".path = "/home";
   shb.sanoid.backup."root/safe/home" = {
-    request = config.shb.zfs.pools.root.datasets."safe/home".datasetBackup.request;
+    request = config.shb.zfs.pools.root.datasets."safe/home".datasetbackup.request;
     settings.useTemplate = [ "main" ];
   };
 
@@ -161,7 +168,7 @@ The same configuration is set for the `backup/syncoid` dataset.
 
   shb.zfs.pools.backup.datasets."syncoid".path = "none";
   shb.sanoid.backup."backup/syncoid" = {
-    request = config.shb.zfs.pools.backup.datasets."syncoid".datasetBackup.request;
+    request = config.shb.zfs.pools.backup.datasets."syncoid".datasetbackup.request;
     settings.useTemplate = [ "backup" ];
   };
 }
