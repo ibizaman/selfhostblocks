@@ -2,6 +2,7 @@
 {
   sanoid = shb.contracts.test.datasetbackup {
     name = "sanoid";
+    restoreArgs = [ "--destroy-newer-snapshots" ];
     providerRoot = [
       "shb"
       "sanoid"
