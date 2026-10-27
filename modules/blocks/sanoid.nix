@@ -14,10 +14,20 @@ let
 
   restoreScript =
     name:
-    pkgs.writers.writePython3Bin (restoreScriptName name)
+    pkgs.writers.makeScriptWriter
       {
-        flakeIgnore = [ "E501" ];
+        interpreter = lib.getExe pkgs.python3;
+        check = pkgs.writeShellScript "check-sanoid-restore" ''
+          set -e
+          cp "$1" sanoid_restore.py
+          cp ${../../test/blocks/sanoid_restore.py} test_restore.py
+          ${lib.getExe pkgs.ruff} format --check sanoid_restore.py test_restore.py
+          ${lib.getExe pkgs.ruff} check --select E,F,W --ignore E501 sanoid_restore.py test_restore.py
+          ${lib.getExe pkgs.pyrefly} check --preset strict --python-interpreter-path ${lib.getExe pkgs.python3} sanoid_restore.py test_restore.py
+          ${lib.getExe pkgs.python3} -m unittest --verbose test_restore
+        '';
       }
+      "/bin/${restoreScriptName name}"
       ''
         import argparse
         import subprocess
@@ -27,11 +37,11 @@ let
         dataset = "${name}"
 
 
-        class ZFSError(Exception):
+        class _ZFSError(Exception):
             pass
 
 
-        def run_command(cmd: list[str]) -> str:
+        def _run_command(cmd: list[str]) -> str:
             try:
                 result = subprocess.run(
                     cmd,
@@ -41,32 +51,42 @@ let
                 )
                 return result.stdout.strip()
             except subprocess.CalledProcessError as e:
-                raise ZFSError(
+                raise _ZFSError(
                     f"Command failed: {' '.join(cmd)}\n"
                     f"Exit code: {e.returncode}\n"
                     f"stderr: {e.stderr.strip()}"
                 ) from e
 
 
-        def list_snapshots() -> None:
+        def _list_snapshots() -> list[str]:
             """List all ZFS snapshots."""
-            output = run_command(["zfs", "list", "-H", "-t", "snapshot", dataset])
+            output = _run_command(["zfs", "list", "-H", "-t", "snapshot", dataset])
             if not output:
                 return []
             return output.splitlines()
 
 
-        def restore_snapshot(snapshot: str) -> None:
+        def _restore_snapshot(snapshot: str, destroy_newer_snapshots: bool) -> None:
             """Rollback to a given snapshot."""
-            if not snapshot:
-                raise ValueError("Snapshot name must not be empty")
+            snapshot_dataset, separator, snapshot_name = snapshot.partition("@")
+            if (
+                snapshot_dataset != dataset
+                or separator != "@"
+                or not snapshot_name
+                or "@" in snapshot_name
+            ):
+                raise ValueError(f"Expected a snapshot of {dataset}: {dataset}@snapshot")
 
             print(f"Rolling back to snapshot: {snapshot}")
-            run_command(["zfs", "rollback", "-r", snapshot])
+            command = ["zfs", "rollback"]
+            if destroy_newer_snapshots:
+                command.append("-r")
+            command.append(snapshot)
+            _run_command(command)
             print("Rollback completed successfully.")
 
 
-        def build_parser() -> argparse.ArgumentParser:
+        def _build_parser() -> argparse.ArgumentParser:
             parser = argparse.ArgumentParser(description=f"Restore script for {dataset}")
 
             subparsers = parser.add_subparsers(dest="command", required=True)
@@ -81,6 +101,11 @@ let
                 help="Rollback to a specific snapshot",
             )
             restore_parser.add_argument(
+                "--destroy-newer-snapshots",
+                action="store_true",
+                help="Allow deletion of snapshots and bookmarks newer than the target",
+            )
+            restore_parser.add_argument(
                 "snapshot",
                 help="Snapshot name (e.g. pool/dataset@snapname)",
             )
@@ -88,31 +113,30 @@ let
             return parser
 
 
-        def main():
-            parser = build_parser()
+        def _main() -> None:
+            parser = _build_parser()
             args = parser.parse_args()
 
             try:
                 if args.command == "snapshots":
-                    snapshots = list_snapshots()
+                    snapshots = _list_snapshots()
                     for s in snapshots:
                         print(s)
                 elif args.command == "restore":
-                    restore_snapshot(args.snapshot)
+                    _restore_snapshot(args.snapshot, args.destroy_newer_snapshots)
                 else:
                     parser.print_help()
                     sys.exit(1)
 
-            except ZFSError as e:
+            except ValueError as e:
+                parser.error(str(e))
+            except _ZFSError as e:
                 print(f"ERROR: {e}", file=sys.stderr)
-                sys.exit(1)
-            except Exception as e:
-                print(f"Unexpected error: {e}", file=sys.stderr)
                 sys.exit(1)
 
 
         if __name__ == "__main__":
-            main()
+            _main()
       '';
 in
 {
