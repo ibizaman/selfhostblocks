@@ -8,12 +8,13 @@
 }:
 let
   cfg = config.shb.sanoid;
+  datasets = map (job: job.request.dataset) (lib.attrValues cfg.backup);
 
   restoreScriptName = name: "sanoid-${utils.escapeSystemdPath name}-restore";
   backupScriptBase = "sanoid";
 
   restoreScript =
-    name:
+    name: dataset:
     pkgs.writers.writePython3Bin (restoreScriptName name)
       {
         flakeIgnore = [ "E501" ];
@@ -24,7 +25,7 @@ let
         import sys
 
 
-        dataset = "${name}"
+        dataset = ${builtins.toJSON dataset}
 
 
         class ZFSError(Exception):
@@ -121,13 +122,13 @@ in
   ];
 
   options.shb.sanoid.backup = lib.mkOption {
-    description = "Sanoid prodiver for file backup contract";
+    description = "Sanoid provider for the dataset backup contract";
     default = { };
     type = lib.types.attrsOf (
       lib.types.submodule (
         { name, ... }:
         {
-          options = shb.contracts.backup.mkProvider {
+          options = shb.contracts.datasetbackup.mkProvider {
             resultCfg = {
               restoreScript = restoreScriptName name;
               restoreScriptText = restoreScriptName "<name>";
@@ -148,17 +149,31 @@ in
   };
 
   config = lib.mkIf (cfg.backup != { }) {
+    assertions =
+      (lib.mapAttrsToList (name: job: {
+        assertion = job.request.dataset != "";
+        message = "shb.sanoid.backup.${name}.request.dataset must name the dataset, including its pool.";
+      }) cfg.backup)
+      ++ [
+        {
+          assertion = lib.length datasets == lib.length (lib.unique datasets);
+          message = "Each shb.sanoid.backup job must request a different dataset; combine settings for duplicate targets in one job.";
+        }
+      ];
+
     services.sanoid.enable = true;
 
     services.sanoid.datasets =
       let
-        mkDataset = name: cfg': {
-          inherit name;
+        mkDataset = _: cfg': {
+          name = cfg'.request.dataset;
           value = cfg'.settings;
         };
       in
       lib.mapAttrs' mkDataset cfg.backup;
 
-    environment.systemPackages = map restoreScript (lib.attrNames cfg.backup);
+    environment.systemPackages = lib.mapAttrsToList (
+      name: job: restoreScript name job.request.dataset
+    ) cfg.backup;
   };
 }
