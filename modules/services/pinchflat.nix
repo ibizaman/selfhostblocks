@@ -1,6 +1,7 @@
 {
   config,
   lib,
+  pkgs,
   shb,
   ...
 }:
@@ -161,6 +162,7 @@ in
     time.timeZone = lib.mkDefault cfg.timeZone;
     services.pinchflat = {
       inherit (cfg) enable port mediaDir;
+      package = lib.mkDefault pkgs.pinchflat-ngx;
       secretsFile = "/run/pinchflat/secrets.env";
       extraConfig = {
         ENABLE_PROMETHEUS = true;
