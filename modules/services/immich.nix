@@ -428,52 +428,63 @@ in
               apiKey="$(cat "${cfg.backupApiKey.contract.result.path}")"
               endpoint="127.0.0.1:${toString cfg.port}/api"
 
-              response="$( \
+              response_before="$( \
                 curl --silent --fail-with-body -X GET "$endpoint/admin/database-backups" \
                    -H "Content-Type: application/json" \
                    -H "x-api-key: $apiKey" \
               )"
-              if ! backups_before="$(echo "$response" | jq -r '.backups.[].filename')"; then
-                  echo "Could not parse response as json: $response"
-                  exit 1
-              fi
-              echo "backups_before=$backups_before"
-              if ! before_count=$(echo "$response" | jq '.backups | length'); then
-                  echo "Could not parse response as json: $response"
-                  exit 1
-              fi
-              echo "before_count=$before_count"
 
-              curl --silent --fail-with-body -X POST "$endpoint/jobs" \
+              if ! echo "$response_before" | jq -e '.backups | type == "array"' >/dev/null; then
+                  echo "Could not parse response as json: $response_before"
+                  exit 1
+              fi
+
+              nbackups=$(echo "$response_before" | jq '.backups | length')
+              echo "Found $nbackups pre-existing backups"
+
+              echo "Triggering backup job"
+              if ! curl --silent --fail-with-body -X POST "$endpoint/jobs" \
                    -H "Content-Type: application/json" \
                    -H "x-api-key: $apiKey" \
-                   --data "{\"name\":\"backup-database\"}"
+                   --data "{\"name\":\"backup-database\"}"; then
+                echo "Failed to trigger the backup job"
+                exit 1
+              fi
 
               interval=2
 
               while true; do
-                  response="$( \
+                  echo "Fetching backups"
+                  response_after="$( \
                     curl --silent --fail-with-body -X GET "$endpoint/admin/database-backups" \
                        -H "Content-Type: application/json" \
                        -H "x-api-key: $apiKey" \
                   )"
-                  if ! backups_after="$(echo "$response" | jq -r '.backups.[].filename')"; then
+
+                  if ! echo "$response_after" | jq -e '.backups | type == "array"' >/dev/null; then
+                    echo "Warning: received invalid JSON while polling for backups"
                     sleep "$interval"
                     continue
                   fi
-                  echo "backups_after=$backups_after"
 
-                  after_count=$(echo "$response" | jq '.backups | length')
-                  echo "after_count=$after_count"
+                  # Select items in after that do not exist in before, i.e. new backups
+                  new_backups=$( \
+                      jq -n \
+                        --argjson after  "$response_after" \
+                        --argjson before "$response_before" \
+                        '([$after.backups[].filename] // []) - ([$before.backups[].filename] // [])'
+                  )
 
-                  if (( after_count == before_count + 1 )); then
-                      new_entry=$(comm -13 \
-                          <(printf '%s\n' "$backups_before" | sort) \
-                          <(printf '%s\n' "$backups_after" | sort))
+                  new_backups_count=$(echo "$new_backups" | jq 'length')
 
+                  if (( new_backups_count == 1 )); then
+                      new_entry=$(echo "$new_backups" | jq -r 'first')
+                      echo "New backup:\"$new_entry\""
                       break
-                  elif (( after_count != before_count )); then
-                      echo "Unexpected number of backups. We expected to find $(( before_count + 1 )) but there are $after_count backups. Aborting because we don't know which backup to choose. This can happen if two backups run simultaneously. To fix this you can just restatr this backup."
+                  elif (( new_backups_count > 1)); then
+                      echo "New backups:\"$new_backups\""
+                      echo "Unexpected number of new backups. We expected to find 1 but there are $new_backups_count new backups. Aborting because we don't know which backup to choose. This can happen if two backups run simultaneously. To fix this you can just restart this backup."
+                      exit 1
                   fi
 
                   sleep "$interval"
@@ -1184,7 +1195,7 @@ in
         enable = true;
         port = 9142;
         listenAddress = "127.0.0.1";
-        url = "${protocol}://${cfg.subdomain}.${cfg.domain}";
+        url = "http://127.0.0.1:${toString cfg.port}";
         apiKeyFile = config.shb.immich.declarativeApiKeys.prometheus_exporter.path;
       };
 
@@ -1208,6 +1219,7 @@ in
             nameValuePair "immich-bootstrap-${name}" {
               description = "Bootstrap the Immich ${cfg'.name} API key";
               wantedBy = [ "multi-user.target" ];
+              before = lib.optional cfg.enableDashboard "prometheus-immich-exporter.service";
               after = [ "immich-server.service" ];
               requires = [ "immich-server.service" ];
               serviceConfig = {
