@@ -1,12 +1,15 @@
 { config, lib, ... }:
+let
+  cfg = config.shb.package-versions;
+in
 {
-  options.package-versions = {
+  options.shb.package-versions = {
     enable = lib.mkEnableOption "displaying the package versions that have changed when rebuilding the system";
   };
   config = {
     system = {
       activationScripts = {
-        diff-package-versions = lib.mkIf config.package-versions.enable {
+        diff-package-versions = lib.mkIf cfg.enable {
           supportsDryActivation = true;
           text = ''
             if [ -e /run/current-system ] && [ -e $systemConfig ]; then
