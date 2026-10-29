@@ -1,15 +1,3 @@
-# name: build
-# on: push
-# jobs:
-#   checks:
-#     uses: nixbuild/nixbuild-action/.github/workflows/ci-workflow.yml@v19
-#     with:
-#       nix_conf: |
-#         allow-import-from-derivation = true
-#     secrets:
-#       nixbuild_token: ${{ secrets.nixbuild_token }}
-
-
 name: "build"
 on:
   pull_request:
@@ -44,40 +32,39 @@ jobs:
         run: |
           echo $ALL_CHANGED_FILES
 
+  # build-matrix:
+  #   needs: [ "path-filter" ]
+  #   if: needs.path-filter.outputs.changed == 'true'
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Checkout repository
+  #       uses: actions/checkout@v7
+  #     - name: Install Nix
+  #       uses: cachix/install-nix-action@v31
+  #       with:
+  #         github_access_token: ${{ secrets.GITHUB_TOKEN }}
+  #         enable_kvm: true
+  #         extra_nix_config: |
+  #           keep-outputs = true
+  #           keep-failed = true
+  #     - name: Setup Caching
+  #       uses: cachix/cachix-action@v17
+  #       with:
+  #         name: selfhostblocks
+  #         authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'
+  #     - name: Generate Matrix
+  #       id: generate-matrix
+  #       run: |
+  #         set -euox pipefail
 
-  build-matrix:
-    needs: [ "path-filter" ]
-    if: needs.path-filter.outputs.changed == 'true'
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v7
-      - name: Install Nix
-        uses: cachix/install-nix-action@v31
-        with:
-          github_access_token: ${{ secrets.GITHUB_TOKEN }}
-          enable_kvm: true
-          extra_nix_config: |
-            keep-outputs = true
-            keep-failed = true
-      - name: Setup Caching
-        uses: cachix/cachix-action@v17
-        with:
-          name: selfhostblocks
-          authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'
-      - name: Generate Matrix
-        id: generate-matrix
-        run: |
-          set -euox pipefail
+  #         nix flake show --allow-import-from-derivation --json \
+  #             | jq -c '.["checks"]["x86_64-linux"] | keys' > .output
 
-          nix flake show --allow-import-from-derivation --json \
-              | jq -c '.["checks"]["x86_64-linux"] | keys' > .output
+  #         cat .output
 
-          cat .output
-
-          echo dynamic_list="$(cat .output)" >> "$GITHUB_OUTPUT"
-    outputs:
-      check: ${{ steps.generate-matrix.outputs.dynamic_list }}
+  #         echo dynamic_list="$(cat .output)" >> "$GITHUB_OUTPUT"
+  #   outputs:
+  #     check: ${{ steps.generate-matrix.outputs.dynamic_list }}
 
   manual:
     runs-on: ubuntu-latest
@@ -105,41 +92,51 @@ jobs:
             --show-trace \
             build .#manualHtml
 
+  # tests:
+  #   runs-on: ubuntu-latest
+  #   needs: [ "build-matrix" ]
+  #   strategy:
+  #     fail-fast: false
+  #     matrix:
+  #       check: ${{ fromJson(needs.build-matrix.outputs.check) }}
+  #   steps:
+  #     - name: Checkout repository
+  #       uses: actions/checkout@v7
+  #     - name: Install Nix
+  #       uses: cachix/install-nix-action@v31
+  #       with:
+  #         github_access_token: ${{ secrets.GITHUB_TOKEN }}
+  #         enable_kvm: true
+  #         extra_nix_config: |
+  #           keep-outputs = true
+  #           keep-failed = true
+  #     - name: Setup Caching
+  #       uses: cachix/cachix-action@v17
+  #       with:
+  #         name: selfhostblocks
+  #         authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'
+  #     - name: Build
+  #       run: |
+  #         echo "resultPath=$(nix eval .#checks.x86_64-linux.${{ matrix.check }} --raw)" >> $GITHUB_ENV
+  #         nix build --print-build-logs --show-trace .#checks.x86_64-linux.${{ matrix.check }}
+  #     - name: Upload Build Result
+  #       uses: actions/upload-artifact@v7
+  #       if: always() && startsWith(matrix.check, 'vm_')
+  #       with:
+  #         name: ${{ matrix.check }}
+  #         path: ${{ env.resultPath }}/trace/*
+  #         overwrite: true
+  #         if-no-files-found: ignore
+
   tests:
-    runs-on: ubuntu-latest
-    needs: [ "build-matrix" ]
-    strategy:
-      fail-fast: false
-      matrix:
-        check: ${{ fromJson(needs.build-matrix.outputs.check) }}
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v7
-      - name: Install Nix
-        uses: cachix/install-nix-action@v31
-        with:
-          github_access_token: ${{ secrets.GITHUB_TOKEN }}
-          enable_kvm: true
-          extra_nix_config: |
-            keep-outputs = true
-            keep-failed = true
-      - name: Setup Caching
-        uses: cachix/cachix-action@v17
-        with:
-          name: selfhostblocks
-          authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'
-      - name: Build
-        run: |
-          echo "resultPath=$(nix eval .#checks.x86_64-linux.${{ matrix.check }} --raw)" >> $GITHUB_ENV
-          nix build --print-build-logs --show-trace .#checks.x86_64-linux.${{ matrix.check }}
-      - name: Upload Build Result
-        uses: actions/upload-artifact@v7
-        if: always() && startsWith(matrix.check, 'vm_')
-        with:
-          name: ${{ matrix.check }}
-          path: ${{ env.resultPath }}/trace/*
-          overwrite: true
-          if-no-files-found: ignore
+    needs: [ "path-filter" ]
+    if: needs.path-filter.outputs.changed == 'true'
+    uses: nixbuild/nixbuild-action/.github/workflows/ci-workflow.yml@v27
+    secrets:
+      nixbuild_token: ${{ secrets.NIXBUILD_TOKEN }}
+    with:
+      nix_conf: |
+        allow-import-from-derivation = true
 
   results:
     name: Final Results

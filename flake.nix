@@ -67,17 +67,23 @@
         // {
           nixosSystem = args: import "${patched}/nixos/lib/eval-config.nix" args;
         };
-      pkgs' =
+      upstreamPkgs =
+        system:
+        import nixpkgs {
+          inherit system;
+        };
+      patchedPkgs =
         system:
         import (patchedNixpkgs system) {
           inherit system;
           config.allowUnfree = true;
         };
     in
-    flake-utils.lib.eachDefaultSystem (
+    flake-utils.lib.eachSystem [ "x86_64-linux" "aarch64-linux" "aarch64-darwin" ] (
       system:
       let
-        pkgs = pkgs' system;
+        pkgs = upstreamPkgs system;
+        pkgs' = patchedPkgs system;
 
         # The contract dummies are used to show options for contracts.
         contractDummyModules = [
@@ -269,9 +275,9 @@
 
         packages.update-flake-lock-pr = pkgs.callPackage ./.github/workflows/update-flake-lock-pr.nix { };
 
-        lib = (pkgs.callPackage ./lib { }) // {
-          test = pkgs.callPackage ./test/common.nix { };
-          contracts = pkgs.callPackage ./modules/contracts {
+        lib = (pkgs'.callPackage ./lib { }) // {
+          test = pkgs'.callPackage ./test/common.nix { };
+          contracts = pkgs'.callPackage ./modules/contracts {
             shb = self.lib.${system};
           };
           patches = shbPatches system;
@@ -343,7 +349,7 @@
     // flake-utils.lib.eachSystem [ "x86_64-linux" ] (
       system:
       let
-        pkgs = pkgs' system;
+        pkgs = patchedPkgs system;
       in
       {
         checks =
