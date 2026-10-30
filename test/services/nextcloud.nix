@@ -6,7 +6,8 @@ let
   ];
 
   adminUser = "root";
-  adminPass = "rootpw";
+  # Test-only password: user:add enforces the default password policy.
+  adminPass = "Nextcloud-Test-Admin-48!";
   oidcSecret = "oidcSecret";
 
   commonTestScript = shb.test.mkScripts {
@@ -43,7 +44,7 @@ let
             client.fail(
                 "curl -f -s --location -X PROPFIND"
                 + """ -H "Depth: 1" """
-                + """ -u root:rootpw """
+                + """ -u ${adminUser}:${adminPass} """
                 + " --connect-to ${fqdn}:443:server:443"
                 + " --connect-to ${fqdn}:80:server:80"
                 + " ${proto_fqdn}/remote.php/dav/files/other/"
@@ -501,6 +502,123 @@ let
         '';
     };
 
+  initialAdminTest =
+    version:
+    shb.test.runNixOSTest {
+      name = "nextcloud_initial_admin_${toString version}";
+
+      nodes.server = {
+        imports = [ basic ];
+        shb.nextcloud = {
+          inherit version;
+          dataDir = lib.mkForce "/srv/nextcloud-test";
+          adminPass.result.path = lib.mkForce "/run/nextcloud-test-admin-password";
+        };
+      };
+
+      testScript =
+        { nodes, ... }:
+        let
+          occ = "${nodes.server.services.nextcloud.occ}/bin/nextcloud-occ";
+        in
+        ''
+          import json
+          import shlex
+
+          start_all()
+          server.wait_for_unit("multi-user.target")
+
+          password_file = "${nodes.server.shb.nextcloud.adminPass.result.path}"
+          pending = "${nodes.server.services.nextcloud.datadir}/config/shb-initial-admin.pending"
+          changed_password = "Changed-Admin-Test-Password-72!"  # Test-only fixture.
+
+          def set_password(password):
+              server.succeed(f"printf %s {shlex.quote(password)} > {password_file}")
+              server.succeed(f"chown nextcloud:nextcloud {password_file} && chmod 0400 {password_file}")
+
+          def retain_pending(username):
+              server.succeed(f"printf %s {shlex.quote(username)} > {pending}")
+              server.succeed(f"chown nextcloud:nextcloud {pending} && chmod 0600 {pending}")
+
+          def users():
+              return json.loads(server.succeed("${occ} user:list --limit=0 --output=json"))
+
+          def user_info():
+              return json.loads(server.succeed("${occ} user:info --output=json -- ${adminUser}"))
+
+          def expect_setup_failure():
+              server.succeed("systemctl stop phpfpm-nextcloud.service")
+              server.fail("systemctl restart nextcloud-setup.service")
+              server.fail("systemctl start phpfpm-nextcloud.service")
+              server.fail("systemctl is-active phpfpm-nextcloud.service")
+
+          def authenticate(password):
+              server.wait_for_unit("phpfpm-nextcloud.service")
+              server.wait_for_open_unix_socket("${nodes.server.services.phpfpm.pools.nextcloud.socket}")
+              server.succeed(
+                  "curl --fail --silent --show-error --request PROPFIND "
+                  + "--user " + shlex.quote("${adminUser}:" + password)
+                  + " --resolve ${nodes.server.test.fqdn}:80:127.0.0.1"
+                  + " http://${nodes.server.test.fqdn}/remote.php/dav/files/${adminUser}/"
+              )
+
+          with subtest("missing credential prevents installation and serving"):
+              expect_setup_failure()
+              server.fail(f"test -e {pending}")
+
+          for password in ("", "rootpw"):
+              with subtest(f"invalid password {password!r} leaves initialization pending"):
+                  set_password(password)
+                  expect_setup_failure()
+                  server.succeed(f"test -s {pending}")
+                  assert not users()
+
+          with subtest("pending initialization cannot change its target account"):
+              set_password("${adminPass}")
+              retain_pending("different-initial-admin")
+              expect_setup_failure()
+              assert not users()
+              retain_pending("${adminUser}")
+
+          with subtest("retry finishes installation in a custom data directory"):
+              server.succeed("systemctl start phpfpm-nextcloud.service")
+              server.wait_for_unit("nginx.service")
+              assert "admin" in user_info()["groups"]
+              server.fail(f"test -e {pending}")
+              authenticate("${adminPass}")
+
+          with subtest("interrupted account creation requires manual recovery"):
+              retain_pending("${adminUser}")
+              set_password(changed_password)
+              expect_setup_failure()
+              assert "admin" in user_info()["groups"]
+              server.succeed("${occ} group:removeuser admin ${adminUser}")
+              expect_setup_failure()
+              assert "admin" not in user_info()["groups"]
+              server.succeed(f"test -s {pending}")
+              # The operator accepts the existing account as-is.
+              server.succeed(f"rm {pending}")
+              server.succeed("systemctl start phpfpm-nextcloud.service")
+              authenticate("${adminPass}")
+
+          with subtest("restarts preserve changed passwords and privileges"):
+              server.succeed(
+                  "NC_PASS=" + shlex.quote(changed_password)
+                  + " ${occ} user:resetpassword --password-from-env ${adminUser}"
+              )
+              set_password("${adminPass}")
+              server.succeed("systemctl restart nextcloud-setup.service")
+              assert "admin" not in user_info()["groups"]
+              authenticate(changed_password)
+
+          with subtest("an existing installation never recreates a deleted account"):
+              server.succeed("${occ} user:delete ${adminUser}")
+              server.succeed("systemctl restart nextcloud-setup.service")
+              assert not users()
+              server.fail(f"test -e {pending}")
+        '';
+    };
+
   cronTest =
     version:
     shb.test.runNixOSTest {
@@ -801,6 +919,7 @@ let
 
           specialisation.nextcloud35.configuration = {
             shb.nextcloud.version = lib.mkForce 35;
+            shb.nextcloud.initialAdminUsername = lib.mkForce "replacement-admin";
           };
         }
       ];
@@ -844,7 +963,8 @@ let
             assert status["versionstring"].startswith("35.")
             assert not status["maintenance"]
 
-        with subtest("data survives the upgrade"):
+        with subtest("data and accounts survive changed initial username on upgrade"):
+            assert "replacement-admin" not in json.loads(server.succeed("${nextcloud35Occ} user:list --output=json"))
             content = server.succeed("${curl} ${webdavUrl}")
             assert content == "survives upgrade"
       '';
@@ -854,6 +974,8 @@ let
     v:
     {
       "basic_${toString v}" = basicTest v;
+
+      "initial_admin_${toString v}" = initialAdminTest v;
 
       "cron_${toString v}" = cronTest v;
 
