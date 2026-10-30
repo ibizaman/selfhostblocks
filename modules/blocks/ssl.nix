@@ -543,6 +543,7 @@ in
                 [
                   {
                     "${name}" = {
+                      inherit (certCfg) domain;
                       extraDomainNames = certCfg.extraDomains;
                       email = certCfg.adminEmail;
                       enableDebugLogs = certCfg.debug;
