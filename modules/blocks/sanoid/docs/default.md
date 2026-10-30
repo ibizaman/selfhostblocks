@@ -88,6 +88,8 @@ we can just set the request manually:
 Note the attr name under the `shb.sanoid.backup` option does not
 set the dataset name.
 
+The restore command accepts only snapshots of its configured dataset. `restore pool/dataset@snapshot` rolls back the dataset's current contents, but refuses if ZFS would need to delete newer snapshots or bookmarks. To explicitly authorize that deletion, run `restore --destroy-newer-snapshots pool/dataset@snapshot`. This flag enables [`zfs rollback -r`](https://openzfs.github.io/openzfs-docs/man/v2.2/8/zfs-rollback.8.html); it does not restore child datasets. Existing scripts that restore older snapshots must add the flag only when discarding newer snapshots and bookmarks is intended.
+
 ## Best Practices {#blocks-sanoid-best-pactices}
 
 Let's assume you have a few datasets you want to backup on one hard drive,
