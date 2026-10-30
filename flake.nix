@@ -36,6 +36,10 @@
             ./patches/0001-nixos-borgbackup-add-option-to-override-state-direct.patch
             ./patches/0001-prometheus-immich-exporter-init-at-3.0.2.patch
 
+            # Remove when the pin includes https://github.com/NixOS/nixpkgs/pull/578265.
+            # Vendored at b94c9aa45cb33e129fc728ae1e4892d4041b2181 while the PR is a draft.
+            ./patches/posthog-578265.patch
+
             # Leaving commented out as an example.
             # (originPkgs.fetchpatch {
             #   url = "https://github.com/NixOS/nixpkgs/pull/317107.patch";
