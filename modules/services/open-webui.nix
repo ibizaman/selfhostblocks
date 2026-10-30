@@ -9,6 +9,21 @@ let
   cfg = config.shb.open-webui;
   protocol = if cfg.ssl == null then "http" else "https";
 
+  # OWUI 0.12.3 requires MCP 1; remove once the packaged version supports MCP 2.
+  # https://github.com/open-webui/open-webui/blob/91ea4e3421d1d8069f13d4a463fcb5986d94ea60/pyproject.toml#L56
+  # Follow https://github.com/NixOS/nixpkgs/pull/578877 to keep its Python dependencies consistent.
+  openWebuiPackage =
+    if lib.versionOlder pkgs.python3Packages.mcp.version "2" then
+      pkgs.open-webui
+    else
+      pkgs.open-webui.override {
+        python3Packages = pkgs.python3Packages.overrideScope (
+          final: _: {
+            mcp = final.mcp_1;
+          }
+        );
+      };
+
   roleClaim = "openwebui_groups";
   oauthScopes = [
     "openid"
@@ -189,6 +204,7 @@ in
 
         services.open-webui = {
           enable = true;
+          package = lib.mkDefault openWebuiPackage;
 
           host = "127.0.0.1";
           inherit (cfg) port;
@@ -231,7 +247,7 @@ in
         };
 
         services.open-webui = {
-          package = pkgs.open-webui.overrideAttrs (finalAttrs: {
+          package = openWebuiPackage.overrideAttrs (finalAttrs: {
             patches = [
               ../../patches/0001-selfhostblocks-never-onboard.patch
             ];
