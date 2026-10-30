@@ -5,6 +5,16 @@
   ...
 }:
 let
+  # Only the migration test runs the insecure legacy application to create and restore its fixture.
+  # https://github.com/NixOS/nixpkgs/blob/31ecbaca1bdefa45dffc409f0250bd8039ea0010/pkgs/by-name/pi/pinchflat/package.nix#L92-L94
+  legacyPinchflat =
+    (import pkgs.path {
+      inherit (pkgs.stdenv.hostPlatform) system;
+      config = pkgs.config // {
+        permittedInsecurePackages = [ "pinchflat-2025.9.26" ];
+      };
+    }).pinchflat;
+
   commonTestScript = shb.test.mkScripts {
     hasSSL = { node, ... }: !(isNull node.config.shb.pinchflat.ssl);
     waitForServices =
@@ -195,7 +205,7 @@ in
       environment.systemPackages = [ pkgs.sqlite ];
 
       # The original package is only used to create and restore the test library.
-      services.pinchflat.package = pkgs.pinchflat;
+      services.pinchflat.package = legacyPinchflat;
       specialisation.ngx.configuration.services.pinchflat.package = lib.mkForce pkgs.pinchflat-ngx;
     };
 
@@ -220,7 +230,7 @@ in
     testScript =
       { nodes, ... }:
       let
-        original = "${pkgs.pinchflat}/bin/pinchflat";
+        original = "${legacyPinchflat}/bin/pinchflat";
         ngx = "${pkgs.pinchflat-ngx}/bin/pinchflat";
         system = nodes.server.system.build.toplevel;
         # Derive the fixture through the original application's schemas, as its own tests do:
@@ -243,7 +253,7 @@ in
             }, :pre_insert)
             |> Pinchflat.Repo.insert!()
           path = Path.join(Application.fetch_env!(:pinchflat, :media_directory), "migration.mkv")
-          File.cp!("${pkgs.pinchflat.src}/test/support/files/media.mkv", path)
+          File.cp!("${legacyPinchflat.src}/test/support/files/media.mkv", path)
           {:ok, _media} = Pinchflat.Media.create_media_item(%{
             media_id: "migration-test-video",
             title: "Migration video",
