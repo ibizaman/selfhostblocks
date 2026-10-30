@@ -75,6 +75,12 @@ let
         subdomain = "g";
       };
 
+      virtualisation.fileSystems = lib.genAttrs [ "/var/lib/grafana" "/var/lib/loki" ] (_: {
+        device = "none";
+        fsType = "tmpfs";
+        options = [ "mode=0755" ];
+      });
+
       shb.monitoring = {
         enable = true;
         inherit (config.test) subdomain domain;
