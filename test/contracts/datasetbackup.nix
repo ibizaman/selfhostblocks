@@ -1,4 +1,9 @@
-{ shb, pkgs, ... }:
+{
+  shb,
+  pkgs,
+  lib,
+  ...
+}:
 {
   sanoid = shb.contracts.test.datasetbackup {
     name = "sanoid";
@@ -6,8 +11,8 @@
       "shb"
       "sanoid"
       "backup"
-      # This is the name of the dataset
-      "root/mytest"
+      # The job label must differ from the requested dataset.
+      "testjob"
     ];
     modules = [
       ../../modules/blocks/sanoid.nix
@@ -20,8 +25,10 @@
         useTemplate = [ "test" ];
       };
     extraConfig =
-      { filesRoot, ... }:
+      { config, filesRoot, ... }:
       {
+        shb.sanoid.backup.testjob.request =
+          lib.mkForce config.shb.zfs.pools.root.datasets.mytest.datasetbackup.request;
         # Inspiration from https://github.com/NixOS/nixpkgs/blob/master/nixos/tests/zfs.nix
         networking.hostId = "deadbeef";
         boot.supportedFilesystems = [ "zfs" ];
@@ -41,6 +48,7 @@
         };
 
         systemd.services."zfs-zpool-create" = {
+          serviceConfig.Type = "oneshot";
           unitConfig.DefaultDependencies = false;
           after = [ "systemd-modules-load.service" ];
           requiredBy = [
