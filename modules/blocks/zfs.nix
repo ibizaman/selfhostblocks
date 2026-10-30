@@ -209,7 +209,7 @@ in
               "zfs-import-${poolName}.service"
               "zfs-mount.service"
             ]
-            ++ map (n: "zfs-create-${poolName}-${n}.service") cfg'.after;
+            ++ map (n: "zfs-create-${utils.escapeSystemdPath "${poolName}/${n}"}.service") cfg'.after;
 
             unitConfig.ConditionPathIsMountPoint = lib.mkIf (cfg'.path != "none") "!${cfg'.path}";
 

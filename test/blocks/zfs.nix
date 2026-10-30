@@ -7,7 +7,12 @@
     name = "zfs-default";
 
     nodes.machine =
-      { config, pkgs, ... }:
+      {
+        config,
+        pkgs,
+        utils,
+        ...
+      }:
       {
         imports = [
           ../../modules/blocks/zfs.nix
@@ -30,6 +35,7 @@
         };
 
         systemd.services."zfs-zpool-create" = {
+          serviceConfig.Type = "oneshot";
           unitConfig.DefaultDependencies = false;
           after = [ "systemd-modules-load.service" ];
           requiredBy = [
@@ -55,6 +61,14 @@
         shb.zfs.pools.root.datasets.one.path = "/var/root/one";
         shb.zfs.pools.root.datasets.two.path = "/var/root/two";
         shb.zfs.pools.root.datasets.none.path = "none";
+        shb.zfs.pools.root.datasets."parent-dataset".path = "none";
+        shb.zfs.pools.root.datasets."parent-dataset/child" = {
+          path = "none";
+          after = [ "parent-dataset" ];
+        };
+        # Delay the test-only parent so missing ordering reliably breaks child creation.
+        systemd.services."zfs-create-${utils.escapeSystemdPath "root/parent-dataset"}".preStart =
+          "${pkgs.coreutils}/bin/sleep 2";
         shb.zfs.pools.data.datasets.two = {
           path = "/var/data/two";
 
@@ -126,6 +140,7 @@
 
         assert_facl()
         assert_mounts()
+        machine.succeed("zfs list root/parent-dataset/child")
 
         with subtest("no snapshot yet"):
             print(machine.succeed("zpool list"))
