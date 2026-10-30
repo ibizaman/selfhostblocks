@@ -24,6 +24,7 @@ let
     (builtins.getAttr ("nextcloud" + builtins.toString cfg.version + "Packages") pkgs).apps;
 
   occ = "${config.services.nextcloud.occ}/bin/nextcloud-occ";
+  initialAdminPending = "${config.services.nextcloud.datadir}/config/shb-initial-admin.pending";
 in
 {
   imports = [
@@ -120,12 +121,16 @@ in
 
     initialAdminUsername = lib.mkOption {
       type = lib.types.str;
-      description = "Initial username of the admin user. Once it is set, it cannot be changed!";
+      description = ''
+        Admin account to create during initial installation. Changing this option after installation does not rename or create accounts. Existing accounts, passwords, and group memberships are left unchanged, including when the initial account has been deleted or demoted.
+
+        Failed initialization blocks serving and is retried on the next start of `nextcloud-setup.service`. Keep the username unchanged while `config/shb-initial-admin.pending` exists under the Nextcloud data directory. If an interrupted attempt already created the account, inspect it with `sudo nextcloud-occ user:info -- <username>` and complete its setup manually. After accepting the account, run `sudo rm -- <dataDir>/config/shb-initial-admin.pending` and `sudo systemctl restart nextcloud-setup.service phpfpm-nextcloud.service`, replacing `<username>` and `<dataDir>` with the configured values.
+      '';
       default = "root";
     };
 
     adminPass = lib.mkOption {
-      description = "Nextcloud admin password.";
+      description = "Initial Nextcloud admin password. Must satisfy Nextcloud's password policy. Changing this secret after account creation does not reset the account's password.";
       type = lib.types.submodule {
         options = shb.contracts.secret.mkRequester {
           mode = "0400";
@@ -783,8 +788,6 @@ in
 
         config = {
           dbtype = "pgsql";
-          adminuser = cfg.initialAdminUsername;
-          adminpassFile = cfg.adminPass.result.path;
         };
         database.createLocally = true;
 
@@ -891,7 +894,9 @@ in
       systemd.services.phpfpm-nextcloud.preStart = ''
         mkdir -p /var/log/xdebug; chown -R nextcloud: /var/log/xdebug
       '';
-      systemd.services.phpfpm-nextcloud.requires = cfg.mountPointServices;
+      systemd.services.phpfpm-nextcloud.requires = cfg.mountPointServices ++ [
+        "nextcloud-setup.service"
+      ];
       systemd.services.phpfpm-nextcloud.after = cfg.mountPointServices;
 
       systemd.timers.nextcloud-cron.requires = cfg.mountPointServices;
@@ -904,6 +909,36 @@ in
 
       systemd.services.nextcloud-setup.requires = cfg.mountPointServices;
       systemd.services.nextcloud-setup.after = cfg.mountPointServices;
+
+      # Match upstream's initial-install predicate and retain the intent across failed starts.
+      # https://github.com/NixOS/nixpkgs/blob/31ecbaca1bdefa45dffc409f0250bd8039ea0010/nixos/modules/services/web-apps/nextcloud.nix#L1403-L1406
+      systemd.services.nextcloud-setup.preStart = ''
+        pending=${lib.escapeShellArg initialAdminPending}
+        if [[ ! -e "$pending" && ! -s ${lib.escapeShellArg "${config.services.nextcloud.datadir}/config/config.php"} ]]; then
+          umask 077
+          printf %s ${lib.escapeShellArg cfg.initialAdminUsername} > "$pending.tmp"
+          mv --no-target-directory "$pending.tmp" "$pending"
+        fi
+      '';
+      systemd.services.nextcloud-setup.serviceConfig.LoadCredential = [
+        "shb-admin-password:${cfg.adminPass.result.path}"
+      ];
+      systemd.services.nextcloud-setup.postStart = ''
+        pending=${lib.escapeShellArg initialAdminPending}
+        if [[ -e "$pending" ]]; then
+          username=${lib.escapeShellArg cfg.initialAdminUsername}
+          if [[ "$(cat "$pending")" != "$username" ]]; then
+            echo "Nextcloud initial admin username changed during initialization. Restore the username recorded in $pending before restarting nextcloud-setup.service." >&2
+            exit 1
+          fi
+
+          # user:add refuses existing accounts, so partial creation needs manual recovery.
+          # https://github.com/nextcloud/server/blob/ba900af933e61ffa005315b09d6454bfbbcbcc81/core/Command/User/Add.php#L86-L102
+          NC_PASS="$(<"$CREDENTIALS_DIRECTORY/shb-admin-password")" \
+            ${occ} user:add --no-interaction --password-from-env --group=admin -- "$username"
+          rm "$pending"
+        fi
+      '';
 
       # Ensure setup is in the same transaction when activation restarts this unit.
       systemd.services.nextcloud-update-db.requires = [ "nextcloud-setup.service" ];
