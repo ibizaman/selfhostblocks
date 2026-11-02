@@ -6,6 +6,8 @@
 stdenvNoCC.mkDerivation {
   name = "lldap-ha-auth";
 
+  # Keep the missing-display-name fix until a released LLDAP includes
+  # https://github.com/lldap/lldap/pull/1461, then use that release's helper.
   src = pkgs.fetchFromGitHub {
     owner = "ibizaman";
     repo = "lldap";
