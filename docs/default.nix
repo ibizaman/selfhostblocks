@@ -113,13 +113,7 @@ let
     ).optionsJSON;
 
   nmd = import nmdsrc {
-    inherit lib;
-    # The DocBook output of `nixos-render-docs` doesn't have the change
-    # `nmd` uses to work around the broken stylesheets in
-    # `docbook-xsl-ns`, so we restore the patched version here.
-    pkgs = pkgs // {
-      docbook-xsl-ns = pkgs.docbook-xsl-ns.override { withManOptDedupPatch = true; };
-    };
+    inherit lib pkgs;
   };
 
   outputPath = "share/doc/selfhostblocks";
