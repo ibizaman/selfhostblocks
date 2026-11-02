@@ -16,6 +16,10 @@ let
     if lib.versionOlder pkgs.python3Packages.mcp.version "2" then
       pkgs.open-webui
     else
+      # OWUI 0.12.4 requires MCP 2.
+      # https://github.com/open-webui/open-webui/blob/33c1978d5bad52a31df75ea55143025dfad18d16/pyproject.toml#L57
+      assert lib.assertMsg (lib.versionOlder pkgs.open-webui.version "0.12.4")
+        "Open WebUI now supports MCP 2; revisit and remove the MCP 1 override.";
       pkgs.open-webui.override {
         python3Packages = pkgs.python3Packages.overrideScope (
           final: _: {
