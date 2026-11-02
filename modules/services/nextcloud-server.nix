@@ -122,9 +122,24 @@ in
     initialAdminUsername = lib.mkOption {
       type = lib.types.str;
       description = ''
-        Admin account to create during initial installation. Changing this option after installation does not rename or create accounts. Existing accounts, passwords, and group memberships are left unchanged, including when the initial account has been deleted or demoted.
+        Admin account to create during initial installation.
 
-        Failed initialization blocks serving and is retried on the next start of `nextcloud-setup.service`. Keep the username unchanged while `config/shb-initial-admin.pending` exists under the Nextcloud data directory. If an interrupted attempt already created the account, inspect it with `sudo nextcloud-occ user:info -- <username>` and complete its setup manually. After accepting the account, run `sudo rm -- <dataDir>/config/shb-initial-admin.pending` and `sudo systemctl restart nextcloud-setup.service phpfpm-nextcloud.service`, replacing `<username>` and `<dataDir>` with the configured values.
+        Changing this option after installation has no effect,
+        including when the initial account has been deleted or demoted.
+
+        If the initialization fails, the Nextcloud setup will fail and restart which will retry the creation of the initial admin.
+        The initialization uses a temporary file containing the admin username to create.
+        Do not change the content of this file and do not change this option if the initialization
+        has started and did not succeed.
+        Doing so will fail the initialization and will require you to revert the changes
+        before continuing.
+
+        In case the initialization cannot continue on its own, you can inspect the created user with
+        `sudo nextcloud-occ user:info -- <initialAdminUsername>`
+        and `sudo nextcloud-occ user:settings -- <initialAdminUsername>`.
+        Make any update needed and when it is done, delete the temporary file with:
+        `sudo rm -- <dataDir>/config/shb-initial-admin.pending`
+        followed by `sudo systemctl restart nextcloud-setup.service phpfpm-nextcloud.service`, replacing `<username>` and `<dataDir>` with the configured values.
       '';
       default = "root";
     };
