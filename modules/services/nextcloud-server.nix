@@ -743,7 +743,11 @@ in
       assertions =
         map
           (app: {
-            assertion = !cfg.apps.${app}.enable || cfg.version == 34;
+            assertion =
+              assert lib.assertMsg (
+                !(builtins.tryEval pkgs.nextcloud35Packages.apps.${app}.version).success
+              ) "Nextcloud 35 now packages ${app}; revisit the Nextcloud 34 restriction in shb.nextcloud.";
+              !cfg.apps.${app}.enable || cfg.version == 34;
             message = "shb.nextcloud.apps.${app} is not yet available for Nextcloud 35 in the pinned nixpkgs. Use shb.nextcloud.version = 34 or disable this app.";
           })
           [
