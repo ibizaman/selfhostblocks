@@ -20,7 +20,6 @@ let
     literalExpression
     mapAttrsToList
     mkEnableOption
-    mkForce
     mkIf
     mkMerge
     mkOption
@@ -484,9 +483,6 @@ in
 
       # 1 lower than default, to solve conflict between shb.postgresql and nixpkgs' forgejo module.
       services.postgresql.enable = mkOverride 999 true;
-
-      # https://github.com/NixOS/nixpkgs/issues/258371#issuecomment-2271967113
-      systemd.services.forgejo.serviceConfig.Type = mkForce "exec";
 
       shb.nginx.vhosts = [
         {

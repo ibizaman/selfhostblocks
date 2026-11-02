@@ -49,6 +49,8 @@ let
             assert settings["mailer"]["SMTP_PORT"] == "587"
             assert settings["mailer"]["PASSWD"] == "test-only-smtp-password"
         server.succeed("systemctl restart forgejo.service")
+        with subtest("Forgejo is ready when restart completes"):
+            server.succeed("curl --fail --silent --show-error --unix-socket ${node.config.services.forgejo.settings.server.HTTP_ADDR} http://localhost/api/v1/version")
       ''
       + lib.optionalString node.config.shb.forgejo.sso.enable ''
         from urllib import parse
