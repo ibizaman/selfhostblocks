@@ -1292,9 +1292,8 @@ in
         };
 
         shb.authelia.extraDefinitions = {
-          # Work around https://github.com/pulsejet/nextcloud-oidc-login/issues/339.
           user_attributes."is_nextcloud_admin".expression =
-            ''type(groups) == list && "${cfg.apps.sso.adminGroup}" in groups ? "1" : "0"'';
+            ''type(groups) == list && "${cfg.apps.sso.adminGroup}" in groups'';
         };
         shb.authelia.extraOidcClaimsPolicies."nextcloud_userinfo" = {
           custom_claims = {
