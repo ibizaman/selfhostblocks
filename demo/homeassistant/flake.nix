@@ -67,10 +67,6 @@
             group = "hass";
             restartUnits = [ "home-assistant.service" ];
           };
-
-          nixpkgs.config.permittedInsecurePackages = [
-            "openssl-1.1.1w"
-          ];
         };
 
       ldap =
