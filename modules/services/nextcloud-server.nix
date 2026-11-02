@@ -1352,25 +1352,8 @@ in
           pkgs.which
           pkgs.procps
         ];
-
-        exiftool = pkgs.exiftool.overrideAttrs (
-          f: p: {
-            version = "12.70";
-            src = pkgs.fetchurl {
-              url = "https://exiftool.org/Image-ExifTool-12.70.tar.gz";
-              hash = "sha256-TLJSJEXMPj870TkExq6uraX8Wl4kmNerrSlX3LQsr/4=";
-            };
-          }
-        );
       in
       {
-        assertions = [
-          {
-            assertion = true;
-            message = "Memories app has an issue for now, see https://github.com/ibizaman/selfhostblocks/issues/476.";
-          }
-        ];
-
         services.nextcloud.extraApps = {
           inherit (nextcloudApps) memories;
         };
@@ -1391,16 +1374,12 @@ in
         services.nextcloud = {
           # See all options at https://memories.gallery/system-config/
           settings = {
-            "memories.exiftool" = "${exiftool}/bin/exiftool";
-            "memories.exiftool_no_local" = false;
             "memories.index.mode" = "3";
             "memories.index.path" = cfg'.photosPath;
             "memories.timeline.default_path" = cfg'.photosPath;
 
             "memories.vod.disable" = !cfg'.vaapi;
             "memories.vod.vaapi" = cfg'.vaapi;
-            "memories.vod.ffmpeg" = "${pkgs.ffmpeg-headless}/bin/ffmpeg";
-            "memories.vod.ffprobe" = "${pkgs.ffmpeg-headless}/bin/ffprobe";
             "memories.vod.use_transpose" = true;
             "memories.vod.use_transpose.force_sw" = cfg'.vaapi; # AMD and old Intel can't use hardware here.
 
