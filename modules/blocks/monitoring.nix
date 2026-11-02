@@ -584,8 +584,6 @@ in
       # I decided to switch to fluent-bit because it can be tested locally https://docs.fluentbit.io/manual/local-testing/logging-pipeline
       services.fluent-bit = {
         enable = true;
-        # Without this fluent-bit cannot read the systemd journal.
-        package = pkgs.fluent-bit.override { systemdLibs = pkgs.systemd; };
         settings = {
           service = {
             flush = 1;
