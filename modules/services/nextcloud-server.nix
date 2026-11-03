@@ -24,7 +24,6 @@ let
     (builtins.getAttr ("nextcloud" + builtins.toString cfg.version + "Packages") pkgs).apps;
 
   occ = "${config.services.nextcloud.occ}/bin/nextcloud-occ";
-  initialAdminPending = "${config.services.nextcloud.datadir}/config/shb-initial-admin.pending";
 in
 {
   imports = [
@@ -122,15 +121,15 @@ in
     initialAdminUsername = lib.mkOption {
       type = lib.types.str;
       description = ''
-        Admin account to create during initial installation. Changing this option after installation does not rename or create accounts. Existing accounts, passwords, and group memberships are left unchanged, including when the initial account has been deleted or demoted.
+        Admin account to create during setup when Nextcloud reports no users. If any user exists, setup leaves all accounts, passwords, and group memberships unchanged. Deleting the last user causes the configured administrator to be created on the next setup start.
 
-        Failed initialization blocks serving and is retried on the next start of `nextcloud-setup.service`. Keep the username unchanged while `config/shb-initial-admin.pending` exists under the Nextcloud data directory. If an interrupted attempt already created the account, inspect it with `sudo nextcloud-occ user:info -- <username>` and complete its setup manually. After accepting the account, run `sudo rm -- <dataDir>/config/shb-initial-admin.pending` and `sudo systemctl restart nextcloud-setup.service phpfpm-nextcloud.service`, replacing `<username>` and `<dataDir>` with the configured values.
+        Failed creation is retried on the next start of `nextcloud-setup.service` while no users exist. An interrupted attempt can leave an account without administrator privileges; follow the [manual recovery instructions](#services-nextcloudserver-usage-initial-admin-recovery) to inspect and, if needed, repair it.
       '';
       default = "root";
     };
 
     adminPass = lib.mkOption {
-      description = "Initial Nextcloud admin password. Must satisfy Nextcloud's password policy. Changing this secret after account creation does not reset the account's password.";
+      description = "Password for the Nextcloud administrator created when no users exist. Must satisfy Nextcloud's password policy. Changing this secret after account creation does not reset the account's password.";
       type = lib.types.submodule {
         options = shb.contracts.secret.mkRequester {
           mode = "0400";
@@ -910,33 +909,15 @@ in
       systemd.services.nextcloud-setup.requires = cfg.mountPointServices;
       systemd.services.nextcloud-setup.after = cfg.mountPointServices;
 
-      # Match upstream's initial-install predicate and retain the intent across failed starts.
-      # https://github.com/NixOS/nixpkgs/blob/31ecbaca1bdefa45dffc409f0250bd8039ea0010/nixos/modules/services/web-apps/nextcloud.nix#L1403-L1406
-      systemd.services.nextcloud-setup.preStart = ''
-        pending=${lib.escapeShellArg initialAdminPending}
-        if [[ ! -e "$pending" && ! -s ${lib.escapeShellArg "${config.services.nextcloud.datadir}/config/config.php"} ]]; then
-          umask 077
-          printf %s ${lib.escapeShellArg cfg.initialAdminUsername} > "$pending.tmp"
-          mv --no-target-directory "$pending.tmp" "$pending"
-        fi
-      '';
       systemd.services.nextcloud-setup.serviceConfig.LoadCredential = [
         "shb-admin-password:${cfg.adminPass.result.path}"
       ];
       systemd.services.nextcloud-setup.postStart = ''
-        pending=${lib.escapeShellArg initialAdminPending}
-        if [[ -e "$pending" ]]; then
-          username=${lib.escapeShellArg cfg.initialAdminUsername}
-          if [[ "$(cat "$pending")" != "$username" ]]; then
-            echo "Nextcloud initial admin username changed during initialization. Restore the username recorded in $pending before restarting nextcloud-setup.service." >&2
-            exit 1
-          fi
-
-          # user:add refuses existing accounts, so partial creation needs manual recovery.
-          # https://github.com/nextcloud/server/blob/ba900af933e61ffa005315b09d6454bfbbcbcc81/core/Command/User/Add.php#L86-L102
+        users=$(${occ} user:list --output=json --limit=1)
+        user_count=$(${lib.getExe pkgs.jq} --exit-status 'arrays, objects | length' <<< "$users")
+        if [[ "$user_count" -eq 0 ]]; then
           NC_PASS="$(<"$CREDENTIALS_DIRECTORY/shb-admin-password")" \
-            ${occ} user:add --no-interaction --password-from-env --group=admin -- "$username"
-          rm "$pending"
+            ${occ} user:add --no-interaction --password-from-env --group=admin -- ${lib.escapeShellArg cfg.initialAdminUsername}
         fi
       '';
 
