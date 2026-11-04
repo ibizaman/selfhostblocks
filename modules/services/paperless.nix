@@ -440,6 +440,11 @@ in
         autheliaRules = lib.mkIf (cfg.sso.enable) [
           {
             domain = fqdn;
+            policy = "bypass";
+            resources = [ "^/api/.*" ];
+          }
+          {
+            domain = fqdn;
             policy = cfg.sso.authorization_policy;
             subject = [
               "group:paperless_user"
