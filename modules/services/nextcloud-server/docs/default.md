@@ -237,15 +237,11 @@ shb.nextcloud.apps.sso = {
 shb.sops.secret."nextcloud/sso/secret".request = config.shb.nextcloud.apps.sso.secret.request;
 shb.sops.secret."nextcloud/sso/secretForAuthelia" = {
   request = config.shb.nextcloud.apps.sso.secretForAuthelia.request;
-  settings.key = "nextcloud/sso/secret";
+  settings.key = "nextcloud/sso/secretForAuthelia";
 };
 ```
 
-The SSO secret must be shared between `shb.authelia` and `shb.nextcloud`,
-to do that with SOPS we use the `key` option so that both
-`sops.secrets."nextcloud/sso/secret"`
-and `sops.secrets."nextcloud/sso/secretForAuthelia"`
-secrets have the same content.
+Nextcloud receives the plaintext OIDC client secret stored at the SOPS key `nextcloud/sso/secret`. Authelia verifies the same secret using the value stored at `nextcloud/sso/secretForAuthelia`; prefer a PBKDF2-SHA512 hash of that plaintext secret, following [Authelia's client secret generation instructions](https://www.authelia.com/integration/openid-connect/frequently-asked-questions/#how-do-i-generate-a-client-identifier-or-client-secret). The two keys represent the same secret but contain different values when using a hash. Authelia still accepts legacy plaintext client secrets, but that format is deprecated.
 
 The LDAP [user group](#services-nextcloudserver-options-shb.nextcloud.apps.ldap.userGroup) and [admin group](#services-nextcloudserver-options-shb.nextcloud.apps.sso.adminGroup) are created automatically.
 Add your user to one or both by going to `http://ldap.example.com`,
