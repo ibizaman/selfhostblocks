@@ -970,33 +970,30 @@ let
       '';
   };
 
-  versionedTests =
-    v:
-    {
-      "basic_${toString v}" = basicTest v;
+  versionedTests = v: {
+    "basic_${toString v}" = basicTest v;
 
-      "initial_admin_${toString v}" = initialAdminTest v;
+    "initial_admin_${toString v}" = initialAdminTest v;
 
-      "cron_${toString v}" = cronTest v;
+    "cron_${toString v}" = cronTest v;
 
-      "backup_${toString v}" = backupTest v;
+    "backup_${toString v}" = backupTest v;
 
-      "https_${toString v}" = httpsTest v;
+    "https_${toString v}" = httpsTest v;
 
-      "previewGenerator_${toString v}" = previewGeneratorTest v;
+    "previewGenerator_${toString v}" = previewGeneratorTest v;
 
-      "externalStorage_${toString v}" = externalStorageTest v;
+    "externalStorage_${toString v}" = externalStorageTest v;
 
-      "ldap_${toString v}" = ldapTest v;
+    "ldap_${toString v}" = ldapTest v;
 
-      "sso_${toString v}" = ssoTest v;
+    "sso_${toString v}" = ssoTest v;
 
-      "prometheus_${toString v}" = prometheusTest v;
-    }
-    // lib.optionalAttrs (v == 34) {
-      "memories_${toString v}" = memoriesTest v;
-      "recognize_${toString v}" = recognizeTest v;
-    };
+    "prometheus_${toString v}" = prometheusTest v;
+
+    "memories_${toString v}" = memoriesTest v;
+    "recognize_${toString v}" = recognizeTest v;
+  };
 in
 (lib.foldl (all: v: lib.mergeAttrs all (versionedTests v)) { } supportedVersion)
 // {

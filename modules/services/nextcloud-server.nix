@@ -740,21 +740,6 @@ in
 
   config = lib.mkMerge [
     (lib.mkIf cfg.enable {
-      assertions =
-        map
-          (app: {
-            assertion =
-              assert lib.assertMsg (
-                !(builtins.tryEval pkgs.nextcloud35Packages.apps.${app}.version).success
-              ) "Nextcloud 35 now packages ${app}; revisit the Nextcloud 34 restriction in shb.nextcloud.";
-              !cfg.apps.${app}.enable || cfg.version == 34;
-            message = "shb.nextcloud.apps.${app} is not yet available for Nextcloud 35 in the pinned nixpkgs. Use shb.nextcloud.version = 34 or disable this app.";
-          })
-          [
-            "memories"
-            "recognize"
-          ];
-
       users.users = {
         nextcloud = {
           name = "nextcloud";
@@ -1344,7 +1329,7 @@ in
 
     # Great source of inspiration:
     # https://github.com/Shawn8901/nix-configuration/blob/538c18d9ecbf7c7e649b1540c0d40881bada6690/modules/nixos/private/nextcloud/memories.nix#L226
-    (lib.mkIf (cfg.version == 34 && cfg.apps.memories.enable) (
+    (lib.mkIf cfg.apps.memories.enable (
       let
         cfg' = cfg.apps.memories;
         repairTools = [
@@ -1395,7 +1380,7 @@ in
       }
     ))
 
-    (lib.mkIf (cfg.version == 34 && cfg.apps.recognize.enable) (
+    (lib.mkIf cfg.apps.recognize.enable (
       let
         cfg' = cfg.apps.recognize;
       in

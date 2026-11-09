@@ -128,12 +128,6 @@ To opt into version 35, set the
 shb.nextcloud.version = 35;
 ```
 
-Preview Generator is available on both supported versions. Memories and Recognize
-are not yet packaged for Nextcloud 35 in the pinned nixpkgs. Leave these apps
-disabled when selecting version 35, or stay on version 34 if you need them.
-Enabling one of them with version 35 fails
-configuration evaluation with an explanatory assertion.
-
 Follow [Nextcloud's upgrade guidance](https://docs.nextcloud.com/server/latest/admin_manual/maintenance/upgrade.html)
 and take and verify a backup before upgrading. Nextcloud only supports upgrading one
 major version at a time: deployments on version 33 must complete the upgrade to
