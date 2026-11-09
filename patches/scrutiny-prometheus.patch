@@ -1,7 +1,7 @@
 From 74faf06f77df83f29e7e1806cd88b2fafc0bbb82 Mon Sep 17 00:00:00 2001
 From: Jianyun8023 <yihy8023@gmail.com>
 Date: Mon, 17 Nov 2025 21:34:19 +0800
-Subject: [PATCH] Add Prometheus metrics support (ported to Scrutiny v0.9.5)
+Subject: [PATCH] Add Prometheus metrics support (ported to Scrutiny v0.10.0)
 
 Source: https://github.com/ibizaman/scrutiny/commit/74faf06f77df83f29e7e1806cd88b2fafc0bbb82
 Upstream proposal: https://github.com/AnalogJ/scrutiny/pull/830
@@ -9,14 +9,16 @@ Upstream proposal: https://github.com/AnalogJ/scrutiny/pull/830
 SHB previously used this commit as its entire Scrutiny source. Carry its
 exporter on nixpkgs' source instead, preserving /api/metrics and metric names.
 
-Porting changes: reconcile go.mod/go.sum with v0.9.5 without downgrading
+Porting changes: reconcile go.mod/go.sum with v0.10.0 without downgrading
 existing dependencies, and pass the previous one-day aggregation window to
-the updated GetSmartAttributeHistory API. Other application code is unchanged
-from the original patch, including its existing disk-identity limitation.
+the updated GetSmartAttributeHistory API. Preserve the native missed-upload
+middleware when registering metrics:
+https://github.com/AnalogJ/scrutiny/blob/3ae9db201f5c51751d4b6779593f90144a128bf0/webapp/backend/pkg/web/server.go#L25-L36
+The exporter retains its existing disk-identity limitation.
 
 ---
 diff --git a/example.scrutiny.yaml b/example.scrutiny.yaml
-index 8d52d5d..0e12c50 100644
+index f136d35..798c063 100644
 --- a/example.scrutiny.yaml
 +++ b/example.scrutiny.yaml
 @@ -47,6 +47,11 @@ web:
@@ -32,7 +34,7 @@ index 8d52d5d..0e12c50 100644
      # when using self-signed certificates for example,
      # then uncomment the lines below and set `insecure_skip_verify: true`
 diff --git a/go.mod b/go.mod
-index 55e32d8..b1d0d13 100644
+index 2404b8a..cbb524d 100644
 --- a/go.mod
 +++ b/go.mod
 @@ -13,6 +13,7 @@ require (
@@ -82,15 +84,15 @@ index 55e32d8..b1d0d13 100644
  	github.com/quic-go/quic-go v0.59.1 // indirect
  	github.com/remyoudompheng/bigfft v0.0.0-20230129092748-24d4a6f8daec // indirect
 @@ -84,7 +92,6 @@ require (
- 	golang.org/x/term v0.45.0 // indirect
- 	golang.org/x/text v0.40.0 // indirect
+ 	golang.org/x/term v0.47.0 // indirect
+ 	golang.org/x/text v0.43.0 // indirect
  	google.golang.org/protobuf v1.36.11 // indirect
 -	gopkg.in/yaml.v2 v2.4.0 // indirect
  	gopkg.in/yaml.v3 v3.0.1 // indirect
  	howett.net/plist v1.0.2-0.20250314012144-ee69052608d9 // indirect
  	modernc.org/libc v1.67.7 // indirect
 diff --git a/go.sum b/go.sum
-index 082184a..d6e564d 100644
+index 2ad7977..8df78a3 100644
 --- a/go.sum
 +++ b/go.sum
 @@ -5,6 +5,8 @@ github.com/analogj/go-util v0.0.0-20210417161720-39b497cca03b h1:Y/+MfmdKPPpVY7C
@@ -147,18 +149,18 @@ index 082184a..d6e564d 100644
  github.com/quic-go/qpack v0.6.0 h1:g7W+BMYynC1LbYLSqRt8PBg5Tgwxn214ZZR34VIOjz8=
  github.com/quic-go/qpack v0.6.0/go.mod h1:lUpLKChi8njB4ty2bFLX2x4gzDqXwUpaO1DP9qMDZII=
  github.com/quic-go/quic-go v0.59.1 h1:0Gmua0HW1Tv7ANR7hUYwRyD0MG5OJfgvYSZasGZzBic=
-@@ -199,6 +218,7 @@ golang.org/x/mod v0.38.0 h1:MECBjubtXD7yj4HrhIUcywNaGeNVUdfVnxmPajOk4yk=
- golang.org/x/mod v0.38.0/go.mod h1:V6Xz0pq8TQ3dGqVQ1FVHuelZpAL0uNhSkk9ogYP3c40=
- golang.org/x/net v0.57.0 h1:K5+3DljvIuDG9/Jv9rvyMywYNFCQ9RSUY6OOTTkT+tE=
- golang.org/x/net v0.57.0/go.mod h1:KpXc8iv+r3XplLAG/f7Jsf9RPszJzdR0f58q9vGOuEU=
+@@ -199,6 +218,7 @@ golang.org/x/mod v0.41.0 h1:qJmnOUb4YB+FsEuM3HcWucdZASCPGhsX6uljO6pog0c=
+ golang.org/x/mod v0.41.0/go.mod h1:Ek9pY8RKWXwsWvd3rQiHYtMqkjSUV+s1Rj7j4H5Ur6o=
+ golang.org/x/net v0.61.0 h1:RR+6j/BTBCrggOLugxa+66R8FvoN6MHlzDlZIbN9YFw=
+ golang.org/x/net v0.61.0/go.mod h1:WgDCOTH8iwtB66T4/GfI94AHo/hhdb7Hah9NDseQfiI=
 +golang.org/x/sync v0.0.0-20181221193216-37e7f081c4d4/go.mod h1:RxMgew5VJxzue5/jJTE5uejpjVlOe/izrB70Jof72aM=
- golang.org/x/sync v0.22.0 h1:SZjpbeLmrCk4xhRSZFNZW5gFUeCeFgjekvI/+gfScek=
- golang.org/x/sync v0.22.0/go.mod h1:9xrNwdLfx4jkKbNva9FpL6vEN7evnE43NNNJQ2LF3+0=
+ golang.org/x/sync v0.24.0 h1:iqiDrGoDgyuvAKrhLQthUEzU/R378N78gXbBjxed7oA=
+ golang.org/x/sync v0.24.0/go.mod h1:sUUOizhqBxiL6pEWpqNLUiaJn1ShEbZ6BBqskPbjZm0=
  golang.org/x/sys v0.0.0-20190215142949-d0b11bdaac8a/go.mod h1:STP8DvDyc/dI5b8T5hshtkjS+E42TnysNCUPdjciGhY=
-@@ -214,6 +234,9 @@ golang.org/x/text v0.40.0 h1:Ub2Z6/xjgF1WrYQz2nuITOEegKFtiIy+rieRJ5lHZKs=
- golang.org/x/text v0.40.0/go.mod h1:hpnzDAfGV753zIKo+wk3u1bVKCGPbrnF7+7LBF/UHVY=
- golang.org/x/tools v0.48.0 h1:3+hClM1aLL5mjMKm5ovokw9epgRXPuu2tILgismM6RE=
- golang.org/x/tools v0.48.0/go.mod h1:08xX0orndb/F7jJxGDicx061tyd5pcMto75YMAXr6lk=
+@@ -214,6 +234,9 @@ golang.org/x/text v0.43.0 h1:1QivrlhwAsnMOcqgOdl9my7s9OyZl8O5/UGUTJVXoWc=
+ golang.org/x/text v0.43.0/go.mod h1:hbSIYA/amXcRXTFSZqh8tWHEoqRvvbKPJ2uz/KU+a+s=
+ golang.org/x/tools v0.51.0 h1:k4Xc/1Om9jwkBJBo4NVLMSARBoWtK10mx+W5BnXCeAI=
+ golang.org/x/tools v0.51.0/go.mod h1:9eEncMayCV6zRMGhR5eZEC2iBx98qWcF1HZ9Z7wJOoA=
 +golang.org/x/xerrors v0.0.0-20191204190536-9bdfabe68543/go.mod h1:I/5z698sn9Ka8TeJc9MKroUUfqBBauWjQqLJ2OPfmY0=
 +google.golang.org/protobuf v1.26.0-rc.1/go.mod h1:jlhhOSvTdKEhbULTjvd4ARK9grFBp09yW+WbY/TyQbw=
 +google.golang.org/protobuf v1.26.0/go.mod h1:9q0QmTI4eRPtz6boOQmLYwt+qCgq0jsYwAQnmE0givc=
@@ -166,27 +168,10 @@ index 082184a..d6e564d 100644
  google.golang.org/protobuf v1.36.11/go.mod h1:HTf+CrKn2C3g5S8VImy6tdcUvCska2kB7j23XfzDpco=
  gopkg.in/check.v1 v0.0.0-20161208181325-20d25e280405/go.mod h1:Co6ibVJAznAaIkqp8huTwlJQCZ016jof/cbN4VW5Yz0=
 diff --git a/webapp/backend/pkg/config/config.go b/webapp/backend/pkg/config/config.go
-index 605de86..f42921f 100644
+index e7dabb1..386bce1 100644
 --- a/webapp/backend/pkg/config/config.go
 +++ b/webapp/backend/pkg/config/config.go
-@@ -1,12 +1,13 @@
- package config
- 
- import (
--	"github.com/analogj/go-util/utils"
--	"github.com/analogj/scrutiny/webapp/backend/pkg/errors"
--	"github.com/spf13/viper"
- 	"log"
- 	"os"
- 	"strings"
-+
-+	"github.com/analogj/go-util/utils"
-+	"github.com/analogj/scrutiny/webapp/backend/pkg/errors"
-+	"github.com/spf13/viper"
- )
- 
- const DB_USER_SETTINGS_SUBKEY = "user"
-@@ -52,6 +53,9 @@ func (c *configuration) Init() error {
+@@ -97,6 +97,9 @@ func (c *configuration) Init() error {
  	c.SetDefault("web.influxdb.tls.insecure_skip_verify", false)
  	c.SetDefault("web.influxdb.retention_policy", true)
  
@@ -810,10 +795,10 @@ index 0000000..0add264
 +	handler.ServeHTTP(c.Writer, c.Request)
 +}
 diff --git a/webapp/backend/pkg/web/handler/upload_device_metrics.go b/webapp/backend/pkg/web/handler/upload_device_metrics.go
-index 188c5d6..5333eb8 100644
+index c62ed2f..f7424af 100644
 --- a/webapp/backend/pkg/web/handler/upload_device_metrics.go
 +++ b/webapp/backend/pkg/web/handler/upload_device_metrics.go
-@@ -7,6 +7,7 @@ import (
+@@ -8,6 +8,7 @@ import (
  	"github.com/analogj/scrutiny/webapp/backend/pkg"
  	"github.com/analogj/scrutiny/webapp/backend/pkg/config"
  	"github.com/analogj/scrutiny/webapp/backend/pkg/database"
@@ -821,7 +806,7 @@ index 188c5d6..5333eb8 100644
  	"github.com/analogj/scrutiny/webapp/backend/pkg/models/collector"
  	"github.com/analogj/scrutiny/webapp/backend/pkg/notify"
  	"github.com/gin-gonic/gin"
-@@ -95,5 +96,12 @@ func UploadDeviceMetrics(c *gin.Context) {
+@@ -99,5 +100,12 @@ func UploadDeviceMetrics(c *gin.Context) {
  		_ = liveNotify.Send() //we ignore error message when sending notifications.
  	}
  
@@ -855,7 +840,7 @@ index 0000000..373a6ee
 +	}
 +}
 diff --git a/webapp/backend/pkg/web/server.go b/webapp/backend/pkg/web/server.go
-index 0c1baf3..fa06922 100644
+index eb91132..1b98740 100644
 --- a/webapp/backend/pkg/web/server.go
 +++ b/webapp/backend/pkg/web/server.go
 @@ -1,6 +1,7 @@
@@ -873,10 +858,10 @@ index 0c1baf3..fa06922 100644
 +	"github.com/analogj/scrutiny/webapp/backend/pkg/database"
  	"github.com/analogj/scrutiny/webapp/backend/pkg/errors"
 +	"github.com/analogj/scrutiny/webapp/backend/pkg/metrics"
+ 	"github.com/analogj/scrutiny/webapp/backend/pkg/notify"
  	"github.com/analogj/scrutiny/webapp/backend/pkg/web/handler"
  	"github.com/analogj/scrutiny/webapp/backend/pkg/web/middleware"
- 	"github.com/gin-gonic/gin"
-@@ -16,8 +19,9 @@ import (
+@@ -17,8 +20,9 @@ import (
  )
  
  type AppEngine struct {
@@ -888,10 +873,10 @@ index 0c1baf3..fa06922 100644
  }
  
  func (ae *AppEngine) Setup(logger *logrus.Entry) *gin.Engine {
-@@ -26,6 +30,17 @@ func (ae *AppEngine) Setup(logger *logrus.Entry) *gin.Engine {
- 	r.Use(middleware.LoggerMiddleware(logger))
- 	r.Use(middleware.RepositoryMiddleware(ae.Config, logger))
- 	r.Use(middleware.ConfigMiddleware(ae.Config))
+@@ -33,6 +37,17 @@ func (ae *AppEngine) Setup(logger *logrus.Entry) *gin.Engine {
+ 		c.Set("MISSED_UPLOAD_TRACKER", missedUploadTracker)
+ 		c.Next()
+ 	})
 +
 +	// Initialize metrics collector if enabled
 +	if ae.Config.GetBool("web.metrics.enabled") {
@@ -906,7 +891,7 @@ index 0c1baf3..fa06922 100644
  	r.Use(gin.Recovery())
  
  	basePath := ae.Config.GetString("web.listen.basepath")
-@@ -38,9 +53,15 @@ func (ae *AppEngine) Setup(logger *logrus.Entry) *gin.Engine {
+@@ -45,9 +60,15 @@ func (ae *AppEngine) Setup(logger *logrus.Entry) *gin.Engine {
  			api.GET("/health", handler.HealthCheck)
  			api.POST("/health/notify", handler.SendTestNotification) //check if notifications are configured correctly
  
@@ -922,10 +907,10 @@ index 0c1baf3..fa06922 100644
 +				api.GET("/metrics", handler.GetMetrics)
 +			}
 +
+ 			api.POST("/collector/error", handler.CollectorError)                  //used by Collector to report that it could not gather data
  			api.POST("/device/:scrutiny_uuid/smart", handler.UploadDeviceMetrics) //used by Collector to upload data
  			api.POST("/device/:scrutiny_uuid/selftest", handler.UploadDeviceSelfTests)
- 			api.GET("/device/:scrutiny_uuid/details", handler.GetDeviceDetails)   //used by Details
-@@ -84,5 +105,21 @@ func (ae *AppEngine) Start() error {
+@@ -93,5 +114,21 @@ func (ae *AppEngine) Start() error {
  
  	r := ae.Setup(ae.Logger)
  

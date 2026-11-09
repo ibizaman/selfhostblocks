@@ -1006,7 +1006,7 @@ in
         # Remove this patch when https://github.com/AnalogJ/scrutiny/pull/830 is available in nixpkgs.
         package = pkgs.scrutiny.overrideAttrs (old: {
           patches = (old.patches or [ ]) ++ [ ../../patches/scrutiny-prometheus.patch ];
-          vendorHash = "sha256-N8uEumjkTPLckHCetLLHf4mVfdkFMiJVhOKr+H/Oyfs=";
+          vendorHash = "sha256-3GL5ths39tGvzsVS7WD6vT83Sjur3l4fYKGlmyc2uAc=";
           # nixpkgs' subPackages only runs checks for the CLI, not the exporter's helper tests.
           # https://github.com/NixOS/nixpkgs/blob/fe13242281a67641c0102cdb1087f0ebe586c7df/pkgs/by-name/sc/scrutiny/package.nix#L45
           postCheck = (old.postCheck or "") + ''
