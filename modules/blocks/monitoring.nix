@@ -498,6 +498,16 @@ in
     })
 
     (lib.mkIf cfg.enable {
+      systemd.tmpfiles.settings."10-shb-monitoring" = {
+        "${config.services.grafana.dataDir}".d = {
+          user = "grafana";
+          group = "grafana";
+        };
+        "${config.services.loki.dataDir}".d = {
+          inherit (config.services.loki) user group;
+        };
+      };
+
       services.prometheus = {
         enable = true;
         listenAddress = lib.mkDefault "127.0.0.1";
