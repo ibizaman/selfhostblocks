@@ -57,7 +57,7 @@ let
             mode = "0400";
             owner = config.request.user;
             ownerText = "[shb.borgbackup.${prefix}.<name>.request.user](#blocks-borgbackup-options-shb.borgbackup.${prefix}._name_.request.user)";
-            restartUnits = [ (fullName name config.settings.repository) ];
+            restartUnits = [ "${(fullName name config.settings.repository)}.service" ];
             restartUnitsText = "[ [shb.borgbackup.${prefix}.<name>.settings.repository](#blocks-borgbackup-options-shb.borgbackup.${prefix}._name_.settings.repository) ]";
           };
         };
