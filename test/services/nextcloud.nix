@@ -529,16 +529,11 @@ let
           server.wait_for_unit("multi-user.target")
 
           password_file = "${nodes.server.shb.nextcloud.adminPass.result.path}"
-          pending = "${nodes.server.services.nextcloud.datadir}/config/shb-initial-admin.pending"
           changed_password = "Changed-Admin-Test-Password-72!"  # Test-only fixture.
 
           def set_password(password):
               server.succeed(f"printf %s {shlex.quote(password)} > {password_file}")
               server.succeed(f"chown nextcloud:nextcloud {password_file} && chmod 0400 {password_file}")
-
-          def retain_pending(username):
-              server.succeed(f"printf %s {shlex.quote(username)} > {pending}")
-              server.succeed(f"chown nextcloud:nextcloud {pending} && chmod 0600 {pending}")
 
           def users():
               return json.loads(server.succeed("${occ} user:list --limit=0 --output=json"))
@@ -548,7 +543,10 @@ let
 
           def expect_setup_failure():
               server.succeed("systemctl stop phpfpm-nextcloud.service")
+              # Rapid failure cases must reach setup rather than systemd's start limit.
+              server.succeed("systemctl reset-failed nextcloud-setup.service")
               server.fail("systemctl restart nextcloud-setup.service")
+              server.succeed("systemctl reset-failed nextcloud-setup.service")
               server.fail("systemctl start phpfpm-nextcloud.service")
               server.fail("systemctl is-active phpfpm-nextcloud.service")
 
@@ -564,44 +562,23 @@ let
 
           with subtest("missing credential prevents installation and serving"):
               expect_setup_failure()
-              server.fail(f"test -e {pending}")
+              server.fail("test -e ${nodes.server.services.nextcloud.datadir}/config/config.php")
 
           for password in ("", "rootpw"):
-              with subtest(f"invalid password {password!r} leaves initialization pending"):
+              with subtest(f"invalid password {password!r} prevents administrator creation and serving"):
                   set_password(password)
                   expect_setup_failure()
-                  server.succeed(f"test -s {pending}")
                   assert not users()
 
-          with subtest("pending initialization cannot change its target account"):
+          with subtest("correcting the password creates an administrator when no users exist"):
               set_password("${adminPass}")
-              retain_pending("different-initial-admin")
-              expect_setup_failure()
-              assert not users()
-              retain_pending("${adminUser}")
-
-          with subtest("retry finishes installation in a custom data directory"):
               server.succeed("systemctl start phpfpm-nextcloud.service")
               server.wait_for_unit("nginx.service")
               assert "admin" in user_info()["groups"]
-              server.fail(f"test -e {pending}")
-              authenticate("${adminPass}")
-
-          with subtest("interrupted account creation requires manual recovery"):
-              retain_pending("${adminUser}")
-              set_password(changed_password)
-              expect_setup_failure()
-              assert "admin" in user_info()["groups"]
-              server.succeed("${occ} group:removeuser admin ${adminUser}")
-              expect_setup_failure()
-              assert "admin" not in user_info()["groups"]
-              server.succeed(f"test -s {pending}")
-              # The operator accepts the existing account as-is.
-              server.succeed(f"rm {pending}")
-              server.succeed("systemctl start phpfpm-nextcloud.service")
               authenticate("${adminPass}")
 
           with subtest("restarts preserve changed passwords and privileges"):
+              server.succeed("${occ} group:removeuser admin ${adminUser}")
               server.succeed(
                   "NC_PASS=" + shlex.quote(changed_password)
                   + " ${occ} user:resetpassword --password-from-env ${adminUser}"
@@ -611,11 +588,35 @@ let
               assert "admin" not in user_info()["groups"]
               authenticate(changed_password)
 
-          with subtest("an existing installation never recreates a deleted account"):
+          with subtest("manual recovery can restore administrator privileges"):
+              assert "admin" not in user_info()["groups"]
+              server.succeed("${occ} group:adduser -- admin ${adminUser}")
+              server.succeed("systemctl restart nextcloud-setup.service phpfpm-nextcloud.service")
+              assert "admin" in user_info()["groups"]
+              authenticate(changed_password)
+
+          with subtest("another ordinary user prevents recreation of a deleted administrator"):
+              server.succeed("NC_PASS=${adminPass} ${occ} user:add --password-from-env -- ordinary")
               server.succeed("${occ} user:delete ${adminUser}")
               server.succeed("systemctl restart nextcloud-setup.service")
+              assert set(users()) == {"ordinary"}
+
+          with subtest("deleting the last user causes administrator creation on the next start"):
+              server.succeed("${occ} user:delete ordinary")
               assert not users()
-              server.fail(f"test -e {pending}")
+              server.succeed("systemctl restart nextcloud-setup.service phpfpm-nextcloud.service")
+              assert "admin" in user_info()["groups"]
+              authenticate("${adminPass}")
+
+          with subtest("resetting a disposable installation allows fresh administrator creation"):
+              server.succeed("systemctl stop nextcloud-cron.timer nextcloud-cron.service nextcloud-update-db.service nextcloud-setup.service phpfpm-nextcloud.service")
+              server.succeed("sudo -u postgres dropdb -- ${nodes.server.services.nextcloud.config.dbname}")
+              server.succeed("sudo -u postgres createdb --owner=${nodes.server.services.nextcloud.config.dbuser} -- ${nodes.server.services.nextcloud.config.dbname}")
+              server.succeed("find ${nodes.server.services.nextcloud.datadir} -mindepth 1 -maxdepth 1 -exec rm -r -- {} +")
+              server.succeed("systemd-tmpfiles --create --prefix=${nodes.server.services.nextcloud.datadir}")
+              server.succeed("systemctl start phpfpm-nextcloud.service nextcloud-cron.timer")
+              assert "admin" in user_info()["groups"]
+              authenticate("${adminPass}")
         '';
     };
 
@@ -837,7 +838,23 @@ let
         ];
       };
 
-      testScript = commonTestScript.access;
+      testScript = commonTestScript.access.override (args: {
+        preLoginScript =
+          inputs:
+          let
+            occ = "${inputs.node.config.services.nextcloud.occ}/bin/nextcloud-occ";
+          in
+          ''
+            with subtest("LDAP users prevent automatic administrator creation"):
+                users = json.loads(server.succeed("${occ} user:list --output=json --limit=0"))
+                assert "alice" in users
+                assert "${adminUser}" not in users
+
+            with subtest("provision a local account for the WebDAV checks"):
+                server.succeed("NC_PASS=${adminPass} ${occ} user:add --password-from-env --group=admin -- ${adminUser}")
+          ''
+          + args.preLoginScript inputs;
+      });
     };
 
   ssoTest =

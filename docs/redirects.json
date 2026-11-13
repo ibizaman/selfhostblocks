@@ -6206,6 +6206,9 @@
   "services-nextcloudserver-usage-https": [
     "services-nextcloud.html#services-nextcloudserver-usage-https"
   ],
+  "services-nextcloudserver-usage-initial-admin-recovery": [
+    "services-nextcloud.html#services-nextcloudserver-usage-initial-admin-recovery"
+  ],
   "services-nextcloudserver-usage-ldap": [
     "services-nextcloud.html#services-nextcloudserver-usage-ldap"
   ],

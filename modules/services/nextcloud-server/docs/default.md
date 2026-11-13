@@ -135,6 +135,80 @@ major version at a time: deployments on version 33 must complete the upgrade to
 before proceeding. A NixOS generation rollback does not undo database migrations;
 reverting a Nextcloud major upgrade requires restoring the pre-upgrade backup.
 
+### Recover Initial Administrator Setup {#services-nextcloudserver-usage-initial-admin-recovery}
+
+This module creates the configured administrator in the `nextcloud-setup.service` but only when Nextcloud reports no users. If any user exists, all accounts are left unchanged, including their passwords and group memberships. This cannot be used to change permissions on an existing user. Similarly, changing `shb.nextcloud.adminPass` does not reset an existing account's password. Also, deleting all users manually and restarting the `nextcloud-setup.service` will re-create the initial administrator.
+
+If the setup failed at some point during initial administrator creation, use the following commands to debug.
+Replace `<username>` with the intended administrator username and `<dataDir>` with `shb.nextcloud.dataDir`, retaining the quotes.
+
+ Inspect the failure and installation status:
+
+```bash
+sudo journalctl --unit=nextcloud-setup.service --boot
+sudo nextcloud-occ status
+```
+
+If a missing credential prevented setup from starting, fix the secret and restart setup and PHP-FPM:
+
+```bash
+sudo systemctl restart nextcloud-setup.service phpfpm-nextcloud.service
+```
+
+If Nextcloud is installed, check whether any users exist and inspect the intended administrator:
+
+```bash
+sudo nextcloud-occ user:list --output=json --limit=1
+sudo nextcloud-occ user:info -- '<username>'
+```
+
+If no users exist, correct the reported creation error, such as a password rejected by Nextcloud's password policy, and restart setup and PHP-FPM to retry. If other users exist but the intended administrator is missing, you will need to create the administrator yourself with:
+
+```bash
+sudo nextcloud-occ user:add --group=admin -- '<username>'
+```
+
+If the account already exists, inspect its identity and group memberships. An interrupted creation attempt can leave an account without administrator privileges. Subsequent setup starts will not change this existing user anymore. If the account should be an administrator but lacks the `admin` group, explicitly add it with:
+
+```bash
+sudo nextcloud-occ group:adduser -- admin '<username>'
+```
+
+If its password needs resetting, it can be done with:
+
+```bash
+sudo nextcloud-occ user:resetpassword -- '<username>'
+```
+
+More info about the commands can be found in the [Nextcloud user and group commands manual](https://docs.nextcloud.com/server/latest/admin_manual/occ_users.html).
+
+After creating the missing account or completing any chosen repairs, restart setup and PHP-FPM:
+
+```bash
+sudo systemctl restart nextcloud-setup.service phpfpm-nextcloud.service
+```
+
+Verify that you can log in with the intended password and have the expected privileges.
+
+If Nextcloud itself is not fully installed, or you prefer to discard a failed installation, you can also reset both the data directory and the database. This deletes all Nextcloud files, accounts, and database contents so use it only when there is no state to preserve. For an established instance, restore a consistent backup or investigate the failure instead. Removing only `config.php` does not reset a partially initialized database.
+
+Correct the reported setup error before resetting both the data directory and the database.
+
+For the local PostgreSQL database configured by this module, replace `<database>` and `<database-user>` with `services.nextcloud.config.dbname` and `services.nextcloud.config.dbuser` (both default to `nextcloud`). The following commands will stop the services, clear only this instance's state, recreate its database and directories, and start a fresh installation:
+
+```bash
+sudo systemctl stop nextcloud-cron.timer nextcloud-cron.service nextcloud-update-db.service nextcloud-setup.service phpfpm-nextcloud.service && \
+sudo -u postgres dropdb -- '<database>' && \
+sudo -u postgres createdb --owner='<database-user>' -- '<database>' && \
+sudo find '<dataDir>' -mindepth 1 -maxdepth 1 -exec rm -r -- {} + && \
+sudo systemd-tmpfiles --create --prefix='<dataDir>' && \
+sudo systemctl start phpfpm-nextcloud.service nextcloud-cron.timer
+```
+
+This fresh attempt uses the configured `shb.nextcloud.initialAdminUsername` and `shb.nextcloud.adminPass`.
+
+When all is done, verify that you can log in as the administrator.
+
 ### Mount Point {#services-nextcloudserver-usage-mount-point}
 
 If the `dataDir` exists in a mount point,
