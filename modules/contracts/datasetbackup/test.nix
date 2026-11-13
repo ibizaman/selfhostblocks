@@ -15,6 +15,7 @@ in
   providerRoot,
   modules ? [ ],
   dataset ? "root/test",
+  restoreArgs ? [ ],
   sourceDirectories ? [
     "/opt/files/A"
     "/opt/files/B"
@@ -144,7 +145,7 @@ shb.test.runNixOSTest {
               assert_files(path, {})
 
       with subtest("Restore second backup"):
-          machine.succeed(f"${provider.restoreScript} restore {secondSnapshot}")
+          machine.succeed(f"${provider.restoreScript} restore ${lib.escapeShellArgs restoreArgs} {secondSnapshot}")
 
           for path in sourceDirectories:
               assert_files(path, {
@@ -153,7 +154,7 @@ shb.test.runNixOSTest {
               })
 
       with subtest("Restore first backup"):
-          machine.succeed(f"${provider.restoreScript} restore {firstSnapshot}")
+          machine.succeed(f"${provider.restoreScript} restore ${lib.escapeShellArgs restoreArgs} {firstSnapshot}")
 
           for path in sourceDirectories:
               assert_files(path, {
