@@ -4217,6 +4217,9 @@
   "services-home-assistant-options-shb.home-assistant.enable": [
     "services-home-assistant.html#services-home-assistant-options-shb.home-assistant.enable"
   ],
+  "services-home-assistant-options-shb.home-assistant.internalIP": [
+    "services-home-assistant.html#services-home-assistant-options-shb.home-assistant.internalIP"
+  ],
   "services-home-assistant-options-shb.home-assistant.ldap": [
     "services-home-assistant.html#services-home-assistant-options-shb.home-assistant.ldap"
   ],
