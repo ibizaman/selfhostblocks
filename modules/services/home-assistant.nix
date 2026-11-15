@@ -42,6 +42,19 @@ in
       example = "mydomain.com";
     };
 
+    internalIP = lib.mkOption {
+      type = lib.types.nullOr lib.types.str;
+      description = ''
+        Allows direct access from within the LAN.
+
+        Accessing with this IP allows to bypass SSO and TLS.
+        This can be useful for IoT devices so they don't lag because of TLS.
+        Or for IoT devices that want to show a dashboard view without needing to authenticate.
+      '';
+      default = null;
+      example = "192.168.2.10";
+    };
+
     ssl = lib.mkOption {
       description = "Path to SSL files";
       type = lib.types.nullOr shb.contracts.ssl.certs;
@@ -272,7 +285,11 @@ in
         logger.default = "info";
         homeassistant = configWithSecretsIncludes // {
           external_url = publicUrl;
-          internal_url = publicUrl;
+          internal_url =
+            if (cfg.internalIP == null) then
+              publicUrl
+            else
+              "http://${cfg.internalIP}:${toString config.services.home-assistant.config.http.server_port}";
           auth_providers =
             (lib.optionals (!cfg.ldap.enable || cfg.ldap.keepDefaultAuth) [
               {
