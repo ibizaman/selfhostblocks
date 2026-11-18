@@ -437,6 +437,7 @@
             // (vm_test "monitoring" ./test/blocks/monitoring.nix)
             // (vm_test "postgresql" ./test/blocks/postgresql.nix)
             // (vm_test "restic" ./test/blocks/restic.nix)
+            // (vm_test "sanoid" ./test/blocks/sanoid.nix)
             // (vm_test "ssl" ./test/blocks/ssl.nix)
             // (vm_test "zfs" ./test/blocks/zfs.nix)
 
