@@ -1656,28 +1656,17 @@
     "blocks-sanoid.html#blocks-sanoid-options-shb.sanoid.backup"
   ],
   "blocks-sanoid-options-shb.sanoid.backup._name_.request": [
-    "blocks-sanoid.html#blocks-sanoid-options-shb.sanoid.backup._name_.request"
-  ],
-  "blocks-sanoid-options-shb.sanoid.backup._name_.request.afterBackup": [
-    "blocks-sanoid.html#blocks-sanoid-options-shb.sanoid.backup._name_.request.afterBackup"
-  ],
-  "blocks-sanoid-options-shb.sanoid.backup._name_.request.afterRestore": [
-    "blocks-sanoid.html#blocks-sanoid-options-shb.sanoid.backup._name_.request.afterRestore"
-  ],
-  "blocks-sanoid-options-shb.sanoid.backup._name_.request.beforeBackup": [
-    "blocks-sanoid.html#blocks-sanoid-options-shb.sanoid.backup._name_.request.beforeBackup"
-  ],
-  "blocks-sanoid-options-shb.sanoid.backup._name_.request.beforeRestore": [
-    "blocks-sanoid.html#blocks-sanoid-options-shb.sanoid.backup._name_.request.beforeRestore"
-  ],
-  "blocks-sanoid-options-shb.sanoid.backup._name_.request.excludePatterns": [
-    "blocks-sanoid.html#blocks-sanoid-options-shb.sanoid.backup._name_.request.excludePatterns"
-  ],
-  "blocks-sanoid-options-shb.sanoid.backup._name_.request.sourceDirectories": [
-    "blocks-sanoid.html#blocks-sanoid-options-shb.sanoid.backup._name_.request.sourceDirectories"
-  ],
-  "blocks-sanoid-options-shb.sanoid.backup._name_.request.user": [
+    "blocks-sanoid.html#blocks-sanoid-options-shb.sanoid.backup._name_.request",
+    "blocks-sanoid.html#blocks-sanoid-options-shb.sanoid.backup._name_.request.afterBackup",
+    "blocks-sanoid.html#blocks-sanoid-options-shb.sanoid.backup._name_.request.afterRestore",
+    "blocks-sanoid.html#blocks-sanoid-options-shb.sanoid.backup._name_.request.beforeBackup",
+    "blocks-sanoid.html#blocks-sanoid-options-shb.sanoid.backup._name_.request.beforeRestore",
+    "blocks-sanoid.html#blocks-sanoid-options-shb.sanoid.backup._name_.request.excludePatterns",
+    "blocks-sanoid.html#blocks-sanoid-options-shb.sanoid.backup._name_.request.sourceDirectories",
     "blocks-sanoid.html#blocks-sanoid-options-shb.sanoid.backup._name_.request.user"
+  ],
+  "blocks-sanoid-options-shb.sanoid.backup._name_.request.dataset": [
+    "blocks-sanoid.html#blocks-sanoid-options-shb.sanoid.backup._name_.request.dataset"
   ],
   "blocks-sanoid-options-shb.sanoid.backup._name_.result": [
     "blocks-sanoid.html#blocks-sanoid-options-shb.sanoid.backup._name_.result"
