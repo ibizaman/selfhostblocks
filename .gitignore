@@ -6,3 +6,5 @@ docs/redirects.json.backup
 demo/*/flake.lock
 \#*#
 trace
+/test/manual/playwright-report/
+/test/manual/test-results/

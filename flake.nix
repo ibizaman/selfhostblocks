@@ -267,6 +267,10 @@
           '';
         };
 
+        packages.manual-visual-tests = pkgs.callPackage ./test/manual {
+          manual = self.packages.${system}.manualHtml;
+        };
+
         packages.update-flake-lock-pr = pkgs.callPackage ./.github/workflows/update-flake-lock-pr.nix { };
 
         lib = (pkgs.callPackage ./lib { }) // {
