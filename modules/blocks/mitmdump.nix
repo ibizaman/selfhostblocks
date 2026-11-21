@@ -30,7 +30,6 @@ let
           in
           [
             p.systemd-python
-            p.mitmproxy
           ];
         flakeIgnore = [ "E501" ];
       }
