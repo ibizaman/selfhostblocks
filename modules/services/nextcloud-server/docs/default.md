@@ -142,7 +142,7 @@ This module creates the configured administrator in the `nextcloud-setup.service
 If the setup failed at some point during initial administrator creation, use the following commands to debug.
 Replace `<username>` with the intended administrator username and `<dataDir>` with `shb.nextcloud.dataDir`, retaining the quotes.
 
- Inspect the failure and installation status:
+Inspect the failure and installation status:
 
 ```bash
 sudo journalctl --unit=nextcloud-setup.service --boot
