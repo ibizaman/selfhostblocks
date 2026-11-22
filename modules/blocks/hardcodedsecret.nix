@@ -40,10 +40,9 @@ in
       }
     '';
     type = attrsOf (
-      submodule (
-        { name, ... }:
-        {
-          options = shb.contracts.secret.mkProvider {
+      shb.contracts.secret.mkProvider (
+        { name, ... }: {
+          options = {
             settings = mkOption {
               description = ''
                 Settings specific to the hardcoded secret module.
@@ -72,18 +71,20 @@ in
                   };
                 };
               };
-            };
 
-            resultCfg = {
-              path = "/run/hardcodedsecrets/hardcodedsecret_${name}";
+            };
+            result = {
+              path = lib.mkOption { default = "/run/hardcodedsecrets/hardcodedsecret_${name}"; };
             };
           };
+
         }
       )
     );
   };
 
   config = {
+    shb.contractResults = shb.contracts.secret.register (lib.attrValues config.shb.hardcodedsecret);
     system.activationScripts = mapAttrs' (
       n: cfg':
       let

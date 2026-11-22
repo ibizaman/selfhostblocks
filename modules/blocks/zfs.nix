@@ -114,18 +114,16 @@ in
 
                             This contract will backup the files inside the dataset.
                           '';
-                          type = lib.types.submodule {
-                            options = shb.contracts.backup.mkRequester {
-                              user = if config.owner == null then "root" else config.owner;
-                              sourceDirectories = [
-                                config.path
-                              ];
-                              sourceDirectoriesText = ''
-                                [
-                                  shb.zfs.pools.<name>.datasets.<name>.path
-                                ]
-                              '';
-                            };
+                          type = shb.contracts.backup.mkRequester {
+                            user = if config.owner == null then "root" else config.owner;
+                            sourceDirectories = [
+                              config.path
+                            ];
+                            sourceDirectoriesText = ''
+                              [
+                                shb.zfs.pools.<name>.datasets.<name>.path
+                              ]
+                            '';
                           };
                         };
 

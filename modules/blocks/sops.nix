@@ -20,28 +20,24 @@ in
       description = "Secret following the [secret contract](./contracts-secret.html).";
       default = { };
       type = attrsOf (
-        submodule (
-          { name, options, ... }:
-          {
-            options = shb.contracts.secret.mkProvider {
-              settings = mkOption {
-                description = ''
-                  Settings specific to the Sops provider.
+        shb.contracts.secret.mkProvider (
+          { name, ... }: {
+            options.settings = mkOption {
+              description = ''
+                Settings specific to the Sops provider.
 
-                  This is a passthrough option to set [sops-nix options](https://github.com/Mic92/sops-nix/blob/master/modules/sops/default.nix).
+                This is a passthrough option to set [sops-nix options](https://github.com/Mic92/sops-nix/blob/master/modules/sops/default.nix).
 
-                  Note though that the `mode`, `owner`, `group`, and `restartUnits`
-                  are managed by the [shb.sops.secret.<name>.request](#blocks-sops-options-shb.sops.secret._name_.request) option.
-                '';
+                Note though that the `mode`, `owner`, `group`, and `restartUnits`
+                are managed by the [shb.sops.secret.<name>.request](#blocks-sops-options-shb.sops.secret._name_.request) option.
+              '';
 
-                type = attrsOf anything;
-                default = { };
-              };
+              type = attrsOf anything; # todo forward sops types here
+              default = { };
+            };
 
-              resultCfg = {
-                path = config.sops.secrets.${name}.path;
-                pathText = "/run/secrets/<name>";
-              };
+            options.result = {
+              path = lib.mkOption { default = config.sops.secrets.${name}.path; };
             };
           }
         )
@@ -50,6 +46,7 @@ in
   };
 
   config = {
+    shb.contractResults = shb.contracts.secret.register (lib.attrValues cfg.secret);
     sops.secrets =
       let
         mkSecret = n: secretCfg: secretCfg.request // secretCfg.settings;

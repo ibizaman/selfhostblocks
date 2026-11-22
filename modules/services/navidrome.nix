@@ -82,10 +82,10 @@ in
       type = attrs;
       default = { };
       description = ''
-        Navidrome configuration settings. These get written to the Navidrome 
+        Navidrome configuration settings. These get written to the Navidrome
         configuration JSON.
 
-        See https://www.navidrome.org/docs/usage/configuration/options/ for 
+        See https://www.navidrome.org/docs/usage/configuration/options/ for
         available options.
       '';
       example = {
@@ -134,24 +134,12 @@ in
       };
     };
 
-    mount = mkOption {
-      type = shb.contracts.mount;
+    impermanence = mkOption {
       description = ''
-        Mount configuration. This is an output option.
-
-        Use it to initialize a block implementing the "mount" contract.
-        For example, with a zfs dataset:
-
-        ```
-        shb.zfs.datasets."navidrome" = {
-          poolName = "root";
-        } // config.shb.navidrome.mount;
-        ```
+        Path to save when using impermanence setup.
       '';
       readOnly = true;
-      default = {
-        path = cfg.dataDir;
-      };
+      default = cfg.dataDir;
     };
 
     backup = mkOption {

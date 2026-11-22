@@ -17,6 +17,57 @@ let
     optionals
     unique
     ;
+
+  caType = lib.types.submodule (
+    { config, ... }:
+    {
+      options = {
+        name = lib.mkOption {
+          type = lib.types.str;
+          description = ''
+            Certificate Authority Name. You can put what you want here, it will be displayed by the
+            browser.
+          '';
+          default = "Self Host Blocks Certificate";
+        };
+
+        paths = lib.mkOption {
+          description = ''
+            Paths where CA certs will be located.
+
+            This option implements the SSL Generator contract.
+          '';
+          type = lib.types.submodule {
+            freeformType = lib.types.anything;
+            options = {
+              cert = lib.mkOption {
+                type = lib.types.path;
+                description = "Path to the cert file.";
+              };
+              key = lib.mkOption {
+                type = lib.types.path;
+                description = "Path to the key file.";
+              };
+            };
+          };
+          default = {
+            key = "/var/lib/certs/cas/${config._module.args.name}.key";
+            cert = "/var/lib/certs/cas/${config._module.args.name}.cert";
+          };
+        };
+
+        systemdService = lib.mkOption {
+          description = ''
+            Systemd oneshot service used to generate the certs.
+
+            This option implements the SSL Generator contract.
+          '';
+          type = lib.types.str;
+          default = "shb-certs-ca-${config._module.args.name}.service";
+        };
+      };
+    }
+  );
 in
 {
   imports = [
@@ -38,127 +89,35 @@ in
     cas.selfsigned = lib.mkOption {
       description = "Generate a self-signed Certificate Authority.";
       default = { };
-      type = lib.types.attrsOf (
-        lib.types.submodule (
-          { config, ... }:
-          {
-            options = {
-              name = lib.mkOption {
-                type = lib.types.str;
-                description = ''
-                  Certificate Authority Name. You can put what you want here, it will be displayed by the
-                  browser.
-                '';
-                default = "Self Host Blocks Certificate";
-              };
-
-              paths = lib.mkOption {
-                description = ''
-                  Paths where CA certs will be located.
-
-                  This option implements the SSL Generator contract.
-                '';
-                type = shb.contracts.ssl.certs-paths;
-                default = {
-                  key = "/var/lib/certs/cas/${config._module.args.name}.key";
-                  cert = "/var/lib/certs/cas/${config._module.args.name}.cert";
-                };
-              };
-
-              systemdService = lib.mkOption {
-                description = ''
-                  Systemd oneshot service used to generate the certs.
-
-                  This option implements the SSL Generator contract.
-                '';
-                type = lib.types.str;
-                default = "shb-certs-ca-${config._module.args.name}.service";
-              };
-            };
-          }
-        )
-      );
+      type = lib.types.attrsOf caType;
     };
     certs.selfsigned = lib.mkOption {
       description = "Generate self-signed certificates signed by a Certificate Authority.";
       default = { };
       type = lib.types.attrsOf (
-        lib.types.submodule (
-          { config, ... }:
+        shb.contracts.ssl.mkProvider (
+          { config, name, ... }:
           {
             options = {
-              ca = lib.mkOption {
-                type = lib.types.nullOr shb.contracts.ssl.cas;
-                description = ''
-                  CA used to generate this certificate. Only used for self-signed.
+              settings = lib.mkOption {
+                type = lib.types.submodule {
+                  options.ca = lib.mkOption {
+                    type = lib.types.nullOr caType;
+                    description = ''
+                      CA used to generate this certificate. Only used for self-signed.
 
-                  This contract input takes the contract output of the `shb.certs.cas` SSL block.
-                '';
-                default = null;
-              };
-
-              domain = lib.mkOption {
-                type = lib.types.str;
-                description = ''
-                  Domain to generate a certificate for. This can be a wildcard domain like
-                  `*.example.com`.
-                '';
-                example = "example.com";
-              };
-
-              extraDomains = lib.mkOption {
-                type = lib.types.listOf lib.types.str;
-                description = ''
-                  Other domains to generate a certificate for.
-                '';
-                default = [ ];
-                example = lib.literalExpression ''
-                  [
-                    "sub1.example.com"
-                    "sub2.example.com"
-                  ]
-                '';
-              };
-
-              group = lib.mkOption {
-                type = lib.types.str;
-                description = ''
-                  Unix group owning this certificate.
-                '';
-                default = "root";
-                example = "nginx";
-              };
-
-              paths = lib.mkOption {
-                description = ''
-                  Paths where certs will be located.
-
-                  This option implements the SSL Generator contract.
-                '';
-                type = shb.contracts.ssl.certs-paths;
-                default = {
-                  key = "/var/lib/certs/selfsigned/${config._module.args.name}.key";
-                  cert = "/var/lib/certs/selfsigned/${config._module.args.name}.cert";
+                      This contract input takes the contract output of the `shb.certs.cas` SSL block.
+                    '';
+                    default = null;
+                  };
                 };
               };
-
-              systemdService = lib.mkOption {
-                description = ''
-                  Systemd oneshot service used to generate the certs.
-
-                  This option implements the SSL Generator contract.
-                '';
-                type = lib.types.str;
-                default = "shb-certs-cert-selfsigned-${config._module.args.name}.service";
-              };
-
-              reloadServices = lib.mkOption {
-                description = ''
-                  The list of systemd services to call `systemctl try-reload-or-restart` on.
-                '';
-                type = lib.types.listOf lib.types.str;
-                default = [ ];
-                example = [ "nginx.service" ];
+              result = {
+                cert = lib.mkOption { default = "/var/lib/certs/cas/${config._module.args.name}.cert"; };
+                key = lib.mkOption { default = "/var/lib/certs/cas/${config._module.args.name}.key"; };
+                systemdService = lib.mkOption {
+                  default = "shb-certs-cert-selfsigned-${name}.service";
+                };
               };
             };
           }
@@ -170,165 +129,114 @@ in
       description = "Generate certificates signed by [Let's Encrypt](https://letsencrypt.org/).";
       default = { };
       type = lib.types.attrsOf (
-        lib.types.submodule (
+        shb.contracts.ssl.mkProvider (
           { config, ... }:
           {
             options = {
-              domain = lib.mkOption {
-                type = lib.types.str;
-                description = ''
-                  Domain to generate a certificate for. This can be a wildcard domain like
-                  `*.example.com`.
-                '';
-                example = "example.com";
-              };
+              settings = lib.mkOption {
+                type = lib.types.submodule {
+                  options = {
+                    afterAndWants = lib.mkOption {
+                      description = ''
+                        Systemd service(s) that must start successfully before attempting to reach acme.
+                      '';
+                      type = lib.types.listOf lib.types.str;
+                      default = [ ];
+                      example = lib.literalExpression ''
+                        [ "dnsmasq.service" ]
+                      '';
+                    };
 
-              extraDomains = lib.mkOption {
-                type = lib.types.listOf lib.types.str;
-                description = ''
-                  Other domains to generate a certificate for.
-                '';
-                default = [ ];
-                example = lib.literalExpression ''
-                  [
-                    "sub1.example.com"
-                    "sub2.example.com"
-                  ]
-                '';
-              };
+                    dnsProvider = lib.mkOption {
+                      description = ''
+                        DNS provider to use.
 
-              paths = lib.mkOption {
-                description = ''
-                  Paths where certs will be located.
+                        See https://go-acme.github.io/lego/dns/ for the list of supported providers.
 
-                  This option implements the SSL Generator contract.
-                '';
-                type = shb.contracts.ssl.certs-paths;
-                default = {
-                  key = "/var/lib/acme/${config._module.args.name}/key.pem";
-                  cert = "/var/lib/acme/${config._module.args.name}/cert.pem";
+                        If null is given, use instead the reverse proxy to validate the domain.
+                      '';
+                      type = lib.types.nullOr lib.types.str;
+                      default = null;
+                      example = "linode";
+                    };
+
+                    dnsResolver = lib.mkOption {
+                      description = "IP of a DNS server used to resolve hostnames.";
+                      type = lib.types.str;
+                      default = "8.8.8.8";
+                    };
+
+                    credentialsFile = lib.mkOption {
+                      type = lib.types.nullOr lib.types.path;
+                      description = ''
+                        Credentials file location for the chosen DNS provider.
+
+                        The content of this file must expose environment variables as written in the
+                        [documentation](https://go-acme.github.io/lego/dns/) of each DNS provider.
+
+                        For example, if the documentation says the credential must be located in the environment
+                        variable DNSPROVIDER_TOKEN, then the file content must be:
+
+                        DNSPROVIDER_TOKEN=xyz
+
+                        You can put non-secret environment variables here too or use shb.ssl.additionalcfg instead.
+                      '';
+                      example = "/run/secrets/ssl";
+                      default = null;
+                    };
+
+                    additionalEnvironment = lib.mkOption {
+                      type = lib.types.attrsOf lib.types.str;
+                      default = { };
+                      description = ''
+                        Additional environment variables used to configure the DNS provider.
+
+                        For secrets, use shb.ssl.credentialsFile instead.
+
+                        See the chosen provider's [documentation](https://go-acme.github.io/lego/dns/) for
+                        available options.
+                      '';
+                      example = lib.literalExpression ''
+                        {
+                          DNSPROVIDER_TIMEOUT = "10";
+                          DNSPROVIDER_PROPAGATION_TIMEOUT = "240";
+                        }
+                      '';
+                    };
+
+                    makeAvailableToUser = lib.mkOption {
+                      type = lib.types.nullOr lib.types.str;
+                      description = ''
+                        Make all certificates available to given user.
+                      '';
+                      default = null;
+                    };
+
+                    adminEmail = lib.mkOption {
+                      description = "Admin email in case certificate retrieval goes wrong.";
+                      type = lib.types.str;
+                    };
+
+                    stagingServer = lib.mkOption {
+                      description = "User Let's Encrypt's staging server.";
+                      type = lib.types.bool;
+                      default = false;
+                    };
+
+                    debug = lib.mkOption {
+                      description = "Enable debug logging";
+                      type = lib.types.bool;
+                      default = false;
+                    };
+                  };
                 };
               };
-
-              group = lib.mkOption {
-                type = lib.types.nullOr lib.types.str;
-                description = ''
-                  Unix group owning this certificate.
-                '';
-                default = "acme";
-                example = "nginx";
-              };
-
-              systemdService = lib.mkOption {
-                description = ''
-                  Systemd oneshot service used to generate the certs.
-
-                  This option implements the SSL Generator contract.
-                '';
-                type = lib.types.str;
-                default = "acme-${config._module.args.name}.service";
-              };
-
-              afterAndWants = lib.mkOption {
-                description = ''
-                  Systemd service(s) that must start successfully before attempting to reach acme.
-                '';
-                type = lib.types.listOf lib.types.str;
-                default = [ ];
-                example = lib.literalExpression ''
-                  [ "dnsmasq.service" ]
-                '';
-              };
-
-              reloadServices = lib.mkOption {
-                description = ''
-                  The list of systemd services to call `systemctl try-reload-or-restart` on.
-                '';
-                type = lib.types.listOf lib.types.str;
-                default = [ ];
-                example = [ "nginx.service" ];
-              };
-
-              dnsProvider = lib.mkOption {
-                description = ''
-                  DNS provider to use.
-
-                  See https://go-acme.github.io/lego/dns/ for the list of supported providers.
-
-                  If null is given, use instead the reverse proxy to validate the domain.
-                '';
-                type = lib.types.nullOr lib.types.str;
-                default = null;
-                example = "linode";
-              };
-
-              dnsResolver = lib.mkOption {
-                description = "IP of a DNS server used to resolve hostnames.";
-                type = lib.types.str;
-                default = "8.8.8.8";
-              };
-
-              credentialsFile = lib.mkOption {
-                type = lib.types.nullOr lib.types.path;
-                description = ''
-                  Credentials file location for the chosen DNS provider.
-
-                  The content of this file must expose environment variables as written in the
-                  [documentation](https://go-acme.github.io/lego/dns/) of each DNS provider.
-
-                  For example, if the documentation says the credential must be located in the environment
-                  variable DNSPROVIDER_TOKEN, then the file content must be:
-
-                  DNSPROVIDER_TOKEN=xyz
-
-                  You can put non-secret environment variables here too or use shb.ssl.additionalcfg instead.
-                '';
-                example = "/run/secrets/ssl";
-                default = null;
-              };
-
-              additionalEnvironment = lib.mkOption {
-                type = lib.types.attrsOf lib.types.str;
-                default = { };
-                description = ''
-                  Additional environment variables used to configure the DNS provider.
-
-                  For secrets, use shb.ssl.credentialsFile instead.
-
-                  See the chosen provider's [documentation](https://go-acme.github.io/lego/dns/) for
-                  available options.
-                '';
-                example = lib.literalExpression ''
-                  {
-                    DNSPROVIDER_TIMEOUT = "10";
-                    DNSPROVIDER_PROPAGATION_TIMEOUT = "240";
-                  }
-                '';
-              };
-
-              makeAvailableToUser = lib.mkOption {
-                type = lib.types.nullOr lib.types.str;
-                description = ''
-                  Make all certificates available to given user.
-                '';
-                default = null;
-              };
-
-              adminEmail = lib.mkOption {
-                description = "Admin email in case certificate retrieval goes wrong.";
-                type = lib.types.str;
-              };
-
-              stagingServer = lib.mkOption {
-                description = "User Let's Encrypt's staging server.";
-                type = lib.types.bool;
-                default = false;
-              };
-
-              debug = lib.mkOption {
-                description = "Enable debug logging";
-                type = lib.types.bool;
-                default = false;
+              result = {
+                key = lib.mkOption { default = "/var/lib/acme/${config._module.args.name}/key.pem"; };
+                cert = lib.mkOption { default = "/var/lib/acme/${config._module.args.name}/cert.pem"; };
+                systemdService = lib.mkOption {
+                  default = "acme-${config._module.args.name}.service";
+                };
               };
             };
           }
@@ -350,7 +258,8 @@ in
             (
               let
                 domainInExtraDomains =
-                  (lib.lists.findFirstIndex (x: x == certCfg.domain) null certCfg.extraDomains) != null;
+                  (lib.lists.findFirstIndex (x: x == certCfg.request.domain) null certCfg.request.extraDomains)
+                  != null;
                 firstDuplicateDomain =
                   (
                     l:
@@ -360,7 +269,7 @@ in
                     in
                     if maybeDupe == [ ] then null else lib.head maybeDupe
                   )
-                    certCfg.extraDomains;
+                    certCfg.request.extraDomains;
               in
               [
                 {
@@ -450,19 +359,22 @@ in
       }
       # Config for self-signed cert.
       {
+        shb.contractResults = shb.contracts.ssl.register (lib.attrValues cfg.certs.selfsigned);
         systemd.services = lib.mapAttrs' (
           _name: certCfg:
-          lib.nameValuePair (serviceName certCfg.systemdService) {
-            after = [ certCfg.ca.systemdService ];
-            requires = [ certCfg.ca.systemdService ];
+          lib.nameValuePair (serviceName certCfg.result.systemdService) {
+            after = [ certCfg.settings.ca.systemdService ];
+            requires = [ certCfg.settings.ca.systemdService ];
             wantedBy = [ "multi-user.target" ];
-            serviceConfig.RuntimeDirectory = serviceName certCfg.systemdService;
+            serviceConfig.RuntimeDirectory = serviceName certCfg.result.systemdService;
             # Taken from https://github.com/NixOS/nixpkgs/blob/7f311dd9226bbd568a43632c977f4992cfb2b5c8/nixos/tests/custom-ca.nix
             script =
               let
-                extraDnsNames = lib.strings.concatStringsSep "\n" (map (n: "dns_name = ${n}") certCfg.extraDomains);
+                extraDnsNames = lib.strings.concatStringsSep "\n" (
+                  map (n: "dns_name = ${n}") certCfg.request.extraDomains
+                );
                 chmod = cert: ''
-                  chown root:${certCfg.group} "${cert}"
+                  chown root:${certCfg.request.group} "${cert}"
                   chmod 640 "${cert}"
                 '';
               in
@@ -472,15 +384,15 @@ in
                 # server cert template
                 cat >server.template <<EOF
                 organization = "An example company"
-                cn = "${certCfg.domain}"
+                cn = "${certCfg.request.domain}"
                 expiration_days = 30
-                dns_name = "${certCfg.domain}"
+                dns_name = "${certCfg.request.domain}"
                 ${extraDnsNames}
                 encryption_key
                 signing_key
                 EOF
 
-                keyfile="${certCfg.paths.key}"
+                keyfile="${certCfg.result.key}"
                 keydir="$(dirname -- "$keyfile")"
                 mkdir -p "$keydir"
                 [ -f "$keyfile" ] || ${pkgs.gnutls}/bin/certtool \
@@ -490,21 +402,21 @@ in
                   --outfile "$keyfile"
                 ${chmod "$keyfile"}
 
-                certfile="${certCfg.paths.cert}"
+                certfile="${certCfg.result.cert}"
                 certdir="$(dirname -- "$certfile")"
                 mkdir -p "$certdir"
                 [ -f "$certfile" ] || ${pkgs.gnutls}/bin/certtool \
                   --generate-certificate \
                   --load-privkey "$keyfile" \
-                  --load-ca-privkey "${certCfg.ca.paths.key}" \
-                  --load-ca-certificate "${certCfg.ca.paths.cert}" \
+                  --load-ca-privkey "${certCfg.settings.ca.paths.key}" \
+                  --load-ca-certificate "${certCfg.settings.ca.paths.cert}" \
                   --template server.template \
                   --outfile "$certfile"
                 ${chmod "$certfile"}
               '';
 
-            postStart = lib.optionalString (certCfg.reloadServices != [ ]) ''
-              systemctl --no-block try-reload-or-restart ${lib.escapeShellArgs certCfg.reloadServices}
+            postStart = lib.optionalString (certCfg.result.reloadServices != [ ]) ''
+              systemctl --no-block try-reload-or-restart ${lib.escapeShellArgs certCfg.result.reloadServices}
             '';
 
             serviceConfig.Type = "oneshot";
@@ -514,11 +426,15 @@ in
       }
       # Config for Let's Encrypt cert.
       {
+
+        shb.contractResults = shb.contracts.ssl.register (lib.attrValues cfg.certs.letsencrypt);
         users.users = lib.mkMerge (
           mapAttrsToList (name: certCfg: {
-            ${certCfg.makeAvailableToUser}.extraGroups = lib.mkIf (!(isNull certCfg.makeAvailableToUser)) [
-              config.security.acme.defaults.group
-            ];
+            ${certCfg.settings.makeAvailableToUser}.extraGroups =
+              lib.mkIf (!(isNull certCfg.makeAvailableToUser))
+                [
+                  config.security.acme.defaults.group
+                ];
           }) cfg.certs.letsencrypt
         );
 
@@ -534,7 +450,7 @@ in
                   enableDebugLogs = certCfg.debug;
                   server = lib.mkIf certCfg.stagingServer "https://acme-staging-v02.api.letsencrypt.org/directory";
                 };
-              }) certCfg.extraDomains;
+              }) certCfg.request.extraDomains;
           in
           lib.mkMerge (
             flatten (
@@ -543,20 +459,20 @@ in
                 [
                   {
                     "${name}" = {
-                      inherit (certCfg) domain;
-                      extraDomainNames = certCfg.extraDomains;
-                      email = certCfg.adminEmail;
-                      enableDebugLogs = certCfg.debug;
-                      server = lib.mkIf certCfg.stagingServer "https://acme-staging-v02.api.letsencrypt.org/directory";
+                      inherit (certCfg.request) domain group;
+                      extraDomainNames = certCfg.request.extraDomains;
+                      email = certCfg.settings.adminEmail;
+                      enableDebugLogs = certCfg.settings.debug;
+                      server = lib.mkIf certCfg.settings.stagingServer "https://acme-staging-v02.api.letsencrypt.org/directory";
                     }
-                    // lib.optionalAttrs (certCfg.dnsProvider != null) {
-                      inherit (certCfg) dnsProvider dnsResolver;
-                      inherit (certCfg) group reloadServices;
-                      environmentFile = certCfg.credentialsFile;
+                    // lib.optionalAttrs (certCfg.settings.dnsProvider != null) {
+                      inherit (certCfg.settings) dnsProvider dnsResolver;
+                      inherit (certCfg.result) reloadServices;
+                      environmentFile = certCfg.settings.credentialsFile;
                     };
                   }
                 ]
-                ++ lib.optionals (certCfg.dnsProvider == null) (extraDomainsCfg certCfg)
+                ++ lib.optionals (certCfg.settings.dnsProvider == null) (extraDomainsCfg certCfg)
               ) cfg.certs.letsencrypt
             )
           );
@@ -576,7 +492,7 @@ in
             flatten (
               mapAttrsToList (
                 name: certCfg:
-                lib.optionals (certCfg.dnsProvider == null) (
+                lib.optionals (certCfg.settings.dnsProvider == null) (
                   [
                     {
                       virtualHosts."${name}" = {
@@ -598,16 +514,18 @@ in
               flatten (
                 map (
                   name:
-                  lib.optionals (certCfg.additionalEnvironment != { } && certCfg.dnsProvider == null) [
-                    {
-                      "acme-${name}".environment = certCfg.additionalEnvironment;
-                    }
-                  ]
-                  ++ lib.optionals (certCfg.afterAndWants != [ ] && certCfg.dnsProvider == null) [
+                  lib.optionals
+                    (certCfg.settings.additionalEnvironment != { } && certCfg.settings.dnsProvider == null)
+                    [
+                      {
+                        "acme-${name}".environment = certCfg.settings.additionalEnvironment;
+                      }
+                    ]
+                  ++ lib.optionals (certCfg.settings.afterAndWants != [ ] && certCfg.settings.dnsProvider == null) [
                     {
                       "acme-${name}" = {
-                        after = certCfg.afterAndWants;
-                        wants = certCfg.afterAndWants;
+                        after = certCfg.settings.afterAndWants;
+                        wants = certCfg.settings.afterAndWants;
                       };
                     }
                   ]
@@ -618,20 +536,22 @@ in
             flatten (
               mapAttrsToList (
                 name: certCfg:
-                lib.optionals (certCfg.additionalEnvironment != { } && certCfg.dnsProvider == null) [
-                  {
-                    "acme-${certCfg.domain}".environment = certCfg.additionalEnvironment;
-                  }
-                ]
-                ++ lib.optionals (certCfg.afterAndWants != [ ] && certCfg.dnsProvider == null) [
+                lib.optionals
+                  (certCfg.settings.additionalEnvironment != { } && certCfg.settings.dnsProvider == null)
+                  [
+                    {
+                      "acme-${certCfg.domain}".environment = certCfg.settings.additionalEnvironment;
+                    }
+                  ]
+                ++ lib.optionals (certCfg.settings.afterAndWants != [ ] && certCfg.settings.dnsProvider == null) [
                   {
                     "acme-${certCfg.domain}" = {
-                      after = certCfg.afterAndWants;
-                      wants = certCfg.afterAndWants;
+                      after = certCfg.settings.afterAndWants;
+                      wants = certCfg.settings.afterAndWants;
                     };
                   }
                 ]
-                ++ lib.optionals (certCfg.dnsProvider == null) (extraDomainsCfg certCfg)
+                ++ lib.optionals (certCfg.settings.dnsProvider == null) (extraDomainsCfg certCfg)
               ) cfg.certs.letsencrypt
             )
           );
@@ -646,12 +566,12 @@ in
                 name: certCfg:
                 let
                   mainDomainPaths = map dirOf [
-                    certCfg.paths.cert
-                    certCfg.paths.key
+                    certCfg.result.cert
+                    certCfg.result.key
                   ];
                   # Not sure this will work for all cases.
-                  mainPath = dirOf (dirOf certCfg.paths.cert);
-                  extraDomainsPath = map (x: "${mainPath}/${x}") certCfg.extraDomains;
+                  mainPath = dirOf (dirOf certCfg.result.cert);
+                  extraDomainsPath = map (x: "${mainPath}/${x}") certCfg.request.extraDomains;
                 in
                 mainDomainPaths ++ extraDomainsPath;
             in

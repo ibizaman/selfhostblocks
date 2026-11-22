@@ -31,7 +31,50 @@ shb.test.runNixOSTest {
   nodes.machine =
     { config, ... }:
     {
-      imports = [ shb.test.baseImports ] ++ modules;
+      imports = [
+        shb.test.baseImports
+      ]
+      ++ modules
+      ++ [
+        ({ shb, lib, ... }: {
+          options.shb.tests.backups.requester = lib.mkOption {
+
+            default = { };
+            type = shb.contracts.backup.mkRequester {
+              inherit sourceDirectories;
+              user = username;
+              beforeBackup = [
+                ''
+                  touch ${hookPath}/beforeBackup
+                ''
+              ];
+              afterBackup = [
+                ''
+                  touch ${hookPath}/afterBackup
+                ''
+              ];
+              beforeRestore = [
+                ''
+                  echo "Running beforeRestore..."
+                  ls -l ${hookPath}
+                  touch ${hookPath}/beforeRestore
+                  ls -l ${hookPath}
+                  echo "Done running beforeRestore"
+                ''
+              ];
+              afterRestore = [
+                ''
+                  echo "Running afterRestore..."
+                  ls -l ${hookPath}
+                  touch ${hookPath}/afterRestore
+                  ls -l ${hookPath}
+                  echo "Done running afterRestore"
+                ''
+              ];
+            };
+          };
+        })
+      ];
 
       config = lib.mkMerge [
         {
@@ -42,44 +85,15 @@ shb.test.runNixOSTest {
             };
           };
         }
-        (setAttrByPath providerRoot {
-          request = {
-            inherit sourceDirectories;
-            user = username;
-            beforeBackup = [
-              ''
-                touch ${hookPath}/beforeBackup
-              ''
-            ];
-            afterBackup = [
-              ''
-                touch ${hookPath}/afterBackup
-              ''
-            ];
-            beforeRestore = [
-              ''
-                echo "Running beforeRestore..."
-                ls -l ${hookPath}
-                touch ${hookPath}/beforeRestore
-                ls -l ${hookPath}
-                echo "Done running beforeRestore"
-              ''
-            ];
-            afterRestore = [
-              ''
-                echo "Running afterRestore..."
-                ls -l ${hookPath}
-                touch ${hookPath}/afterRestore
-                ls -l ${hookPath}
-                echo "Done running afterRestore"
-              ''
-            ];
-          };
-          settings = settings {
-            inherit config;
-            filesRoot = "/opt/files";
-          };
-        })
+        (setAttrByPath providerRoot (
+          config.shb.tests.backups.requester
+          // {
+            settings = settings {
+              inherit config;
+              filesRoot = "/opt/files";
+            };
+          }
+        ))
         (mkIf (username != "root") {
           users.users.${username} = {
             isSystemUser = true;
@@ -100,7 +114,7 @@ shb.test.runNixOSTest {
   testScript =
     { nodes, ... }:
     let
-      provider = (getAttrFromPath providerRoot nodes.machine).result;
+      requester = nodes.machine.shb.tests.backups.requester.result;
     in
     ''
       from datetime import datetime, timedelta
@@ -149,7 +163,7 @@ shb.test.runNixOSTest {
               })
 
       with subtest("Initial snapshot"):
-          st, out = machine.execute("${provider.restoreScript} snapshots")
+          st, out = machine.execute("${requester.restoreScript} snapshots")
           # We accept an error here
           if st == 0:
               out = out.splitlines()
@@ -159,15 +173,15 @@ shb.test.runNixOSTest {
           assert_latest_hooks({})
 
       with subtest("First backup in repo"):
-          print(machine.succeed("systemctl cat ${provider.backupService}"))
-          machine.succeed("systemctl start --wait ${provider.backupService}")
+          print(machine.succeed("systemctl cat ${requester.backupService}"))
+          machine.succeed("systemctl start --wait ${requester.backupService}")
           assert_latest_hooks({
               f'{hook_path}/beforeBackup': "",
               f'{hook_path}/afterBackup': "",
           })
 
       with subtest("One snapshot"):
-          out = machine.succeed("${provider.restoreScript} snapshots").splitlines()
+          out = machine.succeed("${requester.restoreScript} snapshots").splitlines()
           print(f"Found snapshots:\n{out}")
           if len(out) != 1:
             raise Exception(f"Unexpected snapshots:\n{out}")
@@ -190,14 +204,14 @@ shb.test.runNixOSTest {
               })
 
       with subtest("Second backup in repo"):
-          machine.succeed("systemctl start --wait ${provider.backupService}")
+          machine.succeed("systemctl start --wait ${requester.backupService}")
           assert_latest_hooks({
               f'{hook_path}/beforeBackup': "",
               f'{hook_path}/afterBackup': "",
           })
 
       with subtest("two snapshots"):
-          out = machine.succeed("${provider.restoreScript} snapshots").splitlines()
+          out = machine.succeed("${requester.restoreScript} snapshots").splitlines()
           print(f"Found snapshots:\n{out}")
           if len(out) != 2:
               raise Exception(f"Unexpected snapshots:\n{out}")
@@ -214,7 +228,7 @@ shb.test.runNixOSTest {
               assert_files(path, {})
 
       with subtest("Restore second backup"):
-          print(machine.succeed(f"${provider.restoreScript} restore {secondSnapshot}"))
+          print(machine.succeed(f"${requester.restoreScript} restore {secondSnapshot}"))
 
           for path in sourceDirectories:
               assert_files(path, {
@@ -227,7 +241,7 @@ shb.test.runNixOSTest {
           })
 
       with subtest("Restore first backup"):
-          print(machine.succeed(f"${provider.restoreScript} restore {firstSnapshot}"))
+          print(machine.succeed(f"${requester.restoreScript} restore {firstSnapshot}"))
 
           for path in sourceDirectories:
               assert_files(path, {

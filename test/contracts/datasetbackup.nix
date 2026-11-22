@@ -1,6 +1,9 @@
 { shb, pkgs, ... }:
+let
+  testFile = pkgs.callPackage ../../modules/contracts/datasetbackup/test.nix { inherit shb; };
+in
 {
-  sanoid = shb.contracts.test.datasetbackup {
+  sanoid = testFile {
     name = "sanoid";
     providerRoot = [
       "shb"

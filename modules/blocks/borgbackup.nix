@@ -52,14 +52,11 @@ let
 
       passphrase = lib.mkOption {
         description = "Encryption key for the backup repository.";
-        type = lib.types.submodule {
-          options = shb.contracts.secret.mkRequester {
-            mode = "0400";
-            owner = config.request.user;
-            ownerText = "[shb.borgbackup.${prefix}.<name>.request.user](#blocks-borgbackup-options-shb.borgbackup.${prefix}._name_.request.user)";
-            restartUnits = [ "${(fullName name config.settings.repository)}.service" ];
-            restartUnitsText = "[ [shb.borgbackup.${prefix}.<name>.settings.repository](#blocks-borgbackup-options-shb.borgbackup.${prefix}._name_.settings.repository) ]";
-          };
+        default = { };
+        type = shb.contracts.secret.mkRequester {
+          mode = "0400";
+          owner = config.request.user;
+          restartUnits = [ "${(fullName name config.settings.repository)}.service" ];
         };
       };
 
@@ -170,30 +167,23 @@ in
       description = "Files to backup following the [backup contract](./shb.contracts-backup.html).";
       default = { };
       type = attrsOf (
-        submodule (
-          { name, config, ... }:
-          {
-            options = shb.contracts.backup.mkProvider {
-              settings = mkOption {
-                description = ''
-                  Settings specific to the BorgBackup provider.
-                '';
+        shb.contracts.backup.mkProvider (
+          { name, config, ... }: {
+            options.settings = mkOption {
+              description = ''
+                Settings specific to the BorgBackup provider.
+              '';
 
-                type = submodule {
-                  options = commonOptions {
-                    inherit name config;
-                    prefix = "instances";
-                  };
+              type = submodule {
+                options = commonOptions {
+                  inherit name config;
+                  prefix = "instances";
                 };
               };
-
-              resultCfg = {
-                restoreScript = fullName name config.settings.repository;
-                restoreScriptText = "${fullName "<name>" { path = "path/to/repository"; }}";
-
-                backupService = "${fullName name config.settings.repository}.service";
-                backupServiceText = "${fullName "<name>" { path = "path/to/repository"; }}.service";
-              };
+            };
+            options.result = {
+              restoreScript = lib.mkOption { default = fullName name config.settings.repository; };
+              backupService = lib.mkOption { default = "${fullName name config.settings.repository}.service"; };
             };
           }
         )
@@ -204,30 +194,25 @@ in
       description = "Databases to backup following the [database backup contract](./shb.contracts-databasebackup.html).";
       default = { };
       type = attrsOf (
-        submodule (
-          { name, config, ... }:
-          {
-            options = shb.contracts.databasebackup.mkProvider {
-              settings = mkOption {
-                description = ''
-                  Settings specific to the BorgBackup provider.
-                '';
+        shb.contracts.databasebackup.mkProvider (
+          { name, config, ... }: {
+            options.settings = mkOption {
+              description = ''
+                Settings specific to the BorgBackup provider.
+              '';
 
-                type = submodule {
-                  options = commonOptions {
-                    inherit name config;
-                    prefix = "databases";
-                  };
+              type = submodule {
+                options = commonOptions {
+                  inherit name config;
+                  prefix = "databases";
                 };
               };
+            };
 
-              resultCfg = {
-                restoreScript = fullName name config.settings.repository;
-                restoreScriptText = "${fullName "<name>" { path = "path/to/repository"; }}";
+            options.result = {
+              restoreScript = lib.mkOption { default = fullName name config.settings.repository; };
 
-                backupService = "${fullName name config.settings.repository}.service";
-                backupServiceText = "${fullName "<name>" { path = "path/to/repository"; }}.service";
-              };
+              backupService = lib.mkOption { default = "${fullName name config.settings.repository}.service"; };
             };
           }
         )
@@ -285,6 +270,7 @@ in
             ];
       }
       {
+        shb.contractResults = shb.contracts.backup.register (lib.attrValues cfg.instances);
         services.borgbackup.jobs =
           let
             mkJob = name: instance: {
@@ -325,6 +311,7 @@ in
           mkMerge (mapAttrsToList mkJob enabledInstances);
       }
       {
+        shb.contractResults = shb.contracts.backup.register (lib.attrValues cfg.databases);
         services.borgbackup.jobs =
           let
             mkJob = name: instance: {

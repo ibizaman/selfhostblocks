@@ -83,16 +83,12 @@ let
         contactPoints = [ "me@example.com" ];
 
         grafanaPort = 3000;
-        adminPassword.result = config.shb.hardcodedsecret."admin_password".result;
-        secretKey.result = config.shb.hardcodedsecret."secret_key".result;
       };
 
-      shb.hardcodedsecret."admin_password" = {
-        request = config.shb.monitoring.adminPassword.request;
+      shb.hardcodedsecret."admin_password" = config.shb.monitoring.adminPassword // {
         settings.content = password;
       };
-      shb.hardcodedsecret."secret_key" = {
-        request = config.shb.monitoring.secretKey.request;
+      shb.hardcodedsecret."secret_key" = config.shb.monitoring.secretKey // {
         settings.content = "secret_key_pw";
       };
     };
@@ -100,8 +96,15 @@ let
   https =
     { config, ... }:
     {
-      shb.monitoring = {
-        ssl = config.shb.certs.certs.selfsigned.n;
+      shb.monitoring.ssl = { };
+
+      shb.certs.certs.selfsigned.monitoring = config.shb.monitoring.ssl // {
+        settings.ca = config.shb.certs.cas.selfsigned.myca;
+      };
+
+      systemd.services.nginx = {
+        after = [ config.shb.monitoring.ssl.result.systemdService ];
+        requires = [ config.shb.monitoring.ssl.result.systemdService ];
       };
     };
 
@@ -235,33 +238,15 @@ let
   scrutinySsl =
     { config, ... }:
     {
-      shb.certs.certs.selfsigned = {
-        monitoring = {
-          ca = config.shb.certs.cas.selfsigned.myca;
-          domain = "g.${config.test.domain}";
-          group = "nginx";
-        };
-        scrutiny = {
-          ca = config.shb.certs.cas.selfsigned.myca;
-          domain = "scrutiny.${config.test.domain}";
-          group = "nginx";
-        };
-      };
+      shb.monitoring.scrutiny.ssl = { };
 
-      shb.monitoring = {
-        ssl = config.shb.certs.certs.selfsigned.monitoring;
-        scrutiny.ssl = config.shb.certs.certs.selfsigned.scrutiny;
+      shb.certs.certs.selfsigned.scrutiny = config.shb.monitoring.scrutiny.ssl // {
+        settings.ca = config.shb.certs.cas.selfsigned.myca;
       };
 
       systemd.services.nginx = {
-        after = [
-          config.shb.certs.certs.selfsigned.monitoring.systemdService
-          config.shb.certs.certs.selfsigned.scrutiny.systemdService
-        ];
-        requires = [
-          config.shb.certs.certs.selfsigned.monitoring.systemdService
-          config.shb.certs.certs.selfsigned.scrutiny.systemdService
-        ];
+        after = [ config.shb.monitoring.scrutiny.ssl.result.systemdService ];
+        requires = [ config.shb.monitoring.scrutiny.ssl.result.systemdService ];
       };
     };
 
@@ -349,17 +334,13 @@ let
           enable = true;
           authEndpoint = "https://${config.shb.authelia.subdomain}.${config.shb.authelia.domain}";
 
-          sharedSecret.result = config.shb.hardcodedsecret.oidcSecret.result;
-          sharedSecretForAuthelia.result = config.shb.hardcodedsecret.oidcAutheliaSecret.result;
         };
       };
 
-      shb.hardcodedsecret.oidcSecret = {
-        request = config.shb.monitoring.sso.sharedSecret.request;
+      shb.hardcodedsecret.oidcSecret = config.shb.monitoring.sso.sharedSecret // {
         settings.content = oidcSecret;
       };
-      shb.hardcodedsecret.oidcAutheliaSecret = {
-        request = config.shb.monitoring.sso.sharedSecretForAuthelia.request;
+      shb.hardcodedsecret.oidcAutheliaSecret = config.shb.monitoring.sso.sharedSecretForAuthelia // {
         settings.content = oidcSecret;
       };
     };
@@ -450,6 +431,7 @@ in
           basic
           scrutiny
           shb.test.certs
+          https
           scrutinySsl
           shb.test.ldap
           ldap

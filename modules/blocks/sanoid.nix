@@ -121,26 +121,20 @@ in
   ];
 
   options.shb.sanoid.backup = lib.mkOption {
-    description = "Sanoid prodiver for file backup contract";
+    description = "Sanoid prodiver for dataset backup contract";
     default = { };
     type = lib.types.attrsOf (
-      lib.types.submodule (
-        { name, ... }:
-        {
-          options = shb.contracts.backup.mkProvider {
-            resultCfg = {
-              restoreScript = restoreScriptName name;
-              restoreScriptText = restoreScriptName "<name>";
+      shb.contracts.datasetbackup.mkProvider (
+        { name, ... }: {
+          options.result = {
+            restoreScript = lib.mkOption { default = restoreScriptName name; };
+            backupService = lib.mkOption { default = "${backupScriptBase}.service"; };
+          };
 
-              backupService = "${backupScriptBase}.service";
-              backupServiceText = "${backupScriptBase}.service";
-            };
-
-            settings = lib.mkOption {
-              description = "Options passed to the `services.sanoid.datasets.<name>` option.";
-              default = { };
-              type = lib.types.attrsOf lib.types.anything;
-            };
+          options.settings = lib.mkOption {
+            description = "Options passed to the `services.sanoid.datasets.<name>` option.";
+            default = { };
+            type = lib.types.attrsOf lib.types.anything; # todo forward sanoid type
           };
         }
       )
@@ -150,6 +144,7 @@ in
   config = lib.mkIf (cfg.backup != { }) {
     services.sanoid.enable = true;
 
+    shb.contractResults = shb.contracts.datasetbackup.register (lib.attrValues cfg.backup);
     services.sanoid.datasets =
       let
         mkDataset = name: cfg': {

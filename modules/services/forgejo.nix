@@ -374,24 +374,13 @@ in
       };
     };
 
-    mount = mkOption {
-      type = shb.contracts.mount;
+    impermanence = mkOption {
+      type = lib.types.str;
       description = ''
-        Mount configuration. This is an output option.
-
-        Use it to initialize a block implementing the "mount" contract.
-        For example, with a zfs dataset:
-
-        ```
-        shb.zfs.datasets."forgejo" = {
-          poolName = "root";
-        } // config.shb.forgejo.mount;
-        ```
+        Path to save when using impermanence setup.
       '';
       readOnly = true;
-      default = {
-        path = config.services.forgejo.stateDir;
-      };
+      default = config.services.forgejo.stateDir;
     };
 
     smtp = mkOption {

@@ -206,24 +206,13 @@ in
       };
     };
 
-    mount = mkOption {
-      type = shb.contracts.mount;
+    impermanence = mkOption {
+      type = lib.types.str;
       description = ''
-        Mount configuration. This is an output option.
-
-        Use it to initialize a block implementing the "mount" contract.
-        For example, with a zfs dataset:
-
-        ```
-        shb.zfs.datasets."paperless" = {
-          poolName = "root";
-        } // config.shb.paperless.mount;
-        ```
+        Path to save when using impermanence setup.
       '';
       readOnly = true;
-      default = {
-        path = dataFolder;
-      };
+      default = dataFolder;
     };
 
     backup = mkOption {

@@ -26,7 +26,7 @@ let
 
       ssl = lib.mkOption {
         description = "Path to SSL files";
-        type = lib.types.nullOr shb.contracts.ssl.certs;
+        type = lib.types.nullOr lib.types.attrs;
         default = null;
       };
 
@@ -164,8 +164,8 @@ in
         vhostCfg = c: {
           ${fqdn c} = {
             forceSSL = !(isNull c.ssl);
-            sslCertificate = lib.mkIf (!(isNull c.ssl)) c.ssl.paths.cert;
-            sslCertificateKey = lib.mkIf (!(isNull c.ssl)) c.ssl.paths.key;
+            sslCertificate = lib.mkIf (!(isNull c.ssl)) c.ssl.result.cert;
+            sslCertificateKey = lib.mkIf (!(isNull c.ssl)) c.ssl.result.key;
 
             # Taken from https://github.com/authelia/authelia/issues/178
             locations."/".extraConfig =

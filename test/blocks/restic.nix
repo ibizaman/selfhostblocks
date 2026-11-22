@@ -13,6 +13,38 @@ let
 
             ../../modules/blocks/hardcodedsecret.nix
             ../../modules/blocks/restic.nix
+            ({ lib, shb, ... }: {
+              options.shb.tests.restic.requester = lib.mkOption {
+                default = { };
+                type = shb.contracts.backup.mkRequester {
+                  inherit user;
+
+                  sourceDirectories = [
+                    "/opt/files/A"
+                    "/opt/files/B"
+                  ];
+
+                  beforeBackup = [
+                    ''
+                      echo $RUNTIME_DIRECTORY
+                      if [ "$RUNTIME_DIRECTORY" = /run/restic-backups-testinstance_opt_repos_A ]; then
+                        if ! [ -f /run/secrets_restic/restic-backups-testinstance_opt_repos_A ]; then
+                          exit 10
+                        fi
+                        if [ -z "$A" ] || ! [ "$A" = "secretA" ]; then
+                          echo "A:$A"
+                          exit 11
+                        fi
+                        if [ -z "$B" ] || ! [ "$B" = "secretB" ]; then
+                          echo "B:$B"
+                          exit 12
+                        fi
+                      fi
+                    ''
+                  ];
+                };
+              };
+            })
           ];
 
           shb.hardcodedsecret.A = {
@@ -32,17 +64,13 @@ let
             settings.content = "secretB";
           };
 
-          shb.hardcodedsecret.passphrase = {
-            request = config.shb.restic.instances."testinstance".settings.passphrase.request;
+          shb.hardcodedsecret.passphrase = config.shb.restic.instances."testinstance".settings.passphrase // {
             settings.content = "secretB";
           };
 
-          shb.restic.instances."testinstance" = {
+          shb.restic.instances."testinstance" = config.shb.tests.restic.requester // {
             settings = {
               enable = true;
-
-              passphrase.result = config.shb.hardcodedsecret.passphrase.result;
-
               repository = {
                 path = "/opt/repos/A";
                 timerConfig = {
@@ -57,34 +85,6 @@ let
                 };
               };
             };
-
-            request = {
-              inherit user;
-
-              sourceDirectories = [
-                "/opt/files/A"
-                "/opt/files/B"
-              ];
-
-              beforeBackup = [
-                ''
-                  echo $RUNTIME_DIRECTORY
-                  if [ "$RUNTIME_DIRECTORY" = /run/restic-backups-testinstance_opt_repos_A ]; then
-                    if ! [ -f /run/secrets_restic/restic-backups-testinstance_opt_repos_A ]; then
-                      exit 10
-                    fi
-                    if [ -z "$A" ] || ! [ "$A" = "secretA" ]; then
-                      echo "A:$A"
-                      exit 11
-                    fi
-                    if [ -z "$B" ] || ! [ "$B" = "secretB" ]; then
-                      echo "B:$B"
-                      exit 12
-                    fi
-                  fi
-                ''
-              ];
-            };
           };
         };
 
@@ -94,9 +94,9 @@ let
       testScript =
         { nodes, ... }:
         let
-          provider = nodes.machine.shb.restic.instances."testinstance";
-          backupService = provider.result.backupService;
-          restoreScript = provider.result.restoreScript;
+          requester = nodes.machine.shb.tests.restic.requester;
+          backupService = requester.result.backupService;
+          restoreScript = requester.result.restoreScript;
         in
         ''
           from dictdiffer import diff

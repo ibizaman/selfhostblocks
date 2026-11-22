@@ -28,13 +28,15 @@ shb.test.runNixOSTest {
     {
       imports = [ shb.test.baseImports ] ++ modules;
       config = lib.mkMerge [
-        (setAttrByPath providerRoot {
-          request = (getAttrFromPath requesterRoot config).request;
-          settings = settings {
-            inherit config;
-            repository = "/opt/repos/database";
-          };
-        })
+        (setAttrByPath providerRoot (
+          (getAttrFromPath requesterRoot config)
+          // {
+            settings = settings {
+              inherit config;
+              repository = "/opt/repos/database";
+            };
+          }
+        ))
         (mkIf (database != "root") {
           users.users.${database} = {
             isSystemUser = true;
@@ -51,7 +53,7 @@ shb.test.runNixOSTest {
   testScript =
     { nodes, ... }:
     let
-      provider = (getAttrFromPath providerRoot nodes.machine).result;
+      requester = (getAttrFromPath requesterRoot nodes.machine).result;
     in
     ''
       import csv
@@ -89,17 +91,17 @@ shb.test.runNixOSTest {
           machine.succeed(peer_cmd("UPDATE test SET count = 1"))
 
       with subtest("Initial snapshots"):
-          st, out = machine.execute("${provider.restoreScript} snapshots")
+          st, out = machine.execute("${requester.restoreScript} snapshots")
           if st == 0:
               out = out.splitlines()
               if len(out) != 0:
                   raise Exception(f"Unexpected snapshots:\n{out}")
 
       with subtest("backup"):
-          machine.succeed("systemctl start --wait ${provider.backupService}")
+          machine.succeed("systemctl start --wait ${requester.backupService}")
 
       with subtest("One snapshot"):
-          out = machine.succeed("${provider.restoreScript} snapshots").splitlines()
+          out = machine.succeed("${requester.restoreScript} snapshots").splitlines()
           print(f"Found snapshots:\n{out}")
           if len(out) != 1:
               raise Exception(f"Unexpected snapshots:\n{out}")
@@ -112,10 +114,10 @@ shb.test.runNixOSTest {
           cmp_tables(res, table)
 
       with subtest("backup"):
-          machine.succeed("systemctl start --wait ${provider.backupService}")
+          machine.succeed("systemctl start --wait ${requester.backupService}")
 
       with subtest("Two snapshots"):
-          out = machine.succeed("${provider.restoreScript} snapshots").splitlines()
+          out = machine.succeed("${requester.restoreScript} snapshots").splitlines()
           print(f"Found snapshots:\n{out}")
           if len(out) != 2:
               raise Exception(f"Unexpected snapshots:\n{out}")
@@ -130,26 +132,26 @@ shb.test.runNixOSTest {
           machine.fail(peer_cmd("SELECT * FROM test"))
 
       with subtest("restore second snapshot"):
-          print(machine.succeed("readlink -f $(type ${provider.restoreScript})"))
-          machine.succeed(f"${provider.restoreScript} restore {secondSnapshot}")
+          print(machine.succeed("readlink -f $(type ${requester.restoreScript})"))
+          machine.succeed(f"${requester.restoreScript} restore {secondSnapshot}")
 
           res = query("SELECT * FROM test ORDER BY name")
           table = [{'name': 'car', 'count': '1'}, {'name': 'lollipop', 'count': '2'}]
           cmp_tables(res, table)
 
       with subtest("restore first snapshot"):
-          print(machine.succeed("readlink -f $(type ${provider.restoreScript})"))
-          machine.succeed(f"${provider.restoreScript} restore {firstSnapshot}")
+          print(machine.succeed("readlink -f $(type ${requester.restoreScript})"))
+          machine.succeed(f"${requester.restoreScript} restore {firstSnapshot}")
 
           res = query("SELECT * FROM test ORDER BY name")
           table = [{'name': 'car', 'count': '1'}]
           cmp_tables(res, table)
 
       with subtest("failed database dumps fail the backup"):
-          snapshots_before = machine.succeed("${provider.restoreScript} snapshots").splitlines()
+          snapshots_before = machine.succeed("${requester.restoreScript} snapshots").splitlines()
           machine.succeed("systemctl stop postgresql.service")
-          machine.fail("systemctl start --wait ${provider.backupService}")
-          snapshots_after = machine.succeed("${provider.restoreScript} snapshots").splitlines()
+          machine.fail("systemctl start --wait ${requester.backupService}")
+          snapshots_after = machine.succeed("${requester.restoreScript} snapshots").splitlines()
           assert snapshots_after == snapshots_before, f"Failed dump changed snapshots: {snapshots_before} -> {snapshots_after}"
     '';
 }
