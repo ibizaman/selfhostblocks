@@ -1,78 +1,186 @@
 {
-  pkgs,
   lib,
+  config,
+  pkgs,
   shb,
+  ...
 }:
 let
-  inherit (lib) mkOption optionalAttrs;
-  inherit (lib.types) anything;
+  mkContract =
+    contractDef:
+    # pass through extra attributes to the contract object
+    (contractDef.passthru or { })
+    // {
 
-  mkContractFunctions =
-    {
-      mkRequest,
-      mkResult,
-    }:
-    {
-      mkRequester = requestCfg: {
-        request = mkRequest requestCfg;
-
-        result = mkResult { };
-      };
-
+      link =
+        requestsList:
+        lib.mkMerge (
+          lib.map (value: {
+            "${lib.strings.sanitizeDerivationName value.requesterPath}" = value;
+          }) requestsList
+        );
+      register =
+        providersList:
+        lib.groupBy (p: p.requesterPath) (lib.filter (p: p.requesterPath != null) providersList);
       mkProvider =
-        {
-          resultCfg,
-          settings ? { },
-        }:
-        {
-          request = mkRequest { };
+        providerDef:
+        lib.types.submodule (
+          { options, ... }: {
+            imports = [
+              providerDef
+            ];
+            options = {
+              providerPath = lib.mkOption {
+                internal = true;
+                description = "Path of the provider, used for error messages";
+                type = lib.types.str;
+                readOnly = true;
+                default = lib.showOption (lib.init options.providerPath.loc);
+              };
+              requesterPath = lib.mkOption {
+                internal = true;
+                description = "Path of the requester, used to locate the result";
+                type = lib.types.nullOr lib.types.str;
+                default = null;
+              };
+              request = lib.mkOption {
+                description = "The request data, filled by the requester";
+                type = lib.types.submodule (
+                  {
+                    lib,
+                    name,
+                    options,
+                    ...
+                  }:
+                  {
+                    options = contractDef.request { inherit lib name options; };
+                  }
+                );
+              };
+              result = lib.mkOption {
+                description = "The result data";
+                type = lib.types.submodule (
+                  {
+                    lib,
+                    name,
+                    options,
+                    ...
+                  }:
+                  {
+                    options = contractDef.result { inherit lib name options; };
+                  }
+                );
+                apply = _: options.result.type.merge options.result.loc [ ]; # to prevent the provider's result being assigned here
+              };
+            };
+          }
+        );
 
-          result = mkResult resultCfg;
-        }
-        // optionalAttrs (settings != { }) { inherit settings; };
+      mkRequester =
+        defaults:
+        (lib.types.submodule (
+          args@{ ... }:
+          {
+            options = {
+              requesterPath = lib.mkOption {
+                internal = true;
+                description = "Path of the requester, used to locate the result";
+                type = lib.types.str;
+                readOnly = true;
+                default =
+                  let
+                    loc = lib.init args.options.request.loc;
+                  in
+                  if loc == [ ] then
+                    throw ''
+                      A contract requester was accessed but has no default.
+                      Add `default = { };` to the option declaring it (the one using `mkRequester` as its type).
+                    ''
+                  else
+                    lib.showOption loc;
+              };
+              request = lib.mkOption {
+                description = "The request data, filled by the requester";
+                default = { };
+                type = lib.types.submodule (
+                  let
+                    # To allow the request to specify defaults, that will automatically
+                    # end up in the doc (or else show the contract defaults)
+                    withDefaults =
+                      options: defaults:
+                      lib.mapAttrs (
+                        n: o:
+                        if !(defaults ? ${n}) then
+                          o
+                        else if lib.isOption o then
+                          o // { default = defaults.${n}; }
+                        else
+                          withDefaults o defaults.${n}
+                      ) options;
+                  in
+                  {
+                    lib,
+                    name,
+                    options,
+                    ...
+                  }:
+                  {
+                    options = withDefaults (contractDef.request { inherit lib name options; }) defaults;
+                  }
+                );
+              };
 
-      contract = {
-        request = mkRequest { };
+              result = lib.mkOption {
+                internal = true;
+                description = "The result data";
+                type = lib.types.uniq (
+                  lib.types.submodule (
+                    {
+                      lib,
+                      name,
+                      options,
+                      ...
+                    }:
+                    {
+                      options = contractDef.result { inherit lib name options; };
+                    }
+                  )
+                );
+              };
+            };
+            config.result =
+              let
+                linked = config.shb.contractResults.${args.config.requesterPath} or [ ];
+              in
+              if lib.length linked > 1 then
+                throw "The option `${args.config.requesterPath}' is linked to multiple providers: ${
+                  lib.concatMapStringsSep ", " (p: p.providerPath) linked
+                }"
+              else if lib.length linked == 0 then
+                throw "The option `${args.config.requesterPath}' is not linked to any provider"
+              else
+                (lib.head linked).result;
+          }
+        ));
 
-        result = mkResult { };
-
-        settings = mkOption {
-          description = ''
-            Optional attribute set with options specific to the provider.
-          '';
-          type = anything;
-        };
-      };
     };
-
-  importContract =
-    module:
-    let
-      importedModule = pkgs.callPackage module {
-        shb = shb // {
-          inherit contracts;
-        };
-      };
-    in
-    (mkContractFunctions {
-      inherit (importedModule) mkRequest mkResult;
-    })
-    // (importedModule.passthru or { });
-
-  contracts = {
-    databasebackup = importContract ./databasebackup.nix;
-    datasetbackup = importContract ./datasetbackup.nix;
-    dashboard = importContract ./dashboard.nix;
-    backup = importContract ./backup.nix;
-    mount = pkgs.callPackage ./mount.nix { };
-    secret = importContract ./secret.nix;
-    ssl = pkgs.callPackage ./ssl.nix { };
-    test = {
-      secret = pkgs.callPackage ./secret/test.nix { inherit shb; };
-      databasebackup = pkgs.callPackage ./databasebackup/test.nix { inherit shb; };
-      datasetbackup = pkgs.callPackage ./datasetbackup/test.nix { inherit shb; };
-      backup = pkgs.callPackage ./backup/test.nix { inherit shb; };
-    };
-  };
 in
-contracts
+
+{
+  options.shb.contractResults = lib.mkOption {
+    internal = true;
+    type = lib.types.lazyAttrsOf (lib.types.listOf lib.types.raw);
+    default = { };
+  };
+
+  config._module.args.shbContracts =
+    lib.mapAttrs (_: file: mkContract (import file { inherit lib shb pkgs; }))
+      {
+        secret = ./secret.nix;
+        ssl = ./ssl.nix;
+        backup = ./backup.nix;
+        databasebackup = ./databasebackup.nix;
+        datasetbackup = ./datasetbackup.nix;
+      };
+
+}

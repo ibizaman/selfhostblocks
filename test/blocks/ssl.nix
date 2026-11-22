@@ -7,26 +7,41 @@ in
     name = "ssl-letsencrypt-dns-provider";
 
     nodes.server =
-      { config, ... }:
+      { config, lib, ... }:
       {
         imports = [
           shb.test.baseImports
           ../../modules/blocks/ssl.nix
+          ../../lib/module.nix
+          ({ shb, ... }: {
+            options = {
+              shb.tests.ssl.letsEncryptRequester = lib.mkOption {
+                default = { };
+                type = shb.contracts.ssl.mkRequester {
+                  domain = "dns.example.com";
+                };
+              };
+            };
+          })
         ];
 
-        shb.certs.certs.letsencrypt.dns = {
-          domain = "dns.example.com";
-          dnsProvider = "namecheap";
-          credentialsFile = "/run/this-file-does-not-exist-acme-env";
-          adminEmail = "admin@example.com";
+        config = {
+          shb.certs.certs.letsencrypt.dns = config.shb.tests.ssl.letsEncryptRequester // {
+            settings = {
+              dnsProvider = "namecheap";
+              credentialsFile = "/run/this-file-does-not-exist-acme-env";
+              adminEmail = "admin@example.com";
+            };
+          };
         };
       };
 
     testScript = { nodes, ... }: ''
       start_all()
-      server.succeed("systemctl start ${nodes.server.shb.certs.certs.letsencrypt.dns.systemdService}")
-      server.succeed("test -s ${nodes.server.shb.certs.certs.letsencrypt.dns.paths.cert}")
-      server.succeed("${pkgs.openssl}/bin/openssl x509 -in ${nodes.server.shb.certs.certs.letsencrypt.dns.paths.cert} -noout -checkhost dns.example.com | grep 'does match certificate'")
+      server.succeed("systemctl start ${nodes.server.shb.tests.ssl.letsEncryptRequester.result.systemdService}")
+      server.succeed("test -s ${nodes.server.shb.tests.ssl.letsEncryptRequester.result.cert}")
+      server.succeed("test -s ${nodes.server.shb.tests.ssl.letsEncryptRequester.result.key}")
+      server.succeed("${pkgs.openssl}/bin/openssl x509 -in ${nodes.server.shb.tests.ssl.letsEncryptRequester.result.cert} -noout -checkhost dns.example.com | grep 'does match certificate'")
     '';
   };
 
@@ -34,12 +49,55 @@ in
     name = "ssl-test";
 
     nodes.server =
-      { config, pkgs, ... }:
+      {
+        config,
+        pkgs,
+        lib,
+        ...
+      }:
       {
         imports = [
           (pkgs'.path + "/nixos/modules/profiles/headless.nix")
           (pkgs'.path + "/nixos/modules/profiles/qemu-guest.nix")
           ../../modules/blocks/ssl.nix
+          ({ shb, ... }: {
+            options = {
+              shb.tests.ssl.carequester =
+                lib.mapAttrs
+                  (
+                    _: v:
+                    lib.mkOption {
+                      default = { };
+                      type = shb.contracts.ssl.mkRequester v;
+                    }
+                  )
+                  {
+                    top = {
+                      domain = "example.com";
+                      group = "nginx";
+                    };
+                    subdomain = {
+                      domain = "subdomain.example.com";
+                      group = "nginx";
+                    };
+                    multi = {
+                      domain = "multi1.example.com";
+                      extraDomains = [
+                        "multi2.example.com"
+                        "multi3.example.com"
+                      ];
+                      group = "nginx";
+                    };
+                    cert1 = {
+                      domain = "cert1.example.com";
+                    };
+                    cert2 = {
+                      domain = "cert2.example.com";
+                      group = "group2";
+                    };
+                  };
+            };
+          })
         ];
 
         users.users = {
@@ -66,43 +124,15 @@ in
               name = "My Other CA";
             };
           };
-          certs.selfsigned = {
-            top = {
-              ca = config.shb.certs.cas.selfsigned.myca;
-
-              domain = "example.com";
-              group = "nginx";
-            };
-            subdomain = {
-              ca = config.shb.certs.cas.selfsigned.myca;
-
-              domain = "subdomain.example.com";
-              group = "nginx";
-            };
-            multi = {
-              ca = config.shb.certs.cas.selfsigned.myca;
-
-              domain = "multi1.example.com";
-              extraDomains = [
-                "multi2.example.com"
-                "multi3.example.com"
-              ];
-              group = "nginx";
-            };
-
-            cert1 = {
-              ca = config.shb.certs.cas.selfsigned.myca;
-
-              domain = "cert1.example.com";
-            };
-            cert2 = {
-              ca = config.shb.certs.cas.selfsigned.myca;
-
-              domain = "cert2.example.com";
-              group = "group2";
-            };
-          };
         };
+
+        shb.certs.certs.selfsigned = lib.mapAttrs (
+          _: req:
+          req
+          // {
+            settings.ca = config.shb.certs.cas.selfsigned.myca;
+          }
+        ) config.shb.tests.ssl.carequester;
 
         # The configuration below is to create a webserver that uses the server certificate.
         networking.hosts."127.0.0.1" = [
@@ -119,8 +149,8 @@ in
           let
             mkVirtualHost = response: cert: {
               onlySSL = true;
-              sslCertificate = cert.paths.cert;
-              sslCertificateKey = cert.paths.key;
+              sslCertificate = cert.cert;
+              sslCertificateKey = cert.key;
               locations."/".extraConfig = ''
                 add_header Content-Type text/plain;
                 return 200 '${response}';
@@ -128,26 +158,27 @@ in
             };
           in
           {
-            "example.com" = mkVirtualHost "Top domain" config.shb.certs.certs.selfsigned.top;
-            "subdomain.example.com" = mkVirtualHost "Subdomain" config.shb.certs.certs.selfsigned.subdomain;
-            "multi1.example.com" = mkVirtualHost "multi1" config.shb.certs.certs.selfsigned.multi;
-            "multi2.example.com" = mkVirtualHost "multi2" config.shb.certs.certs.selfsigned.multi;
-            "multi3.example.com" = mkVirtualHost "multi3" config.shb.certs.certs.selfsigned.multi;
+            "example.com" = mkVirtualHost "Top domain" config.shb.tests.ssl.carequester.top.result;
+            "subdomain.example.com" =
+              mkVirtualHost "Subdomain" config.shb.tests.ssl.carequester.subdomain.result;
+            "multi1.example.com" = mkVirtualHost "multi1" config.shb.tests.ssl.carequester.multi.result;
+            "multi2.example.com" = mkVirtualHost "multi2" config.shb.tests.ssl.carequester.multi.result;
+            "multi3.example.com" = mkVirtualHost "multi3" config.shb.tests.ssl.carequester.multi.result;
           };
         systemd.services.nginx = {
           after = [
-            config.shb.certs.certs.selfsigned.top.systemdService
-            config.shb.certs.certs.selfsigned.subdomain.systemdService
-            config.shb.certs.certs.selfsigned.multi.systemdService
-            config.shb.certs.certs.selfsigned.cert1.systemdService
-            config.shb.certs.certs.selfsigned.cert2.systemdService
+            config.shb.tests.ssl.carequester.top.result.systemdService
+            config.shb.tests.ssl.carequester.subdomain.result.systemdService
+            config.shb.tests.ssl.carequester.multi.result.systemdService
+            config.shb.tests.ssl.carequester.cert1.result.systemdService
+            config.shb.tests.ssl.carequester.cert2.result.systemdService
           ];
           requires = [
-            config.shb.certs.certs.selfsigned.top.systemdService
-            config.shb.certs.certs.selfsigned.subdomain.systemdService
-            config.shb.certs.certs.selfsigned.multi.systemdService
-            config.shb.certs.certs.selfsigned.cert1.systemdService
-            config.shb.certs.certs.selfsigned.cert2.systemdService
+            config.shb.tests.ssl.carequester.top.result.systemdService
+            config.shb.tests.ssl.carequester.subdomain.result.systemdService
+            config.shb.tests.ssl.carequester.multi.result.systemdService
+            config.shb.tests.ssl.carequester.cert1.result.systemdService
+            config.shb.tests.ssl.carequester.cert2.result.systemdService
           ];
         };
       };
@@ -158,11 +189,11 @@ in
       let
         myca = nodes.server.shb.certs.cas.selfsigned.myca;
         myotherca = nodes.server.shb.certs.cas.selfsigned.myotherca;
-        top = nodes.server.shb.certs.certs.selfsigned.top;
-        subdomain = nodes.server.shb.certs.certs.selfsigned.subdomain;
-        multi = nodes.server.shb.certs.certs.selfsigned.multi;
-        cert1 = nodes.server.shb.certs.certs.selfsigned.cert1;
-        cert2 = nodes.server.shb.certs.certs.selfsigned.cert2;
+        top = nodes.server.shb.tests.ssl.carequester.top;
+        subdomain = nodes.server.shb.tests.ssl.carequester.subdomain;
+        multi = nodes.server.shb.tests.ssl.carequester.multi;
+        cert1 = nodes.server.shb.tests.ssl.carequester.cert1;
+        cert2 = nodes.server.shb.tests.ssl.carequester.cert2;
       in
       ''
         start_all()
@@ -172,16 +203,16 @@ in
         server.wait_for_file("${myca.paths.cert}")
         server.wait_for_file("${myotherca.paths.key}")
         server.wait_for_file("${myotherca.paths.cert}")
-        server.wait_for_file("${top.paths.key}")
-        server.wait_for_file("${top.paths.cert}")
-        server.wait_for_file("${subdomain.paths.key}")
-        server.wait_for_file("${subdomain.paths.cert}")
-        server.wait_for_file("${multi.paths.key}")
-        server.wait_for_file("${multi.paths.cert}")
-        server.wait_for_file("${cert1.paths.key}")
-        server.wait_for_file("${cert1.paths.cert}")
-        server.wait_for_file("${cert2.paths.key}")
-        server.wait_for_file("${cert2.paths.cert}")
+        server.wait_for_file("${top.result.key}")
+        server.wait_for_file("${top.result.cert}")
+        server.wait_for_file("${subdomain.result.key}")
+        server.wait_for_file("${subdomain.result.cert}")
+        server.wait_for_file("${multi.result.key}")
+        server.wait_for_file("${multi.result.cert}")
+        server.wait_for_file("${cert1.result.key}")
+        server.wait_for_file("${cert1.result.cert}")
+        server.wait_for_file("${cert2.result.key}")
+        server.wait_for_file("${cert2.result.cert}")
 
         server.require_unit_state("${nodes.server.shb.certs.systemdService}", "inactive")
 
@@ -202,10 +233,10 @@ in
         with subtest("Certificates content seem correct"):
             myca_key = server.succeed("cat {}".format("${myca.paths.key}")).strip();
             myca_cert = server.succeed("cat {}".format("${myca.paths.cert}")).strip();
-            cert1_key = server.succeed("cat {}".format("${cert1.paths.key}")).strip();
-            cert1_cert = server.succeed("cat {}".format("${cert1.paths.cert}")).strip();
-            cert2_key = server.succeed("cat {}".format("${cert2.paths.key}")).strip();
-            cert2_cert = server.succeed("cat {}".format("${cert2.paths.cert}")).strip();
+            cert1_key = server.succeed("cat {}".format("${cert1.result.key}")).strip();
+            cert1_cert = server.succeed("cat {}".format("${cert1.result.cert}")).strip();
+            cert2_key = server.succeed("cat {}".format("${cert2.result.key}")).strip();
+            cert2_cert = server.succeed("cat {}".format("${cert2.result.cert}")).strip();
             ca_bundle = server.succeed("cat /etc/ssl/certs/ca-bundle.crt").strip();
 
             if myca_cert == "":
@@ -247,15 +278,15 @@ in
                 raise Exception('Unexpected response, got: {}'.format(resp))
 
         with subtest("Certificate has correct permission"):
-            assert_owner("${cert1.paths.key}", "root", "root")
-            assert_owner("${cert1.paths.cert}", "root", "root")
-            assert_perm("${cert1.paths.key}", "640")
-            assert_perm("${cert1.paths.cert}", "640")
-            
-            assert_owner("${cert2.paths.key}", "root", "group2")
-            assert_owner("${cert2.paths.cert}", "root", "group2")
-            assert_perm("${cert2.paths.key}", "640")
-            assert_perm("${cert2.paths.cert}", "640")
+            assert_owner("${cert1.result.key}", "root", "root")
+            assert_owner("${cert1.result.cert}", "root", "root")
+            assert_perm("${cert1.result.key}", "640")
+            assert_perm("${cert1.result.cert}", "640")
+
+            assert_owner("${cert2.result.key}", "root", "group2")
+            assert_owner("${cert2.result.cert}", "root", "group2")
+            assert_perm("${cert2.result.key}", "640")
+            assert_perm("${cert2.result.cert}", "640")
 
         with subtest("Certificates content seem correct"):
             if cert1_key == "":
@@ -284,10 +315,10 @@ in
 
             new_myca_key = server.succeed("cat {}".format("${myca.paths.key}")).strip();
             new_myca_cert = server.succeed("cat {}".format("${myca.paths.cert}")).strip();
-            new_cert1_key = server.succeed("cat {}".format("${cert1.paths.key}")).strip();
-            new_cert1_cert = server.succeed("cat {}".format("${cert1.paths.cert}")).strip();
-            new_cert2_key = server.succeed("cat {}".format("${cert2.paths.key}")).strip();
-            new_cert2_cert = server.succeed("cat {}".format("${cert2.paths.cert}")).strip();
+            new_cert1_key = server.succeed("cat {}".format("${cert1.result.key}")).strip();
+            new_cert1_cert = server.succeed("cat {}".format("${cert1.result.cert}")).strip();
+            new_cert2_key = server.succeed("cat {}".format("${cert2.result.key}")).strip();
+            new_cert2_cert = server.succeed("cat {}".format("${cert2.result.cert}")).strip();
             new_ca_bundle = server.succeed("cat /etc/ssl/certs/ca-bundle.crt").strip();
             if new_myca_key != myca_key:
                 raise Exception("New CA key is different from old one.")

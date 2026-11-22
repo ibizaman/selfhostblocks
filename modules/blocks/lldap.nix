@@ -89,7 +89,16 @@ in
 
     ssl = lib.mkOption {
       description = "Path to SSL files";
-      type = lib.types.nullOr shb.contracts.ssl.certs;
+      type = lib.types.nullOr (
+        shb.contracts.ssl.mkRequester (
+          let
+            cfg = config.shb.lldap;
+          in
+          {
+            domain = "${cfg.subdomain}.${cfg.domain}";
+          }
+        )
+      );
       default = null;
     };
 
@@ -101,25 +110,23 @@ in
 
     ldapUserPassword = lib.mkOption {
       description = "LDAP admin user secret. Must be >= 8 characters.";
-      type = lib.types.submodule {
-        options = shb.contracts.secret.mkRequester {
-          mode = "0440";
-          owner = "lldap";
-          group = "lldap";
-          restartUnits = [ "lldap.service" ];
-        };
+      default = { };
+      type = shb.contracts.secret.mkRequester {
+        mode = "0440";
+        owner = "lldap";
+        group = "lldap";
+        restartUnits = [ "lldap.service" ];
       };
     };
 
     jwtSecret = lib.mkOption {
       description = "JWT secret.";
-      type = lib.types.submodule {
-        options = shb.contracts.secret.mkRequester {
-          mode = "0440";
-          owner = "lldap";
-          group = "lldap";
-          restartUnits = [ "lldap.service" ];
-        };
+      default = { };
+      type = shb.contracts.secret.mkRequester {
+        mode = "0440";
+        owner = "lldap";
+        group = "lldap";
+        restartUnits = [ "lldap.service" ];
       };
     };
 
@@ -136,40 +143,27 @@ in
       default = false;
     };
 
-    mount = lib.mkOption {
-      type = shb.contracts.mount;
+    impermanence = lib.mkOption {
+      type = lib.types.str;
       description = ''
-        Mount configuration. This is an output option.
-
-        Use it to initialize a block implementing the "mount" contract.
-        For example, with a zfs dataset:
-
-        ```
-        shb.zfs.datasets."ldap" = {
-          poolName = "root";
-        } // config.shb.lldap.mount;
-        ```
+        Path to save when using impermanence setup.
       '';
       readOnly = true;
-      default = {
-        path = "/var/lib/lldap";
-      };
+      default = "/var/lib/lldap";
     };
 
     backup = lib.mkOption {
       description = ''
         Backup configuration.
       '';
-      type = lib.types.submodule {
-        options = shb.contracts.backup.mkRequester {
-          # TODO: is there a workaround that avoid needing to use root?
-          # root because otherwise we cannot access the private StateDiretory
-          user = "root";
-          # /private because the systemd service uses DynamicUser=true
-          sourceDirectories = [
-            "/var/lib/private/lldap"
-          ];
-        };
+      type = shb.contracts.backup.mkRequester {
+        # TODO: is there a workaround that avoid needing to use root?
+        # root because otherwise we cannot access the private StateDiretory
+        user = "root";
+        # /private because the systemd service uses DynamicUser=true
+        sourceDirectories = [
+          "/var/lib/private/lldap"
+        ];
       };
     };
 
@@ -203,13 +197,12 @@ in
 
               password = mkOption {
                 description = "Password.";
-                type = lib.types.submodule {
-                  options = shb.contracts.secret.mkRequester {
-                    mode = "0440";
-                    owner = "lldap";
-                    group = "lldap";
-                    restartUnits = [ "lldap.service" ];
-                  };
+                default = { };
+                type = shb.contracts.secret.mkRequester {
+                  mode = "0440";
+                  owner = "lldap";
+                  group = "lldap";
+                  restartUnits = [ "lldap.service" ];
                 };
               };
 

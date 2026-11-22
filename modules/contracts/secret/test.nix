@@ -23,11 +23,15 @@ shb.test.runNixOSTest {
   nodes.machine =
     { config, ... }:
     {
-      imports = [ shb.test.baseImports ] ++ modules;
-      config = lib.mkMerge [
-        (setAttrByPath configRoot {
-          A = {
-            request = {
+      imports = [
+        shb.test.baseImports
+      ]
+      ++ modules
+      ++ [
+        ({ shb, lib, ... }: {
+          options.shb.tests.secret.requester = lib.mkOption {
+            default = { };
+            type = shb.contracts.secret.mkRequester {
               inherit
                 owner
                 group
@@ -35,9 +39,16 @@ shb.test.runNixOSTest {
                 restartUnits
                 ;
             };
-            settings = settingsCfg "secretA";
           };
         })
+      ];
+      config = lib.mkMerge [
+        (setAttrByPath (configRoot ++ [ "A" ]) (
+          config.shb.tests.secret.requester
+          // {
+            settings = settingsCfg "secretA";
+          }
+        ))
         (mkIf (owner != "root") {
           users.users.${owner}.isNormalUser = true;
         })
@@ -50,7 +61,7 @@ shb.test.runNixOSTest {
   testScript =
     { nodes, ... }:
     let
-      result = (getAttrFromPath configRoot nodes.machine)."A".result;
+      result = nodes.machine.shb.tests.secret.requester.result;
     in
     ''
       owner = machine.succeed("stat -c '%U' ${result.path}").strip()

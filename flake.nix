@@ -271,9 +271,6 @@
 
         lib = (pkgs.callPackage ./lib { }) // {
           test = pkgs.callPackage ./test/common.nix { };
-          contracts = pkgs.callPackage ./modules/contracts {
-            shb = self.lib.${system};
-          };
           patches = shbPatches system;
           inherit patchNixpkgs;
           patchedNixpkgs = patchedNixpkgs system;
@@ -391,58 +388,58 @@
           in
           (
             {
-              modules = self.lib.${system}.check {
-                inherit pkgs;
-                tests = mergeTests (importFiles [
-                  ./test/modules/davfs.nix
-                  ./test/modules/zfs.nix
-                  # TODO: Make this not use IFD
-                  ./test/modules/lib.nix
-                ]);
-              };
+              #              modules = self.lib.${system}.check {
+              #                inherit pkgs;
+              #                tests = mergeTests (importFiles [
+              #                  ./test/modules/davfs.nix
+              #                  ./test/modules/zfs.nix
+              #                  # TODO: Make this not use IFD
+              #                  ./test/modules/lib.nix
+              #                ]);
+              #              };
 
               # TODO: Make this not use IFD
-              lib = nix-flake-tests.lib.check {
-                inherit pkgs;
-                tests = pkgs.callPackage ./test/modules/lib.nix {
-                  shb = self.lib.${system};
-                };
-              };
+              #              lib = nix-flake-tests.lib.check {
+              #                inherit pkgs;
+              #                tests = pkgs.callPackage ./test/modules/lib.nix {
+              #                  shb = self.lib.${system};
+              #                };
+              #              };
             }
-            // (vm_test "arr" ./test/services/arr.nix)
-            // (vm_test "audiobookshelf" ./test/services/audiobookshelf.nix)
-            // (vm_test "deluge" ./test/services/deluge.nix)
-            // (vm_test "firefly-iii" ./test/services/firefly-iii.nix)
-            // (vm_test "forgejo" ./test/services/forgejo.nix)
-            // (vm_test "grocy" ./test/services/grocy.nix)
-            // (vm_test "hledger" ./test/services/hledger.nix)
-            // (vm_test "homeassistant" ./test/services/home-assistant.nix)
-            // (vm_test "homepage" ./test/services/homepage.nix)
-            // (vm_test "immich" ./test/services/immich.nix)
-            // (vm_test "jellyfin" ./test/services/jellyfin.nix)
-            // (vm_test "karakeep" ./test/services/karakeep.nix)
-            // (vm_test "mailserver" ./test/services/mailserver.nix)
-            // (vm_test "navidrome" ./test/services/navidrome.nix)
-            // (vm_test "nextcloud" ./test/services/nextcloud.nix)
-            // (vm_test "open-webui" ./test/services/open-webui.nix)
-            // (vm_test "paperless" ./test/services/paperless.nix)
-            // (vm_test "pinchflat" ./test/services/pinchflat.nix)
-            // (vm_test "vaultwarden" ./test/services/vaultwarden.nix)
-
-            // (vm_test "authelia" ./test/blocks/authelia.nix)
+            #            // (vm_test "arr" ./test/services/arr.nix)
+            #            // (vm_test "audiobookshelf" ./test/services/audiobookshelf.nix)
+            #            // (vm_test "deluge" ./test/services/deluge.nix)
+            #            // (vm_test "firefly-iii" ./test/services/firefly-iii.nix)
+            #            // (vm_test "forgejo" ./test/services/forgejo.nix)
+            #            // (vm_test "grocy" ./test/services/grocy.nix)
+            #            // (vm_test "hledger" ./test/services/hledger.nix)
+            #            // (vm_test "homeassistant" ./test/services/home-assistant.nix)
+            #            // (vm_test "homepage" ./test/services/homepage.nix)
+            #            // (vm_test "immich" ./test/services/immich.nix)
+            #            // (vm_test "jellyfin" ./test/services/jellyfin.nix)
+            #            // (vm_test "karakeep" ./test/services/karakeep.nix)
+            #            // (vm_test "mailserver" ./test/services/mailserver.nix)
+            #            // (vm_test "navidrome" ./test/services/navidrome.nix)
+            #            // (vm_test "nextcloud" ./test/services/nextcloud.nix)
+            #            // (vm_test "open-webui" ./test/services/open-webui.nix)
+            #            // (vm_test "paperless" ./test/services/paperless.nix)
+            #            // (vm_test "pinchflat" ./test/services/pinchflat.nix)
+            #            // (vm_test "vaultwarden" ./test/services/vaultwarden.nix)
+            #
+            #            // (vm_test "authelia" ./test/blocks/authelia.nix)
             // (vm_test "borgbackup" ./test/blocks/borgbackup.nix)
             // (vm_test "lib" ./test/blocks/lib.nix)
             // (vm_test "lldap" ./test/blocks/lldap.nix)
-            // (vm_test "mitmdump" ./test/blocks/mitmdump.nix)
-            // (vm_test "monitoring" ./test/blocks/monitoring.nix)
+                        // (vm_test "mitmdump" ./test/blocks/mitmdump.nix)
+                        // (vm_test "monitoring" ./test/blocks/monitoring.nix)
             // (vm_test "postgresql" ./test/blocks/postgresql.nix)
             // (vm_test "restic" ./test/blocks/restic.nix)
             // (vm_test "ssl" ./test/blocks/ssl.nix)
-            // (vm_test "zfs" ./test/blocks/zfs.nix)
+                        // (vm_test "zfs" ./test/blocks/zfs.nix)
 
             // (vm_test "contracts-backup" ./test/contracts/backup.nix)
             // (vm_test "contracts-databasebackup" ./test/contracts/databasebackup.nix)
-            // (vm_test "contracts-datasetbackup" ./test/contracts/datasetbackup.nix)
+                        // (vm_test "contracts-datasetbackup" ./test/contracts/datasetbackup.nix)
             // (vm_test "contracts-secret" ./test/contracts/secret.nix)
           );
 

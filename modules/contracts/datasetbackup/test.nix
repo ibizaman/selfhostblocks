@@ -24,22 +24,27 @@ in
 }:
 shb.test.runNixOSTest {
   inherit name;
-
   nodes.machine =
     { config, ... }:
     {
-      imports = [ shb.test.baseImports ] ++ modules;
+      imports = [ shb.test.baseImports ] ++ modules ++ [
+        ({shb,lib,...}:{
+        options.shb.tests.datasetbackup.requester = lib.mkOption {
+          default = {};
+          type = shb.contracts.datasetbackup.mkRequester {
+          inherit dataset;
+          };
+        };
+        })
+      ];
 
       config = lib.mkMerge [
-        (setAttrByPath providerRoot {
-          request = {
-            inherit dataset;
-          };
+        (setAttrByPath providerRoot ( config.shb.tests.datasetbackup.requester // {
           settings = settings {
             inherit config;
             filesRoot = "/opt/files";
           };
-        })
+        }))
         (lib.optionalAttrs (extraConfig != null) (extraConfig {
           inherit config;
           filesRoot = "/opt/files";
@@ -53,7 +58,7 @@ shb.test.runNixOSTest {
   testScript =
     { nodes, ... }:
     let
-      provider = (getAttrFromPath providerRoot nodes.machine).result;
+      requester = nodes.machine.shb.tests.datasetbackup.requester.result;
     in
     ''
       from datetime import datetime, timedelta
@@ -78,6 +83,9 @@ shb.test.runNixOSTest {
           if len(result) > 0:
               raise Exception("Unexpected files:", result)
 
+      start_all()
+      machine.wait_for_unit("local-fs.target")
+
       with subtest("Create initial content"):
           for path in sourceDirectories:
               machine.succeed(f"""
@@ -93,15 +101,15 @@ shb.test.runNixOSTest {
               })
 
       with subtest("Initial snapshot"):
-          out = machine.succeed("${provider.restoreScript} snapshots").splitlines()
+          out = machine.succeed("${requester.restoreScript} snapshots").splitlines()
           if len(out) != 0:
             raise Exception(f"Unexpected snapshots:\n{out}")
 
       with subtest("First backup in repo"):
-          machine.succeed("systemctl start --wait ${provider.backupService}")
+          machine.succeed("systemctl start --wait ${requester.backupService}")
 
       with subtest("One snapshot"):
-          out = machine.succeed("${provider.restoreScript} snapshots").splitlines()
+          out = machine.succeed("${requester.restoreScript} snapshots").splitlines()
           print(f"Found snapshots:\n{out}")
           if len(out) != 1:
             raise Exception(f"Unexpected snapshots:\n{out}")
@@ -124,10 +132,10 @@ shb.test.runNixOSTest {
               })
 
       with subtest("Second backup in repo"):
-          machine.succeed("systemctl start --wait ${provider.backupService}")
+          machine.succeed("systemctl start --wait ${requester.backupService}")
 
       with subtest("two snapshots"):
-          out = machine.succeed("${provider.restoreScript} snapshots").splitlines()
+          out = machine.succeed("${requester.restoreScript} snapshots").splitlines()
           print(f"Found snapshots:\n{out}")
           if len(out) != 2:
               raise Exception(f"Unexpected snapshots:\n{out}")
@@ -144,7 +152,7 @@ shb.test.runNixOSTest {
               assert_files(path, {})
 
       with subtest("Restore second backup"):
-          machine.succeed(f"${provider.restoreScript} restore {secondSnapshot}")
+          machine.succeed(f"${requester.restoreScript} restore {secondSnapshot}")
 
           for path in sourceDirectories:
               assert_files(path, {
@@ -153,7 +161,7 @@ shb.test.runNixOSTest {
               })
 
       with subtest("Restore first backup"):
-          machine.succeed(f"${provider.restoreScript} restore {firstSnapshot}")
+          machine.succeed(f"${requester.restoreScript} restore {firstSnapshot}")
 
           for path in sourceDirectories:
               assert_files(path, {

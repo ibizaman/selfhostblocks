@@ -13,77 +13,82 @@ let
 
             ../../modules/blocks/hardcodedsecret.nix
             ../../modules/blocks/borgbackup.nix
+            ({ shb, lib, ... }: {
+              options.shb.tests.borgbackup.requester = lib.mkOption {
+                default = { };
+                type = shb.contracts.backup.mkRequester ({
+                  inherit user;
+
+                  sourceDirectories = [
+                    "/opt/files/A"
+                    "/opt/files/B"
+                  ];
+
+                  beforeBackup = [
+                    ''
+                      echo $RUNTIME_DIRECTORY
+                      if [ "$RUNTIME_DIRECTORY" = /run/borgbackup-backups-testinstance_opt_repos_A ]; then
+                        if ! [ -f /run/secrets_borgbackup/borgbackup-backups-testinstance_opt_repos_A ]; then
+                          exit 10
+                        fi
+                        if [ -z "$A" ] || ! [ "$A" = "secretA" ]; then
+                          echo "A:$A"
+                          exit 11
+                        fi
+                        if [ -z "$B" ] || ! [ "$B" = "secretB" ]; then
+                          echo "B:$B"
+                          exit 12
+                        fi
+                      fi
+                    ''
+                  ];
+                });
+              };
+            })
           ];
 
-          shb.hardcodedsecret.A = {
-            request = {
-              owner = "root";
-              group = "keys";
-              mode = "0440";
+          config = {
+
+            shb.hardcodedsecret.A = {
+              request = {
+                owner = "root";
+                group = "keys";
+                mode = "0440";
+              };
+              settings.content = "secretA";
             };
-            settings.content = "secretA";
-          };
-          shb.hardcodedsecret.B = {
-            request = {
-              owner = "root";
-              group = "keys";
-              mode = "0440";
+            shb.hardcodedsecret.B = {
+              request = {
+                owner = "root";
+                group = "keys";
+                mode = "0440";
+              };
+              settings.content = "secretB";
             };
-            settings.content = "secretB";
-          };
 
-          shb.hardcodedsecret.passphrase = {
-            request = config.shb.borgbackup.instances."testinstance".settings.passphrase.request;
-            settings.content = "passphrase";
-          };
+            shb.hardcodedsecret.passphrase =
+              config.shb.borgbackup.instances."testinstance".settings.passphrase
+              // {
+                settings.content = "passphrase";
+              };
 
-          shb.borgbackup.instances."testinstance" = {
-            settings = {
-              enable = true;
-
-              passphrase.result = config.shb.hardcodedsecret.passphrase.result;
-
-              repository = {
-                path = "/opt/repos/A";
-                timerConfig = {
-                  OnCalendar = "00:00:00";
-                  RandomizedDelaySec = "5h";
-                };
-                # Those are not needed by the repository but are still included
-                # so we can test them in the hooks section.
-                secrets = {
-                  A.source = config.shb.hardcodedsecret.A.result.path;
-                  B.source = config.shb.hardcodedsecret.B.result.path;
+            shb.borgbackup.instances."testinstance" = config.shb.tests.borgbackup.requester // {
+              settings = {
+                enable = true;
+                repository = {
+                  path = "/opt/repos/A";
+                  timerConfig = {
+                    OnCalendar = "00:00:00";
+                    RandomizedDelaySec = "5h";
+                  };
+                  # Those are not needed by the repository but are still included
+                  # so we can test them in the hooks section.
+                  secrets = {
+                    A.source = config.shb.hardcodedsecret.A.result.path;
+                    B.source = config.shb.hardcodedsecret.B.result.path;
+                  };
                 };
               };
-            };
-
-            request = {
-              inherit user;
-
-              sourceDirectories = [
-                "/opt/files/A"
-                "/opt/files/B"
-              ];
-
-              beforeBackup = [
-                ''
-                  echo $RUNTIME_DIRECTORY
-                  if [ "$RUNTIME_DIRECTORY" = /run/borgbackup-backups-testinstance_opt_repos_A ]; then
-                    if ! [ -f /run/secrets_borgbackup/borgbackup-backups-testinstance_opt_repos_A ]; then
-                      exit 10
-                    fi
-                    if [ -z "$A" ] || ! [ "$A" = "secretA" ]; then
-                      echo "A:$A"
-                      exit 11
-                    fi
-                    if [ -z "$B" ] || ! [ "$B" = "secretB" ]; then
-                      echo "B:$B"
-                      exit 12
-                    fi
-                  fi
-                ''
-              ];
             };
           };
         };
@@ -94,9 +99,9 @@ let
       testScript =
         { nodes, ... }:
         let
-          provider = nodes.machine.shb.borgbackup.instances."testinstance";
-          backupService = provider.result.backupService;
-          restoreScript = provider.result.restoreScript;
+          requester = nodes.machine.shb.tests.borgbackup.requester;
+          backupService = requester.result.backupService;
+          restoreScript = requester.result.restoreScript;
         in
         ''
           from dictdiffer import diff

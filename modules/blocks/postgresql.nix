@@ -66,20 +66,16 @@ in
       '';
 
       default = { };
-      type = lib.types.submodule {
-        options = shb.contracts.databasebackup.mkRequester {
-          user = "postgres";
+      type = shb.contracts.databasebackup.mkRequester {
+        user = "postgres";
+        backupName = "postgres.sql";
+        backupCmd = ''
+          ${pkgs.postgresql}/bin/pg_dumpall --clean --if-exists | ${pkgs.gzip}/bin/gzip --rsyncable
+        '';
 
-          backupName = "postgres.sql";
-
-          backupCmd = ''
-            ${pkgs.postgresql}/bin/pg_dumpall --clean --if-exists | ${pkgs.gzip}/bin/gzip --rsyncable
-          '';
-
-          restoreCmd = ''
-            ${pkgs.gzip}/bin/gunzip | sudo -u postgres ${pkgs.postgresql}/bin/psql
-          '';
-        };
+        restoreCmd = ''
+          ${pkgs.gzip}/bin/gunzip | sudo -u postgres ${pkgs.postgresql}/bin/psql
+        '';
       };
     };
 

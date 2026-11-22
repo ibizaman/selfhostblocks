@@ -62,6 +62,7 @@ in
         Path to save when using impermanence setup.
       '';
       type = lib.types.str;
+      readOnly = true;
       default = config.services.firefly-iii.dataDir;
       defaultText = "services.firefly-iii.dataDir";
     };

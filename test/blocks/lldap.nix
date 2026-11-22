@@ -34,13 +34,10 @@ in
           dcdomain = "dc=example,dc=com";
           subdomain = "ldap";
           domain = "example.com";
-          ldapUserPassword.result = config.shb.hardcodedsecret.ldapUserPassword.result;
-          jwtSecret.result = config.shb.hardcodedsecret.jwtSecret.result;
 
           ensureUsers = {
             "charlie" = {
               email = "charlie@example.com";
-              password.result = config.shb.hardcodedsecret."charlie".result;
             };
           };
 
@@ -48,16 +45,13 @@ in
             "family" = { };
           };
         };
-        shb.hardcodedsecret.ldapUserPassword = {
-          request = config.shb.lldap.ldapUserPassword.request;
+        shb.hardcodedsecret.ldapUserPassword = config.shb.lldap.ldapUserPassword // {
           settings.content = password;
         };
-        shb.hardcodedsecret.jwtSecret = {
-          request = config.shb.lldap.jwtSecret.request;
+        shb.hardcodedsecret.jwtSecret = config.shb.lldap.jwtSecret // {
           settings.content = "jwtSecret";
         };
-        shb.hardcodedsecret."charlie" = {
-          request = config.shb.lldap.ensureUsers."charlie".password.request;
+        shb.hardcodedsecret."charlie" = config.shb.lldap.ensureUsers."charlie".password // {
           settings.content = charliePassword;
         };
 

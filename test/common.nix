@@ -568,15 +568,17 @@ in
         };
         certs.selfsigned = {
           n = {
-            ca = config.shb.certs.cas.selfsigned.myca;
-            domain = "*.${config.test.domain}";
-            group = "nginx";
+            request = {
+              domain = "*.${config.test.domain}";
+              group = "nginx";
+            };
+            settings.ca = config.shb.certs.cas.selfsigned.myca;
           };
         };
       };
 
-      systemd.services.nginx.after = [ config.shb.certs.certs.selfsigned.n.systemdService ];
-      systemd.services.nginx.requires = [ config.shb.certs.certs.selfsigned.n.systemdService ];
+      systemd.services.nginx.after = [ config.shb.certs.certs.selfsigned.n.result.systemdService ];
+      systemd.services.nginx.requires = [ config.shb.certs.certs.selfsigned.n.result.systemdService ];
     };
 
   ldap =
@@ -590,25 +592,20 @@ in
         "127.0.0.1" = [ "ldap.${config.test.domain}" ];
       };
 
-      shb.hardcodedsecret.ldapUserPassword = {
-        request = config.shb.lldap.ldapUserPassword.request;
+      shb.hardcodedsecret.ldapUserPassword = config.shb.lldap.ldapUserPassword // {
         settings.content = "ldapUserPassword";
       };
-      shb.hardcodedsecret.jwtSecret = {
-        request = config.shb.lldap.jwtSecret.request;
+      shb.hardcodedsecret.jwtSecret = config.shb.lldap.jwtSecret // {
         settings.content = "jwtSecrets";
       };
 
-      shb.hardcodedsecret.alice = {
-        request = config.shb.lldap.ensureUsers.alice.password.request;
+      shb.hardcodedsecret.alice = config.shb.lldap.ensureUsers.alice.password // {
         settings.content = "AlicePassword";
       };
-      shb.hardcodedsecret.bob = {
-        request = config.shb.lldap.ensureUsers.bob.password.request;
+      shb.hardcodedsecret.bob = config.shb.lldap.ensureUsers.bob.password // {
         settings.content = "BobPassword";
       };
-      shb.hardcodedsecret.charlie = {
-        request = config.shb.lldap.ensureUsers.charlie.password.request;
+      shb.hardcodedsecret.charlie = config.shb.lldap.ensureUsers.charlie.password // {
         settings.content = "CharliePassword";
       };
 
@@ -619,8 +616,6 @@ in
         ldapPort = 3890;
         webUIListenPort = 17170;
         dcdomain = "dc=example,dc=com";
-        ldapUserPassword.result = config.shb.hardcodedsecret.ldapUserPassword.result;
-        jwtSecret.result = config.shb.hardcodedsecret.jwtSecret.result;
         debug = false; # Enable this if needed, but beware it is _very_ verbose.
 
         ensureUsers = {
@@ -629,7 +624,6 @@ in
             # Display name is required by at least home-assistant.
             displayName = "Alice Alice";
             groups = [ "user_group" ];
-            password.result = config.shb.hardcodedsecret.alice.result;
           };
           bob = {
             email = "bob@example.com";
@@ -638,13 +632,11 @@ in
             # so we can make sure users only part admins
             # can also login normally.
             groups = [ "admin_group" ];
-            password.result = config.shb.hardcodedsecret.bob.result;
           };
           charlie = {
             email = "charlie@example.com";
             displayName = "Charlie Charlie";
             groups = [ "other_group" ];
-            password.result = config.shb.hardcodedsecret.charlie.result;
           };
         };
 
@@ -672,47 +664,41 @@ in
         enable = true;
         inherit (config.test) domain;
         subdomain = "auth";
-        ssl = config.shb.certs.certs.selfsigned.n;
+        ssl = { };
         debug = true;
 
         ldapHostname = "127.0.0.1";
         ldapPort = config.shb.lldap.ldapPort;
         dcdomain = config.shb.lldap.dcdomain;
-
-        secrets = {
-          jwtSecret.result = config.shb.hardcodedsecret.autheliaJwtSecret.result;
-          ldapAdminPassword.result = config.shb.hardcodedsecret.ldapAdminPassword.result;
-          sessionSecret.result = config.shb.hardcodedsecret.sessionSecret.result;
-          storageEncryptionKey.result = config.shb.hardcodedsecret.storageEncryptionKey.result;
-          identityProvidersOIDCHMACSecret.result =
-            config.shb.hardcodedsecret.identityProvidersOIDCHMACSecret.result;
-          identityProvidersOIDCIssuerPrivateKey.result =
-            config.shb.hardcodedsecret.identityProvidersOIDCIssuerPrivateKey.result;
-        };
       };
 
-      shb.hardcodedsecret.autheliaJwtSecret = {
-        request = config.shb.authelia.secrets.jwtSecret.request;
+      shb.certs.certs.selfsigned.authelia = config.shb.authelia.ssl // {
+        settings.ca = config.shb.certs.cas.selfsigned.myca;
+      };
+
+      systemd.services.nginx = {
+        after = [ config.shb.authelia.ssl.result.systemdService ];
+        requires = [ config.shb.authelia.ssl.result.systemdService ];
+      };
+
+      shb.hardcodedsecret.autheliaJwtSecret = config.shb.authelia.secrets.jwtSecret // {
         settings.content = "jwtSecret";
       };
-      shb.hardcodedsecret.ldapAdminPassword = {
-        request = config.shb.authelia.secrets.ldapAdminPassword.request;
+      shb.hardcodedsecret.ldapAdminPassword = config.shb.authelia.secrets.ldapAdminPassword // {
         settings.content = "ldapUserPassword";
       };
-      shb.hardcodedsecret.sessionSecret = {
-        request = config.shb.authelia.secrets.sessionSecret.request;
+      shb.hardcodedsecret.sessionSecret = config.shb.authelia.secrets.sessionSecret // {
         settings.content = "sessionSecret";
       };
-      shb.hardcodedsecret.storageEncryptionKey = {
-        request = config.shb.authelia.secrets.storageEncryptionKey.request;
+      shb.hardcodedsecret.storageEncryptionKey = config.shb.authelia.secrets.storageEncryptionKey // {
         settings.content = "storageEncryptionKey";
       };
-      shb.hardcodedsecret.identityProvidersOIDCHMACSecret = {
-        request = config.shb.authelia.secrets.identityProvidersOIDCHMACSecret.request;
-        settings.content = "identityProvidersOIDCHMACSecret";
-      };
-      shb.hardcodedsecret.identityProvidersOIDCIssuerPrivateKey = {
-        request = config.shb.authelia.secrets.identityProvidersOIDCIssuerPrivateKey.request;
+      shb.hardcodedsecret.identityProvidersOIDCHMACSecret =
+        config.shb.authelia.secrets.identityProvidersOIDCHMACSecret // {
+          settings.content = "identityProvidersOIDCHMACSecret";
+        };
+      shb.hardcodedsecret.identityProvidersOIDCIssuerPrivateKey =
+        config.shb.authelia.secrets.identityProvidersOIDCIssuerPrivateKey // {
         settings.source =
           (pkgs.runCommand "gen-private-key" { } ''
             mkdir $out

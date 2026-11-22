@@ -50,7 +50,9 @@ in
 
     ssl = lib.mkOption {
       description = "Path to SSL files";
-      type = lib.types.nullOr shb.contracts.ssl.certs;
+      type = lib.types.nullOr (shb.contracts.ssl.mkRequester {
+         domain = "${config.shb.monitoring.subdomain}.${config.shb.monitoring.domain}";
+      });
       default = null;
     };
 
@@ -125,10 +127,11 @@ in
         default = "scrutiny";
       };
       ssl = lib.mkOption {
-        description = "SSL certificate for the Scrutiny web interface. Defaults to `shb.monitoring.ssl` for backwards compatibility.";
-        type = lib.types.nullOr shb.contracts.ssl.certs;
-        default = cfg.ssl;
-        defaultText = lib.literalExpression "config.shb.monitoring.ssl";
+        description = "SSL certificate for the Scrutiny web interface.";
+        type = lib.types.nullOr (shb.contracts.ssl.mkRequester {
+          domain = "${cfg.scrutiny.subdomain}.${cfg.domain}";
+        });
+        default = null;
       };
       dashboard = lib.mkOption {
         description = ''
@@ -148,25 +151,23 @@ in
 
     adminPassword = lib.mkOption {
       description = "Initial admin password.";
-      type = lib.types.submodule {
-        options = shb.contracts.secret.mkRequester {
-          mode = "0400";
-          owner = "grafana";
-          group = "grafana";
-          restartUnits = [ "grafana.service" ];
-        };
+      default = {};
+      type = shb.contracts.secret.mkRequester {
+        mode = "0400";
+        owner = "grafana";
+        group = "grafana";
+        restartUnits = [ "grafana.service" ];
       };
     };
 
     secretKey = lib.mkOption {
       description = "Secret key used for signing.";
-      type = lib.types.submodule {
-        options = shb.contracts.secret.mkRequester {
-          mode = "0400";
-          owner = "grafana";
-          group = "grafana";
-          restartUnits = [ "grafana.service" ];
-        };
+      default = {};
+      type = shb.contracts.secret.mkRequester {
+        mode = "0400";
+        owner = "grafana";
+        group = "grafana";
+        restartUnits = [ "grafana.service" ];
       };
     };
 
@@ -262,24 +263,22 @@ in
 
           sharedSecret = lib.mkOption {
             description = "OIDC shared secret for Grafana.";
-            type = lib.types.submodule {
-              options = shb.contracts.secret.mkRequester {
-                owner = "grafana";
-                restartUnits = [
-                  "grafana.service"
-                ];
-              };
+            default = {};
+            type = shb.contracts.secret.mkRequester {
+              owner = "grafana";
+              restartUnits = [
+                "grafana.service"
+              ];
             };
           };
 
           sharedSecretForAuthelia = lib.mkOption {
             description = "OIDC shared secret for Authelia. Must be the same as `sharedSecret`";
-            type = lib.types.submodule {
-              options = shb.contracts.secret.mkRequester {
-                mode = "0400";
-                ownerText = "config.shb.authelia.autheliaUser";
-                owner = config.shb.authelia.autheliaUser;
-              };
+            default = {};
+            type = shb.contracts.secret.mkRequester {
+              mode = "0400";
+              ownerText = "config.shb.authelia.autheliaUser";
+              owner = config.shb.authelia.autheliaUser;
             };
           };
         };
@@ -709,8 +708,8 @@ in
 
         virtualHosts.${fqdn} = {
           forceSSL = !(isNull cfg.ssl);
-          sslCertificate = lib.mkIf (!(isNull cfg.ssl)) cfg.ssl.paths.cert;
-          sslCertificateKey = lib.mkIf (!(isNull cfg.ssl)) cfg.ssl.paths.key;
+          sslCertificate = lib.mkIf (!(isNull cfg.ssl)) cfg.ssl.result.cert;
+          sslCertificateKey = lib.mkIf (!(isNull cfg.ssl)) cfg.ssl.result.key;
 
           locations."/" = {
             proxyPass = "http://${toString config.services.grafana.settings.server.http_addr}:${toString config.services.grafana.settings.server.http_port}";

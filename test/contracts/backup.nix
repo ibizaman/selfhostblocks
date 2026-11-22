@@ -1,6 +1,9 @@
-{ shb, ... }:
+{ shb, pkgs, ... }:
+let
+  testFile = pkgs.callPackage ../../modules/contracts/backup/test.nix { inherit shb; };
+in
 {
-  restic_root = shb.contracts.test.backup {
+  restic_root = testFile {
     name = "restic_root";
     username = "root";
     providerRoot = [
@@ -17,7 +20,6 @@
       { config, ... }:
       {
         enable = true;
-        passphrase.result = config.shb.hardcodedsecret.passphrase.result;
         repository = {
           path = "/opt/repos/mytest";
           timerConfig = {
@@ -28,14 +30,13 @@
     extraConfig =
       { username, config, ... }:
       {
-        shb.hardcodedsecret.passphrase = {
-          request = config.shb.restic.instances."mytest".settings.passphrase.request;
+        shb.hardcodedsecret.passphrase = config.shb.restic.instances."mytest".settings.passphrase // {
           settings.content = "passphrase";
         };
       };
   };
 
-  restic_nonroot = shb.contracts.test.backup {
+  restic_nonroot = testFile {
     name = "restic_nonroot";
     username = "me";
     providerRoot = [
@@ -52,7 +53,6 @@
       { config, ... }:
       {
         enable = true;
-        passphrase.result = config.shb.hardcodedsecret.passphrase.result;
         repository = {
           path = "/opt/repos/mytest";
           timerConfig = {
@@ -63,14 +63,13 @@
     extraConfig =
       { username, config, ... }:
       {
-        shb.hardcodedsecret.passphrase = {
-          request = config.shb.restic.instances."mytest".settings.passphrase.request;
+        shb.hardcodedsecret.passphrase = config.shb.restic.instances."mytest".settings.passphrase // {
           settings.content = "passphrase";
         };
       };
   };
 
-  borgbackup_root = shb.contracts.test.backup {
+  borgbackup_root = testFile {
     name = "borgbackup_root";
     username = "root";
     providerRoot = [
@@ -87,7 +86,6 @@
       { config, ... }:
       {
         enable = true;
-        passphrase.result = config.shb.hardcodedsecret.passphrase.result;
         repository = {
           path = "/opt/repos/mytest";
           timerConfig = {
@@ -103,8 +101,7 @@
         ...
       }:
       {
-        shb.hardcodedsecret.passphrase = {
-          request = config.shb.borgbackup.instances."mytest".settings.passphrase.request;
+        shb.hardcodedsecret.passphrase = config.shb.borgbackup.instances."mytest".settings.passphrase // {
           settings.content = "passphrase";
         };
         systemd.services.borgbackup-job-mytest_opt_repos_mytest.serviceConfig.ReadWritePaths = [
@@ -113,7 +110,7 @@
       };
   };
 
-  borgbackup_nonroot = shb.contracts.test.backup {
+  borgbackup_nonroot = testFile {
     name = "borgbackup_nonroot";
     username = "me";
     providerRoot = [
@@ -130,7 +127,6 @@
       { config, ... }:
       {
         enable = true;
-        passphrase.result = config.shb.hardcodedsecret.passphrase.result;
         repository = {
           path = "/opt/repos/mytest";
           timerConfig = {
@@ -146,8 +142,7 @@
         ...
       }:
       {
-        shb.hardcodedsecret.passphrase = {
-          request = config.shb.borgbackup.instances."mytest".settings.passphrase.request;
+        shb.hardcodedsecret.passphrase = config.shb.borgbackup.instances."mytest".settings.passphrase // {
           settings.content = "passphrase";
         };
         systemd.services.borgbackup-job-mytest_opt_repos_mytest.serviceConfig.ReadWritePaths = [

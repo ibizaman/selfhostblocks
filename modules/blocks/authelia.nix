@@ -51,7 +51,9 @@ in
 
     ssl = lib.mkOption {
       description = "Path to SSL files";
-      type = lib.types.nullOr shb.contracts.ssl.certs;
+      type = lib.types.nullOr (shb.contracts.ssl.mkRequester {
+         domain = "${config.shb.authelia.subdomain}.${config.shb.authelia.domain}";
+      });
       default = null;
     };
 
@@ -81,56 +83,52 @@ in
 
     secrets = lib.mkOption {
       description = "Secrets needed by Authelia";
+      default = { };
       type = lib.types.submodule {
         options = {
           jwtSecret = lib.mkOption {
             description = "JWT secret.";
-            type = lib.types.submodule {
-              options = shb.contracts.secret.mkRequester {
-                mode = "0400";
-                owner = cfg.autheliaUser;
-                restartUnits = [ "authelia-${opt.subdomain}.${opt.domain}.service" ];
-              };
+            default = { };
+            type = shb.contracts.secret.mkRequester {
+              mode = "0400";
+              owner = cfg.autheliaUser;
+              restartUnits = [ "authelia-${opt.subdomain}.${opt.domain}.service" ];
             };
           };
           ldapAdminPassword = lib.mkOption {
             description = "LDAP admin user password.";
-            type = lib.types.submodule {
-              options = shb.contracts.secret.mkRequester {
-                mode = "0400";
-                owner = cfg.autheliaUser;
-                restartUnits = [ "authelia-${opt.subdomain}.${opt.domain}.service" ];
-              };
+            default = { };
+            type = shb.contracts.secret.mkRequester {
+              mode = "0400";
+              owner = cfg.autheliaUser;
+              restartUnits = [ "authelia-${opt.subdomain}.${opt.domain}.service" ];
             };
           };
           sessionSecret = lib.mkOption {
             description = "Session secret.";
-            type = lib.types.submodule {
-              options = shb.contracts.secret.mkRequester {
-                mode = "0400";
-                owner = cfg.autheliaUser;
-                restartUnits = [ "authelia-${opt.subdomain}.${opt.domain}.service" ];
-              };
+            default = { };
+            type = shb.contracts.secret.mkRequester {
+              mode = "0400";
+              owner = cfg.autheliaUser;
+              restartUnits = [ "authelia-${opt.subdomain}.${opt.domain}.service" ];
             };
           };
           storageEncryptionKey = lib.mkOption {
             description = "Storage encryption key. Must be >= 20 characters.";
-            type = lib.types.submodule {
-              options = shb.contracts.secret.mkRequester {
-                mode = "0400";
-                owner = cfg.autheliaUser;
-                restartUnits = [ "authelia-${opt.subdomain}.${opt.domain}.service" ];
-              };
+            default = { };
+            type = shb.contracts.secret.mkRequester {
+              mode = "0400";
+              owner = cfg.autheliaUser;
+              restartUnits = [ "authelia-${opt.subdomain}.${opt.domain}.service" ];
             };
           };
           identityProvidersOIDCHMACSecret = lib.mkOption {
             description = "Identity provider OIDC HMAC secret. Must be >= 40 characters.";
-            type = lib.types.submodule {
-              options = shb.contracts.secret.mkRequester {
-                mode = "0400";
-                owner = cfg.autheliaUser;
-                restartUnits = [ "authelia-${opt.subdomain}.${opt.domain}.service" ];
-              };
+            default = { };
+            type = shb.contracts.secret.mkRequester {
+              mode = "0400";
+              owner = cfg.autheliaUser;
+              restartUnits = [ "authelia-${opt.subdomain}.${opt.domain}.service" ];
             };
           };
           identityProvidersOIDCIssuerPrivateKey = lib.mkOption {
@@ -139,12 +137,11 @@ in
 
               Generate one with `nix run nixpkgs#openssl -- genrsa -out keypair.pem 2048`
             '';
-            type = lib.types.submodule {
-              options = shb.contracts.secret.mkRequester {
-                mode = "0400";
-                owner = cfg.autheliaUser;
-                restartUnits = [ "authelia-${opt.subdomain}.${opt.domain}.service" ];
-              };
+            default = { };
+            type = shb.contracts.secret.mkRequester {
+              mode = "0400";
+              owner = cfg.autheliaUser;
+              restartUnits = [ "authelia-${opt.subdomain}.${opt.domain}.service" ];
             };
           };
         };
@@ -321,12 +318,11 @@ in
               };
               password = lib.mkOption {
                 description = "File containing the password to connect to the SMTP host.";
-                type = lib.types.submodule {
-                  options = shb.contracts.secret.mkRequester {
-                    mode = "0400";
-                    owner = cfg.autheliaUser;
-                    restartUnits = [ "authelia-${fqdn}.service" ];
-                  };
+                default = { };
+                type = shb.contracts.secret.mkRequester {
+                  mode = "0400";
+                  owner = cfg.autheliaUser;
+                  restartUnits = [ "authelia-${fqdn}.service" ];
                 };
               };
             };
@@ -341,47 +337,17 @@ in
       default = [ ];
     };
 
-    mount = lib.mkOption {
-      type = shb.contracts.mount;
+    impermanence = lib.mkOption {
+      type = lib.types.attrsOf lib.types.str;
       description = ''
-        Mount configuration. This is an output option.
-
-        Use it to initialize a block implementing the "mount" contract.
-        For example, with a zfs dataset:
-
-        ```
-        shb.zfs.datasets."authelia" = {
-          poolName = "root";
-        } // config.shb.authelia.mount;
-        ```
+        Path to save when using impermanence setup.
       '';
       readOnly = true;
       default = {
-        path = "/var/lib/authelia-${fqdn}";
+        authelia = "/var/lib/authelia-${fqdn}";
+        redis = "/var/lib/redis-authelia";
       };
-      defaultText = {
-        path = "/var/lib/authelia-authelia.example.com";
-      };
-    };
-
-    mountRedis = lib.mkOption {
-      type = shb.contracts.mount;
-      description = ''
-        Mount configuration for Redis. This is an output option.
-
-        Use it to initialize a block implementing the "mount" contract.
-        For example, with a zfs dataset:
-
-        ```
-        shb.zfs.datasets."redis-authelia" = {
-          poolName = "root";
-        } // config.shb.authelia.mountRedis;
-        ```
-      '';
-      readOnly = true;
-      default = {
-        path = "/var/lib/redis-authelia";
-      };
+      defaultText = "/var/lib/authelia-authelia.example.com\n/var/lib/redis-authelia";
     };
 
     debug = lib.mkOption {
@@ -594,8 +560,8 @@ in
 
     services.nginx.virtualHosts.${fqdn} = {
       forceSSL = !(isNull cfg.ssl);
-      sslCertificate = lib.mkIf (!(isNull cfg.ssl)) cfg.ssl.paths.cert;
-      sslCertificateKey = lib.mkIf (!(isNull cfg.ssl)) cfg.ssl.paths.key;
+      sslCertificate = lib.mkIf (!(isNull cfg.ssl)) cfg.ssl.result.cert;
+      sslCertificateKey = lib.mkIf (!(isNull cfg.ssl)) cfg.ssl.result.key;
       # Taken from https://github.com/authelia/authelia/issues/178
       # TODO: merge with config from https://matwick.ca/authelia-nginx-sso/
       locations."/".extraConfig = ''

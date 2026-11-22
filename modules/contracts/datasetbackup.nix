@@ -11,103 +11,62 @@ let
     ;
 in
 {
-  mkRequest =
-    {
-      dataset ? "",
-      datasetText ? null,
-    }:
-    mkOption {
+  request = { ... }: {
+    dataset = mkOption {
       description = ''
-        Request part of the backup contract.
-
-        Options set by the requester module
-        enforcing how to backup files.
+        Dataset to backup, including the pool name.
       '';
-
-      default = { };
-
-      type = submodule {
-        options = {
-          dataset =
-            mkOption {
-              description = ''
-                Dataset to backup, including the pool name.
-              '';
-              type = str;
-              example = "root/home";
-              default = dataset;
-            }
-            // optionalAttrs (datasetText != null) {
-              defaultText = literalMD datasetText;
-            };
-        };
-      };
+      type = str;
+      example = "root/home";
     };
+  };
 
-  mkResult =
+  result =
+    { options, ... }:
+    let
+      restoreScript =
+        lib.options.renderOptionValue
+          options.restoreScript.defaultText or options.restoreScript.default;
+      backupService =
+        lib.options.renderOptionValue
+          options.backupService.defaultText or options.backupService.default;
+    in
     {
-      restoreScript ? "restore",
-      restoreScriptText ? null,
-      backupService ? "backup.service",
-      backupServiceText ? null,
-    }:
-    mkOption {
-      description = ''
-        Result part of the backup contract.
+      restoreScript = mkOption {
+        description = ''
+          Name of script that can restore the database.
+          One can then list snapshots with:
 
-        Options set by the provider module that indicates the name of the backup and restore scripts.
-      '';
-      default = { };
+          ```bash
+          $ ${restoreScript} snapshots
+          <snapshot 1> <metadata>
+          <snapshot 2> <metadata>
+          ```
 
-      type = submodule {
-        options = {
-          restoreScript =
-            mkOption {
-              description = ''
-                Name of script that can restore the database.
-                One can then list snapshots with:
+          And restore the database with:
 
-                ```bash
-                $ ${if restoreScriptText != null then restoreScriptText else restoreScript} snapshots
-                <snapshot 1> <metadata>
-                <snapshot 2> <metadata>
-                ```
+          ```bash
+          $ ${restoreScript} restore <snapshot 1>
+          ```
 
-                And restore the database with:
+          It is not garanteed to be able to restore back to a snapshot in the future.
+          With the above example, it may not be possible to restore `<snapshot 2>`
+          after having restored `<snapshot 1>`.
+        '';
+        type = str;
+      };
 
-                ```bash
-                $ ${if restoreScriptText != null then restoreScriptText else restoreScript} restore <snapshot 1>
-                ```
+      backupService = mkOption {
+        description = ''
+          Name of service backing up the database.
 
-                It is not garanteed to be able to restore back to a snapshot in the future.
-                With the above example, it may not be possible to restore `<snapshot 2>`
-                after having restored `<snapshot 1>`.
-              '';
-              type = str;
-              default = restoreScript;
-            }
-            // optionalAttrs (restoreScriptText != null) {
-              defaultText = literalMD restoreScriptText;
-            };
+          This script can be ran manually to backup the database:
 
-          backupService =
-            mkOption {
-              description = ''
-                Name of service backing up the database.
-
-                This script can be ran manually to backup the database:
-
-                ```bash
-                $ systemctl start ${if backupServiceText != null then backupServiceText else backupService}
-                ```
-              '';
-              type = str;
-              default = backupService;
-            }
-            // optionalAttrs (backupServiceText != null) {
-              defaultText = literalMD backupServiceText;
-            };
-        };
+          ```bash
+          $ systemctl start ${backupService}
+          ```
+        '';
+        type = str;
       };
     };
 }
