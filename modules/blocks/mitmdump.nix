@@ -24,14 +24,7 @@ let
   mitmdumpScript =
     pkgs.writers.writePython3Bin "mitmdump"
       {
-        libraries =
-          let
-            p = pkgs.python3Packages;
-          in
-          [
-            p.systemd-python
-            p.mitmproxy
-          ];
+        libraries = [ pkgs.python3Packages.systemd-python ];
         flakeIgnore = [ "E501" ];
       }
       ''

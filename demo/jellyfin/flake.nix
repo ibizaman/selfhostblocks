@@ -123,11 +123,13 @@
         };
 
       sso =
-        { config, ... }:
+        { config, pkgs, ... }:
         {
           imports = [
             selfhostblocks.nixosModules.authelia
           ];
+
+          services.postgresql.package = pkgs.postgresql_18;
 
           shb.authelia = {
             enable = true;
