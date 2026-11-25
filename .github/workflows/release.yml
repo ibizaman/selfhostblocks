@@ -1,0 +1,62 @@
+name: Create Draft Release
+
+on:
+  push:
+    branches: ["main"]
+    paths: ["VERSION"]
+
+permissions:
+  contents: write
+
+jobs:
+  draft-release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Read version
+        id: version
+        run: echo "version=$(cat VERSION)" >> "$GITHUB_OUTPUT"
+
+      - name: Check if release already exists
+        id: check
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if gh release view "v${{ steps.version.outputs.version }}"; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Get previous version tag
+        if: steps.check.outputs.exists == 'false'
+        id: previous_version
+        run: |
+          PREVIOUS_VERSION=$(git tag --sort=-v:refname | head -1)
+          echo "tag=${PREVIOUS_VERSION}" >> "$GITHUB_OUTPUT"
+
+      - name: Build release notes
+        if: steps.check.outputs.exists == 'false'
+        run: |
+          VERSION="v${{ steps.version.outputs.version }}"
+          PREVIOUS_VERSION="${{ steps.previous_version.outputs.tag }}"
+          {
+            nix run .#extract-changelog -- CHANGELOG.md "$VERSION"
+            echo ""
+            echo "Changelog: https://github.com/${{ github.repository }}/blob/${VERSION}/CHANGELOG.md"
+            echo "Commit: https://github.com/${{ github.repository }}/compare/${PREVIOUS_VERSION}...${VERSION}"
+          } > release_notes.md
+
+      - name: Create draft release
+        if: steps.check.outputs.exists == 'false'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "v${{ steps.version.outputs.version }}" \
+            --draft \
+            --title "v${{ steps.version.outputs.version }}" \
+            --notes-file release_notes.md
