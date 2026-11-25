@@ -19,7 +19,9 @@ jobs:
 
       - name: Read version
         id: version
-        run: echo "version=$(cat VERSION)" >> "$GITHUB_OUTPUT"
+        run: |
+          echo "version=$(cat VERSION)" >> "$GITHUB_OUTPUT"
+          cat "$GITHUB_OUTPUT"
 
       - name: Check if release already exists
         id: check
@@ -38,6 +40,16 @@ jobs:
         run: |
           PREVIOUS_VERSION=$(git tag --sort=-v:refname | head -1)
           echo "tag=${PREVIOUS_VERSION}" >> "$GITHUB_OUTPUT"
+          cat "$GITHUB_OUTPUT"
+
+      - name: Install Nix
+        uses: cachix/install-nix-action@v31
+        with:
+          github_access_token: ${{ secrets.GITHUB_TOKEN }}
+          enable_kvm: true
+          extra_nix_config: |
+            keep-outputs = true
+            keep-failed = true
 
       - name: Build release notes
         if: steps.check.outputs.exists == 'false'
