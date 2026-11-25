@@ -22,26 +22,26 @@ jobs:
           echo "version=$(cat VERSION)" >> "$GITHUB_OUTPUT"
           cat "$GITHUB_OUTPUT"
 
-      - name: Check if release already exists
+      - name: Check release state
         id: check
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          if gh release view "v${{ steps.version.outputs.version }}"; then
-            echo "exists=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "exists=false" >> "$GITHUB_OUTPUT"
-          fi
+          STATE=$(gh release view "v${{ steps.version.outputs.version }}" --json isDraft --jq '.isDraft' 2>/dev/null || echo "not_found")
+          echo "state=${STATE}" >> "$GITHUB_OUTPUT"
+          cat "$GITHUB_OUTPUT"
 
       - name: Get previous version tag
-        if: steps.check.outputs.exists == 'false'
+        if: steps.check.outputs.state != 'false'
         id: previous_version
         run: |
-          PREVIOUS_VERSION=$(git tag --sort=-v:refname | head -1)
+          CURRENT="v${{ steps.version.outputs.version }}"
+          PREVIOUS_VERSION=$(git tag --sort=-v:refname | grep -v "^${CURRENT}$" | head -1)
           echo "tag=${PREVIOUS_VERSION}" >> "$GITHUB_OUTPUT"
           cat "$GITHUB_OUTPUT"
 
       - name: Install Nix
+        if: steps.check.outputs.state != 'false'
         uses: cachix/install-nix-action@v31
         with:
           github_access_token: ${{ secrets.GITHUB_TOKEN }}
@@ -51,7 +51,7 @@ jobs:
             keep-failed = true
 
       - name: Build release notes
-        if: steps.check.outputs.exists == 'false'
+        if: steps.check.outputs.state != 'false'
         run: |
           VERSION="v${{ steps.version.outputs.version }}"
           PREVIOUS_VERSION="${{ steps.previous_version.outputs.tag }}"
@@ -63,11 +63,19 @@ jobs:
           } > release_notes.md
 
       - name: Create draft release
-        if: steps.check.outputs.exists == 'false'
+        if: steps.check.outputs.state == 'not_found'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           gh release create "v${{ steps.version.outputs.version }}" \
             --draft \
             --title "v${{ steps.version.outputs.version }}" \
+            --notes-file release_notes.md
+
+      - name: Update draft release
+        if: steps.check.outputs.state == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release edit "v${{ steps.version.outputs.version }}" \
             --notes-file release_notes.md
