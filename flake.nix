@@ -269,6 +269,10 @@
 
         packages.update-flake-lock-pr = pkgs.callPackage ./.github/workflows/update-flake-lock-pr.nix { };
 
+        packages.extract-changelog = pkgs.callPackage ./.github/workflows/extract-changelog.nix {
+          inherit (pkgs) writers;
+        };
+
         lib = (pkgs.callPackage ./lib { }) // {
           test = pkgs.callPackage ./test/common.nix { };
           contracts = pkgs.callPackage ./modules/contracts {
