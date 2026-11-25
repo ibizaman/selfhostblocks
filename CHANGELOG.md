@@ -16,6 +16,8 @@ Template:
 
 # Upcoming Release
 
+# v0.11.0
+
 ## Breaking Changes
 
 - Require `shb.postgresql.version` when PostgreSQL is enabled. Existing
@@ -23,7 +25,7 @@ Template:
   This does not perform an automatic major upgrade; guarded forward major-version
   upgrade helpers are provided for later explicit upgrades. PostgreSQL backup
   and restore commands now use tools matching the configured server version
-  ([issue #829](https://github.com/ibizaman/selfhostblocks/issues/829)).
+  ([see manual](https://shb.skarabox.com/blocks-postgresql.html#blocks-postgresql-version)).
 - Nextcloud 34 and 35 are now supported, replacing versions 33 and 34. The default remains 34.
   Preview Generator is supported on both Nextcloud 34 and 35.
   Memories and Recognize remain available only on 34 until the pinned nixpkgs supports them on 35.
@@ -37,10 +39,15 @@ Template:
   [import their existing credentials](https://shb.skarabox.com/services-forgejo.html#services-forgejo-usage-runner-migration)
   before switching; new installations must register a runner first. Runner tokens
   are managed and backed up through the chosen secret provider.
+- Rename option `package-versions` to `shb.package-versions`.
 
 ## New Features
 
-- Add monitoring dashboard for Immich
+- Add monitoring dashboard for Immich.
+- Added Navidrome service.
+- Handle initial admin user creation in Nextcloud while upstream Nixpkgs does not support it anymore.
+  ([see manual](https://shb.skarabox.com/services-nextcloud.html#services-nextcloudserver-usage-initial-admin-recovery)].
+- Allow to set internal URL in Home Assistant so IoT devices can talk to it directly.
 
 ## User Facing Backwards Compatible Changes
 
@@ -50,6 +57,37 @@ Template:
 - Monitoring module migrates to using fluent-bit and cadvisor from netdata.
   This is technically a breaking change although this should be pretty transparent
   as long as you don't rely on internals on the monitoring module.
+- Migrate Pinchflat to Pinchflat-NGX.
+
+## Fixes
+
+- Use correct relative links in Grafana Explore.
+- Fix SMTP for Forgejo.
+- Quote passwords correctly in PostgreSQL.
+- Handle same name datasets across different pools.
+- Handle links to HTTP-only services in Homepage.
+- Honor dataDir in all places in Nextcloud module.
+- Honor correctly SSL configurations in multiple modules.
+- Correctly discard failed archives in borgbackup.
+- Correctly propagate failures in restic.
+- Harden Grafana, Open WebUI and Forgejo cookies when SSL is configured.
+- Harden nginx configuration by removing obsolete browser XSS auditor.
+- Harden Jellyfin by binding HTTP on localhost only.
+- Harden Prometheus and Loki by binding to localhost only.
+- Harden Audiobookshelf by not exposing the backend port publicly.
+- Harden Scrutiny's InfluxDB to localhost.
+- Harden Homepage by binding the default listener on localhost only.
+- Fix Nextcloud memories app that could not start.
+- Handle edge case in Immich backup when number of backups is at maximum allowed already.
+- Require token for Vaultwarden /admin endpoint is SSO is not configured.
+- Do not requires SSO for Paperless /api endpoint.
+- Escape ZFS dataset dependencies unit correctly.
+- Fix Authelia restartUnits options.
+
+## Other Changes
+
+- Various fixes and better timeouts and waits for tests.
+- Cleanup of unnecessary overrides that are now upstreamed in nixpkgs.
 
 # v0.10.0
 
