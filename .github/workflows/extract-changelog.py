@@ -9,8 +9,8 @@ def skip_to_heading(lines, heading):
     return False
 
 
-def header_line(line):
-    return line.startswith("# ")
+def not_section_heading(line):
+    return not line.startswith("# ")
 
 
 def extract_section(changelog_path, version):
@@ -22,7 +22,7 @@ def extract_section(changelog_path, version):
         if not skip_to_heading(lines, target_heading):
             return None
 
-        return "\n".join(takewhile(header_line, lines))
+        return "\n".join(takewhile(not_section_heading, lines))
 
 
 if len(sys.argv) != 3:
